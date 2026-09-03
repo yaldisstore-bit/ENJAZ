@@ -45,7 +45,7 @@
   padding: var(--space-4);
   border: var(--border-width-thin) solid var(--color-border-strong);
   border-radius: var(--radius-xl);
-  background: var(--color-surface-prominent);
+  background: var(--color-surface-raised);
   box-shadow: var(--shadow-level-2);
   text-align: center;
 }
