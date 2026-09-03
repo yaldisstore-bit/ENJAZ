@@ -46,7 +46,7 @@ export function SearchResultPattern({
       </div>
       <div className="pattern-search-result__aside">
         {statusLabel ? <Badge tone={statusTone}>{statusLabel}</Badge> : null}
-        <IconButton label={`فتح ${KIND_LABELS[kind]} ${title}`} icon="←" onClick={onOpen} />
+        <IconButton label={`فتح ${KIND_LABELS[kind]} ${title}`} icon="←" {...(onOpen ? { onClick: onOpen } : {})} />
       </div>
     </article>
   );
@@ -138,8 +138,8 @@ export function SystemStatePattern({
       </div>
       {(primaryAction || secondaryAction) ? (
         <div className="pattern-system-state__actions">
-          {primaryAction ? <Button onClick={primaryAction.onClick}>{primaryAction.label}</Button> : null}
-          {secondaryAction ? <Button variant="ghost" onClick={secondaryAction.onClick}>{secondaryAction.label}</Button> : null}
+          {primaryAction ? <Button {...(primaryAction.onClick ? { onClick: primaryAction.onClick } : {})}>{primaryAction.label}</Button> : null}
+          {secondaryAction ? <Button variant="ghost" {...(secondaryAction.onClick ? { onClick: secondaryAction.onClick } : {})}>{secondaryAction.label}</Button> : null}
         </div>
       ) : null}
     </section>
@@ -158,7 +158,11 @@ export function PatternSkeleton({ rows = 3, compact = false }: PatternSkeletonPr
     <section className={`pattern-skeleton${compact ? ' pattern-skeleton--compact' : ''}`} aria-label="جارٍ تحميل المحتوى" aria-busy="true">
       <div className="pattern-skeleton__header"><Skeleton variant="circle" /><div><Skeleton /><Skeleton /></div></div>
       <div className="pattern-skeleton__body">
-        {Array.from({ length: safeRows }, (_, index) => <Skeleton key={index} variant={index === safeRows - 1 ? 'block' : 'line'} />)}
+        {Array.from({ length: safeRows }, (_, index) => (
+          <span className="pattern-skeleton__row" key={`pattern-skeleton-${index}`}>
+            <Skeleton variant={index === safeRows - 1 ? 'block' : 'line'} />
+          </span>
+        ))}
       </div>
     </section>
   );
