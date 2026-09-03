@@ -15,7 +15,7 @@ export function AuthHomePage() {
       </header>
 
       <div className="shell-proof__grid">
-        <Card tone="brand">
+        <Card tone="prominent">
           <CardHeader title="هيكل موحد" subtitle="Top Bar + Navigation + Page Container" />
           <CardBody>كل شاشة جديدة ستُركّب داخل الهيكل نفسه بدل إنشاء واجهة مختلفة لكل قسم.</CardBody>
         </Card>
@@ -23,7 +23,7 @@ export function AuthHomePage() {
           <CardHeader title="موبايل أولًا" subtitle="Safe Areas وAndroid keyboard محفوظة" />
           <CardBody>الهيكل يرث العقود التي اجتازت Phase 2.8 ولا يعيد اختراع سلوك الشاشة أو اللمس.</CardBody>
         </Card>
-        <Card tone="accent">
+        <Card tone="raised">
           <CardHeader title="لا قفز على الخطة" subtitle="Phase 3.2 هي التالية بعد إغلاق 3.1" />
           <CardBody>المسارات غير النهائية تبقى غير مفعّلة حتى تثبيت Navigation Architecture رسميًا.</CardBody>
         </Card>
