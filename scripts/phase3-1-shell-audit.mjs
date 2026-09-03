@@ -12,8 +12,9 @@ function check(name, condition, detail = '') {
   if (!condition) failures.push(`${name}${detail ? ` — ${detail}` : ''}`);
 }
 
-const contract = await text('src/features/shell/shellContract.ts');
-const shell = await text('src/features/shell/AppShell.tsx');
+const contract = await text('src/shared/shell/shellContract.ts');
+const frame = await text('src/shared/shell/AppShellFrame.tsx');
+const shell = await text('src/app/AppShell.tsx');
 const preview = await text('src/features/foundation/pages/ShellPreviewPage.tsx');
 const landing = await text('src/features/auth/pages/AuthHomePage.tsx');
 const css = await text('src/styles/app-shell.css');
@@ -33,7 +34,7 @@ for (const marker of [
   'SHELL_MOBILE_NAV_SLOTS = 5',
   "status: 'ready', destination: '/app'",
   "status: 'planned', destination: null",
-  "resolveShellNetworkState",
+  'resolveShellNetworkState',
   'getShellUserInitial',
 ]) check(`shell contract contains ${marker}`, contract.includes(marker));
 
@@ -49,17 +50,24 @@ for (const marker of [
   'app-shell__page-container',
   'role="status"',
   'role="alert"',
+  'aria-current="page"',
+  'سيتم تفعيلها في Phase 3.2',
+]) check(`shared App Shell frame proves ${marker}`, frame.includes(marker));
+
+for (const marker of [
   "window.addEventListener('online'",
   "window.addEventListener('offline'",
   'await service.signOut()',
   '<Outlet />',
-  'aria-current="page"',
-  'سيتم تفعيلها في Phase 3.2',
-]) check(`App Shell proves ${marker}`, shell.includes(marker));
+  'AppShellFrame',
+]) check(`app composition proves ${marker}`, shell.includes(marker));
 
-check('shell has no inline style escape', !/\bstyle\s*=\s*\{/.test(shell));
-check('shell avoids premature product route literals', !/\/app\/(?:transactions|companies|finance|workflows)/.test(shell));
-check('preview is auth-independent and uses AppShellFrame', preview.includes('AppShellFrame') && !preview.includes('useAuth'));
+check('shared frame does not import auth feature', !frame.includes('/features/auth') && !frame.includes('useAuth'));
+check('shared frame owns no persistence or auth service call', !frame.includes('service.signOut') && !frame.includes('supabase'));
+check('app composition is the only shell layer importing auth context', shell.includes("../features/auth/state/AuthContext.tsx"));
+check('shell frame has no inline style escape', !/\bstyle\s*=\s*\{/.test(frame));
+check('shell frame avoids premature product route literals', !/\/app\/(?:transactions|companies|finance|workflows)/.test(frame));
+check('preview is auth-independent and uses shared AppShellFrame', preview.includes("../../../shared/shell/AppShellFrame.tsx") && !preview.includes('useAuth'));
 check('preview states that it is not a business screen', preview.includes('هذه ليست شاشة أعمال'));
 check('temporary Phase 1.3 auth wording is removed', !landing.includes('Phase 1.3') && !landing.includes('هذه شاشة مؤقتة حتى تبدأ مرحلة الواجهة الفعلية'));
 check('landing does not duplicate sign-out behavior', !landing.includes('service.signOut') && !landing.includes('تسجيل الخروج'));
@@ -84,6 +92,7 @@ check('shell preview route is canonical', routes.includes("shellPreview: '/found
 check('main router mounts ShellPreviewPage', router.includes('ShellPreviewPage') && router.includes('ROUTES.shellPreview'));
 check('preview router mounts ShellPreviewPage', previewRouter.includes('ShellPreviewPage') && previewRouter.includes('ROUTES.shellPreview'));
 check('protected application route is nested inside AppShell', router.includes('Component: ProtectedRoute') && router.includes('Component: AppShell') && router.includes('ROUTES.appHome'));
+check('router imports AppShell from app composition boundary', router.includes("import { AppShell } from './AppShell'"));
 check('App Shell stylesheet loads after frozen Phase 2 destruction layer', foundationCss.indexOf("@import './app-shell.css';") > foundationCss.indexOf("@import './visual-destruction-lab.css';"));
 check('foundation status exposes Phase 3.1 proof', statusPage.includes('App Shell 3.1') && statusPage.includes('ROUTES.shellPreview'));
 check('application version declares Phase 3.1', version.includes("APP_VERSION = '0.10.0-phase3.1'"));
@@ -107,4 +116,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`ENJAZ PHASE 3.1 APP SHELL AUDIT PASS — ${checks}/${checks} shell structure, auth, mobile, RTL, token and gate invariants satisfied.`);
+console.log(`ENJAZ PHASE 3.1 APP SHELL AUDIT PASS — ${checks}/${checks} shell structure, composition, auth, mobile, RTL, token and gate invariants satisfied.`);
