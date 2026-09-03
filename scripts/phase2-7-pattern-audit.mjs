@@ -51,7 +51,8 @@ check('patterns contain no raw color literals in TSX', !/(?:#[0-9a-f]{3,8}\b|\br
 check('pattern CSS contains no raw color literals', !/(?:#[0-9a-f]{3,8}\b|\brgba?\s*\(|\bhsla?\s*\()/i.test(allCss));
 check('pattern CSS contains no important override', !/!important/i.test(allCss));
 check('pattern CSS avoids transition all', !/transition\s*:\s*all\b/i.test(allCss));
-check('pattern CSS avoids arbitrary z-index', !/z-index\s*:\s*(?!var\()/i.test(allCss));
+const zIndexValues = [...allCss.matchAll(/z-index\s*:\s*([^;\n}]+)/gi)].map((match) => match[1].trim());
+check('pattern CSS avoids arbitrary z-index', zIndexValues.every((value) => /^var\(--z-[a-z0-9-]+\)$/i.test(value)), zIndexValues.length ? `values=${zIndexValues.join(',')}` : 'no z-index declarations');
 check('pattern CSS avoids physical horizontal margins', !/(?:margin-left|margin-right|padding-left|padding-right)\s*:/i.test(allCss));
 check('pattern CSS scopes hover to fine pointers', !/:hover/.test(allCss) || /@media \(hover: hover\) and \(pointer: fine\)/.test(responsiveCss));
 check('pattern CSS provides reduced motion handling', responsiveCss.includes('@media (prefers-reduced-motion: reduce)'));
