@@ -51,11 +51,23 @@ function checkOrder(items, label) {
 checkOrder(phases, 'delivery phases');
 checkOrder(phase2, 'Phase 2 sequence');
 
-for (const marker of ['ENJAZ 1.0 — Delivered', 'Change-control rule', 'Phase 2.7 ✅', 'Next: Phase 2.8 — Visual Destruction & Quality Gate']) {
+for (const marker of [
+  'ENJAZ 1.0 — Delivered',
+  'Change-control rule',
+  '# Phase 2 — ENJAZ Design System 1.0 ✅',
+  '## 2.8 — Visual Destruction & Quality Gate ✅',
+  'Phase 2.8 ✅',
+  'Next: Phase 3 — Application Shell & Navigation',
+]) {
   if (!roadmap.includes(marker)) errors.push(`roadmap marker missing: ${marker}`);
 }
 
-for (const marker of ['docs/ENJAZ_MASTER_ROADMAP.md', 'Phase 2.7 — Premium Pattern Library', 'Phase 2.8 — Visual Destruction & Quality Gate']) {
+for (const marker of [
+  'docs/ENJAZ_MASTER_ROADMAP.md',
+  'Phase 2.8 — Visual Destruction & Quality Gate ✅',
+  'ENJAZ Design System 1.0',
+  'Phase 3 — Application Shell & Navigation',
+]) {
   if (!readme.includes(marker)) errors.push(`README marker missing: ${marker}`);
 }
 
@@ -64,5 +76,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2.1→2.8 ordering and current Phase 2.8 handoff protected.`);
+  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2.1→2.8 frozen, and Phase 3 handoff protected.`);
 }
