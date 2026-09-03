@@ -36,6 +36,7 @@ const contentGrid = block(homeCss, '.home-dashboard__content-grid');
 const metricGrid = block(homeCss, '.home-dashboard__metric-grid');
 const commandHero = block(commandCss, '.global-command-surface__hero');
 const commandGrid = block(commandCss, '.global-command-surface__grid');
+const commandStrongCard = block(commandCss, '.global-command-card--strong');
 
 // Reference idea 1: compact single-row chrome, never a stacked generic toolbar.
 includesAll('topbar remains one compact composed row', topbarInner, [
@@ -116,13 +117,16 @@ includesAll('finance panel is a raised tinted composition', homeCss, [
 ]);
 
 // Reference idea 5: leadership surface behaves like a control dashboard, not a list menu.
-includesAll('command surface has a strong hero and cards', commandCss, [
+includesAll('command surface has a strong hero and card grid', commandCss, [
   '.global-command-surface__hero',
   'background: var(--gradient-brand)',
   '.global-command-surface__grid',
   'grid-template-columns: repeat(2, minmax(0, 1fr))',
   '.global-command-card--strong',
+]);
+includesAll('strong command card keeps its own distinct amber tone', commandStrongCard, [
   'background: var(--color-warning-soft)',
+  'color: var(--color-warning-text)',
 ]);
 check('command grid remains a card composition', commandGrid.includes('display: grid') && commandGrid.includes('repeat(2, minmax(0, 1fr))'));
 const controlStart = interactions.indexOf('id="global-control"');
