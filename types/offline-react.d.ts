@@ -6,9 +6,9 @@ declare namespace JSX {
 declare module 'react' {
   export type ReactNode = unknown;
   export interface ErrorInfo { componentStack?: string | null }
-  export interface FormEvent<T = Element> { preventDefault(): void; currentTarget: T }
-  export interface ChangeEvent<T = Element> { currentTarget: T }
-  export interface KeyboardEvent<T = Element> { key: string; preventDefault(): void; currentTarget: T }
+  export interface FormEvent<T = Element> { preventDefault(): void; currentTarget: T; target: T }
+  export interface ChangeEvent<T = Element> { currentTarget: T; target: T }
+  export interface KeyboardEvent<T = Element> { key: string; preventDefault(): void; currentTarget: T; target: T }
   export const StrictMode: (props: { children?: ReactNode }) => JSX.Element;
   export interface Context<T> { Provider: (props: { value: T; children?: ReactNode }) => JSX.Element; readonly __contextType?: T }
   export function createContext<T>(defaultValue: T): Context<T>;
@@ -49,6 +49,7 @@ declare module 'react-router' {
     children?: ReactNode;
     key?: string | number;
     role?: string;
+    onClick?: () => void;
     'aria-label'?: string;
     'aria-current'?: 'page' | undefined;
   }
