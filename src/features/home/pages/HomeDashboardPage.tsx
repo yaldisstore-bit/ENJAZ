@@ -103,7 +103,7 @@ export function HomeDashboardView({ snapshot }: Readonly<{ snapshot: HomeDashboa
                   key={priority.id}
                   level={priority.level as RiskLevel}
                   title={priority.title}
-                  entityLabel={priority.companyLabel}
+                  {...(priority.companyLabel ? { entityLabel: priority.companyLabel } : {})}
                   reason={priority.reason}
                   nextAction="راجع المعاملة وحدد الإجراء التالي."
                   density="compact"
