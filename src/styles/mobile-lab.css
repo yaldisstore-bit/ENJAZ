@@ -1,8 +1,8 @@
 /* Phase 2.6 — mobile proof surface. */
 .mobile-lab-page {
   min-block-size: 100vh;
-  padding-block: max(var(--space-6), env(safe-area-inset-top, 0px)) max(var(--space-8), env(safe-area-inset-bottom, 0px));
-  padding-inline: max(var(--space-4), env(safe-area-inset-left, 0px)) max(var(--space-4), env(safe-area-inset-right, 0px));
+  padding-block: max(var(--space-6), env(safe-area-inset-top, 0)) max(var(--space-8), env(safe-area-inset-bottom, 0));
+  padding-inline: max(var(--space-4), env(safe-area-inset-left, 0)) max(var(--space-4), env(safe-area-inset-right, 0));
   background: var(--gradient-canvas);
 }
 
