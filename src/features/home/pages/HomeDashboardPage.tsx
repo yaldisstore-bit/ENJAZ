@@ -20,11 +20,11 @@ function DashboardLoading() {
         <Skeleton variant="line" />
       </div>
       <div className="home-dashboard__metric-grid" aria-hidden="true">
-        {[0, 1, 2, 3].map((item) => <Skeleton key={item} variant="card" />)}
+        {[0, 1, 2, 3].map((item) => <Skeleton key={item} variant="block" />)}
       </div>
       <div className="home-dashboard__content-grid" aria-hidden="true">
-        <Skeleton variant="card" />
-        <Skeleton variant="card" />
+        <Skeleton variant="block" />
+        <Skeleton variant="block" />
       </div>
     </section>
   );
