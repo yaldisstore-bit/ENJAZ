@@ -1,0 +1,24 @@
+# Phase 2.7 Implementation Checklist
+
+- [ ] Repository/component/token inspection complete
+- [ ] Domain pattern contracts defined
+- [ ] Transaction patterns
+- [ ] Company patterns
+- [ ] Lawyer/contact patterns
+- [ ] Finance patterns
+- [ ] Risk/urgency patterns
+- [ ] Timeline/activity patterns
+- [ ] Follow-up patterns
+- [ ] Workflow/automation patterns
+- [ ] Command Center module patterns
+- [ ] Search-result patterns
+- [ ] Contextual action patterns
+- [ ] Empty/loading/success/warning/error/conflict/offline/recovery states
+- [ ] Compact mobile variants
+- [ ] Pattern Lab route
+- [ ] Phase 2.7 audit
+- [ ] Phase 2.7 destructive selftest
+- [ ] TypeScript green
+- [ ] Production build green
+- [ ] PR Quality Gate green
+- [ ] Main Quality Gate green after merge
