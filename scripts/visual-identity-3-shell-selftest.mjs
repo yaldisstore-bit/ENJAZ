@@ -35,9 +35,21 @@ const scenarios = [
       .replaceAll('color: var(--color-warning-text)', 'color: var(--color-brand-strong)'),
   },
   {
-    name: 'move mobile quick create away from the dock center',
+    name: 'move mobile quick create away from RTL-safe center',
     file: 'src/styles/global-interactions.css',
-    mutate: (value) => value.replace('    inset-inline-start: 50%;', '    inset-inline-start: var(--space-3);'),
+    mutate: (value) => value.replace('    inset-inline: 0;\n    inset-block-end:', '    inset-inline: var(--space-3) auto;\n    inset-block-end:'),
+  },
+  {
+    name: 'restore broken RTL physical translate centering',
+    file: 'src/styles/global-interactions.css',
+    mutate: (value) => value
+      .replace('    inset-inline: 0;\n    inset-block-end:', '    inset-inline-start: 50%;\n    inset-block-end:')
+      .replace('    margin-inline: auto;\n    transform: none;', '    margin-inline: 0;\n    transform: translateX(-50%);'),
+  },
+  {
+    name: 'reserve and displace the third navigation lane again',
+    file: 'src/styles/app-shell-mobile-recomposition.css',
+    mutate: (value) => value.replace('.app-shell__nav-slot:nth-child(3) .app-shell__nav-item { padding-block-start: var(--space-1); }', '.app-shell__nav-slot:nth-child(3) .app-shell__nav-item { padding-block-start: var(--space-4); }'),
   },
   {
     name: 'turn leadership operations back into a plain list-shaped surface',
@@ -74,4 +86,4 @@ for (const [index, scenario] of scenarios.entries()) {
   }
 }
 
-console.log(`ENJAZ VISUAL IDENTITY 3 SHELL SELFTEST PASS — ${rejected}/${scenarios.length} deliberate chrome/dock/command regressions rejected.`);
+console.log(`ENJAZ VISUAL IDENTITY 3 SHELL SELFTEST PASS — ${rejected}/${scenarios.length} deliberate chrome/dock/RTL/command regressions rejected.`);

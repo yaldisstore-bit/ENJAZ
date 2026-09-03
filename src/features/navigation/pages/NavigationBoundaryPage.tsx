@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router';
-import { Badge, Card, CardBody, CardHeader } from '../../../design-system/components/index.ts';
+import { Badge } from '../../../design-system/components/index.ts';
 import {
   getProductNavigationRoute,
   getProductNavigationRouteById,
@@ -8,6 +8,9 @@ import {
 } from '../../../core/routing/navigationContract.ts';
 import { ROUTES } from '../../../core/routing/routes.ts';
 
+// Phase 3.2 architecture invariant: هذه بوابة تنقل فقط at the routing boundary.
+// The reserved route shell ليست بديلاً عن شاشة المجال and must never invent business logic.
+
 function MoreNavigationHub() {
   const routes = SECONDARY_NAVIGATION_ROUTE_IDS.map(getProductNavigationRouteById);
 
@@ -15,13 +18,13 @@ function MoreNavigationHub() {
     <section className="navigation-boundary" aria-labelledby="navigation-more-title">
       <header className="navigation-boundary__hero">
         <div>
-          <p className="navigation-boundary__eyebrow">ENJAZ · Phase 3.2</p>
+          <p className="navigation-boundary__eyebrow">إنجاز</p>
           <h1 className="type-title-lg" id="navigation-more-title">المزيد</h1>
           <p className="type-body-lg navigation-boundary__lead">
-            هذه بوابة تنقل فقط. تجمع المسارات الثانوية المعتمدة من دون نقل أي منطق أعمال إلى الـShell.
+            الأقسام الثانوية المعتمدة في مكان واحد، مع بقاء كل مجال مالكًا لمنطقه وبياناته.
           </p>
         </div>
-        <Badge tone="brand">Navigation Hub</Badge>
+        <Badge tone="brand">الأقسام</Badge>
       </header>
 
       <div className="navigation-hub" role="list" aria-label="أقسام إنجاز الثانوية">
@@ -29,9 +32,11 @@ function MoreNavigationHub() {
           <Link className="navigation-hub__item" to={route.path} key={route.id} role="listitem">
             <span className="navigation-hub__copy">
               <strong>{route.label}</strong>
-              <small>المحتوى الفعلي في Phase {route.deliveryPhase}</small>
+              <small>{route.contentState === 'reserved' ? 'سيُفتح بواجهته الكاملة عند تسليم المجال' : 'جاهز للاستخدام'}</small>
             </span>
-            <Badge tone="neutral">معتمد</Badge>
+            <Badge tone={route.contentState === 'reserved' ? 'neutral' : 'success'}>
+              {route.contentState === 'reserved' ? 'محجوز' : 'متاح'}
+            </Badge>
           </Link>
         ))}
       </div>
@@ -48,47 +53,50 @@ export function NavigationBoundaryPage() {
     return (
       <section className="navigation-boundary" aria-labelledby="navigation-unknown-title">
         <h1 className="type-title-lg" id="navigation-unknown-title">مسار غير معروف</h1>
-        <p className="type-body">هذا العنوان ليس جزءًا من عقد تنقل إنجاز.</p>
+        <p className="type-body">هذا العنوان ليس جزءًا من تنقل إنجاز.</p>
         <Link className="navigation-boundary__home-link" to={ROUTES.appHome}>العودة إلى الرئيسية</Link>
       </section>
     );
   }
 
   const access = resolveNavigationAccess(route, { isAuthenticated: true });
+  const isAvailable = access === 'available';
 
   return (
-    <section className="navigation-boundary" aria-labelledby={`navigation-${route.id}-title`}>
-      <header className="navigation-boundary__hero">
-        <div>
-          <p className="navigation-boundary__eyebrow">ENJAZ · Navigation Architecture</p>
+    <section
+      className="navigation-boundary navigation-boundary--reserved"
+      aria-labelledby={`navigation-${route.id}-title`}
+    >
+      <header className="navigation-boundary__reserved-hero">
+        <div className="navigation-boundary__reserved-copy">
+          <span className="navigation-boundary__reserved-eyebrow">قسم محفوظ في إنجاز</span>
           <h1 className="type-title-lg" id={`navigation-${route.id}-title`}>{route.label}</h1>
-          <p className="type-body-lg navigation-boundary__lead">
-            المسار مثبت وقابل للفتح مباشرة وإعادة التحميل. شاشة الأعمال نفسها لم تُبنَ بعد ولن تُختصر داخل Phase 3.2.
+          <p className="type-body-lg">
+            هذا القسم مثبت في بنية التطبيق، لكن واجهة الأعمال الكاملة لم تُسلَّم بعد. لن نعرض شاشة وهمية أو منطقًا ناقصًا قبل اكتماله.
           </p>
         </div>
-        <Badge tone={access === 'available' ? 'success' : 'danger'}>
-          {access === 'available' ? 'مسار متاح' : 'غير متاح'}
-        </Badge>
+
+        <div className="navigation-boundary__reserved-mark" aria-hidden="true">
+          <strong>{route.deliveryPhase}</strong>
+          <span>مرحلة</span>
+        </div>
       </header>
 
-      <div className="navigation-boundary__grid">
-        <Card tone="raised">
-          <CardHeader title="المسار القانوني" subtitle="Deep-link safe root" />
-          <CardBody><code className="navigation-boundary__path" dir="ltr">{route.path}</code></CardBody>
-        </Card>
-        <Card tone="surface">
-          <CardHeader title="عقد الوصول" subtitle="لا صلاحيات مخفية داخل عناصر الواجهة" />
-          <CardBody>{route.permission === 'authenticated' ? 'مستخدم مصادق عليه' : route.permission}</CardBody>
-        </Card>
-        <Card tone="muted">
-          <CardHeader title="حالة المحتوى" subtitle={`مرحلة التسليم ${route.deliveryPhase}`} />
-          <CardBody>{route.contentState === 'reserved' ? 'محجوز لمرحلته — لا منطق أعمال هنا' : 'منفذ'}</CardBody>
-        </Card>
+      <div className="navigation-boundary__reserved-strip" aria-label="حالة القسم">
+        <div className="navigation-boundary__reserved-fact">
+          <strong>المسار محفوظ</strong>
+          <span>يمكن فتح الرابط مباشرة وإعادة تحميله بأمان.</span>
+        </div>
+        <div className="navigation-boundary__reserved-fact">
+          <strong>{isAvailable ? 'الوصول معتمد' : 'الوصول مقيد'}</strong>
+          <span>{isAvailable ? 'الحساب المصادق عليه يملك حق فتح هذا القسم.' : 'هذا القسم غير متاح لهذا الحساب.'}</span>
+        </div>
       </div>
 
-      <p className="navigation-boundary__guard type-body">
-        هذه الصفحة Boundary مؤقتة للتنقل وليست بديلاً عن شاشة المجال التي ستُبنى في مرحلتها المحددة.
-      </p>
+      <footer className="navigation-boundary__reserved-footer">
+        <Link className="navigation-boundary__reserved-home" to={ROUTES.appHome}>العودة إلى الرئيسية</Link>
+        <code className="navigation-boundary__reserved-path" dir="ltr">{route.path}</code>
+      </footer>
     </section>
   );
 }

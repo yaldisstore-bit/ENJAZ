@@ -240,15 +240,16 @@
 .app-shell__navigation-cradle {
   position: absolute;
   z-index: var(--z-content);
-  inset-inline-start: 50%;
-  inset-block-start: calc(var(--space-5) * -1);
-  inline-size: calc(var(--size-touch-min) + var(--space-6));
-  block-size: calc(var(--size-touch-min) + var(--space-6));
-  transform: translateX(-50%);
+  inset-inline: 0;
+  inset-block-start: calc(var(--space-4) * -1);
+  inline-size: calc(var(--size-touch-min) + var(--space-4));
+  block-size: calc(var(--size-touch-min) + var(--space-4));
+  margin-inline: auto;
+  transform: none;
   border: var(--border-width-thin) solid var(--color-border);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
-  box-shadow: var(--shadow-level-2);
+  box-shadow: var(--shadow-level-1);
   pointer-events: none;
 }
 
