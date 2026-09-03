@@ -186,8 +186,22 @@ check('Phase 3.2 gate extends immutable Phase 3.1 gate', packageJson.scripts?.['
 check('Phase 3.1 gate command remains unchanged', packageJson.scripts?.['verify:phase3.1'] === 'npm run verify:phase2.8 && npm run audit:shell && npm run audit:shell:selftest && npm run audit:roadmap');
 check('GitHub quality gate covers Phase 3.2', qualityWorkflow.includes('Full Phase 3.2 verification') && qualityWorkflow.includes('npm run verify:phase3.2'));
 check('foundation status exposes Navigation Architecture 3.2', statusPage.includes('Navigation Architecture 3.2') && statusPage.includes('ROUTES.navigationPreview'));
-check('roadmap marks Phase 3.1 complete before 3.2', roadmap.includes('## 3.1 — App Shell ✅') && roadmap.indexOf('## 3.1 — App Shell') < roadmap.indexOf('## 3.2 — Navigation Architecture'));
-check('roadmap marks Phase 3.2 complete and 3.3 next', roadmap.includes('## 3.2 — Navigation Architecture ✅') && roadmap.includes('## 3.3 — Global Interaction Surfaces ⏭ NEXT'));
+
+const phase31 = roadmap.indexOf('## 3.1 — App Shell');
+const phase32 = roadmap.indexOf('## 3.2 — Navigation Architecture');
+const phase33 = roadmap.indexOf('## 3.3 — Global Interaction Surfaces');
+const phase34 = roadmap.indexOf('## 3.4 — Shell Destruction Gate');
+check('roadmap retains all Phase 3 headings', [phase31, phase32, phase33, phase34].every((position) => position >= 0));
+check('roadmap retains Phase 3.1 → 3.4 order', phase31 < phase32 && phase32 < phase33 && phase33 < phase34);
+for (const marker of [
+  'Final route map for product domains.',
+  'Section transitions and back behavior.',
+  'Deep-link-safe routing.',
+  'Active navigation state.',
+  'Navigation permissions/availability contracts.',
+]) check(`roadmap preserves Phase 3.2 scope: ${marker}`, roadmap.includes(marker));
+check('roadmap still assigns global search to 3.3', roadmap.indexOf('Global search entry point.') > phase33);
+check('roadmap still assigns shell torture to 3.4', roadmap.indexOf('Keyboard/back/rotation/navigation torture.') > phase34);
 
 for (const marker of [
   'Final route map', 'Deep-link', 'active navigation', 'back', 'permissions', 'availability',
