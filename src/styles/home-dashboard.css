@@ -118,7 +118,7 @@
   align-items: center;
   min-block-size: var(--size-touch-min);
   color: var(--color-brand-primary);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-medium);
   text-decoration-thickness: var(--border-width-thin);
   text-underline-offset: var(--text-underline-offset);
 }
