@@ -44,7 +44,7 @@ const scenarios = [
   { name: 'downgrade Phase 3.4 verification chain', file: 'package.json', mutate: (value) => value.replace('npm run verify:phase3.3 && npm run audit:shell-destruction && npm run audit:shell-destruction:selftest && npm run audit:roadmap', 'npm run verify:phase3.3') },
   { name: 'mutate immutable Phase 3.3 verification chain', file: 'package.json', mutate: (value) => value.replace('npm run verify:phase3.2 && npm run audit:interactions && npm run audit:interactions:selftest && npm run audit:roadmap', 'npm run verify:phase3.2') },
   { name: 'downgrade GitHub quality workflow to 3.3', file: '.github/workflows/enjaz-quality-gate.yml', mutate: (value) => value.replace('Full Phase 3.4 verification', 'Full Phase 3.3 verification').replace('npm run verify:phase3.4', 'npm run verify:phase3.3') },
-  { name: 'remove shell destruction documentation marker', file: 'docs/PHASE_3_4_SHELL_DESTRUCTION_GATE.md', mutate: (value) => value.replaceAll('Phase 3.4', 'Shell QA') },
+  { name: 'remove shell destruction documentation keyboard coverage', file: 'docs/PHASE_3_4_SHELL_DESTRUCTION_GATE.md', mutate: (value) => value.replace(/keyboard/gi, 'key-input') },
   { name: 'break roadmap Phase 3.4 heading', file: 'docs/ENJAZ_MASTER_ROADMAP.md', mutate: (value) => value.replace('## 3.4 — Shell Destruction Gate', '## 3.5 — Shell Destruction Gate') },
   { name: 'remove README Phase 3.4 marker', file: 'README.md', mutate: (value) => value.replaceAll('Phase 3.4 — Shell Destruction Gate', 'Shell Destruction Work') },
 ];
