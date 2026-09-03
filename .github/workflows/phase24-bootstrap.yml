@@ -1,0 +1,69 @@
+name: ENJAZ Phase 2.4 Bootstrap
+
+on:
+  push:
+    branches: [phase-2.4-core-components]
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    if: github.event.head_commit.message == 'bootstrap: run phase 2.4 transfer'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v7
+        with:
+          ref: phase-2.4-core-components
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Reconstruct verified Phase 2.4 patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .phase24/gzpart* | base64 -d > /tmp/phase24.patch.gz
+          echo '3fb9bdfa2d62eb4f6fa03e74d68853a1dc5edfe5b369cbd751a71fc425cbf96f  /tmp/phase24.patch.gz' | sha256sum -c -
+          gzip -dc /tmp/phase24.patch.gz > /tmp/phase24.patch
+          echo '57bb91525bfbacc7ff75926124fc025cc8d10e7100e6cef9659460a6c3ec163c  /tmp/phase24.patch' | sha256sum -c -
+          patch -p1 < /tmp/phase24.patch
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Full Phase 2.4 verification
+        run: npm run verify:phase2.4
+
+      - name: Real TypeScript check
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Assert production output
+        run: test -f dist/index.html
+
+      - name: Promote verified source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git restore --source=HEAD -- .github/workflows/enjaz-quality-gate.yml
+          rm -rf .phase24
+          git config user.name 'ENJAZ CI'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat: build Phase 2.4 core component system'
+          git push origin HEAD:phase-2.4-core-components
