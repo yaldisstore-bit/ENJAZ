@@ -13,8 +13,13 @@ export type MotionPreset = (typeof MOTION_PRESETS)[number];
 export type MotionDelay = (typeof MOTION_DELAYS)[number];
 export type MotionPresenceState = 'entering' | 'entered' | 'exiting' | 'exited';
 
+type MotionMediaQueryResult = Readonly<{ matches: boolean }>;
+type MotionRuntime = Readonly<{
+  matchMedia?: (query: string) => MotionMediaQueryResult;
+}>;
+
 export function prefersReducedMotion(): boolean {
-  return typeof window !== 'undefined'
-    && typeof window.matchMedia === 'function'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const runtime = globalThis as MotionRuntime;
+  return typeof runtime.matchMedia === 'function'
+    && runtime.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
