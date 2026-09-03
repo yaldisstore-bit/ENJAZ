@@ -50,9 +50,14 @@ const scenarios = [
     mutate: (value) => value.replace('  inset-inline: var(--space-3);\n  inset-block-end:', '  inset-inline: 0;\n  inset-block-end:'),
   },
   {
-    name: 'move the amber quick-create action away from the dock center',
+    name: 'move the amber quick-create action away from RTL-safe center',
     file: 'src/styles/global-interactions.css',
-    mutate: (value) => value.replace('    inset-inline-start: 50%;', '    inset-inline-start: var(--space-3);'),
+    mutate: (value) => value.replace('    inset-inline: 0;\n    inset-block-end:', '    inset-inline: var(--space-3) auto;\n    inset-block-end:'),
+  },
+  {
+    name: 'restore the broken RTL inline-start negative-translate centering',
+    file: 'src/styles/global-interactions.css',
+    mutate: (value) => value.replace('    inset-inline: 0;\n    inset-block-end:', '    inset-inline-start: 50%;\n    inset-block-end:').replace('    margin-inline: auto;\n    transform: none;', '    margin-inline: 0;\n    transform: translateX(-50%);'),
   },
   {
     name: 'turn the command dashboard into a one-column menu',
@@ -67,7 +72,16 @@ const scenarios = [
   {
     name: 'turn the strong command card into another neutral card',
     file: 'src/styles/global-command-surfaces.css',
-    mutate: (value) => value.replace('.global-command-card--strong {\n  background: var(--color-warning-soft);\n  color: var(--color-warning-text);\n}', '.global-command-card--strong {\n  background: var(--color-surface);\n  color: var(--color-text-primary);\n}'),
+    mutate: (value) => {
+      const start = value.indexOf('.global-command-card--strong');
+      if (start < 0) return value;
+      const end = value.indexOf('}', start);
+      const head = value.slice(0, start);
+      const rule = value.slice(start, end + 1)
+        .replace('background: var(--color-warning-soft)', 'background: var(--color-surface)')
+        .replace('color: var(--color-warning-text)', 'color: var(--color-text-primary)');
+      return `${head}${rule}${value.slice(end + 1)}`;
+    },
   },
   {
     name: 'restore a wrapping two-row top toolbar',
@@ -78,6 +92,16 @@ const scenarios = [
     name: 'remove alternating priority tone and create a repetitive list wall',
     file: 'src/styles/home-dashboard.css',
     mutate: (value) => value.replace('.home-dashboard__priority-list .pattern-risk:nth-child(even) { background: var(--color-accent-teal-soft); }', '.home-dashboard__priority-list .pattern-risk:nth-child(even) { background: var(--color-warning-soft); }'),
+  },
+  {
+    name: 'flatten the reserved route hero back into a generic white panel',
+    file: 'src/styles/reserved-boundary.css',
+    mutate: (value) => value.replace('  background: var(--gradient-brand);\n  color: var(--color-text-on-brand);\n  box-shadow: var(--shadow-level-3);', '  background: var(--color-surface);\n  color: var(--color-text-primary);\n  box-shadow: var(--shadow-level-1);'),
+  },
+  {
+    name: 'reintroduce developer-card language into reserved product routes',
+    file: 'src/features/navigation/pages/NavigationBoundaryPage.tsx',
+    mutate: (value) => value.replace('قسم محفوظ في إنجاز', 'المسار القانوني'),
   },
   {
     name: 'remove the narrow-phone one-column escape hatch',
@@ -104,4 +128,4 @@ for (const [index, scenario] of scenarios.entries()) {
   }
 }
 
-console.log(`ENJAZ VISUAL IDENTITY 3 REFERENCE SELFTEST PASS — ${rejected}/${scenarios.length} deliberate cheap-design regressions rejected.`);
+console.log(`ENJAZ VISUAL IDENTITY 3 REFERENCE SELFTEST PASS — ${rejected}/${scenarios.length} deliberate cheap-design/RTL regressions rejected.`);
