@@ -1,15 +1,51 @@
 :root {
-  /* Motion is quiet and functional. Components may only consume these timings/easing curves. */
+  /* Phase 2.5 — motion stays quiet, fast and functional. Product CSS consumes these tokens only. */
+  --duration-instant: 90ms;
   --duration-fast: 140ms;
   --duration-standard: 220ms;
   --duration-deliberate: 320ms;
+  --duration-slow: 420ms;
   --duration-reduced-motion: 0.01ms;
+
   --easing-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
   --easing-enter: cubic-bezier(0.16, 1, 0.3, 1);
   --easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  --easing-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
+  --easing-linear: linear;
+
   --press-translate-y: 1px;
-  --press-scale: 0.995;
+  --press-scale: 0.985;
+  --hover-translate-y: -1px;
+  --hover-scale: 1.005;
+  --motion-distance-sm: 6px;
+  --motion-distance-md: 14px;
+  --motion-scale-enter: 0.985;
+
+  --motion-delay-1: 40ms;
+  --motion-delay-2: 80ms;
+  --motion-delay-3: 120ms;
+
   --opacity-disabled: 0.58;
   --opacity-muted: 0.82;
   --opacity-subtle: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: var(--duration-reduced-motion);
+    --duration-fast: var(--duration-reduced-motion);
+    --duration-standard: var(--duration-reduced-motion);
+    --duration-deliberate: var(--duration-reduced-motion);
+    --duration-slow: var(--duration-reduced-motion);
+    --motion-delay-1: var(--duration-reduced-motion);
+    --motion-delay-2: var(--duration-reduced-motion);
+    --motion-delay-3: var(--duration-reduced-motion);
+    --press-translate-y: 0px;
+    --press-scale: 1;
+    --hover-translate-y: 0px;
+    --hover-scale: 1;
+    --motion-distance-sm: 0px;
+    --motion-distance-md: 0px;
+    --motion-scale-enter: 1;
+  }
 }
