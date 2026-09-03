@@ -12,6 +12,7 @@ import { ShellPreviewPage } from '../features/foundation/pages/ShellPreviewPage'
 import { GlobalInteractionLabPage } from '../features/foundation/pages/GlobalInteractionLabPage';
 import { ShellDestructionLabPage } from '../features/foundation/pages/ShellDestructionLabPage';
 import { NotFoundPage } from '../features/foundation/pages/NotFoundPage';
+import { HomeAppPreviewPage } from '../features/home/pages/HomeAppPreviewPage.tsx';
 import { HomeDashboardPreviewPage } from '../features/home/pages/HomeDashboardPreviewPage.tsx';
 import { NavigationLabPage } from '../features/navigation/pages/NavigationLabPage.tsx';
 import { NavigationPreviewAppPage } from '../features/navigation/pages/NavigationPreviewAppPage.tsx';
@@ -23,7 +24,7 @@ const previewProductRoutes = PRODUCT_NAVIGATION_ROUTES
   .map((route) => ({ path: route.path, Component: NavigationPreviewAppPage }));
 
 export const previewRouter = createBrowserRouter([
-  { path: ROUTES.root, Component: HomeDashboardPreviewPage },
+  { path: ROUTES.root, Component: HomeAppPreviewPage },
   { path: ROUTES.foundation, Component: FoundationStatusPage },
   { path: ROUTES.identity, Component: IdentityLabPage },
   { path: ROUTES.tokens, Component: TokenLabPage },
