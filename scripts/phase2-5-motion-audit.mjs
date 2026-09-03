@@ -13,6 +13,10 @@ function invariant(condition, message) {
   if (!condition) violations.push(message);
 }
 
+function stripCssComments(text) {
+  return text.replace(/\/\*[\s\S]*?\*\//g, '');
+}
+
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const files = [];
@@ -26,6 +30,7 @@ async function walk(directory) {
 
 const motionTokens = await readFile(resolve(styles, 'tokens/motion.css'), 'utf8');
 const motionCss = await readFile(resolve(styles, 'motion-interaction.css'), 'utf8');
+const motionCode = stripCssComments(motionCss);
 const overlay = await readFile(resolve(src, 'design-system/components/Overlay.tsx'), 'utf8');
 const presence = await readFile(resolve(src, 'design-system/motion/useMotionPresence.ts'), 'utf8');
 const contract = await readFile(resolve(src, 'design-system/motion/motionContract.ts'), 'utf8');
@@ -60,16 +65,16 @@ for (const token of [
 ]) invariant(motionTokens.includes(`${token}:`), `motion.css: missing ${token}`);
 
 invariant(motionTokens.includes('@media (prefers-reduced-motion: reduce)'), 'motion.css: reduced-motion token override is required');
-invariant(motionCss.includes('@media (prefers-reduced-motion: reduce)'), 'motion-interaction.css: reduced-motion behavior is required');
-invariant(motionCss.includes('@media (hover: hover) and (pointer: fine)'), 'motion-interaction.css: hover transforms must be pointer-capability scoped');
-invariant(!/transition\s*:\s*all\b/i.test(motionCss), 'motion-interaction.css: transition: all is forbidden');
-invariant(!/will-change\s*:/i.test(motionCss), 'motion-interaction.css: persistent will-change is forbidden');
-invariant(motionCss.includes('.ui-skeleton,\n  .ui-button__spinner'), 'motion-interaction.css: reduced motion must disable skeleton and spinner loops');
-invariant(motionCss.includes(".ui-overlay[data-motion-state='exiting']"), 'motion-interaction.css: overlay exit state is missing');
-invariant(motionCss.includes(".ui-overlay--sheet[data-motion-state='exiting'] .ui-sheet"), 'motion-interaction.css: sheet exit state is missing');
-invariant(motionCss.includes(".ui-motion-reveal[data-motion-preset='fade']"), 'motion-interaction.css: fade reveal preset missing');
-invariant(motionCss.includes(".ui-motion-reveal[data-motion-preset='rise']"), 'motion-interaction.css: rise reveal preset missing');
-invariant(motionCss.includes(".ui-motion-reveal[data-motion-preset='scale']"), 'motion-interaction.css: scale reveal preset missing');
+invariant(motionCode.includes('@media (prefers-reduced-motion: reduce)'), 'motion-interaction.css: reduced-motion behavior is required');
+invariant(motionCode.includes('@media (hover: hover) and (pointer: fine)'), 'motion-interaction.css: hover transforms must be pointer-capability scoped');
+invariant(!/transition\s*:\s*all\b/i.test(motionCode), 'motion-interaction.css: transition: all is forbidden');
+invariant(!/will-change\s*:/i.test(motionCode), 'motion-interaction.css: persistent will-change is forbidden');
+invariant(motionCode.includes('.ui-skeleton,\n  .ui-button__spinner'), 'motion-interaction.css: reduced motion must disable skeleton and spinner loops');
+invariant(motionCode.includes(".ui-overlay[data-motion-state='exiting']"), 'motion-interaction.css: overlay exit state is missing');
+invariant(motionCode.includes(".ui-overlay--sheet[data-motion-state='exiting'] .ui-sheet"), 'motion-interaction.css: sheet exit state is missing');
+invariant(motionCode.includes(".ui-motion-reveal[data-motion-preset='fade']"), 'motion-interaction.css: fade reveal preset missing');
+invariant(motionCode.includes(".ui-motion-reveal[data-motion-preset='rise']"), 'motion-interaction.css: rise reveal preset missing');
+invariant(motionCode.includes(".ui-motion-reveal[data-motion-preset='scale']"), 'motion-interaction.css: scale reveal preset missing');
 
 invariant(contract.includes('instant: 90') && contract.includes('slow: 420'), 'motionContract.ts: typed duration contract drifted');
 invariant(contract.includes("['fade', 'rise', 'scale']"), 'motionContract.ts: bounded reveal presets missing');
@@ -94,17 +99,19 @@ const cssFiles = (await walk(styles)).filter((file) => extname(file) === '.css')
 for (const file of cssFiles) {
   const rel = relative(root, file).replaceAll('\\', '/');
   const text = await readFile(file, 'utf8');
+  const code = stripCssComments(text);
   if (rel !== 'src/styles/tokens/motion.css') {
-    invariant(!/\b\d+(?:\.\d+)?ms\b/i.test(text), `${rel}: raw millisecond duration must use motion tokens`);
-    invariant(!/cubic-bezier\s*\(/i.test(text), `${rel}: easing curve literal must live in motion.css`);
+    invariant(!/\b\d+(?:\.\d+)?ms\b/i.test(code), `${rel}: raw millisecond duration must use motion tokens`);
+    invariant(!/cubic-bezier\s*\(/i.test(code), `${rel}: easing curve literal must live in motion.css`);
   }
-  invariant(!/transition\s*:\s*all\b/i.test(text), `${rel}: transition: all is forbidden`);
+  invariant(!/transition\s*:\s*all\b/i.test(code), `${rel}: transition: all is forbidden`);
 }
 
 const infiniteMatches = [];
 for (const file of cssFiles) {
   const text = await readFile(file, 'utf8');
-  if (/\binfinite\b/i.test(text)) infiniteMatches.push(relative(root, file).replaceAll('\\', '/'));
+  const code = stripCssComments(text);
+  if (/\binfinite\b/i.test(code)) infiniteMatches.push(relative(root, file).replaceAll('\\', '/'));
 }
 invariant(infiniteMatches.every((file) => ['src/styles/components-core.css', 'src/styles/components-overlays.css'].includes(file)), `motion: unexpected infinite animation in ${infiniteMatches.join(', ')}`);
 
