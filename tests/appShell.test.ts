@@ -8,14 +8,15 @@ import {
   SHELL_NAV_SLOTS,
   SHELL_TOUCH_TARGET_PX,
 } from '../src/shared/shell/shellContract.ts';
+import { PRIMARY_NAVIGATION } from '../src/core/routing/navigationContract.ts';
 
-test('shell navigation exposes five bounded slots with only home activated in Phase 3.1', () => {
+test('shell navigation exposes five bounded slots fully bound by Phase 3.2', () => {
   assert.equal(SHELL_MOBILE_NAV_SLOTS, 5);
   assert.equal(SHELL_NAV_SLOTS.length, 5);
   assert.equal(new Set(SHELL_NAV_SLOTS.map((item) => item.id)).size, 5);
-  const ready = SHELL_NAV_SLOTS.filter((item) => item.status === 'ready');
-  assert.deepEqual(ready, [{ id: 'home', label: 'الرئيسية', status: 'ready', destination: '/app' }]);
-  assert.equal(SHELL_NAV_SLOTS.filter((item) => item.destination === null).length, 4);
+  assert.ok(SHELL_NAV_SLOTS.every((item) => item.status === 'ready'));
+  assert.ok(SHELL_NAV_SLOTS.every((item) => item.destination.startsWith('/app')));
+  assert.deepEqual(SHELL_NAV_SLOTS.map((item) => item.destination), PRIMARY_NAVIGATION.map((item) => item.path));
 });
 
 test('shell keeps the established 44px touch floor', () => {
@@ -41,19 +42,23 @@ test('shared shell frame owns landmarks and accessible global surfaces', () => {
   assert.match(frame, /<main className="app-shell__main" id="main-content"/);
   assert.match(frame, /role="alert"/);
   assert.match(frame, /role="status"/);
+  assert.match(frame, /aria-current=\{isActive \? 'page' : undefined\}/);
 });
 
-test('app composition owns online recovery and auth-safe sign-out', () => {
+test('app composition owns online recovery, route context and auth-safe sign-out', () => {
   const source = readFileSync('src/app/AppShell.tsx', 'utf8');
   assert.match(source, /window\.addEventListener\('online'/);
   assert.match(source, /window\.addEventListener\('offline'/);
   assert.match(source, /await service\.signOut\(\)/);
+  assert.match(source, /useLocation\(\)/);
+  assert.match(source, /currentPath=\{location\.pathname\}/);
   assert.match(source, /<Outlet \/>/);
 });
 
-test('Phase 3.1 does not prematurely activate future product navigation', () => {
+test('shell delegates route policy to the central contract instead of embedding business paths', () => {
   const frame = readFileSync('src/shared/shell/AppShellFrame.tsx', 'utf8');
-  assert.match(frame, /disabled/);
-  assert.match(frame, /سيتم تفعيلها في Phase 3\.2/);
-  assert.doesNotMatch(frame, /\/app\/transactions|\/app\/companies|\/app\/finance/);
+  assert.match(frame, /resolvePrimaryNavigation/);
+  assert.match(frame, /resolveBackDestination/);
+  assert.doesNotMatch(frame, /\/app\/transactions|\/app\/companies|\/app\/finance|\/app\/documents/);
+  assert.doesNotMatch(frame, /سيتم تفعيلها في Phase 3\.2/);
 });
