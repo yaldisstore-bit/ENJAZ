@@ -12,7 +12,7 @@ const scenarios = [
   { name: 'shrink touch floor', file: 'src/shared/shell/shellContract.ts', mutate: (value) => value.replace('SHELL_TOUCH_TARGET_PX = 44', 'SHELL_TOUCH_TARGET_PX = 40') },
   { name: 'shrink nav slot contract', file: 'src/shared/shell/shellContract.ts', mutate: (value) => value.replace('SHELL_MOBILE_NAV_SLOTS = 5', 'SHELL_MOBILE_NAV_SLOTS = 4') },
   { name: 'prematurely activate transactions', file: 'src/shared/shell/shellContract.ts', mutate: (value) => value.replace("{ id: 'transactions', label: 'المعاملات', status: 'planned', destination: null }", "{ id: 'transactions', label: 'المعاملات', status: 'ready', destination: '/app' }") },
-  { name: 'remove skip link', file: 'src/shared/shell/AppShellFrame.tsx', mutate: (value) => value.replace('app-shell__skip-link', 'app-shell__skip-link-removed') },
+  { name: 'remove skip link', file: 'src/shared/shell/AppShellFrame.tsx', mutate: (value) => value.replace('app-shell__skip-link', 'removed-shell-skip-anchor') },
   { name: 'remove offline listener', file: 'src/app/AppShell.tsx', mutate: (value) => value.replace("window.addEventListener('offline', handleOffline);", '') },
   { name: 'remove auth sign-out', file: 'src/app/AppShell.tsx', mutate: (value) => value.replace('await service.signOut();', 'await Promise.resolve();') },
   { name: 'raw color escape', file: 'src/styles/app-shell.css', mutate: (value) => `${value}\n.app-shell-regression { color: #ff0000; }\n` },
