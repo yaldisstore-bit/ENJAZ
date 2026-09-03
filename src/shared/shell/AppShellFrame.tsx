@@ -119,25 +119,26 @@ export function AppShellFrame({
                 </>
               );
 
-              return slot.destination ? (
-                <Link
-                  className="app-shell__nav-item app-shell__nav-item--active"
-                  to={slot.destination}
-                  aria-current="page"
-                  key={slot.id}
-                >
-                  {content}
-                </Link>
-              ) : (
-                <button
-                  className="app-shell__nav-item"
-                  type="button"
-                  disabled
-                  aria-label={`${slot.label} — سيتم تفعيلها في Phase 3.2`}
-                  key={slot.id}
-                >
-                  {content}
-                </button>
+              return (
+                <span className="app-shell__nav-slot" key={slot.id}>
+                  {slot.destination ? (
+                    <Link
+                      className="app-shell__nav-item app-shell__nav-item--active"
+                      to={slot.destination}
+                    >
+                      <span className="app-shell__nav-current" aria-current="page">{content}</span>
+                    </Link>
+                  ) : (
+                    <button
+                      className="app-shell__nav-item"
+                      type="button"
+                      disabled
+                      aria-label={`${slot.label} — سيتم تفعيلها في Phase 3.2`}
+                    >
+                      {content}
+                    </button>
+                  )}
+                </span>
               );
             })}
           </div>
