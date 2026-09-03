@@ -74,7 +74,7 @@ check('icon button is at least touch token square', iconButtonBlock.includes('in
 check('focus styling is tokenized', coreCss.includes('box-shadow: var(--control-focus-shadow);'));
 check('fields consume field contracts', fieldCss.includes('min-block-size: var(--field-height);') && fieldCss.includes('border-color: var(--field-border-focus);'));
 check('overlay consumes bounded layer contracts', overlayCss.includes('z-index: var(--overlay-z);') && overlayCss.includes('background: var(--overlay-background);'));
-check('component styles avoid raw colors', !/(?:#[0-9a-f]{3,8}|rgba?\s*\(|hsla?\s*\()/i.test(`${coreCss}
+check('component styles avoid raw colors', !/(?:#[0-9a-f]{3,8}\b|\brgba?\s*\(|\bhsla?\s*\()/i.test(`${coreCss}
 ${fieldCss}
 ${overlayCss}
 ${labCss}`));
@@ -93,7 +93,9 @@ check('foundation imports component layers', ['components-core.css', 'components
 check('component lab route is canonical', routes.includes("components: '/foundation/components'") && router.includes('ComponentLabPage') && router.includes('ROUTES.components'));
 check('component lab proves all families', ['الأزرار والإجراءات', 'البطاقات والعمق', 'الحالات', 'التبويبات', 'الحقول والتحقق', 'الخيارات', 'النوافذ والـBottom Sheet', 'التحميل والحالات الفارغة'].every((marker) => lab.includes(marker)));
 check('phase 2.4 package gate exists', packageJson.scripts?.['verify:phase2.4'] === 'npm run verify:phase2.3 && npm run audit:components && npm run audit:components:selftest');
-check('GitHub gate runs phase 2.4', workflow.includes('npm run verify:phase2.4') && workflow.includes('Full Phase 2.4 verification'));
+const workflowCommandPhase = Number(workflow.match(/npm run verify:phase2\.(\d+)/)?.[1] ?? -1);
+const workflowLabelPhase = Number(workflow.match(/Full Phase 2\.(\d+) verification/)?.[1] ?? -1);
+check('GitHub gate covers phase 2.4 or later', workflowCommandPhase >= 4 && workflowLabelPhase >= 4);
 check('phase documentation declares scope', ['Button', 'TextField', 'Tabs', 'Dialog', 'BottomSheet', '44px'].every((marker) => doc.includes(marker)));
 
 if (failures.length) {
