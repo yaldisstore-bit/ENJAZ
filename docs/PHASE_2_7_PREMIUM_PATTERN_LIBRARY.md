@@ -1,6 +1,6 @@
 # Phase 2.7 — Premium Pattern Library
 
-Status: implementation target for the current branch.
+Status: **PR-verified release candidate; awaiting merged `main` Quality Gate for final closure.**
 
 Phase 2.7 is the first domain-aware visual layer of ENJAZ. It composes the generic tokens, typography, core components, motion system and mobile hardening from 2.1–2.6 into reusable operational patterns.
 
@@ -87,7 +87,7 @@ Error and conflict states announce with alert semantics. Other states use polite
 
 Route: `/foundation/patterns`
 
-The Pattern Lab must prove the full library with realistic ENJAZ content, including:
+The Pattern Lab proves the full library with realistic ENJAZ content, including:
 - a very long Arabic company name,
 - a billion-scale IQD amount,
 - stalled and critical transaction state,
@@ -124,6 +124,16 @@ Phase 2.7 adds:
 
 `verify:phase2.7` extends the immutable `verify:phase2.6` gate and then runs the pattern audit, deliberate destructive selftest and roadmap audit.
 
+Verified Pull Request results:
+- 99/99 behavior and contract tests passed.
+- 115/115 Phase 2.7 pattern audit checks passed.
+- 14/14 deliberate Phase 2.7 regressions were rejected.
+- 50/50 Mobile / Android invariants passed.
+- 151/151 Motion / Interaction / Presence / Reduced-Motion invariants passed.
+- TypeScript `tsc -b` passed.
+- Vite 8.2.2 production build passed with 177 modules transformed.
+- `dist/index.html` assertion passed.
+
 ## Exit criteria
 
 Phase 2.7 is complete only when:
@@ -136,4 +146,6 @@ Phase 2.7 is complete only when:
 7. Pull Request Quality Gate is green,
 8. the merged `main` Quality Gate is green.
 
-After that, the next phase is **2.8 — Visual Destruction & Quality Gate**. Phase 3 App Shell remains forbidden until 2.8 passes.
+Criteria 1–7 are verified. Criterion 8 is intentionally verified only after merge.
+
+After final closure, the next phase is **2.8 — Visual Destruction & Quality Gate**. Phase 3 App Shell remains forbidden until 2.8 passes.
