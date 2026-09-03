@@ -18,8 +18,10 @@
 @import './pattern-lab.css';
 @import './visual-destruction-lab.css';
 @import './app-shell.css';
+@import './shell-proof.css';
 @import './navigation.css';
 @import './global-interactions.css';
+@import './global-command-surfaces.css';
 @import './global-interactions-lab.css';
 @import './home-dashboard.css';
 @import './productivity-polish.css';

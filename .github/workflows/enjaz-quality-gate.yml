@@ -38,6 +38,10 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Full Phase 4.1 verification
         run: npm run verify:phase4.1
+      - name: Visual Identity 3 structural gate
+        run: npm run audit:identity3-shell && npm run audit:identity3-shell:selftest
+      - name: Visual Identity 3 reference-quality gate
+        run: npm run audit:identity3-reference && npm run audit:identity3-reference:selftest
       - name: Roadmap integrity audit
         run: npm run audit:roadmap
       - name: Real TypeScript check

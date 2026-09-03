@@ -69,7 +69,11 @@
     "verify:phase3.4": "npm run verify:phase3.3 && npm run audit:shell-destruction && npm run audit:shell-destruction:selftest && npm run audit:roadmap",
     "audit:home": "node scripts/phase4-1-home-audit.mjs",
     "audit:home:selftest": "node scripts/phase4-1-home-selftest.mjs",
-    "verify:phase4.1": "npm run verify:phase3.4 && npm run audit:home && npm run audit:home:selftest && npm run audit:roadmap"
+    "verify:phase4.1": "npm run verify:phase3.4 && npm run audit:home && npm run audit:home:selftest && npm run audit:roadmap",
+    "audit:identity3-shell": "node scripts/visual-identity-3-shell-audit.mjs",
+    "audit:identity3-shell:selftest": "node scripts/visual-identity-3-shell-selftest.mjs",
+    "audit:identity3-reference": "node scripts/visual-identity-3-reference-audit.mjs",
+    "audit:identity3-reference:selftest": "node scripts/visual-identity-3-reference-selftest.mjs"
   },
   "dependencies": {
     "react": "19.2.8",

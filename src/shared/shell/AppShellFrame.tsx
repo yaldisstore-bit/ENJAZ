@@ -110,24 +110,26 @@ export function AppShellFrame({
             </div>
           </div>
 
-          <div className="app-shell__account">
-            <span className="app-shell__avatar" aria-hidden="true">{getShellUserInitial(userLabel)}</span>
-            <span className="app-shell__account-copy">
-              <strong>حساب إنجاز</strong>
-              <small className="text-long-safe" dir="auto">{userLabel}</small>
-            </span>
-            {onSignOut ? (
-              <IconButton
-                label="تسجيل الخروج"
-                icon={<ShellGlyph name="logout" />}
-                onClick={onSignOut}
-                disabled={busy}
-              />
-            ) : null}
+          <div className="app-shell__topbar-actions">
+        <GlobalInteractionSurfaces inboxCount={inboxCount} />
+
+            <div className="app-shell__account">
+              <span className="app-shell__avatar" aria-hidden="true">{getShellUserInitial(userLabel)}</span>
+              <span className="app-shell__account-copy">
+                <strong>حساب إنجاز</strong>
+                <small className="text-long-safe" dir="auto">{userLabel}</small>
+              </span>
+              {onSignOut ? (
+                <IconButton
+                  label="تسجيل الخروج"
+                  icon={<ShellGlyph name="logout" />}
+                  onClick={onSignOut}
+                  disabled={busy}
+                />
+              ) : null}
+            </div>
           </div>
         </div>
-
-        <GlobalInteractionSurfaces inboxCount={inboxCount} />
       </header>
 
       {networkState === 'offline' ? (
@@ -151,6 +153,7 @@ export function AppShellFrame({
 
       <div className="app-shell__workspace">
         <nav className="app-shell__navigation" aria-label="التنقل الرئيسي">
+          <span className="app-shell__navigation-cradle" aria-hidden="true" />
           <div className="app-shell__navigation-inner">
             {SHELL_NAV_SLOTS.map((slot) => {
               const isActive = activeNavigation === slot.id;
