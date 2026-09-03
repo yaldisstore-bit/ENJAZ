@@ -37,7 +37,7 @@ const scenarios = [
   { name: 'downgrade application version', file: 'src/core/version/version.ts', mutate: (value) => value.replace("0.10.0-phase3.2", "0.10.0-phase3.1") },
   { name: 'downgrade Phase 3.2 gate', file: 'package.json', mutate: (value) => value.replace('npm run verify:phase3.1 && npm run audit:navigation && npm run audit:navigation:selftest && npm run audit:roadmap', 'npm run verify:phase3.1') },
   { name: 'downgrade GitHub Phase 3.2 verification', file: '.github/workflows/enjaz-quality-gate.yml', mutate: (value) => value.replace('Full Phase 3.2 verification', 'Full Phase 3.1 verification') },
-  { name: 'remove navigation status proof', file: 'src/features/foundation/pages/FoundationStatusPage.tsx', mutate: (value) => value.replace('Navigation Architecture 3.2', 'Navigation Architecture removed') },
+  { name: 'detach navigation status proof link', file: 'src/features/foundation/pages/FoundationStatusPage.tsx', mutate: (value) => value.replace('to={ROUTES.navigationPreview}>فتح Navigation Architecture 3.2', 'to={ROUTES.root}>فتح Navigation Architecture 3.2') },
   { name: 'break Phase 3 roadmap order', file: 'docs/ENJAZ_MASTER_ROADMAP.md', mutate: (value) => value.replace('## 3.2 — Navigation Architecture', '## 3.5 — Navigation Architecture') },
   { name: 'remove deep-link documentation proof', file: 'docs/PHASE_3_2_NAVIGATION_ARCHITECTURE.md', mutate: (value) => value.replaceAll('Deep-link', 'Direct-route') },
 ];
