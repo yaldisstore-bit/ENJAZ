@@ -38,4 +38,5 @@
   --color-info-text: var(--enjaz-info-800);
   --color-info-soft: var(--enjaz-info-100);
   --color-focus: var(--enjaz-focus);
+  --color-overlay: var(--enjaz-overlay);
 }

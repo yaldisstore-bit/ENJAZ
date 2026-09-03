@@ -1,7 +1,7 @@
 {
   "name": "enjaz",
   "private": true,
-  "version": "0.8.0-phase2.3",
+  "version": "0.9.0-phase2.4",
   "type": "module",
   "engines": {
     "node": ">=22.22.0"
@@ -38,7 +38,10 @@
     "verify:phase2.2": "npm run verify:phase2.1 && npm run audit:tokens && npm run audit:tokens:selftest",
     "audit:typography": "node scripts/phase2-3-typography-audit.mjs",
     "audit:typography:selftest": "node scripts/phase2-3-typography-selftest.mjs",
-    "verify:phase2.3": "npm run verify:phase2.2 && npm run audit:typography && npm run audit:typography:selftest"
+    "verify:phase2.3": "npm run verify:phase2.2 && npm run audit:typography && npm run audit:typography:selftest",
+    "audit:components": "node scripts/phase2-4-component-audit.mjs",
+    "audit:components:selftest": "node scripts/phase2-4-component-selftest.mjs",
+    "verify:phase2.4": "npm run verify:phase2.3 && npm run audit:components && npm run audit:components:selftest"
   },
   "dependencies": {
     "react": "19.2.8",
