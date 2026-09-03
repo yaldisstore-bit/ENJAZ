@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   refresh-lock:
-    if: ${{ github.event.head_commit.message == 'ci: refresh Phase 2.5 package lock' }}
+    if: github.event.head_commit.message == 'phase25-lock-refresh'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
