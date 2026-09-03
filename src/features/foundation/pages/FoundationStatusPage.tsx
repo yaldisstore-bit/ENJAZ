@@ -24,6 +24,7 @@ const checks = [
   'Visual Destruction & Quality Gate 2.8',
   'App Shell 3.1',
   'Navigation Architecture 3.2',
+  'Global Interaction Surfaces 3.3',
 ] as const;
 
 export function FoundationStatusPage() {
@@ -58,6 +59,8 @@ export function FoundationStatusPage() {
         <Link className="foundation-link" to={ROUTES.shellPreview}>فتح App Shell 3.1</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.navigationPreview}>فتح Navigation Architecture 3.2</Link>
+        <br />
+        <Link className="foundation-link" to={ROUTES.interactionsPreview}>فتح Global Interaction Surfaces 3.3</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.root}>العودة</Link>
       </section>
