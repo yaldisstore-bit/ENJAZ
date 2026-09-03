@@ -167,7 +167,7 @@
   color: var(--color-brand-strong);
   display: inline-flex;
   align-items: center;
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-medium);
   text-decoration: none;
   transition: opacity var(--duration-fast) var(--easing-standard), transform var(--duration-fast) var(--easing-standard);
 }
