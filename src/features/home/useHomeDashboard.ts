@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { DataAccessError } from '../../data/contracts/DataAccessError.ts';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
-import { useAuth } from '../auth/state/AuthContext.tsx';
+import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
 import { HomeWorkspaceUnavailableError, loadHomeDashboard } from './homeDashboardService.ts';
 import type { HomeDashboardSnapshot } from './homeDashboardModel.ts';
 
@@ -24,20 +24,20 @@ function toHomeErrorMessage(error: unknown): string {
 }
 
 export function useHomeDashboard(): Readonly<HomeDashboardLoadState & { retry(): void }> {
-  const { user } = useAuth();
+  const userId = useCurrentUserId();
   const factory = useDataLayerFactory();
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<HomeDashboardLoadState>(LOADING_STATE);
 
   useEffect(() => {
     let active = true;
-    if (!user) {
+    if (!userId) {
       setState(Object.freeze({ status: 'error', snapshot: null, errorMessage: 'انتهت جلسة المستخدم. سجّل الدخول مرة أخرى.' }));
       return () => { active = false; };
     }
 
     setState(LOADING_STATE);
-    void loadHomeDashboard(factory, user.id)
+    void loadHomeDashboard(factory, userId)
       .then(({ snapshot }) => {
         if (!active) return;
         setState(Object.freeze({ status: 'ready', snapshot, errorMessage: null }));
@@ -48,7 +48,7 @@ export function useHomeDashboard(): Readonly<HomeDashboardLoadState & { retry():
       });
 
     return () => { active = false; };
-  }, [attempt, factory, user]);
+  }, [attempt, factory, userId]);
 
   return Object.freeze({
     ...state,
