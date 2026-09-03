@@ -29,19 +29,28 @@ const roadmap = await text('docs/ENJAZ_MASTER_ROADMAP.md');
 const doc = await text('docs/PHASE_3_1_APP_SHELL.md');
 const statusPage = await text('src/features/foundation/pages/FoundationStatusPage.tsx');
 
+const appPhaseMinor = Number(version.match(/APP_VERSION = '0\.10\.0-phase3\.(\d+)'/)?.[1] ?? -1);
+const packagePhaseMinor = Number(String(packageJson.version ?? '').match(/^0\.10\.0-phase3\.(\d+)$/)?.[1] ?? -1);
+const navigationArchitectureActive = appPhaseMinor >= 2 && packagePhaseMinor >= 2;
+
 for (const marker of [
   'SHELL_TOUCH_TARGET_PX = 44',
   'SHELL_MOBILE_NAV_SLOTS = 5',
-  "status: 'ready', destination: '/app'",
-  "status: 'planned', destination: null",
   'resolveShellNetworkState',
   'getShellUserInitial',
 ]) check(`shell contract contains ${marker}`, contract.includes(marker));
 
-const navRecords = contract.match(/\{ id: '[^']+', label: '[^']+', status: '(?:ready|planned)', destination: (?:'\/app'|null) \}/g) ?? [];
-check('shell contract exposes exactly five nav slot records', navRecords.length === 5, `records=${navRecords.length}`);
-check('only one shell navigation destination is active in 3.1', navRecords.filter((record) => record.includes("destination: '/app'")).length === 1);
-check('four future nav slots stay unbound until 3.2', navRecords.filter((record) => record.includes('destination: null')).length === 4);
+if (navigationArchitectureActive) {
+  check('Phase 3.2 shell consumes canonical primary navigation', contract.includes('PRIMARY_NAVIGATION'));
+  check('Phase 3.2 shell exposes ready-only navigation status', contract.includes("ShellNavStatus = 'ready'"));
+  check('Phase 3.2 shell binds destinations from canonical item paths', contract.includes('destination: item.path'));
+  check('Phase 3.2 shell no longer carries planned/null slots', !contract.includes("status: 'planned'") && !contract.includes('destination: null'));
+} else {
+  const navRecords = contract.match(/\{ id: '[^']+', label: '[^']+', status: '(?:ready|planned)', destination: (?:'\/app'|null) \}/g) ?? [];
+  check('Phase 3.1 shell exposes exactly five literal nav slot records', navRecords.length === 5, `records=${navRecords.length}`);
+  check('Phase 3.1 has one active destination', navRecords.filter((record) => record.includes("destination: '/app'")).length === 1);
+  check('Phase 3.1 keeps four slots unbound', navRecords.filter((record) => record.includes('destination: null')).length === 4);
+}
 
 for (const marker of [
   'app-shell__skip-link',
@@ -51,9 +60,22 @@ for (const marker of [
   'app-shell__page-container',
   'role="status"',
   'role="alert"',
-  'aria-current="page"',
-  'سيتم تفعيلها في Phase 3.2',
 ]) check(`shared App Shell frame proves ${marker}`, frame.includes(marker));
+
+if (navigationArchitectureActive) {
+  for (const marker of [
+    'resolvePrimaryNavigation',
+    'resolveBackDestination',
+    'currentPath',
+    "aria-current={isActive ? 'page' : undefined}",
+    'app-shell__route-stage',
+  ]) check(`Phase 3.2 preserves Shell while adding ${marker}`, frame.includes(marker));
+  check('Phase 3.2 removes stale disabled-navigation copy', !frame.includes('سيتم تفعيلها في Phase 3.2'));
+  check('Phase 3.2 app composition passes the current pathname', shell.includes('useLocation()') && shell.includes('currentPath={location.pathname}'));
+} else {
+  check('Phase 3.1 exposes one aria-current proof', frame.includes('aria-current="page"'));
+  check('Phase 3.1 keeps future navigation disabled', frame.includes('سيتم تفعيلها في Phase 3.2'));
+}
 
 for (const marker of [
   "window.addEventListener('online'",
@@ -67,7 +89,7 @@ check('shared frame does not import auth feature', !frame.includes('/features/au
 check('shared frame owns no persistence or auth service call', !frame.includes('service.signOut') && !frame.includes('supabase'));
 check('app composition is the only shell layer importing auth context', shell.includes("../features/auth/state/AuthContext.tsx"));
 check('shell frame has no inline style escape', !/\bstyle\s*=\s*\{/.test(frame));
-check('shell frame avoids premature product route literals', !/\/app\/(?:transactions|companies|finance|workflows)/.test(frame));
+check('shell frame avoids embedded product route literals', !/\/app\/(?:transactions|companies|finance|workflows|documents)/.test(frame));
 check('preview is auth-independent and uses shared AppShellFrame', preview.includes("../../../shared/shell/AppShellFrame.tsx") && !preview.includes('useAuth'));
 check('preview states that it is not a business screen', preview.includes('هذه ليست شاشة أعمال'));
 check('temporary Phase 1.3 auth wording is removed', !landing.includes('Phase 1.3') && !landing.includes('هذه شاشة مؤقتة حتى تبدأ مرحلة الواجهة الفعلية'));
@@ -92,17 +114,17 @@ check('shell styling consumes frozen gradient and shadow tokens', css.includes('
 check('shell preview route is canonical', routes.includes("shellPreview: '/foundation/shell'"));
 check('main router mounts ShellPreviewPage', router.includes('ShellPreviewPage') && router.includes('ROUTES.shellPreview'));
 check('preview router mounts ShellPreviewPage', previewRouter.includes('ShellPreviewPage') && previewRouter.includes('ROUTES.shellPreview'));
-check('protected application route is nested inside AppShell', router.includes('Component: ProtectedRoute') && router.includes('Component: AppShell') && router.includes('ROUTES.appHome'));
+check('protected application route remains nested inside AppShell', router.includes('Component: ProtectedRoute') && router.includes('Component: AppShell') && router.includes('ROUTES.appHome'));
 check('router imports AppShell from app composition boundary', router.includes("import { AppShell } from './AppShell'"));
 check('App Shell stylesheet loads after frozen Phase 2 destruction layer', foundationCss.indexOf("@import './app-shell.css';") > foundationCss.indexOf("@import './visual-destruction-lab.css';"));
 check('foundation status exposes Phase 3.1 proof', statusPage.includes('App Shell 3.1') && statusPage.includes('ROUTES.shellPreview'));
-check('application version declares Phase 3.1', version.includes("APP_VERSION = '0.10.0-phase3.1'"));
-check('package version declares Phase 3.1', packageJson.version === '0.10.0-phase3.1');
+check('application version is Phase 3.1 or later', appPhaseMinor >= 1, `minor=${appPhaseMinor}`);
+check('package version is Phase 3.1 or later', packagePhaseMinor >= 1, `minor=${packagePhaseMinor}`);
 check('Phase 3.1 gate extends immutable Phase 2.8 gate', packageJson.scripts?.['verify:phase3.1'] === 'npm run verify:phase2.8 && npm run audit:shell && npm run audit:shell:selftest && npm run audit:roadmap');
 check('shell audit script is registered', packageJson.scripts?.['audit:shell'] === 'node scripts/phase3-1-shell-audit.mjs');
 check('shell selftest script is registered', packageJson.scripts?.['audit:shell:selftest'] === 'node scripts/phase3-1-shell-selftest.mjs');
 check('Phase 2.8 gate command remains unchanged', packageJson.scripts?.['verify:phase2.8'] === 'npm run verify:phase2.7 && npm run audit:destruction && npm run audit:destruction:selftest && npm run audit:roadmap');
-check('GitHub quality gate covers Phase 3.1', workflow.includes('Full Phase 3.1 verification') && workflow.includes('npm run verify:phase3.1'));
+check('GitHub quality gate verifies the current Phase 3 minor', workflow.includes(`npm run verify:phase3.${Math.max(appPhaseMinor, 1)}`));
 check('roadmap keeps Phase 3 ordering', roadmap.indexOf('## 3.1 — App Shell') < roadmap.indexOf('## 3.2 — Navigation Architecture'));
 check('roadmap still forbids Phase 4 before Phase 3 exit', roadmap.indexOf('**Phase 3 exit:**') < roadmap.indexOf('# Phase 4 — Home'));
 
@@ -117,4 +139,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`ENJAZ PHASE 3.1 APP SHELL AUDIT PASS — ${checks}/${checks} shell structure, composition, auth, mobile, RTL, token and gate invariants satisfied.`);
+console.log(`ENJAZ PHASE 3.1 APP SHELL AUDIT PASS — ${checks}/${checks} frozen shell, composition, auth, mobile, RTL, token and forward-compatibility invariants satisfied.`);

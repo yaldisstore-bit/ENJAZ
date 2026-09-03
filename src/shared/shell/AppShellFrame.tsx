@@ -2,6 +2,13 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { IconButton } from '../../design-system/components/index.ts';
 import {
+  getProductNavigationRoute,
+  normalizeNavigationPath,
+  resolveBackDestination,
+  resolvePrimaryNavigation,
+} from '../../core/routing/navigationContract.ts';
+import { ROUTES } from '../../core/routing/routes.ts';
+import {
   getShellUserInitial,
   SHELL_NAV_SLOTS,
   type ShellNavGlyph,
@@ -9,7 +16,7 @@ import {
 } from './shellContract.ts';
 
 interface ShellGlyphProps {
-  name: ShellNavGlyph | 'logout';
+  name: ShellNavGlyph | 'logout' | 'back';
 }
 
 function ShellGlyph({ name }: ShellGlyphProps) {
@@ -37,6 +44,8 @@ function ShellGlyph({ name }: ShellGlyphProps) {
       return <svg {...common}><circle cx="5" cy="12" r="1.2" /><circle cx="12" cy="12" r="1.2" /><circle cx="19" cy="12" r="1.2" /></svg>;
     case 'logout':
       return <svg {...common}><path d="M10 5H5v14h5M14.5 8.5 18 12l-3.5 3.5M9 12h9" /></svg>;
+    case 'back':
+      return <svg {...common}><path d="m14.5 6-6 6 6 6M9 12h10" /></svg>;
   }
 }
 
@@ -44,6 +53,7 @@ export interface AppShellFrameProps {
   children: ReactNode;
   userLabel: string;
   networkState: ShellNetworkState;
+  currentPath?: string;
   busy?: boolean;
   errorMessage?: string | null;
   onSignOut?: () => void;
@@ -53,22 +63,48 @@ export function AppShellFrame({
   children,
   userLabel,
   networkState,
+  currentPath = ROUTES.appHome,
   busy = false,
   errorMessage = null,
   onSignOut,
 }: AppShellFrameProps) {
+  const normalizedPath = normalizeNavigationPath(currentPath);
+  const activeNavigation = resolvePrimaryNavigation(normalizedPath);
+  const backDestination = resolveBackDestination(normalizedPath);
+  const productRoute = getProductNavigationRoute(normalizedPath);
+  const sectionLabel = normalizedPath === ROUTES.appMore
+    ? 'المزيد'
+    : productRoute?.label ?? 'مساحة العمل';
+
   return (
-    <div className="app-shell" data-network-state={networkState}>
+    <div
+      className="app-shell"
+      data-network-state={networkState}
+      data-navigation-active={activeNavigation ?? 'none'}
+    >
       <a className="app-shell__skip-link" href="#main-content">انتقل إلى المحتوى</a>
 
       <header className="app-shell__topbar">
         <div className="app-shell__topbar-inner">
-          <div className="app-shell__brand" aria-label="إنجاز">
-            <span className="app-shell__brand-mark" aria-hidden="true">إ</span>
-            <span className="app-shell__brand-copy">
-              <strong>إنجاز</strong>
-              <small>مساحة العمل</small>
-            </span>
+          <div className="app-shell__topbar-start">
+            {backDestination ? (
+              <Link
+                className="app-shell__back-link"
+                to={backDestination}
+                aria-label="العودة إلى المستوى السابق"
+              >
+                <span className="app-shell__back-icon"><ShellGlyph name="back" /></span>
+                <span className="app-shell__back-label">رجوع</span>
+              </Link>
+            ) : null}
+
+            <div className="app-shell__brand" aria-label="إنجاز">
+              <span className="app-shell__brand-mark" aria-hidden="true">إ</span>
+              <span className="app-shell__brand-copy">
+                <strong>إنجاز</strong>
+                <small className="text-long-safe" dir="auto">{sectionLabel}</small>
+              </span>
+            </div>
           </div>
 
           <div className="app-shell__account">
@@ -112,32 +148,19 @@ export function AppShellFrame({
         <nav className="app-shell__navigation" aria-label="التنقل الرئيسي">
           <div className="app-shell__navigation-inner">
             {SHELL_NAV_SLOTS.map((slot) => {
-              const content = (
-                <>
-                  <span className="app-shell__nav-icon"><ShellGlyph name={slot.id} /></span>
-                  <span className="app-shell__nav-label">{slot.label}</span>
-                </>
-              );
-
+              const isActive = activeNavigation === slot.id;
               return (
                 <span className="app-shell__nav-slot" key={slot.id}>
-                  {slot.destination ? (
-                    <Link
-                      className="app-shell__nav-item app-shell__nav-item--active"
-                      to={slot.destination}
-                    >
-                      <span className="app-shell__nav-current" aria-current="page">{content}</span>
-                    </Link>
-                  ) : (
-                    <button
-                      className="app-shell__nav-item"
-                      type="button"
-                      disabled
-                      aria-label={`${slot.label} — سيتم تفعيلها في Phase 3.2`}
-                    >
-                      {content}
-                    </button>
-                  )}
+                  <Link
+                    className={isActive
+                      ? 'app-shell__nav-item app-shell__nav-item--active'
+                      : 'app-shell__nav-item'}
+                    to={slot.destination}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    <span className="app-shell__nav-icon"><ShellGlyph name={slot.id} /></span>
+                    <span className="app-shell__nav-label">{slot.label}</span>
+                  </Link>
                 </span>
               );
             })}
@@ -145,7 +168,9 @@ export function AppShellFrame({
         </nav>
 
         <main className="app-shell__main" id="main-content" tabIndex={-1}>
-          <div className="app-shell__page-container">{children}</div>
+          <div className="app-shell__page-container">
+            <div className="app-shell__route-stage" key={normalizedPath}>{children}</div>
+          </div>
         </main>
       </div>
     </div>

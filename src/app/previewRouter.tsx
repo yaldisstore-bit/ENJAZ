@@ -10,7 +10,13 @@ import { PatternLabPage } from '../features/foundation/pages/PatternLabPage';
 import { VisualDestructionLabPage } from '../features/foundation/pages/VisualDestructionLabPage';
 import { ShellPreviewPage } from '../features/foundation/pages/ShellPreviewPage';
 import { NotFoundPage } from '../features/foundation/pages/NotFoundPage';
+import { NavigationLabPage } from '../features/navigation/pages/NavigationLabPage.tsx';
+import { NavigationPreviewAppPage } from '../features/navigation/pages/NavigationPreviewAppPage.tsx';
+import { PRODUCT_NAVIGATION_ROUTES } from '../core/routing/navigationContract.ts';
 import { ROUTES } from '../core/routing/routes';
+
+const previewProductRoutes = PRODUCT_NAVIGATION_ROUTES
+  .map((route) => ({ path: route.path, Component: NavigationPreviewAppPage }));
 
 export const previewRouter = createBrowserRouter([
   { path: ROUTES.root, Component: FoundationStatusPage },
@@ -24,5 +30,8 @@ export const previewRouter = createBrowserRouter([
   { path: ROUTES.patterns, Component: PatternLabPage },
   { path: ROUTES.destruction, Component: VisualDestructionLabPage },
   { path: ROUTES.shellPreview, Component: ShellPreviewPage },
+  { path: ROUTES.navigationPreview, Component: NavigationLabPage },
+  { path: ROUTES.appMore, Component: NavigationPreviewAppPage },
+  ...previewProductRoutes,
   { path: '*', Component: NotFoundPage },
 ], { basename: import.meta.env.BASE_URL });

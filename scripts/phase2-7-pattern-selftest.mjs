@@ -21,9 +21,9 @@ const scenarios = [
   { name: 'remove conflict proof state', file: 'src/features/foundation/pages/PatternLabPage.tsx', mutate: (content) => content.replace('tone="conflict"', 'tone="empty"') },
   { name: 'remove compact proof', file: 'src/features/foundation/pages/PatternLabPage.tsx', mutate: (content) => content.replaceAll('density="compact"', 'density="comfortable"') },
   { name: 'downgrade Phase 2.7 gate', file: 'package.json', mutate: (content) => content.replace('npm run verify:phase2.6 && npm run audit:patterns && npm run audit:patterns:selftest && npm run audit:roadmap', 'npm run verify:phase2.6') },
-  { name: 'downgrade application phase version', file: 'src/core/version/version.ts', mutate: (content) => content.replace("APP_VERSION = '0.10.0-phase3.1'", "APP_VERSION = '0.9.0-phase2.6'") },
-  { name: 'downgrade package phase version', file: 'package.json', mutate: (content) => content.replace('"version": "0.10.0-phase3.1"', '"version": "0.9.0-phase2.6"') },
-  { name: 'downgrade workflow below Pattern Library', file: '.github/workflows/enjaz-quality-gate.yml', mutate: (content) => content.replace('Full Phase 3.1 verification', 'Full Phase 2.6 verification').replace('npm run verify:phase3.1', 'npm run verify:phase2.6') },
+  { name: 'downgrade application phase version', file: 'src/core/version/version.ts', mutate: (content) => content.replace(/APP_VERSION = '[^']+'/, "APP_VERSION = '0.9.0-phase2.6'") },
+  { name: 'downgrade package phase version', file: 'package.json', mutate: (content) => content.replace(/"version": "[^"]+"/, '"version": "0.9.0-phase2.6"') },
+  { name: 'downgrade workflow below Pattern Library', file: '.github/workflows/enjaz-quality-gate.yml', mutate: (content) => content.replace(/Full Phase \d+\.\d+ verification/, 'Full Phase 2.6 verification').replace(/npm run verify:phase\d+\.\d+/, 'npm run verify:phase2.6') },
   { name: 'remove patterns CSS import', file: 'src/styles/foundation.css', mutate: (content) => content.replace("@import './patterns.css';\n", '') },
   { name: 'remove entity pattern stylesheet', file: 'src/styles/patterns.css', mutate: (content) => content.replace("@import './patterns-entities.css';\n", '') },
 ];

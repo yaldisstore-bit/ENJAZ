@@ -1,29 +1,36 @@
+import {
+  PRIMARY_NAVIGATION,
+  type PrimaryNavigationId,
+} from '../../core/routing/navigationContract.ts';
+import type { AppRoute } from '../../core/routing/routes.ts';
+
 export const SHELL_TOUCH_TARGET_PX = 44;
 export const SHELL_MOBILE_NAV_SLOTS = 5;
 export const SHELL_CONTENT_MAX_REM = 72;
 
 export type ShellNetworkState = 'online' | 'offline';
-export type ShellNavStatus = 'ready' | 'planned';
-export type ShellNavGlyph = 'home' | 'work' | 'transactions' | 'companies' | 'more';
+export type ShellNavStatus = 'ready';
+export type ShellNavGlyph = PrimaryNavigationId;
 
 export interface ShellNavSlot {
-  id: ShellNavGlyph;
-  label: string;
-  status: ShellNavStatus;
-  destination: '/app' | null;
+  readonly id: ShellNavGlyph;
+  readonly label: string;
+  readonly status: ShellNavStatus;
+  readonly destination: AppRoute;
 }
 
 /**
- * Phase 3.1 owns shell structure, not the final product route map.
- * Only /app is navigable here. Phase 3.2 will activate the remaining slots.
+ * Phase 3.2 binds the five frozen shell slots to canonical routes.
+ * Product content behind those routes remains reserved for its delivery phase.
  */
-export const SHELL_NAV_SLOTS: readonly ShellNavSlot[] = Object.freeze([
-  { id: 'home', label: 'الرئيسية', status: 'ready', destination: '/app' },
-  { id: 'work', label: 'اليوم', status: 'planned', destination: null },
-  { id: 'transactions', label: 'المعاملات', status: 'planned', destination: null },
-  { id: 'companies', label: 'الشركات', status: 'planned', destination: null },
-  { id: 'more', label: 'المزيد', status: 'planned', destination: null },
-]);
+export const SHELL_NAV_SLOTS: readonly ShellNavSlot[] = Object.freeze(
+  PRIMARY_NAVIGATION.map((item) => ({
+    id: item.id,
+    label: item.label,
+    status: 'ready' as const,
+    destination: item.path,
+  })),
+);
 
 export function resolveShellNetworkState(isOnline: boolean): ShellNetworkState {
   return isOnline ? 'online' : 'offline';

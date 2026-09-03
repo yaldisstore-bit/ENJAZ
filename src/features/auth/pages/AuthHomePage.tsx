@@ -5,27 +5,27 @@ export function AuthHomePage() {
     <section className="shell-proof" aria-labelledby="app-shell-title">
       <header className="shell-proof__hero">
         <div>
-          <p className="shell-proof__eyebrow">ENJAZ · Phase 3.1</p>
-          <h1 className="type-title-lg" id="app-shell-title">مساحة إنجاز جاهزة</h1>
+          <p className="shell-proof__eyebrow">ENJAZ · Phase 3.2</p>
+          <h1 className="type-title-lg" id="app-shell-title">مساحة إنجاز مرتبطة بالمسارات</h1>
           <p className="type-body-lg shell-proof__lead">
-            المصادقة أصبحت داخل App Shell الحقيقي. هذه المساحة مقصودة كصفحة انتقالية فقط إلى أن تبدأ شاشات الأعمال في المراحل التالية.
+            المصادقة تعمل داخل App Shell، وخريطة التنقل أصبحت مركزية وقابلة للفتح المباشر. هذه ليست Dashboard النهائية؛ الرئيسية الفعلية تبدأ في Phase 4.
           </p>
         </div>
-        <Badge tone="success">Shell active</Badge>
+        <Badge tone="success">Navigation active</Badge>
       </header>
 
       <div className="shell-proof__grid">
         <Card tone="prominent">
-          <CardHeader title="هيكل موحد" subtitle="Top Bar + Navigation + Page Container" />
-          <CardBody>كل شاشة جديدة ستُركّب داخل الهيكل نفسه بدل إنشاء واجهة مختلفة لكل قسم.</CardBody>
+          <CardHeader title="خمسة مسارات رئيسية" subtitle="Home + Today + Transactions + Companies + More" />
+          <CardBody>كل عنصر تنقل يقرأ من عقد مركزي واحد، مع حالة نشطة صحيحة للمسارات المتداخلة.</CardBody>
         </Card>
         <Card tone="surface">
-          <CardHeader title="موبايل أولًا" subtitle="Safe Areas وAndroid keyboard محفوظة" />
-          <CardBody>الهيكل يرث العقود التي اجتازت Phase 2.8 ولا يعيد اختراع سلوك الشاشة أو اللمس.</CardBody>
+          <CardHeader title="Deep Links آمنة" subtitle="المسار لا يعتمد على الوصول من زر سابق" />
+          <CardBody>يمكن فتح جذر أي مجال مباشرة، ويظل الرجوع داخل إنجاز محددًا حتى عند عدم وجود History داخلي سابق.</CardBody>
         </Card>
         <Card tone="raised">
-          <CardHeader title="لا قفز على الخطة" subtitle="Phase 3.2 هي التالية بعد إغلاق 3.1" />
-          <CardBody>المسارات غير النهائية تبقى غير مفعّلة حتى تثبيت Navigation Architecture رسميًا.</CardBody>
+          <CardHeader title="لا قفز على الشاشات" subtitle="المحتوى يبقى Reserved" />
+          <CardBody>التنقل جاهز، لكن كل شاشة أعمال ستُنفذ فقط في مرحلتها حسب الـMaster Roadmap.</CardBody>
         </Card>
       </div>
     </section>

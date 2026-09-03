@@ -23,6 +23,7 @@ const checks = [
   'Premium Pattern Library 2.7',
   'Visual Destruction & Quality Gate 2.8',
   'App Shell 3.1',
+  'Navigation Architecture 3.2',
 ] as const;
 
 export function FoundationStatusPage() {
@@ -55,6 +56,8 @@ export function FoundationStatusPage() {
         <Link className="foundation-link" to={ROUTES.destruction}>فتح Visual Destruction & Quality Gate 2.8</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.shellPreview}>فتح App Shell 3.1</Link>
+        <br />
+        <Link className="foundation-link" to={ROUTES.navigationPreview}>فتح Navigation Architecture 3.2</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.root}>العودة</Link>
       </section>

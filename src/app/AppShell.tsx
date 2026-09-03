@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router';
+import { Outlet, useLocation } from 'react-router';
 import { toAppError } from '../core/errors/AppError.ts';
 import { useAuth } from '../features/auth/state/AuthContext.tsx';
 import { AppShellFrame } from '../shared/shell/AppShellFrame.tsx';
@@ -7,6 +7,7 @@ import { resolveShellNetworkState, type ShellNetworkState } from '../shared/shel
 
 export function AppShell() {
   const { user, service } = useAuth();
+  const location = useLocation();
   const initialNetworkState = resolveShellNetworkState(
     typeof navigator === 'undefined' ? true : navigator.onLine,
   );
@@ -41,6 +42,7 @@ export function AppShell() {
     <AppShellFrame
       userLabel={user?.email ?? user?.id ?? 'حساب إنجاز'}
       networkState={networkState}
+      currentPath={location.pathname}
       busy={busy}
       errorMessage={errorMessage}
       onSignOut={signOut}
