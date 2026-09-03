@@ -42,7 +42,9 @@ const scenarios = [
   {
     name: 'restore broken RTL physical translate centering',
     file: 'src/styles/global-interactions.css',
-    mutate: (value) => value.replace('    margin-inline: auto;\n    transform: none;', '    margin-inline: 0;\n    transform: translateX(-50%);'),
+    mutate: (value) => value
+      .replace('    inset-inline: 0;\n    inset-block-end:', '    inset-inline-start: 50%;\n    inset-block-end:')
+      .replace('    margin-inline: auto;\n    transform: none;', '    margin-inline: 0;\n    transform: translateX(-50%);'),
   },
   {
     name: 'reserve and displace the third navigation lane again',
