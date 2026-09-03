@@ -168,7 +168,7 @@ export function buildHomeDashboardSnapshot(source: HomeDashboardSource, now: Dat
   const activeTransactions = source.transactions.filter(isActiveTransaction);
   const activeById = new Map(activeTransactions.map((transaction) => [transaction.id, transaction] as const));
   const activeIds = new Set(activeById.keys());
-  const openFollowups = source.followups.filter((followup) => followup.status === 'open');
+  const openFollowups = source.followups.filter((followup) => followup.status === 'open' && activeIds.has(followup.transaction_id));
   const overdueFollowups = openFollowups.filter((followup) => isOpenAndUnsnoozed(followup, nowMs) && parseInstant(followup.due_at) < nowMs);
   const openBlockers = source.blockers.filter((blocker) => blocker.status === 'open' && activeIds.has(blocker.transaction_id));
 
