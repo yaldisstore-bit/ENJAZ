@@ -19,7 +19,6 @@
   padding-block: var(--space-5) var(--space-2);
   padding-inline: var(--space-1);
   border: 0;
-  border-radius: 0;
   background: transparent;
   box-shadow: none;
 }
@@ -76,7 +75,6 @@
   min-block-size: 8.75rem;
   padding: var(--space-5);
   border: 0;
-  border-radius: 0;
   background: transparent;
   box-shadow: none;
   transition: background-color var(--duration-fast) var(--easing-standard), transform var(--duration-fast) var(--easing-standard);
@@ -162,7 +160,6 @@
 
 .home-dashboard__priority-list .pattern-risk {
   border: 0;
-  border-radius: 0;
   background: transparent;
   box-shadow: none;
 }
@@ -214,7 +211,6 @@
   gap: var(--space-2);
   padding: var(--space-4);
   border: 0;
-  border-radius: 0;
   background: transparent;
 }
 
@@ -256,7 +252,6 @@
   gap: var(--space-2);
   padding: var(--space-4) var(--space-5);
   border: 0;
-  border-radius: 0;
   background: transparent;
 }
 
