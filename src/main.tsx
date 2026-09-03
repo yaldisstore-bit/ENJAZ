@@ -1,4 +1,11 @@
-import { bootApplication } from './app/bootstrap';
 import './styles/foundation.css';
 
-bootApplication(import.meta.env);
+if (import.meta.env.VITE_ENJAZ_PREVIEW_MODE === 'true') {
+  void import('./app/previewBootstrap').then(({ bootPreviewApplication }) => {
+    bootPreviewApplication();
+  });
+} else {
+  void import('./app/bootstrap').then(({ bootApplication }) => {
+    bootApplication(import.meta.env);
+  });
+}
