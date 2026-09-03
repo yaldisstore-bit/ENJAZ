@@ -12,6 +12,14 @@ function check(name, condition, detail = '') {
   if (!condition) failures.push(`${name}${detail ? ` — ${detail}` : ''}`);
 }
 
+function phaseAtLeast(value, major, minor) {
+  const match = String(value).match(/phase(\d+)\.(\d+)/);
+  if (!match) return false;
+  const foundMajor = Number(match[1]);
+  const foundMinor = Number(match[2]);
+  return foundMajor > major || (foundMajor === major && foundMinor >= minor);
+}
+
 const contract = await text('src/core/routing/navigationContract.ts');
 const routes = await text('src/core/routing/routes.ts');
 const shellContract = await text('src/shared/shell/shellContract.ts');
@@ -62,7 +70,7 @@ check('product navigation route keys are unique', new Set(productRecords.map((re
 check('product navigation ids match roadmap domains', expectedProductIds.every((id) => productRecords.some((record) => record.id === id)));
 check('product routes exclude shell-only More hub', !productRecords.some((record) => record.routeKey === 'appMore'));
 check('all product routes declare authenticated permission', (contract.match(/permission: 'authenticated'/g) ?? []).length >= 18);
-check('all product content remains reserved in 3.2', (contract.match(/contentState: 'reserved'/g) ?? []).length >= 18 && !contract.includes("contentState: 'implemented'"));
+check('all product content remains reserved in navigation contract', (contract.match(/contentState: 'reserved'/g) ?? []).length >= 18 && !contract.includes("contentState: 'implemented'"));
 check('delivery phases stay inside Phase 4 through 12', productRecords.every((record) => Number(record.phase) >= 4 && Number(record.phase) <= 12));
 
 const secondaryBlock = contract.match(/SECONDARY_NAVIGATION_ROUTE_IDS = Object\.freeze\(\[([\s\S]*?)\]\s+as const/);
@@ -100,7 +108,7 @@ check('navigation back contract avoids browser-history escape', !/navigate\s*\(\
 check('access contract has no invented role vocabulary', !/admin|manager|lawyer|accountant|roleId|permissionId/i.test(contract));
 
 check('shell derives its five destinations from primary navigation', shellContract.includes('PRIMARY_NAVIGATION.map') && shellContract.includes('destination: item.path'));
-check('shell has ready-only navigation status in 3.2', shellContract.includes("ShellNavStatus = 'ready'") && !shellContract.includes("status: 'planned'"));
+check('shell has ready-only navigation status', shellContract.includes("ShellNavStatus = 'ready'") && !shellContract.includes("status: 'planned'"));
 check('shell contract contains no direct /app product path literals', !/['"]\/app(?:\/|['"])/.test(shellContract));
 
 for (const marker of [
@@ -119,7 +127,7 @@ check('shell no longer disables primary navigation', !frame.includes('سيتم �
 check('shared shell still owns no auth feature import', !frame.includes('/features/auth') && !frame.includes('useAuth'));
 check('shared shell embeds no product path literals', !/\/app\/(?:today|transactions|companies|finance|documents|notifications)/.test(frame));
 check('shell frame has no inline style bypass', !/\bstyle\s*=\s*\{/.test(frame));
-check('Phase 3.3 global controls are not implemented early in shell', !/global-search|quick-action|notification-entry|operations-entry/i.test(frame));
+check('later shell additions do not bypass navigation ownership with direct writes', !/\.insert\s*\(|\.update\s*\(|\.delete\s*\(|\.upsert\s*\(/.test(frame));
 
 check('app composition reads React Router location', shell.includes("import { Outlet, useLocation } from 'react-router'") && shell.includes('const location = useLocation()'));
 check('app composition passes pathname into shared shell', shell.includes('currentPath={location.pathname}'));
@@ -178,13 +186,15 @@ check('navigation focus remains visibly tokenized', css.includes(':focus-visible
 check('long route paths wrap instead of clipping', css.includes('overflow-wrap: anywhere'));
 check('navigation has narrow-phone adaptation', css.includes('@media (max-width: 30rem)'));
 
-check('application version declares Phase 3.2', version.includes("APP_VERSION = '0.10.0-phase3.2'"));
-check('package version declares Phase 3.2', packageJson.version === '0.10.0-phase3.2');
+const appVersion = version.match(/APP_VERSION = '([^']+)'/)?.[1] ?? '';
+check('application version is Phase 3.2 or later', phaseAtLeast(appVersion, 3, 2), appVersion);
+check('package version is Phase 3.2 or later', phaseAtLeast(packageJson.version, 3, 2), packageJson.version);
 check('navigation audit script is registered', packageJson.scripts?.['audit:navigation'] === 'node scripts/phase3-2-navigation-audit.mjs');
 check('navigation selftest script is registered', packageJson.scripts?.['audit:navigation:selftest'] === 'node scripts/phase3-2-navigation-selftest.mjs');
 check('Phase 3.2 gate extends immutable Phase 3.1 gate', packageJson.scripts?.['verify:phase3.2'] === 'npm run verify:phase3.1 && npm run audit:navigation && npm run audit:navigation:selftest && npm run audit:roadmap');
 check('Phase 3.1 gate command remains unchanged', packageJson.scripts?.['verify:phase3.1'] === 'npm run verify:phase2.8 && npm run audit:shell && npm run audit:shell:selftest && npm run audit:roadmap');
-check('GitHub quality gate covers Phase 3.2', qualityWorkflow.includes('Full Phase 3.2 verification') && qualityWorkflow.includes('npm run verify:phase3.2'));
+const workflowGate = qualityWorkflow.match(/npm run (verify:phase\d+\.\d+)/)?.[1] ?? '';
+check('GitHub quality gate remains Phase 3.2 or later', phaseAtLeast(workflowGate, 3, 2), workflowGate);
 check('foundation status exposes Navigation Architecture 3.2', statusPage.includes('Navigation Architecture 3.2') && statusPage.includes('ROUTES.navigationPreview'));
 
 const phase31 = roadmap.indexOf('## 3.1 — App Shell');
