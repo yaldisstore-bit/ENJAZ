@@ -1,5 +1,5 @@
 :root {
-  /* Phase 2.4 — component contracts are aliases only. */
+  /* Component contracts are aliases only. */
   --control-height-default: var(--size-touch-min);
   --control-height-large: var(--size-control-lg);
   --control-radius: var(--radius-sm);
@@ -77,4 +77,15 @@
   --navigation-background: var(--color-surface);
   --navigation-border: var(--color-border);
   --navigation-touch-target: var(--size-touch-min);
+
+  /* Phase 2.5 — component motion aliases keep interaction timings swappable and consistent. */
+  --motion-control-duration: var(--duration-fast);
+  --motion-state-duration: var(--duration-standard);
+  --motion-overlay-duration: var(--duration-standard);
+  --motion-sheet-duration: var(--duration-deliberate);
+  --motion-feedback-duration: var(--duration-slow);
+  --motion-easing-standard: var(--easing-standard);
+  --motion-easing-enter: var(--easing-enter);
+  --motion-easing-exit: var(--easing-exit);
+  --motion-easing-emphasized: var(--easing-emphasized);
 }

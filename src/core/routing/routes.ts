@@ -5,6 +5,7 @@ export const ROUTES = Object.freeze({
   tokens: '/foundation/tokens',
   typography: '/foundation/typography',
   components: '/foundation/components',
+  motion: '/foundation/motion',
   login: '/auth/login',
   signUp: '/auth/signup',
   forgotPassword: '/auth/forgot-password',

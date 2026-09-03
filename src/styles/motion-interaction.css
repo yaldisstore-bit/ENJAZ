@@ -1,0 +1,233 @@
+/* Phase 2.5 — purposeful motion with explicit transition properties and capability-scoped hover. */
+.ui-button,
+.ui-icon-button {
+  transition:
+    transform var(--motion-control-duration) var(--motion-easing-standard),
+    box-shadow var(--motion-state-duration) var(--motion-easing-standard),
+    opacity var(--motion-control-duration) var(--motion-easing-standard);
+}
+
+.ui-tab,
+.ui-switch,
+.ui-checkbox__box,
+.ui-field__control {
+  transition-duration: var(--motion-state-duration);
+  transition-timing-function: var(--motion-easing-standard);
+}
+
+.ui-switch__thumb {
+  transition:
+    inset-inline-start var(--motion-state-duration) var(--motion-easing-emphasized),
+    transform var(--motion-control-duration) var(--motion-easing-standard);
+}
+
+.ui-checkbox__box > span {
+  opacity: 0;
+  transform: scale(var(--motion-scale-enter));
+  transition:
+    opacity var(--motion-control-duration) var(--motion-easing-standard),
+    transform var(--motion-control-duration) var(--motion-easing-emphasized);
+}
+
+.ui-checkbox input:checked + .ui-checkbox__box > span {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ui-button__spinner {
+  animation-duration: var(--motion-feedback-duration);
+  animation-timing-function: var(--easing-linear);
+}
+
+.ui-skeleton {
+  animation-duration: var(--motion-feedback-duration);
+  animation-timing-function: var(--motion-easing-standard);
+}
+
+.ui-field__error {
+  animation: ui-motion-error-in var(--motion-control-duration) var(--motion-easing-enter) both;
+}
+
+@keyframes ui-motion-error-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--motion-distance-sm) * -1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ui-button:not(:disabled):hover,
+  .ui-icon-button:not(:disabled):hover {
+    transform: translateY(var(--hover-translate-y)) scale(var(--hover-scale));
+  }
+
+  .ui-button--primary:not(:disabled):hover,
+  .ui-button--danger:not(:disabled):hover,
+  .ui-icon-button:not(:disabled):hover {
+    box-shadow: var(--button-shadow-raised);
+  }
+}
+
+.ui-motion-reveal {
+  animation-duration: var(--motion-state-duration);
+  animation-timing-function: var(--motion-easing-enter);
+  animation-fill-mode: both;
+}
+
+.ui-motion-reveal[data-motion-preset='fade'] {
+  animation-name: ui-motion-fade-in;
+}
+
+.ui-motion-reveal[data-motion-preset='rise'] {
+  animation-name: ui-motion-rise-in;
+}
+
+.ui-motion-reveal[data-motion-preset='scale'] {
+  animation-name: ui-motion-scale-in;
+}
+
+.ui-motion-reveal[data-motion-delay='1'] { animation-delay: var(--motion-delay-1); }
+.ui-motion-reveal[data-motion-delay='2'] { animation-delay: var(--motion-delay-2); }
+.ui-motion-reveal[data-motion-delay='3'] { animation-delay: var(--motion-delay-3); }
+
+@keyframes ui-motion-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ui-motion-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-sm));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ui-motion-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(var(--motion-scale-enter));
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ui-overlay[data-motion-state='entering'],
+.ui-overlay[data-motion-state='entered'] {
+  animation: ui-overlay-enter var(--motion-overlay-duration) var(--motion-easing-standard) both;
+}
+
+.ui-overlay[data-motion-state='exiting'] {
+  pointer-events: none;
+  animation: ui-overlay-exit var(--motion-overlay-duration) var(--motion-easing-exit) both;
+}
+
+.ui-overlay--dialog[data-motion-state='entering'] .ui-dialog,
+.ui-overlay--dialog[data-motion-state='entered'] .ui-dialog {
+  animation: ui-dialog-enter var(--motion-overlay-duration) var(--motion-easing-emphasized) both;
+}
+
+.ui-overlay--dialog[data-motion-state='exiting'] .ui-dialog {
+  animation: ui-dialog-exit var(--motion-overlay-duration) var(--motion-easing-exit) both;
+}
+
+.ui-overlay--sheet[data-motion-state='entering'] .ui-sheet,
+.ui-overlay--sheet[data-motion-state='entered'] .ui-sheet {
+  animation: ui-sheet-enter var(--motion-sheet-duration) var(--motion-easing-emphasized) both;
+}
+
+.ui-overlay--sheet[data-motion-state='exiting'] .ui-sheet {
+  animation: ui-sheet-exit var(--motion-sheet-duration) var(--motion-easing-exit) both;
+}
+
+@keyframes ui-overlay-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ui-overlay-exit {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes ui-dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-sm)) scale(var(--motion-scale-enter));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ui-dialog-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-sm)) scale(var(--motion-scale-enter));
+  }
+}
+
+@keyframes ui-sheet-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-md));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ui-sheet-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-md));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-motion-reveal,
+  .ui-overlay,
+  .ui-overlay__panel,
+  .ui-field__error,
+  .ui-skeleton,
+  .ui-button__spinner {
+    animation: none;
+  }
+
+  .ui-button,
+  .ui-icon-button,
+  .ui-tab,
+  .ui-switch,
+  .ui-switch__thumb,
+  .ui-checkbox__box,
+  .ui-checkbox__box > span,
+  .ui-field__control {
+    transition: none;
+  }
+
+  .ui-button:not(:disabled):hover,
+  .ui-icon-button:not(:disabled):hover,
+  .ui-button:not(:disabled):active,
+  .ui-icon-button:not(:disabled):active {
+    transform: none;
+  }
+}
