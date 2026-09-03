@@ -157,7 +157,7 @@ export function GlobalInteractionSurfaces({ inboxCount = 0 }: GlobalInteractionS
         id="global-quick-create"
         open={quickCreateOpen}
         title="إنشاء سريع"
-        description="نقطة دخول واحدة؛ نماذج الإنشاء تبقى مملوكة للمجالات ولا تُنسخ داخل App Shell."
+        description="نقطة دخول واحدة؛ يفوّض التنفيذ إلى المجال المالك، وتبقى نماذج الإنشاء مملوكة للمجالات ولا تُنسخ داخل App Shell."
         onClose={() => setQuickCreateOpen(false)}
         className="global-surface"
       >
