@@ -3,7 +3,7 @@ import { ROUTES } from '../../../core/routing/routes';
 import { APP_VERSION, FOUNDATION_SCHEMA_VERSION } from '../../../core/version/version';
 
 const checks = [
-  'React + TypeScript application shell',
+  'React + TypeScript application foundation',
   'Central route registry',
   'Strict runtime configuration validation',
   'Typed application errors',
@@ -22,6 +22,7 @@ const checks = [
   'Mobile / Android Hardening 2.6',
   'Premium Pattern Library 2.7',
   'Visual Destruction & Quality Gate 2.8',
+  'App Shell 3.1',
 ] as const;
 
 export function FoundationStatusPage() {
@@ -52,6 +53,8 @@ export function FoundationStatusPage() {
         <Link className="foundation-link" to={ROUTES.patterns}>فتح Premium Pattern Library 2.7</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.destruction}>فتح Visual Destruction & Quality Gate 2.8</Link>
+        <br />
+        <Link className="foundation-link" to={ROUTES.shellPreview}>فتح App Shell 3.1</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.root}>العودة</Link>
       </section>
