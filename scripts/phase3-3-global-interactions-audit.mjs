@@ -33,10 +33,9 @@ const doc = await text('docs/PHASE_3_3_GLOBAL_INTERACTION_SURFACES.md');
 const readme = await text('README.md');
 
 const surfaceIds = [...interactionContract.matchAll(/id: '(search|inbox|quickCreate|control)'/g)].map((match) => match[1]);
-const firstFourSurfaceIds = surfaceIds.slice(0, 4);
-check('global interaction contract declares exactly four surface records', firstFourSurfaceIds.length === 4);
-check('global surface ids are unique', new Set(firstFourSurfaceIds).size === 4);
-check('global surface order is frozen', JSON.stringify(firstFourSurfaceIds) === JSON.stringify(['search', 'inbox', 'quickCreate', 'control']));
+check('global interaction contract declares exactly four surface records', surfaceIds.length === 4, `count=${surfaceIds.length}`);
+check('global surface ids are unique', new Set(surfaceIds).size === 4);
+check('global surface order is frozen', JSON.stringify(surfaceIds) === JSON.stringify(['search', 'inbox', 'quickCreate', 'control']));
 check('global surface count constant is four', interactionContract.includes('GLOBAL_INTERACTION_SURFACE_COUNT = 4'));
 
 for (const marker of [
@@ -102,7 +101,10 @@ check('Phase 3.3 does not alter eighteen product-domain roots', productRecords.l
 check('Phase 3.3 does not invent a twentieth app route', appRouteEntries.length === 19, `count=${appRouteEntries.length}`);
 check('global interaction proof route is outside product namespace', routes.includes("interactionsPreview: '/foundation/interactions'"));
 check('navigation content remains reserved', !navigationContract.includes("contentState: 'implemented'"));
-check('bottom navigation remains exactly five primary slots', (navigationContract.match(/\{ id: '(?:home|work|transactions|companies|more)'/g) ?? []).length === 5);
+const primaryNavigationBlock = navigationContract.match(/export const PRIMARY_NAVIGATION = Object\.freeze\(\[([\s\S]*?)\]\s+as const satisfies readonly PrimaryNavigationItem\[\]\);/)?.[1] ?? '';
+const primarySlotIds = [...primaryNavigationBlock.matchAll(/\{ id: '([^']+)'/g)].map((match) => match[1]);
+check('bottom navigation remains exactly five primary slots', primarySlotIds.length === 5, `count=${primarySlotIds.length}`);
+check('bottom navigation preserves frozen primary slot order', JSON.stringify(primarySlotIds) === JSON.stringify(['home', 'work', 'transactions', 'companies', 'more']));
 
 for (const marker of [
   "import { BottomSheet, Dialog, TextField }",
