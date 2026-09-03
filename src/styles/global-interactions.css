@@ -170,7 +170,7 @@
   flex: 0 0 auto;
   color: var(--color-brand-strong);
   font-size: var(--font-size-title-sm);
-  line-height: var(--line-height-title-sm);
+  line-height: var(--line-height-title);
 }
 
 .global-surface__delegate {
