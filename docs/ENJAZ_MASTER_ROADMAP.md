@@ -202,19 +202,21 @@ Phase 3 began only after 2.8 was green. Its exit was verified through the comple
 
 ---
 
-# Phase 4 — Home, Daily Work & Executive Overview ⏭ CURRENT NEXT PHASE
+# Phase 4 — Home, Daily Work & Executive Overview 🚧
 
-Phase 4 is the next permitted phase. It has **not started** as part of the Phase 3.4 closure.
+Phase 4 has started. **Phase 4.1 is closed ✅.** Phase 4.2 is the next permitted subphase and remains **not started** as part of this closure.
 
-## 4.1 — Home / Dashboard
+## 4.1 — Home / Dashboard ✅
 - Build the actual ENJAZ home screen using Phase 2 patterns.
 - Priorities, pending work, urgent items, financial snapshot, and meaningful operational signals.
 - No decorative metrics without business value.
+- Exit verified through the complete Phase 4.1 Quality Gate, destructive Home selftest, merged-main production build/artifact, and GitHub Pages deployment.
 
-## 4.2 — Daily Work / Universal Inbox
+## 4.2 — Daily Work / Universal Inbox ⏭ CURRENT NEXT PHASE
 - Consolidated work queue.
 - Follow-ups, overdue work, approvals/action-needed items, and task-like operational signals.
 - Clear ownership and state.
+- **Status:** not started; no 4.2 implementation is included in the 4.1 closure.
 
 ## 4.3 — Executive Briefing
 - Concise operational summary.
@@ -609,7 +611,8 @@ The project is considered delivered only when:
 - Phase 3.3 ✅
 - Phase 3.4 ✅
 - **Phase 3 — Application Shell & Navigation ✅**
-- **Next: Phase 4 — Home, Daily Work & Executive Overview**
+- **Phase 4.1 — Home / Dashboard ✅**
+- **Next: Phase 4.2 — Daily Work / Universal Inbox**
 
 ---
 
@@ -617,7 +620,7 @@ The project is considered delivered only when:
 
 This file is intentionally difficult to change by accident.
 
-This closure changes only verified roadmap state: Phase 3 is marked complete after its green 3.4 exit gate, and Phase 4 becomes the next permitted phase. Feature parity and delivery scope are unchanged; no business implementation is moved or skipped.
+This closure changes only verified roadmap state: Phase 4.1 is marked complete after its implementation PR, merged-main Quality Gate, production artifact and Pages validation succeeded; Phase 4.2 becomes the next permitted subphase but remains not started. Feature parity and delivery scope are unchanged; no business implementation is moved or skipped.
 
 A roadmap change must state:
 1. what changes,
