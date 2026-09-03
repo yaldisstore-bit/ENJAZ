@@ -20,6 +20,7 @@ const checks = [
   'Core Component System 2.4',
   'Motion & Interaction System 2.5',
   'Mobile / Android Hardening 2.6',
+  'Premium Pattern Library 2.7',
 ] as const;
 
 export function FoundationStatusPage() {
@@ -46,6 +47,8 @@ export function FoundationStatusPage() {
         <Link className="foundation-link" to={ROUTES.motion}>فتح مختبر Motion & Interaction 2.5</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.mobile}>فتح مختبر Mobile / Android 2.6</Link>
+        <br />
+        <Link className="foundation-link" to={ROUTES.patterns}>فتح Premium Pattern Library 2.7</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.root}>العودة</Link>
       </section>
