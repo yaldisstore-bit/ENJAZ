@@ -1,0 +1,140 @@
+/* Phase 2.6 — mobile / Android runtime hardening. */
+
+html,
+body,
+#root {
+  min-inline-size: var(--size-page-min);
+  max-inline-size: 100%;
+}
+
+body,
+#root {
+  min-block-size: 100vh;
+}
+
+@supports (height: 100dvh) {
+  body,
+  #root {
+    min-block-size: 100dvh;
+  }
+}
+
+html,
+body {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+@supports (overflow: clip) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+}
+
+#root {
+  isolation: isolate;
+}
+
+main,
+section,
+article,
+form,
+.ui-card,
+.ui-overlay__panel {
+  min-inline-size: 0;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-inline-size: 100%;
+}
+
+button,
+a,
+[role='button'],
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+input,
+select,
+textarea,
+.ui-field__control,
+.auth-form input {
+  scroll-margin-block: max(var(--space-8), env(safe-area-inset-top, 0px)) max(var(--space-12), env(safe-area-inset-bottom, 0px));
+}
+
+.ui-field__control,
+.auth-form input {
+  font-size: var(--font-size-body);
+}
+
+.ui-overlay {
+  padding-block: max(var(--space-fluid-page), env(safe-area-inset-top, 0px)) max(var(--space-fluid-page), env(safe-area-inset-bottom, 0px));
+  padding-inline: max(var(--space-fluid-page), env(safe-area-inset-left, 0px)) max(var(--space-fluid-page), env(safe-area-inset-right, 0px));
+}
+
+.ui-overlay__panel {
+  max-block-size: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - var(--space-8));
+}
+
+@supports (height: 100dvh) {
+  .ui-overlay__panel {
+    max-block-size: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - var(--space-8));
+  }
+}
+
+.ui-overlay__body {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ui-sheet .ui-overlay__footer {
+  padding-block-end: max(var(--space-5), env(safe-area-inset-bottom, 0px));
+}
+
+.auth-page {
+  min-block-size: 100vh;
+  scroll-padding-block-end: var(--space-12);
+}
+
+@supports (height: 100dvh) {
+  .auth-page {
+    min-block-size: 100dvh;
+  }
+}
+
+@media (pointer: coarse) {
+  button,
+  a,
+  [role='button'],
+  input,
+  select,
+  textarea {
+    min-block-size: var(--size-touch-min);
+  }
+
+  html {
+    scroll-padding-block-end: var(--size-visual-xl);
+  }
+
+  .ui-overlay__body {
+    scroll-padding-block-end: var(--size-visual-xl);
+  }
+}
+
+@media (max-width: 48rem) {
+  .ui-overlay {
+    place-items: end stretch;
+  }
+
+  .ui-dialog,
+  .ui-sheet {
+    inline-size: 100%;
+  }
+}
