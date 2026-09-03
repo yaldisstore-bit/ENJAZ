@@ -57,7 +57,11 @@ for (const marker of [
   '# Phase 2 — ENJAZ Design System 1.0 ✅',
   '## 2.8 — Visual Destruction & Quality Gate ✅',
   'Phase 2.8 ✅',
-  'Next: Phase 3 — Application Shell & Navigation',
+  '# Phase 3 — Application Shell & Navigation ✅',
+  '## 3.4 — Shell Destruction Gate ✅',
+  'Phase 3.4 ✅',
+  'Next: Phase 4 — Home, Daily Work & Executive Overview',
+  'Phase 4 is the next permitted phase. It has **not started**',
 ]) {
   if (!roadmap.includes(marker)) errors.push(`roadmap marker missing: ${marker}`);
 }
@@ -67,6 +71,9 @@ for (const marker of [
   'Phase 2.8 — Visual Destruction & Quality Gate ✅',
   'ENJAZ Design System 1.0',
   'Phase 3 — Application Shell & Navigation',
+  'Phase 3.4 — Shell Destruction Gate ✅',
+  'Phase 4 — Home, Daily Work & Executive Overview',
+  'لم تبدأ بعد',
 ]) {
   if (!readme.includes(marker)) errors.push(`README marker missing: ${marker}`);
 }
@@ -76,5 +83,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2.1→2.8 frozen, and Phase 3 handoff protected.`);
+  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2 frozen, Phase 3 complete, and Phase 4 handoff protected.`);
 }
