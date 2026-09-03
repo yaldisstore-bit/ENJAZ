@@ -33,8 +33,9 @@ includesAll('workspace resolver', gateway, [
 check('Home feature has no direct Supabase dependency', !/supabase|createClient|\.from\s*\(|\.rpc\s*\(/i.test(`${model}\n${service}\n${hook}\n${page}\n${preview}`));
 includesAll('workspace regression tests', dataTests, ['workspace_memberships', 'invalid user id', 'returns null when membership is absent', 'DATA_FORBIDDEN']);
 
+check('Home source page size is exactly 100', /const HOME_PAGE_SIZE\s*=\s*100\s*;/.test(service));
 includesAll('bounded source loading', service, [
-  'const HOME_PAGE_SIZE = 100', 'let offset = 0', 'limit: HOME_PAGE_SIZE', 'offset += page.items.length',
+  'let offset = 0', 'limit: HOME_PAGE_SIZE', 'offset += page.items.length',
   "throw new Error('Non-progressing dashboard data page')", 'await Promise.all([', 'layer.transactions', 'layer.followups', 'layer.blockers', 'layer.payments',
 ]);
 includesAll('source lifecycle filters', service, [
