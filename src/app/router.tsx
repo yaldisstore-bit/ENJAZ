@@ -17,7 +17,7 @@ import { SignUpPage } from '../features/auth/pages/SignUpPage';
 import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage';
 import { UpdatePasswordPage } from '../features/auth/pages/UpdatePasswordPage';
 import { AnonymousOnlyRoute, ProtectedRoute, RootRoute } from '../features/auth/pages/AuthRouteGuards';
-import { AuthHomePage } from '../features/auth/pages/AuthHomePage';
+import { HomeDashboardPage } from '../features/home/pages/HomeDashboardPage.tsx';
 import { NavigationBoundaryPage } from '../features/navigation/pages/NavigationBoundaryPage.tsx';
 import { NavigationLabPage } from '../features/navigation/pages/NavigationLabPage.tsx';
 import { PRODUCT_NAVIGATION_ROUTES } from '../core/routing/navigationContract.ts';
@@ -58,7 +58,7 @@ export const router = createBrowserRouter([
       {
         Component: AppShell,
         children: [
-          { path: ROUTES.appHome, Component: AuthHomePage },
+          { path: ROUTES.appHome, Component: HomeDashboardPage },
           { path: ROUTES.appMore, Component: NavigationBoundaryPage },
           ...reservedProductRoutes,
         ],
