@@ -1,6 +1,6 @@
 # Phase 2.8 — Visual Destruction & Quality Gate
 
-Status: **PR-verified release candidate; awaiting merged `main` Quality Gate for final closure.**
+Status: **complete ✅ — Pull Request and merged `main` Quality Gates passed. ENJAZ Design System 1.0 is frozen.**
 
 Phase 2.8 exists to break the ENJAZ visual system **before** Phase 3 is allowed to build the real App Shell and product screens. It does not add business features. It tortures ENJAZ Design System 1.0, the Premium Pattern Library, RTL/mobile contracts and visual governance until failures are either caught automatically or made explicit.
 
@@ -18,7 +18,7 @@ The `/foundation/destruction` lab proves the following cases together:
 - Simultaneous **offline**, error, **conflict** and recovery states.
 - Explicit **reduced motion** behavior.
 - Keyboard **focus** traversal across buttons, fields, action menus and links.
-- User **zoom** must remain enabled; the viewport must never use `user-scalable=no` or a restrictive maximum scale.
+- User **zoom** remains enabled; the viewport never uses `user-scalable=no` or a restrictive maximum scale.
 - Long content, overflow, density and wrapping stress.
 
 Dark/light contrast is conditional in the governing roadmap. ENJAZ does not currently expose a dark theme in Phase 2.8, so this gate does not invent a fake dark mode. Existing token contrast contracts remain enforced; if a dark theme is introduced later it must enter the same destruction gate.
@@ -92,9 +92,9 @@ The selftest intentionally injects bad states and requires the audit to reject t
 - downgrading the Phase 2.8 verification command,
 - unlocking Phase 3 before the gate passes.
 
-## Verified Pull Request results
+## Verified results
 
-GitHub Actions run #77 passed the complete Phase 2.8 chain:
+The complete Phase 2.8 chain passed on the Pull Request and again on merged `main` (main run #82):
 
 - **106/106** behavior and contract tests passed.
 - **90/90** Phase 2.8 torture/mobile/RTL/accessibility/gate invariants passed.
@@ -115,19 +115,17 @@ GitHub Actions run #77 passed the complete Phase 2.8 chain:
 
 ## Exit criteria
 
-Phase 2.8 is complete only when:
+All Phase 2.8 exit criteria are satisfied:
 
-1. all required torture fixtures exist in the destruction lab,
-2. all existing Phase 0–2.7 gates remain green,
-3. the Phase 2.8 visual audit is fully green,
-4. every deliberate Phase 2.8 regression is rejected,
-5. TypeScript succeeds,
-6. the Vite production build succeeds,
-7. the Pull Request Quality Gate is green,
-8. the merged `main` Quality Gate is green,
-9. ENJAZ Design System 1.0 is then marked frozen,
-10. only then is **Phase 3** unlocked.
-
-Criteria 1–7 are verified on the PR. Criterion 8 is intentionally verified only after merge. The governing roadmap is prepared for the handoff, but final closure is not claimed until the merged `main` commit passes.
+1. all required torture fixtures exist in the destruction lab ✅
+2. all existing Phase 0–2.7 gates remain green ✅
+3. the Phase 2.8 visual audit is fully green ✅
+4. every deliberate Phase 2.8 regression is rejected ✅
+5. TypeScript succeeds ✅
+6. the Vite production build succeeds ✅
+7. the Pull Request Quality Gate is green ✅
+8. the merged `main` Quality Gate is green ✅
+9. **ENJAZ Design System 1.0 is frozen** ✅
+10. **Phase 3 — Application Shell & Navigation is unlocked** ✅
 
 No successful automated run is described as a real-device manual visual inspection. Phase 2.8 distinguishes deterministic automated destruction from later full-system real-device validation.
