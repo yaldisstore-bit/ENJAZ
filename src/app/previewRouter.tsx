@@ -5,6 +5,7 @@ import { TokenLabPage } from '../features/foundation/pages/TokenLabPage';
 import { TypographyLabPage } from '../features/foundation/pages/TypographyLabPage';
 import { ComponentLabPage } from '../features/foundation/pages/ComponentLabPage';
 import { MotionLabPage } from '../features/foundation/pages/MotionLabPage';
+import { MobileLabPage } from '../features/foundation/pages/MobileLabPage';
 import { NotFoundPage } from '../features/foundation/pages/NotFoundPage';
 import { ROUTES } from '../core/routing/routes';
 
@@ -16,5 +17,6 @@ export const previewRouter = createBrowserRouter([
   { path: ROUTES.typography, Component: TypographyLabPage },
   { path: ROUTES.components, Component: ComponentLabPage },
   { path: ROUTES.motion, Component: MotionLabPage },
+  { path: ROUTES.mobile, Component: MobileLabPage },
   { path: '*', Component: NotFoundPage },
 ], { basename: import.meta.env.BASE_URL });

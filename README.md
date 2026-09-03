@@ -2,7 +2,7 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية الحالية: **Phase 2.5 — Motion & Interaction System ✅**
+الحالة الرسمية الحالية: **Phase 2.6 — Mobile / Android Hardening ✅**
 
 إنجاز مشروع جديد مبني من الصفر بهوية مستقلة وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية الأساسية للمشروع السابق دون نقل واجهاته أو الـlegacy UI DNA.
 
@@ -19,10 +19,9 @@
 - **Phase 2.3 — Typography & RTL System** ✅
 - **Phase 2.4 — Core Component System** ✅
 - **Phase 2.5 — Motion & Interaction System** ✅
+- **Phase 2.6 — Mobile / Android Hardening** ✅
 
-التالي: **Phase 2.6 — Mobile / Android Hardening**.
-
-## ما تم تثبيته حتى 2.5
+## ما تم تثبيته حتى 2.6
 
 - React + TypeScript + Vite
 - Supabase Auth / PostgreSQL / RLS foundation
@@ -44,8 +43,14 @@
 - Press feedback للمس وHover محصور بالأجهزة ذات المؤشر الدقيق
 - دعم إلزامي لـ`prefers-reduced-motion`
 - منع `transition: all` والحركات اللانهائية غير المصرح بها والأزمنة/easing العشوائية
+- Android keyboard-aware viewport مع `interactive-widget=resizes-content`
+- `100vh` fallback مع `100dvh` enhancement للأشرطة الديناميكية ولوحة المفاتيح
+- Safe Area على الجهات الأربع مع حماية صريحة لأسفل Bottom Sheet
+- منع التسرب والانكسار الأفقي واحتواء overscroll على الهاتف
+- Touch contract مبني على capability مع `(pointer: coarse)` وحد أدنى 44px
+- Keyboard-aware scroll margins للحقول وحقول overlays
 - Accessibility contracts و44px touch floor
-- اختبارات تخريب تمنع regressions في الأمن والبيانات والهوية والـRTL والمكونات والحركة
+- اختبارات تخريب تمنع regressions في الأمن والبيانات والهوية والـRTL والمكونات والحركة والموبايل
 
 ## المختبرات داخل التطبيق
 
@@ -54,27 +59,30 @@
 - `/foundation/typography` — مختبر Typography & RTL 2.3
 - `/foundation/components` — مختبر Core Components 2.4
 - `/foundation/motion` — مختبر Motion & Interaction 2.5
+- `/foundation/mobile` — مختبر Mobile / Android Hardening 2.6
 
 ## Quality Gate
 
 المستودع مرتبط بـ GitHub Actions، والبوابة الدائمة تشغّل على `main` وعلى Pull Requests:
 
 1. `npm ci`
-2. التحقق الكامل حتى `verify:phase2.5`
+2. التحقق الكامل حتى `verify:phase2.6`
 3. TypeScript الحقيقي `tsc -b`
 4. Vite production build
 5. التحقق من إنتاج `dist/index.html`
 
-آخر اعتماد لـ Phase 2.5 اجتاز البوابة كاملة بنجاح على GitHub Runner الحقيقي، بما في ذلك:
+اعتماد Phase 2.6 على Pull Request اجتاز البوابة كاملة بنجاح على GitHub Runner الحقيقي، بما في ذلك:
 
-- **85/85 behavior tests**
-- **127/127 Motion / Interaction / Presence / Reduced-Motion invariants**
+- **90/90 behavior tests**
+- **50/50 Mobile / Android invariants**
+- **7/7 deliberate mobile regressions rejected**
+- **133/133 Motion / Interaction / Presence / Reduced-Motion invariants**
 - **16/16 deliberate motion regressions rejected**
 - **41/41 component/accessibility/RTL/gate invariants**
 - **17/17 deliberate component regressions rejected**
 - **264 total tokens / 220 public typed tokens / 77 component contracts**
 - TypeScript `tsc -b` ✅
-- Vite 8.2.2 production build ✅ — 169 modules transformed
+- Vite 8.2.2 production build ✅ — 171 modules transformed
 - `dist/index.html` assertion ✅
 
 ## الأمان والأسرار
@@ -83,4 +91,4 @@
 
 ## ملاحظة التطوير
 
-`main` هو المصدر الرسمي المعتمد. أي مرحلة جديدة تُبنى على فرع مستقل، تمر عبر GitHub Quality Gate، ثم تُدمج فقط بعد نجاح الاختبارات وTypeScript وProduction Build.
+`main` هو المصدر الرسمي المعتمد. أي مرحلة جديدة تُبنى على فرع مستقل، تمر عبر GitHub Quality Gate، ثم تُدمج فقط بعد نجاح الاختبارات وTypeScript وProduction Build. بعد الدمج يعاد تشغيل البوابة على `main` نفسه للتأكد من سلامة النسخة الرسمية.
