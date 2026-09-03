@@ -32,5 +32,5 @@ export function resolveShellNetworkState(isOnline: boolean): ShellNetworkState {
 export function getShellUserInitial(value: string | null | undefined): string {
   const trimmed = value?.trim();
   if (!trimmed) return 'إ';
-  return Array.from(trimmed)[0] ?? 'إ';
+  return [...trimmed][0] ?? 'إ';
 }
