@@ -111,13 +111,14 @@ export function isNavigationPathActive(pathname: string, target: string): boolea
   const current = normalizeNavigationPath(pathname);
   const normalizedTarget = normalizeNavigationPath(target);
   if (current === normalizedTarget) return true;
-  if (normalizedTarget === '/') return false;
+  if (normalizedTarget === '/' || normalizedTarget === ROUTES.appHome) return false;
   return current.startsWith(`${normalizedTarget}/`);
 }
 
 export function getProductNavigationRoute(pathname: string): ProductNavigationRoute | null {
   const normalized = normalizeNavigationPath(pathname);
   for (const route of PRODUCT_ROUTES_BY_PATH_LENGTH) {
+    if (route.path === ROUTES.appHome && normalized !== ROUTES.appHome) continue;
     if (isNavigationPathActive(normalized, route.path)) return route;
   }
   return null;
@@ -134,7 +135,7 @@ export function resolvePrimaryNavigation(pathname: string): PrimaryNavigationId 
   if (isNavigationPathActive(normalized, ROUTES.appMore)) return 'more';
   const route = getProductNavigationRoute(normalized);
   if (!route) return null;
-  return PRIMARY_NAVIGATION.find((item) => item.routeIds.includes(route.id))?.id ?? 'more';
+  return PRIMARY_NAVIGATION.find((item) => item.routeIds.some((routeId) => routeId === route.id))?.id ?? 'more';
 }
 
 export function resolveNavigationAccess(
