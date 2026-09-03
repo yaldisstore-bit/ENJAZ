@@ -19,3 +19,10 @@ test('Home receives authenticated user identity through app composition, never A
   assert.match(appShell, /CurrentUserIdProvider userId=\{user\?\.id \?\? null\}/);
   assert.doesNotMatch(sharedSession, /features\/|AuthContext|useAuth/);
 });
+
+test('offline React shim models JSX keys and functional state updates used by real React', async () => {
+  const shim = await source('types/offline-react.d.ts');
+  assert.match(shim, /interface IntrinsicAttributes \{ key\?: string \| number \}/);
+  assert.match(shim, /SetStateAction<T> = T \| \(\(previous: T\) => T\)/);
+  assert.match(shim, /useState<T>\(initial: T \| \(\(\) => T\)\)/);
+});
