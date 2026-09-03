@@ -2,8 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الحالية على فرع التطوير: **Phase 4.1 — Home / Dashboard 🚧**  
-آخر مرحلة مغلقة رسميًا على `main`: **Phase 3.4 — Shell Destruction Gate ✅**.
+الحالة الرسمية: **Phase 4.1 — Home / Dashboard ✅**  
+آخر مرحلة مغلقة: **Phase 4.1 — Home / Dashboard ✅**.  
+التالي المسموح: **Phase 4.2 — Daily Work / Universal Inbox**، ولم تبدأ بعد.
 
 إنجاز مشروع جديد مبني من الصفر بهوية مستقلة وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية الأساسية للمشروع السابق دون نقل واجهاته أو الـlegacy UI DNA.
 
@@ -12,7 +13,7 @@
 - [`docs/ENJAZ_MASTER_ROADMAP.md`](docs/ENJAZ_MASTER_ROADMAP.md) — التسلسل الرسمي حتى **ENJAZ 1.0 — Delivered**.
 - [`docs/ENJAZ_ROADMAP_PROVENANCE.md`](docs/ENJAZ_ROADMAP_PROVENANCE.md) — مصدر الخطة وحدود استعادة التسميات التاريخية.
 
-**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. لا تصبح 4.1 ✅ قبل نجاح PR ثم `main` ثم GitHub Pages على نفس SHA النهائي.
+**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. Phase 4.2 لا تبدأ قبل أن يصبح إغلاق 4.1 نفسه أخضر على PR ثم `main` ثم GitHub Pages على نفس SHA النهائي.
 
 ## حالة المراحل
 
@@ -26,15 +27,15 @@
   - **Phase 3.2 — Navigation Architecture** ✅
   - **Phase 3.3 — Global Interaction Surfaces** ✅
   - **Phase 3.4 — Shell Destruction Gate** ✅
-- **Phase 4 — Home, Daily Work & Executive Overview** 🚧 CURRENT
-  - **Phase 4.1 — Home / Dashboard** 🚧 in progress
+- **Phase 4 — Home, Daily Work & Executive Overview** 🚧
+  - **Phase 4.1 — Home / Dashboard** ✅ complete
   - **Phase 4.2 — Daily Work / Universal Inbox** ⏳ not started
   - **Phase 4.3 — Executive Briefing** ⏳ not started
   - **Phase 4.4 — Home Destruction Gate** ⏳ not started
 
-## Phase 4.1 — ما يتم بناؤه الآن
+## Phase 4.1 — المكتمل رسميًا
 
-4.1 تستبدل الـHome المؤقتة بشاشة تشغيلية حقيقية فوق الـApp Shell وDesign System 1.0 المجمد:
+4.1 استبدلت الـHome المؤقتة بشاشة تشغيلية حقيقية فوق الـApp Shell وDesign System 1.0 المجمد:
 
 - استعادة Workspace للمستخدم من `workspace_memberships` عبر Data Layer المركزية وRLS، لا باشتقاق معرف وهمي.
 - معاملات نشطة فقط؛ المؤرشف والمحذوف والمكتمل لا يدخل في عدادات العمل النشط.
@@ -74,7 +75,9 @@ GitHub Actions يعمل على Pull Requests وعلى `main`:
 6. TypeScript الحقيقي `tsc -b`.
 7. Vite production build وفحص `dist/index.html`.
 8. الاحتفاظ بالـproduction artifact على `main`.
-9. GitHub Pages يجب أن ينشر نفس merged-main SHA قبل إغلاق 4.1.
+9. GitHub Pages ينشر فقط بعد نجاح Quality Gate على `main`.
+
+PR #16 اجتاز Quality Gate الكامل على feature head قبل الدمج: **161/161** behavior/contract tests، **146/146** Home Audit، **42/42** Home destructive regressions، TypeScript الحقيقي، وProduction Build. ثم دُمج بـSquash إلى `main` على `a9aaf1a134072d40a4183832eff11348502d0415`؛ ونجح Main Quality Gate #208 وENJAZ Pages Preview #168 على الـSHA نفسه، مع production artifact محفوظ. إغلاق 4.1 الحالي لا يصبح نهائيًا إلا بعد أن يكرر Closure PR هذه البوابات وينجح `main` وPages على SHA الإغلاق النهائي.
 
 Phase 3.4 السابقة بقيت مثبتة على feature SHA `a2df0390858e93fb4d55cf9412f5f6b452a1ed18`، ثم أُغلق Phase 3 توثيقيًا على final main SHA `87d2f44f7b319006c9dbf84913970508e8093e7e` بعد نجاح Quality Gate #186 وPages #146.
 
@@ -84,4 +87,4 @@ Phase 3.4 السابقة بقيت مثبتة على feature SHA `a2df0390858e93f
 
 ## ملاحظة التطوير
 
-`main` هو المصدر الرسمي المعتمد. **Phase 4.1 ما زالت قيد التنفيذ على فرع مستقل، وPhase 4.2 لم تبدأ.**
+`main` هو المصدر الرسمي المعتمد. **Phase 4.1 مغلقة عند اكتمال Closure Gate النهائي؛ Phase 4.2 هي الخطوة التالية المسموحة ولم تبدأ.**
