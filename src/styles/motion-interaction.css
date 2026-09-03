@@ -223,4 +223,11 @@
   .ui-field__control {
     transition: none;
   }
+
+  .ui-button:not(:disabled):hover,
+  .ui-icon-button:not(:disabled):hover,
+  .ui-button:not(:disabled):active,
+  .ui-icon-button:not(:disabled):active {
+    transform: none;
+  }
 }
