@@ -1,0 +1,321 @@
+/* Visual Identity 2.0 — depth pass.
+   Adds premium composition, tactile depth and a deliberate mobile action cradle
+   without changing product data, routes or interaction contracts. */
+
+.app-shell__topbar {
+  background: var(--color-canvas-soft);
+  box-shadow: var(--shadow-level-2);
+}
+
+.app-shell__brand-mark {
+  background: var(--gradient-brand);
+  box-shadow: var(--shadow-level-3);
+}
+
+.app-shell__brand-copy {
+  gap: var(--space-1);
+}
+
+.app-shell__brand-copy small {
+  color: var(--color-text-secondary);
+}
+
+.app-shell__navigation {
+  overflow: visible;
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-level-3);
+}
+
+.app-shell__navigation::before {
+  content: '';
+  position: absolute;
+  inline-size: calc(var(--size-touch-min) + var(--space-6));
+  block-size: calc(var(--size-touch-min) + var(--space-6));
+  inset-inline-start: 50%;
+  inset-block-start: calc(var(--space-5) * -1);
+  transform: translateX(-50%);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-canvas-soft);
+  box-shadow: var(--shadow-level-1);
+  pointer-events: none;
+}
+
+.app-shell__navigation-inner {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+.app-shell__nav-item {
+  transition:
+    color var(--duration-fast) var(--easing-standard),
+    transform var(--duration-fast) var(--easing-standard),
+    background-color var(--duration-fast) var(--easing-standard);
+}
+
+.app-shell__nav-item:active {
+  transform: translateY(var(--press-translate-y)) scale(var(--press-scale));
+}
+
+.app-shell__nav-item--active .app-shell__nav-icon {
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand-wash);
+  box-shadow: var(--shadow-level-2);
+}
+
+.home-dashboard__hero {
+  border: var(--border-width-thin) solid var(--color-brand-wash);
+  box-shadow: var(--shadow-level-3);
+}
+
+.home-dashboard__hero::before {
+  content: '';
+  position: absolute;
+  inline-size: var(--size-demo-lg);
+  block-size: var(--space-1);
+  inset-inline-start: var(--space-5);
+  inset-block-start: var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-warning);
+}
+
+.home-dashboard__metric-grid {
+  align-items: stretch;
+}
+
+.home-focus-card {
+  position: relative;
+  border: var(--border-width-thin) solid var(--color-border);
+  box-shadow: var(--shadow-level-2);
+}
+
+.home-focus-card::after {
+  content: '';
+  position: absolute;
+  inline-size: var(--space-3);
+  block-size: var(--space-3);
+  inset-inline-start: var(--space-4);
+  inset-block-start: var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-brand-wash);
+}
+
+.home-focus-card--mint::after {
+  background: var(--color-accent-teal);
+}
+
+.home-focus-card--peach::after {
+  background: var(--color-warning);
+}
+
+.home-focus-card--cream::after {
+  background: var(--color-brand-primary);
+}
+
+.home-focus-card--ink {
+  border-color: var(--color-brand-wash);
+  box-shadow: var(--shadow-level-3);
+}
+
+.home-focus-card--ink::after {
+  background: var(--color-warning);
+}
+
+.home-focus-card:active {
+  transform: translateY(var(--press-translate-y)) scale(var(--press-scale));
+}
+
+.home-dashboard__priorities,
+.home-dashboard__signals,
+.home-dashboard__finance {
+  animation: home-depth-enter var(--duration-deliberate) var(--easing-enter) both;
+}
+
+.home-dashboard__finance {
+  position: relative;
+  overflow: hidden;
+  border: var(--border-width-thin) solid var(--color-brand-wash);
+}
+
+.home-dashboard__finance::before {
+  content: '';
+  position: absolute;
+  inline-size: var(--size-demo-lg);
+  block-size: var(--space-1);
+  inset-inline-end: var(--space-5);
+  inset-block-start: var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-warning);
+}
+
+.home-dashboard__finance::after {
+  content: '';
+  position: absolute;
+  inline-size: var(--size-visual-xl);
+  block-size: var(--size-visual-xl);
+  inset-inline-start: calc(var(--space-12) * -1);
+  inset-block-end: calc(var(--space-12) * -1);
+  border: var(--border-width-thin) solid var(--color-brand-wash);
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+}
+
+.home-dashboard__finance > * {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+.home-dashboard__money-grid > div {
+  border: var(--border-width-thin) solid var(--color-border);
+  box-shadow: var(--shadow-level-2);
+}
+
+.home-dashboard__signals {
+  padding: var(--space-4);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-level-2);
+  animation-delay: var(--motion-delay-1);
+}
+
+.home-signal {
+  position: relative;
+  overflow: hidden;
+  border: var(--border-width-thin) solid var(--color-border);
+  box-shadow: var(--shadow-level-2);
+}
+
+.home-signal::after {
+  content: '';
+  position: absolute;
+  inline-size: var(--space-1);
+  inset-inline-start: 0;
+  inset-block: var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-brand-primary);
+}
+
+.home-signal:nth-child(2)::after {
+  background: var(--color-danger);
+}
+
+.home-signal:nth-child(3)::after {
+  background: var(--color-warning);
+}
+
+.home-dashboard__priority-list .pattern-risk {
+  border: var(--border-width-thin) solid var(--color-border);
+  box-shadow: var(--shadow-level-2);
+  transition:
+    transform var(--duration-fast) var(--easing-standard),
+    box-shadow var(--duration-fast) var(--easing-standard);
+}
+
+.home-dashboard__priority-list .pattern-risk:active {
+  transform: translateY(var(--press-translate-y)) scale(var(--press-scale));
+}
+
+.home-dashboard__primary-action:active,
+.home-dashboard__text-link:active {
+  transform: translateY(var(--press-translate-y)) scale(var(--press-scale));
+}
+
+@keyframes home-depth-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-md)) scale(var(--motion-scale-enter));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 48rem) {
+  .global-interactions__inner {
+    inline-size: fit-content;
+    margin-inline-start: auto;
+    margin-inline-end: var(--space-4);
+    padding: var(--space-1);
+    border: var(--border-width-thin) solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-raised);
+    box-shadow: var(--shadow-level-1);
+  }
+
+  .global-interactions__item:not(.global-interactions__item--accent) {
+    border-radius: var(--radius-pill);
+    background: transparent;
+  }
+
+  .global-interactions__item:not(.global-interactions__item--accent):active {
+    background: var(--color-brand-whisper);
+    transform: translateY(var(--press-translate-y)) scale(var(--press-scale));
+  }
+
+  .global-interactions__item--accent {
+    inset-block-end: calc(var(--space-2) + var(--space-6) + env(safe-area-inset-bottom, 0));
+    inline-size: calc(var(--size-touch-min) + var(--space-4));
+    block-size: calc(var(--size-touch-min) + var(--space-4));
+    border: var(--border-width-thin) solid var(--color-warning-soft);
+    border-radius: var(--radius-pill);
+    background: var(--color-warning);
+    box-shadow: var(--shadow-level-3);
+  }
+
+  .global-interactions__item--accent::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--space-1) * -1);
+    border: var(--border-width-thin) solid var(--color-warning-soft);
+    border-radius: var(--radius-pill);
+    pointer-events: none;
+  }
+
+  .global-interactions__item--accent:active {
+    transform: translateX(-50%) translateY(var(--press-translate-y)) scale(var(--press-scale));
+  }
+
+  .app-shell__brand-copy small {
+    display: block;
+    font-size: var(--font-size-caption);
+    line-height: var(--line-height-caption);
+  }
+}
+
+@media (max-width: 36rem) {
+  .home-dashboard__signals {
+    padding: var(--space-3);
+  }
+
+  .home-focus-card {
+    box-shadow: var(--shadow-level-2);
+  }
+
+  .home-focus-card--ink {
+    box-shadow: var(--shadow-level-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-dashboard__priorities,
+  .home-dashboard__signals,
+  .home-dashboard__finance {
+    animation-duration: var(--duration-reduced-motion);
+  }
+
+  .app-shell__nav-item:active,
+  .home-focus-card:active,
+  .home-dashboard__priority-list .pattern-risk:active,
+  .home-dashboard__primary-action:active,
+  .home-dashboard__text-link:active,
+  .global-interactions__item:not(.global-interactions__item--accent):active {
+    transform: none;
+  }
+
+  .global-interactions__item--accent:active {
+    transform: translateX(-50%);
+  }
+}

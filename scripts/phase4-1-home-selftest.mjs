@@ -145,9 +145,14 @@ const scenarios = [
     mutate: (value) => value.replace('  { path: ROUTES.homePreview, Component: HomeDashboardPreviewPage },\n', ''),
   },
   {
-    name: 'remove safe preview mapping for app Home',
+    name: 'remove safe preview shell mapping for app Home',
     file: 'src/app/previewRouter.tsx',
-    mutate: (value) => value.replace('{ path: ROUTES.appHome, Component: HomeDashboardPreviewPage }', '{ path: ROUTES.appHome, Component: NavigationPreviewAppPage }'),
+    mutate: (value) => value.replace('{ path: ROUTES.appHome, Component: HomeAppPreviewPage }', '{ path: ROUTES.appHome, Component: NavigationPreviewAppPage }'),
+  },
+  {
+    name: 'strip App Shell from Home preview wrapper',
+    file: 'src/features/home/pages/HomeAppPreviewPage.tsx',
+    mutate: (value) => value.replace('<AppShellFrame', '<div').replace('</AppShellFrame>', '</div>'),
   },
   {
     name: 'prematurely implement Daily Work 4.2',
