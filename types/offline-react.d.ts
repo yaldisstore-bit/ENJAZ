@@ -50,7 +50,7 @@ declare module 'react-router' {
     key?: string | number;
     role?: string;
     'aria-label'?: string;
-    'aria-current'?: 'page';
+    'aria-current'?: 'page' | undefined;
   }
   export function createBrowserRouter(routes: readonly unknown[], options?: { basename?: string }): RouterObject;
   export function RouterProvider(props: { router: RouterObject }): JSX.Element;
