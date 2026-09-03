@@ -1,4 +1,4 @@
-/* Phase 2.5 — purposeful motion. No decorative loops, no transition: all, no unscoped hover transforms. */
+/* Phase 2.5 — purposeful motion with explicit transition properties and capability-scoped hover. */
 .ui-button,
 .ui-icon-button {
   transition:
