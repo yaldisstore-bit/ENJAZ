@@ -3,6 +3,7 @@ export const ROUTES = Object.freeze({
   foundation: '/foundation',
   identity: '/foundation/identity',
   tokens: '/foundation/tokens',
+  typography: '/foundation/typography',
   login: '/auth/login',
   signUp: '/auth/signup',
   forgotPassword: '/auth/forgot-password',

@@ -1,7 +1,8 @@
 @import './tokens.css';
 @import './base.css';
+@import './typography-rtl.css';
 @import './foundation-status.css';
 @import './auth.css';
 @import './identity.css';
-
 @import './token-lab.css';
+@import './typography-lab.css';

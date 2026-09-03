@@ -1,0 +1,165 @@
+/* Phase 2.3 — product-wide Arabic / RTL behavior. */
+html,
+body {
+  text-align: start;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-family-ui);
+}
+
+:where(h1, h2, h3, h4, p, li, dt, dd, label, legend, figcaption) {
+  min-inline-size: 0;
+  overflow-wrap: break-word;
+}
+
+:where(input, textarea, select) {
+  text-align: start;
+}
+
+:where(input[type='email'], input[type='tel'], input[data-text-direction='ltr']) {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+:where([dir='auto'], .text-auto) {
+  unicode-bidi: plaintext;
+}
+
+.text-ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+  font-family: var(--font-family-latin);
+}
+
+.text-numeric {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-family-numeric);
+  font-variant-numeric: var(--font-variant-numeric);
+  letter-spacing: var(--tracking-ui);
+}
+
+.text-code {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-family-mono);
+  font-variant-numeric: var(--font-variant-numeric);
+  letter-spacing: var(--tracking-ui);
+}
+
+.text-container-safe {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.text-truncate-one {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-clamp-2,
+.text-clamp-3 {
+  display: -webkit-box;
+  min-inline-size: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+}
+
+.text-clamp-2 {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.text-clamp-3 {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.type-caption {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-caption);
+  letter-spacing: var(--tracking-ui);
+}
+
+.type-label {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-label);
+  letter-spacing: var(--tracking-ui);
+}
+
+.type-body {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  letter-spacing: var(--tracking-ui);
+}
+
+.type-body-lg {
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  letter-spacing: var(--tracking-ui);
+}
+
+.type-subtitle {
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-compact);
+  letter-spacing: var(--tracking-ui);
+}
+
+.type-title-sm {
+  font-size: var(--font-size-title-sm);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-title);
+  letter-spacing: var(--tracking-ui);
+  text-wrap: balance;
+}
+
+.type-title-md {
+  font-size: var(--font-size-title-md);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-title);
+  letter-spacing: var(--tracking-ui);
+  text-wrap: balance;
+}
+
+.type-title-lg {
+  font-size: var(--font-size-title-lg);
+  font-weight: var(--font-weight-heavy);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-ui);
+  text-wrap: balance;
+}
+
+.type-display {
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-heavy);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--tracking-ui);
+  text-wrap: balance;
+}
+
+[lang='en'] {
+  font-family: var(--font-family-latin);
+}
+
+@media (max-width: 22rem) {
+  .type-title-lg,
+  .type-display {
+    overflow-wrap: anywhere;
+  }
+}
