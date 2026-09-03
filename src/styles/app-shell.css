@@ -17,7 +17,7 @@
   position: sticky; inset-block-start: 0; z-index: var(--z-content); padding-block-start: env(safe-area-inset-top, 0);
   border-block-end: var(--border-width-thin) solid color-mix(in srgb, var(--color-border) 62%, transparent);
   background: var(--color-surface-raised); background: color-mix(in srgb, var(--color-surface-raised) 86%, transparent);
-  backdrop-filter: blur(var(--space-6)); -webkit-backdrop-filter: blur(var(--space-6)); box-shadow: none;
+  box-shadow: none;
 }
 
 .app-shell__topbar-inner {
@@ -77,8 +77,7 @@
 .app-shell__navigation {
   position: fixed; inset-inline: var(--space-3); inset-block-end: calc(var(--space-3) + env(safe-area-inset-bottom, 0)); z-index: var(--z-content);
   padding: var(--space-1); border: var(--border-width-thin) solid color-mix(in srgb, var(--color-border) 70%, transparent); border-radius: var(--radius-xl);
-  background: var(--color-surface-raised); background: color-mix(in srgb, var(--color-surface-raised) 88%, transparent);
-  backdrop-filter: blur(var(--space-6)); -webkit-backdrop-filter: blur(var(--space-6)); box-shadow: var(--shadow-level-2);
+  background: var(--color-surface-raised); background: color-mix(in srgb, var(--color-surface-raised) 88%, transparent); box-shadow: var(--shadow-level-2);
 }
 .app-shell__navigation-inner {
   inline-size: min(100%, var(--size-content-max)); margin-inline: auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-1);
