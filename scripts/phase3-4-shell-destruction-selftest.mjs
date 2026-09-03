@@ -23,7 +23,7 @@ const scenarios = [
   { name: 'remove offline event listener', file: 'src/app/AppShell.tsx', mutate: (value) => value.replace("    window.addEventListener('offline', handleOffline);\n", '') },
   { name: 'remove offline listener cleanup', file: 'src/app/AppShell.tsx', mutate: (value) => value.replace("      window.removeEventListener('offline', handleOffline);\n", '') },
   { name: 'remove central back resolution', file: 'src/shared/shell/AppShellFrame.tsx', mutate: (value) => value.replace('resolveBackDestination(normalizedPath)', 'null') },
-  { name: 'remove offline shell banner', file: 'src/shared/shell/AppShellFrame.tsx', mutate: (value) => value.replace("      {networkState === 'offline' ? (", "      {false ? (") },
+  { name: 'remove offline shell plumbing', file: 'src/shared/shell/AppShellFrame.tsx', mutate: (value) => value.replace("      {networkState === 'offline' ? (", "      {false ? (").replace('data-network-state={networkState}', 'data-network-state="offline-removed"') },
   { name: 'remove focusable main target', file: 'src/shared/shell/AppShellFrame.tsx', mutate: (value) => value.replace(' id="main-content" tabIndex={-1}', ' id="main-content"') },
   { name: 'remove route stage transition key', file: 'src/shared/shell/AppShellFrame.tsx', mutate: (value) => value.replace(' key={normalizedPath}', '') },
   { name: 'remove resizes-content mobile viewport contract', file: 'src/core/mobile/mobileContract.ts', mutate: (value) => value.replace(', interactive-widget=resizes-content', '') },
