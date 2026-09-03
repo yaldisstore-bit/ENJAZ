@@ -21,6 +21,6 @@
 - [x] TypeScript green
 - [x] Production build green — Vite 8.2.2, 177 modules transformed
 - [x] PR Quality Gate green
-- [ ] Main Quality Gate green after merge
+- [x] Main Quality Gate green after merge — run #72
 
-The final checkbox is intentionally completed only after the merged `main` commit passes the full GitHub Actions gate.
+**Phase 2.7 exit gate: COMPLETE.**
