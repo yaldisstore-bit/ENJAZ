@@ -22,12 +22,17 @@ const scenarios = [
   {
     name: 'detach global tools from the topbar composition',
     file: 'src/shared/shell/AppShellFrame.tsx',
-    mutate: (value) => value.replace('            <div className="app-shell__topbar-actions">\n        <GlobalInteractionSurfaces inboxCount={inboxCount} />', '            <GlobalInteractionSurfaces inboxCount={inboxCount} />\n            <div className="app-shell__topbar-actions">'),
+    mutate: (value) => value.replace(
+      /(\s*)<div className="app-shell__topbar-actions">\s*<GlobalInteractionSurfaces inboxCount=\{inboxCount\} \/>/,
+      '$1<GlobalInteractionSurfaces inboxCount={inboxCount} />\n$1<div className="app-shell__topbar-actions">',
+    ),
   },
   {
     name: 'degrade amber quick create into a generic brand button',
     file: 'src/styles/global-interactions.css',
-    mutate: (value) => value.replace('    background: var(--color-warning);\n    color: var(--color-warning-text);\n    box-shadow: var(--shadow-level-3);', '    background: var(--color-brand-soft);\n    color: var(--color-brand-strong);\n    box-shadow: var(--shadow-level-1);'),
+    mutate: (value) => value
+      .replaceAll('background: var(--color-warning)', 'background: var(--color-brand-soft)')
+      .replaceAll('color: var(--color-warning-text)', 'color: var(--color-brand-strong)'),
   },
   {
     name: 'move mobile quick create away from the dock center',
