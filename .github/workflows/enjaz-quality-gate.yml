@@ -1,0 +1,46 @@
+name: ENJAZ Quality Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Tests, Audits, Types and Production Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Validate runtime contract
+        run: node -e "const p=require('./package.json'); if(p.engines.node !== '>=22.22.0') process.exit(1)"
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Full Phase 2.2 verification
+        run: npm run verify:phase2.2
+      - name: Real TypeScript check
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build
+      - name: Assert production output
+        run: test -f dist/index.html
