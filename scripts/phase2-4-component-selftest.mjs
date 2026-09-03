@@ -23,6 +23,13 @@ const probes = [
   { name: 'remove_component_route', file: 'src/core/routing/routes.ts', mutate: (text) => text.replace("  components: '/foundation/components',\n", '') },
   { name: 'inline_style_escape', file: 'src/features/foundation/pages/ComponentLabPage.tsx', mutate: (text) => text.replace('<main className="component-lab-page"', '<main style={{ display: \'block\' }} className="component-lab-page"') },
   { name: 'inject_icon_font_dependency', file: 'src/features/foundation/pages/ComponentLabPage.tsx', mutate: (text) => `${text}\n// FontAwesome fa-trash\n` },
+  {
+    name: 'downgrade_github_quality_gate',
+    file: '.github/workflows/enjaz-quality-gate.yml',
+    mutate: (text) => text
+      .replace(/verify:phase2\.\d+/g, 'verify:phase2.3')
+      .replace(/Full Phase 2\.\d+ verification/g, 'Full Phase 2.3 verification'),
+  },
 ];
 
 let passed = 0;
