@@ -16,7 +16,7 @@ function ShellProofContent() {
       </header>
 
       <div className="shell-proof__grid">
-        <Card tone="brand">
+        <Card tone="prominent">
           <CardHeader title="Top Bar ثابت" subtitle="هوية، سياق الحساب، وخروج آمن" />
           <CardBody>يبقى واضحًا على الهاتف والشاشات الواسعة من دون تغطية المحتوى أو تكرار أدوات كل صفحة.</CardBody>
         </Card>
@@ -24,7 +24,7 @@ function ShellProofContent() {
           <CardHeader title="Navigation محجوزة" subtitle="خمسة مواضع موبايل مضبوطة" />
           <CardBody>الرئيسية مفعّلة الآن لإثبات الهيكل فقط. بقية المسارات تبقى مقفلة حتى Phase 3.2 كي لا نسبق عقد التنقل.</CardBody>
         </Card>
-        <Card tone="accent">
+        <Card tone="raised">
           <CardHeader title="Page Container موحد" subtitle="RTL + Safe Area + Keyboard aware" />
           <CardBody>كل شاشة أعمال مستقبلية ستدخل في نفس الحاوية، بنفس القياسات والعمق والحماية من القص والتداخل.</CardBody>
         </Card>
