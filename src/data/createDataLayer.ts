@@ -33,12 +33,16 @@ export interface EnjazWorkspaceDataLayer {
 }
 
 export interface EnjazDataLayerFactory {
+  resolveWorkspaceId(userId: string): Promise<string | null>;
   forWorkspace(workspaceId: string): EnjazWorkspaceDataLayer;
 }
 
 export function createEnjazDataLayerFactory(client: EnjazSupabaseClient): EnjazDataLayerFactory {
   const gateway = createSupabaseDataGateway(client);
   return Object.freeze({
+    resolveWorkspaceId(userId: string) {
+      return gateway.resolveWorkspaceIdForUser(userId);
+    },
     forWorkspace(workspaceId: string): EnjazWorkspaceDataLayer {
       const scope = createWorkspaceScope(workspaceId);
       return Object.freeze({
