@@ -47,7 +47,8 @@
     "verify:phase2.5": "npm run verify:phase2.4 && npm run audit:motion && npm run audit:motion:selftest",
     "audit:mobile": "node scripts/phase2-6-mobile-audit.mjs",
     "audit:mobile:selftest": "node scripts/phase2-6-mobile-selftest.mjs",
-    "verify:phase2.6": "npm run verify:phase2.5 && npm run audit:mobile && npm run audit:mobile:selftest"
+    "audit:roadmap": "node scripts/roadmap-audit.mjs",
+    "verify:phase2.6": "npm run verify:phase2.5 && npm run audit:mobile && npm run audit:mobile:selftest && npm run audit:roadmap"
   },
   "dependencies": {
     "react": "19.2.8",
