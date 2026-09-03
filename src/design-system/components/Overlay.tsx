@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { MOTION_DURATION_MS, useMotionPresence } from '../motion/index.ts';
 import { IconButton } from './Button.tsx';
 import { classNames } from './classNames.ts';
 
@@ -30,6 +31,9 @@ function OverlayFrame({
   className,
   mode,
 }: OverlayFrameProps) {
+  const exitDuration = mode === 'sheet' ? MOTION_DURATION_MS.deliberate : MOTION_DURATION_MS.standard;
+  const presence = useMotionPresence(open, exitDuration);
+
   useEffect(() => {
     if (!open) return undefined;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -43,12 +47,15 @@ function OverlayFrame({
     };
   }, [id, onClose, open]);
 
-  if (!open) return null;
+  if (!presence.mounted) return null;
   const titleId = `${id}-title`;
   const descriptionId = description ? `${id}-description` : undefined;
 
   return (
-    <div className={classNames('ui-overlay', `ui-overlay--${mode}`)}>
+    <div
+      className={classNames('ui-overlay', `ui-overlay--${mode}`)}
+      data-motion-state={presence.state}
+    >
       <section
         className={classNames('ui-overlay__panel', `ui-${mode}`, className)}
         role="dialog"
