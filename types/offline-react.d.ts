@@ -38,7 +38,7 @@ declare module 'react-dom/client' {
 declare module 'react-router' {
   import type { ReactNode } from 'react';
   export interface RouterObject {}
-  export function createBrowserRouter(routes: readonly unknown[]): RouterObject;
+  export function createBrowserRouter(routes: readonly unknown[], options?: { basename?: string }): RouterObject;
   export function RouterProvider(props: { router: RouterObject }): JSX.Element;
   export function Link(props: { to: string; className?: string; children?: ReactNode }): JSX.Element;
   export function Navigate(props: { to: string; replace?: boolean }): JSX.Element;
