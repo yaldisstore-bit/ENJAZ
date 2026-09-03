@@ -7,7 +7,7 @@ import {
   SHELL_MOBILE_NAV_SLOTS,
   SHELL_NAV_SLOTS,
   SHELL_TOUCH_TARGET_PX,
-} from '../src/features/shell/shellContract.ts';
+} from '../src/shared/shell/shellContract.ts';
 
 test('shell navigation exposes five bounded slots with only home activated in Phase 3.1', () => {
   assert.equal(SHELL_MOBILE_NAV_SLOTS, 5);
@@ -34,21 +34,26 @@ test('account initial is safe for Arabic, Latin and empty labels', () => {
   assert.equal(getShellUserInitial(null), 'إ');
 });
 
-test('App Shell source owns landmarks, offline recovery and auth-safe sign-out', () => {
-  const source = readFileSync('src/features/shell/AppShell.tsx', 'utf8');
-  assert.match(source, /<header className="app-shell__topbar">/);
-  assert.match(source, /<nav className="app-shell__navigation" aria-label="التنقل الرئيسي">/);
-  assert.match(source, /<main className="app-shell__main" id="main-content"/);
+test('shared shell frame owns landmarks and accessible global surfaces', () => {
+  const frame = readFileSync('src/shared/shell/AppShellFrame.tsx', 'utf8');
+  assert.match(frame, /<header className="app-shell__topbar">/);
+  assert.match(frame, /<nav className="app-shell__navigation" aria-label="التنقل الرئيسي">/);
+  assert.match(frame, /<main className="app-shell__main" id="main-content"/);
+  assert.match(frame, /role="alert"/);
+  assert.match(frame, /role="status"/);
+});
+
+test('app composition owns online recovery and auth-safe sign-out', () => {
+  const source = readFileSync('src/app/AppShell.tsx', 'utf8');
   assert.match(source, /window\.addEventListener\('online'/);
   assert.match(source, /window\.addEventListener\('offline'/);
-  assert.match(source, /role="alert"/);
-  assert.match(source, /role="status"/);
   assert.match(source, /await service\.signOut\(\)/);
+  assert.match(source, /<Outlet \/>/);
 });
 
 test('Phase 3.1 does not prematurely activate future product navigation', () => {
-  const source = readFileSync('src/features/shell/AppShell.tsx', 'utf8');
-  assert.match(source, /disabled/);
-  assert.match(source, /سيتم تفعيلها في Phase 3\.2/);
-  assert.doesNotMatch(source, /\/app\/transactions|\/app\/companies|\/app\/finance/);
+  const frame = readFileSync('src/shared/shell/AppShellFrame.tsx', 'utf8');
+  assert.match(frame, /disabled/);
+  assert.match(frame, /سيتم تفعيلها في Phase 3\.2/);
+  assert.doesNotMatch(frame, /\/app\/transactions|\/app\/companies|\/app\/finance/);
 });
