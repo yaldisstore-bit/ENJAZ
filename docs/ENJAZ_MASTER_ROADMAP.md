@@ -81,7 +81,7 @@ ENJAZ is a clean rebuild, not a continuation of the legacy UI generations.
 
 ---
 
-# Phase 2 — ENJAZ Design System 1.0
+# Phase 2 — ENJAZ Design System 1.0 ✅
 
 ## 2.1 — Visual Identity Foundation ✅
 - Establish the new ENJAZ visual identity with no legacy DNA.
@@ -140,7 +140,7 @@ Required pattern families include:
 
 **2.7 exit:** ENJAZ has a domain-aware pattern library that can build real screens without inventing UI ad hoc.
 
-## 2.8 — Visual Destruction & Quality Gate ⏭ CURRENT NEXT PHASE
+## 2.8 — Visual Destruction & Quality Gate ✅
 
 Deliberately break the design system and pattern library before screen construction.
 
@@ -162,13 +162,13 @@ Required torture scenarios include:
 - Token-only visual contract checks.
 - Audits preventing arbitrary colors, tiny fonts, uncontrolled z-index, `!important`, and visual values outside tokens.
 
-**Phase 2 exit:** `ENJAZ Design System 1.0` is frozen and green. Only then may product shell/screens begin.
+**Phase 2 exit:** `ENJAZ Design System 1.0` is frozen and green. Product shell/screens may now begin under Phase 3 while continuing to obey the frozen system.
 
 ---
 
-# Phase 3 — Application Shell & Navigation
+# Phase 3 — Application Shell & Navigation ⏭ CURRENT NEXT PHASE
 
-Phase 3 begins only after 2.8 is green.
+Phase 3 begins only after 2.8 is green. **That prerequisite is now satisfied.**
 
 ## 3.1 — App Shell
 - Build the authenticated application frame.
@@ -601,8 +601,8 @@ The project is considered delivered only when:
 - Phase 2.5 ✅
 - Phase 2.6 ✅
 - Phase 2.7 ✅
-- **Next: Phase 2.8 — Visual Destruction & Quality Gate**
-- Then: **Phase 3 — Application Shell & Navigation**
+- Phase 2.8 ✅
+- **Next: Phase 3 — Application Shell & Navigation**
 
 ---
 
@@ -617,3 +617,5 @@ A roadmap change must state:
 4. whether feature parity or delivery scope changes,
 5. which tests/gates must change,
 6. whether the change creates migration or compatibility risk.
+
+Silently skipping a phase, renaming it in conversation, or starting a later phase before its predecessor passes is a roadmap violation.
