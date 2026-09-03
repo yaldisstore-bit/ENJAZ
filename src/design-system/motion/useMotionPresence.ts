@@ -6,7 +6,7 @@ export interface MotionPresence {
   state: MotionPresenceState;
 }
 
-export function useMotionPresence(open: boolean, exitDurationMs = MOTION_DURATION_MS.standard): MotionPresence {
+export function useMotionPresence(open: boolean, exitDurationMs: number = MOTION_DURATION_MS.standard): MotionPresence {
   const [mounted, setMounted] = useState(open);
   const [state, setState] = useState<MotionPresenceState>(open ? 'entered' : 'exited');
 
