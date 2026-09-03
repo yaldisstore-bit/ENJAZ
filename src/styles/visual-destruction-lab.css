@@ -34,7 +34,7 @@
 .destruction-lab-hero p { margin: 0; }
 .destruction-lab-hero h1 { margin-block-start: var(--space-3); max-inline-size: var(--measure-reading); }
 .destruction-lab-hero .type-body-lg { margin-block-start: var(--space-4); max-inline-size: var(--measure-reading); color: var(--color-text-secondary); }
-.destruction-lab-kicker { color: var(--color-status-danger); }
+.destruction-lab-kicker { color: var(--color-danger); }
 
 .destruction-lab-score {
   display: grid;
@@ -62,7 +62,7 @@
 
 .destruction-heading p,
 .destruction-heading h2 { margin: 0; }
-.destruction-heading p { color: var(--color-status-danger); }
+.destruction-heading p { color: var(--color-danger); }
 .destruction-heading h2 { margin-block-start: var(--space-1); }
 
 .destruction-chip {
@@ -112,18 +112,18 @@
 }
 
 .destruction-notification--urgent {
-  border-color: var(--color-status-danger-border);
-  background: var(--color-status-danger-surface);
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
 }
 
 .destruction-notification__dot {
-  inline-size: var(--size-indicator-sm);
-  block-size: var(--size-indicator-sm);
+  inline-size: var(--space-2);
+  block-size: var(--space-2);
   border-radius: var(--radius-pill);
   background: var(--color-brand-primary);
 }
 
-.destruction-notification--urgent .destruction-notification__dot { background: var(--color-status-danger); }
+.destruction-notification--urgent .destruction-notification__dot { background: var(--color-danger); }
 
 .destruction-notification__copy {
   display: grid;
