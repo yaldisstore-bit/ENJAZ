@@ -177,6 +177,11 @@
   gap: var(--space-1);
 }
 
+.app-shell__nav-slot,
+.app-shell__nav-current {
+  display: contents;
+}
+
 .app-shell__nav-item {
   min-inline-size: 0;
   min-block-size: var(--size-control-lg);
