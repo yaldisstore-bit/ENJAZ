@@ -55,7 +55,7 @@ export function MotionLabPage() {
             </div>
           </CardBody>
           <CardFooter>
-            <Button variant="secondary" onClick={() => setRevealKey((value) => value + 1)}>إعادة العرض</Button>
+            <Button variant="secondary" onClick={() => setRevealKey(revealKey + 1)}>إعادة العرض</Button>
           </CardFooter>
         </Card>
 
