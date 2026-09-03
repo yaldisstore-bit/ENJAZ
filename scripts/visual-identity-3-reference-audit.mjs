@@ -15,13 +15,16 @@ const includesAll = (label, source, markers) => {
   for (const marker of markers) check(`${label}: ${marker}`, source.includes(marker));
 };
 
-const [shellCss, railCss, commandCss, homeCss, interactions, homePage] = await Promise.all([
+const [shellCss, railCss, commandCss, homeCss, reservedCss, interactions, homePage, boundaryPage, foundation] = await Promise.all([
   'src/styles/app-shell.css',
   'src/styles/global-interactions.css',
   'src/styles/global-command-surfaces.css',
   'src/styles/home-dashboard.css',
+  'src/styles/reserved-boundary.css',
   'src/shared/interactions/GlobalInteractionSurfaces.tsx',
   'src/features/home/pages/HomeDashboardPage.tsx',
+  'src/features/navigation/pages/NavigationBoundaryPage.tsx',
+  'src/styles/foundation.css',
 ].map(text));
 
 const topbarInner = block(shellCss, '.app-shell__topbar-inner');
@@ -36,7 +39,8 @@ const contentGrid = block(homeCss, '.home-dashboard__content-grid');
 const metricGrid = block(homeCss, '.home-dashboard__metric-grid');
 const commandHero = block(commandCss, '.global-command-surface__hero');
 const commandGrid = block(commandCss, '.global-command-surface__grid');
-const commandStrongCard = block(commandCss, '.global-command-card--strong');
+const commandStrong = block(commandCss, '.global-command-card--strong');
+const reservedHero = block(reservedCss, '.navigation-boundary__reserved-hero');
 
 // Reference idea 1: compact single-row chrome, never a stacked generic toolbar.
 includesAll('topbar remains one compact composed row', topbarInner, [
@@ -47,8 +51,16 @@ includesAll('topbar remains one compact composed row', topbarInner, [
 ]);
 check('topbar may not wrap into the old two-row toolbar shape', !/flex-wrap\s*:\s*wrap/.test(topbarInner));
 check('topbar remains width-bounded instead of edge-to-edge clutter', topbarInner.includes('inline-size: min(100%, var(--size-content-max))'));
+includesAll('mobile topbar tool rail is visually decomposed into separate controls', railCss, [
+  '@media (max-width: 48rem)',
+  'border: 0',
+  'background: transparent',
+  'box-shadow: none',
+  'border: var(--border-width-thin) solid var(--color-border)',
+  'background: var(--color-surface)',
+]);
 
-// Reference idea 2: floating dock with a real center cradle and a distinct amber action.
+// Reference idea 2: floating dock plus a distinct amber action, without RTL drift or nav-slot collision.
 includesAll('dock is a floating layered object', dock, [
   'position: fixed',
   'inset-inline: var(--space-3)',
@@ -62,21 +74,25 @@ includesAll('dock owns a second visual layer', dockLayer, [
   'inset: var(--space-1)',
   'background: var(--color-surface-raised)',
 ]);
-includesAll('dock center cradle is explicit and circular', cradle, [
-  'inset-inline-start: 50%',
-  'transform: translateX(-50%)',
+includesAll('dock center cradle uses logical auto-centering that is safe in RTL', cradle, [
+  'inset-inline: 0',
+  'margin-inline: auto',
+  'transform: none',
   'border-radius: var(--radius-pill)',
-  'box-shadow: var(--shadow-level-2)',
+  'box-shadow: var(--shadow-level-1)',
 ]);
-includesAll('mobile quick create is amber, elevated and centered in the dock', mobileQuickCreate, [
+includesAll('mobile quick create is amber, elevated and RTL-safe centered above the dock', mobileQuickCreate, [
   'position: fixed',
-  'inset-inline-start: 50%',
-  'transform: translateX(-50%)',
+  'inset-inline: 0',
+  'margin-inline: auto',
+  'transform: none',
   'background: var(--color-warning)',
   'border: var(--space-1) solid var(--color-surface)',
   'box-shadow: var(--shadow-level-3)',
 ]);
-check('middle navigation lane stays visually reserved for quick create', shellCss.includes('.app-shell__nav-slot:nth-child(3) .app-shell__nav-item'));
+check('broken inline-start plus negative physical translate centering is forbidden',
+  !/inset-inline-start\s*:\s*50%[\s\S]{0,240}translateX\(-50%\)/.test(`${shellCss}\n${railCss}`));
+check('third navigation lane remains a normal usable destination', shellCss.includes('.app-shell__nav-slot:nth-child(3) .app-shell__nav-item { padding-block-start: var(--space-1); }'));
 
 // Reference idea 3: strong editorial hero + circular visual statistic + amber CTA.
 includesAll('home hero keeps the dark editorial composition', hero, [
@@ -117,14 +133,14 @@ includesAll('finance panel is a raised tinted composition', homeCss, [
 ]);
 
 // Reference idea 5: leadership surface behaves like a control dashboard, not a list menu.
-includesAll('command surface has a strong hero and card grid', commandCss, [
+includesAll('command surface has a strong hero and cards', commandCss, [
   '.global-command-surface__hero',
   'background: var(--gradient-brand)',
   '.global-command-surface__grid',
   'grid-template-columns: repeat(2, minmax(0, 1fr))',
   '.global-command-card--strong',
 ]);
-includesAll('strong command card keeps its own distinct amber tone', commandStrongCard, [
+includesAll('strong command card keeps its own warm contrast', commandStrong, [
   'background: var(--color-warning-soft)',
   'color: var(--color-warning-text)',
 ]);
@@ -135,15 +151,35 @@ const controlSlice = controlStart >= 0 && controlEnd > controlStart ? interactio
 check('leadership surface cannot regress to ul/list markup', controlSlice.length > 0 && !/<ul\b|global-surface__list/.test(controlSlice));
 check('leadership surface must retain hero + grid + card semantics', /global-command-surface__hero[\s\S]*global-command-surface__grid[\s\S]*global-command-card/.test(controlSlice));
 
-// Reference idea 6: depth, rounded geometry and accent hierarchy must all exist together.
-const visualCss = `${shellCss}\n${railCss}\n${commandCss}\n${homeCss}`;
+// Reference idea 6: reserved routes must look intentional, not like giant developer-debug cards.
+includesAll('reserved route uses one editorial hero rather than a white card wall', reservedHero, [
+  'background: var(--gradient-brand)',
+  'border-radius: var(--radius-xl)',
+  'box-shadow: var(--shadow-level-3)',
+  'grid-template-columns: minmax(0, 1fr) auto',
+]);
+includesAll('reserved route facts use two distinct light tones', reservedCss, [
+  '.navigation-boundary__reserved-fact:first-child',
+  'background: var(--color-accent-teal-soft)',
+  '.navigation-boundary__reserved-fact:last-child',
+  'background: var(--color-warning-soft)',
+]);
+check('reserved boundary stylesheet is loaded immediately after navigation styles',
+  foundation.indexOf("@import './reserved-boundary.css';") > foundation.indexOf("@import './navigation.css';"));
+check('reserved product route no longer exposes old developer-card labels',
+  !['المسار القانوني', 'عقد الوصول', 'حالة المحتوى', 'Deep-link safe root'].some((label) => boundaryPage.includes(label)));
+check('reserved product route no longer composes generic Card components', !/<Card\b|CardHeader|CardBody/.test(boundaryPage));
+check('reserved product route owns one purposeful hero and compact facts', boundaryPage.includes('navigation-boundary__reserved-hero') && boundaryPage.includes('navigation-boundary__reserved-strip'));
+
+// Reference idea 7: depth, rounded geometry and accent hierarchy must all exist together.
+const visualCss = `${shellCss}\n${railCss}\n${commandCss}\n${homeCss}\n${reservedCss}`;
 for (const level of ['1', '2', '3']) check(`depth system uses shadow level ${level}`, visualCss.includes(`var(--shadow-level-${level})`));
 for (const radius of ['lg', 'xl', 'pill']) check(`geometry uses ${radius} radius family`, visualCss.includes(`var(--radius-${radius})`));
 const warningUses = (visualCss.match(/var\(--color-warning\)/g) ?? []).length;
 check('amber accent is intentional, not token presence only', warningUses >= 8);
-check('visual identity avoids square-card regression', !/border-radius\s*:\s*(?:0|var\(--radius-xs\))\s*;/.test(`${hero}\n${dock}\n${commandHero}`));
+check('visual identity avoids square-card regression', !/border-radius\s*:\s*(?:0|var\(--radius-xs\))\s*;/.test(`${hero}\n${dock}\n${commandHero}\n${reservedHero}`));
 
-// Reference idea 7: generous mobile adaptation, not desktop cards crushed into phone width.
+// Reference idea 8: generous mobile adaptation, not desktop cards crushed into phone width.
 includesAll('home has dedicated phone reflow', homeCss, [
   '@media (max-width: 36rem)',
   '.home-dashboard__metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }',
@@ -153,6 +189,12 @@ includesAll('home has dedicated phone reflow', homeCss, [
 includesAll('command cards collapse intentionally on very narrow phones', commandCss, [
   '@media (max-width: 30rem)',
   'grid-template-columns: 1fr',
+]);
+includesAll('reserved route also collapses intentionally on narrow phones', reservedCss, [
+  '@media (max-width: 36rem)',
+  '.navigation-boundary__reserved-strip',
+  'grid-template-columns: minmax(0, 1fr)',
+  '@media (max-width: 22rem)',
 ]);
 check('home page still exposes the designed hero and focus families', homePage.includes('home-dashboard__hero') && homePage.includes('home-focus-card'));
 
@@ -168,4 +210,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`ENJAZ VISUAL IDENTITY 3 REFERENCE AUDIT PASS — ${checks}/${checks} reference-led composition/depth/card/dock/mobile checks passed.`);
+console.log(`ENJAZ VISUAL IDENTITY 3 REFERENCE AUDIT PASS — ${checks}/${checks} reference-led composition/depth/card/dock/RTL/mobile checks passed.`);
