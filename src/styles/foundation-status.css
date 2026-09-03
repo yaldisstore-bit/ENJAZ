@@ -1,0 +1,94 @@
+.foundation-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding-block: max(var(--space-6), env(safe-area-inset-top)) max(var(--space-6), env(safe-area-inset-bottom));
+  padding-inline: max(var(--space-4), env(safe-area-inset-left)) max(var(--space-4), env(safe-area-inset-right));
+  background: var(--gradient-canvas);
+}
+
+.foundation-card {
+  width: min(100%, var(--size-foundation-max));
+  padding: var(--space-fluid-page);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-level-1);
+}
+
+.foundation-card h1 {
+  margin-block: var(--space-2) var(--space-3);
+  font-size: var(--font-size-title-lg);
+  line-height: var(--line-height-title);
+  letter-spacing: var(--tracking-tight);
+}
+
+.foundation-card p,
+.foundation-card li,
+.foundation-card a,
+.foundation-card button {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
+.foundation-card small {
+  display: block;
+  margin-block-start: var(--space-5);
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-caption);
+}
+
+.foundation-eyebrow {
+  margin: 0;
+  color: var(--color-brand-primary);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-heavy);
+}
+
+.foundation-link {
+  display: inline-flex;
+  min-block-size: var(--size-touch-min);
+  align-items: center;
+  margin-block-start: var(--space-3);
+}
+
+.foundation-meta {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.foundation-meta div {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.foundation-meta dt {
+  font-weight: var(--font-weight-bold);
+}
+
+.foundation-meta dd {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.foundation-card button {
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-5);
+  background: var(--gradient-brand);
+  color: var(--color-text-on-brand);
+  font-weight: var(--font-weight-heavy);
+  cursor: pointer;
+  box-shadow: var(--shadow-level-1);
+  transition: transform var(--duration-fast) var(--easing-standard), box-shadow var(--duration-fast) var(--easing-standard);
+}
+
+.foundation-card button:active {
+  transform: translateY(var(--press-translate-y)) scale(var(--press-scale));
+}
+
+.foundation-card button:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: wait;
+  box-shadow: none;
+}

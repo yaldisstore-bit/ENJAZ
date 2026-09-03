@@ -1,0 +1,41 @@
+:root {
+  /* Semantic tokens describe intent. Product CSS may use these, never reference primitives directly. */
+  --color-canvas: var(--enjaz-canvas-100);
+  --color-canvas-soft: var(--enjaz-canvas-50);
+  --color-surface: var(--enjaz-surface-0);
+  --color-surface-raised: var(--enjaz-surface-100);
+  --color-surface-muted: var(--enjaz-canvas-150);
+  --color-border: var(--enjaz-line-200);
+  --color-border-strong: var(--enjaz-line-300);
+
+  --color-text-primary: var(--enjaz-ink-950);
+  --color-text-secondary: var(--enjaz-ink-650);
+  --color-text-tertiary: var(--enjaz-ink-550);
+  --color-text-on-brand: var(--enjaz-white);
+
+  --color-brand-primary: var(--enjaz-brand-600);
+  --color-brand-strong: var(--enjaz-brand-900);
+  --color-brand-soft: var(--enjaz-brand-100);
+  --color-brand-whisper: var(--enjaz-brand-050);
+  --color-brand-wash: var(--enjaz-brand-wash);
+  --color-accent-teal: var(--enjaz-teal-600);
+  --color-accent-teal-text: var(--enjaz-teal-700);
+  --color-accent-teal-soft: var(--enjaz-teal-100);
+  --color-accent-teal-wash: var(--enjaz-teal-wash);
+  --color-accent-violet: var(--enjaz-violet-600);
+  --color-accent-violet-text: var(--enjaz-violet-700);
+  --color-accent-violet-soft: var(--enjaz-violet-100);
+
+  --color-success: var(--enjaz-success-600);
+  --color-success-text: var(--enjaz-success-700);
+  --color-success-soft: var(--enjaz-success-100);
+  --color-warning: var(--enjaz-warning-600);
+  --color-warning-text: var(--enjaz-warning-800);
+  --color-warning-soft: var(--enjaz-warning-100);
+  --color-danger: var(--enjaz-danger-600);
+  --color-danger-text: var(--enjaz-danger-800);
+  --color-danger-soft: var(--enjaz-danger-100);
+  --color-info-text: var(--enjaz-info-800);
+  --color-info-soft: var(--enjaz-info-100);
+  --color-focus: var(--enjaz-focus);
+}

@@ -1,0 +1,54 @@
+{
+  "name": "enjaz",
+  "private": true,
+  "version": "0.7.0-phase2.2",
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --pretty false",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "audit:foundation": "node scripts/foundation-audit.mjs",
+    "verify": "npm run audit:foundation && npm run test && npm run typecheck && npm run build",
+    "audit:selftest": "node scripts/audit-selftest.mjs",
+    "typecheck:offline": "tsc -p tsconfig.offline.json --pretty false",
+    "verify:offline": "npm run audit:foundation && npm run audit:selftest && npm run test && npm run typecheck:offline",
+    "db:audit": "python3 database/scripts/audit_schema.py",
+    "db:audit:selftest": "python3 database/scripts/audit_selftest.py",
+    "verify:phase1.2": "npm run verify:offline && npm run db:audit && npm run db:audit:selftest",
+    "verify:phase1.3": "npm run verify:offline && npm run audit:auth && npm run db:audit && npm run db:audit:selftest",
+    "audit:auth": "node scripts/auth-audit.mjs",
+    "audit:data": "node scripts/data-layer-audit.mjs",
+    "audit:data:selftest": "node scripts/data-layer-selftest.mjs",
+    "types:generate": "python3 database/scripts/generate_types_from_baseline.py",
+    "verify:phase1.4": "npm run types:generate && npm run verify:offline && npm run audit:auth && npm run audit:data && npm run audit:data:selftest && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest",
+    "audit:secrets": "node scripts/secret-audit.mjs",
+    "audit:phase1.5": "node scripts/phase1-5-audit.mjs",
+    "audit:phase1.5:selftest": "node scripts/phase1-5-selftest.mjs",
+    "verify:phase1.5": "npm run types:generate && npm run verify:offline && npm run audit:auth && npm run audit:data && npm run audit:data:selftest && npm run audit:phase1.5 && npm run audit:phase1.5:selftest && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest",
+    "audit:visual": "node scripts/phase2-1-visual-audit.mjs",
+    "audit:visual:selftest": "node scripts/phase2-1-visual-selftest.mjs",
+    "verify:phase2.1": "npm run verify:phase1.5 && npm run audit:visual && npm run audit:visual:selftest",
+    "audit:tokens": "node scripts/phase2-2-token-audit.mjs",
+    "audit:tokens:selftest": "node scripts/phase2-2-token-selftest.mjs",
+    "verify:phase2.2": "npm run verify:phase2.1 && npm run audit:tokens && npm run audit:tokens:selftest"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-router": "8.3.1",
+    "@supabase/supabase-js": "2.114.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "7.0.2",
+    "vite": "8.2.2"
+  }
+}

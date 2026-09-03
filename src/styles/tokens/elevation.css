@@ -1,0 +1,10 @@
+:root {
+  /* Three intentional depth levels; no glow ladder and no arbitrary shadows. */
+  --shadow-level-1: 0 1px 2px var(--enjaz-shadow-ambient), 0 8px 24px var(--enjaz-shadow-ambient);
+  --shadow-level-2: 0 12px 30px var(--enjaz-shadow-raised), 0 2px 8px var(--enjaz-shadow-ambient);
+  --shadow-level-3: 0 22px 58px var(--enjaz-shadow-floating), 0 4px 14px var(--enjaz-shadow-ambient);
+  --shadow-focus-ring: 0 0 0 4px var(--enjaz-brand-wash);
+
+  --gradient-brand: linear-gradient(135deg, var(--enjaz-brand-900) 0%, var(--enjaz-brand-700) 48%, var(--enjaz-brand-600) 100%);
+  --gradient-canvas: radial-gradient(circle at 85% 5%, var(--enjaz-brand-wash) 0%, transparent 34%), radial-gradient(circle at 10% 36%, var(--enjaz-teal-wash) 0%, transparent 30%), linear-gradient(180deg, var(--enjaz-canvas-50) 0%, var(--enjaz-canvas-100) 58%, var(--enjaz-canvas-150) 100%);
+}

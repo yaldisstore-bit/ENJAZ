@@ -1,0 +1,15 @@
+:root {
+  /* Motion is quiet and functional. Components may only consume these timings/easing curves. */
+  --duration-fast: 140ms;
+  --duration-standard: 220ms;
+  --duration-deliberate: 320ms;
+  --duration-reduced-motion: 0.01ms;
+  --easing-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --easing-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  --press-translate-y: 1px;
+  --press-scale: 0.995;
+  --opacity-disabled: 0.58;
+  --opacity-muted: 0.82;
+  --opacity-subtle: 0.9;
+}

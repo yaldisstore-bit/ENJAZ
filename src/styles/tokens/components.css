@@ -1,0 +1,42 @@
+:root {
+  /* Component contracts are aliases only. Phase 2.4 components must consume these contracts. */
+  --control-height-default: var(--size-touch-min);
+  --control-height-large: var(--size-control-lg);
+  --control-radius: var(--radius-sm);
+  --control-padding-block: var(--space-3);
+  --control-padding-inline: var(--space-4);
+  --control-gap: var(--space-2);
+
+  --field-background: var(--color-surface-raised);
+  --field-background-focus: var(--color-surface);
+  --field-border: var(--color-border-strong);
+  --field-border-focus: var(--color-brand-primary);
+  --field-text: var(--color-text-primary);
+  --field-radius: var(--control-radius);
+  --field-height: var(--control-height-large);
+
+  --button-primary-background: var(--gradient-brand);
+  --button-primary-text: var(--color-text-on-brand);
+  --button-radius: var(--control-radius);
+  --button-shadow: var(--shadow-level-1);
+
+  --card-background: var(--color-surface);
+  --card-background-muted: var(--color-surface-raised);
+  --card-border: var(--color-border);
+  --card-radius: var(--radius-lg);
+  --card-radius-prominent: var(--radius-xl);
+  --card-padding: var(--space-5);
+  --card-shadow: var(--shadow-level-1);
+
+  --badge-radius: var(--radius-pill);
+  --badge-padding-block: var(--space-1);
+  --badge-padding-inline: var(--space-3);
+
+  --sheet-background: var(--color-surface);
+  --sheet-radius: var(--radius-xl);
+  --sheet-shadow: var(--shadow-level-3);
+
+  --navigation-background: var(--color-surface);
+  --navigation-border: var(--color-border);
+  --navigation-touch-target: var(--size-touch-min);
+}

@@ -1,0 +1,27 @@
+:root {
+  /* Arabic-first type scale. 13px is the absolute product caption floor. */
+  --font-family-ui: "SF Arabic", "Noto Sans Arabic", "Noto Kufi Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-size-caption: 0.8125rem;
+  --font-size-label: 0.875rem;
+  --font-size-body: 1rem;
+  --font-size-body-lg: 1.0625rem;
+  --font-size-title-sm: 1.25rem;
+  --font-size-title-md: 1.625rem;
+  --font-size-title-lg: clamp(2rem, 8vw, 3.25rem);
+  --font-size-auth-title: clamp(1.875rem, 8vw, 2.5rem);
+  --font-size-brand-mark: 1.75rem;
+  --font-size-type-display: clamp(2rem, 8vw, 3rem);
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 600;
+  --font-weight-bold: 750;
+  --font-weight-heavy: 850;
+
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-title: 1.35;
+  --line-height-compact: 1.65;
+  --line-height-body: 1.75;
+  --tracking-tight: -0.025em;
+  --tracking-display: -0.035em;
+}
