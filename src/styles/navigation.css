@@ -232,7 +232,7 @@
 .navigation-lab__route {
   min-inline-size: 0;
   padding: var(--space-4);
-  border: var(--border-width-thin) solid var(--color-border-subtle);
+  border: var(--border-width-thin) solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface-muted);
   display: grid;
