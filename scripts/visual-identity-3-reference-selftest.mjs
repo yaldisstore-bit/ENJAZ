@@ -67,7 +67,7 @@ const scenarios = [
   {
     name: 'turn the strong command card into another neutral card',
     file: 'src/styles/global-command-surfaces.css',
-    mutate: (value) => value.replace('  background: var(--color-warning-soft);\n  color: var(--color-warning-text);', '  background: var(--color-surface);\n  color: var(--color-text-primary);'),
+    mutate: (value) => value.replace('.global-command-card--strong {\n  background: var(--color-warning-soft);\n  color: var(--color-warning-text);\n}', '.global-command-card--strong {\n  background: var(--color-surface);\n  color: var(--color-text-primary);\n}'),
   },
   {
     name: 'restore a wrapping two-row top toolbar',
