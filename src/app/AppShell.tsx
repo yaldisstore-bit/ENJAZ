@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { toAppError } from '../core/errors/AppError.ts';
 import { useAuth } from '../features/auth/state/AuthContext.tsx';
+import { CurrentUserIdProvider } from '../shared/session/CurrentUserIdContext.tsx';
 import { AppShellFrame } from '../shared/shell/AppShellFrame.tsx';
 import { resolveShellNetworkState, type ShellNetworkState } from '../shared/shell/shellContract.ts';
 
@@ -39,15 +40,17 @@ export function AppShell() {
   };
 
   return (
-    <AppShellFrame
-      userLabel={user?.email ?? user?.id ?? 'حساب إنجاز'}
-      networkState={networkState}
-      currentPath={location.pathname}
-      busy={busy}
-      errorMessage={errorMessage}
-      onSignOut={signOut}
-    >
-      <Outlet />
-    </AppShellFrame>
+    <CurrentUserIdProvider userId={user?.id ?? null}>
+      <AppShellFrame
+        userLabel={user?.email ?? user?.id ?? 'حساب إنجاز'}
+        networkState={networkState}
+        currentPath={location.pathname}
+        busy={busy}
+        errorMessage={errorMessage}
+        onSignOut={signOut}
+      >
+        <Outlet />
+      </AppShellFrame>
+    </CurrentUserIdProvider>
   );
 }

@@ -7,6 +7,8 @@ import process from 'node:process';
 const root = resolve(process.cwd());
 const forwardAuditPath = resolve(root, 'scripts/phase3-3-forward-compat-audit.mjs');
 const tempRoot = await mkdtemp(join(tmpdir(), 'enjaz-phase3-3-forward-selftest-'));
+const implementedHomeRecord = "{ id: 'home', label: 'الرئيسية', path: ROUTES.appHome, deliveryPhase: '4', permission: 'authenticated', contentState: 'implemented' }";
+const reservedHomeRecord = "{ id: 'home', label: 'الرئيسية', path: ROUTES.appHome, deliveryPhase: '4', permission: 'authenticated', contentState: 'reserved' }";
 
 function copyFilter(source) {
   const rel = relative(root, source);
@@ -19,6 +21,7 @@ async function normalizeLegacyFixture(fixture) {
   const versionPath = resolve(fixture, 'src/core/version/version.ts');
   const packagePath = resolve(fixture, 'package.json');
   const workflowPath = resolve(fixture, '.github/workflows/enjaz-quality-gate.yml');
+  const navigationPath = resolve(fixture, 'src/core/routing/navigationContract.ts');
 
   const version = await readFile(versionPath, 'utf8');
   await writeFile(versionPath, version.replace(/APP_VERSION\s*=\s*'[^']+'/, "APP_VERSION = '0.10.0-phase3.3'"), 'utf8');
@@ -37,6 +40,13 @@ async function normalizeLegacyFixture(fixture) {
       .replace(/npm run verify:phase\d+\.\d+/g, 'npm run verify:phase3.3'),
     'utf8',
   );
+
+  const navigation = await readFile(navigationPath, 'utf8');
+  const normalizedNavigation = navigation.replace(implementedHomeRecord, reservedHomeRecord);
+  if (navigation.includes(implementedHomeRecord) && normalizedNavigation === navigation) {
+    throw new Error('Legacy Phase 3.3 fixture failed to normalize delivered Home back to reserved');
+  }
+  await writeFile(navigationPath, normalizedNavigation, 'utf8');
 }
 
 let legacyRejected = false;
@@ -117,4 +127,4 @@ try {
 }
 
 if (process.exitCode) process.exit(process.exitCode);
-console.log(`ENJAZ PHASE 3.3 FORWARD-COMPAT SELFTEST PASS — legacy destructive suite=${legacyRejected ? 'PASS' : 'FAIL'}; ${forwardRejected}/5 forward downgrade/workflow/gate regressions rejected.`);
+console.log(`ENJAZ PHASE 3.3 FORWARD-COMPAT SELFTEST PASS — legacy destructive suite=${legacyRejected ? 'PASS' : 'FAIL'}; ${forwardRejected}/5 forward downgrade/workflow/gate regressions rejected; delivered Home normalization is fixture-only.`);

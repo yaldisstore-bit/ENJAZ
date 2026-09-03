@@ -73,15 +73,18 @@ for (const marker of [
   'Phase 3 — Application Shell & Navigation',
   'Phase 3.4 — Shell Destruction Gate ✅',
   'Phase 4 — Home, Daily Work & Executive Overview',
-  'لم تبدأ بعد',
 ]) {
   if (!readme.includes(marker)) errors.push(`README marker missing: ${marker}`);
 }
+
+const phase42NotStarted = /Phase 4\.2 — Daily Work \/ Universal Inbox[^\n]*(?:not started|لم تبدأ)/i.test(readme)
+  || /Phase 4\.2[^\n]*(?:not started|لم تبدأ)/i.test(readme);
+if (!phase42NotStarted) errors.push('README Phase 4.2 must remain explicitly not started while Phase 4.1 is under verification');
 
 if (errors.length) {
   console.error('ENJAZ ROADMAP AUDIT FAIL');
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2 frozen, Phase 3 complete, and Phase 4 handoff protected.`);
+  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2 frozen, Phase 3 complete, Phase 4.1 work isolated, and Phase 4.2 handoff locked.`);
 }

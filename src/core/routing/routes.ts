@@ -13,6 +13,7 @@ export const ROUTES = Object.freeze({
   navigationPreview: '/foundation/navigation',
   interactionsPreview: '/foundation/interactions',
   shellDestructionPreview: '/foundation/shell-destruction',
+  homePreview: '/foundation/home',
   login: '/auth/login',
   signUp: '/auth/signup',
   forgotPassword: '/auth/forgot-password',

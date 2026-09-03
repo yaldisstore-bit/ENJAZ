@@ -65,11 +65,12 @@ test('global search enforces a two-character floor and searches navigation only'
   assert.equal(searchGlobalNavigation('finance')[0]?.id, 'finance');
 });
 
-test('global search result volume is intentionally bounded', () => {
+test('global search result volume is intentionally bounded and reflects delivered route state', () => {
   const results = searchGlobalNavigation('/app');
   assert.equal(GLOBAL_SEARCH_RESULT_LIMIT, 8);
   assert.equal(results.length, GLOBAL_SEARCH_RESULT_LIMIT);
-  assert.ok(results.every((route) => route.contentState === 'reserved'));
+  assert.deepEqual(results.filter((route) => route.contentState === 'implemented').map((route) => route.id), ['home']);
+  assert.ok(results.filter((route) => route.id !== 'home').every((route) => route.contentState === 'reserved'));
 });
 
 test('inbox badge contains invalid, fractional and storm counts safely', () => {

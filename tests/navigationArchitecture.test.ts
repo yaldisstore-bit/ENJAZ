@@ -16,13 +16,14 @@ import {
 import { ROUTES } from '../src/core/routing/routes.ts';
 import { SHELL_NAV_SLOTS } from '../src/shared/shell/shellContract.ts';
 
-test('product route map is canonical, unique and reserved for later business phases', () => {
+test('product route map is canonical, unique and advances content only in its approved delivery phase', () => {
   assert.equal(PRODUCT_NAVIGATION_ROUTES.length, 18);
   assert.equal(new Set(PRODUCT_NAVIGATION_ROUTES.map((route) => route.id)).size, 18);
   assert.equal(new Set(PRODUCT_NAVIGATION_ROUTES.map((route) => route.path)).size, 18);
   assert.ok(PRODUCT_NAVIGATION_ROUTES.every((route) => route.path === '/app' || route.path.startsWith('/app/')));
   assert.ok(PRODUCT_NAVIGATION_ROUTES.every((route) => route.permission === 'authenticated'));
-  assert.ok(PRODUCT_NAVIGATION_ROUTES.every((route) => route.contentState === 'reserved'));
+  assert.equal(getProductNavigationRouteById('home').contentState, 'implemented');
+  assert.ok(PRODUCT_NAVIGATION_ROUTES.filter((route) => route.id !== 'home').every((route) => route.contentState === 'reserved'));
 });
 
 test('primary navigation keeps exactly five frozen shell slots and real destinations', () => {
@@ -100,13 +101,15 @@ test('shell frame computes active and back state from currentPath instead of har
   assert.doesNotMatch(source, /<button[\s\S]*?disabled/);
 });
 
-test('real and preview routers consume the central product route contract', () => {
+test('real and preview routers consume the central product route contract while Home is explicitly promoted', () => {
   const router = readFileSync('src/app/router.tsx', 'utf8');
   const previewRouter = readFileSync('src/app/previewRouter.tsx', 'utf8');
   assert.match(router, /PRODUCT_NAVIGATION_ROUTES/);
+  assert.match(router, /HomeDashboardPage/);
   assert.match(router, /NavigationBoundaryPage/);
   assert.match(router, /ROUTES\.navigationPreview/);
   assert.match(previewRouter, /PRODUCT_NAVIGATION_ROUTES/);
+  assert.match(previewRouter, /HomeDashboardPreviewPage/);
   assert.match(previewRouter, /NavigationPreviewAppPage/);
   assert.match(previewRouter, /ROUTES\.navigationPreview/);
 });

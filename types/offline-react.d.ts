@@ -1,10 +1,12 @@
 declare namespace JSX {
   interface Element {}
+  interface IntrinsicAttributes { key?: string | number }
   interface IntrinsicElements { [elementName: string]: Record<string, unknown> }
 }
 
 declare module 'react' {
   export type ReactNode = unknown;
+  export type SetStateAction<T> = T | ((previous: T) => T);
   export interface ErrorInfo { componentStack?: string | null }
   export interface FormEvent<T = Element> { preventDefault(): void; currentTarget: T; target: T }
   export interface ChangeEvent<T = Element> { currentTarget: T; target: T }
@@ -13,7 +15,7 @@ declare module 'react' {
   export interface Context<T> { Provider: (props: { value: T; children?: ReactNode }) => JSX.Element; readonly __contextType?: T }
   export function createContext<T>(defaultValue: T): Context<T>;
   export function useContext<T>(context: Context<T>): T;
-  export function useState<T>(initial: T): [T, (value: T) => void];
+  export function useState<T>(initial: T | (() => T)): [T, (value: SetStateAction<T>) => void];
   export function useEffect(effect: () => void | (() => void), dependencies: readonly unknown[]): void;
   export function useMemo<T>(factory: () => T, dependencies: readonly unknown[]): T;
   export class Component<P = {}, S = {}> {

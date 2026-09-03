@@ -51,6 +51,42 @@ function fakeClient(response: FakeResponse): Readonly<{ client: EnjazSupabaseCli
 }
 
 const scope = createWorkspaceScope('11111111-1111-4111-8111-111111111111');
+const userId = '22222222-2222-4222-8222-222222222222';
+
+test('workspace resolution uses the authenticated membership boundary instead of deriving a workspace id', async () => {
+  const fake = fakeClient({ data: { workspace_id: scope.workspaceId }, error: null });
+  const gateway = createSupabaseDataGateway(fake.client);
+  const workspaceId = await gateway.resolveWorkspaceIdForUser(userId);
+
+  assert.equal(workspaceId, scope.workspaceId);
+  assert.deepEqual(fake.tables, ['workspace_memberships']);
+  assert.deepEqual(fake.builders[0]?.operations.map((op) => op.name), ['select', 'eq', 'order', 'range', 'maybeSingle']);
+  assert.deepEqual(fake.builders[0]?.operations[0]?.args, ['workspace_id']);
+  assert.deepEqual(fake.builders[0]?.operations[1]?.args, ['user_id', userId]);
+  assert.deepEqual(fake.builders[0]?.operations[3]?.args, [0, 0]);
+});
+
+test('workspace resolution rejects invalid user ids before making a data request', async () => {
+  const fake = fakeClient({ data: null, error: null });
+  const gateway = createSupabaseDataGateway(fake.client);
+  await assert.rejects(() => gateway.resolveWorkspaceIdForUser('not-a-uuid'), /Invalid user id/);
+  assert.equal(fake.tables.length, 0);
+});
+
+test('workspace resolution returns null when membership is absent for the authenticated user', async () => {
+  const fake = fakeClient({ data: null, error: null });
+  const gateway = createSupabaseDataGateway(fake.client);
+  assert.equal(await gateway.resolveWorkspaceIdForUser(userId), null);
+});
+
+test('workspace resolution normalizes RLS failures through the data boundary', async () => {
+  const fake = fakeClient({ data: null, error: { code: '42501', message: 'permission denied' } });
+  const gateway = createSupabaseDataGateway(fake.client);
+  await assert.rejects(
+    () => gateway.resolveWorkspaceIdForUser(userId),
+    (error: unknown) => error instanceof DataAccessError && error.dataCode === 'DATA_FORBIDDEN',
+  );
+});
 
 test('list always scopes workspace before caller filters and applies bounded range', async () => {
   const fake = fakeClient({ data: [{ id: 'c1', workspace_id: scope.workspaceId }], error: null, count: 1 });

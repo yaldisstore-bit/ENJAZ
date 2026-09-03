@@ -47,7 +47,7 @@ export interface NavigationAccessContext {
 }
 
 export const PRODUCT_NAVIGATION_ROUTES = Object.freeze([
-  { id: 'home', label: 'الرئيسية', path: ROUTES.appHome, deliveryPhase: '4', permission: 'authenticated', contentState: 'reserved' },
+  { id: 'home', label: 'الرئيسية', path: ROUTES.appHome, deliveryPhase: '4', permission: 'authenticated', contentState: 'implemented' },
   { id: 'today', label: 'اليوم', path: ROUTES.appToday, deliveryPhase: '4', permission: 'authenticated', contentState: 'reserved' },
   { id: 'transactions', label: 'المعاملات', path: ROUTES.appTransactions, deliveryPhase: '5', permission: 'authenticated', contentState: 'reserved' },
   { id: 'companies', label: 'الشركات', path: ROUTES.appCompanies, deliveryPhase: '6', permission: 'authenticated', contentState: 'reserved' },
