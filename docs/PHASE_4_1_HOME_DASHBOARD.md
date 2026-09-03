@@ -65,7 +65,7 @@ A follow-up becomes an overdue priority only when it is open, due before the cur
 
 ## Priority model
 
-The deterministic priority queue is capped at **6** visible items and sorts by operational severity:
+The deterministic priority queue is capped at **6** visible items. The implementation freezes this as `HOME_PRIORITY_LIMIT = 6` so density cannot drift silently. It sorts by operational severity:
 
 1. critical blockers;
 2. high blockers;
