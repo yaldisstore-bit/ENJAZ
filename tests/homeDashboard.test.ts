@@ -110,7 +110,7 @@ test('home excludes completed, archived and deleted transactions from active ope
   assert.equal(result.finance.activeFees, 1_000);
 });
 
-test('overdue followups respect snooze and do not make archived work look active', () => {
+test('overdue followups respect snooze and archived work cannot leak into Home metrics', () => {
   const active = transaction('active');
   const archived = transaction('archived', { archived_at: '2026-09-02T09:00:00.000Z' });
   const result = snapshot({
@@ -123,8 +123,9 @@ test('overdue followups respect snooze and do not make archived work look active
     ],
   });
 
-  assert.equal(result.openFollowups, 4);
-  assert.equal(result.overdueFollowups, 2);
+  assert.equal(result.openFollowups, 3);
+  assert.equal(result.overdueFollowups, 1);
+  assert.equal(result.signals.find((signal) => signal.id === 'overdue-followups')?.value, 1);
   assert.ok(result.priorities.some((item) => item.id === 'followup:overdue'));
   assert.equal(result.priorities.some((item) => item.id === 'followup:snoozed'), false);
   assert.equal(result.priorities.some((item) => item.id === 'followup:archived-parent'), false);
