@@ -39,7 +39,7 @@ export const previewRouter = createBrowserRouter([
   { path: ROUTES.interactionsPreview, Component: GlobalInteractionLabPage },
   { path: ROUTES.shellDestructionPreview, Component: ShellDestructionLabPage },
   { path: ROUTES.homePreview, Component: HomeDashboardPreviewPage },
-  { path: ROUTES.appHome, Component: HomeDashboardPreviewPage },
+  { path: ROUTES.appHome, Component: HomeAppPreviewPage },
   { path: ROUTES.appMore, Component: NavigationPreviewAppPage },
   ...previewProductRoutes,
   { path: '*', Component: NotFoundPage },
