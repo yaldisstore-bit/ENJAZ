@@ -10,7 +10,7 @@ const probes = [
   { name: 'raw_color_escape', file: 'src/styles/foundation.css', mutate: (text) => `${text}\n.visual-corruption { color: #ff00ff; }\n` },
   { name: 'tiny_caption', file: 'src/styles/tokens/typography.css', mutate: (text) => text.replace('--font-size-caption: 0.8125rem;', '--font-size-caption: 0.625rem;') },
   { name: 'small_touch_target', file: 'src/styles/tokens/geometry.css', mutate: (text) => text.replace('--size-touch-min: 2.75rem;', '--size-touch-min: 2rem;') },
-  { name: 'broken_brand_contrast', file: 'src/styles/tokens/primitives.css', mutate: (text) => text.replace('--enjaz-brand-600: #2563eb;', '--enjaz-brand-600: #eef3f9;') },
+  { name: 'broken_brand_contrast', file: 'src/styles/tokens/primitives.css', mutate: (text) => text.replace('--enjaz-brand-600: #245f6b;', '--enjaz-brand-600: #eef3f9;') },
   { name: 'inline_style_bypass', file: 'src/features/foundation/pages/IdentityLabPage.tsx', mutate: (text) => text.replace('<main className="identity-page"', '<main style={{ color: \'red\' }} className="identity-page"') },
   { name: 'shadow_literal_bypass', file: 'src/styles/foundation.css', mutate: (text) => `${text}\n.visual-shadow-corruption { box-shadow: 0 0 40px var(--color-brand-primary); }\n` },
 ];

@@ -36,7 +36,7 @@ const scenarios = [
   { name: 'detach Foundation status interaction proof link', file: 'src/features/foundation/pages/FoundationStatusPage.tsx', mutate: (value) => value.replace('to={ROUTES.interactionsPreview}>فتح Global Interaction Surfaces 3.3', 'to={ROUTES.root}>فتح Global Interaction Surfaces 3.3') },
   { name: 'remove real Global Interaction Lab component proof', file: 'src/features/foundation/pages/GlobalInteractionLabPage.tsx', mutate: (value) => value.replace('<GlobalInteractionSurfaces inboxCount={20} />', '<p>proof removed</p>') },
   { name: 'raw global interaction color escape', file: 'src/styles/global-interactions.css', mutate: (value) => `${value}\n.global-regression { color: #ff0000; }\n` },
-  { name: 'unknown global interaction design token', file: 'src/styles/global-interactions.css', auditPath: tokenAuditPath, mutate: (value) => value.replace('background: var(--color-surface-raised);', 'background: var(--color-global-fake);') },
+  { name: 'unknown global interaction design token', file: 'src/styles/global-interactions.css', auditPath: tokenAuditPath, mutate: (value) => value.replace('background: var(--color-surface-muted);', 'background: var(--color-global-fake);') },
   { name: 'important global interaction override', file: 'src/styles/global-interactions.css', mutate: (value) => `${value}\n.global-regression { display: block !important; }\n` },
   { name: 'tiny global interaction text', file: 'src/styles/global-interactions.css', mutate: (value) => `${value}\n.global-regression { font-size: 10px; }\n` },
   { name: 'numeric z-index escape', file: 'src/styles/global-interactions.css', mutate: (value) => `${value}\n.global-regression { z-index: 9999; }\n` },

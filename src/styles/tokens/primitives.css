@@ -1,52 +1,52 @@
 :root {
-  /* ENJAZ reference palette. Raw color literals are allowed only in this file. */
-  --enjaz-ink-950: #0c1a2b;
-  --enjaz-ink-800: #24364a;
-  --enjaz-ink-650: #4d5f73;
-  --enjaz-ink-550: #5e7085;
+  /* ENJAZ Identity 2.0 — warm productivity palette. Raw color literals live only here. */
+  --enjaz-ink-950: #10292f;
+  --enjaz-ink-800: #29434a;
+  --enjaz-ink-650: #5b6f73;
+  --enjaz-ink-550: #607579;
 
-  --enjaz-canvas-50: #f8fafc;
-  --enjaz-canvas-100: #f4f7fb;
-  --enjaz-canvas-150: #eef3f9;
-  --enjaz-surface-0: #ffffff;
-  --enjaz-surface-100: #f9fbfd;
-  --enjaz-line-200: #d9e3ef;
-  --enjaz-line-300: #c7d5e5;
+  --enjaz-canvas-50: #fbfcf8;
+  --enjaz-canvas-100: #f6f9f5;
+  --enjaz-canvas-150: #edf3ef;
+  --enjaz-surface-0: #fffefa;
+  --enjaz-surface-100: #fbfdf9;
+  --enjaz-line-200: #dbe6e0;
+  --enjaz-line-300: #c8d8d1;
 
-  --enjaz-brand-950: #0b1b33;
-  --enjaz-brand-900: #112a4f;
-  --enjaz-brand-800: #173b6d;
-  --enjaz-brand-700: #1c4e8c;
-  --enjaz-brand-600: #2563eb;
-  --enjaz-brand-500: #3978f6;
-  --enjaz-brand-100: #eaf1ff;
-  --enjaz-brand-050: #f3f7ff;
+  --enjaz-brand-950: #082c36;
+  --enjaz-brand-900: #0e3b46;
+  --enjaz-brand-800: #154b57;
+  --enjaz-brand-700: #1d5d69;
+  --enjaz-brand-600: #245f6b;
+  --enjaz-brand-500: #397783;
+  --enjaz-brand-100: #dcece8;
+  --enjaz-brand-050: #eff6f2;
 
-  --enjaz-teal-700: #0d6f65;
-  --enjaz-teal-600: #0e9384;
-  --enjaz-teal-100: #e5f6f3;
-  --enjaz-violet-700: #5f46c7;
-  --enjaz-violet-600: #7257e9;
-  --enjaz-violet-100: #efecff;
+  --enjaz-teal-700: #2e6e67;
+  --enjaz-teal-600: #4d9489;
+  --enjaz-teal-100: #dcefeb;
+  --enjaz-violet-700: #6b5b78;
+  --enjaz-violet-600: #8f7aa0;
+  --enjaz-violet-100: #f1ebf4;
 
-  --enjaz-success-700: #0d6b4c;
-  --enjaz-success-600: #17835e;
-  --enjaz-success-100: #eaf7f1;
-  --enjaz-warning-800: #9a4d00;
-  --enjaz-warning-600: #c98311;
-  --enjaz-warning-100: #fff4de;
-  --enjaz-danger-800: #8a2335;
-  --enjaz-danger-600: #c73b53;
-  --enjaz-danger-100: #fcecef;
-  --enjaz-info-800: #174f91;
-  --enjaz-info-100: #e9f2ff;
+  --enjaz-success-700: #17624f;
+  --enjaz-success-600: #238269;
+  --enjaz-success-100: #e1f2eb;
+  --enjaz-warning-800: #8a4b05;
+  --enjaz-warning-600: #eda33f;
+  --enjaz-warning-100: #fff0dd;
+  --enjaz-danger-800: #8c2e43;
+  --enjaz-danger-600: #c84a63;
+  --enjaz-danger-100: #fae9ed;
+  --enjaz-info-800: #285a67;
+  --enjaz-info-100: #e2f0f1;
 
   --enjaz-white: #ffffff;
-  --enjaz-focus: #2563eb;
-  --enjaz-shadow-ambient: rgba(15, 35, 63, 0.07);
-  --enjaz-shadow-raised: rgba(15, 35, 63, 0.11);
-  --enjaz-shadow-floating: rgba(12, 31, 58, 0.15);
-  --enjaz-brand-wash: rgba(37, 99, 235, 0.08);
-  --enjaz-teal-wash: rgba(14, 147, 132, 0.08);
-  --enjaz-overlay: rgba(12, 26, 43, 0.42);
+  --enjaz-focus: #1d5d69;
+  --enjaz-shadow-ambient: rgba(24, 64, 69, 0.07);
+  --enjaz-shadow-raised: rgba(24, 64, 69, 0.11);
+  --enjaz-shadow-floating: rgba(18, 48, 52, 0.16);
+  --enjaz-brand-wash: rgba(36, 95, 107, 0.08);
+  --enjaz-teal-wash: rgba(77, 148, 137, 0.10);
+  --enjaz-overlay: rgba(16, 41, 47, 0.42);
 }
