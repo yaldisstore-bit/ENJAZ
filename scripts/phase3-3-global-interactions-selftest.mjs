@@ -48,7 +48,7 @@ const scenarios = [
   { name: 'downgrade Phase 3.3 verification chain', file: 'package.json', mutate: (value) => value.replace('npm run verify:phase3.2 && npm run audit:interactions && npm run audit:interactions:selftest && npm run audit:roadmap', 'npm run verify:phase3.2') },
   { name: 'mutate immutable Phase 3.2 verification chain', file: 'package.json', mutate: (value) => value.replace('npm run verify:phase3.1 && npm run audit:navigation && npm run audit:navigation:selftest && npm run audit:roadmap', 'npm run verify:phase3.1') },
   { name: 'downgrade GitHub quality workflow to Phase 3.2', file: '.github/workflows/enjaz-quality-gate.yml', mutate: (value) => value.replace('Full Phase 3.3 verification', 'Full Phase 3.2 verification').replace('npm run verify:phase3.3', 'npm run verify:phase3.2') },
-  { name: 'remove Global Search documentation proof', file: 'docs/PHASE_3_3_GLOBAL_INTERACTION_SURFACES.md', mutate: (value) => value.replaceAll('Global Search', 'Section Finder') },
+  { name: 'remove Global Search documentation proof', file: 'docs/PHASE_3_3_GLOBAL_INTERACTION_SURFACES.md', mutate: (value) => value.replace(/global search/gi, 'Section Finder') },
   { name: 'break Phase 3.3 roadmap heading', file: 'docs/ENJAZ_MASTER_ROADMAP.md', mutate: (value) => value.replace('## 3.3 — Global Interaction Surfaces', '## 3.5 — Global Interaction Surfaces') },
   { name: 'remove README Phase 3.3 marker', file: 'README.md', mutate: (value) => value.replaceAll('Phase 3.3 — Global Interaction Surfaces', 'Phase 3.3 — Interaction Work') },
 ];
