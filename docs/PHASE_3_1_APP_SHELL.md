@@ -8,7 +8,7 @@ Phase 3.1 is the first production-facing structure built after **ENJAZ Design Sy
 
 Phase 3.1 owns:
 
-- authenticated **App Shell** frame,
+- authenticated **App Shell** composition,
 - premium **Top Bar**,
 - mobile-first **Bottom Navigation** structure,
 - desktop navigation rail adaptation,
@@ -21,6 +21,19 @@ Phase 3.1 owns:
 - account context and safe sign-out location.
 
 The shell is intentionally route-light. **Phase 3.2 — Navigation Architecture** owns the final product route map. In 3.1 only `/app` is active; the remaining Bottom Navigation slots are visibly reserved but disabled so the shell cannot silently invent business routes before the route contract is frozen.
+
+## Architecture boundary
+
+The first GitHub CI attempt correctly rejected a cross-feature implementation (`foundation → shell` and `shell → auth`). The guard was not weakened.
+
+The corrected composition is:
+
+- `src/shared/shell/shellContract.ts` — domain-neutral shell contract,
+- `src/shared/shell/AppShellFrame.tsx` — presentational frame reusable by preview/product composition,
+- `src/app/AppShell.tsx` — application composition root that is allowed to bind Auth state and the shared frame,
+- `src/features/foundation/pages/ShellPreviewPage.tsx` — safe preview that imports only the shared frame, never Auth.
+
+This keeps feature modules isolated and prevents the shell from becoming a new cross-feature dependency hub.
 
 ## Mobile and accessibility contract
 
@@ -70,8 +83,9 @@ The proof page explicitly states that it is **not a business screen**.
 
 Phase 3.1 adds:
 
-- `src/features/shell/shellContract.ts`
-- `src/features/shell/AppShell.tsx`
+- `src/shared/shell/shellContract.ts`
+- `src/shared/shell/AppShellFrame.tsx`
+- `src/app/AppShell.tsx`
 - `src/features/foundation/pages/ShellPreviewPage.tsx`
 - `src/styles/app-shell.css`
 - `tests/appShell.test.ts`
@@ -96,6 +110,7 @@ The Phase 3.1 selftest intentionally corrupts the shell and requires the audit t
 - removing bottom Safe Area handling,
 - removing Reduced Motion handling,
 - injecting `/app/transactions` before Phase 3.2,
+- leaking an Auth feature dependency into the shared frame,
 - removing the shell preview route,
 - detaching the App Shell from the protected route,
 - downgrading the Phase 3.1 verification command.
@@ -116,13 +131,14 @@ Phase 3.1 is complete only when:
 4. offline/error/loading shell surfaces are present,
 5. future product routes remain locked for Phase 3.2,
 6. `/foundation/shell` safely previews the structure,
-7. all Phase 0–2.8 gates stay green,
-8. all shell behavior/contract tests pass,
-9. all Phase 3.1 audit invariants pass,
-10. every deliberate shell regression is rejected,
-11. TypeScript passes,
-12. Production Build passes,
-13. Pull Request Quality Gate passes,
-14. merged `main` Quality Gate passes.
+7. feature boundaries remain intact,
+8. all Phase 0–2.8 gates stay green,
+9. all shell behavior/contract tests pass,
+10. all Phase 3.1 audit invariants pass,
+11. every deliberate shell regression is rejected,
+12. TypeScript passes,
+13. Production Build passes,
+14. Pull Request Quality Gate passes,
+15. merged `main` Quality Gate passes.
 
 Only after these criteria are green does execution move to **Phase 3.2 — Navigation Architecture**.
