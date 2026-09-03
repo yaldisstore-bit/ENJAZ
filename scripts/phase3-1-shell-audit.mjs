@@ -7,16 +7,35 @@ const failures = [];
 let checks = 0;
 
 async function text(path) { return readFile(resolve(root, path), 'utf8'); }
+async function optionalText(path) {
+  try { return await text(path); }
+  catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') return null;
+    throw error;
+  }
+}
 function check(name, condition, detail = '') {
   checks += 1;
   if (!condition) failures.push(`${name}${detail ? ` — ${detail}` : ''}`);
+}
+function phaseTuple(value) {
+  const match = String(value).match(/phase(\d+)\.(\d+)/);
+  return match ? [Number(match[1]), Number(match[2])] : null;
+}
+function phaseAtLeast(tuple, major, minor) {
+  return Boolean(tuple && (tuple[0] > major || (tuple[0] === major && tuple[1] >= minor)));
+}
+function samePhase(a, b) {
+  return Boolean(a && b && a[0] === b[0] && a[1] === b[1]);
 }
 
 const contract = await text('src/shared/shell/shellContract.ts');
 const frame = await text('src/shared/shell/AppShellFrame.tsx');
 const shell = await text('src/app/AppShell.tsx');
 const preview = await text('src/features/foundation/pages/ShellPreviewPage.tsx');
-const landing = await text('src/features/auth/pages/AuthHomePage.tsx');
+const legacyLanding = await optionalText('src/features/auth/pages/AuthHomePage.tsx');
+const realHome = await optionalText('src/features/home/pages/HomeDashboardPage.tsx');
+const landing = legacyLanding ?? realHome ?? '';
 const css = await text('src/styles/app-shell.css');
 const foundationCss = await text('src/styles/foundation.css');
 const routes = await text('src/core/routing/routes.ts');
@@ -29,9 +48,14 @@ const roadmap = await text('docs/ENJAZ_MASTER_ROADMAP.md');
 const doc = await text('docs/PHASE_3_1_APP_SHELL.md');
 const statusPage = await text('src/features/foundation/pages/FoundationStatusPage.tsx');
 
-const appPhaseMinor = Number(version.match(/APP_VERSION = '0\.10\.0-phase3\.(\d+)'/)?.[1] ?? -1);
-const packagePhaseMinor = Number(String(packageJson.version ?? '').match(/^0\.10\.0-phase3\.(\d+)$/)?.[1] ?? -1);
-const navigationArchitectureActive = appPhaseMinor >= 2 && packagePhaseMinor >= 2;
+const appVersion = version.match(/APP_VERSION\s*=\s*'([^']+)'/)?.[1] ?? '';
+const appPhase = phaseTuple(appVersion);
+const packagePhase = phaseTuple(packageJson.version);
+const workflowLabelMatch = workflow.match(/Full Phase (\d+\.\d+) verification/);
+const workflowCommandMatch = workflow.match(/npm run verify:phase(\d+\.\d+)/);
+const workflowLabelPhase = phaseTuple(workflowLabelMatch ? `phase${workflowLabelMatch[1]}` : '');
+const workflowCommandPhase = phaseTuple(workflowCommandMatch ? `phase${workflowCommandMatch[1]}` : '');
+const navigationArchitectureActive = phaseAtLeast(appPhase, 3, 2) && phaseAtLeast(packagePhase, 3, 2);
 
 for (const marker of [
   'SHELL_TOUCH_TARGET_PX = 44',
@@ -92,8 +116,10 @@ check('shell frame has no inline style escape', !/\bstyle\s*=\s*\{/.test(frame))
 check('shell frame avoids embedded product route literals', !/\/app\/(?:transactions|companies|finance|workflows|documents)/.test(frame));
 check('preview is auth-independent and uses shared AppShellFrame', preview.includes("../../../shared/shell/AppShellFrame.tsx") && !preview.includes('useAuth'));
 check('preview states that it is not a business screen', preview.includes('هذه ليست شاشة أعمال'));
-check('temporary Phase 1.3 auth wording is removed', !landing.includes('Phase 1.3') && !landing.includes('هذه شاشة مؤقتة حتى تبدأ مرحلة الواجهة الفعلية'));
+check('a valid post-shell landing exists after placeholder retirement', landing.length > 0);
+check('temporary Phase 1.3 auth wording is absent from current landing', !landing.includes('Phase 1.3') && !landing.includes('هذه شاشة مؤقتة حتى تبدأ مرحلة الواجهة الفعلية'));
 check('landing does not duplicate sign-out behavior', !landing.includes('service.signOut') && !landing.includes('تسجيل الخروج'));
+check('legacy AuthHomePage may retire only after real Home exists', legacyLanding !== null || realHome !== null);
 
 check('shell CSS is under the architectural 400-line budget', css.split(/\r?\n/).length <= 400, `lines=${css.split(/\r?\n/).length}`);
 check('shell CSS has no raw color literals', !/(?:#[0-9a-f]{3,8}\b|\brgba?\s*\(|\bhsla?\s*\()/i.test(css));
@@ -118,13 +144,15 @@ check('protected application route remains nested inside AppShell', router.inclu
 check('router imports AppShell from app composition boundary', router.includes("import { AppShell } from './AppShell'"));
 check('App Shell stylesheet loads after frozen Phase 2 destruction layer', foundationCss.indexOf("@import './app-shell.css';") > foundationCss.indexOf("@import './visual-destruction-lab.css';"));
 check('foundation status exposes Phase 3.1 proof', statusPage.includes('App Shell 3.1') && statusPage.includes('ROUTES.shellPreview'));
-check('application version is Phase 3.1 or later', appPhaseMinor >= 1, `minor=${appPhaseMinor}`);
-check('package version is Phase 3.1 or later', packagePhaseMinor >= 1, `minor=${packagePhaseMinor}`);
+check('application version is Phase 3.1 or later', phaseAtLeast(appPhase, 3, 1), `version=${appVersion || 'unparseable'}`);
+check('package version is Phase 3.1 or later', phaseAtLeast(packagePhase, 3, 1), `version=${packageJson.version ?? 'missing'}`);
+check('application and package phase versions match', samePhase(appPhase, packagePhase));
+check('GitHub Quality Gate label matches current phase', samePhase(appPhase, workflowLabelPhase));
+check('GitHub Quality Gate command matches current phase', samePhase(appPhase, workflowCommandPhase));
 check('Phase 3.1 gate extends immutable Phase 2.8 gate', packageJson.scripts?.['verify:phase3.1'] === 'npm run verify:phase2.8 && npm run audit:shell && npm run audit:shell:selftest && npm run audit:roadmap');
 check('shell audit script is registered', packageJson.scripts?.['audit:shell'] === 'node scripts/phase3-1-shell-audit.mjs');
 check('shell selftest script is registered', packageJson.scripts?.['audit:shell:selftest'] === 'node scripts/phase3-1-shell-selftest.mjs');
 check('Phase 2.8 gate command remains unchanged', packageJson.scripts?.['verify:phase2.8'] === 'npm run verify:phase2.7 && npm run audit:destruction && npm run audit:destruction:selftest && npm run audit:roadmap');
-check('GitHub quality gate verifies the current Phase 3 minor', workflow.includes(`npm run verify:phase3.${Math.max(appPhaseMinor, 1)}`));
 check('roadmap keeps Phase 3 ordering', roadmap.indexOf('## 3.1 — App Shell') < roadmap.indexOf('## 3.2 — Navigation Architecture'));
 check('roadmap still forbids Phase 4 before Phase 3 exit', roadmap.indexOf('**Phase 3 exit:**') < roadmap.indexOf('# Phase 4 — Home'));
 
