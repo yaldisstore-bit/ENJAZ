@@ -38,12 +38,27 @@ declare module 'react-dom/client' {
 declare module 'react-router' {
   import type { ReactNode } from 'react';
   export interface RouterObject {}
+  export interface Location {
+    pathname: string;
+    search: string;
+    hash: string;
+  }
+  export interface LinkProps {
+    to: string;
+    className?: string;
+    children?: ReactNode;
+    key?: string | number;
+    role?: string;
+    'aria-label'?: string;
+    'aria-current'?: 'page';
+  }
   export function createBrowserRouter(routes: readonly unknown[], options?: { basename?: string }): RouterObject;
   export function RouterProvider(props: { router: RouterObject }): JSX.Element;
-  export function Link(props: { to: string; className?: string; children?: ReactNode }): JSX.Element;
+  export function Link(props: LinkProps): JSX.Element;
   export function Navigate(props: { to: string; replace?: boolean }): JSX.Element;
   export function Outlet(): JSX.Element;
   export function useNavigate(): (to: string, options?: { replace?: boolean }) => void;
+  export function useLocation(): Location;
 }
 
 interface ImportMetaEnv { readonly [key: string]: unknown }
