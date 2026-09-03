@@ -1,24 +1,26 @@
 # Phase 2.7 Implementation Checklist
 
-- [ ] Repository/component/token inspection complete
-- [ ] Domain pattern contracts defined
-- [ ] Transaction patterns
-- [ ] Company patterns
-- [ ] Lawyer/contact patterns
-- [ ] Finance patterns
-- [ ] Risk/urgency patterns
-- [ ] Timeline/activity patterns
-- [ ] Follow-up patterns
-- [ ] Workflow/automation patterns
-- [ ] Command Center module patterns
-- [ ] Search-result patterns
-- [ ] Contextual action patterns
-- [ ] Empty/loading/success/warning/error/conflict/offline/recovery states
-- [ ] Compact mobile variants
-- [ ] Pattern Lab route
-- [ ] Phase 2.7 audit
-- [ ] Phase 2.7 destructive selftest
-- [ ] TypeScript green
-- [ ] Production build green
-- [ ] PR Quality Gate green
+- [x] Repository/component/token inspection complete
+- [x] Domain pattern contracts defined
+- [x] Transaction patterns
+- [x] Company patterns
+- [x] Lawyer/contact patterns
+- [x] Finance patterns
+- [x] Risk/urgency patterns
+- [x] Timeline/activity patterns
+- [x] Follow-up patterns
+- [x] Workflow/automation patterns
+- [x] Command Center module patterns
+- [x] Search-result patterns
+- [x] Contextual action patterns
+- [x] Empty/loading/success/warning/error/conflict/offline/recovery states
+- [x] Compact mobile variants
+- [x] Pattern Lab route
+- [x] Phase 2.7 audit — 115/115
+- [x] Phase 2.7 destructive selftest — 14/14 deliberate regressions rejected
+- [x] TypeScript green
+- [x] Production build green — Vite 8.2.2, 177 modules transformed
+- [x] PR Quality Gate green
 - [ ] Main Quality Gate green after merge
+
+The final checkbox is intentionally completed only after the merged `main` commit passes the full GitHub Actions gate.
