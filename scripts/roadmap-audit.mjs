@@ -51,7 +51,7 @@ function checkOrder(items, label) {
 checkOrder(phases, 'delivery phases');
 checkOrder(phase2, 'Phase 2 sequence');
 
-for (const marker of ['ENJAZ 1.0 — Delivered', 'Change-control rule', 'Next: Phase 2.7 — Premium Pattern Library']) {
+for (const marker of ['ENJAZ 1.0 — Delivered', 'Change-control rule', 'Phase 2.7 ✅', 'Next: Phase 2.8 — Visual Destruction & Quality Gate']) {
   if (!roadmap.includes(marker)) errors.push(`roadmap marker missing: ${marker}`);
 }
 
@@ -64,5 +64,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases and Phase 2.1→2.8 ordering protected.`);
+  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2.1→2.8 ordering and current Phase 2.8 handoff protected.`);
 }
