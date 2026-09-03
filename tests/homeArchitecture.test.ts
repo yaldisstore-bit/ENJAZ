@@ -26,3 +26,9 @@ test('offline React shim models JSX keys and functional state updates used by re
   assert.match(shim, /SetStateAction<T> = T \| \(\(previous: T\) => T\)/);
   assert.match(shim, /useState<T>\(initial: T \| \(\(\) => T\)\)/);
 });
+
+test('Home links consume a frozen typography weight token instead of inventing semibold', async () => {
+  const css = await source('src/styles/home-dashboard.css');
+  assert.match(css, /\.home-dashboard__text-link[\s\S]*font-weight:\s*var\(--font-weight-medium\)/);
+  assert.doesNotMatch(css, /--font-weight-semibold/);
+});
