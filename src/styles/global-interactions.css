@@ -1,24 +1,24 @@
 .global-interactions {
-  border-block-start: var(--border-width-thin) solid var(--color-border);
-  background: var(--color-surface-raised);
+  border-block-start: 0;
+  background: transparent;
 }
 
 .global-interactions__inner {
   inline-size: min(100%, var(--size-content-max));
   margin-inline: auto;
-  padding: var(--space-2) var(--space-fluid-page) var(--space-3);
+  padding: 0 var(--space-fluid-page) var(--space-3);
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-2);
+  gap: var(--space-1);
 }
 
 .global-interactions__item {
   min-inline-size: 0;
   min-block-size: var(--size-touch-min);
   padding: var(--space-2) var(--space-3);
-  border: var(--border-width-thin) solid var(--color-border);
+  border: 0;
   border-radius: var(--radius-lg);
-  background: var(--color-surface);
+  background: transparent;
   color: var(--color-text-secondary);
   display: flex;
   align-items: center;
@@ -32,13 +32,11 @@
   touch-action: manipulation;
   transition:
     background-color var(--duration-fast) var(--easing-standard),
-    border-color var(--duration-fast) var(--easing-standard),
     color var(--duration-fast) var(--easing-standard),
     transform var(--duration-fast) var(--easing-standard);
 }
 
 .global-interactions__item--accent {
-  border-color: var(--color-brand-soft);
   background: var(--color-brand-whisper);
   color: var(--color-brand-strong);
   font-weight: var(--font-weight-bold);
@@ -111,7 +109,7 @@
 .global-surface__empty {
   margin: 0;
   padding: var(--space-4);
-  border: var(--border-width-thin) dashed var(--color-border);
+  border: 0;
   border-radius: var(--radius-lg);
   background: var(--color-surface-muted);
   color: var(--color-text-secondary);
@@ -121,16 +119,25 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: var(--space-2);
+  gap: 0;
+  overflow: hidden;
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
   list-style: none;
 }
 
 .global-surface__result,
 .global-surface__delegate {
   min-inline-size: 0;
-  border: var(--border-width-thin) solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.global-surface__result + .global-surface__result,
+.global-surface__delegate + .global-surface__delegate {
+  border-block-start: var(--border-width-thin) solid var(--color-border);
 }
 
 .global-surface__result {
@@ -185,7 +192,7 @@
   flex: 0 0 auto;
   min-block-size: var(--size-touch-min);
   padding-inline: var(--space-4);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);
   background: var(--color-brand-whisper);
   color: var(--color-brand-strong);
   display: inline-flex;
@@ -201,12 +208,11 @@
   .global-interactions__item:hover,
   .global-surface__result:hover,
   .global-surface__delegate-link:hover {
-    transform: translateY(calc(var(--space-1) * -1));
+    transform: translateY(var(--hover-translate-y));
   }
 
   .global-interactions__item:hover,
   .global-surface__result:hover {
-    border-color: var(--color-brand-soft);
     background: var(--color-brand-whisper);
     color: var(--color-brand-strong);
   }
@@ -214,18 +220,32 @@
 
 @media (max-width: 48rem) {
   .global-interactions__inner {
-    padding-inline: var(--space-2);
-    gap: var(--space-1);
+    padding-inline: var(--space-fluid-page);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
   }
 
   .global-interactions__item {
-    padding-inline: var(--space-2);
-    display: grid;
-    place-items: center;
-    align-content: center;
-    gap: var(--space-1);
-    font-size: var(--font-size-caption);
-    line-height: var(--line-height-caption);
+    inline-size: var(--size-touch-min);
+    block-size: var(--size-touch-min);
+    flex: 0 0 auto;
+    padding: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+  }
+
+  .global-interactions__item--accent {
+    background: var(--color-brand-soft);
+  }
+
+  .global-interactions__label {
+    position: absolute;
+    inline-size: var(--border-width-thin);
+    block-size: var(--border-width-thin);
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .global-interactions__icon {
