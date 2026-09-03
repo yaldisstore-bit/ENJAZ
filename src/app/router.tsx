@@ -10,6 +10,7 @@ import { MobileLabPage } from '../features/foundation/pages/MobileLabPage';
 import { PatternLabPage } from '../features/foundation/pages/PatternLabPage';
 import { VisualDestructionLabPage } from '../features/foundation/pages/VisualDestructionLabPage';
 import { ShellPreviewPage } from '../features/foundation/pages/ShellPreviewPage';
+import { GlobalInteractionLabPage } from '../features/foundation/pages/GlobalInteractionLabPage';
 import { LoginPage } from '../features/auth/pages/LoginPage';
 import { SignUpPage } from '../features/auth/pages/SignUpPage';
 import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage';
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
   { path: ROUTES.destruction, Component: VisualDestructionLabPage },
   { path: ROUTES.shellPreview, Component: ShellPreviewPage },
   { path: ROUTES.navigationPreview, Component: NavigationLabPage },
+  { path: ROUTES.interactionsPreview, Component: GlobalInteractionLabPage },
   {
     Component: AnonymousOnlyRoute,
     children: [
