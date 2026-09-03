@@ -73,7 +73,7 @@
 5. Vite production build
 6. التحقق من إنتاج `dist/index.html`
 
-أحدث اعتماد لـPhase 2.8 على Pull Request اجتاز البوابة كاملة على GitHub Runner الحقيقي:
+Phase 2.8 اجتازت البوابة الكاملة على Pull Request ثم على `main` بعد الدمج، وتشمل النتائج المثبتة:
 
 - **106/106 behavior/contract tests**
 - **90/90 Phase 2.8 visual-destruction invariants**
@@ -91,8 +91,10 @@
 - TypeScript `tsc -b` ✅
 - Vite 8.2.2 production build ✅ — **179 modules transformed**
 - `dist/index.html` assertion ✅
+- Pull Request Quality Gate ✅
+- merged `main` Quality Gate — run #82 ✅
 
-**الإغلاق النهائي لـ2.8 يعتمد كذلك على نجاح نفس Quality Gate على `main` بعد الدمج. عندها فقط تصبح Phase 3 هي نقطة التنفيذ التالية.**
+**Phase 2 مغلقة رسميًا وENJAZ Design System 1.0 مجمّد. نقطة التنفيذ التالية حسب الـMaster Roadmap هي Phase 3 — Application Shell & Navigation.**
 
 ## الأمان والأسرار
 
