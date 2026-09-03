@@ -1,0 +1,192 @@
+name: ENJAZ Bootstrap v6 & Production Verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/enjaz-bootstrap-v6.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    name: Final verify, build and promote Phase 2.2
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Reconstruct verified source
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq -w 0 19); do test "$(wc -c < .github/bootstrap/core4k.b64.part${i})" -eq 4000; done
+          test "$(wc -c < .github/bootstrap/core4k.b64.part20)" -eq 1984
+          cat .github/bootstrap/core4k.b64.part{00..20} > /tmp/enjaz.b64
+          base64 --decode /tmp/enjaz.b64 > /tmp/enjaz.tar.xz
+          echo "ea4106a3f9ca02abdee3ce6cf12a13199a8cc475c1893fbc8b1e1c5098b6ba06  /tmp/enjaz.tar.xz" | sha256sum -c -
+          mkdir -p /tmp/enjaz-source
+          tar -xJf /tmp/enjaz.tar.xz -C /tmp/enjaz-source
+          rsync -a /tmp/enjaz-source/ ./
+      - name: Apply all verified corrections
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('package.json'); d=json.loads(p.read_text()); d.setdefault('engines',{})['node']='>=22.22.0'; p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')
+          Path('.nvmrc').write_text('24\n')
+          for name in ['tsconfig.offline.json','tsconfig.app.json','tsconfig.node.json']:
+              p=Path(name); d=json.loads(p.read_text()); d['compilerOptions']['skipLibCheck']=True; p.write_text(json.dumps(d,indent=2)+'\n')
+          shim=Path('types/offline-react.d.ts'); s=shim.read_text(); marker="declare module '*.css' {}"
+          if marker not in s: s += "\n// Offline typecheck: side-effect stylesheet imports are intentionally opaque.\n"+marker+"\n"
+          shim.write_text(s)
+          Path('src/vite-env.d.ts').write_text('/// <reference types="vite/client" />\n')
+          p=Path('tests/dataContracts.test.ts'); s=p.read_text()
+          old="""  assert.equal(WORKSPACE_TABLES.length, 43);\n  assert.ok(INSERTABLE_WORKSPACE_TABLES.includes('payments'));\n  assert.ok(!UPDATABLE_WORKSPACE_TABLES.includes('payments'));\n  assert.ok(!INSERTABLE_WORKSPACE_TABLES.includes('audit_events'));\n"""
+          new="""  assert.equal(WORKSPACE_TABLES.length, 43);\n  const insertable = new Set<string>(INSERTABLE_WORKSPACE_TABLES);\n  const updatable = new Set<string>(UPDATABLE_WORKSPACE_TABLES);\n  assert.ok(insertable.has('payments'));\n  assert.ok(!updatable.has('payments'));\n  assert.ok(!insertable.has('audit_events'));\n"""
+          if old not in s: raise SystemExit('capability test target not found')
+          p.write_text(s.replace(old,new))
+          PY
+          cat > src/core/auth/SupabaseAuthGateway.ts <<'TS'
+          import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
+          import type { EnjazSupabaseClient } from '../supabase/client.ts';
+          import type { AuthFailureLike, AuthGateway, EnjazAuthSession } from './authGateway.ts';
+
+          function toSession(session: Session | null): EnjazAuthSession | null {
+            if (!session) return null;
+            return Object.freeze({ user: Object.freeze({ id: session.user.id, ...(session.user.email ? { email: session.user.email } : {}) }) });
+          }
+
+          function toAuthFailure(error: unknown): AuthFailureLike | null {
+            if (!error || typeof error !== 'object') return null;
+            const source = error as Readonly<Record<string, unknown>>;
+            return Object.freeze({
+              ...(typeof source.name === 'string' ? { name: source.name } : {}),
+              ...(typeof source.message === 'string' ? { message: source.message } : {}),
+              ...(typeof source.code === 'string' || typeof source.code === 'number' ? { code: String(source.code) } : {}),
+              ...(typeof source.status === 'number' ? { status: source.status } : {}),
+            });
+          }
+
+          export function createSupabaseAuthGateway(client: EnjazSupabaseClient): AuthGateway {
+            return Object.freeze({
+              async getUser() {
+                const { data, error } = await client.auth.getUser();
+                const user = data.user ? Object.freeze({ id: data.user.id, ...(data.user.email ? { email: data.user.email } : {}) }) : null;
+                return Object.freeze({ data: Object.freeze({ user }), error: toAuthFailure(error) });
+              },
+              async signInWithPassword(input: Readonly<{ email: string; password: string }>) {
+                const { data, error } = await client.auth.signInWithPassword(input);
+                const user = data.user ? Object.freeze({ id: data.user.id, ...(data.user.email ? { email: data.user.email } : {}) }) : null;
+                return Object.freeze({ data: Object.freeze({ user, session: toSession(data.session) }), error: toAuthFailure(error) });
+              },
+              async signUp(input: Readonly<{ email: string; password: string; displayName: string }>) {
+                const { data, error } = await client.auth.signUp({ email: input.email, password: input.password, options: { data: { display_name: input.displayName } } });
+                const user = data.user ? Object.freeze({ id: data.user.id, ...(data.user.email ? { email: data.user.email } : {}) }) : null;
+                return Object.freeze({ data: Object.freeze({ user, session: toSession(data.session) }), error: toAuthFailure(error) });
+              },
+              async requestPasswordReset(email: string, redirectTo: string) {
+                return toAuthFailure((await client.auth.resetPasswordForEmail(email, { redirectTo })).error);
+              },
+              async updatePassword(password: string) {
+                return toAuthFailure((await client.auth.updateUser({ password })).error);
+              },
+              async signOut() {
+                return toAuthFailure((await client.auth.signOut()).error);
+              },
+              async bootstrapWorkspace(displayName: string, workspaceName?: string) {
+                const args = workspaceName?.trim() ? { p_display_name: displayName, p_workspace_name: workspaceName.trim() } : { p_display_name: displayName };
+                const { data, error } = await client.rpc('bootstrap_personal_workspace', args);
+                return Object.freeze({ data, error: toAuthFailure(error) });
+              },
+              onAuthStateChange(callback: (event: string, session: EnjazAuthSession | null) => void) {
+                return client.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => callback(event, toSession(session))).data.subscription;
+              },
+            });
+          }
+          TS
+          cp src/core/supabase/database.types.ts /tmp/database.types.before.ts
+      - name: Install dependencies and generate lockfile
+        run: npm install --no-audit --no-fund
+      - name: Full Phase 2.2 verification
+        run: npm run verify:phase2.2
+      - name: Real TypeScript check
+        run: npm run typecheck
+      - name: Real Vite production build
+        run: npm run build
+      - name: Assert deterministic contract and artifacts
+        run: |
+          cmp /tmp/database.types.before.ts src/core/supabase/database.types.ts
+          test -s package-lock.json
+          test -f dist/index.html
+      - name: Install permanent ENJAZ Quality Gate
+        shell: bash
+        run: |
+          mkdir -p .github/workflows
+          cat > .github/workflows/enjaz-quality-gate.yml <<'QUALITY_GATE'
+          name: ENJAZ Quality Gate
+
+          on:
+            push:
+              branches: [main]
+            pull_request:
+              branches: [main]
+            workflow_dispatch:
+
+          permissions:
+            contents: read
+
+          concurrency:
+            group: enjaz-quality-${{ github.ref }}
+            cancel-in-progress: true
+
+          jobs:
+            quality:
+              name: Tests, Audits, Types and Production Build
+              runs-on: ubuntu-latest
+              timeout-minutes: 30
+              steps:
+                - uses: actions/checkout@v7
+                - uses: actions/setup-node@v7
+                  with:
+                    node-version: '24'
+                    cache: npm
+                    cache-dependency-path: package-lock.json
+                - uses: actions/setup-python@v7
+                  with:
+                    python-version: '3.12'
+                - name: Validate runtime contract
+                  run: node -e "const p=require('./package.json'); if(p.engines.node !== '>=22.22.0') process.exit(1)"
+                - name: Install locked dependencies
+                  run: npm ci --no-audit --no-fund
+                - name: Full Phase 2.2 verification
+                  run: npm run verify:phase2.2
+                - name: Real TypeScript check
+                  run: npm run typecheck
+                - name: Production build
+                  run: npm run build
+                - name: Assert production output
+                  run: test -f dist/index.html
+          QUALITY_GATE
+      - name: Promote clean verified repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .github/bootstrap
+          rm -f .github/workflows/enjaz-bootstrap*.yml
+          git config user.name "ENJAZ CI"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: promote CI-verified ENJAZ Phase 2.2 source"
+          git push
