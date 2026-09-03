@@ -87,7 +87,7 @@
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-caption);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: var(--font-variant-numeric);
 }
 
 .global-surface {
