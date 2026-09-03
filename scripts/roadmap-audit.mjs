@@ -75,11 +75,14 @@ for (const marker of [
   'Phase 2.8 — Visual Destruction & Quality Gate ✅',
   'ENJAZ Design System 1.0',
   'Phase 3 — Application Shell & Navigation',
-  'Phase 3.4 — Shell Destruction Gate ✅',
   'Phase 4 — Home, Daily Work & Executive Overview',
   'Phase 4.1 — Home / Dashboard** ✅ complete',
 ]) {
   if (!readme.includes(marker)) errors.push(`README marker missing: ${marker}`);
+}
+
+if (!/Phase 3\.4 — Shell Destruction Gate\*{0,2}\s*✅/.test(readme)) {
+  errors.push('README must keep Phase 3.4 explicitly complete');
 }
 
 const phase42StatusLines = readme.split(/\r?\n/).filter((line) => line.includes('Phase 4.2 — Daily Work / Universal Inbox'));
