@@ -16,6 +16,7 @@ const checks = [
   'No legacy runtime code',
   'ENJAZ Visual Identity 2.1',
   'Strict Design Token Contract 2.2',
+  'Arabic Typography & RTL System 2.3',
 ] as const;
 
 export function FoundationStatusPage() {
@@ -34,6 +35,8 @@ export function FoundationStatusPage() {
         <Link className="foundation-link" to={ROUTES.identity}>فتح مختبر الهوية 2.1</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.tokens}>فتح مختبر Design Tokens 2.2</Link>
+        <br />
+        <Link className="foundation-link" to={ROUTES.typography}>فتح مختبر Typography & RTL 2.3</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.root}>العودة</Link>
       </section>
