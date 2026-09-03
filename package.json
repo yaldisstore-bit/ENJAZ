@@ -1,7 +1,7 @@
 {
   "name": "enjaz",
   "private": true,
-  "version": "0.9.0-phase2.8",
+  "version": "0.10.0-phase3.1",
   "type": "module",
   "engines": {
     "node": ">=22.22.0"
@@ -54,7 +54,10 @@
     "verify:phase2.7": "npm run verify:phase2.6 && npm run audit:patterns && npm run audit:patterns:selftest && npm run audit:roadmap",
     "audit:destruction": "node scripts/phase2-8-visual-destruction-audit.mjs",
     "audit:destruction:selftest": "node scripts/phase2-8-visual-destruction-selftest.mjs",
-    "verify:phase2.8": "npm run verify:phase2.7 && npm run audit:destruction && npm run audit:destruction:selftest && npm run audit:roadmap"
+    "verify:phase2.8": "npm run verify:phase2.7 && npm run audit:destruction && npm run audit:destruction:selftest && npm run audit:roadmap",
+    "audit:shell": "node scripts/phase3-1-shell-audit.mjs",
+    "audit:shell:selftest": "node scripts/phase3-1-shell-selftest.mjs",
+    "verify:phase3.1": "npm run verify:phase2.8 && npm run audit:shell && npm run audit:shell:selftest && npm run audit:roadmap"
   },
   "dependencies": {
     "react": "19.2.8",

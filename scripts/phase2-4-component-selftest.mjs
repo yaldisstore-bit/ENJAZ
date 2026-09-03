@@ -27,8 +27,8 @@ const probes = [
     name: 'downgrade_github_quality_gate',
     file: '.github/workflows/enjaz-quality-gate.yml',
     mutate: (text) => text
-      .replace(/verify:phase2\.\d+/g, 'verify:phase2.3')
-      .replace(/Full Phase 2\.\d+ verification/g, 'Full Phase 2.3 verification'),
+      .replace(/verify:phase\d+\.\d+/g, 'verify:phase2.3')
+      .replace(/Full Phase \d+\.\d+ verification/g, 'Full Phase 2.3 verification'),
   },
 ];
 

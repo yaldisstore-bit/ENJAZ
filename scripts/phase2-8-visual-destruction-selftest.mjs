@@ -24,6 +24,9 @@ const scenarios = [
   { name: 'disable user zoom', file: 'index.html', mutate: (value) => value.replace('interactive-widget=resizes-content', 'interactive-widget=resizes-content, maximum-scale=1') },
   { name: 'remove destruction route', file: 'src/core/routing/routes.ts', mutate: (value) => value.replace("  destruction: '/foundation/destruction',\n", '') },
   { name: 'downgrade Phase 2.8 gate', file: 'package.json', mutate: (value) => value.replace('npm run verify:phase2.7 && npm run audit:destruction && npm run audit:destruction:selftest && npm run audit:roadmap', 'npm run verify:phase2.7') },
+  { name: 'downgrade application phase version', file: 'src/core/version/version.ts', mutate: (value) => value.replace("APP_VERSION = '0.10.0-phase3.1'", "APP_VERSION = '0.9.0-phase2.7'") },
+  { name: 'downgrade package phase version', file: 'package.json', mutate: (value) => value.replace('"version": "0.10.0-phase3.1"', '"version": "0.9.0-phase2.7"') },
+  { name: 'downgrade workflow below destruction gate', file: '.github/workflows/enjaz-quality-gate.yml', mutate: (value) => value.replace('Full Phase 3.1 verification', 'Full Phase 2.7 verification').replace('npm run verify:phase3.1', 'npm run verify:phase2.7') },
   { name: 'remove Phase 3 lock', file: 'src/core/quality/visualDestructionContract.ts', mutate: (value) => value.replace('phase3ForbiddenUntilGreen: true', 'phase3ForbiddenUntilGreen: false') },
 ];
 
@@ -61,4 +64,4 @@ try {
 }
 
 if (process.exitCode) process.exit(process.exitCode);
-console.log(`ENJAZ PHASE 2.8 VISUAL DESTRUCTION SELFTEST PASS — ${rejected}/${scenarios.length} deliberate visual/mobile/RTL/accessibility/gate regressions rejected.`);
+console.log(`ENJAZ PHASE 2.8 VISUAL DESTRUCTION SELFTEST PASS — ${rejected}/${scenarios.length} deliberate visual/mobile/RTL/accessibility/version/workflow/gate regressions rejected.`);

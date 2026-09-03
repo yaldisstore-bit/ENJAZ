@@ -8,6 +8,7 @@ import { MotionLabPage } from '../features/foundation/pages/MotionLabPage';
 import { MobileLabPage } from '../features/foundation/pages/MobileLabPage';
 import { PatternLabPage } from '../features/foundation/pages/PatternLabPage';
 import { VisualDestructionLabPage } from '../features/foundation/pages/VisualDestructionLabPage';
+import { ShellPreviewPage } from '../features/foundation/pages/ShellPreviewPage';
 import { NotFoundPage } from '../features/foundation/pages/NotFoundPage';
 import { ROUTES } from '../core/routing/routes';
 
@@ -22,5 +23,6 @@ export const previewRouter = createBrowserRouter([
   { path: ROUTES.mobile, Component: MobileLabPage },
   { path: ROUTES.patterns, Component: PatternLabPage },
   { path: ROUTES.destruction, Component: VisualDestructionLabPage },
+  { path: ROUTES.shellPreview, Component: ShellPreviewPage },
   { path: '*', Component: NotFoundPage },
 ], { basename: import.meta.env.BASE_URL });

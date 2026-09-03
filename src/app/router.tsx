@@ -9,6 +9,7 @@ import { MotionLabPage } from '../features/foundation/pages/MotionLabPage';
 import { MobileLabPage } from '../features/foundation/pages/MobileLabPage';
 import { PatternLabPage } from '../features/foundation/pages/PatternLabPage';
 import { VisualDestructionLabPage } from '../features/foundation/pages/VisualDestructionLabPage';
+import { ShellPreviewPage } from '../features/foundation/pages/ShellPreviewPage';
 import { LoginPage } from '../features/auth/pages/LoginPage';
 import { SignUpPage } from '../features/auth/pages/SignUpPage';
 import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage';
@@ -16,6 +17,7 @@ import { UpdatePasswordPage } from '../features/auth/pages/UpdatePasswordPage';
 import { AnonymousOnlyRoute, ProtectedRoute, RootRoute } from '../features/auth/pages/AuthRouteGuards';
 import { AuthHomePage } from '../features/auth/pages/AuthHomePage';
 import { ROUTES } from '../core/routing/routes';
+import { AppShell } from './AppShell';
 
 export const router = createBrowserRouter([
   { path: ROUTES.root, Component: RootRoute },
@@ -28,6 +30,7 @@ export const router = createBrowserRouter([
   { path: ROUTES.mobile, Component: MobileLabPage },
   { path: ROUTES.patterns, Component: PatternLabPage },
   { path: ROUTES.destruction, Component: VisualDestructionLabPage },
+  { path: ROUTES.shellPreview, Component: ShellPreviewPage },
   {
     Component: AnonymousOnlyRoute,
     children: [
@@ -37,6 +40,14 @@ export const router = createBrowserRouter([
     ],
   },
   { path: ROUTES.updatePassword, Component: UpdatePasswordPage },
-  { Component: ProtectedRoute, children: [{ path: ROUTES.appHome, Component: AuthHomePage }] },
+  {
+    Component: ProtectedRoute,
+    children: [
+      {
+        Component: AppShell,
+        children: [{ path: ROUTES.appHome, Component: AuthHomePage }],
+      },
+    ],
+  },
   { path: '*', Component: NotFoundPage },
 ]);

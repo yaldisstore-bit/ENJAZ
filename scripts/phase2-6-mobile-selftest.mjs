@@ -35,9 +35,26 @@ const scenarios = [
     mutate: (content) => content.replace("  mobile: '/foundation/mobile',\n", ''),
   },
   {
-    name: 'quality gate downgrade',
+    name: 'quality gate command downgrade',
     file: 'package.json',
     mutate: (content) => content.replace('npm run verify:phase2.5 && npm run audit:mobile && npm run audit:mobile:selftest', 'npm run verify:phase2.5'),
+  },
+  {
+    name: 'application release phase downgrade',
+    file: 'src/core/version/version.ts',
+    mutate: (content) => content.replace(/APP_VERSION = '[^']*phase\d+\.\d+'/, "APP_VERSION = '0.8.0-phase2.5'"),
+  },
+  {
+    name: 'package release phase downgrade',
+    file: 'package.json',
+    mutate: (content) => content.replace(/"version": "[^"]*phase\d+\.\d+"/, '"version": "0.8.0-phase2.5"'),
+  },
+  {
+    name: 'workflow phase downgrade',
+    file: '.github/workflows/enjaz-quality-gate.yml',
+    mutate: (content) => content
+      .replace(/npm run verify:phase\d+\.\d+/g, 'npm run verify:phase2.5')
+      .replace(/Full Phase \d+\.\d+ verification/g, 'Full Phase 2.5 verification'),
   },
   {
     name: 'touch target regression',
@@ -80,4 +97,4 @@ try {
 }
 
 if (process.exitCode) process.exit(process.exitCode);
-console.log(`ENJAZ PHASE 2.6 MOBILE SELFTEST PASS — ${rejected}/${scenarios.length} deliberate mobile regressions rejected.`);
+console.log(`ENJAZ PHASE 2.6 MOBILE SELFTEST PASS — ${rejected}/${scenarios.length} deliberate mobile/version/workflow regressions rejected.`);

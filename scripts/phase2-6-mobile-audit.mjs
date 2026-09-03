@@ -15,6 +15,13 @@ function check(name, condition, detail = '') {
   if (!condition) failures.push(`${name}${detail ? ` — ${detail}` : ''}`);
 }
 
+function phaseAtLeast(match, major, minor) {
+  if (!match) return false;
+  const parsedMajor = Number(match[1]);
+  const parsedMinor = Number(match[2]);
+  return parsedMajor > major || (parsedMajor === major && parsedMinor >= minor);
+}
+
 const html = await text('index.html');
 const mobileCss = await text('src/styles/mobile-hardening.css');
 const labCss = await text('src/styles/mobile-lab.css');
@@ -72,16 +79,16 @@ check('mobile lab CSS uses no raw colors', !/(?:#[0-9a-f]{3,8}\b|\brgba?\s*\(|\b
 check('mobile hardening loads after motion system', foundationCss.indexOf("@import './mobile-hardening.css';") > foundationCss.indexOf("@import './motion-lab.css';"));
 check('mobile lab loads after mobile hardening', foundationCss.indexOf("@import './mobile-lab.css';") > foundationCss.indexOf("@import './mobile-hardening.css';"));
 check('foundation status declares Phase 2.6', statusPage.includes('Mobile / Android Hardening 2.6') && statusPage.includes('ROUTES.mobile'));
-const appVersionPhase = Number(version.match(/APP_VERSION = '0\.9\.0-phase2\.(\d+)'/)?.[1] ?? -1);
-const packageVersionPhase = Number(String(pkg.version ?? '').match(/^0\.9\.0-phase2\.(\d+)$/)?.[1] ?? -1);
-check('application version preserves Phase 2.6 or later', appVersionPhase >= 6);
-check('package version preserves Phase 2.6 or later', packageVersionPhase >= 6);
+const appVersionPhase = version.match(/APP_VERSION\s*=\s*'[^']*phase(\d+)\.(\d+)'/);
+const packageVersionPhase = String(pkg.version ?? '').match(/phase(\d+)\.(\d+)$/);
+check('application version preserves Phase 2.6 or later', phaseAtLeast(appVersionPhase, 2, 6));
+check('package version preserves Phase 2.6 or later', phaseAtLeast(packageVersionPhase, 2, 6));
 check('Phase 2.6 gate extends Phase 2.5', pkg.scripts?.['verify:phase2.6'] === 'npm run verify:phase2.5 && npm run audit:mobile && npm run audit:mobile:selftest');
 check('mobile audit script is registered', pkg.scripts?.['audit:mobile'] === 'node scripts/phase2-6-mobile-audit.mjs');
 check('mobile selftest script is registered', pkg.scripts?.['audit:mobile:selftest'] === 'node scripts/phase2-6-mobile-selftest.mjs');
-const workflowCommandPhase = Number(workflow.match(/npm run verify:phase2\.(\d+)/)?.[1] ?? -1);
-const workflowLabelPhase = Number(workflow.match(/Full Phase 2\.(\d+) verification/)?.[1] ?? -1);
-check('GitHub quality gate covers Phase 2.6 or later', workflowCommandPhase >= 6 && workflowLabelPhase >= 6);
+const workflowCommandPhase = workflow.match(/npm run verify:phase(\d+)\.(\d+)/);
+const workflowLabelPhase = workflow.match(/Full Phase (\d+)\.(\d+) verification/);
+check('GitHub quality gate covers Phase 2.6 or later', phaseAtLeast(workflowCommandPhase, 2, 6) && phaseAtLeast(workflowLabelPhase, 2, 6));
 check('Phase 2.6 documentation declares core contracts', ['viewport-fit=cover', 'interactive-widget=resizes-content', '100dvh', 'Safe Area', '44px', '/foundation/mobile'].every((marker) => doc.includes(marker)));
 
 if (failures.length) {

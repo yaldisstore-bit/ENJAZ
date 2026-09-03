@@ -11,6 +11,12 @@ function check(name, condition, detail = '') {
   checks += 1;
   if (!condition) failures.push(`${name}${detail ? ` — ${detail}` : ''}`);
 }
+function phaseAtLeast(match, major, minor) {
+  if (!match) return false;
+  const parsedMajor = Number(match[1]);
+  const parsedMinor = Number(match[2]);
+  return parsedMajor > major || (parsedMajor === major && parsedMinor >= minor);
+}
 
 async function collectFiles(dir, extension) {
   const absolute = resolve(root, dir);
@@ -133,15 +139,17 @@ check('preview router exposes destruction lab', previewRouter.includes('VisualDe
 check('destruction CSS loads after Pattern Lab', foundationCss.indexOf("@import './visual-destruction-lab.css';") > foundationCss.indexOf("@import './pattern-lab.css';"));
 check('foundation status declares Phase 2.8', statusPage.includes('Visual Destruction & Quality Gate 2.8') && statusPage.includes('ROUTES.destruction'));
 
-const appVersionPhase = Number(version.match(/APP_VERSION = '0\.9\.0-phase2\.(\d+)'/)?.[1] ?? -1);
-const packageVersionPhase = Number(String(packageJson.version ?? '').match(/^0\.9\.0-phase2\.(\d+)$/)?.[1] ?? -1);
-check('application version declares Phase 2.8 or later', appVersionPhase >= 8);
-check('package version declares Phase 2.8 or later', packageVersionPhase >= 8);
+const appVersionPhase = version.match(/APP_VERSION\s*=\s*'[^']*phase(\d+)\.(\d+)'/);
+const packageVersionPhase = String(packageJson.version ?? '').match(/phase(\d+)\.(\d+)$/);
+check('application version declares Phase 2.8 or later', phaseAtLeast(appVersionPhase, 2, 8));
+check('package version declares Phase 2.8 or later', phaseAtLeast(packageVersionPhase, 2, 8));
 check('Phase 2.8 gate extends immutable 2.7 gate', packageJson.scripts?.['verify:phase2.8'] === 'npm run verify:phase2.7 && npm run audit:destruction && npm run audit:destruction:selftest && npm run audit:roadmap');
 check('destruction audit script is registered', packageJson.scripts?.['audit:destruction'] === 'node scripts/phase2-8-visual-destruction-audit.mjs');
 check('destruction selftest script is registered', packageJson.scripts?.['audit:destruction:selftest'] === 'node scripts/phase2-8-visual-destruction-selftest.mjs');
 check('Phase 2.7 gate command remains unchanged', packageJson.scripts?.['verify:phase2.7'] === 'npm run verify:phase2.6 && npm run audit:patterns && npm run audit:patterns:selftest && npm run audit:roadmap');
-check('GitHub quality gate covers Phase 2.8', workflow.includes('Full Phase 2.8 verification') && workflow.includes('npm run verify:phase2.8'));
+const workflowCommandPhase = workflow.match(/npm run verify:phase(\d+)\.(\d+)/);
+const workflowLabelPhase = workflow.match(/Full Phase (\d+)\.(\d+) verification/);
+check('GitHub quality gate covers Phase 2.8 or later', phaseAtLeast(workflowCommandPhase, 2, 8) && phaseAtLeast(workflowLabelPhase, 2, 8));
 
 for (const marker of [
   '200', '20 notifications', '320px', 'keyboard', 'huge financial', 'RTL/LTR', 'offline', 'conflict',

@@ -9,6 +9,7 @@ export const ROUTES = Object.freeze({
   mobile: '/foundation/mobile',
   patterns: '/foundation/patterns',
   destruction: '/foundation/destruction',
+  shellPreview: '/foundation/shell',
   login: '/auth/login',
   signUp: '/auth/signup',
   forgotPassword: '/auth/forgot-password',
