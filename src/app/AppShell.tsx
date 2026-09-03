@@ -7,9 +7,10 @@ import { resolveShellNetworkState, type ShellNetworkState } from '../shared/shel
 
 export function AppShell() {
   const { user, service } = useAuth();
-  const [networkState, setNetworkState] = useState<ShellNetworkState>(() =>
-    resolveShellNetworkState(typeof navigator === 'undefined' ? true : navigator.onLine),
+  const initialNetworkState = resolveShellNetworkState(
+    typeof navigator === 'undefined' ? true : navigator.onLine,
   );
+  const [networkState, setNetworkState] = useState<ShellNetworkState>(initialNetworkState);
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
