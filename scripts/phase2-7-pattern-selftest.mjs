@@ -12,6 +12,7 @@ const scenarios = [
   { name: 'remove transaction family contract', file: 'src/design-system/patterns/patternContract.ts', mutate: (content) => content.replace("  'transaction',\n", '') },
   { name: 'raw color escape', file: 'src/styles/patterns-entities.css', mutate: (content) => `${content}\n.pattern-regression { color: #ff0000; }\n` },
   { name: 'important override escape', file: 'src/styles/patterns-operations.css', mutate: (content) => `${content}\n.pattern-regression { display: block !important; }\n` },
+  { name: 'raw z-index escape', file: 'src/styles/patterns-entities.css', mutate: (content) => `${content}\n.pattern-regression { z-index: 999; }\n` },
   { name: 'physical RTL spacing regression', file: 'src/styles/patterns-discovery.css', mutate: (content) => `${content}\n.pattern-regression { margin-left: var(--space-4); }\n` },
   { name: 'remove reduced motion contract', file: 'src/styles/patterns-responsive.css', mutate: (content) => content.replace('@media (prefers-reduced-motion: reduce)', '@media (min-width: 999rem)') },
   { name: 'remove narrow-phone contract', file: 'src/styles/patterns-responsive.css', mutate: (content) => content.replace('@media (max-width: 22.5rem)', '@media (max-width: 1rem)') },
