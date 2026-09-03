@@ -110,3 +110,12 @@ test('real and preview routers consume the central product route contract', () =
   assert.match(previewRouter, /NavigationPreviewAppPage/);
   assert.match(previewRouter, /ROUTES\.navigationPreview/);
 });
+
+test('offline React Router shim covers location-aware navigation and accessible Link props', () => {
+  const shim = readFileSync('types/offline-react.d.ts', 'utf8');
+  assert.match(shim, /export function useLocation\(\): Location/);
+  assert.match(shim, /pathname: string/);
+  assert.match(shim, /role\?: string/);
+  assert.match(shim, /'aria-label'\?: string/);
+  assert.match(shim, /'aria-current'\?: 'page'/);
+});
