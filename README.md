@@ -2,8 +2,8 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية الحالية: **Phase 3.2 — Navigation Architecture ✅**  
-المرحلة التالية: **Phase 3.3 — Global Interaction Surfaces**
+الحالة المرشحة الحالية: **Phase 3.3 — Global Interaction Surfaces ✅ PR candidate**  
+المرحلة التالية فقط بعد نجاح PR ثم `main`: **Phase 3.4 — Shell Destruction Gate**
 
 إنجاز مشروع جديد مبني من الصفر بهوية مستقلة وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية الأساسية للمشروع السابق دون نقل واجهاته أو الـlegacy UI DNA.
 
@@ -36,10 +36,10 @@
 - **Phase 3 — Application Shell & Navigation** 🚧
   - **Phase 3.1 — App Shell** ✅
   - **Phase 3.2 — Navigation Architecture** ✅
-  - **Phase 3.3 — Global Interaction Surfaces** ⏭ NEXT
-  - **Phase 3.4 — Shell Destruction Gate** ⏳
+  - **Phase 3.3 — Global Interaction Surfaces** ✅ PR candidate; الإغلاق الرسمي بعد merged-main gate
+  - **Phase 3.4 — Shell Destruction Gate** ⏭ NEXT بعد إغلاق 3.3
 
-## ما تم تثبيته حتى Phase 3.2
+## ما تم تثبيته حتى مرشح Phase 3.3
 
 - React + TypeScript + Vite.
 - Supabase Auth / PostgreSQL / RLS foundation.
@@ -47,17 +47,18 @@
 - Arabic-first RTL architecture.
 - Multi-layer typed Design Token System.
 - Typography & bidi contracts للنصوص العربية والمحتوى المختلط.
-- Core reusable components: Button / IconButton / Card / Badge / fields / Checkbox / Switch / Tabs / Dialog / Bottom Sheet / Progress / Skeleton / Empty State.
-- Motion contract مركزي، Presence حقيقي، Press feedback، capability-scoped hover، ودعم `prefers-reduced-motion`.
-- Android keyboard-aware viewport، `100dvh` enhancement، Safe Areas، overscroll containment، و44px coarse-pointer touch floor.
-- **Premium Pattern Library 2.7** بعائلات المجال: Transaction, Company, Contact/Lawyer, Finance, Risk, Timeline, Follow-up, Workflow, Automation, Command Center, Search, Contextual Actions, System States وSkeleton.
-- **Visual Destruction Gate 2.8** بحالات 200+ حرف، 20 إشعاراً، 24 حدث Timeline، عرض 320px، keyboard-open، أرقام مالية ضخمة، RTL/LTR مختلط، Offline/Error/Conflict/Recovery، Focus، Zoom وReduced Motion.
-- App Shell 3.1 موحد مع Top Bar وBottom Navigation وPage Container وSafe Areas وحالات الشبكة العامة.
-- **Navigation Architecture 3.2** بعقد مركزي يضم 18 product-domain roots، وخمسة primary navigation slots فقط، و14 secondary domains تحت More.
-- Active navigation مشتق من pathname الحقيقي، وBack behavior حتمي وآمن للـDeep Links بدل الاعتماد على browser history وحده.
-- المسارات الفعلية للمجالات مثبتة لكن محتواها يبقى `reserved` حتى مرحلة كل مجال؛ لا توجد شاشات أعمال مبكرة داخل Phase 3.2.
+- Core reusable components مع Motion/Presence ودعم `prefers-reduced-motion`.
+- Android keyboard-aware viewport، Safe Areas، overscroll containment، و44px touch floor.
+- Premium Pattern Library 2.7 وVisual Destruction Gate 2.8 المجمدان كأساس بصري حاكم.
+- App Shell 3.1 مع Top Bar وBottom Navigation وPage Container وحالات الشبكة العامة.
+- Navigation Architecture 3.2 مع **18 product-domain roots** و**5 primary navigation slots** و14 secondary domains تحت More.
+- **Global Interaction Surfaces 3.3** مركبة مرة واحدة داخل App Shell بأربع نقاط دخول فقط: البحث الشامل، الوارد، الإنشاء السريع، والقيادة/العمليات.
+- البحث العالمي في 3.3 يبحث خريطة أقسام ENJAZ الحقيقية فقط، بحد أدنى حرفين وبحد أقصى 8 نتائج؛ لا يختلق سجلات أعمال قبل مراحلها.
+- Inbox يوجّه إلى مسار الإشعارات المركزي ويحتوي Badge storms عند `99+`؛ البيانات والعداد الحقيقيان يبقيان لمرحلة الإشعارات.
+- Quick Create يثبت نوايا معاملة/شركة/متابعة جديدة لكنه **يفوض** التنفيذ إلى المجال المالك؛ لا توجد نماذج أو عمليات حفظ مكررة داخل App Shell.
+- مدخل القيادة/العمليات يفوض إلى Operations Center وCommand Center من دون نقل منطق workflow/automation إلى الهيكل.
+- لا يوجد Supabase أو Data Layer أو عمليات insert/update/delete داخل Global Interaction surfaces.
 - GitHub Pages preview يحافظ على SPA deep-link refresh عبر `dist/404.html` و`basename` الصحيح.
-- حارس شامل يمنع في CSS المنتج: raw colors، `!important`، numeric z-index، الخطوط الخام الأصغر من حد القراءة، و`transition: all`.
 
 ## المختبرات داخل التطبيق
 
@@ -71,48 +72,24 @@
 - `/foundation/destruction` — مختبر Visual Destruction & Quality Gate 2.8
 - `/foundation/shell` — مختبر App Shell 3.1
 - `/foundation/navigation` — مختبر Navigation Architecture 3.2
+- `/foundation/interactions` — مختبر Global Interaction Surfaces 3.3
 
 ## Quality Gate
 
 المستودع مرتبط بـ GitHub Actions، والبوابة الدائمة تعمل على `main` وعلى Pull Requests:
 
 1. `npm ci`
-2. التحقق المتسلسل الكامل حتى `verify:phase3.2`
+2. التحقق المتسلسل الكامل حتى `verify:phase3.3`
 3. Roadmap integrity audit
 4. TypeScript الحقيقي `tsc -b`
 5. Vite production build
 6. التحقق من إنتاج `dist/index.html`
 
-Phase 3.2 اجتازت البوابة الكاملة على Pull Request ثم على `main` بعد الدمج، وتشمل النتائج المثبتة:
+مرشح 3.3 لا يُعتبر مغلقًا بمجرد وجود الواجهة. يجب أن ينجح Behavior test suite، وPhase 3.3 audit، وdestructive selftest، وجميع بوابات 3.2 وما قبلها، ثم TypeScript وProduction Build على PR. بعد الدمج يعاد الاختبار على `main` نفسه، ويجب أن يُنشر GitHub Pages من **نفس SHA** قبل إعلان 3.3 مغلقة رسميًا.
 
-- **124/124 behavior/contract tests** ✅
-- **137/137 Phase 3.2 Navigation Architecture invariants** ✅
-- **30/30 deliberate Phase 3.2 route/deep-link/back/permission/mobile/token/gate regressions rejected** ✅
-- **79/79 Phase 3.1 App Shell invariants** ✅
-- **15/15 deliberate App Shell regressions rejected** ✅
-- **90/90 Phase 2.8 visual-destruction invariants** ✅
-- **19/19 deliberate Phase 2.8 visual/mobile/RTL/accessibility/gate regressions rejected** ✅
-- **115/115 Phase 2.7 pattern invariants** ✅
-- **17/17 deliberate Phase 2.7 pattern regressions rejected** ✅
-- **50/50 Mobile / Android invariants** ✅
-- **10/10 deliberate mobile/version/workflow regressions rejected** ✅
-- **160/160 Motion / Interaction / Presence / Reduced-Motion invariants** ✅
-- **16/16 deliberate motion regressions rejected** ✅
-- **41/41 component/accessibility/RTL/gate invariants** ✅
-- **17/17 deliberate component regressions rejected** ✅
-- **264 total tokens / 220 public typed tokens / 77 component contracts** ✅
-- Database audit: **45 tables / 118 policies / 42 indexes** ✅
-- Offline TypeScript contract ✅
-- Real TypeScript `tsc -b` ✅
-- Vite 8.2.2 production build ✅ — **186 modules transformed**
-- `dist/index.html` assertion ✅
-- merged `main` Quality Gate — run #154 ✅
-- GitHub Pages deployment for the verified Phase 3.2 source ✅
+Phase 3.2 تبقى مغلقة رسميًا بنتائجها السابقة المثبتة: **124/124 behavior/contract tests**، **137/137 Navigation invariants**، **30/30 deliberate navigation regressions**، TypeScript الحقيقي، Production Build، وmerged-main/Pages verification ✅.
 
-خلال 3.2 كشفت البوابات عيوبًا حقيقية وتم إصلاحها بدل تجاوزها: نقص `useLocation` وخصائص `Link` في Offline React Router shim، مرجع Design Token غير موجود في Navigation CSS، افتراضات version جامدة في destructive selftests القديمة لـ2.7 و2.8، واختبار تخريب 3.2 ضعيف تم تشديده ليكسر دليل المسار الحقيقي. أضيفت/قويت اختبارات الانحدار لكل حالة.
-
-**Phase 2.8 — Visual Destruction & Quality Gate ✅** تبقى بوابة النظام البصري المجمدة، و**ENJAZ Design System 1.0** يبقى المرجع البصري الحاكم.  
-**نقطة الانتقال التاريخية المجمدة في الخطة هي Phase 3 — Application Shell & Navigation؛ وبعد إغلاق 3.2 رسميًا تكون الخطوة التنفيذية التالية Phase 3.3 — Global Interaction Surfaces.**
+**Phase 2.8 — Visual Destruction & Quality Gate ✅** تبقى بوابة النظام البصري المجمدة، و**ENJAZ Design System 1.0** يبقى المرجع البصري الحاكم.
 
 ## الأمان والأسرار
 

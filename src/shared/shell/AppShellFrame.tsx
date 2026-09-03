@@ -8,6 +8,7 @@ import {
   resolvePrimaryNavigation,
 } from '../../core/routing/navigationContract.ts';
 import { ROUTES } from '../../core/routing/routes.ts';
+import { GlobalInteractionSurfaces } from '../interactions/GlobalInteractionSurfaces.tsx';
 import {
   getShellUserInitial,
   SHELL_NAV_SLOTS,
@@ -56,6 +57,7 @@ export interface AppShellFrameProps {
   currentPath?: string;
   busy?: boolean;
   errorMessage?: string | null;
+  inboxCount?: number;
   onSignOut?: () => void;
 }
 
@@ -66,6 +68,7 @@ export function AppShellFrame({
   currentPath = ROUTES.appHome,
   busy = false,
   errorMessage = null,
+  inboxCount = 0,
   onSignOut,
 }: AppShellFrameProps) {
   const normalizedPath = normalizeNavigationPath(currentPath);
@@ -123,6 +126,8 @@ export function AppShellFrame({
             ) : null}
           </div>
         </div>
+
+        <GlobalInteractionSurfaces inboxCount={inboxCount} />
       </header>
 
       {networkState === 'offline' ? (

@@ -1,0 +1,90 @@
+.interaction-lab__lead {
+  margin-block: var(--space-3) var(--space-6);
+  color: var(--color-text-secondary);
+}
+
+.interaction-lab__dock-proof {
+  overflow: hidden;
+  margin-block-end: var(--space-6);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-level-1);
+}
+
+.interaction-lab__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--size-grid-card-min), 1fr));
+  gap: var(--space-3);
+}
+
+.interaction-lab__card {
+  min-inline-size: 0;
+  padding: var(--space-4);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.interaction-lab__card strong {
+  overflow-wrap: anywhere;
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-label);
+}
+
+.interaction-lab__card span {
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.interaction-lab__card code {
+  inline-size: fit-content;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-brand-whisper);
+  color: var(--color-brand-strong);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.interaction-lab__facts {
+  margin-block: var(--space-6);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--size-swatch-min), 1fr));
+  gap: var(--space-2);
+}
+
+.interaction-lab__facts div {
+  min-inline-size: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  display: grid;
+  gap: var(--space-1);
+}
+
+.interaction-lab__facts dt {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.interaction-lab__facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-label);
+}
+
+.interaction-lab__boundary {
+  margin-block-end: var(--space-6);
+  padding: var(--space-4);
+  border-inline-start: var(--border-width-thin) solid var(--color-brand-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-brand-whisper);
+  color: var(--color-text-secondary);
+}

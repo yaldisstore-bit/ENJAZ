@@ -36,8 +36,8 @@ jobs:
         run: node -e "const p=require('./package.json'); if(p.engines.node !== '>=22.22.0') process.exit(1)"
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Full Phase 3.2 verification
-        run: npm run verify:phase3.2
+      - name: Full Phase 3.3 verification
+        run: npm run verify:phase3.3
       - name: Roadmap integrity audit
         run: npm run audit:roadmap
       - name: Real TypeScript check
