@@ -18,7 +18,7 @@ const scenarios = [
   { name: 'remove finite viewport guard', file: 'src/core/shell/shellDestructionContract.ts', mutate: (value) => value.replace('  if (!Number.isFinite(layoutViewportHeight) || !Number.isFinite(visualViewportHeight)) return false;\n', '') },
   { name: 'stop redirecting expired anonymous session', file: 'src/core/shell/shellDestructionContract.ts', mutate: (value) => value.replace("return status === 'anonymous';", "return status === 'authenticated';") },
   { name: 'misroute deep link fixture', file: 'src/core/shell/shellDestructionContract.ts', mutate: (value) => value.replace("deepLink: '/app/transactions'", "deepLink: '/app/unknown'") },
-  { name: 'remove live auth state subscription', file: 'src/features/auth/state/AuthContext.tsx', mutate: (value) => value.replace('service.onAuthStateChange', 'service.onAuthStateChangeRemoved') },
+  { name: 'remove live auth state subscription', file: 'src/features/auth/state/AuthContext.tsx', mutate: (value) => value.replace('service.onAuthStateChange', 'service.removedAuthSubscription') },
   { name: 'make protected route fail open on anonymous', file: 'src/features/auth/pages/AuthRouteGuards.tsx', mutate: (value) => value.replace("if (status === 'anonymous') return <Navigate to={ROUTES.login} replace />;", "if (status === 'anonymous') return <Outlet />;") },
   { name: 'remove offline event listener', file: 'src/app/AppShell.tsx', mutate: (value) => value.replace("    window.addEventListener('offline', handleOffline);\n", '') },
   { name: 'remove offline listener cleanup', file: 'src/app/AppShell.tsx', mutate: (value) => value.replace("      window.removeEventListener('offline', handleOffline);\n", '') },
