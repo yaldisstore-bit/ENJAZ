@@ -16,8 +16,15 @@ import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage';
 import { UpdatePasswordPage } from '../features/auth/pages/UpdatePasswordPage';
 import { AnonymousOnlyRoute, ProtectedRoute, RootRoute } from '../features/auth/pages/AuthRouteGuards';
 import { AuthHomePage } from '../features/auth/pages/AuthHomePage';
+import { NavigationBoundaryPage } from '../features/navigation/pages/NavigationBoundaryPage.tsx';
+import { NavigationLabPage } from '../features/navigation/pages/NavigationLabPage.tsx';
+import { PRODUCT_NAVIGATION_ROUTES } from '../core/routing/navigationContract.ts';
 import { ROUTES } from '../core/routing/routes';
 import { AppShell } from './AppShell';
+
+const reservedProductRoutes = PRODUCT_NAVIGATION_ROUTES
+  .filter((route) => route.id !== 'home')
+  .map((route) => ({ path: route.path, Component: NavigationBoundaryPage }));
 
 export const router = createBrowserRouter([
   { path: ROUTES.root, Component: RootRoute },
@@ -31,6 +38,7 @@ export const router = createBrowserRouter([
   { path: ROUTES.patterns, Component: PatternLabPage },
   { path: ROUTES.destruction, Component: VisualDestructionLabPage },
   { path: ROUTES.shellPreview, Component: ShellPreviewPage },
+  { path: ROUTES.navigationPreview, Component: NavigationLabPage },
   {
     Component: AnonymousOnlyRoute,
     children: [
@@ -45,7 +53,11 @@ export const router = createBrowserRouter([
     children: [
       {
         Component: AppShell,
-        children: [{ path: ROUTES.appHome, Component: AuthHomePage }],
+        children: [
+          { path: ROUTES.appHome, Component: AuthHomePage },
+          { path: ROUTES.appMore, Component: NavigationBoundaryPage },
+          ...reservedProductRoutes,
+        ],
       },
     ],
   },
