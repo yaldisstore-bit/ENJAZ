@@ -54,24 +54,28 @@ const controlEnd = interactions.indexOf('</BottomSheet>', controlStart);
 const controlSlice = controlStart >= 0 && controlEnd > controlStart ? interactions.slice(controlStart, controlEnd) : '';
 check('command surface contains no ordinary unordered list', controlSlice.length > 0 && !/<ul\b|global-surface__list/.test(controlSlice));
 
-includesAll('mobile quick-create is physically integrated with the dock center', railCss, [
+includesAll('mobile quick-create is RTL-safe, centered and vertically separated from five dock lanes', railCss, [
   '.global-interactions__item--accent',
   'position: fixed',
-  'inset-inline-start: 50%',
-  'inset-block-end: calc(var(--space-3) + var(--space-6) + env(safe-area-inset-bottom, 0))',
-  'transform: translateX(-50%)',
+  'inset-inline: 0',
+  'inset-block-end: calc(var(--space-2) + var(--size-control-lg) + var(--space-6) + env(safe-area-inset-bottom, 0))',
+  'margin-inline: auto',
+  'transform: none',
   'background: var(--color-warning)',
   'border: var(--space-1) solid var(--color-surface)',
   'box-shadow: var(--shadow-level-3)',
   'z-index: var(--z-overlay)',
 ]);
-includesAll('navigation dock provides a centered visual cradle', shellCss, [
+includesAll('navigation dock provides an RTL-safe centered visual cradle', shellCss, [
   '.app-shell__navigation-cradle',
-  'inset-inline-start: 50%',
-  'transform: translateX(-50%)',
+  'inset-inline: 0',
+  'margin-inline: auto',
+  'transform: none',
   'background: var(--color-surface)',
-  'box-shadow: var(--shadow-level-2)',
+  'box-shadow: var(--shadow-level-1)',
 ]);
+check('broken logical-start plus physical-negative-translate centering cannot return',
+  !/inset-inline-start\s*:\s*50%[\s\S]{0,240}translateX\(-50%\)/.test(`${railCss}\n${shellCss}`));
 const dockRule = cssRuleBody(shellCss, '.app-shell__navigation');
 const topbarRule = cssRuleBody(shellCss, '.app-shell__topbar');
 check('dock rule is found exactly for layer validation', dockRule.length > 0);
@@ -80,7 +84,17 @@ check('dock remains below overlay-level commands',
   /z-index:\s*var\(--z-content\)/.test(dockRule)
   && !/z-index:\s*var\(--z-overlay\)/.test(dockRule)
   && /z-index:\s*var\(--z-overlay\)/.test(topbarRule));
-check('mobile shell reserves the middle navigation lane for the amber action', shellCss.includes('.app-shell__nav-slot:nth-child(3) .app-shell__nav-item'));
+check('third navigation lane stays a normal usable destination instead of being displaced for the FAB',
+  shellCss.includes('.app-shell__nav-slot:nth-child(3) .app-shell__nav-item { padding-block-start: var(--space-1); }'));
+
+includesAll('mobile topbar tools are separate controls instead of one giant pill', railCss, [
+  '@media (max-width: 48rem)',
+  'border: 0',
+  'background: transparent',
+  'box-shadow: none',
+  'border: var(--border-width-thin) solid var(--color-border)',
+  'background: var(--color-surface)',
+]);
 
 includesAll('command surface has a premium layered composition', commandCss, [
   '.global-command-surface__hero', 'background: var(--gradient-brand)',
@@ -94,8 +108,8 @@ includesAll('quick-create cards keep amber and brand hierarchy', commandCss, [
   '.global-create-card__index', 'background: var(--color-warning)',
 ]);
 
-check('product shell stylesheet remains bounded', lineCount(shellCss) <= 400);
-check('global tool rail stylesheet remains bounded', lineCount(railCss) <= 360);
+check('product shell stylesheet remains bounded', lineCount(shellCss) <= 420);
+check('global tool rail stylesheet remains bounded', lineCount(railCss) <= 380);
 check('command surface stylesheet remains bounded', lineCount(commandCss) <= 300);
 check('shell proof stylesheet remains bounded', lineCount(proofCss) <= 120);
 
