@@ -1,6 +1,6 @@
 # Phase 2.8 — Visual Destruction & Quality Gate
 
-Status: active implementation on the Phase 2.8 branch.
+Status: **PR-verified release candidate; awaiting merged `main` Quality Gate for final closure.**
 
 Phase 2.8 exists to break the ENJAZ visual system **before** Phase 3 is allowed to build the real App Shell and product screens. It does not add business features. It tortures ENJAZ Design System 1.0, the Premium Pattern Library, RTL/mobile contracts and visual governance until failures are either caught automatically or made explicit.
 
@@ -65,7 +65,11 @@ Phase 2.8 adds:
 - `scripts/phase2-8-visual-destruction-selftest.mjs`
 - `npm run verify:phase2.8`
 
-`verify:phase2.8` must extend the immutable `verify:phase2.7` gate. It then runs the Phase 2.8 audit, deliberate destructive selftest and roadmap audit.
+`verify:phase2.8` extends the immutable `verify:phase2.7` gate. It then runs the Phase 2.8 audit, deliberate destructive selftest and roadmap audit.
+
+## Real defects caught during implementation
+
+The first Phase 2.8 CI pass was deliberately not bypassed when it failed. The existing Phase 2.2 Token Audit caught an invented token reference (`--color-surface-prominent`) inside the new destruction lab stylesheet. The implementation was corrected to consume the existing raised-surface token instead; the token gate itself was not weakened or allowlisted.
 
 ## Deliberate regression probes
 
@@ -88,6 +92,27 @@ The selftest intentionally injects bad states and requires the audit to reject t
 - downgrading the Phase 2.8 verification command,
 - unlocking Phase 3 before the gate passes.
 
+## Verified Pull Request results
+
+GitHub Actions run #77 passed the complete Phase 2.8 chain:
+
+- **106/106** behavior and contract tests passed.
+- **90/90** Phase 2.8 torture/mobile/RTL/accessibility/gate invariants passed.
+- **16/16** deliberate Phase 2.8 regressions were rejected.
+- **115/115** Phase 2.7 pattern invariants remained green.
+- **14/14** deliberate Phase 2.7 regressions remained rejected.
+- **50/50** Mobile / Android invariants passed.
+- **7/7** deliberate mobile regressions were rejected.
+- **154/154** Motion / Interaction / Presence / Reduced-Motion invariants passed.
+- **16/16** deliberate motion regressions were rejected.
+- **41/41** component/accessibility/RTL/gate invariants passed.
+- **17/17** deliberate component regressions were rejected.
+- Design Tokens: **264 total / 220 public typed / 77 component contracts**.
+- Database audit: **45 tables / 118 policies / 42 indexes**.
+- TypeScript `tsc -b` passed.
+- Vite 8.2.2 production build passed with **179 modules transformed**.
+- `dist/index.html` assertion passed.
+
 ## Exit criteria
 
 Phase 2.8 is complete only when:
@@ -102,5 +127,7 @@ Phase 2.8 is complete only when:
 8. the merged `main` Quality Gate is green,
 9. ENJAZ Design System 1.0 is then marked frozen,
 10. only then is **Phase 3** unlocked.
+
+Criteria 1–7 are verified on the PR. Criterion 8 is intentionally verified only after merge. The governing roadmap is prepared for the handoff, but final closure is not claimed until the merged `main` commit passes.
 
 No successful automated run is described as a real-device manual visual inspection. Phase 2.8 distinguishes deterministic automated destruction from later full-system real-device validation.
