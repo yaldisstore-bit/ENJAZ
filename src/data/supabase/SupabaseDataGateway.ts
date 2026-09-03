@@ -40,10 +40,17 @@ export interface DataGatewayOptions {
 }
 
 const DEFAULT_DATA_TIMEOUT_MS = 15_000;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function normalizeTimeout(timeoutMs = DEFAULT_DATA_TIMEOUT_MS): number {
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 120_000) throw new Error('Invalid data timeout');
   return timeoutMs;
+}
+
+function requireUuid(value: string, label: string): string {
+  const normalized = value.trim();
+  if (!UUID_PATTERN.test(normalized)) throw new Error(`Invalid ${label}`);
+  return normalized;
 }
 
 async function settleDataOperation<T>(operation: PromiseLike<T>, kind: DataOperationKind, timeoutMs: number): Promise<T> {
@@ -121,6 +128,26 @@ export function createSupabaseDataGateway(client: EnjazSupabaseClient, options: 
   const timeoutMs = normalizeTimeout(options.timeoutMs);
 
   return Object.freeze({
+    async resolveWorkspaceIdForUser(userId: string): Promise<string | null> {
+      const safeUserId = requireUuid(userId, 'user id');
+      const response = await settleDataOperation(
+        dataClient
+          .from('workspace_memberships')
+          .select('workspace_id')
+          .eq('user_id', safeUserId)
+          .order('created_at', { ascending: true })
+          .range(0, 0)
+          .maybeSingle(),
+        'read',
+        timeoutMs,
+      );
+      if (response.error) throw normalizeDataFailure(response.error);
+      if (response.data === null) return null;
+      const record = requireRecord(response.data);
+      if (typeof record.workspace_id !== 'string') throw normalizeDataFailure({ message: 'Workspace membership is missing workspace_id' });
+      return requireUuid(record.workspace_id, 'workspace id');
+    },
+
     async list<T extends WorkspaceTableName>(table: T, scope: WorkspaceScope, request: ListRequest<T> = {}): Promise<DataPage<RowOf<T>>> {
       const window = normalizeListWindow(request.offset, request.limit);
       for (const filter of request.filters ?? []) validateFilter(filter);
