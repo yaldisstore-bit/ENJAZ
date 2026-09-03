@@ -20,6 +20,7 @@
 @import './app-shell.css';
 @import './shell-proof.css';
 @import './navigation.css';
+@import './app-shell-mobile-recomposition.css';
 @import './reserved-boundary.css';
 @import './global-interactions.css';
 @import './global-command-surfaces.css';
