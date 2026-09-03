@@ -2,7 +2,11 @@
 
 ## Status
 
+**COMPLETE ✅**
+
 Phase 3.4 is the final destruction gate for Phase 3. It does not add business screens. It attacks the authenticated App Shell, navigation architecture, global interaction surfaces, session boundary, mobile viewport behavior, and GitHub Pages deep-link delivery before ENJAZ may enter Phase 4.
+
+The feature implementation was merged to `main` as SHA `a2df0390858e93fb4d55cf9412f5f6b452a1ed18`. That exact feature SHA passed merged-main Quality Gate run **#184** and GitHub Pages Preview run **#144** before this documentation-only closure was prepared.
 
 ## Frozen torture scope
 
@@ -117,7 +121,7 @@ The proof surface is intentionally deterministic and contains no production reco
 
 ## Quality Gate
 
-`verify:phase3.4` must extend the immutable 3.3 gate:
+`verify:phase3.4` extends the immutable 3.3 gate:
 
 `verify:phase3.3 → shell-destruction audit → shell-destruction destructive selftest → roadmap audit`
 
@@ -125,19 +129,46 @@ The Phase 3.4 audit checks the eight required torture families plus architecture
 
 The destructive selftest deliberately corrupts those facts and requires the audits to reject every mutation, including 320→360, 120→20, 200→20, removed session redirect, removed offline listeners, removed back resolution, removed Safe Area, raw colors, unknown tokens, `!important`, numeric z-index, route removal, deep-link fallback removal, version downgrade, gate downgrade, and roadmap/documentation drift.
 
+## Verified closure evidence
+
+The final implementation path produced real green evidence rather than a documentation-only claim:
+
+- PR #14 merged successfully.
+- PR Quality Gate run **#183**: success.
+- **148/148** behavior/contract tests passed.
+- Phase 3.4 audit: **143/143** invariants passed.
+- Phase 3.4 destructive selftest: **37/37** deliberate regressions rejected.
+- Phase 3.3 legacy audit: **151/151**, plus **7/7** forward-compatibility checks.
+- Phase 3.3 legacy destructive suite: **41/41**, plus **5/5** forward downgrade/workflow/gate probes.
+- Navigation 3.2: **137/137** audit + **31/31** destructive probes.
+- App Shell 3.1: **79/79** audit + **15/15** destructive probes.
+- Motion: **169/169** + **16/16** destructive probes.
+- Mobile/Android: **50/50** + **10/10** destructive probes.
+- Database: **45 tables / 118 policies / 42 indexes**, DB selftest **5/5**.
+- Real TypeScript `tsc -b`: success.
+- Vite 8.2.2 production build: success, **191 modules transformed**.
+- `dist/index.html`: asserted.
+- merged-main Quality Gate run **#184** on feature SHA `a2df0390858e93fb4d55cf9412f5f6b452a1ed18`: success.
+- verified production artifact ID **9904038804**, digest `sha256:383e48b9090a6fa3196a50a6603330cf9d95e1112ce17bca71f77d5a3a595767`.
+- GitHub Pages Preview run **#144** built and deployed successfully on the same feature SHA.
+
+Real failures discovered while closing 3.4 were fixed rather than hidden: the historical 3.3 exact-version coupling was made forward-compatible while preserving all legacy checks, and destructive probes for auth subscription, offline plumbing, `100dvh`, Safe Areas, and documentation were strengthened when weak mutations were discovered.
+
 ## Exit criteria
 
-Phase 3.4 is complete only when:
+Phase 3.4 is complete because:
 
-- behavior/contract tests pass;
-- Phase 3.4 audit is fully green;
-- every deliberate 3.4 regression is rejected;
-- Phase 3.3 and all older gates remain green;
-- real TypeScript `tsc -b` passes;
-- Vite production build passes;
-- `dist/index.html` is asserted;
-- GitHub Actions is green on the PR;
-- merged `main` passes the same gate;
-- GitHub Pages successfully publishes the same merged `main` SHA.
+- behavior/contract tests pass ✅
+- Phase 3.4 audit is fully green ✅
+- every deliberate 3.4 regression is rejected ✅
+- Phase 3.3 and all older gates remain green ✅
+- real TypeScript `tsc -b` passes ✅
+- Vite production build passes ✅
+- `dist/index.html` is asserted ✅
+- GitHub Actions is green on the implementation PR ✅
+- merged `main` passed the same gate ✅
+- GitHub Pages successfully published the same merged feature SHA ✅
 
-Only then is **Phase 3 — Application Shell & Navigation** complete and ENJAZ may enter **Phase 4 — Home, Daily Work & Executive Overview**.
+**Phase 3 — Application Shell & Navigation is complete ✅.**
+
+The next permitted roadmap phase is **Phase 4 — Home, Daily Work & Executive Overview**. Phase 4 has **not started** as part of this closure.
