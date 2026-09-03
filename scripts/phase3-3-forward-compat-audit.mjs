@@ -7,6 +7,8 @@ import process from 'node:process';
 const root = resolve(process.argv[2] ?? process.cwd());
 const legacyAuditName = 'phase3-3-global-interactions-audit.mjs';
 const immutablePhase33Gate = 'npm run verify:phase3.2 && npm run audit:interactions && npm run audit:interactions:selftest && npm run audit:roadmap';
+const implementedHomeRecord = "{ id: 'home', label: 'الرئيسية', path: ROUTES.appHome, deliveryPhase: '4', permission: 'authenticated', contentState: 'implemented' }";
+const reservedHomeRecord = "{ id: 'home', label: 'الرئيسية', path: ROUTES.appHome, deliveryPhase: '4', permission: 'authenticated', contentState: 'reserved' }";
 
 function phaseTuple(value) {
   const match = String(value).match(/phase(\d+)\.(\d+)/);
@@ -65,6 +67,7 @@ try {
   const fixtureVersionPath = resolve(fixture, 'src/core/version/version.ts');
   const fixturePackagePath = resolve(fixture, 'package.json');
   const fixtureWorkflowPath = resolve(fixture, '.github/workflows/enjaz-quality-gate.yml');
+  const fixtureNavigationPath = resolve(fixture, 'src/core/routing/navigationContract.ts');
 
   const fixtureVersion = await readFile(fixtureVersionPath, 'utf8');
   await writeFile(
@@ -88,16 +91,27 @@ try {
     'utf8',
   );
 
-  const legacyAuditPath = resolve(fixture, 'scripts', legacyAuditName);
-  const result = spawnSync(process.execPath, [legacyAuditPath, fixture], { encoding: 'utf8' });
-  if (result.status !== 0) {
-    process.stdout.write(result.stdout ?? '');
-    process.stderr.write(result.stderr ?? '');
-    console.error('ENJAZ PHASE 3.3 FORWARD-COMPAT AUDIT FAIL — legacy 151-invariant audit did not pass after compatibility normalization.');
+  const fixtureNavigation = await readFile(fixtureNavigationPath, 'utf8');
+  const normalizedNavigation = fixtureNavigation.replace(implementedHomeRecord, reservedHomeRecord);
+  if (fixtureNavigation.includes(implementedHomeRecord) && normalizedNavigation === fixtureNavigation) {
+    console.error('ENJAZ PHASE 3.3 FORWARD-COMPAT AUDIT FAIL — Home delivery-state normalization did not change the legacy fixture.');
     process.exitCode = 1;
   } else {
-    process.stdout.write(result.stdout ?? '');
-    console.log('ENJAZ PHASE 3.3 FORWARD-COMPAT AUDIT PASS — legacy 151/151 invariants preserved plus 7/7 forward-version/workflow/gate checks.');
+    await writeFile(fixtureNavigationPath, normalizedNavigation, 'utf8');
+  }
+
+  if (!process.exitCode) {
+    const legacyAuditPath = resolve(fixture, 'scripts', legacyAuditName);
+    const result = spawnSync(process.execPath, [legacyAuditPath, fixture], { encoding: 'utf8' });
+    if (result.status !== 0) {
+      process.stdout.write(result.stdout ?? '');
+      process.stderr.write(result.stderr ?? '');
+      console.error('ENJAZ PHASE 3.3 FORWARD-COMPAT AUDIT FAIL — legacy 151-invariant audit did not pass after compatibility normalization.');
+      process.exitCode = 1;
+    } else {
+      process.stdout.write(result.stdout ?? '');
+      console.log('ENJAZ PHASE 3.3 FORWARD-COMPAT AUDIT PASS — legacy 151/151 invariants preserved plus 7/7 forward-version/workflow/gate checks; delivered Home normalized only inside the legacy fixture.');
+    }
   }
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
