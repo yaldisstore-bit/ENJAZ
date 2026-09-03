@@ -19,6 +19,7 @@ const checks = [
   'Arabic Typography & RTL System 2.3',
   'Core Component System 2.4',
   'Motion & Interaction System 2.5',
+  'Mobile / Android Hardening 2.6',
 ] as const;
 
 export function FoundationStatusPage() {
@@ -43,6 +44,8 @@ export function FoundationStatusPage() {
         <Link className="foundation-link" to={ROUTES.components}>فتح مختبر المكونات 2.4</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.motion}>فتح مختبر Motion & Interaction 2.5</Link>
+        <br />
+        <Link className="foundation-link" to={ROUTES.mobile}>فتح مختبر Mobile / Android 2.6</Link>
         <br />
         <Link className="foundation-link" to={ROUTES.root}>العودة</Link>
       </section>
