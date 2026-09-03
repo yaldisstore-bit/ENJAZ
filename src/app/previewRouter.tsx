@@ -9,6 +9,7 @@ import { MobileLabPage } from '../features/foundation/pages/MobileLabPage';
 import { PatternLabPage } from '../features/foundation/pages/PatternLabPage';
 import { VisualDestructionLabPage } from '../features/foundation/pages/VisualDestructionLabPage';
 import { ShellPreviewPage } from '../features/foundation/pages/ShellPreviewPage';
+import { GlobalInteractionLabPage } from '../features/foundation/pages/GlobalInteractionLabPage';
 import { NotFoundPage } from '../features/foundation/pages/NotFoundPage';
 import { NavigationLabPage } from '../features/navigation/pages/NavigationLabPage.tsx';
 import { NavigationPreviewAppPage } from '../features/navigation/pages/NavigationPreviewAppPage.tsx';
@@ -31,6 +32,7 @@ export const previewRouter = createBrowserRouter([
   { path: ROUTES.destruction, Component: VisualDestructionLabPage },
   { path: ROUTES.shellPreview, Component: ShellPreviewPage },
   { path: ROUTES.navigationPreview, Component: NavigationLabPage },
+  { path: ROUTES.interactionsPreview, Component: GlobalInteractionLabPage },
   { path: ROUTES.appMore, Component: NavigationPreviewAppPage },
   ...previewProductRoutes,
   { path: '*', Component: NotFoundPage },
