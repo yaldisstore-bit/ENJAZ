@@ -63,7 +63,7 @@ export function GlobalInteractionSurfaces({ inboxCount = 0 }: GlobalInteractionS
       <nav className="global-interactions" aria-label="الأدوات العامة">
         <div className="global-interactions__inner">
           <button
-            className="global-interactions__item"
+            className="global-interactions__item global-interactions__item--search"
             type="button"
             aria-haspopup="dialog"
             aria-expanded={searchOpen}
@@ -74,7 +74,7 @@ export function GlobalInteractionSurfaces({ inboxCount = 0 }: GlobalInteractionS
           </button>
 
           <Link
-            className="global-interactions__item"
+            className="global-interactions__item global-interactions__item--inbox"
             to={inboxTarget.targetPath}
             aria-label={badge ? `صندوق الوارد، ${badge} عناصر غير مقروءة` : 'صندوق الوارد'}
           >
@@ -97,7 +97,7 @@ export function GlobalInteractionSurfaces({ inboxCount = 0 }: GlobalInteractionS
           </button>
 
           <button
-            className="global-interactions__item"
+            className="global-interactions__item global-interactions__item--command"
             type="button"
             aria-haspopup="dialog"
             aria-expanded={controlOpen}
@@ -159,25 +159,33 @@ export function GlobalInteractionSurfaces({ inboxCount = 0 }: GlobalInteractionS
         title="إنشاء سريع"
         description="نقطة دخول واحدة؛ يفوّض التنفيذ إلى المجال المالك، وتبقى نماذج الإنشاء مملوكة للمجالات ولا تُنسخ داخل App Shell."
         onClose={() => setQuickCreateOpen(false)}
-        className="global-surface"
+        className="global-surface global-surface--quick-create"
       >
-        <ul className="global-surface__list" aria-label="نوايا الإنشاء السريع">
-          {QUICK_CREATE_INTENTS.map((intent) => (
-            <li className="global-surface__delegate" key={intent.id}>
-              <div className="global-surface__delegate-copy">
-                <strong>{intent.actionLabel}</strong>
-                <small>ينفذها قسم {intent.label} في Phase {intent.deliveryPhase}</small>
-              </div>
+        <div className="global-create-surface" aria-label="نوايا الإنشاء السريع">
+          <div className="global-create-surface__intro">
+            <span className="global-create-surface__eyebrow">إجراء جديد</span>
+            <strong>ابدأ من النوع، واترك إنجاز يوصلك للمجال الصحيح.</strong>
+          </div>
+          <div className="global-create-surface__grid">
+            {QUICK_CREATE_INTENTS.map((intent, index) => (
               <Link
-                className="global-surface__delegate-link"
+                className={index === 0
+                  ? 'global-create-card global-create-card--primary'
+                  : 'global-create-card'}
+                key={intent.id}
                 to={intent.targetPath}
                 onClick={() => setQuickCreateOpen(false)}
               >
-                فتح القسم
+                <span className="global-create-card__index" aria-hidden="true">0{index + 1}</span>
+                <span className="global-create-card__copy">
+                  <strong>{intent.actionLabel}</strong>
+                  <small>قسم {intent.label} · Phase {intent.deliveryPhase}</small>
+                </span>
+                <span className="global-create-card__arrow" aria-hidden="true">‹</span>
               </Link>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </div>
+        </div>
       </BottomSheet>
 
       <BottomSheet
@@ -186,25 +194,42 @@ export function GlobalInteractionSurfaces({ inboxCount = 0 }: GlobalInteractionS
         title="القيادة والعمليات"
         description="الهيكل يوفّر نقطة الدخول فقط؛ منطق التشغيل يبقى في المجال المالك."
         onClose={() => setControlOpen(false)}
-        className="global-surface"
+        className="global-surface global-surface--command"
       >
-        <ul className="global-surface__list" aria-label="مراكز التحكم">
-          {CONTROL_TARGETS.map((target) => (
-            <li key={target.routeId}>
+        <div className="global-command-surface">
+          <section className="global-command-surface__hero">
+            <span className="global-command-surface__eyebrow">غرفة التحكم</span>
+            <strong>قرار أسرع، ومسار أوضح.</strong>
+            <p>انتقل إلى مركز التشغيل المناسب من دون تحويل النافذة إلى قائمة إعدادات تقليدية.</p>
+          </section>
+
+          <div className="global-command-surface__grid" aria-label="مراكز التحكم">
+            {CONTROL_TARGETS.map((target, index) => (
               <Link
-                className="global-surface__result"
+                className={index === 0
+                  ? 'global-command-card global-command-card--strong'
+                  : 'global-command-card'}
+                key={target.routeId}
                 to={target.targetPath}
                 onClick={() => setControlOpen(false)}
               >
-                <span className="global-surface__result-copy">
+                <span className="global-command-card__icon" aria-hidden="true">
+                  <GlobalInteractionGlyphIcon name="command" />
+                </span>
+                <span className="global-command-card__copy">
                   <strong>{target.label}</strong>
                   <small>محتوى المجال في Phase {target.deliveryPhase}</small>
                 </span>
-                <span className="global-surface__chevron" aria-hidden="true">‹</span>
+                <span className="global-command-card__phase">P{target.deliveryPhase}</span>
               </Link>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </div>
+
+          <div className="global-command-surface__note">
+            <strong>طبقة قيادة، لا اختصار وهمي.</strong>
+            <span>كل مركز يحتفظ بملكيته ومنطق تشغيله عند تسليم مرحلته.</span>
+          </div>
+        </div>
       </BottomSheet>
     </>
   );
