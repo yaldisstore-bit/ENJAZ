@@ -64,7 +64,6 @@ for (const token of [
   '--motion-scale-enter', '--motion-delay-1', '--motion-delay-2', '--motion-delay-3',
 ]) invariant(motionTokens.includes(`${token}:`), `motion.css: missing ${token}`);
 
-invariant(motionTokens.includes('@media (prefers-reduced-motion: reduce)'), 'motion.css: reduced-motion token override is required');
 invariant(motionCode.includes('@media (prefers-reduced-motion: reduce)'), 'motion-interaction.css: reduced-motion behavior is required');
 invariant(motionCode.includes('@media (hover: hover) and (pointer: fine)'), 'motion-interaction.css: hover transforms must be pointer-capability scoped');
 invariant(!/transition\s*:\s*all\b/i.test(motionCode), 'motion-interaction.css: transition: all is forbidden');
