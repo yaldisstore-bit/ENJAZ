@@ -2,9 +2,19 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية الحالية: **Phase 2.6 — Mobile / Android Hardening ✅**
+الحالة الرسمية الحالية: **Phase 2.6 — Mobile / Android Hardening ✅**  
+المرحلة التالية: **Phase 2.7 — Premium Pattern Library**
 
 إنجاز مشروع جديد مبني من الصفر بهوية مستقلة وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية الأساسية للمشروع السابق دون نقل واجهاته أو الـlegacy UI DNA.
+
+## الخطة الرسمية حتى التسليم
+
+أصبحت خطة المشروع الكاملة مثبتة داخل المستودع كمرجع حاكم:
+
+- [`docs/ENJAZ_MASTER_ROADMAP.md`](docs/ENJAZ_MASTER_ROADMAP.md) — التسلسل الرسمي من التأسيس حتى **ENJAZ 1.0 — Delivered**.
+- [`docs/ENJAZ_ROADMAP_PROVENANCE.md`](docs/ENJAZ_ROADMAP_PROVENANCE.md) — يوضح ما تم التحقق منه تاريخيًا وحدود استعادة الخطة القديمة وكيف تم منع تكرار فقدان تسلسل المراحل.
+
+**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. أي تغيير في الخطة يجب أن يكون صريحًا وموثقًا داخل المستودع.
 
 ## حالة المراحل
 
@@ -20,6 +30,9 @@
 - **Phase 2.4 — Core Component System** ✅
 - **Phase 2.5 — Motion & Interaction System** ✅
 - **Phase 2.6 — Mobile / Android Hardening** ✅
+- **Phase 2.7 — Premium Pattern Library** ⏭
+- **Phase 2.8 — Visual Destruction & Quality Gate** ⏳
+- **Phase 3 — Application Shell & Navigation** يبدأ فقط بعد نجاح 2.8
 
 ## ما تم تثبيته حتى 2.6
 
