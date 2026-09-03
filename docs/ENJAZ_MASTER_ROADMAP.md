@@ -166,11 +166,11 @@ Required torture scenarios include:
 
 ---
 
-# Phase 3 — Application Shell & Navigation ⏭ CURRENT NEXT PHASE
+# Phase 3 — Application Shell & Navigation ✅
 
-Phase 3 begins only after 2.8 is green. **That prerequisite is now satisfied.**
+Phase 3 began only after 2.8 was green. Its exit was verified through the completed Phase 3.4 Shell Destruction Gate before the roadmap advanced.
 
-## 3.1 — App Shell
+## 3.1 — App Shell ✅
 - Build the authenticated application frame.
 - Top Bar.
 - Bottom Navigation optimized for mobile.
@@ -178,31 +178,33 @@ Phase 3 begins only after 2.8 is green. **That prerequisite is now satisfied.**
 - Global loading/offline/error surfaces.
 - App-level responsive structure.
 
-## 3.2 — Navigation Architecture
+## 3.2 — Navigation Architecture ✅
 - Final route map for product domains.
 - Section transitions and back behavior.
 - Deep-link-safe routing.
 - Active navigation state.
 - Navigation permissions/availability contracts.
 
-## 3.3 — Global Interaction Surfaces
+## 3.3 — Global Interaction Surfaces ✅
 - Global search entry point.
 - Notification/inbox entry point.
 - Global create/quick-action entry point where justified.
 - Command/operations entry point without duplicating domain logic.
 
-## 3.4 — Shell Destruction Gate
+## 3.4 — Shell Destruction Gate ✅
 - Keyboard/back/rotation/navigation torture.
 - Route refresh/deep-link tests.
 - Session expiry during navigation.
 - Offline shell behavior.
 - Small-screen and long-label stress.
 
-**Phase 3 exit:** a production-grade shell exists, but business screens are still built domain-by-domain afterward.
+**Phase 3 exit:** a production-grade shell exists, but business screens are still built domain-by-domain afterward. **Exit verified ✅.**
 
 ---
 
-# Phase 4 — Home, Daily Work & Executive Overview
+# Phase 4 — Home, Daily Work & Executive Overview ⏭ CURRENT NEXT PHASE
+
+Phase 4 is the next permitted phase. It has **not started** as part of the Phase 3.4 closure.
 
 ## 4.1 — Home / Dashboard
 - Build the actual ENJAZ home screen using Phase 2 patterns.
@@ -602,13 +604,20 @@ The project is considered delivered only when:
 - Phase 2.6 ✅
 - Phase 2.7 ✅
 - Phase 2.8 ✅
-- **Next: Phase 3 — Application Shell & Navigation**
+- Phase 3.1 ✅
+- Phase 3.2 ✅
+- Phase 3.3 ✅
+- Phase 3.4 ✅
+- **Phase 3 — Application Shell & Navigation ✅**
+- **Next: Phase 4 — Home, Daily Work & Executive Overview**
 
 ---
 
 # Change-control rule
 
 This file is intentionally difficult to change by accident.
+
+This closure changes only verified roadmap state: Phase 3 is marked complete after its green 3.4 exit gate, and Phase 4 becomes the next permitted phase. Feature parity and delivery scope are unchanged; no business implementation is moved or skipped.
 
 A roadmap change must state:
 1. what changes,
