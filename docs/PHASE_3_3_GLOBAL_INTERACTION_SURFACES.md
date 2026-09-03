@@ -2,6 +2,10 @@
 
 ## Status
 
+**Phase 3.3 is officially complete ✅.**
+
+The feature implementation was squash-merged through PR #12. The merged feature SHA `58886263e19261aa4264091e34b14bdec021860b` passed ENJAZ Quality Gate run #172 and GitHub Pages run #132 on the same SHA. The verified production artifact was retained from that `main` run.
+
 Phase 3.3 adds the four global entry points required by the frozen ENJAZ Master Roadmap on top of the completed App Shell 3.1 and Navigation Architecture 3.2.
 
 It does **not** implement domain business screens early. Global surfaces discover or delegate to authoritative product routes; they do not create a second transaction, company, notification, operations, or command implementation inside the Shell.
@@ -137,7 +141,7 @@ Those capabilities stay owned by their roadmap phases.
 
 ## Quality Gate
 
-`verify:phase3.3` must extend the immutable 3.2 gate:
+`verify:phase3.3` extends the immutable 3.2 gate:
 
 `verify:phase3.2 → global-interactions audit → global-interactions destructive selftest → roadmap audit`
 
@@ -145,17 +149,24 @@ The 3.3 audit verifies contract completeness, delegation ownership, search/badge
 
 The destructive selftest deliberately corrupts those contracts and requires the audit to reject every mutation.
 
-Phase 3.3 is complete only when:
+Final verified results from the feature gate:
 
-- behavior/contract tests pass;
-- the Phase 3.3 audit is fully green;
-- the Phase 3.3 destructive selftest rejects every deliberate regression;
-- Phase 3.2 and all older gates remain green;
-- real TypeScript `tsc -b` passes;
-- Vite production build passes;
-- `dist/index.html` is asserted;
-- GitHub Actions is green on the Pull Request;
-- the merged `main` commit passes the same gate;
-- GitHub Pages successfully deploys the same merged `main` SHA.
+- behavior/contract tests: **136/136**;
+- Phase 3.3 audit: **151/151**;
+- Phase 3.3 destructive selftest: **41/41** deliberate regressions rejected;
+- Navigation 3.2: **137/137** plus **31/31** destructive regressions;
+- App Shell 3.1: **79/79** plus **15/15** destructive regressions;
+- Motion: **166/166** plus **16/16** destructive regressions;
+- Mobile/Android: **50/50** plus **10/10** destructive regressions;
+- database: **45 tables / 118 policies / 42 indexes**;
+- real TypeScript `tsc -b`: PASS;
+- Vite 8.2.2 production build: PASS, **189 modules transformed**;
+- `dist/index.html`: asserted;
+- PR #12 Quality Gate run #171: PASS;
+- merged `main` Quality Gate run #172 on `58886263e19261aa4264091e34b14bdec021860b`: PASS;
+- GitHub Pages run #132 on the same merged SHA: PASS;
+- verified artifact: `enjaz-preview-dist-58886263e19261aa4264091e34b14bdec021860b`, digest `sha256:7a36c474c45018815c81496837646fbc048e9afb8634d946e52962b41cd89844`.
 
-Only then may ENJAZ advance to **Phase 3.4 — Shell Destruction Gate**.
+The gate also exposed and corrected weaknesses in its own tests rather than bypassing them: primary-navigation counting was narrowed to the canonical block, numeric contracts are now parsed exactly so `4/8/99` cannot silently become `40/80/999`, and the Global Search documentation regression became case-insensitive.
+
+All required Phase 3.3 exit conditions are now satisfied. The next permitted phase is **Phase 3.4 — Shell Destruction Gate**.
