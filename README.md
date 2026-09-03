@@ -2,8 +2,8 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية المرشحة للدمج: **Phase 3.2 — Navigation Architecture ✅**  
-المرحلة التالية بعد نجاح الدمج والتحقق من `main`: **Phase 3.3 — Global Interaction Surfaces**
+الحالة الرسمية الحالية: **Phase 3.2 — Navigation Architecture ✅**  
+المرحلة التالية: **Phase 3.3 — Global Interaction Surfaces**
 
 إنجاز مشروع جديد مبني من الصفر بهوية مستقلة وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية الأساسية للمشروع السابق دون نقل واجهاته أو الـlegacy UI DNA.
 
@@ -35,7 +35,7 @@
 - **ENJAZ Design System 1.0** ✅ frozen after the Phase 2 gate
 - **Phase 3 — Application Shell & Navigation** 🚧
   - **Phase 3.1 — App Shell** ✅
-  - **Phase 3.2 — Navigation Architecture** ✅ PR gate green; final confirmation occurs again on merged `main`
+  - **Phase 3.2 — Navigation Architecture** ✅
   - **Phase 3.3 — Global Interaction Surfaces** ⏭ NEXT
   - **Phase 3.4 — Shell Destruction Gate** ⏳
 
@@ -83,7 +83,7 @@
 5. Vite production build
 6. التحقق من إنتاج `dist/index.html`
 
-آخر بوابة كاملة ناجحة لمرشح Phase 3.2 على Pull Request أثبتت:
+Phase 3.2 اجتازت البوابة الكاملة على Pull Request ثم على `main` بعد الدمج، وتشمل النتائج المثبتة:
 
 - **124/124 behavior/contract tests** ✅
 - **137/137 Phase 3.2 Navigation Architecture invariants** ✅
@@ -106,11 +106,13 @@
 - Real TypeScript `tsc -b` ✅
 - Vite 8.2.2 production build ✅ — **186 modules transformed**
 - `dist/index.html` assertion ✅
+- merged `main` Quality Gate — run #154 ✅
+- GitHub Pages deployment for the verified Phase 3.2 source ✅
 
 خلال 3.2 كشفت البوابات عيوبًا حقيقية وتم إصلاحها بدل تجاوزها: نقص `useLocation` وخصائص `Link` في Offline React Router shim، مرجع Design Token غير موجود في Navigation CSS، افتراضات version جامدة في destructive selftests القديمة لـ2.7 و2.8، واختبار تخريب 3.2 ضعيف تم تشديده ليكسر دليل المسار الحقيقي. أضيفت/قويت اختبارات الانحدار لكل حالة.
 
 **Phase 2.8 — Visual Destruction & Quality Gate ✅** تبقى بوابة النظام البصري المجمدة، و**ENJAZ Design System 1.0** يبقى المرجع البصري الحاكم.  
-**نقطة الانتقال التاريخية المجمدة في الخطة هي Phase 3 — Application Shell & Navigation؛ وبعد إغلاق 3.2 على `main` تكون الخطوة التنفيذية التالية Phase 3.3 — Global Interaction Surfaces.**
+**نقطة الانتقال التاريخية المجمدة في الخطة هي Phase 3 — Application Shell & Navigation؛ وبعد إغلاق 3.2 رسميًا تكون الخطوة التنفيذية التالية Phase 3.3 — Global Interaction Surfaces.**
 
 ## الأمان والأسرار
 
