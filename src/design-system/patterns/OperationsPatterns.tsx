@@ -318,7 +318,7 @@ export function CommandModulePattern({
           </dl>
         ) : null}
       </div>
-      <Button variant="secondary" onClick={onOpen} className="pattern-command__button">فتح</Button>
+      <Button variant="secondary" className="pattern-command__button" {...(onOpen ? { onClick: onOpen } : {})}>فتح</Button>
     </section>
   );
 }
