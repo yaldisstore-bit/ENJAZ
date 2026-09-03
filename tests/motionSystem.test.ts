@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import { MOTION_DELAYS, MOTION_DURATION_MS, MOTION_PRESETS, prefersReducedMotion } from '../src/design-system/motion/motionContract.ts';
 
 const read = (path: string) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
+const stripCssComments = (text: string) => text.replace(/\/\*[\s\S]*?\*\//g, '');
 
 test('motion durations are ordered, bounded and intentionally short', () => {
   assert.deepEqual(MOTION_DURATION_MS, {
@@ -29,12 +30,13 @@ test('reduced motion detection is safe without a browser window', () => {
 
 test('motion CSS forbids transition-all and scopes hover capability', async () => {
   const css = await read('src/styles/motion-interaction.css');
-  assert.equal(/transition\s*:\s*all\b/i.test(css), false);
-  assert.match(css, /@media \(hover: hover\) and \(pointer: fine\)/);
+  const code = stripCssComments(css);
+  assert.equal(/transition\s*:\s*all\b/i.test(code), false);
+  assert.match(code, /@media \(hover: hover\) and \(pointer: fine\)/);
 });
 
 test('reduced motion disables non-essential loops and transitions', async () => {
-  const css = await read('src/styles/motion-interaction.css');
+  const css = stripCssComments(await read('src/styles/motion-interaction.css'));
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(css, /\.ui-skeleton,[\s\S]*\.ui-button__spinner[\s\S]*animation: none/);
   assert.match(css, /\.ui-button,[\s\S]*\.ui-field__control[\s\S]*transition: none/);
