@@ -17,7 +17,7 @@
   color: var(--color-text-on-brand);
   font: inherit;
   transform: translateY(-200%);
-  transition: transform var(--motion-duration-fast) var(--motion-easing-standard);
+  transition: transform var(--duration-fast) var(--easing-standard);
 }
 
 .app-shell__skip-link:focus-visible {
@@ -201,9 +201,9 @@
   line-height: var(--line-height-caption);
   touch-action: manipulation;
   transition:
-    background-color var(--motion-duration-fast) var(--motion-easing-standard),
-    color var(--motion-duration-fast) var(--motion-easing-standard),
-    transform var(--motion-duration-fast) var(--motion-easing-standard);
+    background-color var(--duration-fast) var(--easing-standard),
+    color var(--duration-fast) var(--easing-standard),
+    transform var(--duration-fast) var(--easing-standard);
 }
 
 .app-shell__nav-item--active {
