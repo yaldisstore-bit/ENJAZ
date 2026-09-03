@@ -77,7 +77,9 @@ invariant(motionCode.includes(".ui-motion-reveal[data-motion-preset='scale']"), 
 
 invariant(contract.includes('instant: 90') && contract.includes('slow: 420'), 'motionContract.ts: typed duration contract drifted');
 invariant(contract.includes("['fade', 'rise', 'scale']"), 'motionContract.ts: bounded reveal presets missing');
-invariant(contract.includes("window.matchMedia('(prefers-reduced-motion: reduce)')"), 'motionContract.ts: OS reduced-motion preference must be readable');
+invariant(contract.includes('globalThis as MotionRuntime'), 'motionContract.ts: reduced-motion runtime must avoid direct DOM-global dependency');
+invariant(contract.includes("runtime.matchMedia('(prefers-reduced-motion: reduce)')"), 'motionContract.ts: OS reduced-motion preference must be readable');
+invariant(!/\bwindow\b/.test(contract), 'motionContract.ts: direct window dependency is forbidden in the shared motion contract');
 invariant(presence.includes('prefersReducedMotion() ? 0 : exitDurationMs'), 'useMotionPresence.ts: reduced motion must skip exit wait');
 invariant(presence.includes("setState('exiting')"), 'useMotionPresence.ts: exit presence state missing');
 invariant(presence.includes('setMounted(false)'), 'useMotionPresence.ts: delayed unmount missing');
