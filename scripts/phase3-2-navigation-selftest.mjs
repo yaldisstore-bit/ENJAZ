@@ -6,6 +6,7 @@ import process from 'node:process';
 
 const root = resolve(process.cwd());
 const auditPath = resolve(root, 'scripts/phase3-2-navigation-audit.mjs');
+const tokenAuditPath = resolve(root, 'scripts/phase2-2-token-audit.mjs');
 const tempRoot = await mkdtemp(join(tmpdir(), 'enjaz-navigation-selftest-'));
 
 const scenarios = [
@@ -28,6 +29,7 @@ const scenarios = [
   { name: 'remove preview product route spread', file: 'src/app/previewRouter.tsx', mutate: (value) => value.replace('  ...previewProductRoutes,\n', '') },
   { name: 'remove Pages SPA fallback', file: '.github/workflows/enjaz-pages-preview.yml', mutate: (value) => value.replace('run: cp dist/index.html dist/404.html', 'run: echo fallback-removed') },
   { name: 'raw navigation color escape', file: 'src/styles/navigation.css', mutate: (value) => `${value}\n.navigation-regression { color: #ff0000; }\n` },
+  { name: 'unknown navigation design token', file: 'src/styles/navigation.css', auditPath: tokenAuditPath, mutate: (value) => value.replace('border: var(--border-width-thin) solid var(--color-border);', 'border: var(--border-width-thin) solid var(--color-border-subtle);') },
   { name: 'important navigation override', file: 'src/styles/navigation.css', mutate: (value) => `${value}\n.navigation-regression { display: block !important; }\n` },
   { name: 'tiny navigation text', file: 'src/styles/navigation.css', mutate: (value) => `${value}\n.navigation-regression { font-size: 10px; }\n` },
   { name: 'remove navigation reduced motion', file: 'src/styles/navigation.css', mutate: (value) => value.replace('@media (prefers-reduced-motion: reduce)', '@media (min-width: 999rem)') },
@@ -61,7 +63,8 @@ try {
       break;
     }
     await writeFile(target, mutated, 'utf8');
-    const result = spawnSync(process.execPath, [auditPath, fixture], { encoding: 'utf8' });
+    const scenarioAuditPath = scenario.auditPath ?? auditPath;
+    const result = spawnSync(process.execPath, [scenarioAuditPath, fixture], { encoding: 'utf8' });
     if (result.status === 0) {
       console.error(`SELFTEST FAIL — navigation audit accepted deliberate regression: ${scenario.name}`);
       process.exitCode = 1;
@@ -74,4 +77,4 @@ try {
 }
 
 if (process.exitCode) process.exit(process.exitCode);
-console.log(`ENJAZ PHASE 3.2 NAVIGATION SELFTEST PASS — ${rejected}/${scenarios.length} deliberate route/deep-link/back/permission/mobile/gate regressions rejected.`);
+console.log(`ENJAZ PHASE 3.2 NAVIGATION SELFTEST PASS — ${rejected}/${scenarios.length} deliberate route/deep-link/back/permission/mobile/token/gate regressions rejected.`);
