@@ -6,6 +6,7 @@ import { TokenLabPage } from '../features/foundation/pages/TokenLabPage';
 import { TypographyLabPage } from '../features/foundation/pages/TypographyLabPage';
 import { ComponentLabPage } from '../features/foundation/pages/ComponentLabPage';
 import { MotionLabPage } from '../features/foundation/pages/MotionLabPage';
+import { MobileLabPage } from '../features/foundation/pages/MobileLabPage';
 import { LoginPage } from '../features/auth/pages/LoginPage';
 import { SignUpPage } from '../features/auth/pages/SignUpPage';
 import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage';
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
   { path: ROUTES.typography, Component: TypographyLabPage },
   { path: ROUTES.components, Component: ComponentLabPage },
   { path: ROUTES.motion, Component: MotionLabPage },
+  { path: ROUTES.mobile, Component: MobileLabPage },
   {
     Component: AnonymousOnlyRoute,
     children: [
