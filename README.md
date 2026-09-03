@@ -70,7 +70,7 @@
 5. Vite production build
 6. التحقق من إنتاج `dist/index.html`
 
-اعتماد Phase 2.7 على Pull Request اجتاز البوابة كاملة بنجاح على GitHub Runner الحقيقي، بما في ذلك:
+اعتماد Phase 2.7 اجتاز البوابة كاملة بنجاح على GitHub Runner الحقيقي، بما في ذلك:
 
 - **99/99 behavior/contract tests**
 - **115/115 Phase 2.7 pattern invariants**
@@ -86,8 +86,10 @@
 - TypeScript `tsc -b` ✅
 - Vite 8.2.2 production build ✅ — **177 modules transformed**
 - `dist/index.html` assertion ✅
+- Pull Request Quality Gate ✅
+- merged `main` Quality Gate — run #72 ✅
 
-الاعتماد النهائي لـ2.7 لا يُغلق إلا بعد نجاح Quality Gate على `main` بعد الدمج.
+**Phase 2.7 مغلقة رسميًا. المرحلة التالية حسب الخطة الحاكمة هي Phase 2.8 — Visual Destruction & Quality Gate.**
 
 ## الأمان والأسرار
 
