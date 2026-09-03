@@ -1,16 +1,16 @@
 :root {
-  /* Component contracts are aliases only. */
+  /* Identity 2.0 component contracts — aliases only, shared by every product screen. */
   --control-height-default: var(--size-touch-min);
   --control-height-large: var(--size-control-lg);
-  --control-radius: var(--radius-sm);
+  --control-radius: var(--radius-lg);
   --control-padding-block: var(--space-3);
-  --control-padding-inline: var(--space-4);
+  --control-padding-inline: var(--space-5);
   --control-gap: var(--space-2);
   --control-focus-shadow: var(--shadow-focus-ring);
 
-  --field-background: var(--color-surface-raised);
+  --field-background: var(--color-surface);
   --field-background-focus: var(--color-surface);
-  --field-border: var(--color-border-strong);
+  --field-border: var(--color-border);
   --field-border-focus: var(--color-brand-primary);
   --field-text: var(--color-text-primary);
   --field-placeholder: var(--color-text-tertiary);
@@ -18,22 +18,22 @@
   --field-radius: var(--control-radius);
   --field-height: var(--control-height-large);
 
-  --button-primary-background: var(--gradient-brand);
-  --button-primary-text: var(--color-text-on-brand);
-  --button-secondary-background: var(--color-surface-raised);
-  --button-secondary-text: var(--color-text-primary);
-  --button-secondary-border: var(--color-border-strong);
+  --button-primary-background: var(--color-warning);
+  --button-primary-text: var(--color-warning-text);
+  --button-secondary-background: var(--color-accent-teal-soft);
+  --button-secondary-text: var(--color-brand-strong);
+  --button-secondary-border: var(--color-accent-teal-soft);
   --button-danger-background: var(--color-danger);
   --button-danger-text: var(--color-text-on-brand);
   --button-ghost-text: var(--color-brand-strong);
-  --button-radius: var(--control-radius);
+  --button-radius: var(--radius-pill);
   --button-shadow: var(--shadow-level-1);
   --button-shadow-raised: var(--shadow-level-2);
 
   --card-background: var(--color-surface);
-  --card-background-muted: var(--color-surface-raised);
+  --card-background-muted: var(--color-accent-teal-soft);
   --card-border: var(--color-border);
-  --card-radius: var(--radius-lg);
+  --card-radius: var(--radius-xl);
   --card-radius-prominent: var(--radius-xl);
   --card-padding: var(--space-5);
   --card-shadow: var(--shadow-level-1);
@@ -61,24 +61,23 @@
   --overlay-background: var(--color-overlay);
   --overlay-z: var(--z-overlay);
 
-  --tabs-background: var(--color-surface-muted);
+  --tabs-background: var(--color-brand-whisper);
   --tabs-selected-background: var(--color-surface);
   --tabs-selected-text: var(--color-brand-strong);
   --tabs-border: var(--color-border);
 
   --switch-track: var(--color-border-strong);
-  --switch-track-active: var(--color-brand-primary);
+  --switch-track-active: var(--color-warning);
   --switch-thumb: var(--color-surface);
 
   --progress-track: var(--color-surface-muted);
-  --progress-value: var(--color-brand-primary);
+  --progress-value: var(--color-warning);
   --skeleton-background: var(--color-surface-muted);
 
   --navigation-background: var(--color-surface);
   --navigation-border: var(--color-border);
   --navigation-touch-target: var(--size-touch-min);
 
-  /* Phase 2.5 — component motion aliases keep interaction timings swappable and consistent. */
   --motion-control-duration: var(--duration-fast);
   --motion-state-duration: var(--duration-standard);
   --motion-overlay-duration: var(--duration-standard);
