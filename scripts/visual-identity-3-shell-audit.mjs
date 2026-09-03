@@ -11,6 +11,10 @@ const includesAll = (label, source, markers) => {
   for (const marker of markers) check(`${label}: ${marker}`, source.includes(marker));
 };
 const lineCount = (source) => source.split(/\r?\n/).length;
+const cssRuleBody = (source, selector) => {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return source.match(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`))?.[1] ?? '';
+};
 
 const [shell, interactions, shellCss, railCss, commandCss, proofCss, foundation] = await Promise.all([
   'src/shared/shell/AppShellFrame.tsx',
@@ -68,9 +72,14 @@ includesAll('navigation dock provides a centered visual cradle', shellCss, [
   'background: var(--color-surface)',
   'box-shadow: var(--shadow-level-2)',
 ]);
+const dockRule = cssRuleBody(shellCss, '.app-shell__navigation');
+const topbarRule = cssRuleBody(shellCss, '.app-shell__topbar');
+check('dock rule is found exactly for layer validation', dockRule.length > 0);
+check('topbar rule is found exactly for layer validation', topbarRule.length > 0);
 check('dock remains below overlay-level commands',
-  /\.app-shell__navigation\s*\{[\s\S]*?z-index:\s*var\(--z-content\)/.test(shellCss)
-  && /\.app-shell__topbar\s*\{[\s\S]*?z-index:\s*var\(--z-overlay\)/.test(shellCss));
+  /z-index:\s*var\(--z-content\)/.test(dockRule)
+  && !/z-index:\s*var\(--z-overlay\)/.test(dockRule)
+  && /z-index:\s*var\(--z-overlay\)/.test(topbarRule));
 check('mobile shell reserves the middle navigation lane for the amber action', shellCss.includes('.app-shell__nav-slot:nth-child(3) .app-shell__nav-item'));
 
 includesAll('command surface has a premium layered composition', commandCss, [
