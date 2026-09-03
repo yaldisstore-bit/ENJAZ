@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .phase24/gzpart* | base64 -d > /tmp/phase24.patch.gz
+          cat .phase24/fix0 .phase24/fix1 .phase24/gzpart01 .phase24/gzpart02 | base64 -d > /tmp/phase24.patch.gz
           echo '3fb9bdfa2d62eb4f6fa03e74d68853a1dc5edfe5b369cbd751a71fc425cbf96f  /tmp/phase24.patch.gz' | sha256sum -c -
           gzip -dc /tmp/phase24.patch.gz > /tmp/phase24.patch
           echo '57bb91525bfbacc7ff75926124fc025cc8d10e7100e6cef9659460a6c3ec163c  /tmp/phase24.patch' | sha256sum -c -
