@@ -86,11 +86,12 @@ includesAll('Home visual states', page, [
 ]);
 check('no decorative trend claims', !/نمو|trend|زيادة بنسبة|انخفاض بنسبة|أفضل من الشهر|% عن/.test(page));
 
-includesAll('routing', `${routes}\n${router}\n${previewRouter}`, [
-  "homePreview: '/foundation/home'", '{ path: ROUTES.appHome, Component: HomeDashboardPage }',
-  '{ path: ROUTES.homePreview, Component: HomeDashboardPreviewPage }', ".filter((route) => route.id !== 'home')",
-  '{ path: ROUTES.appHome, Component: HomeDashboardPreviewPage }', 'basename: import.meta.env.BASE_URL',
-]);
+check('Home preview route constant is canonical', routes.includes("homePreview: '/foundation/home'"));
+check('production router mounts authenticated Home', router.includes('{ path: ROUTES.appHome, Component: HomeDashboardPage }'));
+check('production router mounts deterministic Home proof route', router.includes('{ path: ROUTES.homePreview, Component: HomeDashboardPreviewPage }'));
+check('preview router excludes Home from generic reserved boundaries', previewRouter.includes(".filter((route) => route.id !== 'home')"));
+check('preview router maps app Home to deterministic preview', previewRouter.includes('{ path: ROUTES.appHome, Component: HomeDashboardPreviewPage }'));
+check('preview router preserves the configured basename', previewRouter.includes('basename: import.meta.env.BASE_URL'));
 includesAll('deterministic preview', preview, ['HomeDashboardView', 'buildHomeDashboardSnapshot', "new Date('2026-09-03T12:00:00.000Z')"]);
 check('preview contains no live data access', !/useDataLayer|supabase|repository|loadHomeDashboard/i.test(preview));
 const implementedIds = [...navigation.matchAll(/\{ id: '([^']+)'[^\n]+contentState: 'implemented' \}/g)].map((match) => match[1]);
