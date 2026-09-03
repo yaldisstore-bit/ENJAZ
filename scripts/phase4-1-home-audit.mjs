@@ -116,9 +116,11 @@ includesAll('4.1 documentation', doc, ['workspace_memberships', 'HOME_PRIORITY_L
 check('4.1 doc protects archived followups from active Home metrics', /archived[^\n]*follow|follow[^\n]*archived/i.test(doc));
 check('README marks 4.1 WIP or complete', /Phase 4\.1 — Home \/ Dashboard[^\n]*(?:🚧|✅)/.test(readme));
 const phase42StatusLines = readme.split(/\r?\n/).filter((line) => line.includes('Phase 4.2 — Daily Work / Universal Inbox'));
+const canonicalPhase42StatusLines = phase42StatusLines.filter((line) => /^\s*-\s+\*\*Phase 4\.2 — Daily Work \/ Universal Inbox\*\*\s+⏳\s+not started\s*$/.test(line));
 check(
   'README keeps 4.2 not started',
-  phase42StatusLines.length === 1 && /^\s*-\s+\*\*Phase 4\.2 — Daily Work \/ Universal Inbox\*\*\s+⏳\s+not started\s*$/.test(phase42StatusLines[0] ?? ''),
+  canonicalPhase42StatusLines.length === 1
+    && !/Phase 4\.2 — Daily Work \/ Universal Inbox[^\n]*(?:🚧|CURRENT)/.test(readme),
 );
 check('governing roadmap preserves Phase 4 ordering', roadmap.indexOf('# Phase 4 — Home, Daily Work & Executive Overview') > roadmap.indexOf('# Phase 3 — Application Shell & Navigation'));
 check('governing roadmap preserves 4.1 before 4.2', roadmap.indexOf('## 4.1 — Home / Dashboard') < roadmap.indexOf('## 4.2 — Daily Work / Universal Inbox'));

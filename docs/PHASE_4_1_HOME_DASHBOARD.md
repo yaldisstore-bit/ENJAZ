@@ -2,11 +2,11 @@
 
 ## Status
 
-**IN PROGRESS 🚧**
+**COMPLETE ✅**
 
 Phase 4.1 is the first business screen delivered after the frozen Design System and completed Application Shell. It replaces the temporary authenticated Home placeholder with a real, workspace-scoped operational dashboard.
 
-It is not complete until its PR, merged `main`, production artifact, and GitHub Pages deployment are green on the required final SHA. Phase 4.2 has not started.
+The implementation PR, merged `main`, production artifact, and GitHub Pages preview all passed on the implementation merge SHA before this closure. This closure is valid only after its own PR and resulting final `main` SHA repeat the same green Quality Gate and Pages deployment. Phase 4.2 is the next permitted phase and remains **not started**.
 
 ## Product purpose
 
@@ -112,17 +112,18 @@ GitHub Pages preview mode also maps `/app` to this deterministic Home view so th
 
 ## Phase boundaries
 
-During 4.1:
+At the 4.1 closure:
 
 - Home is the only `contentState: 'implemented'` product route.
 - Today / Daily Work remains `reserved` until 4.2.
 - Executive Briefing remains 4.3.
 - The Phase 4 destruction gate remains 4.4.
 - Transactions, Companies, Finance and later domains remain owned by their roadmap phases.
+- No 4.2 implementation is included in the closure.
 
 ## Quality Gate
 
-The 4.1 gate must extend the complete Phase 3.4 gate; prior destruction suites are preserved through deterministic forward-compatibility normalization rather than skipped.
+The 4.1 gate extends the complete Phase 3.4 gate; prior destruction suites are preserved through deterministic forward-compatibility normalization rather than skipped.
 
 4.1 adds checks for:
 
@@ -142,9 +143,26 @@ The 4.1 gate must extend the complete Phase 3.4 gate; prior destruction suites a
 
 A destructive selftest intentionally corrupts those facts and requires the audit to reject every mutation.
 
+## Verified implementation evidence
+
+Before the closure PR was created:
+
+- PR #16 was green and squash-merged to `main` as `a9aaf1a134072d40a4183832eff11348502d0415`.
+- 161/161 behavior and contract tests passed.
+- Phase 4.1 Home Audit passed 146/146 invariants.
+- Phase 4.1 Home Selftest rejected 42/42 deliberate regressions.
+- Database audit remained 45 tables / 118 policies / 42 indexes.
+- Real TypeScript `tsc -b` passed.
+- Vite 8.2.2 production build passed with 196 modules transformed.
+- Main Quality Gate #208 passed on the merge SHA.
+- A production artifact was retained for that SHA.
+- ENJAZ Pages Preview #168 built and deployed that exact SHA successfully.
+
+The closure PR must itself pass the complete 4.1 chain, and its resulting final `main` SHA must again pass Quality Gate and Pages before this status is treated as the authoritative repository state.
+
 ## Exit criteria
 
-Phase 4.1 becomes complete only when:
+Phase 4.1 is complete only when:
 
 - behavior/contract tests pass;
 - Phase 4.1 audit is fully green;
@@ -153,9 +171,9 @@ Phase 4.1 becomes complete only when:
 - real TypeScript `tsc -b` passes;
 - Vite production build passes;
 - `dist/index.html` is asserted;
-- GitHub Actions is green on the 4.1 PR;
-- merged `main` passes the same gate;
+- GitHub Actions is green on the 4.1 implementation and closure PRs;
+- merged `main` passes the same gate on the final closure SHA;
 - a verified production artifact is retained;
 - GitHub Pages publishes the same final `main` SHA.
 
-Only after that may the roadmap advance to **Phase 4.2 — Daily Work / Universal Inbox**.
+Only after that may work begin on **Phase 4.2 — Daily Work / Universal Inbox**.

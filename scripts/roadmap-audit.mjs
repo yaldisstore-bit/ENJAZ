@@ -60,8 +60,12 @@ for (const marker of [
   '# Phase 3 — Application Shell & Navigation ✅',
   '## 3.4 — Shell Destruction Gate ✅',
   'Phase 3.4 ✅',
-  'Next: Phase 4 — Home, Daily Work & Executive Overview',
-  'Phase 4 is the next permitted phase. It has **not started**',
+  '# Phase 4 — Home, Daily Work & Executive Overview 🚧',
+  'Phase 4.1 is closed ✅',
+  '## 4.1 — Home / Dashboard ✅',
+  '## 4.2 — Daily Work / Universal Inbox ⏭ CURRENT NEXT PHASE',
+  'Next: Phase 4.2 — Daily Work / Universal Inbox',
+  'Phase 4.2 becomes the next permitted subphase but remains not started',
 ]) {
   if (!roadmap.includes(marker)) errors.push(`roadmap marker missing: ${marker}`);
 }
@@ -71,20 +75,29 @@ for (const marker of [
   'Phase 2.8 — Visual Destruction & Quality Gate ✅',
   'ENJAZ Design System 1.0',
   'Phase 3 — Application Shell & Navigation',
-  'Phase 3.4 — Shell Destruction Gate ✅',
   'Phase 4 — Home, Daily Work & Executive Overview',
+  'Phase 4.1 — Home / Dashboard** ✅ complete',
 ]) {
   if (!readme.includes(marker)) errors.push(`README marker missing: ${marker}`);
 }
 
-const phase42NotStarted = /Phase 4\.2 — Daily Work \/ Universal Inbox[^\n]*(?:not started|لم تبدأ)/i.test(readme)
-  || /Phase 4\.2[^\n]*(?:not started|لم تبدأ)/i.test(readme);
-if (!phase42NotStarted) errors.push('README Phase 4.2 must remain explicitly not started while Phase 4.1 is under verification');
+if (!/Phase 3\.4 — Shell Destruction Gate\*{0,2}\s*✅/.test(readme)) {
+  errors.push('README must keep Phase 3.4 explicitly complete');
+}
+
+const phase42StatusLines = readme.split(/\r?\n/).filter((line) => line.includes('Phase 4.2 — Daily Work / Universal Inbox'));
+const canonicalPhase42Line = phase42StatusLines.filter((line) => /^\s*-\s+\*\*Phase 4\.2 — Daily Work \/ Universal Inbox\*\*\s+⏳\s+not started\s*$/.test(line));
+if (canonicalPhase42Line.length !== 1) {
+  errors.push('README must contain exactly one canonical Phase 4.2 status line marked not started');
+}
+if (/Phase 4\.2 — Daily Work \/ Universal Inbox[^\n]*(?:🚧|CURRENT)/.test(readme)) {
+  errors.push('README must not claim Phase 4.2 has started during the Phase 4.1 closure');
+}
 
 if (errors.length) {
   console.error('ENJAZ ROADMAP AUDIT FAIL');
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2 frozen, Phase 3 complete, Phase 4.1 work isolated, and Phase 4.2 handoff locked.`);
+  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2 frozen, Phase 3 complete, Phase 4.1 closed, and Phase 4.2 handoff locked/not started.`);
 }
