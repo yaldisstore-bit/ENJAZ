@@ -16,10 +16,11 @@ const cssRuleBody = (source, selector) => {
   return source.match(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`))?.[1] ?? '';
 };
 
-const [shell, interactions, shellCss, railCss, commandCss, proofCss, foundation] = await Promise.all([
+const [shell, interactions, shellCss, shellMobileCss, railCss, commandCss, proofCss, foundation] = await Promise.all([
   'src/shared/shell/AppShellFrame.tsx',
   'src/shared/interactions/GlobalInteractionSurfaces.tsx',
   'src/styles/app-shell.css',
+  'src/styles/app-shell-mobile-recomposition.css',
   'src/styles/global-interactions.css',
   'src/styles/global-command-surfaces.css',
   'src/styles/shell-proof.css',
@@ -75,7 +76,7 @@ includesAll('navigation dock provides an RTL-safe centered visual cradle', shell
   'box-shadow: var(--shadow-level-1)',
 ]);
 check('broken logical-start plus physical-negative-translate centering cannot return',
-  !/inset-inline-start\s*:\s*50%[\s\S]{0,240}translateX\(-50%\)/.test(`${railCss}\n${shellCss}`));
+  !/inset-inline-start\s*:\s*50%[\s\S]{0,240}translateX\(-50%\)/.test(`${railCss}\n${shellCss}\n${shellMobileCss}`));
 const dockRule = cssRuleBody(shellCss, '.app-shell__navigation');
 const topbarRule = cssRuleBody(shellCss, '.app-shell__topbar');
 check('dock rule is found exactly for layer validation', dockRule.length > 0);
@@ -85,8 +86,16 @@ check('dock remains below overlay-level commands',
   && !/z-index:\s*var\(--z-overlay\)/.test(dockRule)
   && /z-index:\s*var\(--z-overlay\)/.test(topbarRule));
 check('third navigation lane stays a normal usable destination instead of being displaced for the FAB',
-  shellCss.includes('.app-shell__nav-slot:nth-child(3) .app-shell__nav-item { padding-block-start: var(--space-1); }'));
+  shellMobileCss.includes('.app-shell__nav-slot:nth-child(3) .app-shell__nav-item { padding-block-start: var(--space-1); }'));
 
+includesAll('mobile shell recomposition is loaded and owns compact topbar/dock overrides', shellMobileCss, [
+  '@media (max-width: 48rem)',
+  '.app-shell__topbar',
+  'border-block-end: var(--border-width-thin) solid var(--color-border)',
+  '.app-shell__navigation',
+  'inset-inline: var(--space-3)',
+  'padding: var(--space-2)',
+]);
 includesAll('mobile topbar tools are separate controls instead of one giant pill', railCss, [
   '@media (max-width: 48rem)',
   'border: 0',
@@ -108,12 +117,13 @@ includesAll('quick-create cards keep amber and brand hierarchy', commandCss, [
   '.global-create-card__index', 'background: var(--color-warning)',
 ]);
 
-check('product shell stylesheet remains bounded', lineCount(shellCss) <= 420);
+check('product shell stylesheet remains bounded', lineCount(shellCss) <= 400);
+check('mobile shell recomposition stylesheet remains bounded', lineCount(shellMobileCss) <= 120);
 check('global tool rail stylesheet remains bounded', lineCount(railCss) <= 380);
 check('command surface stylesheet remains bounded', lineCount(commandCss) <= 300);
 check('shell proof stylesheet remains bounded', lineCount(proofCss) <= 120);
 
-const rebuiltCss = `${shellCss}\n${railCss}\n${commandCss}\n${proofCss}`;
+const rebuiltCss = `${shellCss}\n${shellMobileCss}\n${railCss}\n${commandCss}\n${proofCss}`;
 check('rebuild CSS has no raw color literals', !/(?:#[0-9a-f]{3,8}\b|\brgba?\s*\(|\bhsla?\s*\()/i.test(rebuiltCss));
 check('rebuild CSS has no important escape hatch', !/!important/i.test(rebuiltCss));
 check('rebuild CSS has no numeric z-index', !/z-index\s*:\s*-?\d+/i.test(rebuiltCss));
@@ -122,9 +132,12 @@ check('rebuild CSS keeps logical horizontal positioning', !/(?:margin-left|margi
 
 const appIndex = foundation.indexOf("@import './app-shell.css';");
 const proofIndex = foundation.indexOf("@import './shell-proof.css';");
+const navIndex = foundation.indexOf("@import './navigation.css';");
+const mobileIndex = foundation.indexOf("@import './app-shell-mobile-recomposition.css';");
 const railIndex = foundation.indexOf("@import './global-interactions.css';");
 const commandIndex = foundation.indexOf("@import './global-command-surfaces.css';");
 check('shell proof is split after product shell', appIndex >= 0 && proofIndex > appIndex);
+check('mobile shell recomposition loads after navigation so it can correct legacy mobile spacing', navIndex >= 0 && mobileIndex > navIndex);
 check('command surfaces are split after the global tool rail', railIndex >= 0 && commandIndex > railIndex);
 check('Phase 3.4 destruction stylesheet remains terminal', foundation.trim().endsWith("@import './shell-destruction-lab.css';"));
 
