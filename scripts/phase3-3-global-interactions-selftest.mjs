@@ -12,7 +12,9 @@ const tempRoot = await mkdtemp(join(tmpdir(), 'enjaz-global-interactions-selftes
 const scenarios = [
   { name: 'remove search surface id', file: 'src/core/interactions/globalInteractionContract.ts', mutate: (value) => value.replace("id: 'search'", "id: 'searchRemoved'") },
   { name: 'duplicate inbox as search surface', file: 'src/core/interactions/globalInteractionContract.ts', mutate: (value) => value.replace("id: 'inbox'", "id: 'search'") },
+  { name: 'inflate declared surface count', file: 'src/core/interactions/globalInteractionContract.ts', mutate: (value) => value.replace('GLOBAL_INTERACTION_SURFACE_COUNT = 4', 'GLOBAL_INTERACTION_SURFACE_COUNT = 40') },
   { name: 'lower search floor to one character', file: 'src/core/interactions/globalInteractionContract.ts', mutate: (value) => value.replace('GLOBAL_SEARCH_MIN_QUERY_LENGTH = 2', 'GLOBAL_SEARCH_MIN_QUERY_LENGTH = 1') },
+  { name: 'raise global search result limit', file: 'src/core/interactions/globalInteractionContract.ts', mutate: (value) => value.replace('GLOBAL_SEARCH_RESULT_LIMIT = 8', 'GLOBAL_SEARCH_RESULT_LIMIT = 80') },
   { name: 'remove bounded search slice', file: 'src/core/interactions/globalInteractionContract.ts', mutate: (value) => value.replace('.slice(0, GLOBAL_SEARCH_RESULT_LIMIT)', '.slice(0)') },
   { name: 'raise inbox badge cap beyond contract', file: 'src/core/interactions/globalInteractionContract.ts', mutate: (value) => value.replace('GLOBAL_INBOX_BADGE_MAX = 99', 'GLOBAL_INBOX_BADGE_MAX = 999') },
   { name: 'prematurely implement quick create intent', file: 'src/core/interactions/globalInteractionContract.ts', mutate: (value) => value.replace("contentState: 'reserved'", "contentState: 'implemented'") },
