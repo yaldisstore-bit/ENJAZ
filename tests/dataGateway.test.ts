@@ -73,7 +73,7 @@ test('workspace resolution rejects invalid user ids before making a data request
   assert.equal(fake.tables.length, 0);
 });
 
-test('workspace resolution returns null when authenticated user has no membership', async () => {
+test('workspace resolution returns null when membership is absent for the authenticated user', async () => {
   const fake = fakeClient({ data: null, error: null });
   const gateway = createSupabaseDataGateway(fake.client);
   assert.equal(await gateway.resolveWorkspaceIdForUser(userId), null);
