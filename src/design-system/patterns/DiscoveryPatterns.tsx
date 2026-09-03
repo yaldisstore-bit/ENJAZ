@@ -153,12 +153,13 @@ export interface PatternSkeletonProps {
 
 export function PatternSkeleton({ rows = 3, compact = false }: PatternSkeletonProps) {
   const safeRows = Math.min(6, Math.max(1, Math.round(rows)));
+  const rowSlots = Array<null>(safeRows).fill(null);
 
   return (
     <section className={`pattern-skeleton${compact ? ' pattern-skeleton--compact' : ''}`} aria-label="جارٍ تحميل المحتوى" aria-busy="true">
       <div className="pattern-skeleton__header"><Skeleton variant="circle" /><div><Skeleton /><Skeleton /></div></div>
       <div className="pattern-skeleton__body">
-        {Array.from({ length: safeRows }, (_, index) => (
+        {rowSlots.map((_, index) => (
           <span className="pattern-skeleton__row" key={`pattern-skeleton-${index}`}>
             <Skeleton variant={index === safeRows - 1 ? 'block' : 'line'} />
           </span>
