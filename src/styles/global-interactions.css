@@ -76,8 +76,8 @@
   position: absolute;
   inset-block-start: calc(var(--space-2) * -1);
   inset-inline-end: calc(var(--space-2) * -1);
-  min-inline-size: var(--size-badge-min);
-  block-size: var(--size-badge-min);
+  min-inline-size: var(--space-5);
+  block-size: var(--space-5);
   padding-inline: var(--space-1);
   border-radius: var(--radius-pill);
   background: var(--color-danger);
@@ -95,7 +95,7 @@
 }
 
 .global-surface--search {
-  inline-size: min(100%, var(--size-content-narrow));
+  inline-size: min(100%, var(--size-foundation-max));
 }
 
 .global-surface__stack {
@@ -113,7 +113,7 @@
   padding: var(--space-4);
   border: var(--border-width-thin) dashed var(--color-border);
   border-radius: var(--radius-lg);
-  background: var(--color-surface-subtle);
+  background: var(--color-surface-muted);
   color: var(--color-text-secondary);
 }
 
@@ -247,7 +247,7 @@
   .global-interactions__item,
   .global-surface__result,
   .global-surface__delegate-link {
-    transition-duration: var(--duration-instant);
+    transition-duration: var(--duration-reduced-motion);
     transform: none;
   }
 }
