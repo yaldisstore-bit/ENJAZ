@@ -8,6 +8,12 @@ let checks = 0;
 
 async function text(path) { return readFile(resolve(root, path), 'utf8'); }
 function check(name, condition, detail = '') { checks += 1; if (!condition) failures.push(`${name}${detail ? ` — ${detail}` : ''}`); }
+function phaseAtLeast(match, major, minor) {
+  if (!match) return false;
+  const parsedMajor = Number(match[1]);
+  const parsedMinor = Number(match[2]);
+  return parsedMajor > major || (parsedMajor === major && parsedMinor >= minor);
+}
 
 const contract = await text('src/design-system/patterns/patternContract.ts');
 const entity = await text('src/design-system/patterns/EntityPatterns.tsx');
@@ -80,17 +86,17 @@ check('timeline uses ordered semantic list', operations.includes('<ol className=
 check('finance uses guarded formatter', operations.includes('formatIqd(total)') && operations.includes('formatIqd(outstanding)'));
 check('transaction progress is clamped', entity.includes('clampPercent(progress)'));
 
-const appVersionPhase = Number(version.match(/APP_VERSION = '0\.9\.0-phase2\.(\d+)'/)?.[1] ?? -1);
-const packageVersionPhase = Number(String(pkg.version ?? '').match(/^0\.9\.0-phase2\.(\d+)$/)?.[1] ?? -1);
-check('application version declares Phase 2.7 or later', appVersionPhase >= 7);
-check('package version declares Phase 2.7 or later', packageVersionPhase >= 7);
+const appVersionPhase = version.match(/APP_VERSION\s*=\s*'[^']*phase(\d+)\.(\d+)'/);
+const packageVersionPhase = String(pkg.version ?? '').match(/phase(\d+)\.(\d+)$/);
+check('application version declares Phase 2.7 or later', phaseAtLeast(appVersionPhase, 2, 7));
+check('package version declares Phase 2.7 or later', phaseAtLeast(packageVersionPhase, 2, 7));
 check('Phase 2.7 gate extends immutable Phase 2.6 gate', pkg.scripts?.['verify:phase2.7'] === 'npm run verify:phase2.6 && npm run audit:patterns && npm run audit:patterns:selftest && npm run audit:roadmap');
 check('pattern audit script is registered', pkg.scripts?.['audit:patterns'] === 'node scripts/phase2-7-pattern-audit.mjs');
 check('pattern selftest script is registered', pkg.scripts?.['audit:patterns:selftest'] === 'node scripts/phase2-7-pattern-selftest.mjs');
 check('Phase 2.6 gate command remains unchanged', pkg.scripts?.['verify:phase2.6'] === 'npm run verify:phase2.5 && npm run audit:mobile && npm run audit:mobile:selftest');
-const workflowCommandPhase = Number(workflow.match(/npm run verify:phase2\.(\d+)/)?.[1] ?? -1);
-const workflowLabelPhase = Number(workflow.match(/Full Phase 2\.(\d+) verification/)?.[1] ?? -1);
-check('GitHub quality gate covers Phase 2.7 or later', workflowCommandPhase >= 7 && workflowLabelPhase >= 7);
+const workflowCommandPhase = workflow.match(/npm run verify:phase(\d+)\.(\d+)/);
+const workflowLabelPhase = workflow.match(/Full Phase (\d+)\.(\d+) verification/);
+check('GitHub quality gate covers Phase 2.7 or later', phaseAtLeast(workflowCommandPhase, 2, 7) && phaseAtLeast(workflowLabelPhase, 2, 7));
 for (const marker of ['Transaction', 'Company', 'Finance', 'Risk', 'Timeline', 'Follow-up', 'Workflow', 'Automation', 'Command Center', 'Search', 'System states', '/foundation/patterns', 'not complete product screens']) check(`Phase 2.7 documentation contains ${marker}`, doc.includes(marker));
 
 if (failures.length) {
