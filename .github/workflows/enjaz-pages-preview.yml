@@ -1,0 +1,61 @@
+name: ENJAZ Pages Preview
+
+on:
+  workflow_run:
+    workflows: ["ENJAZ Quality Gate"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: enjaz-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout verified source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Build safe UI preview
+        env:
+          VITE_ENJAZ_PREVIEW_MODE: 'true'
+        run: npm run build -- --base="${{ steps.pages.outputs.base_path }}/"
+      - name: Add SPA fallback
+        run: cp dist/index.html dist/404.html
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
