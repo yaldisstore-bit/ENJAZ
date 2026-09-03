@@ -123,6 +123,7 @@
   z-index: var(--z-content);
   inline-size: calc(var(--size-demo-md) + var(--space-4));
   block-size: calc(var(--size-demo-md) + var(--space-4));
+  border: var(--space-2) solid var(--color-warning);
   border-radius: var(--radius-pill);
   background: var(--color-brand-strong);
   color: var(--color-text-on-brand);
@@ -130,7 +131,6 @@
   place-content: center;
   place-items: center;
   gap: var(--space-1);
-  box-shadow: inset 0 0 0 var(--space-2) var(--color-warning);
 }
 
 .home-dashboard__attention-orb strong {
