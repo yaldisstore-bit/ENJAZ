@@ -44,7 +44,7 @@ const scenarios = [
     file: 'src/core/mobile/mobileContract.ts',
     mutate: (content) => content.replace('MOBILE_TOUCH_TARGET_PX = 44', 'MOBILE_TOUCH_TARGET_PX = 40'),
   },
-] as const;
+];
 
 function copyFilter(source) {
   const rel = relative(root, source);
