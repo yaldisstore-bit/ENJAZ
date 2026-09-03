@@ -66,7 +66,7 @@ select,
 textarea,
 .ui-field__control,
 .auth-form input {
-  scroll-margin-block: max(var(--space-8), env(safe-area-inset-top, 0px)) max(var(--space-12), env(safe-area-inset-bottom, 0px));
+  scroll-margin-block: max(var(--space-8), env(safe-area-inset-top, 0)) max(var(--space-12), env(safe-area-inset-bottom, 0));
 }
 
 .ui-field__control,
@@ -75,17 +75,17 @@ textarea,
 }
 
 .ui-overlay {
-  padding-block: max(var(--space-fluid-page), env(safe-area-inset-top, 0px)) max(var(--space-fluid-page), env(safe-area-inset-bottom, 0px));
-  padding-inline: max(var(--space-fluid-page), env(safe-area-inset-left, 0px)) max(var(--space-fluid-page), env(safe-area-inset-right, 0px));
+  padding-block: max(var(--space-fluid-page), env(safe-area-inset-top, 0)) max(var(--space-fluid-page), env(safe-area-inset-bottom, 0));
+  padding-inline: max(var(--space-fluid-page), env(safe-area-inset-left, 0)) max(var(--space-fluid-page), env(safe-area-inset-right, 0));
 }
 
 .ui-overlay__panel {
-  max-block-size: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - var(--space-8));
+  max-block-size: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0) - var(--space-8));
 }
 
 @supports (height: 100dvh) {
   .ui-overlay__panel {
-    max-block-size: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - var(--space-8));
+    max-block-size: calc(100dvh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0) - var(--space-8));
   }
 }
 
@@ -95,7 +95,7 @@ textarea,
 }
 
 .ui-sheet .ui-overlay__footer {
-  padding-block-end: max(var(--space-5), env(safe-area-inset-bottom, 0px));
+  padding-block-end: max(var(--space-5), env(safe-area-inset-bottom, 0));
 }
 
 .auth-page {
