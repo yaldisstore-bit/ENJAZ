@@ -8,6 +8,9 @@ import {
 } from '../../../core/routing/navigationContract.ts';
 import { ROUTES } from '../../../core/routing/routes.ts';
 
+// Phase 3.2 architecture invariant: هذه بوابة تنقل فقط at the routing boundary.
+// The reserved route shell ليست بديلاً عن شاشة المجال and must never invent business logic.
+
 function MoreNavigationHub() {
   const routes = SECONDARY_NAVIGATION_ROUTE_IDS.map(getProductNavigationRouteById);
 
