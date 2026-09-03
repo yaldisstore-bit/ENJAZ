@@ -1,7 +1,7 @@
 {
   "name": "enjaz",
   "private": true,
-  "version": "0.10.0-phase3.3",
+  "version": "0.10.0-phase3.4",
   "type": "module",
   "engines": {
     "node": ">=22.22.0"
@@ -61,9 +61,12 @@
     "audit:navigation": "node scripts/phase3-2-navigation-audit.mjs",
     "audit:navigation:selftest": "node scripts/phase3-2-navigation-selftest.mjs",
     "verify:phase3.2": "npm run verify:phase3.1 && npm run audit:navigation && npm run audit:navigation:selftest && npm run audit:roadmap",
-    "audit:interactions": "node scripts/phase3-3-global-interactions-audit.mjs",
-    "audit:interactions:selftest": "node scripts/phase3-3-global-interactions-selftest.mjs",
-    "verify:phase3.3": "npm run verify:phase3.2 && npm run audit:interactions && npm run audit:interactions:selftest && npm run audit:roadmap"
+    "audit:interactions": "node scripts/phase3-3-forward-compat-audit.mjs",
+    "audit:interactions:selftest": "node scripts/phase3-3-forward-compat-selftest.mjs",
+    "verify:phase3.3": "npm run verify:phase3.2 && npm run audit:interactions && npm run audit:interactions:selftest && npm run audit:roadmap",
+    "audit:shell-destruction": "node scripts/phase3-4-shell-destruction-audit.mjs",
+    "audit:shell-destruction:selftest": "node scripts/phase3-4-shell-destruction-selftest.mjs",
+    "verify:phase3.4": "npm run verify:phase3.3 && npm run audit:shell-destruction && npm run audit:shell-destruction:selftest && npm run audit:roadmap"
   },
   "dependencies": {
     "react": "19.2.8",
