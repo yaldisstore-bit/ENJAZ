@@ -46,7 +46,7 @@ const scenarios = [
   },
   {
     name: 'reserve and displace the third navigation lane again',
-    file: 'src/styles/app-shell.css',
+    file: 'src/styles/app-shell-mobile-recomposition.css',
     mutate: (value) => value.replace('.app-shell__nav-slot:nth-child(3) .app-shell__nav-item { padding-block-start: var(--space-1); }', '.app-shell__nav-slot:nth-child(3) .app-shell__nav-item { padding-block-start: var(--space-4); }'),
   },
   {
