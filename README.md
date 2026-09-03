@@ -2,8 +2,8 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة المرشحة الحالية: **Phase 3.3 — Global Interaction Surfaces ✅ PR candidate**  
-المرحلة التالية فقط بعد نجاح PR ثم `main`: **Phase 3.4 — Shell Destruction Gate**
+الحالة الرسمية الحالية: **Phase 3.3 — Global Interaction Surfaces ✅**  
+المرحلة التالية: **Phase 3.4 — Shell Destruction Gate**
 
 إنجاز مشروع جديد مبني من الصفر بهوية مستقلة وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية الأساسية للمشروع السابق دون نقل واجهاته أو الـlegacy UI DNA.
 
@@ -36,10 +36,10 @@
 - **Phase 3 — Application Shell & Navigation** 🚧
   - **Phase 3.1 — App Shell** ✅
   - **Phase 3.2 — Navigation Architecture** ✅
-  - **Phase 3.3 — Global Interaction Surfaces** ✅ PR candidate; الإغلاق الرسمي بعد merged-main gate
-  - **Phase 3.4 — Shell Destruction Gate** ⏭ NEXT بعد إغلاق 3.3
+  - **Phase 3.3 — Global Interaction Surfaces** ✅
+  - **Phase 3.4 — Shell Destruction Gate** ⏭ NEXT
 
-## ما تم تثبيته حتى مرشح Phase 3.3
+## ما تم تثبيته حتى Phase 3.3
 
 - React + TypeScript + Vite.
 - Supabase Auth / PostgreSQL / RLS foundation.
@@ -85,11 +85,40 @@
 5. Vite production build
 6. التحقق من إنتاج `dist/index.html`
 
-مرشح 3.3 لا يُعتبر مغلقًا بمجرد وجود الواجهة. يجب أن ينجح Behavior test suite، وPhase 3.3 audit، وdestructive selftest، وجميع بوابات 3.2 وما قبلها، ثم TypeScript وProduction Build على PR. بعد الدمج يعاد الاختبار على `main` نفسه، ويجب أن يُنشر GitHub Pages من **نفس SHA** قبل إعلان 3.3 مغلقة رسميًا.
+Phase 3.3 اجتازت البوابة على PR #12 ثم على `main` بعد الدمج. النسخة المدمجة المثبتة كانت `58886263e19261aa4264091e34b14bdec021860b`؛ نجح ENJAZ Quality Gate run #172 ونجح GitHub Pages run #132 على **نفس SHA**، كما تم الاحتفاظ بالـproduction artifact الرسمي.
 
-Phase 3.2 تبقى مغلقة رسميًا بنتائجها السابقة المثبتة: **124/124 behavior/contract tests**، **137/137 Navigation invariants**، **30/30 deliberate navigation regressions**، TypeScript الحقيقي، Production Build، وmerged-main/Pages verification ✅.
+نتائج Phase 3.3 المثبتة:
 
-**Phase 2.8 — Visual Destruction & Quality Gate ✅** تبقى بوابة النظام البصري المجمدة، و**ENJAZ Design System 1.0** يبقى المرجع البصري الحاكم.
+- **136/136 behavior/contract tests** ✅
+- **151/151 Phase 3.3 Global Interaction invariants** ✅
+- **41/41 deliberate Phase 3.3 regressions rejected** ✅
+- **137/137 Phase 3.2 Navigation invariants** ✅
+- **31/31 deliberate Phase 3.2 regressions rejected** ✅
+- **79/79 Phase 3.1 App Shell invariants** ✅
+- **15/15 deliberate App Shell regressions rejected** ✅
+- **90/90 Phase 2.8 visual-destruction invariants** ✅
+- **19/19 deliberate Phase 2.8 regressions rejected** ✅
+- **115/115 Phase 2.7 pattern invariants** ✅
+- **17/17 deliberate Phase 2.7 regressions rejected** ✅
+- **50/50 Mobile / Android invariants** ✅
+- **10/10 deliberate mobile regressions rejected** ✅
+- **166/166 Motion / Interaction / Presence / Reduced-Motion invariants** ✅
+- **16/16 deliberate motion regressions rejected** ✅
+- **41/41 component/accessibility/RTL/gate invariants** ✅
+- **17/17 deliberate component regressions rejected** ✅
+- **264 total tokens / 220 public typed tokens / 77 component contracts** ✅
+- Database audit: **45 tables / 118 policies / 42 indexes** ✅
+- Offline TypeScript contract ✅
+- Real TypeScript `tsc -b` ✅
+- Vite 8.2.2 production build ✅ — **189 modules transformed**
+- `dist/index.html` assertion ✅
+- merged `main` Quality Gate run #172 ✅
+- GitHub Pages deployment run #132 for the same merged source ✅
+
+أثناء 3.3 التقطت البوابات عيوبًا حقيقية في المدقق نفسه وتم تشديدها بدل تجاوزها: عدّ Primary Navigation كان يلتقط سجلات غير مقصودة، ثم كانت حدود `4/8/99` تُفحص بطريقة substring قد تسمح بـ`40/80/999`، كما كان اختبار توثيق Global Search حساسًا لحالة الأحرف. تم إصلاح الحراس وإضافة regressions متعمدة لهذه الحالات.
+
+**Phase 2.8 — Visual Destruction & Quality Gate ✅** تبقى بوابة النظام البصري المجمدة، و**ENJAZ Design System 1.0** يبقى المرجع البصري الحاكم.  
+بعد إغلاق **Phase 3.3 ✅** رسميًا، تكون الخطوة التنفيذية التالية فقط **Phase 3.4 — Shell Destruction Gate**.
 
 ## الأمان والأسرار
 
