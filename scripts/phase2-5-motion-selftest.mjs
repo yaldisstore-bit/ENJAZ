@@ -58,6 +58,11 @@ const probes = [
     mutate: (text) => text.replace("['fade', 'rise', 'scale']", "['fade', 'rise', 'bounce']"),
   },
   {
+    name: 'restore_direct_window_dependency',
+    file: 'src/design-system/motion/motionContract.ts',
+    mutate: (text) => text.replace('globalThis as MotionRuntime', 'window as MotionRuntime'),
+  },
+  {
     name: 'break_duration_budget',
     file: 'src/styles/tokens/motion.css',
     mutate: (text) => text.replace('--duration-slow: 420ms;', '--duration-slow: 800ms;'),
