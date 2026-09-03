@@ -23,7 +23,7 @@ const previewProductRoutes = PRODUCT_NAVIGATION_ROUTES
   .map((route) => ({ path: route.path, Component: NavigationPreviewAppPage }));
 
 export const previewRouter = createBrowserRouter([
-  { path: ROUTES.root, Component: FoundationStatusPage },
+  { path: ROUTES.root, Component: HomeDashboardPreviewPage },
   { path: ROUTES.foundation, Component: FoundationStatusPage },
   { path: ROUTES.identity, Component: IdentityLabPage },
   { path: ROUTES.tokens, Component: TokenLabPage },
