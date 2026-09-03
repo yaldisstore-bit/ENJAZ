@@ -249,13 +249,14 @@
   block-size: calc(var(--size-touch-min) - var(--space-2));
   display: grid;
   place-items: center;
+  border: var(--border-width-thin) solid transparent;
   border-radius: var(--radius-pill);
-  transition: background-color var(--duration-fast) var(--easing-standard), transform var(--duration-fast) var(--easing-standard);
+  transition: background-color var(--duration-fast) var(--easing-standard), border-color var(--duration-fast) var(--easing-standard), transform var(--duration-fast) var(--easing-standard);
 }
 
 .app-shell__nav-item--active .app-shell__nav-icon {
+  border-color: var(--color-border);
   background: var(--color-brand-soft);
-  box-shadow: inset 0 0 0 var(--border-width-thin) var(--color-border);
 }
 
 .app-shell__nav-icon svg,
