@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import { Badge, Button, Card, CardBody, CardHeader, EmptyState, Skeleton, type BadgeTone } from '../../../design-system/components/index.ts';
 import { RiskSignalPattern, formatIqd, type RiskLevel } from '../../../design-system/patterns/index.ts';
-import type { HomeOperationalSignal } from '../homeDashboardModel.ts';
+import type { HomeDashboardSnapshot, HomeOperationalSignal } from '../homeDashboardModel.ts';
 import { useHomeDashboard } from '../useHomeDashboard.ts';
 
 const SIGNAL_TONES: Readonly<Record<HomeOperationalSignal['tone'], BadgeTone>> = Object.freeze({
@@ -61,13 +61,7 @@ function MetricCard({ label, value, detail, tone = 'neutral' }: Readonly<{
   );
 }
 
-export function HomeDashboardPage() {
-  const state = useHomeDashboard();
-
-  if (state.status === 'loading') return <DashboardLoading />;
-  if (state.status === 'error') return <DashboardError message={state.errorMessage} retry={state.retry} />;
-
-  const { snapshot } = state;
+export function HomeDashboardView({ snapshot }: Readonly<{ snapshot: HomeDashboardSnapshot }>) {
   const priorityBadge = snapshot.priorities.length > 0
     ? <Badge tone="warning">{snapshot.priorities.length} تحتاج انتباهًا</Badge>
     : <Badge tone="success">لا توجد أولوية حرجة</Badge>;
@@ -175,4 +169,11 @@ export function HomeDashboardPage() {
       </div>
     </section>
   );
+}
+
+export function HomeDashboardPage() {
+  const state = useHomeDashboard();
+  if (state.status === 'loading') return <DashboardLoading />;
+  if (state.status === 'error') return <DashboardError message={state.errorMessage} retry={state.retry} />;
+  return <HomeDashboardView snapshot={state.snapshot} />;
 }
