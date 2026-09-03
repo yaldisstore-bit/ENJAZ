@@ -6,3 +6,7 @@
 @import './identity.css';
 @import './token-lab.css';
 @import './typography-lab.css';
+@import './components-core.css';
+@import './components-fields.css';
+@import './components-overlays.css';
+@import './component-lab.css';

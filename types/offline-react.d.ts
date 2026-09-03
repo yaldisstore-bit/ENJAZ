@@ -8,6 +8,7 @@ declare module 'react' {
   export interface ErrorInfo { componentStack?: string | null }
   export interface FormEvent<T = Element> { preventDefault(): void; currentTarget: T }
   export interface ChangeEvent<T = Element> { currentTarget: T }
+  export interface KeyboardEvent<T = Element> { key: string; preventDefault(): void; currentTarget: T }
   export const StrictMode: (props: { children?: ReactNode }) => JSX.Element;
   export interface Context<T> { Provider: (props: { value: T; children?: ReactNode }) => JSX.Element; readonly __contextType?: T }
   export function createContext<T>(defaultValue: T): Context<T>;
