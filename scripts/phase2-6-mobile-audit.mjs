@@ -72,8 +72,10 @@ check('mobile lab CSS uses no raw colors', !/(?:#[0-9a-f]{3,8}\b|\brgba?\s*\(|\b
 check('mobile hardening loads after motion system', foundationCss.indexOf("@import './mobile-hardening.css';") > foundationCss.indexOf("@import './motion-lab.css';"));
 check('mobile lab loads after mobile hardening', foundationCss.indexOf("@import './mobile-lab.css';") > foundationCss.indexOf("@import './mobile-hardening.css';"));
 check('foundation status declares Phase 2.6', statusPage.includes('Mobile / Android Hardening 2.6') && statusPage.includes('ROUTES.mobile'));
-check('application version declares Phase 2.6', version.includes("APP_VERSION = '0.9.0-phase2.6'"));
-check('package version declares Phase 2.6', pkg.version === '0.9.0-phase2.6');
+const appVersionPhase = Number(version.match(/APP_VERSION = '0\.9\.0-phase2\.(\d+)'/)?.[1] ?? -1);
+const packageVersionPhase = Number(String(pkg.version ?? '').match(/^0\.9\.0-phase2\.(\d+)$/)?.[1] ?? -1);
+check('application version preserves Phase 2.6 or later', appVersionPhase >= 6);
+check('package version preserves Phase 2.6 or later', packageVersionPhase >= 6);
 check('Phase 2.6 gate extends Phase 2.5', pkg.scripts?.['verify:phase2.6'] === 'npm run verify:phase2.5 && npm run audit:mobile && npm run audit:mobile:selftest');
 check('mobile audit script is registered', pkg.scripts?.['audit:mobile'] === 'node scripts/phase2-6-mobile-audit.mjs');
 check('mobile selftest script is registered', pkg.scripts?.['audit:mobile:selftest'] === 'node scripts/phase2-6-mobile-selftest.mjs');
