@@ -59,7 +59,9 @@ A transaction contributes to Home active-work facts only when:
 
 This prevents the historical class of bug where archived work continued to behave as active work.
 
-Open follow-ups are counted as pending. A follow-up becomes an overdue priority only when it is open, due before the current instant, and not snoozed into the future. Priorities attached to archived/deleted/completed transactions are not promoted as active priorities.
+Open follow-ups are counted as pending **only when their parent transaction is still active by the same rule above**. A follow-up attached to an archived, deleted, or completed transaction cannot leak into Home's `openFollowups`, `overdueFollowups`, operational signals, or priority queue. This rule was added after a real Phase 4.1 regression was found during pre-CI review: the first implementation excluded archived work from priorities but still counted an archived transaction's open follow-up in Home metrics.
+
+A follow-up becomes an overdue priority only when it is open, due before the current instant, not snoozed into the future, and belongs to an active transaction.
 
 ## Priority model
 
@@ -127,6 +129,7 @@ The 4.1 gate must extend the complete Phase 3.4 gate; prior destruction suites a
 - workspace membership resolution;
 - complete pagination;
 - active/archive/delete lifecycle filtering;
+- archived follow-ups being excluded from all active Home metrics;
 - snooze and overdue semantics;
 - priority ordering and bounded density;
 - payment status and active-work finance scope;
