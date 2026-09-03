@@ -115,7 +115,7 @@ ENJAZ is a clean rebuild, not a continuation of the legacy UI generations.
 - Prevent keyboard obstruction of fields/actions.
 - Test across different phone viewport sizes.
 
-## 2.7 — Premium Pattern Library ⏭ CURRENT NEXT PHASE
+## 2.7 — Premium Pattern Library ✅
 
 Build reusable **ENJAZ-specific composite patterns** before building full screens.
 
@@ -140,7 +140,7 @@ Required pattern families include:
 
 **2.7 exit:** ENJAZ has a domain-aware pattern library that can build real screens without inventing UI ad hoc.
 
-## 2.8 — Visual Destruction & Quality Gate
+## 2.8 — Visual Destruction & Quality Gate ⏭ CURRENT NEXT PHASE
 
 Deliberately break the design system and pattern library before screen construction.
 
@@ -600,8 +600,8 @@ The project is considered delivered only when:
 - Phase 2.4 ✅
 - Phase 2.5 ✅
 - Phase 2.6 ✅
-- **Next: Phase 2.7 — Premium Pattern Library**
-- Then: **Phase 2.8 — Visual Destruction & Quality Gate**
+- Phase 2.7 ✅
+- **Next: Phase 2.8 — Visual Destruction & Quality Gate**
 - Then: **Phase 3 — Application Shell & Navigation**
 
 ---
@@ -617,5 +617,3 @@ A roadmap change must state:
 4. whether feature parity or delivery scope changes,
 5. which tests/gates must change,
 6. whether the change creates migration or compatibility risk.
-
-Silently skipping a phase, renaming it in conversation, or starting a later phase before its predecessor passes is a roadmap violation.
