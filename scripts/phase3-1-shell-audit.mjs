@@ -38,9 +38,10 @@ for (const marker of [
   'getShellUserInitial',
 ]) check(`shell contract contains ${marker}`, contract.includes(marker));
 
-check('shell contract exposes exactly five nav slot records', (contract.match(/id: '/g) ?? []).length === 5);
-check('only one shell navigation destination is active in 3.1', (contract.match(/destination: '\/app'/g) ?? []).length === 1);
-check('four future nav slots stay unbound until 3.2', (contract.match(/destination: null/g) ?? []).length === 4);
+const navRecords = contract.match(/\{ id: '[^']+', label: '[^']+', status: '(?:ready|planned)', destination: (?:'\/app'|null) \}/g) ?? [];
+check('shell contract exposes exactly five nav slot records', navRecords.length === 5, `records=${navRecords.length}`);
+check('only one shell navigation destination is active in 3.1', navRecords.filter((record) => record.includes("destination: '/app'")).length === 1);
+check('four future nav slots stay unbound until 3.2', navRecords.filter((record) => record.includes('destination: null')).length === 4);
 
 for (const marker of [
   'app-shell__skip-link',
