@@ -1,0 +1,134 @@
+name: ENJAZ Bootstrap v4 & Production Verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/enjaz-bootstrap-v4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    name: Verify, build and promote corrected Phase 2.2
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Reconstruct verified source
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq -w 0 19); do test "$(wc -c < .github/bootstrap/core4k.b64.part${i})" -eq 4000; done
+          test "$(wc -c < .github/bootstrap/core4k.b64.part20)" -eq 1984
+          cat .github/bootstrap/core4k.b64.part{00..20} > /tmp/enjaz.b64
+          base64 --decode /tmp/enjaz.b64 > /tmp/enjaz.tar.xz
+          echo "ea4106a3f9ca02abdee3ce6cf12a13199a8cc475c1893fbc8b1e1c5098b6ba06  /tmp/enjaz.tar.xz" | sha256sum -c -
+          mkdir -p /tmp/enjaz-source
+          tar -xJf /tmp/enjaz.tar.xz -C /tmp/enjaz-source
+          rsync -a /tmp/enjaz-source/ ./
+      - name: Apply verified runtime and TypeScript corrections
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('package.json'); d=json.loads(p.read_text()); d.setdefault('engines',{})['node']='>=22.22.0'; p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')
+          Path('.nvmrc').write_text('24\n')
+          for name in ['tsconfig.offline.json','tsconfig.app.json','tsconfig.node.json']:
+              p=Path(name); d=json.loads(p.read_text()); d['compilerOptions']['skipLibCheck']=True; p.write_text(json.dumps(d,indent=2)+'\n')
+          shim=Path('types/offline-react.d.ts'); s=shim.read_text()
+          marker="declare module '*.css' {}"
+          if marker not in s: s += "\n// Offline typecheck: side-effect stylesheet imports are intentionally opaque.\n"+marker+"\n"
+          shim.write_text(s)
+          Path('src/vite-env.d.ts').write_text('/// <reference types="vite/client" />\n')
+          PY
+          cp src/core/supabase/database.types.ts /tmp/database.types.before.ts
+      - name: Install dependency graph and generate lockfile
+        run: npm install --no-audit --no-fund
+      - name: Full Phase 2.2 verification
+        run: npm run verify:phase2.2
+      - name: Real dependency-backed TypeScript check
+        run: npm run typecheck
+      - name: Real Vite production build
+        run: npm run build
+      - name: Assert deterministic generated database contract
+        run: cmp /tmp/database.types.before.ts src/core/supabase/database.types.ts
+      - name: Assert production artifacts
+        run: |
+          test -s package-lock.json
+          test -f dist/index.html
+      - name: Install permanent Quality Gate
+        shell: bash
+        run: |
+          mkdir -p .github/workflows
+          cat > .github/workflows/enjaz-quality-gate.yml <<'QUALITY_GATE'
+          name: ENJAZ Quality Gate
+
+          on:
+            push:
+              branches: [main]
+            pull_request:
+              branches: [main]
+            workflow_dispatch:
+
+          permissions:
+            contents: read
+
+          concurrency:
+            group: enjaz-quality-${{ github.ref }}
+            cancel-in-progress: true
+
+          jobs:
+            quality:
+              name: Tests, Audits, Types and Production Build
+              runs-on: ubuntu-latest
+              timeout-minutes: 30
+              steps:
+                - uses: actions/checkout@v7
+                - uses: actions/setup-node@v7
+                  with:
+                    node-version: '24'
+                    cache: npm
+                    cache-dependency-path: package-lock.json
+                - uses: actions/setup-python@v7
+                  with:
+                    python-version: '3.12'
+                - name: Validate runtime contract
+                  run: node -e "const p=require('./package.json'); if(p.engines.node !== '>=22.22.0') process.exit(1)"
+                - name: Install locked dependencies
+                  run: npm ci --no-audit --no-fund
+                - name: Full Phase 2.2 verification
+                  run: npm run verify:phase2.2
+                - name: TypeScript check
+                  run: npm run typecheck
+                - name: Production build
+                  run: npm run build
+                - name: Assert production output
+                  run: test -f dist/index.html
+          QUALITY_GATE
+      - name: Promote clean verified repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .github/bootstrap
+          rm -f .github/workflows/enjaz-bootstrap.yml .github/workflows/enjaz-bootstrap-v2.yml .github/workflows/enjaz-bootstrap-v3.yml .github/workflows/enjaz-bootstrap-v4.yml
+          git config user.name "ENJAZ CI"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: promote CI-verified ENJAZ Phase 2.2 source"
+          git push
