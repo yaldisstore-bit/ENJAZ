@@ -1,5 +1,5 @@
 import { Badge, Card, CardBody, CardHeader } from '../../../design-system/components/index.ts';
-import { AppShellFrame } from '../../shell/AppShell.tsx';
+import { AppShellFrame } from '../../../shared/shell/AppShellFrame.tsx';
 
 function ShellProofContent() {
   return (
