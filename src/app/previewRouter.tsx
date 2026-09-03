@@ -12,12 +12,14 @@ import { ShellPreviewPage } from '../features/foundation/pages/ShellPreviewPage'
 import { GlobalInteractionLabPage } from '../features/foundation/pages/GlobalInteractionLabPage';
 import { ShellDestructionLabPage } from '../features/foundation/pages/ShellDestructionLabPage';
 import { NotFoundPage } from '../features/foundation/pages/NotFoundPage';
+import { HomeDashboardPreviewPage } from '../features/home/pages/HomeDashboardPreviewPage.tsx';
 import { NavigationLabPage } from '../features/navigation/pages/NavigationLabPage.tsx';
 import { NavigationPreviewAppPage } from '../features/navigation/pages/NavigationPreviewAppPage.tsx';
 import { PRODUCT_NAVIGATION_ROUTES } from '../core/routing/navigationContract.ts';
 import { ROUTES } from '../core/routing/routes';
 
 const previewProductRoutes = PRODUCT_NAVIGATION_ROUTES
+  .filter((route) => route.id !== 'home')
   .map((route) => ({ path: route.path, Component: NavigationPreviewAppPage }));
 
 export const previewRouter = createBrowserRouter([
@@ -35,6 +37,8 @@ export const previewRouter = createBrowserRouter([
   { path: ROUTES.navigationPreview, Component: NavigationLabPage },
   { path: ROUTES.interactionsPreview, Component: GlobalInteractionLabPage },
   { path: ROUTES.shellDestructionPreview, Component: ShellDestructionLabPage },
+  { path: ROUTES.homePreview, Component: HomeDashboardPreviewPage },
+  { path: ROUTES.appHome, Component: HomeDashboardPreviewPage },
   { path: ROUTES.appMore, Component: NavigationPreviewAppPage },
   ...previewProductRoutes,
   { path: '*', Component: NotFoundPage },
