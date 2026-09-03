@@ -16,8 +16,8 @@ import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage';
 import { UpdatePasswordPage } from '../features/auth/pages/UpdatePasswordPage';
 import { AnonymousOnlyRoute, ProtectedRoute, RootRoute } from '../features/auth/pages/AuthRouteGuards';
 import { AuthHomePage } from '../features/auth/pages/AuthHomePage';
-import { AppShell } from '../features/shell/AppShell';
 import { ROUTES } from '../core/routing/routes';
+import { AppShell } from './AppShell';
 
 export const router = createBrowserRouter([
   { path: ROUTES.root, Component: RootRoute },
