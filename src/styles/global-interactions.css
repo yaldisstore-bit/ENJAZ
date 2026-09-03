@@ -1,5 +1,6 @@
 .global-interactions {
   border-block-start: 0;
+  background: var(--color-surface-raised);
   background: transparent;
 }
 
