@@ -95,6 +95,10 @@ check('preview router maps app Home to deterministic shell preview', previewRout
 includesAll('app Home preview preserves shell and deterministic dashboard', previewApp, [
   'AppShellFrame', 'HomeDashboardPreviewPage', 'currentPath={ROUTES.appHome}',
 ]);
+check(
+  'app Home preview structurally wraps deterministic dashboard in App Shell',
+  /<AppShellFrame\b[\s\S]*<HomeDashboardPreviewPage\s*\/>[\s\S]*<\/AppShellFrame>/.test(previewApp),
+);
 check('preview router preserves the configured basename', previewRouter.includes('basename: import.meta.env.BASE_URL'));
 includesAll('deterministic preview', preview, ['HomeDashboardView', 'buildHomeDashboardSnapshot', "new Date('2026-09-03T12:00:00.000Z')"]);
 check('preview contains no live data access', !/useDataLayer|supabase|repository|loadHomeDashboard/i.test(`${preview}\n${previewApp}`));
