@@ -11,6 +11,10 @@ function check(name, condition, detail = '') {
   checks += 1;
   if (!condition) failures.push(`${name}${detail ? ` — ${detail}` : ''}`);
 }
+function numericConst(source, name) {
+  const match = source.match(new RegExp(`export const ${name} = (\\d+);`));
+  return match ? Number(match[1]) : Number.NaN;
+}
 
 const interactionContract = await text('src/core/interactions/globalInteractionContract.ts');
 const surfaces = await text('src/shared/interactions/GlobalInteractionSurfaces.tsx');
@@ -36,7 +40,7 @@ const surfaceIds = [...interactionContract.matchAll(/id: '(search|inbox|quickCre
 check('global interaction contract declares exactly four surface records', surfaceIds.length === 4, `count=${surfaceIds.length}`);
 check('global surface ids are unique', new Set(surfaceIds).size === 4);
 check('global surface order is frozen', JSON.stringify(surfaceIds) === JSON.stringify(['search', 'inbox', 'quickCreate', 'control']));
-check('global surface count constant is four', interactionContract.includes('GLOBAL_INTERACTION_SURFACE_COUNT = 4'));
+check('global surface count constant is exactly four', numericConst(interactionContract, 'GLOBAL_INTERACTION_SURFACE_COUNT') === 4, `value=${numericConst(interactionContract, 'GLOBAL_INTERACTION_SURFACE_COUNT')}`);
 
 for (const marker of [
   "GlobalInteractionSurfaceId = 'search' | 'inbox' | 'quickCreate' | 'control'",
@@ -48,9 +52,9 @@ for (const marker of [
   'GLOBAL_INTERACTION_ENTRIES',
 ]) check(`global contract preserves ${marker}`, interactionContract.includes(marker));
 
-check('global search minimum query length is two', interactionContract.includes('GLOBAL_SEARCH_MIN_QUERY_LENGTH = 2'));
-check('global search result limit is eight', interactionContract.includes('GLOBAL_SEARCH_RESULT_LIMIT = 8'));
-check('global inbox badge maximum is 99', interactionContract.includes('GLOBAL_INBOX_BADGE_MAX = 99'));
+check('global search minimum query length is exactly two', numericConst(interactionContract, 'GLOBAL_SEARCH_MIN_QUERY_LENGTH') === 2, `value=${numericConst(interactionContract, 'GLOBAL_SEARCH_MIN_QUERY_LENGTH')}`);
+check('global search result limit is exactly eight', numericConst(interactionContract, 'GLOBAL_SEARCH_RESULT_LIMIT') === 8, `value=${numericConst(interactionContract, 'GLOBAL_SEARCH_RESULT_LIMIT')}`);
+check('global inbox badge maximum is exactly 99', numericConst(interactionContract, 'GLOBAL_INBOX_BADGE_MAX') === 99, `value=${numericConst(interactionContract, 'GLOBAL_INBOX_BADGE_MAX')}`);
 for (const marker of [
   'normalizeGlobalInteractionQuery',
   "value.trim().replace(/\\s+/g, ' ')",
