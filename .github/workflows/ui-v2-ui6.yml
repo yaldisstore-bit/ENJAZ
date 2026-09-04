@@ -62,7 +62,7 @@ jobs:
           exit 1
 
       - name: Real browser core-screen interaction and geometry gate
-        run: node scripts/ui6-reality-test.mjs
+        run: node scripts/ui6-core-regression.mjs
 
       - name: Upload UI-6 visual evidence
         if: always()
