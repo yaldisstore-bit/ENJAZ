@@ -1,6 +1,9 @@
 export function auditHomeSources({ component, css, shell, connected, preview }) {
   const failures = [];
   const requireRule = (condition, message) => { if (!condition) failures.push(message); };
+  const classTokens = [...component.matchAll(/className="([^"]+)"/g)]
+    .flatMap((match) => match[1].split(/\s+/))
+    .filter(Boolean);
 
   // Real business-core integration: the new visual layer consumes the preserved Home contract.
   requireRule(component.includes("HomeDashboardSnapshot") && component.includes("HomeDashboardLoadState"), 'Home UI must consume typed Home dashboard contracts');
@@ -18,7 +21,7 @@ export function auditHomeSources({ component, css, shell, connected, preview }) 
     'rebirth-home__finance',
     'rebirth-home__signal-stack',
     'rebirth-home__closing',
-  ]) requireRule(component.includes(token), `Home composition missing ${token}`);
+  ]) requireRule(classTokens.includes(token), `Home composition missing exact class token ${token}`);
 
   requireRule(component.includes('الأولوية قبل القائمة'), 'priority-first information hierarchy missing');
   requireRule(component.includes('التحصيل النشط'), 'Home financial snapshot missing');
