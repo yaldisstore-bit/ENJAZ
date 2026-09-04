@@ -46,7 +46,13 @@ function ProductAuthScreen(props: Readonly<{ service: AuthService }>) {
       if (mode === 'signin') {
         await props.service.signIn({ email, password });
       } else {
-        const result = await props.service.signUp({ email, password, displayName, workspaceName: workspaceName || undefined });
+        const trimmedWorkspaceName = workspaceName.trim();
+        const result = await props.service.signUp({
+          email,
+          password,
+          displayName,
+          ...(trimmedWorkspaceName ? { workspaceName: trimmedWorkspaceName } : {}),
+        });
         if (result.confirmationRequired) {
           setMessage('تم إنشاء الحساب. افتح رسالة التأكيد في بريدك ثم سجّل الدخول للمتابعة.');
         }
