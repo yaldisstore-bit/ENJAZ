@@ -74,8 +74,16 @@ body {
   transform: translateY(1px) scale(.985);
 }
 
-/* 44px is the floor, not the target: preserve subpixel safety on compact domain controls. */
+/* 44px is the floor, not the target: preserve subpixel safety on compact controls. */
 .ez-domain-runtime__marker button {
+  min-height: 46px;
+}
+
+.ez-shell-close,
+.ez-sheet__close {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
   min-height: 46px;
 }
 
