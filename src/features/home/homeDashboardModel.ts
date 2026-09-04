@@ -79,6 +79,21 @@ function safeMoneySum(values: readonly number[]): Readonly<{ value: number; prec
   return Object.freeze({ value: Math.round(total * 100) / 100, precisionSafe });
 }
 
+function rankDistinctPriorities(candidates: readonly HomePriorityItem[]): readonly HomePriorityItem[] {
+  const ranked = [...candidates].sort((left, right) => right.score - left.score || left.id.localeCompare(right.id));
+  const seenTransactions = new Set<string>();
+  const result: HomePriorityItem[] = [];
+
+  for (const candidate of ranked) {
+    if (seenTransactions.has(candidate.transactionId)) continue;
+    seenTransactions.add(candidate.transactionId);
+    result.push(candidate);
+    if (result.length === HOME_PRIORITY_LIMIT) break;
+  }
+
+  return Object.freeze(result);
+}
+
 function createPriorities(
   source: HomeDashboardSource,
   activeById: ReadonlyMap<string, RowOf<'transactions'>>,
@@ -147,9 +162,7 @@ function createPriorities(
     }
   }
 
-  return Object.freeze(candidates
-    .sort((left, right) => right.score - left.score || left.id.localeCompare(right.id))
-    .slice(0, HOME_PRIORITY_LIMIT));
+  return rankDistinctPriorities(candidates);
 }
 
 export function enrichHomePriorityCompanies(

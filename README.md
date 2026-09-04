@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 4.3 — Executive Briefing ✅**  
-آخر مرحلة مغلقة: **Phase 4.3 — Executive Briefing ✅**.  
-التالي المسموح: **Phase 4.4 — Home Destruction Gate**، ولم تبدأ بعد.
+الحالة الرسمية: **Phase 4.4 — Home Destruction Gate ✅**  
+آخر مرحلة مغلقة: **Phase 4.4 — Home Destruction Gate ✅**.  
+التالي المسموح: **Phase 5.1 — Transaction List & Search**، ولم تبدأ بعد.
 
 إنجاز مشروع جديد مبني من الصفر بهوية مستقلة وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية الأساسية للمشروع السابق دون نقل واجهاته أو الـlegacy UI DNA.
 
@@ -14,8 +14,9 @@
 - [`docs/ENJAZ_ROADMAP_PROVENANCE.md`](docs/ENJAZ_ROADMAP_PROVENANCE.md) — مصدر الخطة وحدود استعادة التسميات التاريخية.
 - [`docs/PHASE4_2_DAILY_WORK_CLOSURE.md`](docs/PHASE4_2_DAILY_WORK_CLOSURE.md) — أدلة إغلاق Daily Work / Universal Inbox.
 - [`docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md`](docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md) — أدلة إغلاق Executive Briefing.
+- [`docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md`](docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md) — أدلة إغلاق Home Destruction Gate وإغلاق Phase 4 كاملة.
 
-**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. Phase 4.4 لا تبدأ قبل إغلاق 4.3 ونجاح Release Gate الخاصة بها ودمج Closure في فرع التكامل الرسمي.
+**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. Phase 5.1 لا تبدأ قبل نجاح بوابات PR الخاصة بإغلاق 4.4 ودمجها في `main`.
 
 ## حالة المراحل
 
@@ -29,11 +30,12 @@
   - **Phase 3.2 — Navigation Architecture** ✅
   - **Phase 3.3 — Global Interaction Surfaces** ✅
   - **Phase 3.4 — Shell Destruction Gate** ✅
-- **Phase 4 — Home, Daily Work & Executive Overview** 🚧
+- **Phase 4 — Home, Daily Work & Executive Overview** ✅
   - **Phase 4.1 — Home / Dashboard** ✅ complete
   - **Phase 4.2 — Daily Work / Universal Inbox** ✅ complete
   - **Phase 4.3 — Executive Briefing** ✅ complete
-  - **Phase 4.4 — Home Destruction Gate** ⏳ not started
+  - **Phase 4.4 — Home Destruction Gate** ✅ complete
+- **Phase 5.1 — Transaction List & Search** ⏳ not started
 
 ## Phase 4.1 — المكتمل رسميًا
 
@@ -81,7 +83,21 @@
 - Loading / Error / Retry موجودة، ولا تعرض الشاشة أرقامًا جزئية إذا فشل مصدر موثوق.
 - Chromium Reality Gate اختبرت 1280 / 430 / 390 / 360 / 320px، touch 44px، overflow، console errors، والتنقل التنفيذي.
 - Stress حقيقي شمل نصًا عربيًا طويلًا، mixed Arabic/Latin token، وقيمة مالية ضخمة.
-- المراجعة اليدوية للصور الطبيعية والـStress اجتازت خصوصًا 320px دون قص أو Legacy DNA جديد.
+
+## Phase 4.4 — المكتمل رسميًا
+
+4.4 لم تضف شاشة تجميلية جديدة؛ بل هاجمت الـHome الحقيقية وأغلقت بقايا التنفيذ المؤقت:
+
+- ربطت الـHome التشغيلية بمسار `ConnectedHomeScreen` في التشغيل الحي وبـfixture معزولة في CI/Pages.
+- أزيل `HomeCoreScreen` الثابت القديم فعليًا من `CoreScreens.tsx` بدل تركه ككود ميت ومصدر التباس.
+- أضيفت سيناريوهات deterministic: empty / dense / conflict / slow / offline، إضافة إلى القيم المالية الضخمة والنصوص العربية/اللاتينية الطويلة.
+- الأولويات أصبحت transaction-distinct ومحدودة؛ لا يستطيع سجل واحد عالي الضوضاء احتكار قائمة الأولويات.
+- بقيت حماية الدقة المالية، واستبعاد المؤرشف/المحذوف/المكتمل، واحترام snooze للمتابعات.
+- حالات Loading / Empty / Error / Retry واختبار الانقطاع والبطء أصبحت جزءًا من Gate دائمة.
+- بوابة 4.4 أصبحت جزءًا من `ENJAZ Quality Gate` و`ENJAZ Real Browser Acceptance` و`verify:extreme` وQA stage contract.
+- تم تحديث UI-6 cumulative audit ليتحقق من الـHome القانونية الحالية بدل إجبار المشروع على الاحتفاظ بـHome ثابتة ميتة.
+- Pre-closure run `33917241943` على commit `622a110422fa6c584e054ffdd8d803dc1f31aac4` اجتاز جميع الخطوات، بما فيها Chromium الحقيقي ورفع evidence artifact.
+- Functional regression: **64/64** ✅، وPhase 4.4 dataset destruction: **4/4** ✅.
 
 ## المختبرات ومساحات الإثبات
 
@@ -100,31 +116,34 @@
 - `/foundation/home` — 4.1 deterministic Home proof
 - UI V2 fixture runtime — 4.2 deterministic Daily Work interaction/reality proof
 - UI V2 Executive Briefing fixture runtime — 4.3 deterministic executive interaction/reality proof
+- UI V2 Home destruction scenarios — 4.4 empty/dense/conflict/slow/offline + responsive Chromium proof
 
 ## Quality Gate
 
-Phase 4.3 dedicated implementation gate على head `0052411e3d39b958edb4cb834c0ebf0623e0066b` أثبت:
+Phase 4.4 pre-closure certification على head `622a110422fa6c584e054ffdd8d803dc1f31aac4` أثبت:
 
-1. Phase 4.2 cumulative contract ✅
-2. Phase 4.3 Architecture Audit ✅
-3. **60/60** functional tests ✅
-4. TypeScript `tsc -b` ✅
-5. Vite production build ✅
-6. Chromium Reality Gate على 1280 / 430 / 390 / 360 / 320 ✅
-7. Executive → Daily Work ✅
-8. Executive → Finance ✅
-9. Executive → Transactions domain ✅
-10. Mobile touch floor ≥44px ✅
-11. Long Arabic / mixed-token / huge-money stress ✅
-12. Manual screenshot review ✅
-13. UI-10 Full Destruction Freeze regression ✅
+1. QA stage contract ✅
+2. UI V2 Boundary + Visual DNA ✅
+3. UI-4 → UI-10 cumulative freeze ✅
+4. Phase 4.2 cumulative audit ✅
+5. Phase 4.3 cumulative audit ✅
+6. Phase 4.4 architecture audit ✅
+7. Phase 4.4 destruction tests **4/4** ✅
+8. Full functional tests **64/64** ✅
+9. Secrets audit ✅
+10. Roadmap integrity ✅
+11. TypeScript `tsc -b` ✅
+12. Vite production build ✅
+13. Strict production asset budget ✅
+14. Chromium Reality Gate: empty / dense × 5 viewports / conflict / slow / offline / interaction ✅
+15. Evidence artifact upload ✅
 
-أدلة التنفيذ مفصلة في `docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md`. الإغلاق النهائي لا يعتمد على هذه القائمة وحدها؛ يجب أن يكرر رأس التوثيق النهائي البوابات التراكمية قبل دمج PR #46.
+أدلة التنفيذ مفصلة في `docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md`. هذه الحالة ستعاد مصادقتها على PR إلى `main` قبل الدمج.
 
 ## الأمان والأسرار
 
-المستودع لا يحتوي على `.env.local` أو مفاتيح Supabase الفعلية أو Service Role secrets. Feature layers في 4.1 و4.2 و4.3 لا تنشئ عميل Supabase مباشر؛ الوصول التشغيلي يمر عبر Data Layer المركزية، والـfixtures العامة معزولة عن بيانات الإنتاج.
+المستودع لا يحتوي على `.env.local` أو مفاتيح Supabase الفعلية أو Service Role secrets. Feature layers في 4.1 و4.2 و4.3 و4.4 لا تنشئ عميل Supabase مباشر؛ الوصول التشغيلي يمر عبر Data Layer المركزية، والـfixtures العامة معزولة عن بيانات الإنتاج.
 
 ## ملاحظة التطوير
 
-`uiux-rebirth-v2` هو فرع التكامل الحالي لواجهة ENJAZ UI/UX 2.0 ومسار المنتج الجاري. **Phase 4.3 مغلقة بعد نجاح Closure Gate النهائي؛ Phase 4.4 — Home Destruction Gate هي الخطوة التالية المسموحة ولم تبدأ.**
+`main` هو المصدر القانوني والوحيد بعد الدمج. التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية، وليس عبر إبقاء فرع UI قديم كمصدر تشغيل. **Phase 4 مغلقة بالكامل بعد 4.4؛ Phase 5.1 — Transaction List & Search هي الخطوة التالية المسموحة ولم تبدأ.**

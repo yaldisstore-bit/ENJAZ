@@ -202,9 +202,9 @@ Phase 3 began only after 2.8 was green. Its exit was verified through the comple
 
 ---
 
-# Phase 4 — Home, Daily Work & Executive Overview 🚧
+# Phase 4 — Home, Daily Work & Executive Overview ✅
 
-Phase 4 is active. **Phase 4.1, Phase 4.2 and Phase 4.3 are closed ✅.** Phase 4.4 is the next permitted subphase and remains not started.
+Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** The next permitted product step is Phase 5.1 and remains not started until the Phase 4.4 closure PR is green and merged into canonical `main`.
 
 ## 4.1 — Home / Dashboard ✅
 - Build the actual ENJAZ home screen using Phase 2 patterns.
@@ -234,12 +234,20 @@ Phase 4 is active. **Phase 4.1, Phase 4.2 and Phase 4.3 are closed ✅.** Phase 
 - Exit verified through 60/60 functional tests, architecture audit, TypeScript, production build, Chromium Reality Gate on 1280/430/390/360/320, long Arabic/mixed-token/huge-money stress, manual screenshot review, and cumulative frozen UI regressions.
 - Closure evidence: `docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md`.
 
-## 4.4 — Home Destruction Gate ⏭ CURRENT NEXT PHASE
+## 4.4 — Home Destruction Gate ✅
 - Empty/huge/dense datasets.
 - Conflicting urgency states.
 - Slow/offline backend behavior.
 - Responsive and interaction torture.
-- **Status:** not started; no Phase 4.4 implementation is included in the Phase 4.3 closure.
+- Canonical live Home remains behind Auth/Data Layer while deterministic fixtures isolate CI/Public Preview.
+- Obsolete static `HomeCoreScreen` was physically removed; the cumulative UI-6 guard now verifies the canonical Home instead of preserving dead code.
+- Priority output is bounded and transaction-distinct under dense/conflicting input.
+- Unsafe financial precision is hidden rather than guessed or rounded as an exact business fact.
+- Exit verified by the Phase 4.4 architecture gate, 4/4 dedicated destruction tests, 64/64 functional tests, secrets audit, TypeScript, production build, strict asset budget, and real Chromium destruction across empty/dense/conflict/slow/offline/interaction scenarios including five responsive profiles.
+- Pre-closure evidence run: `33917241943` on `622a110422fa6c584e054ffdd8d803dc1f31aac4` ✅.
+- Closure evidence: `docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md`.
+
+**Phase 4 exit:** Home, Daily Work, Executive Briefing, and destructive Home validation are all green and protected by cumulative canonical gates. **Exit verified ✅.**
 
 ---
 
@@ -627,7 +635,9 @@ The project is considered delivered only when:
 - **Phase 4.1 — Home / Dashboard ✅**
 - **Phase 4.2 — Daily Work / Universal Inbox ✅**
 - **Phase 4.3 — Executive Briefing ✅**
-- **Next: Phase 4.4 — Home Destruction Gate**
+- **Phase 4.4 — Home Destruction Gate ✅**
+- **Phase 4 — Home, Daily Work & Executive Overview ✅**
+- **Next: Phase 5.1 — Transaction List & Search**
 
 ---
 
@@ -635,7 +645,7 @@ The project is considered delivered only when:
 
 This file is intentionally difficult to change by accident.
 
-This closure changes only verified roadmap state: Phase 4.3 is marked complete after its implementation, 60/60 functional tests, TypeScript and production build, dedicated Chromium Reality Gate on five viewports, long Arabic/mixed-token/huge-money stress, manual screenshot review, and cumulative frozen UI regressions succeeded. Phase 4.4 becomes the next permitted subphase but remains not started. Feature parity and delivery scope are unchanged; no business implementation is moved or skipped.
+This closure changes only verified roadmap state: Phase 4.4 is marked complete after the dedicated architecture gate, 4/4 destruction tests, 64/64 functional tests, cumulative UI V2/Phase 4.2/Phase 4.3 regressions, secrets audit, TypeScript, production build, strict asset budget, real Chromium destruction across empty/dense/conflict/slow/offline/interaction scenarios, and evidence upload succeeded. Phase 4 is therefore closed as a whole. Phase 5.1 becomes the next permitted subphase but remains not started until the closure PR is green and merged. Feature parity and delivery scope are unchanged; no business implementation is moved or skipped.
 
 A roadmap change must state:
 1. what changes,

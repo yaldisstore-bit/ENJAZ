@@ -15,7 +15,9 @@ const entry = await read('src/ui-v2/screens/ExecutiveBriefingEntry.tsx');
 const css = await read('src/ui-v2/styles/executive-briefing.css');
 
 assert(core.includes('data-stage="ui-10"'), 'frozen UI-10 visual marker changed');
-assert(core.includes('data-product-phase="4.3"'), 'Phase 4.3 product marker is missing');
+const productPhaseMatch = core.match(/data-product-phase="([0-9]+(?:\.[0-9]+)?)"/);
+const productPhase = productPhaseMatch ? Number(productPhaseMatch[1]) : Number.NaN;
+assert(Number.isFinite(productPhase) && productPhase >= 4.3, 'runtime must remain at or beyond Phase 4.3');
 assert(core.includes('<ConnectedExecutiveBriefingScreen'), 'live Executive Briefing is not mounted');
 assert(core.includes('<FixtureExecutiveBriefingScreen'), 'safe preview Executive Briefing is not mounted');
 assert(core.includes('<ExecutiveBriefingEntry'), 'Home entry point is missing');
@@ -54,7 +56,7 @@ assert(css.includes('min-height: 76px'), 'decision touch target resilience is mi
 assert(css.includes('@media (max-width: 560px)'), 'mobile briefing hardening is missing');
 assert(css.includes('overflow-wrap: anywhere'), 'long executive content wrapping contract is missing');
 
-console.log('Phase 4.3 Executive Briefing audit PASS');
+console.log(`Phase 4.3 Executive Briefing audit PASS on product phase ${productPhase}`);
 console.log('- Home + Daily Work are composed instead of reimplemented');
 console.log('- financial pulse is limited to posted payments and two seven-day windows');
 console.log('- live and preview runtimes remain isolated');

@@ -4,11 +4,12 @@ import type { ExecutiveBriefingDestination } from '../../features/executive-brie
 import { domainById, enjazDomains, type EnjazDomainId } from '../architecture/domain-composition.ts';
 import { AppShell } from '../components/AppShell.tsx';
 import { EzSheet } from '../components/overlays.tsx';
-import { FinanceCoreScreen, HomeCoreScreen, OperationsCoreScreen } from '../screens/CoreScreens.tsx';
+import { FinanceCoreScreen, OperationsCoreScreen } from '../screens/CoreScreens.tsx';
 import { ConnectedDailyWorkScreen, FixtureDailyWorkScreen } from '../screens/DailyWorkScreen.tsx';
 import { DomainScreen } from '../screens/DomainScreens.tsx';
 import { ExecutiveBriefingEntry } from '../screens/ExecutiveBriefingEntry.tsx';
 import { ConnectedExecutiveBriefingScreen, FixtureExecutiveBriefingScreen } from '../screens/ExecutiveBriefingScreen.tsx';
+import { ConnectedHomeScreen, FixtureHomeScreen } from '../screens/HomeScreen.tsx';
 
 type ShellTab = 'home' | 'today' | 'operations' | 'finance';
 type DomainGroup = Readonly<{ label: string; ids: readonly EnjazDomainId[] }>;
@@ -69,16 +70,21 @@ export function CoreApp(props: Readonly<{ dailyWorkMode?: DailyWorkRuntimeMode }
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
+  const openHomePriority = () => openDomain('transactions');
   const newFollowup = () => window.dispatchEvent(new CustomEvent('enjaz:open-create', { detail: 'followup' }));
 
   const executiveScreen = dailyWorkMode === 'live'
     ? <ConnectedExecutiveBriefingScreen onBack={() => setBriefingMode(false)} onOpenDestination={openExecutiveDestination} />
     : <FixtureExecutiveBriefingScreen onBack={() => setBriefingMode(false)} onOpenDestination={openExecutiveDestination} />;
 
+  const homeScreen = dailyWorkMode === 'live'
+    ? <ConnectedHomeScreen onOpenPriority={openHomePriority} />
+    : <FixtureHomeScreen onOpenPriority={openHomePriority} />;
+
   const coreScreen = briefingMode
     ? executiveScreen
     : activeTab === 'home'
-      ? <><HomeCoreScreen /><ExecutiveBriefingEntry onOpen={() => { setBriefingMode(true); window.scrollTo({ top: 0, behavior: 'instant' }); }} /></>
+      ? <>{homeScreen}<ExecutiveBriefingEntry onOpen={() => { setBriefingMode(true); window.scrollTo({ top: 0, behavior: 'instant' }); }} /></>
       : activeTab === 'today'
         ? dailyWorkMode === 'live'
           ? <ConnectedDailyWorkScreen onNewFollowup={newFollowup} onOpen={openDailyWorkItem} />
@@ -94,7 +100,7 @@ export function CoreApp(props: Readonly<{ dailyWorkMode?: DailyWorkRuntimeMode }
       : `core-${activeTab}-${commandMode ? 'command' : 'standard'}`;
 
   return (
-    <div data-core-app="true" data-stage="ui-10" data-product-phase="4.3" data-daily-work-mode={dailyWorkMode} data-active-domain={activeDomain ?? 'core'} data-executive-briefing={briefingMode ? 'open' : 'closed'}>
+    <div data-core-app="true" data-stage="ui-10" data-product-phase="4.4" data-daily-work-mode={dailyWorkMode} data-active-domain={activeDomain ?? 'core'} data-executive-briefing={briefingMode ? 'open' : 'closed'}>
       <AppShell
         title={domain ? domain.label : briefingMode ? 'الملخص التنفيذي' : commandMode && activeTab === 'operations' ? 'القيادة' : current.title}
         subtitle={domain ? domain.eyebrow : briefingMode ? 'نظرة الإدارة' : commandMode && activeTab === 'operations' ? 'المركز التنفيذي' : current.subtitle}
