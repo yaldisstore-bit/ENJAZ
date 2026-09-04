@@ -52,6 +52,8 @@ const cases = [
   ['lower touch token', mutateAll('tokensCss', '--ui-touch-min: 44px', '--ui-touch-min: 36px')],
   ['remove touch minimum width', mutateAll('hardeningCss', 'min-width: var(--ui-touch-min)', 'min-width: 1px')],
   ['remove touch minimum height', mutateAll('hardeningCss', 'min-height: var(--ui-touch-min)', 'min-height: 1px')],
+  ['remove direction-safe CTA inset', mutateAll('hardeningCss', 'inset-inline: 0;', 'inset-inline-start: 50%;')],
+  ['remove CTA auto centering', mutateAll('hardeningCss', 'margin-inline: auto;', 'margin-inline: 0;')],
   ['break dock center slot', mutateAll('shellCss', 'grid-template-columns: 1fr 1fr 76px 1fr 1fr', 'grid-template-columns: repeat(5,1fr)')],
   ['move hardening earlier', { ...baseline, foundationCss: baseline.foundationCss.replace("@import './qa-hardening.css';", "@import './qa-hardening.css';\n@import './tokens.css';") }],
 ];
