@@ -77,9 +77,10 @@ async function verifyProfile(browser, profile) {
 
   await page.screenshot({ path: path.join(outDir, `${profile.name}-home.png`), fullPage: true });
 
+  const dockNav = page.locator('[data-shell-part="bottom-dock"]');
   for (const [label, heading] of [['اليوم', 'اليوم'], ['العمليات', 'العمليات'], ['المالية', 'المالية'], ['الرئيسية', 'الرئيسية']]) {
-    await page.getByRole('button', { name: label }).click();
-    await page.getByRole('heading', { name: heading, level: 1 }).waitFor();
+    await dockNav.getByRole('button', { name: label, exact: true }).click();
+    await page.getByRole('heading', { name: heading, level: 1, exact: true }).waitFor();
     assert(await page.locator('[data-shell-part="bottom-dock"]').isVisible(), `${profile.name}: dock disappeared after ${label}`);
     await assertNoHorizontalOverflow(page, `${profile.name}:nav-${label}`);
   }
