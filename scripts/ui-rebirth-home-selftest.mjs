@@ -3,7 +3,7 @@ import { auditHomeSources } from './ui-rebirth-home-audit-lib.mjs';
 
 const baseline = Object.freeze({
   component: fs.readFileSync('src/ui-rebirth/runtime/RebirthHomeDashboard.tsx', 'utf8'),
-  css: fs.readFileSync('src/ui-rebirth/runtime/rebirth-home-dashboard.css', 'utf8'),
+  css: fs.readFileSync('src/ui-rebirth/runtime/rebirth-home.css', 'utf8'),
   shell: fs.readFileSync('src/ui-rebirth/runtime/RebirthAppShell.tsx', 'utf8'),
   connected: fs.readFileSync('src/ui-rebirth/runtime/RebirthConnectedHomeDashboard.tsx', 'utf8'),
   preview: fs.readFileSync('src/ui-rebirth/preview/homePreviewState.ts', 'utf8'),
