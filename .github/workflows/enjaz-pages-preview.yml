@@ -1,6 +1,6 @@
 name: ENJAZ Pages Preview
 
-# Redeploy trigger: ENJAZ UI/UX 2.0 frozen on 2026-09-04.
+# Redeploy trigger: Phase 4.2 closed and merged to uiux-rebirth-v2 at 3c52da6da895b361a94e73c3e1dd9bd95d886da1.
 on:
   push:
     branches:
