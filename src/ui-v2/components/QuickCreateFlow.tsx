@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { EzFormActions, EzFormSection, EzSelect, EzTextarea } from './form-controls.tsx';
 import { EzDialog } from './overlays.tsx';
 import { EzButton, EzField, EzNotice } from './primitives.tsx';
@@ -6,7 +6,9 @@ import { EzStatePanel } from './state-patterns.tsx';
 
 export type CreateKind = 'transaction' | 'followup' | 'party' | 'payment' | 'more';
 type Draft = { primary: string; secondary: string; notes: string; option: string };
-type Errors = Partial<Record<keyof Draft, string>>;
+type DraftField = keyof Draft;
+type Errors = Partial<Record<DraftField, string>>;
+type DraftControl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
 const emptyDraft: Draft = { primary: '', secondary: '', notes: '', option: '' };
 
@@ -41,6 +43,12 @@ export function QuickCreateFlow(props: Readonly<{ kind: CreateKind; onClose(): v
   const isPayment = props.kind === 'payment';
   const config = props.kind === 'more' ? null : copy[props.kind];
   const hasDraft = useMemo(() => Object.values(draft).some((value) => value.trim().length > 0), [draft]);
+
+  const updateDraft = (field: DraftField) => (event: ChangeEvent<DraftControl>) => {
+    const value = event.currentTarget.value;
+    setDraft((current) => ({ ...current, [field]: value }));
+    if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
+  };
 
   const validate = () => {
     if (!config) return false;
@@ -83,18 +91,10 @@ export function QuickCreateFlow(props: Readonly<{ kind: CreateKind; onClose(): v
     <form className="ez-quick-create" data-create-form={props.kind} onSubmit={(event) => { event.preventDefault(); validate(); }} noValidate>
       <EzFormSection title={config.title} eyebrow={config.eyebrow}>
         <div className="ez-form-grid">
-          <EzField
-            label={config.primary}
-            placeholder={config.primaryPlaceholder}
-            value={draft.primary}
-            onChange={(event) => setDraft((current) => ({ ...current, primary: event.currentTarget.value }))}
-            error={errors.primary}
-            inputMode={isPayment ? 'decimal' : undefined}
-            autoComplete="off"
-          />
-          <EzField label={config.secondary} placeholder={config.secondaryPlaceholder} value={draft.secondary} onChange={(event) => setDraft((current) => ({ ...current, secondary: event.currentTarget.value }))} autoComplete="off" />
-          <EzSelect label={config.option} value={draft.option} onChange={(event) => setDraft((current) => ({ ...current, option: event.currentTarget.value }))} error={errors.option} options={[{ value: '', label: 'اختر...' }, ...config.options]} />
-          <EzTextarea label="ملاحظات" placeholder="أضف تفاصيل تساعد على تنفيذ العمل دون تكرار المعلومات الأساسية." rows={4} maxLength={1200} value={draft.notes} onChange={(event) => setDraft((current) => ({ ...current, notes: event.currentTarget.value }))} hint={`${draft.notes.length}/1200`} />
+          <EzField label={config.primary} placeholder={config.primaryPlaceholder} value={draft.primary} onChange={updateDraft('primary')} error={errors.primary} inputMode={isPayment ? 'decimal' : undefined} autoComplete="off" />
+          <EzField label={config.secondary} placeholder={config.secondaryPlaceholder} value={draft.secondary} onChange={updateDraft('secondary')} autoComplete="off" />
+          <EzSelect label={config.option} value={draft.option} onChange={updateDraft('option')} error={errors.option} options={[{ value: '', label: 'اختر...' }, ...config.options]} />
+          <EzTextarea label="ملاحظات" placeholder="أضف تفاصيل تساعد على تنفيذ العمل دون تكرار المعلومات الأساسية." rows={4} maxLength={1200} value={draft.notes} onChange={updateDraft('notes')} hint={`${draft.notes.length}/1200`} />
         </div>
       </EzFormSection>
       {Object.keys(errors).length > 0 ? <EzNotice title="راجع الحقول المعلّمة" body="بعض البيانات المطلوبة ناقصة أو غير صالحة. لم يتم فقدان أي شيء مما كتبته." tone="danger" /> : null}
