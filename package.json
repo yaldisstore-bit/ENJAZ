@@ -23,6 +23,7 @@
     "audit:ui-rebirth:extreme:selftest": "node scripts/ui-rebirth-extreme-selftest.mjs",
     "audit:ui-rebirth:home": "node scripts/ui-rebirth-home-audit.mjs",
     "audit:ui-rebirth:home:selftest": "node scripts/ui-rebirth-home-selftest.mjs",
+    "audit:ui-v2:boundary": "node scripts/ui-v2-boundary-audit.mjs",
     "audit:dist:budget": "node scripts/dist-budget-audit.mjs",
     "audit:secrets": "node scripts/secret-audit.mjs",
     "audit:roadmap": "node scripts/roadmap-audit.mjs",
@@ -31,6 +32,7 @@
     "verify:ui-rebirth-stage0": "npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run typecheck && npm run build",
     "verify:ui-rebirth-stage1": "npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run audit:ui-rebirth:shell && npm run audit:ui-rebirth:shell:selftest && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && npm run typecheck && npm run build",
     "verify:ui-rebirth-stage2": "npm run audit:ui-rebirth:home && npm run audit:ui-rebirth:home:selftest && npm run verify:extreme",
+    "verify:ui-v2-ui1": "npm run audit:ui-v2:boundary && npm run test:functional && npm run typecheck && npm run build",
     "verify:stage": "npm run verify:extreme",
     "verify:extreme": "npm run audit:qa:stage-contract && npm run audit:qa:stage-delta && npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run audit:ui-rebirth:shell && npm run audit:ui-rebirth:shell:selftest && npm run audit:ui-rebirth:extreme && npm run audit:ui-rebirth:extreme:selftest && npm run audit:ui-rebirth:home && npm run audit:ui-rebirth:home:selftest && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && npm run typecheck && npm run build && npm run audit:dist:budget"
   },
