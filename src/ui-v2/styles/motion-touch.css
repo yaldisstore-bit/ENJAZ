@@ -16,8 +16,9 @@ body {
   transform-origin: 50% 18%;
 }
 
+/* Entry motion must never shrink the physical hit area of controls. */
 @keyframes ez-stage-in {
-  from { opacity: .01; transform: translateY(7px) scale(.997); }
+  from { opacity: .01; transform: translateY(7px); }
   to { opacity: 1; transform: none; }
 }
 
@@ -98,8 +99,9 @@ body {
   transform-origin: 50% 0;
 }
 
+/* Search keeps full geometry from the first frame; only position/opacity animate. */
 @keyframes ez-search-in {
-  from { opacity: .01; transform: translateY(-8px) scale(.99); }
+  from { opacity: .01; transform: translateY(-8px); }
   to { opacity: 1; transform: none; }
 }
 
