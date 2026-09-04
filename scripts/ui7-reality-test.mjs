@@ -45,9 +45,9 @@ async function verifyProfile(browser, profile) {
     if (profile.mobile) await touchTargets(page, `${profile.name}:${domain}`);
 
     if (domain === 'documents') {
-      const financeCategory = page.getByRole('button',{name:/مالية/}).last();
+      const financeCategory = page.locator('.ez-domain-doc-layout > aside').getByRole('button',{name:/مالية/});
       await financeCategory.click();
-      assert(await financeCategory.getAttribute('class') === 'is-active', `${profile.name}: documents category interaction failed`);
+      assert((await financeCategory.getAttribute('class'))?.includes('is-active'), `${profile.name}: documents category interaction failed`);
     }
     if (domain === 'command') {
       const bg = await page.locator('.ez-domain-command').evaluate((el) => getComputedStyle(el).backgroundImage);
