@@ -24,6 +24,11 @@ async function insideViewport(locator, viewport, label) {
   assert(box, `${label}: missing geometry`);
   assert(box.x >= -2 && box.y >= -2 && box.x + box.width <= viewport.width + 2 && box.y + box.height <= viewport.height + 2, `${label}: outside viewport ${JSON.stringify(box)}`);
 }
+async function ariaControl(scope, tag, label, testLabel) {
+  const control = scope.locator(`${tag}[aria-label="${label}"]`);
+  assert(await control.count() === 1, `${testLabel}: expected one ${tag} with aria-label ${label}`);
+  return control;
+}
 
 async function verifyProduct(browser, profile) {
   const context = await browser.newContext({ viewport: profile.viewport, deviceScaleFactor: 1 });
@@ -37,7 +42,7 @@ async function verifyProduct(browser, profile) {
   await page.getByRole('button',{name:'بحث',exact:true}).click();
   const search = page.getByRole('dialog',{name:'البحث العام',exact:true});
   await search.waitFor();
-  await search.getByLabel('عبارة البحث').fill('شيء غير موجود إطلاقًا');
+  await (await ariaControl(search,'input','عبارة البحث',`${profile.name}:search-field`)).fill('شيء غير موجود إطلاقًا');
   await page.locator('[data-state-kind="empty"]').waitFor();
   assert(await page.getByText('لا توجد نتائج مطابقة',{exact:true}).isVisible(), `${profile.name}: empty search state missing`);
   await noOverflow(page,`${profile.name}:empty-search`);
@@ -52,10 +57,17 @@ async function verifyProduct(browser, profile) {
   await page.locator('[data-create-form="transaction"]').waitFor();
   await createSheet.getByRole('button',{name:'مراجعة البيانات',exact:true}).click();
   assert(await createSheet.locator('[role="alert"]').count() >= 2, `${profile.name}: validation errors were not surfaced`);
-  await createSheet.getByLabel('عنوان المعاملة').fill(longArabic);
-  await createSheet.getByLabel('الشركة أو الجهة').fill('شركة الرافدين للتجارة العامة والاستشارات والخدمات المحدودة المسؤولية');
-  await createSheet.getByLabel('الأولوية').selectOption('urgent');
-  await createSheet.getByLabel('ملاحظات').fill(longArabic.repeat(3));
+  const transactionForm = createSheet.locator('[data-create-form="transaction"]');
+  const transactionTitle = await ariaControl(transactionForm,'input','عنوان المعاملة',`${profile.name}:transaction-title`);
+  const transactionParty = await ariaControl(transactionForm,'input','الشركة أو الجهة',`${profile.name}:transaction-party`);
+  const transactionPriority = await ariaControl(transactionForm,'select','الأولوية',`${profile.name}:transaction-priority`);
+  const transactionNotes = await ariaControl(transactionForm,'textarea','ملاحظات',`${profile.name}:transaction-notes`);
+  assert(await transactionTitle.getAttribute('aria-invalid') === 'true', `${profile.name}: required title must expose aria-invalid after validation`);
+  assert(await transactionPriority.getAttribute('aria-invalid') === 'true', `${profile.name}: required priority must expose aria-invalid after validation`);
+  await transactionTitle.fill(longArabic);
+  await transactionParty.fill('شركة الرافدين للتجارة العامة والاستشارات والخدمات المحدودة المسؤولية');
+  await transactionPriority.selectOption('urgent');
+  await transactionNotes.fill(longArabic.repeat(3));
   await noOverflow(page,`${profile.name}:transaction-form`);
   if (profile.mobile) await touchTargets(page,`${profile.name}:transaction-form`);
   await page.screenshot({path:path.join(outDir,`${profile.name}-transaction-form.png`)});
@@ -66,6 +78,7 @@ async function verifyProduct(browser, profile) {
   await page.waitForTimeout(350);
   await insideViewport(dangerDialog, profile.viewport, `${profile.name}:danger-dialog`);
   assert(await dangerDialog.getByRole('button',{name:'مسح المسودة',exact:true}).isVisible(), `${profile.name}: destructive confirm missing`);
+  await page.screenshot({path:path.join(outDir,`${profile.name}-danger-dialog.png`)});
   await dangerDialog.getByRole('button',{name:'إلغاء',exact:true}).click();
   await dangerDialog.waitFor({state:'detached'});
 
@@ -83,10 +96,11 @@ async function verifyProduct(browser, profile) {
   await paymentSheet.locator('[data-create-type="payment"]').click();
   const paymentForm = paymentSheet.locator('[data-create-form="payment"]');
   await paymentForm.waitFor();
-  await paymentSheet.getByLabel('المبلغ').fill('999999999999999.99');
-  await paymentSheet.getByLabel('البيان').fill(longArabic);
-  await paymentSheet.getByLabel('نوع الحركة').selectOption('receipt');
+  await (await ariaControl(paymentForm,'input','المبلغ',`${profile.name}:payment-amount`)).fill('999999999999999.99');
+  await (await ariaControl(paymentForm,'input','البيان',`${profile.name}:payment-detail`)).fill(longArabic);
+  await (await ariaControl(paymentForm,'select','نوع الحركة',`${profile.name}:payment-kind`)).selectOption('receipt');
   await noOverflow(page,`${profile.name}:large-payment`);
+  await page.screenshot({path:path.join(outDir,`${profile.name}-large-payment.png`)});
 
   if (profile.mobile) {
     const constrained = { width: profile.viewport.width, height: Math.min(profile.viewport.height, 520) };
@@ -94,6 +108,7 @@ async function verifyProduct(browser, profile) {
     await page.waitForTimeout(120);
     await insideViewport(paymentSheet, constrained, `${profile.name}:constrained-create-sheet`);
     await noOverflow(page,`${profile.name}:constrained-create-sheet`);
+    await page.screenshot({path:path.join(outDir,`${profile.name}-constrained-sheet.png`)});
     await page.setViewportSize(profile.viewport);
   }
 
