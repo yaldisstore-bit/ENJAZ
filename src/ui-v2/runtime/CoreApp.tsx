@@ -66,7 +66,7 @@ export function CoreApp() {
       >
         {activeDomain ? (
           <nav className="ez-domain-rail" aria-label="التبديل بين مجالات إنجاز" data-domain-rail="true">
-            <button type="button" onClick={returnToCore}><span>الأساسية</span><small>Core</small></button>
+            <button type="button" onClick={returnToCore}><span>الأساسية</span><small>مساحة العمل</small></button>
             {enjazDomains.map((item) => (
               <button key={item.id} type="button" className={activeDomain === item.id ? 'is-active' : ''} data-domain-link={item.id} onClick={() => openDomain(item.id)}>
                 <span>{item.label}</span><small>{item.eyebrow}</small>
@@ -77,7 +77,7 @@ export function CoreApp() {
 
         {domain ? (
           <div className="ez-domain-runtime" data-domain-runtime={domain.id}>
-            <div className={`ez-domain-runtime__marker is-${domain.accent}`}><span>{domain.eyebrow}</span><strong>{domain.signature}</strong><button type="button" onClick={returnToCore}>العودة للأساسية</button></div>
+            <div className={`ez-domain-runtime__marker is-${domain.accent}`}><span>{domain.eyebrow}</span><strong>{domain.description}</strong><button type="button" onClick={returnToCore}>العودة للأساسية</button></div>
             <DomainScreen domain={domain.id} />
           </div>
         ) : coreScreen}
