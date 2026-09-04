@@ -37,6 +37,11 @@ assert(files.css.includes('@media(max-width:430px)'), 'narrow-phone domain rules
 assert(files.explorerCss.includes('.ez-domain-explorer'), 'domain explorer presentation missing');
 assert(files.explorerCss.includes('min-height: 44px'), 'brand mobile touch contract missing');
 assert(files.explorerCss.includes('@media (max-width: 430px)'), 'narrow-phone explorer rules missing');
+assert(files.explorerCss.includes('.ez-sheet:has(.ez-domain-explorer)'), 'explorer-scoped sheet contract missing');
+assert(files.explorerCss.includes('box-sizing: border-box'), 'explorer sheet must include padding inside viewport max-height');
+assert(files.explorerCss.includes('var(--ez-visual-viewport-height, 100dvh)'), 'explorer sheet is not tied to visual viewport height');
+assert(files.explorerCss.includes('overflow-y: auto'), 'explorer body must scroll internally instead of escaping viewport');
+assert(files.explorerCss.includes('grid-template-rows: auto auto minmax(0,1fr)'), 'explorer sticky chrome/body grid contract missing');
 assert(!files.app.includes('ui-rebirth') && !files.screens.includes('ui-rebirth') && !files.shell.includes('ui-rebirth'), 'legacy UI leaked into domain runtime');
 for (const forbidden of ['UI-7','Reality Gate','PROOF','AUDIT','واجهة تجريبية']) {
   assert(!files.screens.includes(forbidden), `developer terminology leaked into domain screens: ${forbidden}`);
@@ -45,5 +50,6 @@ for (const forbidden of ['UI-7','Reality Gate','PROOF','AUDIT','واجهة تج�
 console.log('UI-7 domain audit PASS');
 console.log('- 12 domain destinations registered');
 console.log('- core surfaces stay rail-free and enter domains through the brand explorer');
+console.log('- explorer sheet is viewport-bounded with internal body scrolling');
 console.log('- in-domain rail and distinct composition signatures are preserved');
 console.log('- UI V2 boundary and narrow-phone contracts remain enforced');
