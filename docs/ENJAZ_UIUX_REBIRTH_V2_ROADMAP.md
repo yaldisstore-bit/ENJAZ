@@ -124,7 +124,7 @@ Presentation rebuild only for:
 
 ---
 
-# UI-8 — States, Forms & Interaction Layer ⏭ CURRENT NEXT STAGE
+# UI-8 — States, Forms & Interaction Layer ✅
 
 - Loading, empty, error, offline, retry, conflict, permission, archive and success states.
 - Form layout and validation presentation.
@@ -132,11 +132,11 @@ Presentation rebuild only for:
 - Long text and large-number behavior.
 - Keyboard-open and constrained viewport states.
 
-**Exit:** exceptional states are as polished as the happy path.
+**Exit:** UI-8 now provides typed exceptional states, accessible validated Quick Create forms, destructive confirmation, real empty-search behavior and stress handling for long Arabic text, huge financial values and constrained phone viewports. On final implementation head `d8f402eea04ebea33e3e6287506e37db66d4bd66`, every cumulative UI gate from UI-1 through UI-8 passed together. UI-8 Actions run `33891880601` passed the boundary/domain/state audits, 46 functional tests, TypeScript, production build and Chromium at 1280×900, 390×844 and 320×700. Destruction found and fixed a real React deferred-event crash after the first edited field; manual screenshot review then caught and removed leaked stage/developer terminology after automation was green. Final evidence artifact is `9944188600`. Full evidence and defect history are recorded in `docs/UI8_STATES_FORMS_INTERACTION_LAYER.md`.
 
 ---
 
-# UI-9 — Motion, Touch & Mobile Polish
+# UI-9 — Motion, Touch & Mobile Polish ⏭ CURRENT NEXT STAGE
 
 - Functional motion and transition language.
 - Touch feedback.
