@@ -90,9 +90,9 @@ export function useTransactionList(): TransactionListController {
     request,
     errorMessage,
     retry() { setAttempt((value) => value + 1); },
-    setView(view) { setRequest((current) => normalizeTransactionListRequest({ ...current, view, page: 0 })); },
-    setSearch(search) { setRequest((current) => normalizeTransactionListRequest({ ...current, search, page: 0 })); },
-    setSort(sort) { setRequest((current) => normalizeTransactionListRequest({ ...current, sort, page: 0 })); },
-    setPage(page) { setRequest((current) => normalizeTransactionListRequest({ ...current, page })); },
+    setView(view: TransactionListView) { setRequest((current) => normalizeTransactionListRequest({ ...current, view, page: 0 })); },
+    setSearch(search: string) { setRequest((current) => normalizeTransactionListRequest({ ...current, search, page: 0 })); },
+    setSort(sort: TransactionListSort) { setRequest((current) => normalizeTransactionListRequest({ ...current, sort, page: 0 })); },
+    setPage(page: number) { setRequest((current) => normalizeTransactionListRequest({ ...current, page })); },
   });
 }
