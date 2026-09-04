@@ -33,8 +33,8 @@ export function EzIconButton(props: Readonly<ButtonHTMLAttributes<HTMLButtonElem
 
 export function EzField(props: Readonly<Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix'> & {
   label: string;
-  hint?: string;
-  error?: string;
+  hint?: string | undefined;
+  error?: string | undefined;
   prefix?: ReactNode;
 }>) {
   const { label, hint, error, prefix, className = '', id, ...inputProps } = props;
