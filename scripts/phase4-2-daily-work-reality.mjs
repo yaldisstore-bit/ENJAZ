@@ -81,7 +81,7 @@ async function verifyProfile(browser, profile) {
 
   const dock = await visitToday(page);
   const today = page.locator('[data-core-screen="today"]');
-  assert(await today.getAttribute('data-daily-work-total') === '6', `${profile.name}: preview Universal Inbox did not load expected six-source fixture`);
+  assert(await today.getAttribute('data-daily-work-total') === '6', `${profile.name}: preview Universal Inbox did not load expected six-item fixture`);
   assert(await page.locator('[data-daily-work-summary="true"]').isVisible(), `${profile.name}: Daily Work summary missing`);
   assert(await page.locator('[data-daily-work-focus]').isVisible(), `${profile.name}: focus item missing`);
   assert(await page.locator('[data-daily-work-list="true"]').isVisible(), `${profile.name}: consolidated list missing`);
@@ -92,7 +92,7 @@ async function verifyProfile(browser, profile) {
   if (profile.mobile) await assertFocusClearOfDock(page, profile.name);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-daily-default.png`), fullPage: true });
 
-  await page.getByRole('button', { name: 'متأخر', exact: true }).click();
+  await page.getByRole('button', { name: 'المتأخرة', exact: true }).click();
   assert(await page.locator('[data-daily-work-item]').count() === 1, `${profile.name}: overdue filter is not exact`);
   assert(await page.locator('[data-daily-work-item="followup:preview-overdue"]').isVisible(), `${profile.name}: overdue followup missing after filter`);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-daily-overdue.png`), fullPage: true });
@@ -103,7 +103,7 @@ async function verifyProfile(browser, profile) {
   assert(await app.getAttribute('data-daily-work-mode') === 'preview', `${profile.name}: preview action escaped into live mode`);
   assert(await page.locator('[data-daily-work-item]').count() === 0, `${profile.name}: snoozed preview item remained in overdue filter`);
 
-  await page.getByRole('button', { name: 'يحتاج إجراء', exact: true }).click();
+  await page.getByRole('button', { name: 'بحاجة إجراء', exact: true }).click();
   assert(await page.locator('[data-daily-work-item]').count() === 2, `${profile.name}: action-needed filter mismatch`);
   assert(await page.locator('[data-daily-work-item="blocker:preview-critical"]').isVisible(), `${profile.name}: blocker missing from action-needed bucket`);
   assert(await page.locator('[data-daily-work-item="workflow:preview-approval"]').isVisible(), `${profile.name}: workflow action missing from action-needed bucket`);
