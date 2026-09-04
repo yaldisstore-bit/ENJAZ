@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { EnjazDomainId } from '../architecture/domain-composition.ts';
-import { EzBadge, EzButton, EzChip, EzMetric, EzProgress, EzRow, EzSurface } from '../components/primitives.tsx';
+import { EzBadge, EzButton, EzChip, EzMetric, EzRow, EzSurface } from '../components/primitives.tsx';
 import { FinanceCoreScreen, OperationsCoreScreen } from './CoreScreens.tsx';
 
 function DomainIntro(props: Readonly<{ eyebrow: string; title: string; body: string; action?: string }>) {
@@ -34,7 +34,7 @@ function PeopleScreen() {
   return <section className="ez-domain-screen ez-domain-people" data-domain-screen="people">
     <DomainIntro eyebrow="شبكة العلاقات" title="الأشخاص والمحامون" body="هوية الشخص، حمله الحالي، وصلاته بالعمل." action="إضافة شخص" />
     <div className="ez-domain-people-grid" data-pattern="people-directory">
-      {[['أحمد هادي','محامٍ','5 معاملات','82'],['سارة علي','مسؤولة متابعة','4 معاملات','91'],['علي كريم','محاسب','6 معاملات','74']].map(([name,role,load,score]) => <article key={name}><span className="ez-domain-avatar">{name[0]}</span><div><h3>{name}</h3><small>{role}</small><p>{load}</p></div><strong>{score}%</strong></article>)}
+      {[['أحمد هادي','محامٍ','5 معاملات','82'],['سارة علي','مسؤولة متابعة','4 معاملات','91'],['علي كريم','محاسب','6 معاملات','74']].map(([name,role,load,score]) => <article key={name}><span className="ez-domain-avatar">{(name ?? '').charAt(0)}</span><div><h3>{name}</h3><small>{role}</small><p>{load}</p></div><strong>{score}%</strong></article>)}
     </div>
     <section className="ez-domain-activity" data-pattern="activity-stream"><header><strong>نشاط العلاقات</strong><small>آخر 24 ساعة</small></header><EzRow title="أحمد هادي" detail="أغلق مراجعة عقد تأسيس" meta="منذ 18د" /><EzRow title="سارة علي" detail="أضافت متابعة على شركة الفجر" meta="منذ 42د" /></section>
   </section>;
