@@ -23,3 +23,13 @@
     width: auto;
   }
 }
+
+@media (max-width: 340px) {
+  .ez-app-shell__brand-copy {
+    display: grid;
+  }
+
+  .ez-app-shell__brand-copy strong {
+    font-size: .9rem;
+  }
+}
