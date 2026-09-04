@@ -6,8 +6,8 @@ import './rebirth-home.css';
 
 export interface RebirthHomeDashboardProps {
   readonly state: HomeDashboardLoadState;
-  readonly onNavigate(route: AppRoute): void;
-  readonly onRetry?: () => void;
+  readonly onNavigate: (route: AppRoute) => void;
+  readonly onRetry: (() => void) | undefined;
 }
 
 const money = new Intl.NumberFormat('ar-IQ', {
@@ -81,7 +81,7 @@ function LoadingHome() {
   );
 }
 
-function ErrorHome(props: Readonly<{ message: string; onRetry?: () => void }>) {
+function ErrorHome(props: Readonly<{ message: string; onRetry: (() => void) | undefined }>) {
   return (
     <section className="rebirth-home rebirth-home--error" aria-labelledby="rebirth-home-error-title">
       <div className="rebirth-home__error-mark" aria-hidden="true">!</div>
@@ -101,7 +101,7 @@ function ErrorHome(props: Readonly<{ message: string; onRetry?: () => void }>) {
 
 function ReadyHome(props: Readonly<{
   snapshot: HomeDashboardSnapshot;
-  onNavigate(route: AppRoute): void;
+  onNavigate: (route: AppRoute) => void;
 }>) {
   const { snapshot, onNavigate } = props;
   const priorities = snapshot.priorities.slice(0, 4);
