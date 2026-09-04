@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { RebirthRoot } from './ui-rebirth/runtime/RebirthRoot.tsx';
-import './ui-rebirth/styles/foundation.css';
+import { UiV2Root } from './ui-v2/runtime/UiV2Root.tsx';
+import './ui-v2/styles/foundation.css';
 
 const rootElement = document.getElementById('root');
 
@@ -11,6 +11,6 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <RebirthRoot />
+    <UiV2Root />
   </StrictMode>,
 );

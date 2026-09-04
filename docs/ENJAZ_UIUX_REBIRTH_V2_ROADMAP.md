@@ -36,18 +36,18 @@
 
 ---
 
-# UI-1 — Total Legacy UI Purge
+# UI-1 — Total Legacy UI Purge ✅
 
 - Establish clean `ui-v2` visual boundary.
 - Quarantine previous UI generations and current `ui-rebirth` visuals as non-authoritative.
 - Prevent visual imports from legacy/current presentation layers.
 - Keep domain/data/auth/routing contracts available through explicit adapters only.
 
-**Exit:** the new visual runtime can compile without depending on the previous visual layer.
+**Exit:** verified on GitHub Actions run `33872283891`: UI V2 boundary audit, functional regression tests, TypeScript and production build all passed. `src/main.tsx` now mounts `UiV2Root` and UI V2 foundation styles with no `ui-rebirth` entry dependency. No domain/data/database implementation was rewritten by the purge.
 
 ---
 
-# UI-2 — ENJAZ Visual DNA 2.0
+# UI-2 — ENJAZ Visual DNA 2.0 ⏭ CURRENT NEXT STAGE
 
 - Rebuild color system, surfaces, typography, geometry, depth, iconography and density.
 - Formalize gold/yellow + charcoal/black global identity.
