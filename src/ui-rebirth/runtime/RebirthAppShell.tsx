@@ -85,10 +85,10 @@ export function RebirthAppShell() {
 
       const focusables = [...sheet.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)]
         .filter((element) => !element.hasAttribute('disabled') && element.getAttribute('aria-hidden') !== 'true');
-      if (!focusables.length) return;
+      const first = focusables.at(0);
+      const last = focusables.at(-1);
+      if (!first || !last) return;
 
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
       const active = document.activeElement;
       if (event.shiftKey && (active === first || !sheet.contains(active))) {
         event.preventDefault();
