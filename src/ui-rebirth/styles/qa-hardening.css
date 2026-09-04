@@ -1,0 +1,34 @@
+[data-enjaz-ui="rebirth"] .rebirth-shell__icon-button,
+[data-enjaz-ui="rebirth"] .rebirth-shell__avatar {
+  width: max(44px, var(--ui-touch-min));
+  height: max(44px, var(--ui-touch-min));
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-shell__nav-item,
+[data-enjaz-ui="rebirth"] .rebirth-shell__primary-action,
+[data-enjaz-ui="rebirth"] .rebirth-shell__quick-action {
+  min-width: var(--ui-touch-min);
+  min-height: var(--ui-touch-min);
+}
+
+[data-enjaz-ui="rebirth"] :where(button, [href], [tabindex]):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--ui-gold) 74%, #ffffff 26%);
+  outline-offset: 3px;
+}
+
+[data-enjaz-ui="rebirth"] [inert] {
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (forced-colors: active) {
+  [data-enjaz-ui="rebirth"] :where(button, [href], [tabindex]):focus-visible {
+    outline: 3px solid CanvasText;
+  }
+
+  [data-enjaz-ui="rebirth"] .rebirth-shell__primary-action,
+  [data-enjaz-ui="rebirth"] .rebirth-shell__dock-surface,
+  [data-enjaz-ui="rebirth"] .rebirth-shell__quick-sheet {
+    border: 1px solid CanvasText;
+  }
+}
