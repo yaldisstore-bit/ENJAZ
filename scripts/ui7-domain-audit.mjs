@@ -23,7 +23,7 @@ for (const signature of ['pipeline','entity-profile','people-directory','stage-l
   assert(files.screens.includes(`data-pattern=\"${signature}\"`), `composition signature missing ${signature}`);
 }
 
-assert(files.app.includes('data-stage="ui-7"'), 'CoreApp was not promoted to UI-7');
+assert(/data-stage="ui-(?:7|8|9|10)"/.test(files.app), 'CoreApp stage regressed below UI-7');
 assert(files.app.includes('data-domain-explorer="true"'), 'domain explorer contract missing');
 assert(files.app.includes('data-domain-explorer-link={id}'), 'typed explorer destinations missing');
 assert(files.app.includes('activeDomain ? ('), 'domain-only rail guard missing');

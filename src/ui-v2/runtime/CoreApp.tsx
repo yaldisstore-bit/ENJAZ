@@ -50,7 +50,7 @@ export function CoreApp() {
   };
 
   return (
-    <div data-core-app="true" data-stage="ui-7" data-active-domain={activeDomain ?? 'core'}>
+    <div data-core-app="true" data-stage="ui-8" data-active-domain={activeDomain ?? 'core'}>
       <AppShell
         title={domain ? domain.label : commandMode && activeTab === 'operations' ? 'القيادة' : current.title}
         subtitle={domain ? domain.eyebrow : commandMode && activeTab === 'operations' ? 'المركز التنفيذي' : current.subtitle}

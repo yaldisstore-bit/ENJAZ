@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { BellIcon, BriefcaseIcon, MoreIcon, PlusIcon, SearchIcon, UserIcon, WalletIcon } from './icons.tsx';
-import { EzBadge, EzButton, EzChip, EzField, EzNotice, EzSurface } from './primitives.tsx';
+import { EzBadge, EzButton, EzChip, EzField, EzNotice } from './primitives.tsx';
 import { EzSheet } from './overlays.tsx';
+import { QuickCreateFlow, type CreateKind } from './QuickCreateFlow.tsx';
+import { EzStatePanel } from './state-patterns.tsx';
 
 type ShellTab = 'home' | 'today' | 'operations' | 'finance';
 type ShellOverlay = 'search' | 'notifications' | 'create' | 'account' | null;
-type CreateKind = 'transaction' | 'followup' | 'party' | 'payment' | 'more';
 
 type NavItem = Readonly<{
   id: ShellTab;
@@ -117,13 +118,13 @@ export function AppShell(props: Readonly<{
   const subtitle = props.subtitle ?? 'مساحة العمل';
   const normalizedQuery = searchValue.trim().toLocaleLowerCase('ar');
   const visibleResults = useMemo(() => normalizedQuery
-    ? searchResults.filter((result) => `${result.kind} ${result.title} ${result.detail}`.toLocaleLowerCase('ar').includes(normalizedQuery) || normalizedQuery.length >= 2)
+    ? searchResults.filter((result) => `${result.kind} ${result.title} ${result.detail}`.toLocaleLowerCase('ar').includes(normalizedQuery))
     : searchResults.slice(0, 2), [normalizedQuery]);
 
   const brandContent = <><span className="ez-app-shell__brand-mark" aria-hidden="true">إ</span><span className="ez-app-shell__brand-copy"><strong>{title}</strong><small>{subtitle}</small></span></>;
 
   return (
-    <div className="ez-app-shell" data-enjaz-ui="v2" data-stage="ui-4" dir="rtl">
+    <div className="ez-app-shell" data-enjaz-ui="v2" data-stage="ui-8" dir="rtl">
       <header className="ez-app-shell__topbar" data-shell-part="topbar">
         {props.onBrandAction ? (
           <button type="button" className="ez-app-shell__brand ez-app-shell__brand--interactive" aria-label="مجالات إنجاز" onClick={props.onBrandAction}>{brandContent}</button>
@@ -171,11 +172,13 @@ export function AppShell(props: Readonly<{
             <EzField label="عبارة البحث" placeholder="شركة، معاملة، محامٍ..." prefix={<SearchIcon />} value={searchValue} onChange={(event) => setSearchValue(event.currentTarget.value)} autoFocus />
             <div className="ez-core-search-results" aria-live="polite">
               <div className="ez-core-search-results__head"><strong>{normalizedQuery ? 'النتائج' : 'وصول سريع'}</strong><small>{visibleResults.length} عناصر</small></div>
-              {visibleResults.map((result) => (
+              {visibleResults.length > 0 ? visibleResults.map((result) => (
                 <button type="button" className="ez-core-search-result" key={`${result.kind}-${result.title}`} onClick={closeOverlay}>
                   <EzChip tone={result.tone}>{result.kind}</EzChip><span><strong>{result.title}</strong><small>{result.detail}</small></span><b aria-hidden="true">‹</b>
                 </button>
-              ))}
+              )) : (
+                <EzStatePanel compact kind="empty" title="لا توجد نتائج مطابقة" body="جرّب اسمًا أو رقم معاملة أو جزءًا من اسم الشركة." actionLabel="مسح البحث" onAction={() => setSearchValue('')} />
+              )}
             </div>
           </div>
         </div>
@@ -201,8 +204,7 @@ export function AppShell(props: Readonly<{
           <button type="button" className={createKind === 'payment' ? 'is-selected' : ''} onClick={() => setCreateKind('payment')} data-create-type="payment"><span><WalletIcon /></span><strong>دفعة مالية</strong><small>تسجيل حركة مالية</small></button>
           <button type="button" className={createKind === 'more' ? 'is-selected' : ''} onClick={() => setCreateKind('more')} data-create-type="more"><span><MoreIcon /></span><strong>المزيد</strong><small>كل الإجراءات المتاحة</small></button>
         </div>
-        <EzSurface tone="warm" emphasis="quiet" className="ez-core-create-selection"><span>الإجراء المحدد</span><strong>{createKind === 'transaction' ? 'معاملة جديدة' : createKind === 'followup' ? 'متابعة جديدة' : createKind === 'party' ? 'شركة أو شخص' : createKind === 'payment' ? 'دفعة مالية' : 'المزيد من الإجراءات'}</strong></EzSurface>
-        <EzButton tone="dark" onClick={closeOverlay}>متابعة</EzButton>
+        <QuickCreateFlow kind={createKind} onClose={closeOverlay} />
       </EzSheet>
 
       <EzSheet open={overlay === 'account'} title="الحساب ومساحة العمل" eyebrow="إنجاز" onClose={closeOverlay}>

@@ -8,16 +8,19 @@ export function EzDialog(props: Readonly<{
   onClose(): void;
   primaryLabel?: string;
   onPrimary?(): void;
+  tone?: 'warning' | 'danger';
+  eyebrow?: string;
 }>) {
   if (!props.open) return null;
+  const tone = props.tone ?? 'warning';
   return (
     <div className="ez-overlay" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) props.onClose(); }}>
-      <section className="ez-dialog" role="dialog" aria-modal="true" aria-labelledby="ez-dialog-title">
-        <div className="ez-dialog__mark" aria-hidden="true">!</div>
-        <div className="ez-dialog__copy"><span>تأكيد الإجراء</span><h2 id="ez-dialog-title">{props.title}</h2><p>{props.body}</p></div>
+      <section className={`ez-dialog ez-dialog--${tone}`} role="dialog" aria-modal="true" aria-labelledby="ez-dialog-title" data-dialog-tone={tone}>
+        <div className="ez-dialog__mark" aria-hidden="true">{tone === 'danger' ? '×' : '!'}</div>
+        <div className="ez-dialog__copy"><span>{props.eyebrow ?? (tone === 'danger' ? 'إجراء لا يمكن التراجع عنه' : 'تأكيد الإجراء')}</span><h2 id="ez-dialog-title">{props.title}</h2><p>{props.body}</p></div>
         <div className="ez-dialog__actions">
           <EzButton tone="ghost" onClick={props.onClose}>إلغاء</EzButton>
-          {props.primaryLabel && props.onPrimary ? <EzButton tone="dark" onClick={props.onPrimary}>{props.primaryLabel}</EzButton> : null}
+          {props.primaryLabel && props.onPrimary ? <EzButton tone={tone === 'danger' ? 'danger' : 'dark'} onClick={props.onPrimary}>{props.primaryLabel}</EzButton> : null}
         </div>
       </section>
     </div>
