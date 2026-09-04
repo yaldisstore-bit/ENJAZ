@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Tests, Audits, Types and Production Build
+    name: Core Integrity + UI Rebirth + Production Build
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -36,13 +36,15 @@ jobs:
         run: node -e "const p=require('./package.json'); if(p.engines.node !== '>=22.22.0') process.exit(1)"
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Full Phase 4.1 verification
-        run: npm run verify:phase4.1
-      - name: Visual Identity 3 structural gate
-        run: npm run audit:identity3-shell && npm run audit:identity3-shell:selftest
-      - name: Visual Identity 3 reference-quality gate
-        run: npm run audit:identity3-reference && npm run audit:identity3-reference:selftest
-      - name: Roadmap integrity audit
+      - name: Reject previous visual runtime
+        run: npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge
+      - name: Functional regression baseline
+        run: npm run test:functional
+      - name: Secrets audit
+        run: npm run audit:secrets
+      - name: Database integrity
+        run: npm run db:audit && npm run db:audit:selftest
+      - name: Roadmap integrity
         run: npm run audit:roadmap
       - name: Real TypeScript check
         run: npm run typecheck
