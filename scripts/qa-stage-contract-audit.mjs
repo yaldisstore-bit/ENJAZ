@@ -39,6 +39,8 @@ const requiredQualitySteps = [
   'audit:ui-rebirth:shell:selftest',
   'audit:ui-rebirth:extreme',
   'audit:ui-rebirth:extreme:selftest',
+  'audit:ui-rebirth:home',
+  'audit:ui-rebirth:home:selftest',
   'test:functional',
   'audit:secrets',
   'db:audit',
@@ -50,6 +52,7 @@ const requiredQualitySteps = [
   'test -f dist/index.html',
 ];
 for (const token of requiredQualitySteps) requireContract(quality.includes(token), `quality gate missing mandatory step: ${token}`);
+requireContract(quality.includes('Home Dashboard reference + destructive gate'), 'Stage 2 Home gate must remain an explicit Quality Gate step');
 
 requireContract(/pull_request:\s*[\s\S]*branches:\s*\[main\]/.test(browser), 'browser gate must run on PRs to main');
 requireContract(/push:\s*[\s\S]*branches:\s*\[main\]/.test(browser), 'browser gate must run on push to main');
@@ -60,6 +63,8 @@ requireContract(browser.includes('npx playwright install --with-deps chromium'),
 requireContract(browser.includes('tests-external/live-shell.spec.cjs'), 'real browser acceptance suite is mandatory');
 requireContract(browser.includes('Strict dist budget'), 'browser gate must retain production asset budget');
 requireContract(browser.includes('Extreme source contract'), 'browser gate must retain extreme source/mutation contract');
+requireContract(browser.includes('ui-rebirth-home-audit.mjs') && browser.includes('ui-rebirth-home-selftest.mjs'), 'browser gate must run Home source + destructive gates before Chromium');
+requireContract(browser.includes("VITE_ENJAZ_PREVIEW_MODE: 'true'"), 'real browser build must use deterministic preview data rather than live external data');
 
 for (const width of ['width: 360', 'width: 390', 'width: 412']) requireContract(browserSpec.includes(width), `browser suite lost mandatory mobile viewport ${width}`);
 requireContract(browserSpec.includes(".withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])"), 'WCAG A/AA axe tags were weakened');
@@ -74,6 +79,14 @@ requireContract(browserSpec.includes('no console errors') && browserSpec.include
 requireContract(browserSpec.includes('no failed network resources'), 'failed-network-resource assertion missing');
 requireContract(browserSpec.includes('no resource over 500KB'), 'single-resource performance ceiling missing');
 requireContract(browserSpec.includes('network transfer budget'), 'network transfer performance budget missing');
+
+// Stage 2 Home must remain a real visual/browser contract, not merely source assertions.
+requireContract(browserSpec.includes('.rebirth-home__hero'), 'browser suite lost Home hero verification');
+requireContract(browserSpec.includes('.rebirth-home__priority-card[data-rank="1"]'), 'browser suite lost dominant Home priority geometry check');
+requireContract(browserSpec.includes('rank 1 priority dominates rank 2 width'), 'browser suite lost asymmetric Home hierarchy assertion');
+requireContract(browserSpec.includes('final Home action clears fixed dock'), 'browser suite lost Home-vs-dock obstruction assertion');
+requireContract(browserSpec.includes('اعرف ما يحتاج قرارك، قبل أن يبدأ الزحام.'), 'browser suite lost canonical Home hero heading');
+requireContract(browserSpec.includes(`${'${viewport.name}'}-home`), 'browser suite must run WCAG against Home for every mobile viewport');
 
 // New product phases must not reuse only old tests: changing product code requires test/guard changes in the same phase.
 requireContract(stageDeltaAudit.includes('product code changed without expanding tests/guards'), 'stage-delta product-code enforcement missing');
@@ -96,13 +109,15 @@ requireContract(live.includes('Enforce HTTPS and HTML contract'), 'live HTTPS/HT
 
 requireContract(pkg.scripts?.['audit:qa:stage-contract'] === 'node scripts/qa-stage-contract-audit.mjs', 'audit:qa:stage-contract script missing');
 requireContract(pkg.scripts?.['audit:qa:stage-delta'] === 'node scripts/qa-stage-delta-audit.mjs', 'audit:qa:stage-delta script missing');
+requireContract(pkg.scripts?.['audit:ui-rebirth:home'] === 'node scripts/ui-rebirth-home-audit.mjs', 'Stage 2 Home audit script missing');
+requireContract(pkg.scripts?.['audit:ui-rebirth:home:selftest'] === 'node scripts/ui-rebirth-home-selftest.mjs', 'Stage 2 Home destructive script missing');
 requireContract(pkg.scripts?.['verify:stage'] === 'npm run verify:extreme', 'verify:stage must remain an alias of verify:extreme');
 const extreme = pkg.scripts?.['verify:extreme'] ?? '';
 for (const token of [
   'audit:qa:stage-contract', 'audit:qa:stage-delta', 'audit:ui-rebirth:boundary', 'audit:ui-rebirth:purge',
   'audit:ui-rebirth:shell', 'audit:ui-rebirth:shell:selftest', 'audit:ui-rebirth:extreme',
-  'audit:ui-rebirth:extreme:selftest', 'test:functional', 'audit:secrets', 'db:audit', 'db:audit:selftest',
-  'audit:roadmap', 'typecheck', 'build', 'audit:dist:budget',
+  'audit:ui-rebirth:extreme:selftest', 'audit:ui-rebirth:home', 'audit:ui-rebirth:home:selftest',
+  'test:functional', 'audit:secrets', 'db:audit', 'db:audit:selftest', 'audit:roadmap', 'typecheck', 'build', 'audit:dist:budget',
 ]) requireContract(extreme.includes(token), `verify:extreme was weakened: missing ${token}`);
 
 requireContract(constitution.includes('No ENJAZ stage, feature phase, visual phase, data phase, refactor, or hotfix may be declared complete'), 'stage constitution lost non-negotiable closure rule');
