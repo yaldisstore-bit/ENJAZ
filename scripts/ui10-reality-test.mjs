@@ -65,7 +65,11 @@ async function stressVisibleContent(page,rootSelector,label) {
       const style=getComputedStyle(el); const r=el.getBoundingClientRect();
       return !el.closest('button,nav,.ez-domain-intro,.ez-domain-runtime__marker') && r.width>0 && r.height>0 && style.display!=='none' && style.visibility!=='hidden' && (el.textContent||'').trim().length>1;
     });
-    const picks=[]; for (const item of candidates) if (!picks.includes(item)) picks.push(item); if (picks.length>=3) break;
+    const picks=[];
+    for (const item of candidates) {
+      if (!picks.includes(item)) picks.push(item);
+      if (picks.length>=3) break;
+    }
     if(picks[0]) { picks[0].dataset.ui10Stress='arabic'; picks[0].textContent=`${picks[0].textContent} — ${longArabic}`; }
     if(picks[1]) { picks[1].dataset.ui10Stress='mixed'; picks[1].textContent=`${mixedToken} — ${picks[1].textContent}`; }
     if(picks[2]) { picks[2].dataset.ui10Stress='money'; picks[2].textContent=`${hugeMoney} — ${picks[2].textContent}`; }
