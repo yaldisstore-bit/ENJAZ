@@ -49,6 +49,7 @@ async function verifyProfile(browser, profile) {
   await explorerTrigger.click();
   const explorerDialog = page.getByRole('dialog',{name:'مجالات إنجاز',exact:true});
   await explorerDialog.waitFor();
+  await page.waitForTimeout(420);
   const explorer = page.locator('[data-domain-explorer="true"]');
   assert(await explorer.isVisible(), `${profile.name}: domain explorer did not open`);
   assert(await page.locator('[data-domain-explorer-link]').count() === domains.length, `${profile.name}: explorer does not expose all domains`);
