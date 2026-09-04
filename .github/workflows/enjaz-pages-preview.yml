@@ -1,6 +1,6 @@
 name: ENJAZ Pages Preview
 
-# Redeploy trigger: Phase 4.2 closed and merged to uiux-rebirth-v2 at 3c52da6da895b361a94e73c3e1dd9bd95d886da1.
+# Canonical deployment: main after UI/UX Rebirth V2 promotion on 2026-09-04.
 on:
   push:
     branches:
@@ -30,10 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout UI/UX rebirth preview source
+      - name: Checkout canonical main source
         uses: actions/checkout@v7
         with:
-          ref: uiux-rebirth-v2
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
@@ -63,6 +63,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy UI/UX rebirth preview to GitHub Pages
+      - name: Deploy canonical main to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
