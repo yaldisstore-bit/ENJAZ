@@ -50,7 +50,11 @@ async function verifyProfile(browser, profile) {
   page.on('pageerror', (error) => pageErrors.push(error.message));
 
   await page.goto(baseUrl, { waitUntil: 'networkidle', timeout: 30_000 });
-  await page.locator('[data-stage="ui-4"]').waitFor();
+  const stageRoot = page.locator('[data-stage^="ui-"]').first();
+  await stageRoot.waitFor();
+  const stageValue = await stageRoot.getAttribute('data-stage');
+  const stageNumber = Number(stageValue?.replace('ui-', ''));
+  assert(Number.isFinite(stageNumber) && stageNumber >= 4, `${profile.name}: runtime regressed below UI-4 (${stageValue})`);
   await page.waitForTimeout(250);
 
   assert(await page.locator('.vite-error-overlay').count() === 0, `${profile.name}: Vite error overlay visible`);
