@@ -24,6 +24,16 @@ async function box(locator) {
   return result;
 }
 
+async function assertCriticalActionAboveDock(page, profile, mode, actionLabel) {
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await switchMode(page, mode, profile);
+  await page.waitForTimeout(160);
+  const dock = await box(page.locator('[data-shell-part="bottom-dock"]'));
+  const action = await box(page.getByRole('button', { name: actionLabel, exact: true }));
+  const actionBottom = action.y + action.height;
+  assert(actionBottom <= dock.y - 6, `${profile.name}:${mode.id}: critical action ${actionLabel} is occluded by dock ${JSON.stringify({ actionBottom, dockTop: dock.y })}`);
+}
+
 async function assertTouchTargets(page, label) {
   const undersized = await page.evaluate(() => Array.from(document.querySelectorAll('button')).map((button) => {
     const r = button.getBoundingClientRect();
@@ -82,6 +92,9 @@ async function checkCompositionSpecifics(page, profile) {
     const detail = await box(page.locator('.ez-ia-doc-detail'));
     assert(aside.width < list.width && detail.width > aside.width, `${profile.name}: document browser lost category/list/detail hierarchy`);
     assert(aside.x !== list.x && list.x !== detail.x, `${profile.name}: document panes overlap`);
+  } else {
+    await assertCriticalActionAboveDock(page, profile, modes[0], 'فتح المعاملة');
+    await assertCriticalActionAboveDock(page, profile, modes[1], 'بدء المهمة');
   }
 
   await switchMode(page, modes[2], profile);
