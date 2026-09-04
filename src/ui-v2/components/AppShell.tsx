@@ -142,7 +142,7 @@ export function AppShell(props: Readonly<{
         <div className="ez-shell-search" role="dialog" aria-modal="true" aria-label="البحث العام" data-overlay="search">
           <div className="ez-shell-search__panel">
             <div className="ez-shell-search__head"><div><span>GLOBAL SEARCH</span><h2>ابحث داخل إنجاز</h2></div><button type="button" className="ez-shell-close" aria-label="إغلاق البحث" onClick={closeOverlay}>×</button></div>
-            <EzField label="عبارة البحث" placeholder="شركة، معاملة، محامٍ..." leading={<SearchIcon />} value={searchValue} onChange={(event) => setSearchValue(event.currentTarget.value)} autoFocus />
+            <EzField label="عبارة البحث" placeholder="شركة، معاملة، محامٍ..." prefix={<SearchIcon />} value={searchValue} onChange={(event) => setSearchValue(event.currentTarget.value)} autoFocus />
             <EzSurface tone="warm" emphasis="quiet" className="ez-shell-search__result"><strong>{searchResult}</strong><small>واجهة بحث تجريبية لا تغيّر أي بيانات.</small></EzSurface>
           </div>
         </div>
