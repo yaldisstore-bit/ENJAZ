@@ -12,6 +12,7 @@ import './ui-v2/styles/states-forms.css';
 import './ui-v2/styles/touch-contract.css';
 import './ui-v2/styles/motion-touch.css';
 import './ui-v2/styles/resilience.css';
+import './ui-v2/styles/daily-work.css';
 
 const rootElement = document.getElementById('root');
 
