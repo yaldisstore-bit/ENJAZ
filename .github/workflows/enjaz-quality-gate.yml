@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Extreme Integrity + UI Rebirth + Production Build
+    name: Canonical Main Integrity + UI V2 + Production Build
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -42,16 +42,23 @@ jobs:
         run: npm run audit:qa:stage-contract
       - name: Stage-specific test expansion gate
         run: npm run audit:qa:stage-delta
-      - name: Reject previous visual runtime
-        run: npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge
-      - name: App Shell structural + destructive gate
-        run: npm run audit:ui-rebirth:shell && npm run audit:ui-rebirth:shell:selftest
-      - name: Extreme professional UI contract
-        run: npm run audit:ui-rebirth:extreme
-      - name: Extreme deliberate-regression mutation gate
-        run: npm run audit:ui-rebirth:extreme:selftest
-      - name: Home Dashboard reference + destructive gate
-        run: npm run audit:ui-rebirth:home && npm run audit:ui-rebirth:home:selftest
+      - name: UI V2 clean-boundary gate
+        run: npm run audit:ui-v2:boundary
+      - name: UI V2 visual DNA gate
+        run: npm run audit:ui-v2:dna
+      - name: UI V2 cumulative structural gates
+        run: |
+          node scripts/ui4-shell-audit.mjs
+          node scripts/ui5-composition-audit.mjs
+          node scripts/ui6-core-audit.mjs
+          node scripts/ui7-domain-audit.mjs
+          node scripts/ui8-states-audit.mjs
+          node scripts/ui9-mobile-audit.mjs
+          node scripts/ui10-freeze-audit.mjs
+      - name: Phase 4.2 Daily Work architecture gate
+        run: node scripts/phase4-2-daily-work-audit.mjs
+      - name: Phase 4.3 Executive Briefing architecture gate
+        run: node scripts/phase4-3-executive-briefing-audit.mjs
       - name: Functional regression baseline
         run: npm run test:functional
       - name: Secrets audit
