@@ -29,10 +29,10 @@ export function auditHomeSources({ component, css, shell, connected, preview }) 
 
   // Visual DNA from the approved yellow / charcoal / cream Home reference.
   requireRule(css.includes('var(--ui-gold)') && css.includes('var(--ui-charcoal)'), 'Home must use canonical gold + charcoal identity');
-  requireRule(/\.rebirth-home__hero\s*\{[\s\S]*linear-gradient/.test(css), 'Home hero must be a designed gold composition');
-  requireRule(/\.rebirth-home__priority-card\[data-rank='1'\][\s\S]*grid-column:\s*1\s*\/\s*-1/.test(css), 'mobile priority composition must give rank 1 dominant geometry');
+  requireRule(/\.rebirth-home__hero\s*\{[^}]*linear-gradient/.test(css), 'Home hero must be a designed gold composition');
+  requireRule(/\.rebirth-home__priority-card\[data-rank='1'\]\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/.test(css), 'mobile priority composition must give rank 1 dominant geometry');
   requireRule(/@media \(min-width:\s*760px\)[\s\S]*grid-template-columns:\s*1\.35fr\s+\.85fr\s+\.85fr/.test(css), 'wide Home must keep asymmetric priority geometry');
-  requireRule(/\.rebirth-home__finance\s*\{[\s\S]*var\(--ui-charcoal\)/.test(css), 'finance block must be deep charcoal, not another white card');
+  requireRule(/\.rebirth-home__finance\s*\{[^}]*var\(--ui-charcoal\)/.test(css), 'finance block must be deep charcoal, not another white card');
   requireRule(css.includes("[data-rank='2']") && css.includes("[data-rank='3']") && css.includes("[data-rank='4']"), 'priority cards must have varied visual weights');
   requireRule(css.includes("[data-tone='danger']") && css.includes("[data-tone='warning']") && css.includes("[data-tone='success']"), 'operational signals must express semantic state');
   requireRule(css.includes('@media (max-width: 390px)'), 'compact Android reflow contract missing');
