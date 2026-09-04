@@ -4,7 +4,7 @@ import { domainById, enjazDomains, type EnjazDomainId } from '../architecture/do
 import { AppShell } from '../components/AppShell.tsx';
 import { EzSheet } from '../components/overlays.tsx';
 import { FinanceCoreScreen, HomeCoreScreen, OperationsCoreScreen } from '../screens/CoreScreens.tsx';
-import { ConnectedDailyWorkScreen, PreviewDailyWorkScreen } from '../screens/DailyWorkScreen.tsx';
+import { ConnectedDailyWorkScreen, FixtureDailyWorkScreen } from '../screens/DailyWorkScreen.tsx';
 import { DomainScreen } from '../screens/DomainScreens.tsx';
 
 type ShellTab = 'home' | 'today' | 'operations' | 'finance';
@@ -58,7 +58,7 @@ export function CoreApp(props: Readonly<{ dailyWorkMode?: DailyWorkRuntimeMode }
     : activeTab === 'today'
       ? dailyWorkMode === 'live'
         ? <ConnectedDailyWorkScreen onNewFollowup={newFollowup} onOpen={openDailyWorkItem} />
-        : <PreviewDailyWorkScreen onNewFollowup={newFollowup} onOpen={openDailyWorkItem} />
+        : <FixtureDailyWorkScreen onNewFollowup={newFollowup} onOpen={openDailyWorkItem} />
       : activeTab === 'operations'
         ? <OperationsCoreScreen commandMode={commandMode} onCommandMode={setCommandMode} />
         : <FinanceCoreScreen />;
