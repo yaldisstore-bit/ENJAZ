@@ -1,6 +1,8 @@
 name: ENJAZ Real Browser Acceptance
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -28,6 +30,8 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install locked app dependencies
         run: npm ci --no-audit --no-fund
+      - name: QA stage contract lock
+        run: npm run audit:qa:stage-contract
       - name: Extreme source contract
         run: node scripts/ui-rebirth-extreme-audit.mjs && node scripts/ui-rebirth-extreme-selftest.mjs
       - name: Production build
