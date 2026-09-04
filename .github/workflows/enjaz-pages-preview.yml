@@ -1,5 +1,6 @@
 name: ENJAZ Pages Preview
 
+# Redeploy trigger: ENJAZ UI/UX 2.0 frozen on 2026-09-04.
 on:
   push:
     branches:
