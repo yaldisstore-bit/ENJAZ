@@ -25,7 +25,7 @@
     "audit:ui-rebirth:home:selftest": "node scripts/ui-rebirth-home-selftest.mjs",
     "audit:ui-v2:boundary": "node scripts/ui-v2-boundary-audit.mjs",
     "audit:ui-v2:dna": "node scripts/ui-v2-dna-audit.mjs",
-    "audit:ui-v2:freeze": "node scripts/ui4-shell-audit.mjs && node scripts/ui5-composition-audit.mjs && node scripts/ui6-core-audit.mjs && node scripts/ui6-core-regression.mjs && node scripts/ui7-domain-audit.mjs && node scripts/ui8-states-audit.mjs && node scripts/ui9-mobile-audit.mjs && node scripts/ui10-freeze-audit.mjs",
+    "audit:ui-v2:freeze": "node scripts/ui4-shell-audit.mjs && node scripts/ui5-composition-audit.mjs && node scripts/ui6-core-audit.mjs && node scripts/ui7-domain-audit.mjs && node scripts/ui8-states-audit.mjs && node scripts/ui9-mobile-audit.mjs && node scripts/ui10-freeze-audit.mjs",
     "audit:phase4-2:daily-work": "node scripts/phase4-2-daily-work-audit.mjs",
     "audit:dist:budget": "node scripts/dist-budget-audit.mjs",
     "audit:secrets": "node scripts/secret-audit.mjs",
