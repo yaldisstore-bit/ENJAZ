@@ -1,0 +1,72 @@
+name: ENJAZ Phase 4.3 — Executive Briefing Reality Gate
+
+on:
+  pull_request:
+    branches: [uiux-rebirth-v2]
+    paths:
+      - 'src/features/executive-briefing/**'
+      - 'src/features/home/**'
+      - 'src/features/daily-work/**'
+      - 'src/data/**'
+      - 'src/ui-v2/**'
+      - 'src/main.tsx'
+      - 'tests/executiveBriefing.test.ts'
+      - 'scripts/phase4-3-**'
+      - 'package.json'
+      - '.github/workflows/phase4-3-executive-briefing.yml'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+      - 'docs/PHASE4_3_**'
+
+jobs:
+  phase4-3-executive-briefing-reality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install project dependencies
+        run: npm ci
+      - name: Frozen UI V2 boundary audit
+        run: npm run audit:ui-v2:boundary
+      - name: Phase 4.2 cumulative Daily Work audit
+        run: node scripts/phase4-2-daily-work-audit.mjs
+      - name: Phase 4.3 architecture audit
+        run: node scripts/phase4-3-executive-briefing-audit.mjs
+      - name: Functional regression tests
+        run: npm run test:functional
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build
+      - name: Install Chromium test runtime
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start safe preview Vite runtime
+        env:
+          VITE_ENJAZ_PREVIEW_MODE: 'true'
+        run: |
+          VITE_ENJAZ_PREVIEW_MODE=true npm run dev -- --host 127.0.0.1 --port 4193 > /tmp/enjaz-phase43-vite.log 2>&1 &
+          echo $! > /tmp/enjaz-phase43-vite.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4193 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase43-vite.log
+          exit 1
+      - name: Phase 4.3 real browser journey
+        env:
+          PHASE43_BASE_URL: http://127.0.0.1:4193
+          PHASE43_ARTIFACT_DIR: artifacts/phase4-3-executive-briefing
+        run: node scripts/phase4-3-executive-briefing-reality.mjs
+      - name: Upload Phase 4.3 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4-3-executive-briefing-evidence
+          path: artifacts/phase4-3-executive-briefing
+          if-no-files-found: warn
+          retention-days: 30
