@@ -49,8 +49,10 @@ export function CoreApp() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
+  const motionKey = domain ? `domain-${domain.id}` : `core-${activeTab}-${commandMode ? 'command' : 'standard'}`;
+
   return (
-    <div data-core-app="true" data-stage="ui-8" data-active-domain={activeDomain ?? 'core'}>
+    <div data-core-app="true" data-stage="ui-9" data-active-domain={activeDomain ?? 'core'}>
       <AppShell
         title={domain ? domain.label : commandMode && activeTab === 'operations' ? 'القيادة' : current.title}
         subtitle={domain ? domain.eyebrow : commandMode && activeTab === 'operations' ? 'المركز التنفيذي' : current.subtitle}
@@ -75,12 +77,14 @@ export function CoreApp() {
           </nav>
         ) : null}
 
-        {domain ? (
-          <div className="ez-domain-runtime" data-domain-runtime={domain.id}>
-            <div className={`ez-domain-runtime__marker is-${domain.accent}`}><span>{domain.eyebrow}</span><strong>{domain.description}</strong><button type="button" onClick={returnToCore}>العودة للأساسية</button></div>
-            <DomainScreen domain={domain.id} />
-          </div>
-        ) : coreScreen}
+        <div className="ez-motion-stage" data-motion-surface={motionKey} key={motionKey}>
+          {domain ? (
+            <div className="ez-domain-runtime" data-domain-runtime={domain.id}>
+              <div className={`ez-domain-runtime__marker is-${domain.accent}`}><span>{domain.eyebrow}</span><strong>{domain.description}</strong><button type="button" onClick={returnToCore}>العودة للأساسية</button></div>
+              <DomainScreen key={domain.id} domain={domain.id} />
+            </div>
+          ) : coreScreen}
+        </div>
       </AppShell>
 
       <EzSheet open={domainExplorerOpen} title="مجالات إنجاز" eyebrow="انتقل إلى مساحة العمل" onClose={() => setDomainExplorerOpen(false)}>
