@@ -33,7 +33,7 @@ jobs:
       - name: QA stage contract lock
         run: npm run audit:qa:stage-contract
       - name: Extreme source contract
-        run: node scripts/ui-rebirth-extreme-audit.mjs && node scripts/ui-rebirth-extreme-selftest.mjs
+        run: node scripts/ui-rebirth-extreme-audit.mjs && node scripts/ui-rebirth-extreme-selftest.mjs && node scripts/ui-rebirth-home-audit.mjs && node scripts/ui-rebirth-home-selftest.mjs
       - name: Production build
         env:
           VITE_ENJAZ_PREVIEW_MODE: 'true'
