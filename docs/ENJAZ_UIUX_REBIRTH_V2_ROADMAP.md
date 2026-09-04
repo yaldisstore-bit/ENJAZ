@@ -80,17 +80,17 @@
 
 ---
 
-# UI-5 — Information Architecture & Screen Composition ⏭ CURRENT NEXT STAGE
+# UI-5 — Information Architecture & Screen Composition ✅
 
 - Rework information hierarchy without changing domain facts.
 - Define when ENJAZ uses cards, dense rows, timelines, charts, progress, sheets and full pages.
 - Map approved reference screen families to ENJAZ domains.
 
-**Exit:** every information type has an intentional presentation pattern.
+**Exit:** UI-5 establishes a typed contract mapping 12 information kinds to intentional presentation patterns and 12 screen families to approved reference families. Ten live compositions were verified in the real AppShell. On implementation head `b2f3f358dd3c448a87c157ec10ec33ebed7e9177`, UI-1, UI-3, UI-4 and UI-5 gates all passed together, including 46 functional tests, TypeScript, production build and Chromium at 1280×900, 430×932, 390×844, 360×740 and 320×700. Manual screenshot review rejected the first green browser result after finding Home/Daily critical actions obscured by the fixed dock at 320px; the layout was corrected and dock-occlusion geometry became a permanent Reality Gate. Evidence and defect history are recorded in `docs/UI5_INFORMATION_ARCHITECTURE_SCREEN_COMPOSITION.md`. The documentation closure head must pass the same cumulative gates before merge.
 
 ---
 
-# UI-6 — Core Screens Rebirth
+# UI-6 — Core Screens Rebirth ⏭ CURRENT NEXT STAGE
 
 - Home.
 - Daily Work shell/surface contract.
