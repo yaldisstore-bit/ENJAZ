@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import type { DailyWorkItem, DailyWorkSnapshot, DailyWorkTone } from '../../features/daily-work/dailyWorkModel.ts';
 import { buildDailyWorkPreviewSnapshot } from '../../features/daily-work/dailyWorkPreview.ts';
 import { useDailyWork } from '../../features/daily-work/useDailyWork.ts';
-import { EzBadge, EzButton, EzChip, EzNotice, EzSegmented, EzStatPill } from '../components/primitives.tsx';
+import { EzButton, EzChip, EzNotice, EzSegmented, EzStatPill } from '../components/primitives.tsx';
 
 export type DailyWorkOpenAction = (item: DailyWorkItem) => void;
 
@@ -64,7 +64,7 @@ function DailyWorkEmpty(props: Readonly<{ onNewFollowup(): void }>) {
   );
 }
 
-function recomputePreview(items: readonly DailyWorkItem[], generatedAt: string): DailyWorkSnapshot {
+function recomputeFixture(items: readonly DailyWorkItem[], generatedAt: string): DailyWorkSnapshot {
   const summary = Object.freeze({
     total: items.length,
     overdue: items.filter((item) => item.bucket === 'overdue').length,
@@ -161,13 +161,13 @@ export function ConnectedDailyWorkScreen(props: Readonly<{ onNewFollowup(): void
   return <DailyWorkScreen {...controller} onRetry={controller.retry} onNewFollowup={props.onNewFollowup} onOpen={props.onOpen} onComplete={(item) => { void controller.complete(item); }} onSnooze={(item) => { void controller.snooze(item); }} />;
 }
 
-export function PreviewDailyWorkScreen(props: Readonly<{ onNewFollowup(): void; onOpen(item: DailyWorkItem): void }>) {
+export function FixtureDailyWorkScreen(props: Readonly<{ onNewFollowup(): void; onOpen(item: DailyWorkItem): void }>) {
   const [snapshot, setSnapshot] = useState(() => buildDailyWorkPreviewSnapshot());
   const [actionItemId, setActionItemId] = useState<string | null>(null);
   const remove = (item: DailyWorkItem) => {
     setActionItemId(item.id);
     window.setTimeout(() => {
-      setSnapshot((current) => recomputePreview(current.items.filter((entry) => entry.id !== item.id), new Date().toISOString()));
+      setSnapshot((current) => recomputeFixture(current.items.filter((entry) => entry.id !== item.id), new Date().toISOString()));
       setActionItemId(null);
     }, 120);
   };
