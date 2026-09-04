@@ -1,9 +1,12 @@
 name: ENJAZ Pages Preview
 
+# Canonical deployment: main after UI/UX Rebirth V2 promotion on 2026-09-04.
 on:
   push:
     branches:
-      - uiux-rebirth-v2
+      - main
+    paths:
+      - .github/workflows/enjaz-pages-preview.yml
   workflow_run:
     workflows: ["ENJAZ Quality Gate"]
     types: [completed]
@@ -27,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout verified source
+      - name: Checkout canonical main source
         uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
@@ -57,9 +60,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: uiux-preview
+      name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy canonical main to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
