@@ -17,7 +17,7 @@ export function validateExtremeUI({ shell, shellCss, hardeningCss, tokensCss, fo
   requireSource(shell.includes("querySelector<HTMLElement>('[data-autofocus]')") && shell.includes('data-autofocus className='), 'dialog initial focus target/selector contract missing');
   requireSource(shell.includes("event.key === 'Escape'"), 'Escape dismissal contract missing');
   requireSource(shell.includes("event.key !== 'Tab'"), 'Tab focus-trap contract missing');
-  requireSource(shell.includes('event.shiftKey'), 'reverse focus traversal contract missing');
+  requireSource((shell.match(/event\.shiftKey/g) ?? []).length >= 2 && shell.includes('!event.shiftKey'), 'bidirectional Tab/Shift+Tab focus traversal contract missing');
   requireSource(shell.includes('FOCUSABLE_SELECTOR'), 'focusable element enumeration missing');
   requireSource(shell.includes('primaryActionRef.current?.focus()'), 'focus restoration to trigger missing');
   requireSource((shell.match(/inert={quickActionsOpen \? true : undefined}/g) ?? []).length >= 3, 'background is not inert while dialog is open');
