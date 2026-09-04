@@ -1,0 +1,18 @@
+@import "./tokens.css";
+
+/* UI-3 mobile interaction contract: compact controls stay thumb-safe and overlays stay viewport-safe. */
+@media (max-width: 680px) {
+  .ez-segmented button {
+    min-height: var(--ez-touch-min);
+  }
+
+  .ui-v2-components__menu-anchor {
+    position: static;
+  }
+
+  .ui-v2-components__hero .ez-menu {
+    top: calc(100% + 8px);
+    inset-inline: 0;
+    width: auto;
+  }
+}
