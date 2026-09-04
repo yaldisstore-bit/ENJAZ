@@ -23,6 +23,7 @@ async function verifyViewport(browser, profile) {
 
   await page.goto(baseUrl, { waitUntil: 'networkidle', timeout: 30_000 });
   await page.getByRole('heading', { name: /مكوّنات تتحمل العمل الحقيقي/ }).waitFor();
+  await page.waitForTimeout(200);
 
   assert(await page.locator('.vite-error-overlay').count() === 0, `${profile.name}: Vite error overlay is visible`);
   assert(await page.locator('main[data-stage="ui-3"]').count() === 1, `${profile.name}: UI-3 root is missing`);
@@ -40,6 +41,7 @@ async function verifyViewport(browser, profile) {
 
   await page.getByRole('button', { name: 'المزيد' }).click();
   await page.getByRole('menu', { name: 'قائمة الإجراءات' }).waitFor();
+  await page.waitForTimeout(300);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-menu.png`) });
   await page.getByRole('menuitem', { name: /تثبيت العرض/ }).click();
   await page.getByText(/تم اختيار: pin/).waitFor();
@@ -51,6 +53,7 @@ async function verifyViewport(browser, profile) {
   await page.getByRole('button', { name: 'افتح Sheet' }).click();
   const sheet = page.getByRole('dialog', { name: 'إجراء سريع' });
   await sheet.waitFor();
+  await page.waitForTimeout(450);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-sheet.png`) });
   await page.getByLabel('العنوان').fill('متابعة اختبار حقيقية طويلة للتأكد من مرونة الحقل على الهاتف');
   await page.getByRole('button', { name: 'إنشاء المتابعة' }).click();
@@ -59,6 +62,7 @@ async function verifyViewport(browser, profile) {
   await page.getByRole('button', { name: 'افتح Dialog' }).click();
   const dialog = page.getByRole('dialog', { name: 'تأكيد إغلاق المعاملة؟' });
   await dialog.waitFor();
+  await page.waitForTimeout(450);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-dialog.png`) });
   await page.getByRole('button', { name: 'تأكيد الإغلاق' }).click();
   await page.getByText(/تم اختبار Dialog وإجراء التأكيد بنجاح/).waitFor();
@@ -74,7 +78,7 @@ async function verifyViewport(browser, profile) {
     return { label: button.getAttribute('aria-label') || button.textContent?.trim() || 'button', width: rect.width, height: rect.height, visible: rect.width > 0 && rect.height > 0 };
   }).filter((item) => item.visible));
 
-  const minTarget = profile.mobile ? 40 : 36;
+  const minTarget = profile.mobile ? 44 : 36;
   const undersized = touchTargets.filter((target) => target.height < minTarget || target.width < 30);
   assert(undersized.length === 0, `${profile.name}: undersized interactive targets ${JSON.stringify(undersized)}`);
 
