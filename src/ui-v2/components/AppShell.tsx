@@ -59,6 +59,7 @@ export function AppShell(props: Readonly<{
   children: ReactNode;
   activeTab?: ShellTab;
   onTabChange?(tab: ShellTab): void;
+  onBrandAction?(): void;
 }>) {
   useVisualViewportContract();
   const [internalTab, setInternalTab] = useState<ShellTab>('home');
@@ -119,13 +120,16 @@ export function AppShell(props: Readonly<{
     ? searchResults.filter((result) => `${result.kind} ${result.title} ${result.detail}`.toLocaleLowerCase('ar').includes(normalizedQuery) || normalizedQuery.length >= 2)
     : searchResults.slice(0, 2), [normalizedQuery]);
 
+  const brandContent = <><span className="ez-app-shell__brand-mark" aria-hidden="true">إ</span><span className="ez-app-shell__brand-copy"><strong>{title}</strong><small>{subtitle}</small></span></>;
+
   return (
     <div className="ez-app-shell" data-enjaz-ui="v2" data-stage="ui-4" dir="rtl">
       <header className="ez-app-shell__topbar" data-shell-part="topbar">
-        <div className="ez-app-shell__brand">
-          <span className="ez-app-shell__brand-mark" aria-hidden="true">إ</span>
-          <span className="ez-app-shell__brand-copy"><strong>{title}</strong><small>{subtitle}</small></span>
-        </div>
+        {props.onBrandAction ? (
+          <button type="button" className="ez-app-shell__brand ez-app-shell__brand--interactive" aria-label="مجالات إنجاز" onClick={props.onBrandAction}>{brandContent}</button>
+        ) : (
+          <div className="ez-app-shell__brand">{brandContent}</div>
+        )}
         <div className="ez-app-shell__top-actions">
           <button type="button" className="ez-shell-icon-button" aria-label="بحث" onClick={() => openOverlay('search')}><SearchIcon /></button>
           <button type="button" className="ez-shell-icon-button ez-shell-icon-button--badge" aria-label="الإشعارات" onClick={() => openOverlay('notifications')}><BellIcon /><span>3</span></button>
