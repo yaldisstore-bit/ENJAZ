@@ -4,6 +4,7 @@ import { UiV2Root } from './ui-v2/runtime/UiV2Root.tsx';
 import './ui-v2/styles/foundation.css';
 import './ui-v2/styles/components.css';
 import './ui-v2/styles/shell.css';
+import './ui-v2/styles/composition.css';
 import './ui-v2/styles/touch-contract.css';
 
 const rootElement = document.getElementById('root');

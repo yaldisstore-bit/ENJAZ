@@ -22,6 +22,24 @@
     inset-inline: 0;
     width: auto;
   }
+
+  /* Critical UI-5 actions must remain above the fixed dock in the initial phone viewport. */
+  .ez-ia-decision-zone__action .ez-button {
+    order: -1;
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .ez-ia-next-task > span { order: 1; }
+  .ez-ia-next-task > h2 { order: 2; }
+  .ez-ia-next-task > .ez-button {
+    order: 3;
+    width: 100%;
+    margin-top: 0;
+  }
+  .ez-ia-next-task > p { order: 4; }
+  .ez-ia-next-task > div { order: 5; }
 }
 
 @media (max-width: 340px) {
