@@ -97,7 +97,7 @@ export function DailyWorkScreen(props: Readonly<{
 
   const focus = snapshot.focus;
   return (
-    <section className="ez-core-screen ez-core-daily ez-daily-work" data-core-screen="today" data-daily-work-status="ready">
+    <section className="ez-core-screen ez-core-daily ez-daily-work" data-core-screen="today" data-daily-work-status="ready" data-daily-work-total={snapshot.summary.total}>
       <header className="ez-core-intro">
         <div><span>مسار اليوم</span><h1>اليوم</h1><p>صندوق عمل موحد للمتابعات والعوائق والمواعيد والتجديدات وإجراءات سير العمل.</p></div>
         <EzButton tone="dark" onClick={props.onNewFollowup}>متابعة جديدة</EzButton>
@@ -105,7 +105,7 @@ export function DailyWorkScreen(props: Readonly<{
 
       {props.actionError ? <EzNotice title="لم يتم تنفيذ الإجراء" body={props.actionError} tone="warning" /> : null}
 
-      <section className="ez-daily-summary" aria-label="ملخص العمل اليومي">
+      <section className="ez-daily-summary" aria-label="ملخص العمل اليومي" data-daily-work-summary="true">
         <EzStatPill value={String(snapshot.summary.total)} label="مفتوحة" tone="dark" />
         <EzStatPill value={String(snapshot.summary.overdue)} label="متأخرة" tone={snapshot.summary.overdue ? 'gold' : 'soft'} />
         <EzStatPill value={String(snapshot.summary.dueToday)} label="اليوم" />
