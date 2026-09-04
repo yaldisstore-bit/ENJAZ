@@ -47,7 +47,14 @@ export function QuickCreateFlow(props: Readonly<{ kind: CreateKind; onClose(): v
   const updateDraft = (field: DraftField) => (event: ChangeEvent<DraftControl>) => {
     const value = event.currentTarget.value;
     setDraft((current) => ({ ...current, [field]: value }));
-    if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
+    if (errors[field]) {
+      setErrors((current) => {
+        if (!current[field]) return current;
+        const next = { ...current };
+        delete next[field];
+        return next;
+      });
+    }
   };
 
   const validate = () => {
