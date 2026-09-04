@@ -136,7 +136,7 @@ Presentation rebuild only for:
 
 ---
 
-# UI-9 — Motion, Touch & Mobile Polish ⏭ CURRENT NEXT STAGE
+# UI-9 — Motion, Touch & Mobile Polish ✅
 
 - Functional motion and transition language.
 - Touch feedback.
@@ -144,11 +144,11 @@ Presentation rebuild only for:
 - Reduced-motion behavior.
 - Interaction latency and perceived responsiveness polish.
 
-**Exit:** the product feels native-quality and intentional on target phones.
+**Exit:** closed on implementation head `b681ddcbcd4c5e516401092dede46312300e31d8`. Every cumulative gate from UI-1 through UI-9 passed on that exact head. UI-9 Actions run `33895898514` passed the UI V2 boundary audit, UI-8 regression audit, UI-9 motion/mobile audit, 46 functional tests, TypeScript, production build and real Chromium motion/touch/mobile journeys. Evidence artifact `9945721644` passed desktop-1280, phone-390 and phone-320 profiles with rotation, reduced-motion, exit-presence, 44px touch-floor and Back behavior all green. The destruction cycles found and fixed an implicit form-submit defect in reusable buttons, a keyboard/rotation timing race in the test journey, and entry-animation scale that temporarily shrank touch targets below 44px. The final 320px subpixel measurement (`43.999992px`) was not waived; critical compact controls were raised to 46px. Manual screenshot review passed portrait, landscape, reduced-motion and desktop evidence. Full evidence and defect history are recorded in `docs/UI9_MOTION_TOUCH_MOBILE_POLISH.md`.
 
 ---
 
-# UI-10 — Full Visual Destruction & UI Freeze
+# UI-10 — Full Visual Destruction & UI Freeze ⏭ CURRENT NEXT STAGE
 
 One final product-wide gate covering:
 - Legacy DNA leakage.
