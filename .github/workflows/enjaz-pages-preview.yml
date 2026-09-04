@@ -1,6 +1,11 @@
 name: ENJAZ Pages Preview
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/enjaz-pages-preview.yml
   workflow_run:
     workflows: ["ENJAZ Quality Gate"]
     types: [completed]
@@ -18,15 +23,16 @@ concurrency:
 jobs:
   build:
     if: >-
+      github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout verified source
+      - name: Checkout UI/UX rebirth preview source
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: uiux-rebirth-v2
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
@@ -56,6 +62,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy UI/UX rebirth preview to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
