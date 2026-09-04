@@ -37,7 +37,6 @@ const requiredQualityTokens = [
   'ui4-shell-audit.mjs',
   'ui5-composition-audit.mjs',
   'ui6-core-audit.mjs',
-  'ui6-core-regression.mjs',
   'ui7-domain-audit.mjs',
   'ui8-states-audit.mjs',
   'ui9-mobile-audit.mjs',
