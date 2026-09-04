@@ -37,7 +37,10 @@ async function verifyProduct(browser, profile) {
   page.on('console', (m) => { if (m.type()==='error') consoleErrors.push(m.text()); });
   page.on('pageerror', (e) => pageErrors.push(e.message));
   await page.goto(baseUrl,{waitUntil:'networkidle',timeout:30000});
-  await page.locator('[data-core-app="true"][data-stage="ui-8"]').waitFor();
+  const coreApp = page.locator('[data-core-app="true"]');
+  await coreApp.waitFor();
+  const stage = await coreApp.getAttribute('data-stage');
+  assert(stage && Number(stage.replace('ui-','')) >= 8, `${profile.name}: runtime regressed below UI-8 (${stage})`);
 
   await page.getByRole('button',{name:'بحث',exact:true}).click();
   const search = page.getByRole('dialog',{name:'البحث العام',exact:true});

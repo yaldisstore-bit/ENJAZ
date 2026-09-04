@@ -1,5 +1,34 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { EzButton } from './primitives.tsx';
+
+type MotionState = 'entering' | 'open' | 'closing';
+
+function useOverlayPresence(open: boolean) {
+  const [mounted, setMounted] = useState(open);
+  const [motionState, setMotionState] = useState<MotionState>(open ? 'open' : 'closing');
+
+  useEffect(() => {
+    let frame = 0;
+    let timer = 0;
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+    if (open) {
+      setMounted(true);
+      setMotionState('entering');
+      frame = window.requestAnimationFrame(() => setMotionState('open'));
+    } else if (mounted) {
+      setMotionState('closing');
+      timer = window.setTimeout(() => setMounted(false), reducedMotion ? 0 : 180);
+    }
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [open, mounted]);
+
+  return { mounted, motionState } as const;
+}
 
 export function EzDialog(props: Readonly<{
   open: boolean;
@@ -11,10 +40,11 @@ export function EzDialog(props: Readonly<{
   tone?: 'warning' | 'danger';
   eyebrow?: string;
 }>) {
-  if (!props.open) return null;
+  const presence = useOverlayPresence(props.open);
+  if (!presence.mounted) return null;
   const tone = props.tone ?? 'warning';
   return (
-    <div className="ez-overlay" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) props.onClose(); }}>
+    <div className="ez-overlay" role="presentation" data-motion-state={presence.motionState} onMouseDown={(event) => { if (props.open && event.currentTarget === event.target) props.onClose(); }}>
       <section className={`ez-dialog ez-dialog--${tone}`} role="dialog" aria-modal="true" aria-labelledby="ez-dialog-title" data-dialog-tone={tone}>
         <div className="ez-dialog__mark" aria-hidden="true">{tone === 'danger' ? '×' : '!'}</div>
         <div className="ez-dialog__copy"><span>{props.eyebrow ?? (tone === 'danger' ? 'إجراء لا يمكن التراجع عنه' : 'تأكيد الإجراء')}</span><h2 id="ez-dialog-title">{props.title}</h2><p>{props.body}</p></div>
@@ -34,9 +64,10 @@ export function EzSheet(props: Readonly<{
   onClose(): void;
   children: ReactNode;
 }>) {
-  if (!props.open) return null;
+  const presence = useOverlayPresence(props.open);
+  if (!presence.mounted) return null;
   return (
-    <div className="ez-overlay ez-overlay--sheet" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) props.onClose(); }}>
+    <div className="ez-overlay ez-overlay--sheet" role="presentation" data-motion-state={presence.motionState} onMouseDown={(event) => { if (props.open && event.currentTarget === event.target) props.onClose(); }}>
       <section className="ez-sheet" role="dialog" aria-modal="true" aria-labelledby="ez-sheet-title">
         <span className="ez-sheet__grabber" aria-hidden="true" />
         <header className="ez-sheet__head">

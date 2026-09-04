@@ -10,6 +10,7 @@ import './ui-v2/styles/domains.css';
 import './ui-v2/styles/domain-explorer.css';
 import './ui-v2/styles/states-forms.css';
 import './ui-v2/styles/touch-contract.css';
+import './ui-v2/styles/motion-touch.css';
 
 const rootElement = document.getElementById('root');
 
