@@ -86,11 +86,11 @@
 - Define when ENJAZ uses cards, dense rows, timelines, charts, progress, sheets and full pages.
 - Map approved reference screen families to ENJAZ domains.
 
-**Exit:** UI-5 establishes a typed contract mapping 12 information kinds to intentional presentation patterns and 12 screen families to approved reference families. Ten live compositions were verified in the real AppShell. On implementation head `b2f3f358dd3c448a87c157ec10ec33ebed7e9177`, UI-1, UI-3, UI-4 and UI-5 gates all passed together, including 46 functional tests, TypeScript, production build and Chromium at 1280×900, 430×932, 390×844, 360×740 and 320×700. Manual screenshot review rejected the first green browser result after finding Home/Daily critical actions obscured by the fixed dock at 320px; the layout was corrected and dock-occlusion geometry became a permanent Reality Gate. Evidence and defect history are recorded in `docs/UI5_INFORMATION_ARCHITECTURE_SCREEN_COMPOSITION.md`. The documentation closure head must pass the same cumulative gates before merge.
+**Exit:** UI-5 establishes a typed contract mapping 12 information kinds to intentional presentation patterns and 12 screen families to approved reference families. Ten live compositions were verified in the real AppShell. On implementation head `b2f3f358dd3c448a87c157ec10ec33ebed7e9177`, UI-1, UI-3, UI-4 and UI-5 gates all passed together, including 46 functional tests, TypeScript, production build and Chromium at 1280×900, 430×932, 390×844, 360×740 and 320×700. Manual screenshot review rejected the first green browser result after finding Home/Daily critical actions obscured by the fixed dock at 320px; the layout was corrected and dock-occlusion geometry became a permanent Reality Gate. Evidence and defect history are recorded in `docs/UI5_INFORMATION_ARCHITECTURE_SCREEN_COMPOSITION.md`.
 
 ---
 
-# UI-6 — Core Screens Rebirth ⏭ CURRENT NEXT STAGE
+# UI-6 — Core Screens Rebirth ✅
 
 - Home.
 - Daily Work shell/surface contract.
@@ -100,11 +100,11 @@
 - Profile/workspace entry.
 - Command/operations entry surfaces.
 
-**Exit:** core experience contains no visible previous-generation UI.
+**Exit:** the default UI V2 runtime is now `CoreApp`, with real Home, Today, Operations/Command and Finance entry surfaces plus product-level Search, Notifications, Quick Create and Account/Workspace surfaces. On implementation head `9a4bb4a8fe5816a85d8ae784e7f5a1675081d910`, UI-1, UI-3, UI-4, UI-5 and UI-6 gates all passed together, including 46 functional tests, TypeScript, production build and a real Chromium core journey at 1280×900, 430×932, 390×844, 360×740 and 320×700. Manual screenshot review passed after verifying Home/Today critical CTA clearance, narrow Search geometry, visually distinct Command Center and cobalt Finance treatment. Previous UI-3 and UI-5 proof surfaces remain available only as regression harnesses. Evidence and defect history are recorded in `docs/UI6_CORE_SCREENS_REBIRTH.md`.
 
 ---
 
-# UI-7 — Domain-by-Domain Rebuild
+# UI-7 — Domain-by-Domain Rebuild ⏭ CURRENT NEXT STAGE
 
 Presentation rebuild only for:
 - Transactions.
