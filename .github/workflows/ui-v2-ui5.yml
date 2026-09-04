@@ -62,6 +62,8 @@ jobs:
           exit 1
 
       - name: Real browser composition interaction and geometry gate
+        env:
+          UI5_BASE_URL: http://127.0.0.1:4175/?ui5-atlas=1
         run: node scripts/ui5-reality-test.mjs
 
       - name: Upload UI-5 visual evidence
