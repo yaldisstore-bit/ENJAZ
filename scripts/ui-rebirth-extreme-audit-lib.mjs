@@ -14,7 +14,7 @@ export function validateExtremeUI({ shell, shellCss, hardeningCss, tokensCss, fo
   requireSource(shell.includes('aria-controls="rebirth-quick-actions"'), 'dialog trigger/control relationship missing');
   requireSource(shell.includes('aria-expanded={quickActionsOpen}'), 'dialog expanded state missing');
   requireSource(shell.includes('primaryActionRef') && shell.includes('quickSheetRef'), 'dialog focus references missing');
-  requireSource(shell.includes('data-autofocus'), 'dialog initial focus target missing');
+  requireSource(shell.includes("querySelector<HTMLElement>('[data-autofocus]')") && shell.includes('data-autofocus className='), 'dialog initial focus target/selector contract missing');
   requireSource(shell.includes("event.key === 'Escape'"), 'Escape dismissal contract missing');
   requireSource(shell.includes("event.key !== 'Tab'"), 'Tab focus-trap contract missing');
   requireSource(shell.includes('event.shiftKey'), 'reverse focus traversal contract missing');
