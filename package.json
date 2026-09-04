@@ -25,6 +25,8 @@
     "audit:ui-rebirth:home:selftest": "node scripts/ui-rebirth-home-selftest.mjs",
     "audit:ui-v2:boundary": "node scripts/ui-v2-boundary-audit.mjs",
     "audit:ui-v2:dna": "node scripts/ui-v2-dna-audit.mjs",
+    "audit:ui-v2:freeze": "node scripts/ui4-shell-audit.mjs && node scripts/ui5-composition-audit.mjs && node scripts/ui6-core-audit.mjs && node scripts/ui6-core-regression.mjs && node scripts/ui7-domain-audit.mjs && node scripts/ui8-states-audit.mjs && node scripts/ui9-mobile-audit.mjs && node scripts/ui10-freeze-audit.mjs",
+    "audit:phase4-2:daily-work": "node scripts/phase4-2-daily-work-audit.mjs",
     "audit:dist:budget": "node scripts/dist-budget-audit.mjs",
     "audit:secrets": "node scripts/secret-audit.mjs",
     "audit:roadmap": "node scripts/roadmap-audit.mjs",
@@ -36,7 +38,7 @@
     "verify:ui-v2-ui1": "npm run audit:ui-v2:boundary && npm run test:functional && npm run typecheck && npm run build",
     "verify:ui-v2-ui2": "npm run audit:ui-v2:boundary && npm run audit:ui-v2:dna && npm run test:functional && npm run typecheck && npm run build",
     "verify:stage": "npm run verify:extreme",
-    "verify:extreme": "npm run audit:qa:stage-contract && npm run audit:qa:stage-delta && npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run audit:ui-rebirth:shell && npm run audit:ui-rebirth:shell:selftest && npm run audit:ui-rebirth:extreme && npm run audit:ui-rebirth:extreme:selftest && npm run audit:ui-rebirth:home && npm run audit:ui-rebirth:home:selftest && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && npm run typecheck && npm run build && npm run audit:dist:budget"
+    "verify:extreme": "npm run audit:qa:stage-contract && npm run audit:qa:stage-delta && npm run audit:ui-v2:boundary && npm run audit:ui-v2:dna && npm run audit:ui-v2:freeze && npm run audit:phase4-2:daily-work && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && npm run typecheck && npm run build && npm run audit:dist:budget"
   },
   "dependencies": {
     "react": "19.2.8",
