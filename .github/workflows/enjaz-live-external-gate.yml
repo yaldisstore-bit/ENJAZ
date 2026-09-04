@@ -18,7 +18,7 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
-    name: Public URL / Real Chromium / External Network Gate
+    name: Public URL / Real Chromium / External Network / WCAG Gate
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -52,9 +52,9 @@ jobs:
           case "$final_url" in https://*) ;; *) echo "Non-HTTPS final URL: $final_url"; exit 1;; esac
           content_type=$(curl --location --silent --head "$LIVE_URL" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{print tolower($2)}' | tail -1)
           echo "$content_type" | grep -q 'text/html' || { echo "Unexpected content-type: $content_type"; exit 1; }
-      - name: Install pinned external browser tooling
+      - name: Install pinned external browser and WCAG tooling
         run: |
-          npm install --no-save --package-lock=false @playwright/test@1.55.0
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2
           npx playwright install --with-deps chromium
       - name: Attack the actual published application
         env:
