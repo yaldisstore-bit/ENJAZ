@@ -27,7 +27,7 @@ export function ShellPreview() {
         <div className="ez-shell-preview__metrics">
           <EzMetric label="معاملات نشطة" value="24" detail="3 عاجلة" tone="gold" />
           <EzMetric label="متابعات اليوم" value="14" detail="2 متأخرة" tone="plain" />
-          <EzMetric label="التحصيل" value="78%" detail="هذا الأسبوع" tone="dark" />
+          <EzMetric label="التحصيل" value="78%" detail="هذا الأسبوع" tone="plain" />
         </div>
 
         <div className="ez-shell-preview__grid">
