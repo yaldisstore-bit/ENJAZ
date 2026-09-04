@@ -1,142 +1,130 @@
 import { useMemo, useState } from 'react';
-import type { DailyWorkBucket, DailyWorkItem, DailyWorkSnapshot, DailyWorkTone } from '../../features/daily-work/dailyWorkModel.ts';
+import type { DailyWorkItem, DailyWorkSnapshot, DailyWorkTone } from '../../features/daily-work/dailyWorkModel.ts';
 import { buildDailyWorkPreviewSnapshot } from '../../features/daily-work/dailyWorkPreview.ts';
 import { useDailyWork } from '../../features/daily-work/useDailyWork.ts';
-import { EzBadge, EzButton, EzChip, EzMetric, EzNotice, EzSegmented } from '../components/primitives.tsx';
+import { EzBadge, EzButton, EzChip, EzNotice, EzSegmented, EzStatPill } from '../components/primitives.tsx';
+
+export type DailyWorkOpenAction = (item: DailyWorkItem) => void;
 
 type DailyFilter = 'all' | 'overdue' | 'today' | 'action' | 'upcoming';
 
-type DailyWorkScreenProps = Readonly<{
+const FILTERS: readonly { value: DailyFilter; label: string }[] = [
+  { value: 'all', label: 'الكل' },
+  { value: 'overdue', label: 'المتأخرة' },
+  { value: 'today', label: 'اليوم' },
+  { value: 'action', label: 'بحاجة إجراء' },
+  { value: 'upcoming', label: 'القادمة' },
+];
+
+const SOURCE_LABELS: Readonly<Record<DailyWorkItem['source'], string>> = {
+  followup: 'متابعة',
+  blocker: 'عائق',
+  calendar: 'موعد',
+  renewal: 'تجديد',
+  workflow: 'سير عمل',
+};
+
+function chipTone(tone: DailyWorkTone): 'neutral' | 'gold' | 'success' | 'warning' | 'danger' | 'info' {
+  return tone === 'neutral' ? 'neutral' : tone;
+}
+
+function formatDue(value: string | null): string {
+  if (!value) return 'بدون وقت محدد';
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return 'وقت غير صالح';
+  return new Intl.DateTimeFormat('ar-IQ', { weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(date);
+}
+
+function DailyWorkSkeleton() {
+  return (
+    <section className="ez-core-screen ez-core-daily ez-daily-work" data-core-screen="today" data-daily-work-status="loading">
+      <header className="ez-core-intro"><div><span>مسار اليوم</span><h1>اليوم</h1><p>نجمع عناصر العمل ونرتبها حسب الأثر والوقت.</p></div></header>
+      <div className="ez-daily-skeleton" aria-label="جارٍ تحميل العمل اليومي"><i /><i /><i /><i /></div>
+    </section>
+  );
+}
+
+function DailyWorkError(props: Readonly<{ message: string; onRetry(): void }>) {
+  return (
+    <section className="ez-core-screen ez-core-daily ez-daily-work" data-core-screen="today" data-daily-work-status="error">
+      <header className="ez-core-intro"><div><span>مسار اليوم</span><h1>اليوم</h1><p>تعذر تجهيز قائمة العمل من المصدر الموثوق.</p></div></header>
+      <EzNotice title="تعذر تحميل العمل اليومي" body={props.message} tone="danger" action={<EzButton tone="dark" onClick={props.onRetry}>إعادة المحاولة</EzButton>} />
+    </section>
+  );
+}
+
+function DailyWorkEmpty(props: Readonly<{ onNewFollowup(): void }>) {
+  return (
+    <section className="ez-daily-empty" data-daily-work-empty="true">
+      <span>اليوم هادئ</span>
+      <strong>لا توجد عناصر مفتوحة ضمن نطاق العمل الحالي</strong>
+      <small>يمكنك إضافة متابعة جديدة، أو الانتقال إلى مجال آخر من مساحة العمل.</small>
+      <EzButton tone="dark" onClick={props.onNewFollowup}>متابعة جديدة</EzButton>
+    </section>
+  );
+}
+
+function recomputePreview(items: readonly DailyWorkItem[], generatedAt: string): DailyWorkSnapshot {
+  const summary = Object.freeze({
+    total: items.length,
+    overdue: items.filter((item) => item.bucket === 'overdue').length,
+    dueToday: items.filter((item) => item.bucket === 'today').length,
+    approvals: items.filter((item) => item.source === 'workflow').length,
+    blocked: items.filter((item) => item.source === 'blocker').length,
+    upcoming: items.filter((item) => item.bucket === 'upcoming').length,
+  });
+  return Object.freeze({ generatedAt, summary, focus: items[0] ?? null, items: Object.freeze([...items]) });
+}
+
+export function DailyWorkScreen(props: Readonly<{
   snapshot: DailyWorkSnapshot | null;
   status: 'loading' | 'ready' | 'error';
   errorMessage: string | null;
   actionItemId: string | null;
   actionError: string | null;
   onRetry(): void;
+  onOpen(item: DailyWorkItem): void;
   onComplete(item: DailyWorkItem): void;
   onSnooze(item: DailyWorkItem): void;
-  onOpen(item: DailyWorkItem): void;
   onNewFollowup(): void;
-}>;
-
-const FILTERS = [
-  { value: 'all', label: 'الكل' },
-  { value: 'overdue', label: 'متأخر' },
-  { value: 'today', label: 'اليوم' },
-  { value: 'action', label: 'يحتاج إجراء' },
-  { value: 'upcoming', label: 'قادم' },
-] as const;
-
-const SOURCE_LABELS: Record<DailyWorkItem['source'], string> = {
-  followup: 'متابعة',
-  blocker: 'عائق',
-  calendar: 'موعد',
-  renewal: 'تجديد',
-  workflow: 'إجراء',
-};
-
-function formatDue(value: string | null): string {
-  if (!value) return 'بدون موعد محدد';
-  const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return 'موعد غير صالح';
-  const now = new Date();
-  const sameDay = date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate();
-  const time = new Intl.DateTimeFormat('ar-IQ', { hour: '2-digit', minute: '2-digit' }).format(date);
-  if (sameDay) return `اليوم · ${time}`;
-  return new Intl.DateTimeFormat('ar-IQ', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(date);
-}
-
-function chipTone(tone: DailyWorkTone): 'neutral' | 'gold' | 'success' | 'warning' | 'danger' | 'info' {
-  return tone;
-}
-
-function filterItems(items: readonly DailyWorkItem[], filter: DailyFilter): readonly DailyWorkItem[] {
-  if (filter === 'all') return items;
-  return items.filter((item) => item.bucket === filter);
-}
-
-function recomputePreview(items: readonly DailyWorkItem[], generatedAt: string): DailyWorkSnapshot {
-  const sorted = Object.freeze([...items]);
-  return Object.freeze({
-    generatedAt,
-    summary: Object.freeze({
-      total: sorted.length,
-      overdue: sorted.filter((item) => item.bucket === 'overdue').length,
-      dueToday: sorted.filter((item) => item.bucket === 'today').length,
-      approvals: sorted.filter((item) => item.source === 'workflow').length,
-      blocked: sorted.filter((item) => item.source === 'blocker').length,
-      upcoming: sorted.filter((item) => item.bucket === 'upcoming').length,
-    }),
-    focus: sorted[0] ?? null,
-    items: sorted,
-  });
-}
-
-function DailyWorkEmpty(props: Readonly<{ onNewFollowup(): void }>) {
-  return (
-    <section className="ez-daily-empty" data-daily-work-empty="true">
-      <span aria-hidden="true">✓</span>
-      <div><strong>لا يوجد عمل يحتاج تدخلك الآن</strong><p>المتابعات والمواعيد والعوائق والإجراءات الحالية كلها تحت السيطرة.</p></div>
-      <EzButton tone="gold" onClick={props.onNewFollowup}>إضافة متابعة</EzButton>
-    </section>
-  );
-}
-
-export function DailyWorkScreen(props: DailyWorkScreenProps) {
+}>) {
   const [filter, setFilter] = useState<DailyFilter>('all');
-  const visible = useMemo(() => filterItems(props.snapshot?.items ?? [], filter), [filter, props.snapshot]);
+  const snapshot = props.snapshot;
+  const visible = useMemo(() => snapshot?.items.filter((item) => filter === 'all' || item.bucket === filter) ?? [], [filter, snapshot]);
 
-  if (props.status === 'loading') {
-    return (
-      <section className="ez-core-screen ez-core-daily" data-core-screen="today" data-daily-work-status="loading">
-        <header className="ez-core-intro"><div><span>مسار اليوم</span><h1>اليوم</h1><p>نجمع العمل الذي يحتاج حركة الآن من جميع المجالات.</p></div></header>
-        <div className="ez-daily-loading" aria-label="جاري تحميل العمل اليومي">
-          <i /><i /><i /><i />
-        </div>
-      </section>
-    );
-  }
+  if (props.status === 'loading') return <DailyWorkSkeleton />;
+  if (props.status === 'error' || !snapshot) return <DailyWorkError message={props.errorMessage ?? 'تعذر تجهيز العمل اليومي.'} onRetry={props.onRetry} />;
 
-  if (props.status === 'error' || !props.snapshot) {
-    return (
-      <section className="ez-core-screen ez-core-daily" data-core-screen="today" data-daily-work-status="error">
-        <header className="ez-core-intro"><div><span>مسار اليوم</span><h1>اليوم</h1><p>لم نعرض بيانات جزئية عند تعذر الوصول إلى المصدر.</p></div></header>
-        <EzNotice title="تعذر تجهيز العمل اليومي" body={props.errorMessage ?? 'تعذر الوصول إلى البيانات.'} tone="danger" action={<EzButton tone="ghost" onClick={props.onRetry}>إعادة المحاولة</EzButton>} />
-      </section>
-    );
-  }
-
-  const { snapshot } = props;
   const focus = snapshot.focus;
-
   return (
-    <section className="ez-core-screen ez-core-daily" data-core-screen="today" data-daily-work-status="ready" data-daily-work-total={snapshot.summary.total}>
+    <section className="ez-core-screen ez-core-daily ez-daily-work" data-core-screen="today" data-daily-work-status="ready">
       <header className="ez-core-intro">
-        <div><span>مسار اليوم</span><h1>اليوم</h1><p>صندوق عمل موحد: المتأخر، ما يحتاج قرارًا، المواعيد، التجديدات والمتابعات في ترتيب واحد.</p></div>
+        <div><span>مسار اليوم</span><h1>اليوم</h1><p>صندوق عمل موحد للمتابعات والعوائق والمواعيد والتجديدات وإجراءات سير العمل.</p></div>
         <EzButton tone="dark" onClick={props.onNewFollowup}>متابعة جديدة</EzButton>
       </header>
 
-      {props.actionError ? <EzNotice title="لم يكتمل الإجراء" body={props.actionError} tone="warning" /> : null}
+      {props.actionError ? <EzNotice title="لم يتم تنفيذ الإجراء" body={props.actionError} tone="warning" /> : null}
 
-      <div className="ez-daily-summary" data-daily-work-summary="true">
-        <EzMetric label="إجمالي العمل" value={String(snapshot.summary.total)} detail="عنصر يحتاج متابعة" tone="gold" />
-        <EzMetric label="متأخر" value={String(snapshot.summary.overdue)} detail="يحتاج أولوية" />
-        <EzMetric label="اليوم" value={String(snapshot.summary.dueToday)} detail="مرتبط بوقت" />
-        <EzMetric label="إجراءات" value={String(snapshot.summary.approvals)} detail="ضمن سير العمل" />
-        <EzMetric label="عوائق" value={String(snapshot.summary.blocked)} detail="تمنع التقدم" />
-      </div>
+      <section className="ez-daily-summary" aria-label="ملخص العمل اليومي">
+        <EzStatPill value={String(snapshot.summary.total)} label="مفتوحة" tone="dark" />
+        <EzStatPill value={String(snapshot.summary.overdue)} label="متأخرة" tone={snapshot.summary.overdue ? 'gold' : 'soft'} />
+        <EzStatPill value={String(snapshot.summary.dueToday)} label="اليوم" />
+        <EzStatPill value={String(snapshot.summary.approvals)} label="اعتمادات" />
+        <EzStatPill value={String(snapshot.summary.blocked)} label="عوائق" />
+      </section>
 
       {focus ? (
-        <section className={`ez-daily-focus is-${focus.tone}`} data-daily-work-focus={focus.id}>
+        <section className="ez-daily-focus" data-daily-work-focus={focus.id}>
           <div className="ez-daily-focus__copy">
-            <div className="ez-daily-focus__eyebrow"><EzBadge tone={chipTone(focus.tone)}>{SOURCE_LABELS[focus.source]}</EzBadge><span>{focus.stateLabel}</span></div>
+            <span>الأولوية الآن</span>
             <h2>{focus.title}</h2>
             <p>{focus.subject}</p>
-            <div className="ez-core-chip-row"><EzChip tone={chipTone(focus.tone)} dot>{focus.stateLabel}</EzChip><EzChip tone="neutral">المسؤول: {focus.ownerLabel}</EzChip><EzChip tone="neutral">{formatDue(focus.dueAt)}</EzChip></div>
+            <div><EzChip tone={chipTone(focus.tone)}>{focus.stateLabel}</EzChip><EzChip tone="neutral">المسؤول: {focus.ownerLabel}</EzChip></div>
           </div>
-          <div className="ez-daily-focus__actions">
-            {focus.completable ? <EzButton tone="dark" disabled={props.actionItemId === focus.id} onClick={() => props.onComplete(focus)}>{props.actionItemId === focus.id ? 'جارٍ الحفظ…' : 'إنهاء العنصر'}</EzButton> : <EzButton tone="dark" onClick={() => props.onOpen(focus)}>فتح السياق</EzButton>}
-            {focus.snoozable ? <EzButton tone="ghost" disabled={props.actionItemId === focus.id} onClick={() => props.onSnooze(focus)}>تأجيل ساعتين</EzButton> : null}
+          <div className="ez-daily-focus__meta">
+            <small>{SOURCE_LABELS[focus.source]}</small>
+            <strong>{formatDue(focus.dueAt)}</strong>
+            <EzButton tone="dark" onClick={() => props.onOpen(focus)}>فتح السياق</EzButton>
           </div>
         </section>
       ) : <DailyWorkEmpty onNewFollowup={props.onNewFollowup} />}
@@ -170,7 +158,7 @@ export function DailyWorkScreen(props: DailyWorkScreenProps) {
 
 export function ConnectedDailyWorkScreen(props: Readonly<{ onNewFollowup(): void; onOpen(item: DailyWorkItem): void }>) {
   const controller = useDailyWork();
-  return <DailyWorkScreen {...controller} onNewFollowup={props.onNewFollowup} onOpen={props.onOpen} onComplete={(item) => { void controller.complete(item); }} onSnooze={(item) => { void controller.snooze(item); }} />;
+  return <DailyWorkScreen {...controller} onRetry={controller.retry} onNewFollowup={props.onNewFollowup} onOpen={props.onOpen} onComplete={(item) => { void controller.complete(item); }} onSnooze={(item) => { void controller.snooze(item); }} />;
 }
 
 export function PreviewDailyWorkScreen(props: Readonly<{ onNewFollowup(): void; onOpen(item: DailyWorkItem): void }>) {
