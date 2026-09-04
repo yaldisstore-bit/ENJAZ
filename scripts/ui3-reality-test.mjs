@@ -3,6 +3,8 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 
 const baseUrl = process.env.UI3_BASE_URL || 'http://127.0.0.1:4173';
+const galleryUrl = new URL(baseUrl);
+galleryUrl.searchParams.set('ui3-gallery', '1');
 const outDir = process.env.UI3_ARTIFACT_DIR || 'artifacts/ui3-reality';
 await fs.mkdir(outDir, { recursive: true });
 
@@ -32,7 +34,7 @@ async function verifyViewport(browser, profile) {
   });
   page.on('pageerror', (error) => pageErrors.push(error.message));
 
-  await page.goto(baseUrl, { waitUntil: 'networkidle', timeout: 30_000 });
+  await page.goto(galleryUrl.toString(), { waitUntil: 'networkidle', timeout: 30_000 });
   await page.getByRole('heading', { name: /مكوّنات تتحمل العمل الحقيقي/ }).waitFor();
   await page.waitForTimeout(200);
 
@@ -54,7 +56,7 @@ async function verifyViewport(browser, profile) {
   const menu = page.getByRole('menu', { name: 'قائمة الإجراءات' });
   await menu.waitFor();
   await page.waitForTimeout(300);
-  await assertInsideViewport(page, menu, `${profile.name} menu`);
+  await assertInsideViewport(page, menu, `${profile.name}:menu`);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-menu.png`) });
   await page.getByRole('menuitem', { name: /تثبيت العرض/ }).click();
   await page.getByText(/تم اختيار: pin/).waitFor();
@@ -67,7 +69,7 @@ async function verifyViewport(browser, profile) {
   const sheet = page.getByRole('dialog', { name: 'إجراء سريع' });
   await sheet.waitFor();
   await page.waitForTimeout(450);
-  await assertInsideViewport(page, sheet, `${profile.name} sheet`);
+  await assertInsideViewport(page, sheet, `${profile.name}:sheet`);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-sheet.png`) });
   await page.getByLabel('العنوان').fill('متابعة اختبار حقيقية طويلة للتأكد من مرونة الحقل على الهاتف');
   await page.getByRole('button', { name: 'إنشاء المتابعة' }).click();
@@ -77,7 +79,7 @@ async function verifyViewport(browser, profile) {
   const dialog = page.getByRole('dialog', { name: 'تأكيد إغلاق المعاملة؟' });
   await dialog.waitFor();
   await page.waitForTimeout(450);
-  await assertInsideViewport(page, dialog, `${profile.name} dialog`);
+  await assertInsideViewport(page, dialog, `${profile.name}:dialog`);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-dialog.png`) });
   await page.getByRole('button', { name: 'تأكيد الإغلاق' }).click();
   await page.getByText(/تم اختبار Dialog وإجراء التأكيد بنجاح/).waitFor();
