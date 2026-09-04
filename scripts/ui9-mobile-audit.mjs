@@ -14,9 +14,13 @@ function keyframes(name) {
   const match = files.css.match(new RegExp(`@keyframes\\s+${name}\\s*\\{([\\s\\S]*?)\\n\\}`, 'm'));
   return match?.[1] ?? '';
 }
+function stageOf(source) {
+  const match = source.match(/data-stage=\"ui-(\d+)\"/);
+  return match ? Number(match[1]) : 0;
+}
 
 assert(files.main.includes("./ui-v2/styles/motion-touch.css"), 'motion-touch contract is not loaded last in runtime');
-assert(files.shell.includes('data-stage="ui-9"') && files.core.includes('data-stage="ui-9"'), 'runtime not promoted to UI-9');
+assert(stageOf(files.shell) >= 9 && stageOf(files.core) >= 9, 'runtime regressed below UI-9');
 assert(files.core.includes('className="ez-motion-stage"') && files.core.includes('data-motion-surface={motionKey}'), 'screen motion surface missing');
 
 for (const token of [
@@ -49,6 +53,7 @@ for (const file of [files.shell, files.overlays, files.core, files.css]) {
 }
 
 console.log('UI-9 motion/touch/mobile audit PASS');
+console.log('- runtime remains at or beyond UI-9');
 console.log('- visual viewport width/height/offset, keyboard, orientation and pointer contracts registered');
 console.log('- screen, overlay enter/exit and press feedback contracts registered');
 console.log('- entry motion preserves full touch geometry from the first frame');
