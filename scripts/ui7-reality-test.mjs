@@ -23,6 +23,11 @@ async function touchTargets(page, label) {
   }).filter((x) => x.visible && (x.w < 44 || x.h < 44)));
   assert(bad.length === 0, `${label}: undersized touch targets ${JSON.stringify(bad)}`);
 }
+async function insideViewport(locator, viewport, label) {
+  const box = await locator.boundingBox();
+  assert(box, `${label}: missing geometry`);
+  assert(box.x >= -2 && box.y >= -2 && box.x + box.width <= viewport.width + 2 && box.y + box.height <= viewport.height + 2, `${label}: outside viewport ${JSON.stringify(box)}`);
+}
 
 async function verifyProfile(browser, profile) {
   const context = await browser.newContext({ viewport: profile.viewport, deviceScaleFactor: 1 });
@@ -32,14 +37,39 @@ async function verifyProfile(browser, profile) {
   page.on('pageerror', (e) => pageErrors.push(e.message));
   await page.goto(baseUrl,{waitUntil:'networkidle',timeout:30000});
   await page.locator('[data-core-app="true"]').waitFor();
-  assert(await page.locator('[data-domain-rail="true"]').isVisible(), `${profile.name}: domain rail missing`);
-  await noOverflow(page, `${profile.name}:core`);
+  await page.locator('[data-core-screen="home"]').waitFor();
 
-  for (const [domain, pattern] of domains) {
-    const link = page.locator(`[data-domain-link="${domain}"]`);
-    await link.scrollIntoViewIfNeeded();
-    await link.click();
-    await page.locator(`[data-domain-runtime="${domain}"]`).waitFor();
+  assert(await page.locator('[data-domain-rail="true"]').count() === 0, `${profile.name}: core must remain rail-free`);
+  const explorerTrigger = page.getByRole('button',{name:'مجالات إنجاز',exact:true});
+  assert(await explorerTrigger.isVisible(), `${profile.name}: domain explorer trigger missing from ENJAZ brand`);
+  await noOverflow(page, `${profile.name}:core`);
+  if (profile.mobile) await touchTargets(page, `${profile.name}:core`);
+  await page.screenshot({path:path.join(outDir,`${profile.name}-core.png`),fullPage:true});
+
+  await explorerTrigger.click();
+  const explorerDialog = page.getByRole('dialog',{name:'مجالات إنجاز',exact:true});
+  await explorerDialog.waitFor();
+  const explorer = page.locator('[data-domain-explorer="true"]');
+  assert(await explorer.isVisible(), `${profile.name}: domain explorer did not open`);
+  assert(await page.locator('[data-domain-explorer-link]').count() === domains.length, `${profile.name}: explorer does not expose all domains`);
+  await insideViewport(explorerDialog, profile.viewport, `${profile.name}:domain-explorer`);
+  await noOverflow(page, `${profile.name}:explorer`);
+  if (profile.mobile) await touchTargets(page, `${profile.name}:explorer`);
+  await page.screenshot({path:path.join(outDir,`${profile.name}-explorer.png`)});
+
+  await page.locator('[data-domain-explorer-link="transactions"]').click();
+  await page.locator('[data-domain-runtime="transactions"]').waitFor();
+  assert(await page.locator('[data-domain-rail="true"]').isVisible(), `${profile.name}: in-domain rail missing after explorer navigation`);
+
+  for (let index = 0; index < domains.length; index += 1) {
+    const [domain, pattern] = domains[index];
+    if (index > 0) {
+      const link = page.locator(`[data-domain-link="${domain}"]`);
+      await link.scrollIntoViewIfNeeded();
+      await link.click();
+      await page.locator(`[data-domain-runtime="${domain}"]`).waitFor();
+    }
+    assert(await page.locator('[data-domain-rail="true"]').isVisible(), `${profile.name}:${domain}: domain rail disappeared inside domain runtime`);
     assert(await page.locator(`[data-pattern="${pattern}"]`).count() >= 1, `${profile.name}:${domain}: composition signature ${pattern} missing`);
     await noOverflow(page, `${profile.name}:${domain}`);
     if (profile.mobile) await touchTargets(page, `${profile.name}:${domain}`);
@@ -67,12 +97,21 @@ async function verifyProfile(browser, profile) {
   await coreReturn.click();
   await page.locator('[data-core-screen="home"]').waitFor();
   assert(await page.locator('[data-active-domain="core"]').count() === 1, `${profile.name}: domain return did not restore core surface`);
+  assert(await page.locator('[data-domain-rail="true"]').count() === 0, `${profile.name}: rail leaked back into core surface`);
   assert(await page.locator('[data-shell-part="bottom-dock"]').isVisible(), `${profile.name}: bottom dock disappeared`);
+
+  await explorerTrigger.click();
+  const explorerAfterReturn = page.getByRole('dialog',{name:'مجالات إنجاز',exact:true});
+  await explorerAfterReturn.waitFor();
+  await explorerAfterReturn.getByRole('button',{name:'إغلاق',exact:true}).click();
+  await explorerAfterReturn.waitFor({state:'detached'});
+
   await noOverflow(page, `${profile.name}:final`);
+  if (profile.mobile) await touchTargets(page, `${profile.name}:final`);
   assert(consoleErrors.length===0, `${profile.name}: console errors ${consoleErrors.join(' | ')}`);
   assert(pageErrors.length===0, `${profile.name}: page errors ${pageErrors.join(' | ')}`);
   await context.close();
-  return { profile: profile.name, domains: domains.length };
+  return { profile: profile.name, domains: domains.length, explorer: true, coreRailFree: true };
 }
 
 const browser = await chromium.launch({headless:true});
