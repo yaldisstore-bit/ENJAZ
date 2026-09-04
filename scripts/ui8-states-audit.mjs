@@ -35,6 +35,8 @@ assert(files.quick.includes('tone=\"danger\"') && files.quick.includes('مسح �
 assert(files.quick.includes('لم يتم حفظ أي سجل بعد'), 'UI-only create flow must not claim persistence');
 assert(files.overlays.includes("tone?: 'warning' | 'danger'"), 'danger dialog contract missing');
 assert(files.primitives.includes("'danger'"), 'danger button tone missing');
+assert(files.primitives.includes("type = 'button'"), 'reusable buttons must default to type=button to prevent implicit form submission');
+assert(files.primitives.includes('<button type={type}'), 'reusable button must apply its explicit/default type');
 assert(files.primitives.includes('aria-invalid={error ? true : undefined}'), 'input validation accessibility contract missing');
 assert(files.forms.includes('aria-invalid={error ? true : undefined}'), 'select/textarea validation accessibility contract missing');
 assert(files.shell.includes('visibleResults.length > 0'), 'search empty-state branch missing');
@@ -56,5 +58,6 @@ console.log('UI-8 states/forms audit PASS');
 console.log('- 8 exceptional states registered');
 console.log('- validated Quick Create and destructive confirmation mounted');
 console.log('- controlled inputs snapshot event values before state updates');
+console.log('- reusable buttons cannot submit forms implicitly');
 console.log('- empty search, long-text and large-value contracts present');
 console.log('- runtime remains at or beyond UI-8 with constrained viewport and UI V2 boundary preserved');
