@@ -20,6 +20,7 @@
 .ez-executive-entry p { margin: 0; max-width: 62ch; color: var(--ez-muted); line-height: 1.8; }
 
 .ez-executive-briefing { display: grid; gap: var(--ez-space-6); }
+.ez-executive-briefing .ez-core-intro > .ez-button { min-height: 48px; }
 .ez-executive-briefing__hero {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(260px, .5fr);
