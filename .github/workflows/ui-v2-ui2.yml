@@ -1,0 +1,44 @@
+name: ENJAZ UI V2 — UI-2 Gate
+
+on:
+  push:
+    branches:
+      - uiux-rebirth-v2-ui2-work
+  pull_request:
+    branches:
+      - uiux-rebirth-v2-ui2
+
+permissions:
+  contents: read
+
+jobs:
+  ui2-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: UI V2 boundary audit
+        run: npm run audit:ui-v2:boundary
+
+      - name: Visual DNA audit
+        run: npm run audit:ui-v2:dna
+
+      - name: Functional regression tests
+        run: npm run test:functional
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
