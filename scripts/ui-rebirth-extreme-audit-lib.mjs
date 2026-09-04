@@ -1,0 +1,53 @@
+export function validateExtremeUI({ shell, shellCss, hardeningCss, tokensCss, foundationCss }) {
+  const failures = [];
+  const requireSource = (condition, message) => { if (!condition) failures.push(message); };
+
+  requireSource(shell.includes('data-enjaz-ui="rebirth"'), 'missing rebirth runtime boundary');
+  requireSource(shell.includes('dir="rtl"'), 'RTL root contract missing');
+  requireSource(shell.includes('<header className="rebirth-shell__header"'), 'application header landmark missing');
+  requireSource(shell.includes('<main className="rebirth-shell__viewport"'), 'main landmark missing');
+  requireSource(shell.includes('<nav className="rebirth-shell__dock"'), 'primary navigation landmark missing');
+  requireSource(shell.includes('aria-label="التنقل الرئيسي"'), 'primary navigation accessible name missing');
+  requireSource(shell.includes('role="dialog"') && shell.includes('aria-modal="true"'), 'modal dialog semantics incomplete');
+  requireSource(shell.includes('aria-labelledby="rebirth-quick-actions-title"'), 'dialog label relationship missing');
+  requireSource(shell.includes('aria-haspopup="dialog"'), 'dialog trigger does not expose popup semantics');
+  requireSource(shell.includes('aria-controls="rebirth-quick-actions"'), 'dialog trigger/control relationship missing');
+  requireSource(shell.includes('aria-expanded={quickActionsOpen}'), 'dialog expanded state missing');
+  requireSource(shell.includes('primaryActionRef') && shell.includes('quickSheetRef'), 'dialog focus references missing');
+  requireSource(shell.includes('data-autofocus'), 'dialog initial focus target missing');
+  requireSource(shell.includes("event.key === 'Escape'"), 'Escape dismissal contract missing');
+  requireSource(shell.includes("event.key !== 'Tab'"), 'Tab focus-trap contract missing');
+  requireSource(shell.includes('event.shiftKey'), 'reverse focus traversal contract missing');
+  requireSource(shell.includes('FOCUSABLE_SELECTOR'), 'focusable element enumeration missing');
+  requireSource(shell.includes('primaryActionRef.current?.focus()'), 'focus restoration to trigger missing');
+  requireSource((shell.match(/inert={quickActionsOpen \? true : undefined}/g) ?? []).length >= 3, 'background is not inert while dialog is open');
+
+  const buttonTags = [...shell.matchAll(/<button\b([\s\S]*?)>/g)];
+  requireSource(buttonTags.length >= 8, 'unexpectedly low interactive control coverage');
+  for (const [, attributes] of buttonTags) {
+    if (!/\btype="button"/.test(attributes)) failures.push('button without explicit type="button"');
+  }
+
+  requireSource(!/\b(console\.(log|debug)|debugger|FIXME|HACK)\b/.test(shell), 'debug/development residue in runtime shell');
+  for (const legacy of ['app-shell__', 'home-dashboard', 'productivity-polish', 'productivity-depth', 'Identity 2', 'Identity 3']) {
+    requireSource(!shell.includes(legacy), `legacy visual marker returned: ${legacy}`);
+  }
+
+  const css = `${shellCss}\n${hardeningCss}\n${tokensCss}`;
+  requireSource(css.includes('100dvh'), 'dynamic viewport height contract missing');
+  for (const side of ['top', 'bottom', 'left', 'right']) {
+    requireSource(css.includes(`safe-area-inset-${side}`), `safe-area-inset-${side} missing`);
+  }
+  requireSource(css.includes('overflow-x: clip'), 'horizontal overflow containment missing');
+  requireSource(css.includes('@media (prefers-reduced-motion: reduce)'), 'reduced-motion contract missing');
+  requireSource(hardeningCss.includes('@media (forced-colors: active)'), 'forced-colors accessibility contract missing');
+  requireSource(hardeningCss.includes(':focus-visible'), 'visible keyboard focus contract missing');
+  requireSource(tokensCss.includes('--ui-touch-min: 44px'), '44px minimum touch token missing');
+  requireSource(hardeningCss.includes('min-width: var(--ui-touch-min)') && hardeningCss.includes('min-height: var(--ui-touch-min)'), 'minimum interactive target size is not enforced');
+  requireSource(css.includes('grid-template-columns: 1fr 1fr 76px 1fr 1fr'), 'center CTA dock geometry changed');
+  requireSource(css.includes('pointer-events: none') && css.includes('pointer-events: auto'), 'dock layering/pointer contract incomplete');
+  requireSource(foundationCss.trim().endsWith("@import './qa-hardening.css';"), 'QA hardening layer is not last in foundation cascade');
+  requireSource(!/100vh(?![a-z])/i.test(css), 'legacy 100vh used instead of dynamic viewport units');
+
+  return failures;
+}
