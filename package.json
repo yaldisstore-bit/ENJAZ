@@ -11,7 +11,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false",
-    "test:functional": "node --experimental-strip-types --test tests/authService.test.ts tests/authValidation.test.ts tests/bootState.test.ts tests/config.test.ts tests/dataContracts.test.ts tests/dataGateway.test.ts tests/dataLayerFactory.test.ts tests/errors.test.ts tests/homeDashboard.test.ts tests/logger.test.ts tests/routes.test.ts tests/unhandled.test.ts",
+    "test:functional": "node --experimental-strip-types --test tests/authService.test.ts tests/authValidation.test.ts tests/bootState.test.ts tests/config.test.ts tests/dataContracts.test.ts tests/dataGateway.test.ts tests/dataLayerFactory.test.ts tests/dailyWork.test.ts tests/dailyWorkService.test.ts tests/errors.test.ts tests/homeDashboard.test.ts tests/logger.test.ts tests/routes.test.ts tests/unhandled.test.ts",
     "test": "npm run test:functional",
     "audit:qa:stage-contract": "node scripts/qa-stage-contract-audit.mjs",
     "audit:qa:stage-delta": "node scripts/qa-stage-delta-audit.mjs",
