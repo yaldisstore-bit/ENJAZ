@@ -204,7 +204,7 @@ Phase 3 began only after 2.8 was green. Its exit was verified through the comple
 
 # Phase 4 — Home, Daily Work & Executive Overview 🚧
 
-Phase 4 is active. **Phase 4.1 and Phase 4.2 are closed ✅.** Phase 4.3 is the next permitted subphase and remains not started.
+Phase 4 is active. **Phase 4.1, Phase 4.2 and Phase 4.3 are closed ✅.** Phase 4.4 is the next permitted subphase and remains not started.
 
 ## 4.1 — Home / Dashboard ✅
 - Build the actual ENJAZ home screen using Phase 2 patterns.
@@ -223,16 +223,23 @@ Phase 4 is active. **Phase 4.1 and Phase 4.2 are closed ✅.** Phase 4.3 is the 
 - Exit verified through 56/56 functional tests, architecture audit, TypeScript, production build, Chromium Reality Gate on 1280/430/390/360/320, manual screenshot review, and cumulative UI-1/UI-3/UI-4/UI-5/UI-6/UI-7/UI-8/UI-9/UI-10 gates all green.
 - Closure evidence: `docs/PHASE4_2_DAILY_WORK_CLOSURE.md`.
 
-## 4.3 — Executive Briefing ⏭ CURRENT NEXT PHASE
+## 4.3 — Executive Briefing ✅
 - Concise operational summary.
 - Risks, blockers, important financial changes, and workload signals.
-- **Status:** not started; no Phase 4.3 implementation is included in the Phase 4.2 closure.
+- Composes authoritative Home and Daily Work facts instead of duplicating domain logic.
+- Adds only a bounded posted-payment pulse for the latest 7 days versus the prior 7 days; Phase 7 remains the authoritative full Finance implementation.
+- Provides stable/watch/critical executive state, bounded attention decisions, and explicit navigation to Daily Work, Finance, or Transactions context.
+- Refuses partial/guessed executive values when an authoritative source fails and protects monetary precision.
+- Live runtime stays behind Auth/Data Layer/workspace scope; public/CI preview remains an isolated fixture.
+- Exit verified through 60/60 functional tests, architecture audit, TypeScript, production build, Chromium Reality Gate on 1280/430/390/360/320, long Arabic/mixed-token/huge-money stress, manual screenshot review, and cumulative frozen UI regressions.
+- Closure evidence: `docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md`.
 
-## 4.4 — Home Destruction Gate
+## 4.4 — Home Destruction Gate ⏭ CURRENT NEXT PHASE
 - Empty/huge/dense datasets.
 - Conflicting urgency states.
 - Slow/offline backend behavior.
 - Responsive and interaction torture.
+- **Status:** not started; no Phase 4.4 implementation is included in the Phase 4.3 closure.
 
 ---
 
@@ -619,7 +626,8 @@ The project is considered delivered only when:
 - **Phase 3 — Application Shell & Navigation ✅**
 - **Phase 4.1 — Home / Dashboard ✅**
 - **Phase 4.2 — Daily Work / Universal Inbox ✅**
-- **Next: Phase 4.3 — Executive Briefing**
+- **Phase 4.3 — Executive Briefing ✅**
+- **Next: Phase 4.4 — Home Destruction Gate**
 
 ---
 
@@ -627,7 +635,7 @@ The project is considered delivered only when:
 
 This file is intentionally difficult to change by accident.
 
-This closure changes only verified roadmap state: Phase 4.2 is marked complete after its implementation, 56/56 functional tests, TypeScript and production build, dedicated Chromium Reality Gate, manual screenshot review, and cumulative UI-1/UI-3/UI-4/UI-5/UI-6/UI-7/UI-8/UI-9/UI-10 gates succeeded on the same implementation head. Phase 4.3 becomes the next permitted subphase but remains not started. Feature parity and delivery scope are unchanged; no business implementation is moved or skipped.
+This closure changes only verified roadmap state: Phase 4.3 is marked complete after its implementation, 60/60 functional tests, TypeScript and production build, dedicated Chromium Reality Gate on five viewports, long Arabic/mixed-token/huge-money stress, manual screenshot review, and cumulative frozen UI regressions succeeded. Phase 4.4 becomes the next permitted subphase but remains not started. Feature parity and delivery scope are unchanged; no business implementation is moved or skipped.
 
 A roadmap change must state:
 1. what changes,
