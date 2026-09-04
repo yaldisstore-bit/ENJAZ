@@ -1,4 +1,3 @@
-import type { Json } from '../../core/supabase/database.types.ts';
 import type { RowOf } from '../../data/contracts/dataTypes.ts';
 
 export const DAILY_WORK_ITEM_LIMIT = 60;
@@ -142,7 +141,7 @@ function ageBoost(date: Date | null, now: Date, max = 16): number {
   return Math.min(max, days);
 }
 
-function findWorkflowItemTitle(snapshot: Json, itemKey: string): string | null {
+function findWorkflowItemTitle(snapshot: unknown, itemKey: string): string | null {
   if (Array.isArray(snapshot)) {
     for (const value of snapshot) {
       const title = findWorkflowItemTitle(value, itemKey);
@@ -151,12 +150,11 @@ function findWorkflowItemTitle(snapshot: Json, itemKey: string): string | null {
     return null;
   }
   if (!snapshot || typeof snapshot !== 'object') return null;
-  const record = snapshot as Record<string, Json | undefined>;
+  const record = snapshot as Record<string, unknown>;
   const keyCandidate = [record.key, record.item_key, record.template_item_key, record.id]
     .find((value) => typeof value === 'string' && value === itemKey);
   if (keyCandidate && typeof record.title === 'string' && record.title.trim()) return record.title.trim();
   for (const value of Object.values(record)) {
-    if (value === undefined) continue;
     const title = findWorkflowItemTitle(value, itemKey);
     if (title) return title;
   }
