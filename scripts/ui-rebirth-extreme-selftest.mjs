@@ -56,6 +56,9 @@ const cases = [
   ['remove CTA auto centering', mutateAll('hardeningCss', 'margin-inline: auto;', 'margin-inline: 0;')],
   ['break dock center slot', mutateAll('shellCss', 'grid-template-columns: 1fr 1fr 76px 1fr 1fr', 'grid-template-columns: repeat(5,1fr)')],
   ['move hardening earlier', { ...baseline, foundationCss: baseline.foundationCss.replace("@import './qa-hardening.css';", "@import './qa-hardening.css';\n@import './tokens.css';") }],
+  ['weaken secondary ink contrast', mutateAll('tokensCss', '--ui-ink-secondary: #54514d', '--ui-ink-secondary: #817e7a')],
+  ['move quick microcopy back to muted ink', mutateAll('shellCss', 'color: var(--ui-ink-secondary);', 'color: var(--ui-ink-muted);')],
+  ['reintroduce dialog opacity fade', mutate('shellCss', 'from { transform: translateY(28px) scale(.985); }', 'from { opacity: 0; transform: translateY(28px) scale(.985); }')],
 ];
 
 let rejected = 0;

@@ -43,6 +43,8 @@ export function validateExtremeUI({ shell, shellCss, hardeningCss, tokensCss, fo
   requireSource(hardeningCss.includes('@media (forced-colors: active)'), 'forced-colors accessibility contract missing');
   requireSource(hardeningCss.includes(':focus-visible'), 'visible keyboard focus contract missing');
   requireSource(tokensCss.includes('--ui-touch-min: 44px'), '44px minimum touch token missing');
+  requireSource(tokensCss.includes('--ui-ink-secondary: #54514d'), 'high-contrast secondary ink token missing');
+  requireSource(shellCss.includes('color: var(--ui-ink-secondary);'), 'quick-action microcopy is not using high-contrast secondary ink');
   requireSource(hardeningCss.includes('min-width: var(--ui-touch-min)') && hardeningCss.includes('min-height: var(--ui-touch-min)'), 'minimum interactive target size is not enforced');
   requireSource(
     hardeningCss.includes('inset-inline: 0;') && hardeningCss.includes('margin-inline: auto;') && hardeningCss.includes('translate: none;'),
@@ -52,6 +54,15 @@ export function validateExtremeUI({ shell, shellCss, hardeningCss, tokensCss, fo
   requireSource(css.includes('pointer-events: none') && css.includes('pointer-events: auto'), 'dock layering/pointer contract incomplete');
   requireSource(foundationCss.trim().endsWith("@import './qa-hardening.css';"), 'QA hardening layer is not last in foundation cascade');
   requireSource(!/100vh(?![a-z])/i.test(css), 'legacy 100vh used instead of dynamic viewport units');
+
+  const sheetKeyframesStart = shellCss.indexOf('@keyframes rebirth-sheet-in');
+  const sheetKeyframesEnd = sheetKeyframesStart >= 0 ? shellCss.indexOf('@media (min-width: 760px)', sheetKeyframesStart) : -1;
+  const sheetKeyframes = sheetKeyframesStart >= 0 && sheetKeyframesEnd > sheetKeyframesStart
+    ? shellCss.slice(sheetKeyframesStart, sheetKeyframesEnd)
+    : '';
+  requireSource(sheetKeyframes.includes('from { transform: translateY(28px) scale(.985); }'), 'dialog entrance transform contract missing');
+  requireSource(sheetKeyframes.includes('to { transform: translateY(0) scale(1); }'), 'dialog entrance completion transform contract missing');
+  requireSource(!sheetKeyframes.includes('opacity:'), 'dialog content must remain fully opaque during entrance to preserve WCAG contrast');
 
   return failures;
 }
