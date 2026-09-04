@@ -7,9 +7,9 @@ export function EzButton(props: Readonly<ButtonHTMLAttributes<HTMLButtonElement>
   size?: 'sm' | 'md' | 'lg';
   icon?: ReactNode;
 }>) {
-  const { tone = 'gold', size = 'md', icon, className = '', children, ...buttonProps } = props;
+  const { tone = 'gold', size = 'md', icon, className = '', children, type = 'button', ...buttonProps } = props;
   return (
-    <button {...buttonProps} className={`ez-button ez-button--${tone} ez-button--${size} ${className}`.trim()}>
+    <button type={type} {...buttonProps} className={`ez-button ez-button--${tone} ez-button--${size} ${className}`.trim()}>
       {icon ? <span className="ez-button__icon" aria-hidden="true">{icon}</span> : null}
       <span>{children}</span>
     </button>
@@ -17,8 +17,8 @@ export function EzButton(props: Readonly<ButtonHTMLAttributes<HTMLButtonElement>
 }
 
 export function EzIconButton(props: Readonly<ButtonHTMLAttributes<HTMLButtonElement> & { label: string; icon: ReactNode }>) {
-  const { label, icon, className = '', ...buttonProps } = props;
-  return <button {...buttonProps} className={`ez-icon-button ${className}`.trim()} aria-label={label} title={label}><span aria-hidden="true">{icon}</span></button>;
+  const { label, icon, className = '', type = 'button', ...buttonProps } = props;
+  return <button type={type} {...buttonProps} className={`ez-icon-button ${className}`.trim()} aria-label={label} title={label}><span aria-hidden="true">{icon}</span></button>;
 }
 
 export function EzField(props: Readonly<Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix'> & {
@@ -78,5 +78,10 @@ export function EzProgress(props: Readonly<{ value: number; label: string; detai
 }
 
 export function EzSegmented(props: Readonly<{ value: string; options: readonly { value: string; label: string }[]; onChange(value: string): void }>) {
-  return <div className="ez-segmented" role="group" aria-label="خيارات العرض">{props.options.map((option) => <button key={option.value} type="button" className={props.value === option.value ? 'is-active' : ''} aria-pressed={props.value === option.value} onClick={() => props.onChange(option.value)}>{option.label}</button>)}</div>;
+  return <div className="ez-segmented" role="group" aria-label="اختيار العرض">{props.options.map((option) => <button type="button" key={option.value} className={props.value === option.value ? 'is-active' : ''} aria-pressed={props.value === option.value} onClick={() => props.onChange(option.value)}>{option.label}</button>)}</div>;
+}
+
+export function EzStatPill(props: Readonly<{ value: string; label: string; tone?: 'gold' | 'dark' | 'soft' }>) {
+  const { value, label, tone = 'soft' } = props;
+  return <span className={`ez-stat-pill ez-stat-pill--${tone}`}><strong>{value}</strong><small>{label}</small></span>;
 }
