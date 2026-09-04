@@ -16,6 +16,7 @@ import { HomeAppPreviewPage } from '../features/home/pages/HomeAppPreviewPage.ts
 import { HomeDashboardPreviewPage } from '../features/home/pages/HomeDashboardPreviewPage.tsx';
 import { NavigationLabPage } from '../features/navigation/pages/NavigationLabPage.tsx';
 import { NavigationPreviewAppPage } from '../features/navigation/pages/NavigationPreviewAppPage.tsx';
+import { RebirthFoundationPage } from '../ui-rebirth/preview/RebirthFoundationPage.tsx';
 import { PRODUCT_NAVIGATION_ROUTES } from '../core/routing/navigationContract.ts';
 import { ROUTES } from '../core/routing/routes';
 
@@ -25,6 +26,7 @@ const previewProductRoutes = PRODUCT_NAVIGATION_ROUTES
 
 export const previewRouter = createBrowserRouter([
   { path: ROUTES.root, Component: HomeAppPreviewPage },
+  { path: '/rebirth-foundation', Component: RebirthFoundationPage },
   { path: ROUTES.foundation, Component: FoundationStatusPage },
   { path: ROUTES.identity, Component: IdentityLabPage },
   { path: ROUTES.tokens, Component: TokenLabPage },
