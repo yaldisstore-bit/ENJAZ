@@ -64,6 +64,11 @@ async function openAndCheckSheet(page, profile, triggerName, dialogName, marker)
   return dialog;
 }
 
+async function closeSheet(dialog) {
+  await dialog.getByLabel('إغلاق', { exact: true }).click();
+  await dialog.waitFor({ state: 'detached' });
+}
+
 async function verifyProfile(browser, profile) {
   const context = await browser.newContext({ viewport: profile.viewport, deviceScaleFactor: 1 });
   const page = await context.newPage();
@@ -105,8 +110,7 @@ async function verifyProfile(browser, profile) {
   await page.waitForTimeout(380);
   await assertInsideViewport(followupSheet, profile.viewport, `${profile.name}:followup-create`);
   assert(await page.locator('[data-create-type="followup"].is-selected').count() === 1, `${profile.name}: follow-up quick-create selection was not preserved`);
-  await page.getByRole('button', { name: 'إغلاق', exact: true }).click();
-  await followupSheet.waitFor({ state: 'detached' });
+  await closeSheet(followupSheet);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-today.png`), fullPage: true });
 
   await dock.getByRole('button', { name: 'العمليات', exact: true }).click();
@@ -134,13 +138,11 @@ async function verifyProfile(browser, profile) {
 
   const notifications = await openAndCheckSheet(page, profile, 'الإشعارات', 'الإشعارات', 'notifications');
   assert(await notifications.getByText('3', { exact: true }).count() >= 1, `${profile.name}: attention count missing`);
-  await page.getByRole('button', { name: 'إغلاق', exact: true }).click();
-  await notifications.waitFor({ state: 'detached' });
+  await closeSheet(notifications);
 
   const account = await openAndCheckSheet(page, profile, 'الحساب', 'الحساب ومساحة العمل', 'account');
   assert(await account.getByText('مساحة إنجاز الرئيسية', { exact: true }).isVisible(), `${profile.name}: workspace identity missing`);
-  await page.getByRole('button', { name: 'إغلاق', exact: true }).click();
-  await account.waitFor({ state: 'detached' });
+  await closeSheet(account);
 
   await page.getByRole('button', { name: 'إجراء جديد', exact: true }).click();
   const createSheet = page.getByRole('dialog', { name: 'إجراء جديد', exact: true });
@@ -149,8 +151,7 @@ async function verifyProfile(browser, profile) {
   await assertInsideViewport(createSheet, profile.viewport, `${profile.name}:create`);
   await page.locator('[data-create-type="payment"]').click();
   assert(await page.locator('[data-create-type="payment"].is-selected').count() === 1, `${profile.name}: payment create selection failed`);
-  await page.getByRole('button', { name: 'إغلاق', exact: true }).click();
-  await createSheet.waitFor({ state: 'detached' });
+  await closeSheet(createSheet);
 
   await dock.getByRole('button', { name: 'المالية', exact: true }).click();
   await page.locator('[data-core-screen="finance"]').waitFor();
