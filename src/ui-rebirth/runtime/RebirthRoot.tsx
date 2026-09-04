@@ -1,5 +1,5 @@
-import { RebirthFoundationPage } from '../preview/RebirthFoundationPage.tsx';
+import { RebirthAppShell } from './RebirthAppShell.tsx';
 
 export function RebirthRoot() {
-  return <RebirthFoundationPage />;
+  return <RebirthAppShell />;
 }
