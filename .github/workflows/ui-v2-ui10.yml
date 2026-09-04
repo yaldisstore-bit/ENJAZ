@@ -1,0 +1,81 @@
+name: ENJAZ UI V2 — UI-10 Full Destruction Freeze Gate
+
+on:
+  pull_request:
+    branches: [uiux-rebirth-v2]
+    paths:
+      - 'src/ui-v2/**'
+      - 'src/main.tsx'
+      - 'scripts/ui7-**'
+      - 'scripts/ui8-**'
+      - 'scripts/ui9-**'
+      - 'scripts/ui10-**'
+      - '.github/workflows/ui-v2-ui10.yml'
+      - 'docs/ENJAZ_UIUX_REBIRTH_V2_ROADMAP.md'
+      - 'docs/UI10_**'
+
+jobs:
+  ui10-full-destruction-freeze-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install project dependencies
+        run: npm ci
+      - name: UI V2 boundary audit
+        run: npm run audit:ui-v2:boundary
+      - name: UI-7 domain regression audit
+        run: node scripts/ui7-domain-audit.mjs
+      - name: UI-8 states/forms regression audit
+        run: node scripts/ui8-states-audit.mjs
+      - name: UI-9 motion/mobile regression audit
+        run: node scripts/ui9-mobile-audit.mjs
+      - name: UI-10 freeze architecture audit
+        run: node scripts/ui10-freeze-audit.mjs
+      - name: Functional regression tests
+        run: npm run test:functional
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build
+      - name: Install Chromium test runtime
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start real Vite runtime
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 4180 > /tmp/enjaz-ui10-vite.log 2>&1 &
+          echo $! > /tmp/enjaz-ui10-vite.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4180 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-ui10-vite.log
+          exit 1
+      - name: UI-8 forms and stress regression in final runtime
+        env:
+          UI8_BASE_URL: http://127.0.0.1:4180
+          UI8_ARTIFACT_DIR: artifacts/ui10-reality/ui8
+        run: node scripts/ui8-reality-test.mjs
+      - name: UI-9 mobile motion regression in final runtime
+        env:
+          UI9_BASE_URL: http://127.0.0.1:4180
+          UI9_ARTIFACT_DIR: artifacts/ui10-reality/ui9
+        run: node scripts/ui9-reality-test.mjs
+      - name: UI-10 full product destruction gate
+        env:
+          UI10_BASE_URL: http://127.0.0.1:4180
+          UI10_ARTIFACT_DIR: artifacts/ui10-reality/final
+        run: node scripts/ui10-reality-test.mjs
+      - name: Upload UI-10 freeze evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui10-freeze-evidence
+          path: artifacts/ui10-reality
+          if-no-files-found: warn
+          retention-days: 30
