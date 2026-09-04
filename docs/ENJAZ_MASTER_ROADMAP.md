@@ -204,7 +204,7 @@ Phase 3 began only after 2.8 was green. Its exit was verified through the comple
 
 # Phase 4 — Home, Daily Work & Executive Overview 🚧
 
-Phase 4 has started. **Phase 4.1 is closed ✅.** Phase 4.2 is the next permitted subphase and remains **not started** as part of this closure.
+Phase 4 is active. **Phase 4.1 and Phase 4.2 are closed ✅.** Phase 4.3 is the next permitted subphase and remains not started.
 
 ## 4.1 — Home / Dashboard ✅
 - Build the actual ENJAZ home screen using Phase 2 patterns.
@@ -212,15 +212,21 @@ Phase 4 has started. **Phase 4.1 is closed ✅.** Phase 4.2 is the next permitte
 - No decorative metrics without business value.
 - Exit verified through the complete Phase 4.1 Quality Gate, destructive Home selftest, merged-main production build/artifact, and GitHub Pages deployment.
 
-## 4.2 — Daily Work / Universal Inbox ⏭ CURRENT NEXT PHASE
+## 4.2 — Daily Work / Universal Inbox ✅
 - Consolidated work queue.
 - Follow-ups, overdue work, approvals/action-needed items, and task-like operational signals.
 - Clear ownership and state.
-- **Status:** not started; no 4.2 implementation is included in the 4.1 closure.
+- Consolidates open follow-ups, blockers, near calendar events, renewals, and pending workflow item states through the preserved typed Data Layer.
+- Excludes work tied to completed, archived, or deleted transactions and respects follow-up snooze state.
+- Direct completion/snooze writes stay behind authoritative repositories; blockers cannot be silently resolved from Universal Inbox.
+- Live runtime uses authenticated Auth/DataLayer/Supabase boundaries; the public/CI fixture is isolated from live data and secrets.
+- Exit verified through 56/56 functional tests, architecture audit, TypeScript, production build, Chromium Reality Gate on 1280/430/390/360/320, manual screenshot review, and cumulative UI-1/UI-3/UI-4/UI-5/UI-6/UI-7/UI-8/UI-9/UI-10 gates all green.
+- Closure evidence: `docs/PHASE4_2_DAILY_WORK_CLOSURE.md`.
 
-## 4.3 — Executive Briefing
+## 4.3 — Executive Briefing ⏭ CURRENT NEXT PHASE
 - Concise operational summary.
 - Risks, blockers, important financial changes, and workload signals.
+- **Status:** not started; no Phase 4.3 implementation is included in the Phase 4.2 closure.
 
 ## 4.4 — Home Destruction Gate
 - Empty/huge/dense datasets.
@@ -612,7 +618,8 @@ The project is considered delivered only when:
 - Phase 3.4 ✅
 - **Phase 3 — Application Shell & Navigation ✅**
 - **Phase 4.1 — Home / Dashboard ✅**
-- **Next: Phase 4.2 — Daily Work / Universal Inbox**
+- **Phase 4.2 — Daily Work / Universal Inbox ✅**
+- **Next: Phase 4.3 — Executive Briefing**
 
 ---
 
@@ -620,7 +627,7 @@ The project is considered delivered only when:
 
 This file is intentionally difficult to change by accident.
 
-This closure changes only verified roadmap state: Phase 4.1 is marked complete after its implementation PR, merged-main Quality Gate, production artifact and Pages validation succeeded; Phase 4.2 becomes the next permitted subphase but remains not started. Feature parity and delivery scope are unchanged; no business implementation is moved or skipped.
+This closure changes only verified roadmap state: Phase 4.2 is marked complete after its implementation, 56/56 functional tests, TypeScript and production build, dedicated Chromium Reality Gate, manual screenshot review, and cumulative UI-1/UI-3/UI-4/UI-5/UI-6/UI-7/UI-8/UI-9/UI-10 gates succeeded on the same implementation head. Phase 4.3 becomes the next permitted subphase but remains not started. Feature parity and delivery scope are unchanged; no business implementation is moved or skipped.
 
 A roadmap change must state:
 1. what changes,

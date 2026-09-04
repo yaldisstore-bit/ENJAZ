@@ -1,12 +1,15 @@
 import { useState } from 'react';
+import type { DailyWorkItem } from '../../features/daily-work/dailyWorkModel.ts';
 import { domainById, enjazDomains, type EnjazDomainId } from '../architecture/domain-composition.ts';
 import { AppShell } from '../components/AppShell.tsx';
 import { EzSheet } from '../components/overlays.tsx';
-import { DailyWorkCoreScreen, FinanceCoreScreen, HomeCoreScreen, OperationsCoreScreen } from '../screens/CoreScreens.tsx';
+import { FinanceCoreScreen, HomeCoreScreen, OperationsCoreScreen } from '../screens/CoreScreens.tsx';
+import { ConnectedDailyWorkScreen, FixtureDailyWorkScreen } from '../screens/DailyWorkScreen.tsx';
 import { DomainScreen } from '../screens/DomainScreens.tsx';
 
 type ShellTab = 'home' | 'today' | 'operations' | 'finance';
 type DomainGroup = Readonly<{ label: string; ids: readonly EnjazDomainId[] }>;
+export type DailyWorkRuntimeMode = 'preview' | 'live';
 
 const titles: Record<ShellTab, { title: string; subtitle: string }> = {
   home: { title: 'إنجاز', subtitle: 'مساحة العمل' },
@@ -21,21 +24,14 @@ const domainGroups: readonly DomainGroup[] = [
   { label: 'المال والذكاء والملفات', ids: ['finance', 'risk', 'documents', 'copilot'] },
 ] as const;
 
-export function CoreApp() {
+export function CoreApp(props: Readonly<{ dailyWorkMode?: DailyWorkRuntimeMode }> = {}) {
   const [activeTab, setActiveTab] = useState<ShellTab>('home');
   const [commandMode, setCommandMode] = useState(false);
   const [activeDomain, setActiveDomain] = useState<EnjazDomainId | null>(null);
   const [domainExplorerOpen, setDomainExplorerOpen] = useState(false);
   const current = titles[activeTab];
   const domain = activeDomain ? domainById[activeDomain] : null;
-
-  const coreScreen = activeTab === 'home'
-    ? <HomeCoreScreen />
-    : activeTab === 'today'
-      ? <DailyWorkCoreScreen onNewFollowup={() => window.dispatchEvent(new CustomEvent('enjaz:open-create', { detail: 'followup' }))} />
-      : activeTab === 'operations'
-        ? <OperationsCoreScreen commandMode={commandMode} onCommandMode={setCommandMode} />
-        : <FinanceCoreScreen />;
+  const dailyWorkMode = props.dailyWorkMode ?? 'preview';
 
   const openDomain = (domainId: EnjazDomainId) => {
     setActiveDomain(domainId);
@@ -49,10 +45,28 @@ export function CoreApp() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
+  const openDailyWorkItem = (item: DailyWorkItem) => {
+    if (item.transactionId) openDomain('transactions');
+    else if (item.companyId) openDomain('companies');
+    else openDomain('followups');
+  };
+
+  const newFollowup = () => window.dispatchEvent(new CustomEvent('enjaz:open-create', { detail: 'followup' }));
+
+  const coreScreen = activeTab === 'home'
+    ? <HomeCoreScreen />
+    : activeTab === 'today'
+      ? dailyWorkMode === 'live'
+        ? <ConnectedDailyWorkScreen onNewFollowup={newFollowup} onOpen={openDailyWorkItem} />
+        : <FixtureDailyWorkScreen onNewFollowup={newFollowup} onOpen={openDailyWorkItem} />
+      : activeTab === 'operations'
+        ? <OperationsCoreScreen commandMode={commandMode} onCommandMode={setCommandMode} />
+        : <FinanceCoreScreen />;
+
   const motionKey = domain ? `domain-${domain.id}` : `core-${activeTab}-${commandMode ? 'command' : 'standard'}`;
 
   return (
-    <div data-core-app="true" data-stage="ui-10" data-active-domain={activeDomain ?? 'core'}>
+    <div data-core-app="true" data-stage="ui-10" data-product-phase="4.2" data-daily-work-mode={dailyWorkMode} data-active-domain={activeDomain ?? 'core'}>
       <AppShell
         title={domain ? domain.label : commandMode && activeTab === 'operations' ? 'القيادة' : current.title}
         subtitle={domain ? domain.eyebrow : commandMode && activeTab === 'operations' ? 'المركز التنفيذي' : current.subtitle}

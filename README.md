@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 4.1 — Home / Dashboard ✅**  
-آخر مرحلة مغلقة: **Phase 4.1 — Home / Dashboard ✅**.  
-التالي المسموح: **Phase 4.2 — Daily Work / Universal Inbox**، ولم تبدأ بعد.
+الحالة الرسمية: **Phase 4.2 — Daily Work / Universal Inbox ✅**  
+آخر مرحلة مغلقة: **Phase 4.2 — Daily Work / Universal Inbox ✅**.  
+التالي المسموح: **Phase 4.3 — Executive Briefing**، ولم تبدأ بعد.
 
 إنجاز مشروع جديد مبني من الصفر بهوية مستقلة وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية الأساسية للمشروع السابق دون نقل واجهاته أو الـlegacy UI DNA.
 
@@ -12,8 +12,9 @@
 
 - [`docs/ENJAZ_MASTER_ROADMAP.md`](docs/ENJAZ_MASTER_ROADMAP.md) — التسلسل الرسمي حتى **ENJAZ 1.0 — Delivered**.
 - [`docs/ENJAZ_ROADMAP_PROVENANCE.md`](docs/ENJAZ_ROADMAP_PROVENANCE.md) — مصدر الخطة وحدود استعادة التسميات التاريخية.
+- [`docs/PHASE4_2_DAILY_WORK_CLOSURE.md`](docs/PHASE4_2_DAILY_WORK_CLOSURE.md) — أدلة إغلاق Daily Work / Universal Inbox.
 
-**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. Phase 4.2 لا تبدأ قبل أن يصبح إغلاق 4.1 نفسه أخضر على PR ثم `main` ثم GitHub Pages على نفس SHA النهائي.
+**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. Phase 4.3 لا تبدأ قبل إغلاق 4.2 ونجاح Release Gate الخاصة بها ودمج Closure في فرع التكامل الرسمي.
 
 ## حالة المراحل
 
@@ -29,7 +30,7 @@
   - **Phase 3.4 — Shell Destruction Gate** ✅
 - **Phase 4 — Home, Daily Work & Executive Overview** 🚧
   - **Phase 4.1 — Home / Dashboard** ✅ complete
-  - **Phase 4.2 — Daily Work / Universal Inbox** ⏳ not started
+  - **Phase 4.2 — Daily Work / Universal Inbox** ✅ complete
   - **Phase 4.3 — Executive Briefing** ⏳ not started
   - **Phase 4.4 — Home Destruction Gate** ⏳ not started
 
@@ -44,8 +45,22 @@
 - Financial snapshot محدود بوضوح إلى أتعاب العمل النشط والمدفوعات `posted` المرتبطة به؛ Phase 7 يبقى المرجع المحاسبي الكامل.
 - كشف نطاق الدقة الرقمية وعدم الادعاء بدقة مالية زائفة عند تجاوز مجال JavaScript الآمن.
 - Loading / Empty / Error / Retry states فعلية، ولا تُعرض أرقام جزئية عند فشل تحميل جزء من المصادر.
-- Preview حتمي وآمن على `/foundation/home` من نفس `HomeDashboardView` دون سجلات إنتاج أو أسرار.
-- بقية مجالات المنتج تظل Reserved؛ 4.2 لم تبدأ.
+
+## Phase 4.2 — المكتمل رسميًا
+
+4.2 حولت وجهة «اليوم» إلى **Daily Work / Universal Inbox** حقيقية داخل ENJAZ UI/UX 2.0 المجمد:
+
+- Queue موحدة تجمع المتابعات، العوائق، المواعيد القريبة، التجديدات، وإجراءات الـWorkflow المعلقة.
+- استبعاد أي عمل تابع لمعاملة مكتملة أو مؤرشفة أو محذوفة.
+- احترام تأجيل المتابعات وعدم إعادتها إلى الـInbox قبل `snoozed_until`.
+- ترتيب تشغيلي حسب الأثر والوقت، مع Ownership من أحدث `transaction_routes.assigned_to_text`.
+- إكمال المتابعة/الموعد/التجديد/Workflow عبر الـRepositories الموثوقة نفسها.
+- منع Universal Inbox من حلّ Blocker بصمت؛ العائق يفتح سياق العمل بدل تجاوز قواعد المعاملة.
+- Live runtime يستخدم Auth + Data Layer + Supabase، بينما CI/GitHub Pages يستخدم fixture معزولة بلا أسرار أو بيانات إنتاج.
+- Loading / Empty / Error / Retry وحالات الإجراء موجودة فعليًا.
+- اختبار حقيقي على 1280 / 430 / 390 / 360 / 320px مع Touch 44px وoverflow وconsole/page errors.
+- تم اكتشاف وإصلاح خلل حقيقي على 320px كان يسمح لزر `فتح السياق` بالاقتراب من/الانحجاب خلف Bottom Dock، وبقي له Regression دائم.
+- Daily Work مسجلة كـ`data-pattern="daily-work"` وتخضع لـUI-10 Full Product Destruction بالنص العربي الطويل والـmixed tokens والقيم الضخمة.
 
 ## المختبرات ومساحات الإثبات
 
@@ -62,29 +77,33 @@
 - `/foundation/interactions` — 3.3
 - `/foundation/shell-destruction` — 3.4
 - `/foundation/home` — 4.1 deterministic Home proof
+- UI V2 fixture runtime — 4.2 deterministic Daily Work interaction/reality proof
 
 ## Quality Gate
 
-GitHub Actions يعمل على Pull Requests وعلى `main`:
+إغلاق 4.2 لا يعتمد على Smoke Test. على implementation head `395978afe09a6155193e29e0e29cd09b4f3f7a42` نجحت جميع البوابات التراكمية:
 
-1. `npm ci`
-2. السلسلة الكاملة حتى `npm run verify:phase4.1`
-3. كل بوابات Phase 3.4 وما قبلها تبقى فعالة عبر forward-compatible normalization وليس بتعطيل الفحوص.
-4. Phase 4.1 Home audit + destructive selftest.
-5. Roadmap integrity audit.
-6. TypeScript الحقيقي `tsc -b`.
-7. Vite production build وفحص `dist/index.html`.
-8. الاحتفاظ بالـproduction artifact على `main`.
-9. GitHub Pages ينشر فقط بعد نجاح Quality Gate على `main`.
+1. UI-1 Gate ✅
+2. UI-3 Reality Gate ✅
+3. UI-4 App Shell Reality Gate ✅
+4. UI-5 Composition Reality Gate ✅
+5. UI-6 Core Screens Reality Gate ✅
+6. UI-7 Domain Reality Gate ✅
+7. UI-8 States / Forms Reality Gate ✅
+8. UI-9 Motion / Touch / Mobile Reality Gate ✅
+9. UI-10 Full Destruction Freeze Gate ✅
+10. Phase 4.2 Daily Work Reality Gate ✅
+11. **56/56** functional tests ✅
+12. TypeScript `tsc -b` ✅
+13. Vite production build ✅
+14. Manual screenshot review ✅
 
-PR #16 اجتاز Quality Gate الكامل على feature head قبل الدمج: **161/161** behavior/contract tests، **146/146** Home Audit، **42/42** Home destructive regressions، TypeScript الحقيقي، وProduction Build. ثم دُمج بـSquash إلى `main` على `a9aaf1a134072d40a4183832eff11348502d0415`؛ ونجح Main Quality Gate #208 وENJAZ Pages Preview #168 على الـSHA نفسه، مع production artifact محفوظ. إغلاق 4.1 الحالي لا يصبح نهائيًا إلا بعد أن يكرر Closure PR هذه البوابات وينجح `main` وPages على SHA الإغلاق النهائي.
-
-Phase 3.4 السابقة بقيت مثبتة على feature SHA `a2df0390858e93fb4d55cf9412f5f6b452a1ed18`، ثم أُغلق Phase 3 توثيقيًا على final main SHA `87d2f44f7b319006c9dbf84913970508e8093e7e` بعد نجاح Quality Gate #186 وPages #146.
+أدلة التنفيذ مفصلة في `docs/PHASE4_2_DAILY_WORK_CLOSURE.md`.
 
 ## الأمان والأسرار
 
-المستودع لا يحتوي على `.env.local` أو مفاتيح Supabase الفعلية أو Service Role secrets. Feature layer في 4.1 لا تستورد Supabase مباشرة؛ كل الوصول يمر عبر Data Layer المركزية.
+المستودع لا يحتوي على `.env.local` أو مفاتيح Supabase الفعلية أو Service Role secrets. Feature layer في 4.1 و4.2 لا تنشئ عميل Supabase مباشر؛ الوصول التشغيلي يمر عبر Data Layer المركزية، والـfixture العامة معزولة عن بيانات الإنتاج.
 
 ## ملاحظة التطوير
 
-`main` هو المصدر الرسمي المعتمد. **Phase 4.1 مغلقة عند اكتمال Closure Gate النهائي؛ Phase 4.2 هي الخطوة التالية المسموحة ولم تبدأ.**
+`uiux-rebirth-v2` هو فرع التكامل الحالي لواجهة ENJAZ UI/UX 2.0 ومسار المنتج الجاري. **Phase 4.2 مغلقة بعد نجاح Closure Gate؛ Phase 4.3 — Executive Briefing هي الخطوة التالية المسموحة ولم تبدأ.**
