@@ -6,6 +6,7 @@ import './ui-v2/styles/components.css';
 import './ui-v2/styles/shell.css';
 import './ui-v2/styles/composition.css';
 import './ui-v2/styles/core.css';
+import './ui-v2/styles/domains.css';
 import './ui-v2/styles/touch-contract.css';
 
 const rootElement = document.getElementById('root');
