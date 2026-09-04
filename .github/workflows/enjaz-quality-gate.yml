@@ -59,6 +59,8 @@ jobs:
         run: node scripts/phase4-2-daily-work-audit.mjs
       - name: Phase 4.3 Executive Briefing architecture gate
         run: node scripts/phase4-3-executive-briefing-audit.mjs
+      - name: Phase 4.4 Home destruction architecture gate
+        run: node scripts/phase4-4-home-destruction-audit.mjs
       - name: Functional regression baseline
         run: npm run test:functional
       - name: Secrets audit
