@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   browser-acceptance:
-    name: Real Chromium / Mobile / Keyboard Gate
+    name: Real Chromium / Mobile / Keyboard / WCAG Gate
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -36,9 +36,9 @@ jobs:
         run: npm run build -- --base=/
       - name: Strict dist budget
         run: node scripts/dist-budget-audit.mjs
-      - name: Install pinned browser test tooling
+      - name: Install pinned browser and WCAG tooling
         run: |
-          npm install --no-save --package-lock=false @playwright/test@1.55.0
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2
           npx playwright install --with-deps chromium
       - name: Start production preview
         run: |
