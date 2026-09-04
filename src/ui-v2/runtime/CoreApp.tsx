@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import type { DailyWorkItem } from '../../features/daily-work/dailyWorkModel.ts';
+import type { ExecutiveBriefingDestination } from '../../features/executive-briefing/executiveBriefingModel.ts';
 import { domainById, enjazDomains, type EnjazDomainId } from '../architecture/domain-composition.ts';
 import { AppShell } from '../components/AppShell.tsx';
 import { EzSheet } from '../components/overlays.tsx';
 import { FinanceCoreScreen, HomeCoreScreen, OperationsCoreScreen } from '../screens/CoreScreens.tsx';
 import { ConnectedDailyWorkScreen, FixtureDailyWorkScreen } from '../screens/DailyWorkScreen.tsx';
 import { DomainScreen } from '../screens/DomainScreens.tsx';
+import { ExecutiveBriefingEntry } from '../screens/ExecutiveBriefingEntry.tsx';
+import { ConnectedExecutiveBriefingScreen, FixtureExecutiveBriefingScreen } from '../screens/ExecutiveBriefingScreen.tsx';
 
 type ShellTab = 'home' | 'today' | 'operations' | 'finance';
 type DomainGroup = Readonly<{ label: string; ids: readonly EnjazDomainId[] }>;
@@ -27,6 +30,7 @@ const domainGroups: readonly DomainGroup[] = [
 export function CoreApp(props: Readonly<{ dailyWorkMode?: DailyWorkRuntimeMode }> = {}) {
   const [activeTab, setActiveTab] = useState<ShellTab>('home');
   const [commandMode, setCommandMode] = useState(false);
+  const [briefingMode, setBriefingMode] = useState(false);
   const [activeDomain, setActiveDomain] = useState<EnjazDomainId | null>(null);
   const [domainExplorerOpen, setDomainExplorerOpen] = useState(false);
   const current = titles[activeTab];
@@ -37,11 +41,13 @@ export function CoreApp(props: Readonly<{ dailyWorkMode?: DailyWorkRuntimeMode }
     setActiveDomain(domainId);
     setDomainExplorerOpen(false);
     setCommandMode(false);
+    setBriefingMode(false);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const returnToCore = () => {
     setActiveDomain(null);
+    setBriefingMode(false);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
@@ -51,31 +57,54 @@ export function CoreApp(props: Readonly<{ dailyWorkMode?: DailyWorkRuntimeMode }
     else openDomain('followups');
   };
 
+  const openExecutiveDestination = (destination: ExecutiveBriefingDestination) => {
+    setBriefingMode(false);
+    setCommandMode(false);
+    if (destination === 'transactions') {
+      openDomain('transactions');
+      return;
+    }
+    setActiveDomain(null);
+    setActiveTab(destination === 'today' ? 'today' : 'finance');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
   const newFollowup = () => window.dispatchEvent(new CustomEvent('enjaz:open-create', { detail: 'followup' }));
 
-  const coreScreen = activeTab === 'home'
-    ? <HomeCoreScreen />
-    : activeTab === 'today'
-      ? dailyWorkMode === 'live'
-        ? <ConnectedDailyWorkScreen onNewFollowup={newFollowup} onOpen={openDailyWorkItem} />
-        : <FixtureDailyWorkScreen onNewFollowup={newFollowup} onOpen={openDailyWorkItem} />
-      : activeTab === 'operations'
-        ? <OperationsCoreScreen commandMode={commandMode} onCommandMode={setCommandMode} />
-        : <FinanceCoreScreen />;
+  const executiveScreen = dailyWorkMode === 'live'
+    ? <ConnectedExecutiveBriefingScreen onBack={() => setBriefingMode(false)} onOpenDestination={openExecutiveDestination} />
+    : <FixtureExecutiveBriefingScreen onBack={() => setBriefingMode(false)} onOpenDestination={openExecutiveDestination} />;
 
-  const motionKey = domain ? `domain-${domain.id}` : `core-${activeTab}-${commandMode ? 'command' : 'standard'}`;
+  const coreScreen = briefingMode
+    ? executiveScreen
+    : activeTab === 'home'
+      ? <><HomeCoreScreen /><ExecutiveBriefingEntry onOpen={() => { setBriefingMode(true); window.scrollTo({ top: 0, behavior: 'instant' }); }} /></>
+      : activeTab === 'today'
+        ? dailyWorkMode === 'live'
+          ? <ConnectedDailyWorkScreen onNewFollowup={newFollowup} onOpen={openDailyWorkItem} />
+          : <FixtureDailyWorkScreen onNewFollowup={newFollowup} onOpen={openDailyWorkItem} />
+        : activeTab === 'operations'
+          ? <OperationsCoreScreen commandMode={commandMode} onCommandMode={setCommandMode} />
+          : <FinanceCoreScreen />;
+
+  const motionKey = domain
+    ? `domain-${domain.id}`
+    : briefingMode
+      ? 'core-executive-briefing'
+      : `core-${activeTab}-${commandMode ? 'command' : 'standard'}`;
 
   return (
-    <div data-core-app="true" data-stage="ui-10" data-product-phase="4.2" data-daily-work-mode={dailyWorkMode} data-active-domain={activeDomain ?? 'core'}>
+    <div data-core-app="true" data-stage="ui-10" data-product-phase="4.3" data-daily-work-mode={dailyWorkMode} data-active-domain={activeDomain ?? 'core'} data-executive-briefing={briefingMode ? 'open' : 'closed'}>
       <AppShell
-        title={domain ? domain.label : commandMode && activeTab === 'operations' ? 'القيادة' : current.title}
-        subtitle={domain ? domain.eyebrow : commandMode && activeTab === 'operations' ? 'المركز التنفيذي' : current.subtitle}
+        title={domain ? domain.label : briefingMode ? 'الملخص التنفيذي' : commandMode && activeTab === 'operations' ? 'القيادة' : current.title}
+        subtitle={domain ? domain.eyebrow : briefingMode ? 'نظرة الإدارة' : commandMode && activeTab === 'operations' ? 'المركز التنفيذي' : current.subtitle}
         activeTab={activeTab}
         onBrandAction={() => setDomainExplorerOpen(true)}
         onTabChange={(tab) => {
           setActiveTab(tab);
           setActiveDomain(null);
           setDomainExplorerOpen(false);
+          setBriefingMode(false);
           if (tab !== 'operations') setCommandMode(false);
           window.scrollTo({ top: 0, behavior: 'instant' });
         }}

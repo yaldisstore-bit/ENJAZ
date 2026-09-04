@@ -1,0 +1,96 @@
+name: ENJAZ Phase 4.3 — Executive Briefing Reality Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/features/executive-briefing/**'
+      - 'src/features/home/**'
+      - 'src/features/daily-work/**'
+      - 'src/data/**'
+      - 'src/ui-v2/**'
+      - 'src/main.tsx'
+      - 'tests/executiveBriefing.test.ts'
+      - 'tests-external/live-shell.spec.cjs'
+      - 'scripts/phase4-3-**'
+      - 'scripts/roadmap-audit.mjs'
+      - 'scripts/qa-stage-contract-audit.mjs'
+      - 'package.json'
+      - '.github/workflows/phase4-3-executive-briefing.yml'
+      - '.github/workflows/enjaz-quality-gate.yml'
+      - '.github/workflows/enjaz-browser-acceptance.yml'
+      - '.github/workflows/enjaz-pages-preview.yml'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+      - 'docs/PHASE4_3_**'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase4-3-executive-briefing-reality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install project dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Frozen UI V2 boundary audit
+        run: npm run audit:ui-v2:boundary
+      - name: Frozen UI V2 visual DNA audit
+        run: npm run audit:ui-v2:dna
+      - name: Cumulative UI V2 freeze audit
+        run: npm run audit:ui-v2:freeze
+      - name: Phase 4.2 cumulative Daily Work audit
+        run: node scripts/phase4-2-daily-work-audit.mjs
+      - name: Phase 4.3 architecture audit
+        run: node scripts/phase4-3-executive-briefing-audit.mjs
+      - name: QA stage contract lock
+        run: npm run audit:qa:stage-contract
+      - name: Roadmap integrity audit
+        run: npm run audit:roadmap
+      - name: Functional regression tests
+        run: npm run test:functional
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Production build
+        env:
+          VITE_ENJAZ_PREVIEW_MODE: 'true'
+        run: npm run build -- --base=/
+      - name: Strict production asset budget
+        run: npm run audit:dist:budget
+      - name: Install Chromium test runtime
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start safe preview Vite runtime
+        env:
+          VITE_ENJAZ_PREVIEW_MODE: 'true'
+        run: |
+          VITE_ENJAZ_PREVIEW_MODE=true npm run dev -- --host 127.0.0.1 --port 4193 > /tmp/enjaz-phase43-vite.log 2>&1 &
+          echo $! > /tmp/enjaz-phase43-vite.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4193 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase43-vite.log
+          exit 1
+      - name: Phase 4.3 real browser journey
+        env:
+          PHASE43_BASE_URL: http://127.0.0.1:4193
+          PHASE43_ARTIFACT_DIR: artifacts/phase4-3-executive-briefing
+        run: node scripts/phase4-3-executive-briefing-reality.mjs
+      - name: Upload Phase 4.3 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4-3-executive-briefing-evidence
+          path: artifacts/phase4-3-executive-briefing
+          if-no-files-found: warn
+          retention-days: 30

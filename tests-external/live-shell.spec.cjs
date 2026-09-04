@@ -27,7 +27,7 @@ async function loadCanonical(page, errors) {
   await expect(shell).toHaveAttribute('data-stage', 'ui-10');
   await expect(shell).toHaveAttribute('dir', 'rtl');
   await expect(app).toHaveAttribute('data-stage', 'ui-10');
-  await expect(app).toHaveAttribute('data-product-phase', '4.2');
+  await expect(app).toHaveAttribute('data-product-phase', '4.3');
   expect(errors.console, 'browser console errors').toEqual([]);
   expect(errors.page, 'uncaught page errors').toEqual([]);
 }
@@ -65,10 +65,11 @@ async function rect(locator, label) {
 }
 
 async function closeSheet(page) {
-  const close = page.getByRole('button', { name: 'إغلاق', exact: true });
+  const dialog = page.getByRole('dialog');
+  const close = dialog.locator('.ez-sheet__close');
   await expect(close).toBeVisible();
   await close.click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(dialog).toHaveCount(0);
 }
 
 test('canonical UI V2 shell survives real Android geometry, navigation and WCAG', async ({ page }) => {

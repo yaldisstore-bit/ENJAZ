@@ -39,6 +39,7 @@ jobs:
           node scripts/ui9-mobile-audit.mjs
           node scripts/ui10-freeze-audit.mjs
           node scripts/phase4-2-daily-work-audit.mjs
+          node scripts/phase4-3-executive-briefing-audit.mjs
       - name: Production build
         env:
           VITE_ENJAZ_PREVIEW_MODE: 'true'

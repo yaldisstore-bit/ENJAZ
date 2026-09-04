@@ -76,7 +76,8 @@ async function verifyProfile(browser, profile) {
   const app = page.locator('[data-core-app="true"]');
   await app.waitFor();
   assert(await app.getAttribute('data-stage') === 'ui-10', `${profile.name}: frozen UI marker changed`);
-  assert(await app.getAttribute('data-product-phase') === '4.2', `${profile.name}: Phase 4.2 marker missing`);
+  const productPhase = Number(await app.getAttribute('data-product-phase'));
+  assert(Number.isFinite(productPhase) && productPhase >= 4.2, `${profile.name}: product phase regressed below 4.2`);
   assert(await app.getAttribute('data-daily-work-mode') === 'preview', `${profile.name}: public/reality runtime is not isolated preview mode`);
 
   const dock = await visitToday(page);
@@ -136,6 +137,7 @@ async function verifyProfile(browser, profile) {
   const result = {
     profile: profile.name,
     phase42: true,
+    productPhase,
     consolidatedQueue: true,
     overdueFilter: true,
     actionFilter: true,

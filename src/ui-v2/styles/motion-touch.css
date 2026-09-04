@@ -16,9 +16,9 @@ body {
   transform-origin: 50% 18%;
 }
 
-/* Entry motion must never shrink the physical hit area of controls. */
+/* Entry motion must never shrink touch geometry or reduce text contrast. */
 @keyframes ez-stage-in {
-  from { opacity: .01; transform: translateY(7px); }
+  from { opacity: 1; transform: translateY(7px); }
   to { opacity: 1; transform: none; }
 }
 

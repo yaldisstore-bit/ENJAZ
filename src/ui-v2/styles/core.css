@@ -50,7 +50,7 @@
 .ez-core-finance__ledger > header,
 .ez-core-operations__board section > header { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:12px; }
 .ez-core-queue h2 { margin:3px 0 0; font-size:1.2rem; }
-.ez-core-queue header span,.ez-core-remaining header small { color:var(--ez-muted); font-size:.72rem; }
+.ez-core-queue header div > span,.ez-core-remaining header small { color:var(--ez-muted); font-size:.72rem; }
 
 .ez-core-date-strip { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; padding:8px; border:1px solid var(--ez-line); border-radius:20px; background:rgba(255,253,248,.7); }
 .ez-core-date-strip button { min-height:48px; border:0; border-radius:14px; background:transparent; color:var(--ez-muted); font:inherit; font-weight:850; cursor:pointer; }
