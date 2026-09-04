@@ -8,13 +8,23 @@ on:
     paths:
       - 'src/features/home/**'
       - 'src/ui-v2/screens/HomeScreen.tsx'
+      - 'src/ui-v2/screens/CoreScreens.tsx'
       - 'src/ui-v2/runtime/CoreApp.tsx'
       - 'src/ui-v2/styles/home-dashboard.css'
       - 'src/main.tsx'
+      - 'tests/homeDashboard.test.ts'
       - 'tests/homeDashboardDestruction.test.ts'
       - 'scripts/phase4-4-**'
+      - 'scripts/phase4-3-executive-briefing-audit.mjs'
+      - 'scripts/qa-stage-contract-audit.mjs'
+      - 'scripts/roadmap-audit.mjs'
       - 'package.json'
       - '.github/workflows/phase4-4-home-destruction.yml'
+      - '.github/workflows/enjaz-quality-gate.yml'
+      - '.github/workflows/enjaz-browser-acceptance.yml'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+      - 'docs/PHASE4_4_**'
+      - 'README.md'
   workflow_dispatch:
 
 permissions:
@@ -42,6 +52,8 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+      - name: QA stage contract lock
+        run: npm run audit:qa:stage-contract
       - name: Frozen UI V2 boundary
         run: npm run audit:ui-v2:boundary
       - name: Frozen UI V2 visual DNA
@@ -58,6 +70,10 @@ jobs:
         run: node --experimental-strip-types --test tests/homeDashboardDestruction.test.ts
       - name: Full functional regression baseline
         run: npm run test:functional
+      - name: Secrets audit
+        run: npm run audit:secrets
+      - name: Roadmap integrity
+        run: npm run audit:roadmap
       - name: TypeScript
         run: npm run typecheck
       - name: Production build
