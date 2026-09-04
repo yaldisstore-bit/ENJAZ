@@ -1,9 +1,9 @@
-name: ENJAZ UI V2 — UI-5 Composition Reality Gate
+name: ENJAZ UI V2 — UI-6 Core Screens Reality Gate
 
 on:
   push:
     branches:
-      - uiux-rebirth-v2-ui5
+      - uiux-rebirth-v2-ui6
   pull_request:
     branches:
       - uiux-rebirth-v2
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  ui5-composition-reality-gate:
+  ui6-core-reality-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -31,8 +31,8 @@ jobs:
       - name: UI V2 boundary audit
         run: npm run audit:ui-v2:boundary
 
-      - name: UI-5 information architecture contract audit
-        run: node scripts/ui5-composition-audit.mjs
+      - name: UI-6 core screen contract audit
+        run: node scripts/ui6-core-audit.mjs
 
       - name: Functional regression tests
         run: npm run test:functional
@@ -50,27 +50,25 @@ jobs:
 
       - name: Start real Vite runtime
         run: |
-          npm run dev -- --host 127.0.0.1 --port 4175 > /tmp/enjaz-ui5-vite.log 2>&1 &
-          echo $! > /tmp/enjaz-ui5-vite.pid
+          npm run dev -- --host 127.0.0.1 --port 4176 > /tmp/enjaz-ui6-vite.log 2>&1 &
+          echo $! > /tmp/enjaz-ui6-vite.pid
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4175 >/dev/null; then
+            if curl -fsS http://127.0.0.1:4176 >/dev/null; then
               exit 0
             fi
             sleep 1
           done
-          cat /tmp/enjaz-ui5-vite.log
+          cat /tmp/enjaz-ui6-vite.log
           exit 1
 
-      - name: Real browser composition interaction and geometry gate
-        env:
-          UI5_BASE_URL: http://127.0.0.1:4175/?ui5-atlas=1
-        run: node scripts/ui5-reality-test.mjs
+      - name: Real browser core-screen interaction and geometry gate
+        run: node scripts/ui6-reality-test.mjs
 
-      - name: Upload UI-5 visual evidence
+      - name: Upload UI-6 visual evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ui5-reality-evidence
-          path: artifacts/ui5-reality
+          name: ui6-reality-evidence
+          path: artifacts/ui6-reality
           if-no-files-found: warn
           retention-days: 14
