@@ -14,6 +14,7 @@ on:
       - 'src/main.tsx'
       - 'tests/homeDashboard.test.ts'
       - 'tests/homeDashboardDestruction.test.ts'
+      - 'scripts/ui6-core-audit.mjs'
       - 'scripts/phase4-4-**'
       - 'scripts/phase4-3-executive-briefing-audit.mjs'
       - 'scripts/qa-stage-contract-audit.mjs'
