@@ -31,25 +31,44 @@ function useVisualViewportContract() {
   useEffect(() => {
     const root = document.documentElement;
     const viewport = window.visualViewport;
+    const coarsePointer = window.matchMedia('(pointer: coarse)');
 
     const update = () => {
       const visualHeight = viewport?.height ?? window.innerHeight;
+      const visualWidth = viewport?.width ?? window.innerWidth;
+      const offsetTop = viewport?.offsetTop ?? 0;
+      const offsetLeft = viewport?.offsetLeft ?? 0;
       const keyboardGap = Math.max(0, window.innerHeight - visualHeight);
+
       root.style.setProperty('--ez-visual-viewport-height', `${Math.round(visualHeight)}px`);
+      root.style.setProperty('--ez-visual-viewport-width', `${Math.round(visualWidth)}px`);
+      root.style.setProperty('--ez-visual-viewport-offset-top', `${Math.round(offsetTop)}px`);
+      root.style.setProperty('--ez-visual-viewport-offset-left', `${Math.round(offsetLeft)}px`);
       root.dataset.enjazKeyboard = keyboardGap > 140 ? 'open' : 'closed';
+      root.dataset.enjazOrientation = visualWidth > visualHeight ? 'landscape' : 'portrait';
+      root.dataset.enjazPointer = coarsePointer.matches ? 'coarse' : 'fine';
     };
 
     update();
     viewport?.addEventListener('resize', update);
     viewport?.addEventListener('scroll', update);
     window.addEventListener('resize', update);
+    coarsePointer.addEventListener?.('change', update);
+    window.screen.orientation?.addEventListener?.('change', update);
 
     return () => {
       viewport?.removeEventListener('resize', update);
       viewport?.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
+      coarsePointer.removeEventListener?.('change', update);
+      window.screen.orientation?.removeEventListener?.('change', update);
       delete root.dataset.enjazKeyboard;
+      delete root.dataset.enjazOrientation;
+      delete root.dataset.enjazPointer;
       root.style.removeProperty('--ez-visual-viewport-height');
+      root.style.removeProperty('--ez-visual-viewport-width');
+      root.style.removeProperty('--ez-visual-viewport-offset-top');
+      root.style.removeProperty('--ez-visual-viewport-offset-left');
     };
   }, []);
 }
@@ -124,7 +143,7 @@ export function AppShell(props: Readonly<{
   const brandContent = <><span className="ez-app-shell__brand-mark" aria-hidden="true">إ</span><span className="ez-app-shell__brand-copy"><strong>{title}</strong><small>{subtitle}</small></span></>;
 
   return (
-    <div className="ez-app-shell" data-enjaz-ui="v2" data-stage="ui-8" dir="rtl">
+    <div className="ez-app-shell" data-enjaz-ui="v2" data-stage="ui-9" dir="rtl">
       <header className="ez-app-shell__topbar" data-shell-part="topbar">
         {props.onBrandAction ? (
           <button type="button" className="ez-app-shell__brand ez-app-shell__brand--interactive" aria-label="مجالات إنجاز" onClick={props.onBrandAction}>{brandContent}</button>
