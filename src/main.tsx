@@ -1,11 +1,16 @@
-import './styles/foundation.css';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { RebirthRoot } from './ui-rebirth/runtime/RebirthRoot.tsx';
+import './ui-rebirth/styles/foundation.css';
 
-if (import.meta.env.VITE_ENJAZ_PREVIEW_MODE === 'true') {
-  void import('./app/previewBootstrap').then(({ bootPreviewApplication }) => {
-    bootPreviewApplication();
-  });
-} else {
-  void import('./app/bootstrap').then(({ bootApplication }) => {
-    bootApplication(import.meta.env);
-  });
+const rootElement = document.getElementById('root');
+
+if (!rootElement) {
+  throw new Error('ENJAZ root element was not found.');
 }
+
+createRoot(rootElement).render(
+  <StrictMode>
+    <RebirthRoot />
+  </StrictMode>,
+);
