@@ -65,10 +65,11 @@ async function rect(locator, label) {
 }
 
 async function closeSheet(page) {
-  const close = page.getByRole('button', { name: 'إغلاق', exact: true });
+  const dialog = page.getByRole('dialog');
+  const close = dialog.locator('.ez-sheet__close');
   await expect(close).toBeVisible();
   await close.click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(dialog).toHaveCount(0);
 }
 
 test('canonical UI V2 shell survives real Android geometry, navigation and WCAG', async ({ page }) => {
