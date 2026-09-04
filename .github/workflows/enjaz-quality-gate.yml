@@ -50,6 +50,8 @@ jobs:
         run: npm run audit:ui-rebirth:extreme
       - name: Extreme deliberate-regression mutation gate
         run: npm run audit:ui-rebirth:extreme:selftest
+      - name: Home Dashboard reference + destructive gate
+        run: npm run audit:ui-rebirth:home && npm run audit:ui-rebirth:home:selftest
       - name: Functional regression baseline
         run: npm run test:functional
       - name: Secrets audit
