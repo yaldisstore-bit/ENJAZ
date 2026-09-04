@@ -73,6 +73,11 @@ body {
   transform: translateY(1px) scale(.985);
 }
 
+/* 44px is the floor, not the target: preserve subpixel safety on compact domain controls. */
+.ez-domain-runtime__marker button {
+  min-height: 46px;
+}
+
 /* Keep overlays tied to the visual viewport when Android resizes/pans for the keyboard. */
 .ez-overlay,
 .ez-shell-search {
