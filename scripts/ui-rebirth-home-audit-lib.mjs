@@ -1,4 +1,4 @@
-export function auditHomeSources({ component, css, shell, connected, preview }) {
+export function auditHomeSources({ component, css, interaction, shell, connected, preview }) {
   const failures = [];
   const requireRule = (condition, message) => { if (!condition) failures.push(message); };
   const classTokens = [...component.matchAll(/className="([^"]+)"/g)]
@@ -41,6 +41,13 @@ export function auditHomeSources({ component, css, shell, connected, preview }) 
   requireRule(css.includes('@media (max-width: 390px)'), 'compact Android reflow contract missing');
   requireRule(css.includes('@media (prefers-reduced-motion: reduce)'), 'Home reduced-motion contract missing');
 
+  // Hero geometry must keep the count indicator subordinate and physically incapable of blocking CTA usage.
+  requireRule(typeof interaction === 'string' && interaction.length > 0, 'Home interaction geometry stylesheet missing from Stage 2 audit');
+  requireRule(interaction.includes('.rebirth-home__hero-score,') && interaction.includes('pointer-events: none;'), 'Home score and decorative hero layers must never intercept pointer input');
+  requireRule(/\.rebirth-home__hero-score\s*\{[\s\S]*?inset:\s*auto\s+auto\s+92px\s+18px;[\s\S]*?inline-size:\s*112px;[\s\S]*?block-size:\s*66px;/.test(interaction), 'Home score must keep the compact safe desktop/mobile base geometry');
+  requireRule(/@media \(max-width:\s*390px\)[\s\S]*?\.rebirth-home__hero-score\s*\{[\s\S]*?inline-size:\s*104px;[\s\S]*?block-size:\s*62px;/.test(interaction), 'compact Android score geometry must remain capped');
+  requireRule(interaction.includes('scroll-margin-block-start: calc(92px + env(safe-area-inset-top));'), 'Home actions must retain sticky-header-safe scroll margin');
+
   // Interaction and semantic quality.
   requireRule(!/<div[^>]+onClick=/.test(component), 'clickable div is forbidden in Home');
   requireRule(!/<span[^>]+onClick=/.test(component), 'clickable span is forbidden in Home');
@@ -49,7 +56,7 @@ export function auditHomeSources({ component, css, shell, connected, preview }) 
   requireRule(component.includes('aria-label="ملخص العمل"'), 'Home summary must have an accessible label');
   requireRule(component.includes('aria-busy="true"'), 'Home loading state must expose aria-busy');
   requireRule(!/Phase\s*\d|Stage\s*\d|preview fixture|developer/i.test(component), 'developer/stage terminology must not leak into Home UI');
-  requireRule(!/home-dashboard|AppShellFrame|identity3|productivity-(?:polish|depth)/i.test(component + css), 'previous visual DNA leaked into Home');
+  requireRule(!/home-dashboard|AppShellFrame|identity3|productivity-(?:polish|depth)/i.test(component + css + interaction), 'previous visual DNA leaked into Home');
 
   // Preview is deterministic and shaped exactly like the real snapshot contract.
   requireRule(preview.includes("status: 'ready'"), 'Home preview must use a typed ready state');
