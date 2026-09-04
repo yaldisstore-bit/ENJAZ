@@ -1,10 +1,10 @@
 name: ENJAZ UI Rebirth Stage 0
 
+# Historical pre-UI-V2 gate. Kept only for explicit legacy-branch verification.
 on:
   push:
     branches: ['ui-rebirth-*']
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
