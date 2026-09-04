@@ -7,6 +7,7 @@ const root = fs.readFileSync('src/ui-v2/runtime/UiV2Root.tsx', 'utf8');
 const main = fs.readFileSync('src/main.tsx', 'utf8');
 const shellPreview = fs.existsSync('src/ui-v2/runtime/ShellPreview.tsx') ? fs.readFileSync('src/ui-v2/runtime/ShellPreview.tsx', 'utf8') : '';
 const compositionAtlas = fs.existsSync('src/ui-v2/runtime/CompositionAtlas.tsx') ? fs.readFileSync('src/ui-v2/runtime/CompositionAtlas.tsx', 'utf8') : '';
+const coreApp = fs.existsSync('src/ui-v2/runtime/CoreApp.tsx') ? fs.readFileSync('src/ui-v2/runtime/CoreApp.tsx', 'utf8') : '';
 
 function requireText(text, token, label) {
   if (!text.includes(token)) failures.push(`${label}: missing ${token}`);
@@ -22,7 +23,8 @@ for (const token of ['env(safe-area-inset-top)', 'env(safe-area-inset-bottom)', 
 
 const runtimeUsesShellPreview = root.includes('ShellPreview') && shellPreview.includes('<AppShell');
 const runtimeUsesCompositionAtlas = root.includes('CompositionAtlas') && compositionAtlas.includes('<AppShell');
-if (!runtimeUsesShellPreview && !runtimeUsesCompositionAtlas) {
+const runtimeUsesCoreApp = root.includes('CoreApp') && coreApp.includes('<AppShell');
+if (!runtimeUsesShellPreview && !runtimeUsesCompositionAtlas && !runtimeUsesCoreApp) {
   failures.push('UiV2Root: active runtime does not mount an AppShell-backed surface');
 }
 requireText(main, "./ui-v2/styles/shell.css", 'main.tsx');
