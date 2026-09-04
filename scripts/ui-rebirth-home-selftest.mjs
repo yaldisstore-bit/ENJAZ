@@ -4,6 +4,7 @@ import { auditHomeSources } from './ui-rebirth-home-audit-lib.mjs';
 const baseline = Object.freeze({
   component: fs.readFileSync('src/ui-rebirth/runtime/RebirthHomeDashboard.tsx', 'utf8'),
   css: fs.readFileSync('src/ui-rebirth/runtime/rebirth-home.css', 'utf8'),
+  interaction: fs.readFileSync('src/ui-rebirth/runtime/rebirth-home-interaction.css', 'utf8'),
   shell: fs.readFileSync('src/ui-rebirth/runtime/RebirthAppShell.tsx', 'utf8'),
   connected: fs.readFileSync('src/ui-rebirth/runtime/RebirthConnectedHomeDashboard.tsx', 'utf8'),
   preview: fs.readFileSync('src/ui-rebirth/preview/homePreviewState.ts', 'utf8'),
@@ -31,6 +32,10 @@ const mutations = [
   ['remove deep charcoal finance identity', (s) => ({ ...s, css: s.css.replace('var(--ui-charcoal);\n  color: #fff;\n  box-shadow: 0 20px 42px', 'var(--ui-surface);\n  color: #fff;\n  box-shadow: 0 20px 42px') })],
   ['remove compact Android reflow', (s) => ({ ...s, css: s.css.replace('@media (max-width: 390px)', '@media (max-width: 200px)') })],
   ['remove Home reduced motion', (s) => ({ ...s, css: s.css.replace('@media (prefers-reduced-motion: reduce)', '@media (prefers-reduced-motion: no-preference)') })],
+  ['allow score to intercept pointer input', (s) => ({ ...s, interaction: s.interaction.replace('pointer-events: none;', 'pointer-events: auto;') })],
+  ['restore oversized score tile', (s) => ({ ...s, interaction: s.interaction.replace('inline-size: 112px;\n  block-size: 66px;', 'inline-size: 180px;\n  block-size: 180px;') })],
+  ['move score back into CTA lane', (s) => ({ ...s, interaction: s.interaction.replace('inset: auto auto 92px 18px;', 'inset: auto 22px 82px auto;') })],
+  ['remove sticky-header scroll safety', (s) => ({ ...s, interaction: s.interaction.replace('scroll-margin-block-start: calc(92px + env(safe-area-inset-top));', 'scroll-margin-block-start: 0;') })],
   ['introduce clickable div anti-pattern', (s) => ({ ...s, component: s.component.replace('<div className="rebirth-home__hero-copy">', '<div className="rebirth-home__hero-copy" onClick={() => undefined}>') })],
   ['remove hero accessible labelling', (s) => ({ ...s, component: s.component.replace('aria-labelledby="rebirth-home-title"', '') })],
   ['remove loading aria-busy', (s) => ({ ...s, component: s.component.replace('aria-busy="true"', '') })],
