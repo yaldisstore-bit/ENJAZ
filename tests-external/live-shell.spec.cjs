@@ -169,6 +169,54 @@ test('Home keeps the approved asymmetric hierarchy and remains usable above the 
   }
 });
 
+test('Home hero score remains subordinate and cannot collide with content or CTA', async ({ page }) => {
+  const errors = collectErrors(page);
+
+  for (const viewport of viewports) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await loadClean(page, errors);
+
+    const geometry = await page.evaluate(() => {
+      const rect = (selector) => document.querySelector(selector)?.getBoundingClientRect().toJSON();
+      const action = document.querySelector('.rebirth-home__hero-action');
+      const actionRect = action?.getBoundingClientRect();
+      const topAtActionCenter = actionRect
+        ? document.elementFromPoint(actionRect.left + actionRect.width / 2, actionRect.top + actionRect.height / 2)
+        : null;
+      return {
+        hero: rect('.rebirth-home__hero'),
+        score: rect('.rebirth-home__hero-score'),
+        action: rect('.rebirth-home__hero-action'),
+        title: rect('#rebirth-home-title'),
+        paragraph: rect('.rebirth-home__hero-copy p'),
+        stats: rect('.rebirth-home__hero-stats'),
+        actionOwnsHitPoint: Boolean(action && topAtActionCenter && (topAtActionCenter === action || action.contains(topAtActionCenter))),
+      };
+    });
+
+    for (const [name, rect] of Object.entries(geometry).filter(([name]) => name !== 'actionOwnsHitPoint')) {
+      expect(rect, `${viewport.name}: ${name} geometry exists`).toBeTruthy();
+    }
+
+    expect(geometry.score.width, `${viewport.name}: score width remains visually subordinate`).toBeLessThanOrEqual(120);
+    expect(geometry.score.height, `${viewport.name}: score height remains visually subordinate`).toBeLessThanOrEqual(76);
+    expect(overlapArea(geometry.score, geometry.action), `${viewport.name}: score never overlaps primary Home CTA`).toBeLessThanOrEqual(0.5);
+    expect(overlapArea(geometry.score, geometry.title), `${viewport.name}: score never overlaps Home title`).toBeLessThanOrEqual(0.5);
+    expect(overlapArea(geometry.score, geometry.paragraph), `${viewport.name}: score never overlaps Home summary copy`).toBeLessThanOrEqual(0.5);
+    expect(overlapArea(geometry.score, geometry.stats), `${viewport.name}: score never overlaps summary capsule`).toBeLessThanOrEqual(0.5);
+    expect(geometry.stats.top - geometry.score.bottom, `${viewport.name}: score keeps breathing room above stats`).toBeGreaterThanOrEqual(8);
+    expect(geometry.score.left - geometry.hero.left, `${viewport.name}: score stays inside hero left edge`).toBeGreaterThanOrEqual(10);
+    expect(geometry.hero.right - geometry.score.right, `${viewport.name}: score stays inside hero right edge`).toBeGreaterThanOrEqual(10);
+    expect(geometry.actionOwnsHitPoint, `${viewport.name}: CTA owns its physical hit target`).toBe(true);
+
+    await page.getByRole('button', { name: /افتح عمل اليوم/ }).click();
+    await expect(page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'اليوم' })).toHaveAttribute('aria-current', 'page');
+    expect(errors.console, `${viewport.name}: no console errors during hero interaction`).toEqual([]);
+    expect(errors.page, `${viewport.name}: no page errors during hero interaction`).toEqual([]);
+    expect(errors.responses, `${viewport.name}: no failed resources during hero interaction`).toEqual([]);
+  }
+});
+
 test('quick actions behaves as a real modal with trapped and restored focus', async ({ page }) => {
   const errors = collectErrors(page);
   await page.setViewportSize({ width: 390, height: 844 });
