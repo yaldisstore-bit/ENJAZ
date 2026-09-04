@@ -33,6 +33,12 @@ async function assertZeroAxeViolations(page, label) {
   expect(result.violations, `${label}: zero WCAG A/AA violations`).toEqual([]);
 }
 
+function overlapArea(a, b) {
+  const width = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+  const height = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+  return width * height;
+}
+
 test('ENJAZ shell survives real mobile-browser geometry and navigation', async ({ page }) => {
   const errors = collectErrors(page);
   for (const viewport of viewports) {
@@ -45,16 +51,29 @@ test('ENJAZ shell survives real mobile-browser geometry and navigation', async (
       scrollWidth: document.documentElement.scrollWidth,
       header: document.querySelector('.rebirth-shell__header')?.getBoundingClientRect().toJSON(),
       dock: document.querySelector('.rebirth-shell__dock')?.getBoundingClientRect().toJSON(),
+      dockSurface: document.querySelector('.rebirth-shell__dock-surface')?.getBoundingClientRect().toJSON(),
       cta: document.querySelector('.rebirth-shell__primary-action')?.getBoundingClientRect().toJSON(),
+      navItems: [...document.querySelectorAll('.rebirth-shell__nav-item')].map((node) => ({
+        label: node.textContent?.trim() || '',
+        rect: node.getBoundingClientRect().toJSON(),
+      })),
     }));
 
     expect(geometry.scrollWidth, `${viewport.name}: no horizontal overflow`).toBeLessThanOrEqual(geometry.innerWidth + 1);
-    for (const [name, rect] of Object.entries({ header: geometry.header, dock: geometry.dock, cta: geometry.cta })) {
+    for (const [name, rect] of Object.entries({ header: geometry.header, dock: geometry.dock, dockSurface: geometry.dockSurface, cta: geometry.cta })) {
       expect(rect, `${viewport.name}: ${name} exists`).toBeTruthy();
       expect(rect.left, `${viewport.name}: ${name} left bound`).toBeGreaterThanOrEqual(-1);
       expect(rect.right, `${viewport.name}: ${name} right bound`).toBeLessThanOrEqual(geometry.innerWidth + 1);
       expect(rect.bottom, `${viewport.name}: ${name} bottom bound`).toBeLessThanOrEqual(geometry.innerHeight + 1);
     }
+
+    const ctaCenter = geometry.cta.left + geometry.cta.width / 2;
+    const dockCenter = geometry.dockSurface.left + geometry.dockSurface.width / 2;
+    expect(Math.abs(ctaCenter - dockCenter), `${viewport.name}: CTA is mathematically centered in dock`).toBeLessThanOrEqual(1.5);
+    const overlaps = geometry.navItems
+      .map(({ label, rect }) => ({ label, area: overlapArea(geometry.cta, rect) }))
+      .filter(({ area }) => area > 0.5);
+    expect(overlaps, `${viewport.name}: CTA does not intercept any navigation target`).toEqual([]);
 
     const undersized = await page.locator('button:visible').evaluateAll((buttons) => buttons
       .map((button) => ({ label: button.getAttribute('aria-label') || button.textContent?.trim(), rect: button.getBoundingClientRect().toJSON() }))
@@ -85,13 +104,17 @@ test('quick actions behaves as a real modal with trapped and restored focus', as
   await page.setViewportSize({ width: 390, height: 844 });
   await loadClean(page, errors);
 
-  const trigger = page.getByRole('button', { name: 'إجراء جديد' });
+  const trigger = page.locator('.rebirth-shell__primary-action');
+  await expect(trigger).toHaveCount(1);
   await trigger.focus();
   await trigger.press('Enter');
   const dialog = page.getByRole('dialog', { name: 'ماذا تريد أن تنجز؟' });
   await expect(dialog).toBeVisible();
   await expect(trigger).toHaveAttribute('aria-expanded', 'true');
   await expect(page.getByRole('button', { name: 'إغلاق' })).toBeFocused();
+  await expect(page.locator('.rebirth-shell__header')).toHaveAttribute('inert', '');
+  await expect(page.locator('.rebirth-shell__viewport')).toHaveAttribute('inert', '');
+  await expect(page.locator('.rebirth-shell__dock')).toHaveAttribute('inert', '');
   await assertZeroAxeViolations(page, 'quick-actions-open');
 
   for (let i = 0; i < 12; i += 1) {
@@ -107,6 +130,7 @@ test('quick actions behaves as a real modal with trapped and restored focus', as
   await expect(dialog).toHaveCount(0);
   await expect(trigger).toBeFocused();
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('[inert]')).toHaveCount(0);
 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await trigger.click();
