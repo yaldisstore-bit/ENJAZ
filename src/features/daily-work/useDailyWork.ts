@@ -16,13 +16,13 @@ export type DailyWorkLoadState =
   | Readonly<{ status: 'ready'; snapshot: DailyWorkSnapshot; errorMessage: null }>
   | Readonly<{ status: 'error'; snapshot: null; errorMessage: string }>;
 
-export interface DailyWorkController extends DailyWorkLoadState {
-  readonly actionItemId: string | null;
-  readonly actionError: string | null;
+export type DailyWorkController = DailyWorkLoadState & Readonly<{
+  actionItemId: string | null;
+  actionError: string | null;
   retry(): void;
   complete(item: DailyWorkItem): Promise<void>;
   snooze(item: DailyWorkItem, hours?: number): Promise<void>;
-}
+}>;
 
 const LOADING_STATE: DailyWorkLoadState = Object.freeze({ status: 'loading', snapshot: null, errorMessage: null });
 
