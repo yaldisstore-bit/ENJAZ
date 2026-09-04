@@ -55,7 +55,7 @@ assert(screen.includes('data-daily-work-status="ready"'), 'ready-state marker is
 assert(screen.includes('data-daily-work-status="loading"'), 'loading state is missing');
 assert(screen.includes('data-daily-work-status="error"'), 'error state is missing');
 assert(screen.includes('data-daily-work-empty="true"'), 'empty state is missing');
-assert(screen.includes('مرتب حسب الأثر والوقت'), 'queue prioritization is not communicated to the user');
+assert(screen.includes('مرتبة حسب الأثر والوقت'), 'queue prioritization is not communicated to the user');
 assert(!screen.includes('template_item_key'), 'technical workflow key leaked into presentation');
 assert(!screen.includes('preview-'), 'preview fixture identifiers leaked into presentation source');
 assert(preview.includes('buildDailyWorkPreviewSnapshot'), 'isolated preview fixture is missing');
