@@ -1,0 +1,72 @@
+name: ENJAZ UI V2 — UI-7 Domain Reality Gate
+
+on:
+  push:
+    branches:
+      - uiux-rebirth-v2-ui7
+  pull_request:
+    branches:
+      - uiux-rebirth-v2
+
+permissions:
+  contents: read
+
+jobs:
+  ui7-domain-reality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: UI V2 boundary audit
+        run: npm run audit:ui-v2:boundary
+
+      - name: UI-7 domain architecture audit
+        run: node scripts/ui7-domain-audit.mjs
+
+      - name: Functional regression tests
+        run: npm run test:functional
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Install Chromium test runtime
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start real Vite runtime
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 4177 > /tmp/enjaz-ui7-vite.log 2>&1 &
+          echo $! > /tmp/enjaz-ui7-vite.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4177 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-ui7-vite.log
+          exit 1
+
+      - name: Real browser domain navigation and geometry gate
+        run: node scripts/ui7-reality-test.mjs
+
+      - name: Upload UI-7 visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui7-reality-evidence
+          path: artifacts/ui7-reality
+          if-no-files-found: warn
+          retention-days: 14

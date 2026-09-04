@@ -1,0 +1,50 @@
+@import "./tokens.css";
+@import "./dna.css";
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  background: var(--ez-canvas);
+  color: var(--ez-ink);
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--ez-canvas);
+  color: var(--ez-ink);
+  font-family: var(--ez-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+::selection {
+  background: var(--ez-gold-300);
+  color: var(--ez-gold-ink);
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--ez-gold-500) 82%, white);
+  outline-offset: 3px;
+}

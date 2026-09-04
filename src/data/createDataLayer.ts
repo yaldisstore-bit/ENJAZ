@@ -17,6 +17,10 @@ export interface EnjazWorkspaceDataLayer {
   readonly documents: MutableRepository<'documents'>;
   readonly calendar: MutableRepository<'calendar_events'>;
   readonly renewals: MutableRepository<'renewals'>;
+  readonly workflowItemStates: MutableRepository<'workflow_item_states'>;
+
+  readonly transactionRoutes: ReadRepository<'transaction_routes'>;
+  readonly workflowInstances: ReadRepository<'workflow_instances'>;
 
   readonly lifecycleEvents: AppendOnlyRepository<'entity_lifecycle_events'>;
   readonly transactionActivity: AppendOnlyRepository<'transaction_activity'>;
@@ -55,6 +59,10 @@ export function createEnjazDataLayerFactory(client: EnjazSupabaseClient): EnjazD
         documents: createMutableRepository(gateway, scope, 'documents'),
         calendar: createMutableRepository(gateway, scope, 'calendar_events'),
         renewals: createMutableRepository(gateway, scope, 'renewals'),
+        workflowItemStates: createMutableRepository(gateway, scope, 'workflow_item_states'),
+
+        transactionRoutes: createReadRepository(gateway, scope, 'transaction_routes'),
+        workflowInstances: createReadRepository(gateway, scope, 'workflow_instances'),
 
         lifecycleEvents: createAppendOnlyRepository(gateway, scope, 'entity_lifecycle_events'),
         transactionActivity: createAppendOnlyRepository(gateway, scope, 'transaction_activity'),
