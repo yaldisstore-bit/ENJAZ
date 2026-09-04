@@ -117,7 +117,7 @@ async function verifyStandardProfile(browser, profile) {
     const landscape = { width: Math.max(profile.viewport.width, profile.viewport.height), height: Math.min(profile.viewport.width, profile.viewport.height) };
     await page.setViewportSize(landscape);
     await page.waitForFunction(() => document.documentElement.dataset.enjazOrientation === 'landscape');
-    await page.waitForTimeout(120);
+    await page.waitForTimeout(180);
     await noOverflow(page, `${profile.name}:landscape`);
     await insideViewport(page.locator('[data-shell-part="topbar"]'), landscape, `${profile.name}:landscape-topbar`);
     await insideViewport(page.locator('[data-shell-part="bottom-dock"]'), landscape, `${profile.name}:landscape-dock`);
@@ -134,8 +134,11 @@ async function verifyStandardProfile(browser, profile) {
 
     await page.setViewportSize(profile.viewport);
     await page.waitForFunction(() => document.documentElement.dataset.enjazOrientation === 'portrait');
+    await page.waitForTimeout(380);
     await page.evaluate(() => { document.documentElement.dataset.enjazKeyboard = 'open'; });
-    await page.waitForTimeout(220);
+    await page.waitForTimeout(260);
+    const keyboardState = await page.locator('html').getAttribute('data-enjaz-keyboard');
+    assert(keyboardState === 'open', `${profile.name}: keyboard simulation was overwritten after rotation (${keyboardState})`);
     const keyboardDock = await page.locator('[data-shell-part="bottom-dock"]').evaluate((element) => {
       const s = getComputedStyle(element);
       return { opacity: Number(s.opacity), pointerEvents: s.pointerEvents };
