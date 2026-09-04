@@ -36,11 +36,21 @@
 .ez-daily-focus.is-success::before { background: var(--ez-success); }
 
 .ez-daily-focus__copy { min-width: 0; display: grid; gap: 9px; }
-.ez-daily-focus__eyebrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.ez-daily-focus__eyebrow > span { color: var(--ez-muted); font-size: .76rem; font-weight: 900; }
+.ez-daily-focus__copy > span { color: var(--ez-gold-700); font-size: .76rem; font-weight: 950; }
+.ez-daily-focus__copy > div { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
 .ez-daily-focus h2 { margin: 0; max-width: 860px; font-size: clamp(1.55rem, 4vw, 2.5rem); line-height: 1.35; letter-spacing: -.025em; overflow-wrap: anywhere; }
 .ez-daily-focus p { margin: 0; color: var(--ez-muted); line-height: 1.7; overflow-wrap: anywhere; }
-.ez-daily-focus__actions { display: grid; gap: 8px; min-width: 150px; }
+
+.ez-daily-focus__meta {
+  min-width: 170px;
+  display: grid;
+  justify-items: end;
+  align-content: center;
+  gap: 7px;
+}
+.ez-daily-focus__meta > small { color: var(--ez-muted); font-weight: 850; }
+.ez-daily-focus__meta > strong { font-size: .9rem; white-space: nowrap; }
+.ez-daily-focus__meta .ez-button { min-width: 132px; }
 
 .ez-daily-filterbar {
   display: flex;
@@ -156,13 +166,15 @@
 .ez-daily-filter-empty { display: grid; gap: 4px; text-align: center; }
 .ez-daily-filter-empty small { color: var(--ez-muted); }
 
-.ez-daily-loading {
+.ez-daily-loading,
+.ez-daily-skeleton {
   min-height: 360px;
   display: grid;
   gap: 10px;
   align-content: start;
 }
-.ez-daily-loading i {
+.ez-daily-loading i,
+.ez-daily-skeleton i {
   display: block;
   min-height: 76px;
   border-radius: 20px;
@@ -174,8 +186,16 @@
 
 @media (max-width: 900px) {
   .ez-daily-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .ez-daily-focus { grid-template-columns: 1fr; }
-  .ez-daily-focus__actions { grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; }
+  .ez-daily-focus { grid-template-columns: 1fr; gap: 14px; }
+  .ez-daily-focus__meta {
+    min-width: 0;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    justify-items: start;
+    gap: 9px;
+  }
+  .ez-daily-focus__meta > strong { justify-self: start; }
+  .ez-daily-focus__meta .ez-button { justify-self: end; min-width: 128px; }
 }
 
 @media (max-width: 680px) {
@@ -193,16 +213,48 @@
 }
 
 @media (max-width: 390px) {
-  .ez-daily-summary { gap: 7px; }
-  .ez-daily-focus { padding: 18px; border-radius: 24px; }
-  .ez-daily-focus__actions { grid-template-columns: 1fr; }
+  .ez-daily-summary {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    padding: 1px 1px 4px;
+    scrollbar-width: none;
+    scroll-snap-type: inline proximity;
+  }
+  .ez-daily-summary::-webkit-scrollbar { display: none; }
+  .ez-daily-summary > * {
+    flex: 0 0 94px;
+    scroll-snap-align: start;
+  }
+  .ez-daily-summary > :first-child { grid-column: auto; }
+  .ez-daily-focus { padding: 16px 18px; gap: 11px; border-radius: 24px; }
+  .ez-daily-focus__copy { gap: 6px; }
+  .ez-daily-focus h2 { font-size: clamp(1.35rem, 7.4vw, 1.72rem); line-height: 1.28; }
+  .ez-daily-focus p { line-height: 1.5; }
+  .ez-daily-focus__meta {
+    grid-template-columns: auto 1fr auto;
+    gap: 7px;
+  }
+  .ez-daily-focus__meta > small { font-size: .72rem; }
+  .ez-daily-focus__meta > strong { font-size: .76rem; }
+  .ez-daily-focus__meta .ez-button { min-width: 112px; padding-inline: 12px; }
   .ez-daily-list { padding: 5px; border-radius: 22px; }
   .ez-daily-item { padding: 3px; }
   .ez-daily-item__main { padding-inline: 6px; gap: 8px; }
   .ez-daily-item__actions { padding-inline: 6px; }
 }
 
+@media (max-width: 340px) {
+  .ez-daily-focus { padding: 14px 16px; }
+  .ez-daily-focus__meta {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .ez-daily-focus__meta > small { display: none; }
+  .ez-daily-focus__meta .ez-button { min-width: 104px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .ez-daily-loading i { animation: none; }
+  .ez-daily-loading i,
+  .ez-daily-skeleton i { animation: none; }
   .ez-daily-item { transition: none; }
 }
