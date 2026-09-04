@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const AxeBuilder = require('@axe-core/playwright').default;
 
 const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:4173/';
 const viewports = [
@@ -23,6 +24,13 @@ function collectErrors(page) {
   page.on('pageerror', (error) => errors.page.push(String(error)));
   page.on('response', (response) => { if (response.status() >= 400) errors.responses.push(`${response.status()} ${response.url()}`); });
   return errors;
+}
+
+async function assertZeroAxeViolations(page, label) {
+  const result = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze();
+  expect(result.violations, `${label}: zero WCAG A/AA violations`).toEqual([]);
 }
 
 test('ENJAZ shell survives real mobile-browser geometry and navigation', async ({ page }) => {
@@ -65,6 +73,7 @@ test('ENJAZ shell survives real mobile-browser geometry and navigation', async (
       await expect(page.getByRole('navigation', { name: 'التنقل الرئيسي' }).locator('[aria-current="page"]')).toHaveCount(1);
     }
 
+    await assertZeroAxeViolations(page, viewport.name);
     expect(errors.responses, `${viewport.name}: no failed network resources`).toEqual([]);
     expect(errors.console, `${viewport.name}: no console errors`).toEqual([]);
     expect(errors.page, `${viewport.name}: no page errors`).toEqual([]);
@@ -83,6 +92,7 @@ test('quick actions behaves as a real modal with trapped and restored focus', as
   await expect(dialog).toBeVisible();
   await expect(trigger).toHaveAttribute('aria-expanded', 'true');
   await expect(page.getByRole('button', { name: 'إغلاق' })).toBeFocused();
+  await assertZeroAxeViolations(page, 'quick-actions-open');
 
   for (let i = 0; i < 12; i += 1) {
     await page.keyboard.press(i % 4 === 0 ? 'Shift+Tab' : 'Tab');
