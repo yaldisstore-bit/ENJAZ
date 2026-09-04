@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ROUTES, type AppRoute } from '../../core/routing/routes.ts';
+import type { HomeDashboardLoadState } from '../../features/home/useHomeDashboard.ts';
+import { RebirthHomeDashboard } from './RebirthHomeDashboard.tsx';
 import './rebirth-app-shell.css';
 
 type NavItem = {
@@ -7,6 +9,11 @@ type NavItem = {
   route: AppRoute;
   icon: 'home' | 'today' | 'transactions' | 'more';
 };
+
+export interface RebirthAppShellProps {
+  readonly homeState: HomeDashboardLoadState;
+  readonly onHomeRetry?: () => void;
+}
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'الرئيسية', route: ROUTES.appHome, icon: 'home' },
@@ -53,7 +60,7 @@ function Icon({ name }: { name: NavItem['icon'] | 'search' | 'bell' | 'close' })
   return <svg {...common}><path d="m6 6 12 12M18 6 6 18"/></svg>;
 }
 
-export function RebirthAppShell() {
+export function RebirthAppShell(props: RebirthAppShellProps) {
   const [activeRoute, setActiveRoute] = useState<AppRoute>(ROUTES.appHome);
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
   const primaryActionRef = useRef<HTMLButtonElement>(null);
@@ -103,6 +110,17 @@ export function RebirthAppShell() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [quickActionsOpen]);
 
+  const mainContent = activeRoute === ROUTES.appHome ? (
+    <RebirthHomeDashboard state={props.homeState} onNavigate={setActiveRoute} onRetry={props.onHomeRetry} />
+  ) : (
+    <section className="rebirth-shell__content-stage" aria-label="مساحة العمل">
+      <div className="rebirth-shell__stage-kicker"><span className="rebirth-shell__stage-dot" aria-hidden="true" />مساحة العمل</div>
+      <h1>{activeLabel}</h1>
+      <p>مساحة جاهزة لمحتوى الصفحة مع بقاء الهيكل العام ثابتًا وواضحًا.</p>
+      <div className="rebirth-shell__stage-lines" aria-hidden="true"><span /><span /><span /></div>
+    </section>
+  );
+
   return (
     <div className="rebirth-shell" data-enjaz-ui="rebirth" dir="rtl">
       <div className="rebirth-shell__ambient rebirth-shell__ambient--gold" aria-hidden="true" />
@@ -121,12 +139,7 @@ export function RebirthAppShell() {
       </header>
 
       <main className="rebirth-shell__viewport" id="main-content" inert={quickActionsOpen ? true : undefined}>
-        <section className="rebirth-shell__content-stage" aria-label="مساحة العمل">
-          <div className="rebirth-shell__stage-kicker"><span className="rebirth-shell__stage-dot" aria-hidden="true" />مساحة العمل</div>
-          <h1>{activeLabel}</h1>
-          <p>مساحة جاهزة لمحتوى الصفحة مع بقاء الهيكل العام ثابتًا وواضحًا.</p>
-          <div className="rebirth-shell__stage-lines" aria-hidden="true"><span /><span /><span /></div>
-        </section>
+        {mainContent}
       </main>
 
       <nav className="rebirth-shell__dock" aria-label="التنقل الرئيسي" inert={quickActionsOpen ? true : undefined}>

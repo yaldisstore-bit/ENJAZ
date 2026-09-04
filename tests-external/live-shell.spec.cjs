@@ -80,8 +80,10 @@ test('ENJAZ shell survives real mobile-browser geometry and navigation', async (
       .filter(({ rect }) => rect.width < 44 || rect.height < 44));
     expect(undersized, `${viewport.name}: all visible buttons meet 44px target`).toEqual([]);
 
+    await expect(page.locator('.rebirth-home[data-home-ready="true"]')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'اعرف ما يحتاج قرارك، قبل أن يبدأ الزحام.' })).toBeVisible();
+
     const navCases = [
-      ['الرئيسية', 'الرئيسية'],
       ['اليوم', 'اليوم'],
       ['المعاملات', 'المعاملات'],
       ['المزيد', 'المزيد'],
@@ -92,7 +94,75 @@ test('ENJAZ shell survives real mobile-browser geometry and navigation', async (
       await expect(page.getByRole('navigation', { name: 'التنقل الرئيسي' }).locator('[aria-current="page"]')).toHaveCount(1);
     }
 
+    await page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'الرئيسية' }).click();
+    await expect(page.locator('.rebirth-home[data-home-ready="true"]')).toBeVisible();
     await assertZeroAxeViolations(page, viewport.name);
+    expect(errors.responses, `${viewport.name}: no failed network resources`).toEqual([]);
+    expect(errors.console, `${viewport.name}: no console errors`).toEqual([]);
+    expect(errors.page, `${viewport.name}: no page errors`).toEqual([]);
+  }
+});
+
+test('Home keeps the approved asymmetric hierarchy and remains usable above the dock', async ({ page }) => {
+  const errors = collectErrors(page);
+
+  for (const viewport of viewports) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await loadClean(page, errors);
+
+    const hero = page.locator('.rebirth-home__hero');
+    const score = page.locator('.rebirth-home__hero-score');
+    const stats = page.locator('.rebirth-home__hero-stats');
+    const priorities = page.locator('.rebirth-home__priority-card');
+    const finance = page.locator('.rebirth-home__finance');
+
+    await expect(hero).toBeVisible();
+    await expect(score).toBeVisible();
+    await expect(stats).toBeVisible();
+    await expect(priorities).toHaveCount(4);
+    await expect(finance).toBeVisible();
+
+    const visual = await page.evaluate(() => {
+      const heroNode = document.querySelector('.rebirth-home__hero');
+      const first = document.querySelector('.rebirth-home__priority-card[data-rank="1"]');
+      const second = document.querySelector('.rebirth-home__priority-card[data-rank="2"]');
+      const financeNode = document.querySelector('.rebirth-home__finance');
+      const color = (node) => node ? getComputedStyle(node).backgroundColor : '';
+      return {
+        hero: heroNode?.getBoundingClientRect().toJSON(),
+        first: first?.getBoundingClientRect().toJSON(),
+        second: second?.getBoundingClientRect().toJSON(),
+        heroBackground: heroNode ? getComputedStyle(heroNode).backgroundImage : '',
+        financeBackground: color(financeNode),
+        scrollWidth: document.documentElement.scrollWidth,
+        innerWidth: window.innerWidth,
+      };
+    });
+
+    expect(visual.scrollWidth, `${viewport.name}: Home has no horizontal overflow`).toBeLessThanOrEqual(visual.innerWidth + 1);
+    expect(visual.heroBackground, `${viewport.name}: Home hero is visibly composed, not flat`).toContain('gradient');
+    expect(visual.first.width, `${viewport.name}: rank 1 priority dominates rank 2 width`).toBeGreaterThan(visual.second.width * 1.55);
+    expect(visual.financeBackground, `${viewport.name}: finance block is not transparent`).not.toBe('rgba(0, 0, 0, 0)');
+
+    const dominantCard = page.locator('.rebirth-home__priority-card[data-rank="1"]');
+    await dominantCard.click();
+    await expect(page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'المعاملات' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('المعاملات');
+
+    await page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'الرئيسية' }).click();
+    await page.getByRole('button', { name: /افتح عمل اليوم/ }).click();
+    await expect(page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'اليوم' })).toHaveAttribute('aria-current', 'page');
+
+    await page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'الرئيسية' }).click();
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.waitForTimeout(50);
+    const bottomGeometry = await page.evaluate(() => ({
+      closing: document.querySelector('.rebirth-home__closing')?.getBoundingClientRect().toJSON(),
+      dock: document.querySelector('.rebirth-shell__dock')?.getBoundingClientRect().toJSON(),
+    }));
+    expect(bottomGeometry.closing.bottom, `${viewport.name}: final Home action clears fixed dock`).toBeLessThanOrEqual(bottomGeometry.dock.top + 1);
+
+    await assertZeroAxeViolations(page, `${viewport.name}-home`);
     expect(errors.responses, `${viewport.name}: no failed network resources`).toEqual([]);
     expect(errors.console, `${viewport.name}: no console errors`).toEqual([]);
     expect(errors.page, `${viewport.name}: no page errors`).toEqual([]);
@@ -153,10 +223,12 @@ test('live runtime stays lightweight and semantically coherent', async ({ page }
   await page.setViewportSize({ width: 390, height: 844 });
   await loadClean(page, errors);
 
-  await expect(page.locator('header')).toHaveCount(1);
+  await expect(page.locator('header').first()).toBeVisible();
   await expect(page.locator('main')).toHaveCount(1);
   await expect(page.locator('nav[aria-label="التنقل الرئيسي"]')).toHaveCount(1);
   await expect(page.locator('h1')).toHaveCount(1);
+  await expect(page.locator('.rebirth-home__hero')).toHaveCount(1);
+  await expect(page.locator('.rebirth-home__finance')).toHaveCount(1);
 
   const resourceStats = await page.evaluate(() => {
     const entries = performance.getEntriesByType('resource');
@@ -170,7 +242,7 @@ test('live runtime stays lightweight and semantically coherent', async ({ page }
   expect(resourceStats.giant, 'no resource over 500KB').toEqual([]);
   if (resourceStats.transferred > 0) expect(resourceStats.transferred, 'network transfer budget').toBeLessThanOrEqual(1_200_000);
 
-  expect(errors.console).toEqual([]);
-  expect(errors.page).toEqual([]);
-  expect(errors.responses).toEqual([]);
+  expect(errors.console, 'no console errors').toEqual([]);
+  expect(errors.page, 'no page errors').toEqual([]);
+  expect(errors.responses, 'no failed network resources').toEqual([]);
 });
