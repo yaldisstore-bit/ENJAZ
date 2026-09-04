@@ -1,0 +1,1 @@
+The UI rebirth branch intentionally keeps only ENJAZ business/domain/data logic outside `src/ui-rebirth/`. All visual runtime, CSS, DOM compositions, design-system components, shell surfaces, navigation preview surfaces, Home presentation components, and auth presentation components from the previous generation are removed before Stage 1 begins.
