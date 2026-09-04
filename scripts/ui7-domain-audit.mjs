@@ -5,7 +5,9 @@ const paths = {
   app: 'src/ui-v2/runtime/CoreApp.tsx',
   shell: 'src/ui-v2/components/AppShell.tsx',
   screens: 'src/ui-v2/screens/DomainScreens.tsx',
+  transactionScreen: 'src/ui-v2/screens/TransactionListScreen.tsx',
   css: 'src/ui-v2/styles/domains.css',
+  transactionCss: 'src/ui-v2/styles/transaction-list.css',
   explorerCss: 'src/ui-v2/styles/domain-explorer.css',
   main: 'src/main.tsx',
 };
@@ -16,12 +18,22 @@ function assert(condition, message) { if (!condition) throw new Error(`UI-7 doma
 for (const domain of domains) {
   assert(files.registry.includes(`id: '${domain}'`), `registry missing ${domain}`);
 }
-for (const domain of ['transactions','companies','people','workflow','automation','command','risk','documents','followups','copilot']) {
+for (const domain of ['companies','people','workflow','automation','command','risk','documents','followups','copilot']) {
   assert(files.screens.includes(`data-domain-screen=\"${domain}\"`), `presentation missing ${domain}`);
 }
-for (const signature of ['pipeline','entity-profile','people-directory','stage-lanes','rule-stack','executive-focus','risk-map','category-list-detail','attention-inbox','context-assistant']) {
+for (const signature of ['entity-profile','people-directory','stage-lanes','rule-stack','executive-focus','risk-map','category-list-detail','attention-inbox','context-assistant']) {
   assert(files.screens.includes(`data-pattern=\"${signature}\"`), `composition signature missing ${signature}`);
 }
+
+assert(files.screens.includes('ConnectedTransactionListScreen') && files.screens.includes('FixtureTransactionListScreen'), 'transaction domain lost live/fixture presentation routing');
+assert(files.screens.includes("props.domain === 'transactions'"), 'transaction domain routing missing');
+assert(files.transactionScreen.includes('data-domain-screen="transactions"'), 'canonical transaction presentation missing');
+assert(files.transactionScreen.includes('data-pattern="transaction-list-search"'), 'Phase 5.1 transaction composition signature missing');
+assert(files.transactionScreen.includes('ConnectedTransactionListScreen') && files.transactionScreen.includes('FixtureTransactionListScreen'), 'transaction screen lost authoritative/fixture boundary');
+assert(files.main.includes("./ui-v2/styles/transaction-list.css"), 'canonical transaction stylesheet not loaded');
+assert(files.transactionCss.includes('@media (max-width: 390px)'), 'narrow-phone transaction rules missing');
+assert(files.transactionCss.includes('@media (prefers-reduced-motion: reduce)'), 'transaction reduced-motion contract missing');
+assert(!files.transactionCss.includes('!important'), 'transaction presentation may not weaken CSS with !important');
 
 assert(/data-stage="ui-(?:7|8|9|10)"/.test(files.app), 'CoreApp stage regressed below UI-7');
 assert(files.app.includes('data-domain-explorer="true"'), 'domain explorer contract missing');
@@ -45,15 +57,17 @@ assert(files.explorerCss.includes('grid-template-rows: auto auto minmax(0,1fr)')
 assert(!files.app.includes('{domain.signature}'), 'technical composition signature leaked into user-visible domain marker');
 assert(!files.app.includes('<small>Core</small>'), 'developer-facing Core label leaked into domain rail');
 assert(files.app.includes('{domain.description}'), 'user-facing domain marker description missing');
-assert(!files.app.includes('ui-rebirth') && !files.screens.includes('ui-rebirth') && !files.shell.includes('ui-rebirth'), 'legacy UI leaked into domain runtime');
+assert(!files.app.includes('ui-rebirth') && !files.screens.includes('ui-rebirth') && !files.transactionScreen.includes('ui-rebirth') && !files.shell.includes('ui-rebirth'), 'legacy UI leaked into domain runtime');
 for (const forbidden of ['UI-7','Reality Gate','PROOF','AUDIT','واجهة تجريبية']) {
   assert(!files.screens.includes(forbidden), `developer terminology leaked into domain screens: ${forbidden}`);
+  assert(!files.transactionScreen.includes(forbidden), `developer terminology leaked into transaction screen: ${forbidden}`);
 }
 
 console.log('UI-7 domain audit PASS');
 console.log('- 12 domain destinations registered');
+console.log('- canonical Phase 5.1 transaction list replaces the former static pipeline showcase');
+console.log('- transaction live/fixture boundaries remain explicit');
 console.log('- core surfaces stay rail-free and enter domains through the brand explorer');
 console.log('- explorer sheet is viewport-bounded with internal body scrolling');
 console.log('- technical composition metadata is kept out of user-visible runtime');
-console.log('- in-domain rail and distinct composition signatures are preserved');
 console.log('- UI V2 boundary and narrow-phone contracts remain enforced');
