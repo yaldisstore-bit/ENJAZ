@@ -427,8 +427,9 @@
 
 .rebirth-shell__quick-action small {
   margin-top: 5px;
-  color: var(--ui-ink-muted);
+  color: var(--ui-ink-secondary);
   font-size: 10px;
+  font-weight: 600;
   line-height: 1.55;
 }
 
@@ -438,8 +439,8 @@
 }
 
 @keyframes rebirth-sheet-in {
-  from { opacity: 0; transform: translateY(28px) scale(.985); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { transform: translateY(28px) scale(.985); }
+  to { transform: translateY(0) scale(1); }
 }
 
 @media (min-width: 760px) {
