@@ -68,7 +68,7 @@
 
 ---
 
-# UI-4 — New App Shell ⏭ CURRENT NEXT STAGE
+# UI-4 — New App Shell ✅
 
 - Rebuild top bar.
 - Rebuild bottom navigation.
@@ -76,11 +76,11 @@
 - Rebuild safe-area, viewport, keyboard and back behavior.
 - Rebuild global search, notifications and contextual/global actions entry points.
 
-**Exit:** any screen can mount inside the shell without overlap, clipping, hidden navigation or visual collision.
+**Exit:** verified on GitHub Actions run `33877149814` plus manual screenshot review. The shell passed UI V2 boundary audit, UI-4 structural audit, 46 functional regression tests, TypeScript, production build and real Chromium interaction at 1280×900, 430×932, 390×844, 360×740 and 320×700. The Reality Gate enforces title visibility, dock persistence after navigation, geometric centering of the yellow/orange primary action, 44px mobile touch targets, safe search/notification/create overlays, browser Back/Escape behavior, keyboard-open dock hiding, zero horizontal overflow and console/page-error rejection. The first browser cycle caught the ENJAZ title disappearing at 320px; manual screenshot review later caught a low-contrast metric before closure. Evidence and defect history are recorded in `docs/UI4_NEW_APP_SHELL.md`.
 
 ---
 
-# UI-5 — Information Architecture & Screen Composition
+# UI-5 — Information Architecture & Screen Composition ⏭ CURRENT NEXT STAGE
 
 - Rework information hierarchy without changing domain facts.
 - Define when ENJAZ uses cards, dense rows, timelines, charts, progress, sheets and full pages.

@@ -1,8 +1,15 @@
 @import "./tokens.css";
 
-/* UI-3 mobile interaction contract: compact controls stay thumb-safe and overlays stay viewport-safe. */
+/* UI V2 mobile interaction contract: compact controls stay thumb-safe and overlays stay viewport-safe. */
 @media (max-width: 680px) {
-  .ez-segmented button {
+  .ez-segmented button,
+  .ez-shell-icon-button,
+  .ez-shell-avatar,
+  .ez-shell-close,
+  .ez-bottom-dock__item,
+  .ez-bottom-dock__primary,
+  .ez-shell-create-grid button {
+    min-width: var(--ez-touch-min);
     min-height: var(--ez-touch-min);
   }
 
@@ -14,5 +21,15 @@
     top: calc(100% + 8px);
     inset-inline: 0;
     width: auto;
+  }
+}
+
+@media (max-width: 340px) {
+  .ez-app-shell__brand-copy {
+    display: grid;
+  }
+
+  .ez-app-shell__brand-copy strong {
+    font-size: .9rem;
   }
 }
