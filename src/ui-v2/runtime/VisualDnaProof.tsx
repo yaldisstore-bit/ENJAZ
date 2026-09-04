@@ -1,9 +1,7 @@
-const domains = [
-  { label: 'المالية', hint: 'Cobalt', color: 'var(--ez-domain-finance)' },
-  { label: 'التحليلات', hint: 'Violet', color: 'var(--ez-domain-analytics)' },
-  { label: 'العمليات', hint: 'Teal', color: 'var(--ez-domain-operations)' },
-  { label: 'الوثائق', hint: 'Copper', color: 'var(--ez-domain-documents)' },
-] as const;
+import type { CSSProperties } from 'react';
+import { ENJAZ_VISUAL_DNA } from '../theme/dna.ts';
+
+const domains = Object.values(ENJAZ_VISUAL_DNA.domains).slice(0, 4);
 
 const densityRows = [
   ['01', 'معاملة تحتاج قرارًا اليوم', 'شركة الرافدين', 'عاجلة'],
@@ -66,7 +64,11 @@ export function VisualDnaProof() {
             <p>كل مجال يملك لهجة مساعدة من دون أن يصبح تطبيقًا منفصلًا.</p>
             <div className="ui-v2-dna__domains">
               {domains.map((domain) => (
-                <div className="ui-v2-dna__domain" key={domain.label} style={{ '--domain-color': domain.color } as React.CSSProperties}>
+                <div
+                  className="ui-v2-dna__domain"
+                  key={domain.label}
+                  style={{ '--domain-color': domain.css } as CSSProperties}
+                >
                   <i aria-hidden="true" />
                   <strong>{domain.label}</strong>
                   <small>{domain.hint}</small>
