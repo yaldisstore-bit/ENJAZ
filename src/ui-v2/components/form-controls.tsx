@@ -6,8 +6,8 @@ function fieldId(label: string, supplied?: string) {
 
 export function EzTextarea(props: Readonly<TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label: string;
-  hint?: string;
-  error?: string;
+  hint?: string | undefined;
+  error?: string | undefined;
 }>) {
   const { label, hint, error, className = '', id, ...textareaProps } = props;
   const resolvedId = fieldId(label, id);
@@ -22,8 +22,8 @@ export function EzTextarea(props: Readonly<TextareaHTMLAttributes<HTMLTextAreaEl
 
 export function EzSelect(props: Readonly<SelectHTMLAttributes<HTMLSelectElement> & {
   label: string;
-  hint?: string;
-  error?: string;
+  hint?: string | undefined;
+  error?: string | undefined;
   options: readonly { value: string; label: string }[];
 }>) {
   const { label, hint, error, options, className = '', id, ...selectProps } = props;
