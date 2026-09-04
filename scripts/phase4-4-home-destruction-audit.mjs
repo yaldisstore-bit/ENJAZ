@@ -7,6 +7,7 @@ const failures = [];
 const requireContract = (condition, message) => { if (!condition) failures.push(message); };
 
 const core = read('src/ui-v2/runtime/CoreApp.tsx');
+const coreScreens = read('src/ui-v2/screens/CoreScreens.tsx');
 const home = read('src/ui-v2/screens/HomeScreen.tsx');
 const preview = read('src/features/home/homeDashboardPreview.ts');
 const model = read('src/features/home/homeDashboardModel.ts');
@@ -17,7 +18,8 @@ const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 
 requireContract(core.includes('data-product-phase="4.4"'), 'CoreApp is not promoted to Phase 4.4 on the destruction branch');
 requireContract(core.includes('ConnectedHomeScreen') && core.includes('FixtureHomeScreen'), 'Home is not routed through live + isolated preview renderers');
-requireContract(!/activeTab === 'home'[\s\S]{0,140}<HomeCoreScreen/.test(core), 'static HomeCoreScreen is still the runtime Home implementation');
+requireContract(!core.includes('HomeCoreScreen'), 'CoreApp still references the obsolete static Home implementation');
+requireContract(!coreScreens.includes('HomeCoreScreen'), 'obsolete static HomeCoreScreen dead code still exists');
 requireContract(core.includes("openDomain('transactions')"), 'Home priority navigation no longer reaches transaction context');
 
 requireContract(home.includes('useHomeDashboard'), 'live Home lost the authoritative Home dashboard hook');
@@ -62,6 +64,7 @@ if (failures.length) {
 
 console.log('Phase 4.4 Home Destruction architecture gate PASS');
 console.log('- live Home is connected to authoritative dashboard state');
+console.log('- obsolete static Home implementation is physically removed');
 console.log('- preview destruction scenarios cover empty/dense/conflict/slow/offline');
 console.log('- conflicting urgency is transaction-distinct and priority output stays bounded');
 console.log('- precision, long-text, narrow-screen and reduced-motion guards are present');
