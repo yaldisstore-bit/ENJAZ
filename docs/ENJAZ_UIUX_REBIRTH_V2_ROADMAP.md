@@ -23,7 +23,7 @@
 
 ---
 
-# UI-0 — Freeze & Preservation Contract 🚧
+# UI-0 — Freeze & Preservation Contract ✅
 
 - Freeze a recoverable baseline commit/branch.
 - Inventory current routes, screens, global surfaces, actions, states and feature contracts.
@@ -32,7 +32,7 @@
 - Record current runtime anomalies that must not be mistaken for product truth.
 - Freeze approved visual reference map.
 
-**Exit:** we can rebuild the UI without deleting or silently changing any approved product capability.
+**Exit:** verified against frozen baseline `cb217b460d433d221fcecbe2b2ff994a0c16916d`: UI-0 introduced documentation plus one preservation audit only; no `database/`, `src/core/`, `src/data/`, `src/features/`, `src/shared/`, `tests/` or `tests-external/` changes.
 
 ---
 
