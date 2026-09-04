@@ -2,7 +2,7 @@ import type { AppRoute } from '../../core/routing/routes.ts';
 import { ROUTES } from '../../core/routing/routes.ts';
 import type { HomeDashboardSnapshot, HomePriorityItem, HomeSignalTone } from '../../features/home/homeDashboardModel.ts';
 import type { HomeDashboardLoadState } from '../../features/home/useHomeDashboard.ts';
-import './rebirth-home-dashboard.css';
+import './rebirth-home.css';
 
 export interface RebirthHomeDashboardProps {
   readonly state: HomeDashboardLoadState;
