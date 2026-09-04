@@ -1,7 +1,7 @@
 {
   "name": "enjaz",
   "private": true,
-  "version": "0.13.0-ui-rebirth-stage1",
+  "version": "0.13.1-extreme-qa",
   "type": "module",
   "engines": {
     "node": ">=22.22.0"
@@ -17,12 +17,16 @@
     "audit:ui-rebirth:purge": "node scripts/ui-rebirth-hard-purge-audit.mjs",
     "audit:ui-rebirth:shell": "node scripts/ui-rebirth-shell-audit.mjs",
     "audit:ui-rebirth:shell:selftest": "node scripts/ui-rebirth-shell-selftest.mjs",
+    "audit:ui-rebirth:extreme": "node scripts/ui-rebirth-extreme-audit.mjs",
+    "audit:ui-rebirth:extreme:selftest": "node scripts/ui-rebirth-extreme-selftest.mjs",
+    "audit:dist:budget": "node scripts/dist-budget-audit.mjs",
     "audit:secrets": "node scripts/secret-audit.mjs",
     "audit:roadmap": "node scripts/roadmap-audit.mjs",
     "db:audit": "python3 database/scripts/audit_schema.py",
     "db:audit:selftest": "python3 database/scripts/audit_selftest.py",
     "verify:ui-rebirth-stage0": "npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run typecheck && npm run build",
-    "verify:ui-rebirth-stage1": "npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run audit:ui-rebirth:shell && npm run audit:ui-rebirth:shell:selftest && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && npm run typecheck && npm run build"
+    "verify:ui-rebirth-stage1": "npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run audit:ui-rebirth:shell && npm run audit:ui-rebirth:shell:selftest && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && npm run typecheck && npm run build",
+    "verify:extreme": "npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run audit:ui-rebirth:shell && npm run audit:ui-rebirth:shell:selftest && npm run audit:ui-rebirth:extreme && npm run audit:ui-rebirth:extreme:selftest && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && npm run typecheck && npm run build && npm run audit:dist:budget"
   },
   "dependencies": {
     "react": "19.2.8",

@@ -1,0 +1,65 @@
+name: ENJAZ Real Browser Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-acceptance:
+    name: Real Chromium / Mobile / Keyboard / WCAG Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked app dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Extreme source contract
+        run: node scripts/ui-rebirth-extreme-audit.mjs && node scripts/ui-rebirth-extreme-selftest.mjs
+      - name: Production build
+        env:
+          VITE_ENJAZ_PREVIEW_MODE: 'true'
+        run: npm run build -- --base=/
+      - name: Strict dist budget
+        run: node scripts/dist-budget-audit.mjs
+      - name: Install pinned browser and WCAG tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2
+          npx playwright install --with-deps chromium
+      - name: Start production preview
+        run: |
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/enjaz-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-preview.log
+          exit 1
+      - name: Real browser destruction-resistant acceptance
+        env:
+          BASE_URL: http://127.0.0.1:4173/
+        run: npx playwright test tests-external/live-shell.spec.cjs --reporter=line --workers=1
+      - name: Upload browser diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-browser-diagnostics-${{ github.sha }}
+          path: |
+            test-results/
+            /tmp/enjaz-preview.log
+          if-no-files-found: ignore
+          retention-days: 7
