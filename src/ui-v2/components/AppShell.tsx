@@ -143,7 +143,7 @@ export function AppShell(props: Readonly<{
   const brandContent = <><span className="ez-app-shell__brand-mark" aria-hidden="true">إ</span><span className="ez-app-shell__brand-copy"><strong>{title}</strong><small>{subtitle}</small></span></>;
 
   return (
-    <div className="ez-app-shell" data-enjaz-ui="v2" data-stage="ui-9" dir="rtl">
+    <div className="ez-app-shell" data-enjaz-ui="v2" data-stage="ui-10" dir="rtl">
       <header className="ez-app-shell__topbar" data-shell-part="topbar">
         {props.onBrandAction ? (
           <button type="button" className="ez-app-shell__brand ez-app-shell__brand--interactive" aria-label="مجالات إنجاز" onClick={props.onBrandAction}>{brandContent}</button>

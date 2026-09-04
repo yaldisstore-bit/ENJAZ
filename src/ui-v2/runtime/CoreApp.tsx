@@ -52,7 +52,7 @@ export function CoreApp() {
   const motionKey = domain ? `domain-${domain.id}` : `core-${activeTab}-${commandMode ? 'command' : 'standard'}`;
 
   return (
-    <div data-core-app="true" data-stage="ui-9" data-active-domain={activeDomain ?? 'core'}>
+    <div data-core-app="true" data-stage="ui-10" data-active-domain={activeDomain ?? 'core'}>
       <AppShell
         title={domain ? domain.label : commandMode && activeTab === 'operations' ? 'القيادة' : current.title}
         subtitle={domain ? domain.eyebrow : commandMode && activeTab === 'operations' ? 'المركز التنفيذي' : current.subtitle}
