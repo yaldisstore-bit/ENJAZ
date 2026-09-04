@@ -1,24 +1,11 @@
 import { useState } from 'react';
 import type { EnjazDomainId } from '../architecture/domain-composition.ts';
-import { EzBadge, EzButton, EzChip, EzMetric, EzRow, EzSurface } from '../components/primitives.tsx';
+import { EzButton, EzChip, EzMetric, EzRow, EzSurface } from '../components/primitives.tsx';
 import { FinanceCoreScreen, OperationsCoreScreen } from './CoreScreens.tsx';
+import { ConnectedTransactionListScreen, FixtureTransactionListScreen } from './TransactionListScreen.tsx';
 
 function DomainIntro(props: Readonly<{ eyebrow: string; title: string; body: string; action?: string }>) {
   return <header className="ez-domain-intro"><div><span>{props.eyebrow}</span><h1>{props.title}</h1><p>{props.body}</p></div>{props.action ? <EzButton tone="dark">{props.action}</EzButton> : null}</header>;
-}
-
-function TransactionsScreen() {
-  return <section className="ez-domain-screen ez-domain-transactions" data-domain-screen="transactions">
-    <DomainIntro eyebrow="دورة العمل" title="المعاملات" body="الأولوية والمرحلة والملكية في لوحة تشغيلية واحدة." action="معاملة جديدة" />
-    <div className="ez-domain-pipeline" data-pattern="pipeline">
-      {[['وارد','8','gold'],['قيد التنفيذ','14','info'],['بانتظار طرف','5','warning'],['جاهزة للإغلاق','6','success']].map(([label,value,tone]) => <section key={label}><span>{label}</span><strong>{value}</strong><EzChip tone={tone as 'gold'|'info'|'warning'|'success'}>{label}</EzChip></section>)}
-    </div>
-    <section className="ez-domain-list"><header><div><span>الصف النشط</span><h2>الأعلى أثرًا الآن</h2></div><EzBadge tone="gold">33 معاملة</EzBadge></header>
-      <EzRow index="1042" title="تعديل عقد تأسيس" detail="شركة الرافدين · المرحلة 3/5" meta="أحمد" state={<EzChip tone="danger">عاجلة</EzChip>} />
-      <EzRow index="1038" title="قرار تأسيس" detail="قمر السلطان · بانتظار وثيقتين" meta="سارة" state={<EzChip tone="warning">متوقفة</EzChip>} />
-      <EzRow index="1029" title="تجديد بيانات شركة" detail="روز بغداد · مراجعة نهائية" meta="علي" state={<EzChip tone="success">قريبة الإغلاق</EzChip>} />
-    </section>
-  </section>;
 }
 
 function CompaniesScreen() {
@@ -96,8 +83,8 @@ function CopilotScreen() {
   </section>;
 }
 
-export function DomainScreen(props: Readonly<{ domain: EnjazDomainId }>) {
-  if (props.domain === 'transactions') return <TransactionsScreen />;
+export function DomainScreen(props: Readonly<{ domain: EnjazDomainId; runtimeMode?: 'preview' | 'live' }>) {
+  if (props.domain === 'transactions') return props.runtimeMode === 'live' ? <ConnectedTransactionListScreen /> : <FixtureTransactionListScreen />;
   if (props.domain === 'companies') return <CompaniesScreen />;
   if (props.domain === 'people') return <PeopleScreen />;
   if (props.domain === 'finance') return <FinanceCoreScreen />;
