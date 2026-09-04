@@ -3,7 +3,6 @@ import { ArrowIcon, BellIcon, BriefcaseIcon, MoreIcon, PlusIcon, SearchIcon, Wal
 import { EzDialog, EzMenu, EzSheet } from '../components/overlays.tsx';
 import { CommandPattern, DenseOperationsPattern, FinancePattern, FollowupPattern, TransactionPattern, WorkflowPattern } from '../components/patterns.tsx';
 import { EzBadge, EzButton, EzChip, EzField, EzIconButton, EzNotice, EzSegmented, EzSurface } from '../components/primitives.tsx';
-import '../styles/components.css';
 
 const segmentedOptions = [
   { value: 'today', label: 'اليوم' },
