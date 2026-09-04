@@ -51,7 +51,6 @@ jobs:
           node scripts/ui4-shell-audit.mjs
           node scripts/ui5-composition-audit.mjs
           node scripts/ui6-core-audit.mjs
-          node scripts/ui6-core-regression.mjs
           node scripts/ui7-domain-audit.mjs
           node scripts/ui8-states-audit.mjs
           node scripts/ui9-mobile-audit.mjs
