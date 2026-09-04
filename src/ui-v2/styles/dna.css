@@ -1,5 +1,3 @@
-@import "./tokens.css";
-
 .ui-v2-dna {
   min-height: 100dvh;
   background: var(--ez-gradient-canvas);
