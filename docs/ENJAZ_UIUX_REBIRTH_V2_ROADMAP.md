@@ -58,17 +58,17 @@
 
 ---
 
-# UI-3 — Design System & Premium Components ⏭ CURRENT NEXT STAGE
+# UI-3 — Design System & Premium Components ✅
 
 - Rebuild buttons, fields, chips, badges, navigation primitives, sheets, dialogs, menus and feedback states.
 - Build ENJAZ composite patterns for transactions, companies, finance, follow-ups, workflow, risk, documents and command/operations surfaces.
 - Remove the repeated equal-card layout as a default primitive.
 
-**Exit:** full screens can be composed without ad-hoc styling.
+**Exit:** verified on final GitHub Actions run `33875027439` and manual screenshot review. The stage passed boundary audit, 46 functional regression tests, TypeScript, production build, real Vite runtime and real Chromium interaction at 1280×900, 390×844 and 360×740. The Reality Gate enforces 44px mobile touch targets, zero horizontal overflow, viewport-safe menu/sheet/dialog geometry, real clicks/typing and console/page-error rejection. Manual evidence review caught and forced correction of a clipped mobile action menu before closure. Full evidence and defect history are recorded in `docs/UI3_DESIGN_SYSTEM_PREMIUM_COMPONENTS.md`.
 
 ---
 
-# UI-4 — New App Shell
+# UI-4 — New App Shell ⏭ CURRENT NEXT STAGE
 
 - Rebuild top bar.
 - Rebuild bottom navigation.
