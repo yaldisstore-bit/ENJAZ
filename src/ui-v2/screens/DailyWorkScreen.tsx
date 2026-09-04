@@ -97,7 +97,7 @@ export function DailyWorkScreen(props: Readonly<{
 
   const focus = snapshot.focus;
   return (
-    <section className="ez-core-screen ez-core-daily ez-daily-work" data-core-screen="today" data-daily-work-status="ready" data-daily-work-total={snapshot.summary.total}>
+    <section className="ez-core-screen ez-core-daily ez-daily-work" data-core-screen="today" data-pattern="daily-work" data-daily-work-status="ready" data-daily-work-total={snapshot.summary.total}>
       <header className="ez-core-intro">
         <div><span>مسار اليوم</span><h1>اليوم</h1><p>صندوق عمل موحد للمتابعات والعوائق والمواعيد والتجديدات وإجراءات سير العمل.</p></div>
         <EzButton tone="dark" onClick={props.onNewFollowup}>متابعة جديدة</EzButton>
