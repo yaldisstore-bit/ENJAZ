@@ -34,8 +34,8 @@
 }
 
 .ez-home-focus__copy > span,
-.ez-home-finance > header span,
-.ez-home-priority-list > header span {
+.ez-home-finance > header div > span,
+.ez-home-priority-list > header div > span {
   color: color-mix(in srgb, var(--ez-gold-ink) 72%, transparent);
   font-size: .72rem;
   font-weight: 1000;
@@ -146,7 +146,7 @@
 }
 
 .ez-home-finance > header div { display: grid; gap: 4px; min-width: 0; }
-.ez-home-finance > header span { color: var(--ez-gold-300); }
+.ez-home-finance > header div > span { color: var(--ez-gold-300); }
 .ez-home-finance > header strong { overflow-wrap: anywhere; }
 
 .ez-home-finance__grid {
@@ -181,7 +181,7 @@
 }
 
 .ez-home-priority-list > header div { display: grid; gap: 3px; min-width: 0; }
-.ez-home-priority-list > header span { color: var(--ez-muted); }
+.ez-home-priority-list > header div > span { color: var(--ez-muted); }
 .ez-home-priority-list > div { display: grid; gap: 8px; }
 
 .ez-home-priority-list button {
@@ -215,7 +215,7 @@
 }
 
 .ez-home-priority-list__index.is-critical { color: var(--ez-danger); }
-.ez-home-priority-list__index.is-high { color: var(--ez-warning); }
+.ez-home-priority-list__index.is-high { color: color-mix(in srgb, var(--ez-warning) 90%, var(--ez-ink)); }
 .ez-home-priority-list__index.is-medium { color: var(--ez-info); }
 
 .ez-home-priority-list__copy { min-width: 0; display: grid; gap: 3px; }
