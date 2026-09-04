@@ -5,6 +5,7 @@ const read = (path) => fs.readFileSync(path, 'utf8');
 const sources = {
   component: read('src/ui-rebirth/runtime/RebirthHomeDashboard.tsx'),
   css: read('src/ui-rebirth/runtime/rebirth-home.css'),
+  interaction: read('src/ui-rebirth/runtime/rebirth-home-interaction.css'),
   shell: read('src/ui-rebirth/runtime/RebirthAppShell.tsx'),
   connected: read('src/ui-rebirth/runtime/RebirthConnectedHomeDashboard.tsx'),
   preview: read('src/ui-rebirth/preview/homePreviewState.ts'),
@@ -17,4 +18,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('ENJAZ Stage 2 Home audit passed: reference composition, real-data adapter, states, RTL-ready semantics and responsive DNA are intact.');
+console.log('ENJAZ Stage 2 Home audit passed: reference composition, real-data adapter, states, RTL-ready semantics, safe hero geometry and responsive DNA are intact.');
