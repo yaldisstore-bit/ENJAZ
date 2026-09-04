@@ -15,6 +15,10 @@ const paths = {
 };
 const files = Object.fromEntries(await Promise.all(Object.entries(paths).map(async ([key, file]) => [key, await fs.readFile(file, 'utf8')])));
 function assert(condition, message) { if (!condition) throw new Error(`UI-8 states/forms audit FAIL: ${message}`); }
+function stageAtLeast(source, minimum) {
+  const match = source.match(/data-stage=\"ui-(\d+)\"/);
+  return Boolean(match && Number(match[1]) >= minimum);
+}
 
 for (const kind of ['loading','empty','error','offline','conflict','permission','success','archived']) {
   assert(files.states.includes(`${kind}:`), `state pattern missing ${kind}`);
@@ -37,7 +41,7 @@ assert(files.shell.includes('visibleResults.length > 0'), 'search empty-state br
 assert(files.shell.includes('kind=\"empty\"') && files.shell.includes('لا توجد نتائج مطابقة'), 'product empty search state missing');
 assert(files.shell.includes('<QuickCreateFlow kind={createKind}'), 'validated Quick Create not mounted in AppShell');
 assert(files.root.includes("params.get('ui8-lab') === '1'"), 'UI-8 regression harness route missing');
-assert(files.core.includes('data-stage="ui-8"') && files.shell.includes('data-stage="ui-8"'), 'runtime not promoted to UI-8');
+assert(stageAtLeast(files.core, 8) && stageAtLeast(files.shell, 8), 'runtime regressed below UI-8');
 assert(files.main.includes("./ui-v2/styles/states-forms.css"), 'UI-8 stylesheet not loaded');
 for (const token of ['overflow-wrap:anywhere','grid-template-columns:repeat(2,minmax(0,1fr))','@media(max-width:430px)','@media(max-height:620px)']) {
   assert(files.css.includes(token), `stress/responsive styling missing ${token}`);
@@ -53,4 +57,4 @@ console.log('- 8 exceptional states registered');
 console.log('- validated Quick Create and destructive confirmation mounted');
 console.log('- controlled inputs snapshot event values before state updates');
 console.log('- empty search, long-text and large-value contracts present');
-console.log('- constrained viewport and UI V2 boundary preserved');
+console.log('- runtime remains at or beyond UI-8 with constrained viewport and UI V2 boundary preserved');
