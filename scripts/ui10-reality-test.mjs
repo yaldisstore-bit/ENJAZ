@@ -14,7 +14,6 @@ const domains = [
 const longArabic = 'طلب متابعة وتدقيق معاملة شركة ذات اسم طويل جدًا وتفاصيل تشغيلية متعددة للتأكد من التفاف النص العربي بصورة سليمة دون قص أو دفع أي عنصر خارج حدود الشاشة';
 const mixedToken = 'ENJAZ-CASE-2026-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789-LONG-REFERENCE';
 const hugeMoney = '999999999999999999.99 د.ع';
-// Document "معاينة" is legitimate user-facing vocabulary; block developer/phase terms only.
 const forbiddenText = ['UI-10','UI-9','Reality Gate','PROOF','AUDIT','Rebirth','Preview','pipeline+','تجريبية'];
 
 function assert(condition, message) { if (!condition) throw new Error(message); }
@@ -51,18 +50,38 @@ async function shellGeometry(page,profile,label) {
   assert(delta<=2.5,`${label}: center action drifted ${delta}px`);
 }
 async function closeDialog(dialog) { await dialog.getByLabel('إغلاق',{exact:true}).click(); await dialog.waitFor({state:'detached',timeout:1800}); }
+
+// Stress user/data-bearing copy, not fixed product labels/navigation. Also reject vertical clipping/overlap,
+// which horizontal-overflow checks alone cannot detect.
 async function stressVisibleContent(page,rootSelector,label) {
   const changed = await page.evaluate(({rootSelector,longArabic,mixedToken,hugeMoney}) => {
     const root=document.querySelector(rootSelector); if(!root) return 0;
-    const candidates=Array.from(root.querySelectorAll('p,strong,small,span')).filter((el)=>!el.closest('button')&&!el.closest('nav')&&!el.closest('[aria-hidden="true"]')&&(el.textContent||'').trim().length>2);
-    const picks=candidates.slice(0,3);
-    if(picks[0]) picks[0].textContent=`${picks[0].textContent} — ${longArabic}`;
-    if(picks[1]) picks[1].textContent=`${mixedToken} — ${picks[1].textContent}`;
-    if(picks[2]) picks[2].textContent=`${hugeMoney} — ${picks[2].textContent}`;
+    const selectors = [
+      '.ez-row__copy strong', '.ez-row__copy small', '.ez-metric strong',
+      '[data-pattern] article h2', '[data-pattern] article h3', '[data-pattern] article p', '[data-pattern] article small',
+      '[data-pattern] section h2', '[data-pattern] section h3', '[data-pattern] section p', '[data-pattern] section small'
+    ];
+    const candidates=Array.from(root.querySelectorAll(selectors.join(','))).filter((el) => {
+      const style=getComputedStyle(el); const r=el.getBoundingClientRect();
+      return !el.closest('button,nav,.ez-domain-intro,.ez-domain-runtime__marker') && r.width>0 && r.height>0 && style.display!=='none' && style.visibility!=='hidden' && (el.textContent||'').trim().length>1;
+    });
+    const picks=[]; for (const item of candidates) if (!picks.includes(item)) picks.push(item); if (picks.length>=3) break;
+    if(picks[0]) { picks[0].dataset.ui10Stress='arabic'; picks[0].textContent=`${picks[0].textContent} — ${longArabic}`; }
+    if(picks[1]) { picks[1].dataset.ui10Stress='mixed'; picks[1].textContent=`${mixedToken} — ${picks[1].textContent}`; }
+    if(picks[2]) { picks[2].dataset.ui10Stress='money'; picks[2].textContent=`${hugeMoney} — ${picks[2].textContent}`; }
     return picks.length;
   },{rootSelector,longArabic,mixedToken,hugeMoney});
-  assert(changed>=1,`${label}: no stressable content found`);
-  await page.waitForTimeout(60); await noOverflow(page,`${label}:stress`);
+  assert(changed>=1,`${label}: no realistic data-bearing stress target found`);
+  await page.waitForTimeout(80);
+  await noOverflow(page,`${label}:stress`);
+  const badContainment = await page.evaluate(() => Array.from(document.querySelectorAll('[data-ui10-stress]')).map((el) => {
+    const container=el.closest('.ez-row,.ez-metric,[data-pattern] > article,[data-pattern] > section,.ez-domain-command-grid > section,.ez-domain-doc-layout > article');
+    if(!container) return null;
+    const a=el.getBoundingClientRect(); const b=container.getBoundingClientRect();
+    const escaped=a.left < b.left-2 || a.right > b.right+2 || a.top < b.top-2 || a.bottom > b.bottom+2;
+    return escaped ? {kind:el.dataset.ui10Stress,text:(el.textContent||'').slice(0,80),target:{x:a.x,y:a.y,w:a.width,h:a.height},container:{x:b.x,y:b.y,w:b.width,h:b.height}} : null;
+  }).filter(Boolean));
+  assert(badContainment.length===0,`${label}: stressed text escaped its visual container ${JSON.stringify(badContainment)}`);
 }
 async function checkGlobalSurfaces(page,profile) {
   for (const name of ['بحث','الإشعارات','الحساب','إجراء جديد','مجالات إنجاز']) assert(await page.getByRole('button',{name,exact:true}).isVisible(), `${profile.name}: missing global action ${name}`);
@@ -129,9 +148,10 @@ async function checkDomains(page,profile) {
     assert(await page.locator(`[data-pattern="${pattern}"]`).count()>=1,`${profile.name}:${domain}: composition pattern disappeared (${pattern})`);
     await noDeveloperLeak(page,`${profile.name}:${domain}`); await noOverflow(page,`${profile.name}:${domain}`);
     if(profile.mobile) await touchTargets(page,`${profile.name}:${domain}`);
+    if(profile.deep) await page.screenshot({path:path.join(outDir,`${profile.name}-domain-${domain}.png`),fullPage:true});
     await stressVisibleContent(page,`[data-domain-runtime="${domain}"]`,`${profile.name}:${domain}`);
     if(domain==='command') { const bg=await page.locator('.ez-domain-command').evaluate((el)=>getComputedStyle(el).backgroundImage); assert(bg.includes('gradient'),`${profile.name}: domain command lost dark treatment`); }
-    if(profile.deep) await page.screenshot({path:path.join(outDir,`${profile.name}-domain-${domain}.png`),fullPage:true});
+    if(profile.deep) await page.screenshot({path:path.join(outDir,`${profile.name}-domain-${domain}-stress.png`),fullPage:true});
   }
   assert(seenPatterns.size===12,`${profile.name}: domain composition diversity collapsed`);
   await page.getByRole('button',{name:'العودة للأساسية',exact:true}).click(); await page.locator('[data-core-screen="home"]').waitFor();
@@ -166,7 +186,7 @@ try{
     {name:'phone-320',viewport:{width:320,height:700},mobile:true,deep:true},
   ];
   const results=[]; for(const profile of profiles) results.push(await verifyProfile(browser,profile));
-  const result={passed:true,freeze:'ENJAZ UI/UX 2.0',profiles:results,domains:12,legacyLeak:false,featureDisappearance:false,stressArabic:true,stressMoney:true,touch44:true,visualDiversity:true};
+  const result={passed:true,freeze:'ENJAZ UI/UX 2.0',profiles:results,domains:12,legacyLeak:false,featureDisappearance:false,stressArabic:true,stressMoney:true,verticalContainment:true,touch44:true,visualDiversity:true};
   await fs.writeFile(path.join(outDir,'result.json'),JSON.stringify(result,null,2));
   console.log(`UI-10 Full Destruction Gate PASS: ${JSON.stringify(result)}`);
 }finally{await browser.close();}
