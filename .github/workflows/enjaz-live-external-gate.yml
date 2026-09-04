@@ -1,0 +1,72 @@
+name: ENJAZ Live External Gate
+
+on:
+  workflow_run:
+    workflows: ["ENJAZ Pages Preview"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-live-external
+  cancel-in-progress: true
+
+jobs:
+  live-external:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    name: Public URL / Real Chromium / External Network Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      LIVE_URL: https://yaldisstore-bit.github.io/ENJAZ/
+    steps:
+      - name: Checkout deployed source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Probe public deployment until healthy
+        run: |
+          for i in {1..24}; do
+            code=$(curl --location --silent --show-error --output /tmp/enjaz-live.html --write-out "%{http_code}" "$LIVE_URL" || true)
+            if [ "$code" = "200" ] && grep -q '<div id="root"' /tmp/enjaz-live.html; then
+              echo "Live deployment healthy on attempt $i"
+              exit 0
+            fi
+            echo "Attempt $i: HTTP $code; waiting for public edge propagation"
+            sleep 5
+          done
+          echo "Public deployment never became healthy"
+          cat /tmp/enjaz-live.html || true
+          exit 1
+      - name: Enforce HTTPS and HTML contract
+        run: |
+          final_url=$(curl --location --silent --output /dev/null --write-out "%{url_effective}" "$LIVE_URL")
+          case "$final_url" in https://*) ;; *) echo "Non-HTTPS final URL: $final_url"; exit 1;; esac
+          content_type=$(curl --location --silent --head "$LIVE_URL" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{print tolower($2)}' | tail -1)
+          echo "$content_type" | grep -q 'text/html' || { echo "Unexpected content-type: $content_type"; exit 1; }
+      - name: Install pinned external browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Attack the actual published application
+        env:
+          BASE_URL: https://yaldisstore-bit.github.io/ENJAZ/
+        run: npx playwright test tests-external/live-shell.spec.cjs --reporter=line --workers=1
+      - name: Save public-response evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-live-external-diagnostics-${{ github.event.workflow_run.head_sha || github.sha }}
+          path: |
+            /tmp/enjaz-live.html
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
