@@ -11,11 +11,12 @@ export function EzTextarea(props: Readonly<TextareaHTMLAttributes<HTMLTextAreaEl
 }>) {
   const { label, hint, error, className = '', id, ...textareaProps } = props;
   const resolvedId = fieldId(label, id);
+  const messageId = `${resolvedId}-message`;
   return (
     <label className={`ez-field ez-field--textarea ${error ? 'ez-field--error' : ''} ${className}`.trim()} htmlFor={resolvedId}>
       <span className="ez-field__label">{label}</span>
-      <span className="ez-field__control"><textarea {...textareaProps} id={resolvedId} /></span>
-      {error ? <span className="ez-field__message" role="alert">{error}</span> : hint ? <span className="ez-field__hint">{hint}</span> : null}
+      <span className="ez-field__control"><textarea {...textareaProps} id={resolvedId} aria-label={textareaProps['aria-label'] ?? label} aria-invalid={error ? true : undefined} aria-describedby={error || hint ? messageId : undefined} /></span>
+      {error ? <span id={messageId} className="ez-field__message" role="alert">{error}</span> : hint ? <span id={messageId} className="ez-field__hint">{hint}</span> : null}
     </label>
   );
 }
@@ -28,15 +29,16 @@ export function EzSelect(props: Readonly<SelectHTMLAttributes<HTMLSelectElement>
 }>) {
   const { label, hint, error, options, className = '', id, ...selectProps } = props;
   const resolvedId = fieldId(label, id);
+  const messageId = `${resolvedId}-message`;
   return (
     <label className={`ez-field ez-field--select ${error ? 'ez-field--error' : ''} ${className}`.trim()} htmlFor={resolvedId}>
       <span className="ez-field__label">{label}</span>
       <span className="ez-field__control">
-        <select {...selectProps} id={resolvedId}>
+        <select {...selectProps} id={resolvedId} aria-label={selectProps['aria-label'] ?? label} aria-invalid={error ? true : undefined} aria-describedby={error || hint ? messageId : undefined}>
           {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </select>
       </span>
-      {error ? <span className="ez-field__message" role="alert">{error}</span> : hint ? <span className="ez-field__hint">{hint}</span> : null}
+      {error ? <span id={messageId} className="ez-field__message" role="alert">{error}</span> : hint ? <span id={messageId} className="ez-field__hint">{hint}</span> : null}
     </label>
   );
 }
