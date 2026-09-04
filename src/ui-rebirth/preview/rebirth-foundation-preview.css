@@ -1,0 +1,140 @@
+[data-enjaz-ui="rebirth"].rebirth-foundation {
+  min-block-size: 100vh;
+  padding: max(env(safe-area-inset-top), var(--ui-space-6)) var(--ui-mobile-gutter) calc(var(--ui-dock-height) + var(--ui-space-12) + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 14% 8%, rgba(250, 180, 64, 0.14), transparent 32%),
+    var(--ui-canvas);
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__frame {
+  inline-size: min(100%, 760px);
+  margin-inline: auto;
+  display: grid;
+  gap: var(--ui-space-6);
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-space-4);
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__mark {
+  display: grid;
+  place-items: center;
+  inline-size: 52px;
+  block-size: 52px;
+  border-radius: 50%;
+  color: var(--ui-ink);
+  background: var(--ui-gold);
+  box-shadow: var(--ui-shadow-1);
+  font-weight: 900;
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__hero {
+  min-block-size: 214px;
+  padding: var(--ui-space-6);
+  border-radius: var(--ui-radius-xl);
+  display: grid;
+  align-content: space-between;
+  overflow: hidden;
+  position: relative;
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__hero::after {
+  content: '';
+  position: absolute;
+  inline-size: 180px;
+  block-size: 180px;
+  border: 1px solid rgba(23, 23, 23, 0.18);
+  border-radius: 50%;
+  inset-inline-end: -52px;
+  inset-block-end: -74px;
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__hero-number {
+  font-size: clamp(2.6rem, 12vw, 5.4rem);
+  line-height: 0.9;
+  font-weight: 850;
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__metric {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--ui-space-4);
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__metric strong {
+  font-size: 2rem;
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__metric--dark {
+  color: #fff;
+  background: var(--ui-charcoal);
+  box-shadow: var(--ui-shadow-2);
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__metric--gold {
+  background: var(--ui-gold-soft);
+  box-shadow: var(--ui-shadow-1);
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__metric--light {
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-1);
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__domains {
+  display: grid;
+  gap: var(--ui-space-3);
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__domain-card {
+  min-block-size: 168px;
+  padding: var(--ui-space-5);
+  border-radius: var(--ui-radius-lg);
+  display: grid;
+  align-content: end;
+  gap: var(--ui-space-2);
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__domain-card .ui-section-label {
+  color: rgba(255, 255, 255, 0.74);
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__domain-card p:last-child {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__dock {
+  position: sticky;
+  inset-block-end: max(var(--ui-space-3), env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  gap: var(--ui-space-2);
+  padding: var(--ui-space-2) var(--ui-space-3);
+  color: rgba(255, 255, 255, 0.78);
+  text-align: center;
+  font-size: 0.72rem;
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__dock .ui-primary-action {
+  margin-inline: auto;
+  transform: translateY(-18px);
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+
+[data-enjaz-ui="rebirth"] .rebirth-foundation__dock .ui-primary-action:active {
+  transform: translateY(-18px) scale(0.975);
+}
+
+@media (min-width: 680px) {
+  [data-enjaz-ui="rebirth"] .rebirth-foundation__domains {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
