@@ -18,7 +18,8 @@ const dataLayer = await read('src/data/createDataLayer.ts');
 const css = await read('src/ui-v2/styles/daily-work.css');
 
 assert(core.includes('data-stage="ui-10"'), 'frozen UI-10 marker changed');
-assert(core.includes('data-product-phase="4.2"'), 'product phase marker is missing');
+const productPhase = core.match(/data-product-phase="([0-9]+(?:\.[0-9]+)?)"/)?.[1];
+assert(productPhase && Number(productPhase) >= 4.2, 'product phase regressed below 4.2');
 assert(core.includes('dailyWorkMode === \'live\''), 'CoreApp does not select connected Daily Work in live mode');
 assert(core.includes('<ConnectedDailyWorkScreen'), 'connected Daily Work surface is not mounted');
 assert(core.includes('<FixtureDailyWorkScreen'), 'safe fixture Daily Work surface is missing');
@@ -66,7 +67,7 @@ assert(css.includes('min-height: 44px'), 'Daily Work mobile action touch floor i
 assert(css.includes('@media (max-width: 390px)'), 'narrow-phone hardening is missing');
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'reduced-motion handling is missing');
 
-console.log('Phase 4.2 Daily Work audit PASS');
+console.log(`Phase 4.2 Daily Work audit PASS on product phase ${productPhase}`);
 console.log('- UI/UX 2.0 freeze marker preserved');
 console.log('- live runtime uses Auth + DataLayer providers; public fixture remains isolated');
 console.log('- followups/blockers/calendar/renewals/workflow consolidated');
