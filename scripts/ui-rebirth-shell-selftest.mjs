@@ -22,7 +22,7 @@ const regressions = [
   ['remove reduced motion', sourceTsx, sourceCss.replace('@media (prefers-reduced-motion: reduce)', '@media (min-width: 9999px)'), 'reduced motion contract'],
   ['break dock geometry', sourceTsx, sourceCss.replace('grid-template-columns: 1fr 1fr 76px 1fr 1fr', 'grid-template-columns: repeat(5, 1fr)'), 'dock geometry'],
   ['inject legacy marker', `${sourceTsx}\n// productivity-polish`, sourceCss, 'legacy visual dependency'],
-] as const;
+];
 
 let passed = 0;
 for (const [name, tsx, css, expected] of regressions) {
