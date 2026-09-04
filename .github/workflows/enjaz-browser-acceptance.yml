@@ -32,8 +32,14 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: QA stage contract lock
         run: npm run audit:qa:stage-contract
-      - name: Extreme source contract
-        run: node scripts/ui-rebirth-extreme-audit.mjs && node scripts/ui-rebirth-extreme-selftest.mjs && node scripts/ui-rebirth-home-audit.mjs && node scripts/ui-rebirth-home-selftest.mjs
+      - name: Canonical UI V2 source contract
+        run: |
+          npm run audit:ui-v2:boundary
+          npm run audit:ui-v2:dna
+          node scripts/ui9-mobile-audit.mjs
+          node scripts/ui10-freeze-audit.mjs
+          node scripts/phase4-2-daily-work-audit.mjs
+          node scripts/phase4-3-executive-briefing-audit.mjs
       - name: Production build
         env:
           VITE_ENJAZ_PREVIEW_MODE: 'true'
