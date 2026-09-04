@@ -130,7 +130,7 @@ export function CoreApp(props: Readonly<{ dailyWorkMode?: DailyWorkRuntimeMode }
           {domain ? (
             <div className="ez-domain-runtime" data-domain-runtime={domain.id}>
               <div className={`ez-domain-runtime__marker is-${domain.accent}`}><span>{domain.eyebrow}</span><strong>{domain.description}</strong><button type="button" onClick={returnToCore}>العودة للأساسية</button></div>
-              <DomainScreen key={domain.id} domain={domain.id} />
+              <DomainScreen key={domain.id} domain={domain.id} runtimeMode={dailyWorkMode} />
             </div>
           ) : coreScreen}
         </div>
