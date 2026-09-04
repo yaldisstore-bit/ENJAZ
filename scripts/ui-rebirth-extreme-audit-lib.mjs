@@ -44,6 +44,10 @@ export function validateExtremeUI({ shell, shellCss, hardeningCss, tokensCss, fo
   requireSource(hardeningCss.includes(':focus-visible'), 'visible keyboard focus contract missing');
   requireSource(tokensCss.includes('--ui-touch-min: 44px'), '44px minimum touch token missing');
   requireSource(hardeningCss.includes('min-width: var(--ui-touch-min)') && hardeningCss.includes('min-height: var(--ui-touch-min)'), 'minimum interactive target size is not enforced');
+  requireSource(
+    hardeningCss.includes('inset-inline: 0;') && hardeningCss.includes('margin-inline: auto;') && hardeningCss.includes('translate: none;'),
+    'direction-safe center CTA geometry missing',
+  );
   requireSource(css.includes('grid-template-columns: 1fr 1fr 76px 1fr 1fr'), 'center CTA dock geometry changed');
   requireSource(css.includes('pointer-events: none') && css.includes('pointer-events: auto'), 'dock layering/pointer contract incomplete');
   requireSource(foundationCss.trim().endsWith("@import './qa-hardening.css';"), 'QA hardening layer is not last in foundation cascade');
