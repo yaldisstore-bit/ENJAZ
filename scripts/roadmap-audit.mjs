@@ -61,12 +61,13 @@ for (const marker of [
   '## 3.4 — Shell Destruction Gate ✅',
   'Phase 3.4 ✅',
   '# Phase 4 — Home, Daily Work & Executive Overview 🚧',
-  'Phase 4.1 and Phase 4.2 are closed ✅',
+  'Phase 4.1, Phase 4.2 and Phase 4.3 are closed ✅',
   '## 4.1 — Home / Dashboard ✅',
   '## 4.2 — Daily Work / Universal Inbox ✅',
-  '## 4.3 — Executive Briefing ⏭ CURRENT NEXT PHASE',
-  'Next: Phase 4.3 — Executive Briefing',
-  'Phase 4.3 becomes the next permitted subphase but remains not started',
+  '## 4.3 — Executive Briefing ✅',
+  '## 4.4 — Home Destruction Gate ⏭ CURRENT NEXT PHASE',
+  'Next: Phase 4.4 — Home Destruction Gate',
+  'Phase 4.4 becomes the next permitted subphase but remains not started',
 ]) {
   if (!roadmap.includes(marker)) errors.push(`roadmap marker missing: ${marker}`);
 }
@@ -79,6 +80,7 @@ for (const marker of [
   'Phase 4 — Home, Daily Work & Executive Overview',
   'Phase 4.1 — Home / Dashboard** ✅ complete',
   'Phase 4.2 — Daily Work / Universal Inbox** ✅ complete',
+  'Phase 4.3 — Executive Briefing** ✅ complete',
 ]) {
   if (!readme.includes(marker)) errors.push(`README marker missing: ${marker}`);
 }
@@ -89,20 +91,24 @@ if (!/Phase 3\.4 — Shell Destruction Gate\*{0,2}\s*✅/.test(readme)) {
 
 const phase42StatusLines = readme.split(/\r?\n/).filter((line) => line.includes('Phase 4.2 — Daily Work / Universal Inbox'));
 const canonicalPhase42Line = phase42StatusLines.filter((line) => /^\s*-\s+\*\*Phase 4\.2 — Daily Work \/ Universal Inbox\*\*\s+✅\s+complete\s*$/.test(line));
-if (canonicalPhase42Line.length !== 1) {
-  errors.push('README must contain exactly one canonical Phase 4.2 status line marked complete');
-}
-if (/Phase 4\.2 — Daily Work \/ Universal Inbox[^\n]*(?:⏳\s+not started|CURRENT NEXT PHASE)/.test(readme)) {
-  errors.push('README must not claim Phase 4.2 is still pending after closure');
-}
+if (canonicalPhase42Line.length !== 1) errors.push('README must keep exactly one canonical Phase 4.2 complete status line');
 
 const phase43StatusLines = readme.split(/\r?\n/).filter((line) => line.includes('Phase 4.3 — Executive Briefing'));
-const canonicalPhase43Line = phase43StatusLines.filter((line) => /^\s*-\s+\*\*Phase 4\.3 — Executive Briefing\*\*\s+⏳\s+not started\s*$/.test(line));
+const canonicalPhase43Line = phase43StatusLines.filter((line) => /^\s*-\s+\*\*Phase 4\.3 — Executive Briefing\*\*\s+✅\s+complete\s*$/.test(line));
 if (canonicalPhase43Line.length !== 1) {
-  errors.push('README must contain exactly one canonical Phase 4.3 status line marked not started');
+  errors.push('README must contain exactly one canonical Phase 4.3 status line marked complete');
 }
-if (/Phase 4\.3 — Executive Briefing[^\n]*(?:🚧|✅\s+complete)/.test(readme)) {
-  errors.push('README must not claim Phase 4.3 has started during the Phase 4.2 closure');
+if (/Phase 4\.3 — Executive Briefing[^\n]*(?:⏳\s+not started|CURRENT NEXT PHASE)/.test(readme)) {
+  errors.push('README must not claim Phase 4.3 is pending after closure');
+}
+
+const phase44StatusLines = readme.split(/\r?\n/).filter((line) => line.includes('Phase 4.4 — Home Destruction Gate'));
+const canonicalPhase44Line = phase44StatusLines.filter((line) => /^\s*-\s+\*\*Phase 4\.4 — Home Destruction Gate\*\*\s+⏳\s+not started\s*$/.test(line));
+if (canonicalPhase44Line.length !== 1) {
+  errors.push('README must contain exactly one canonical Phase 4.4 status line marked not started');
+}
+if (/Phase 4\.4 — Home Destruction Gate[^\n]*(?:🚧|✅\s+complete)/.test(readme)) {
+  errors.push('README must not claim Phase 4.4 has started during the Phase 4.3 closure');
 }
 
 if (errors.length) {
@@ -110,5 +116,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2 frozen, Phase 3 complete, Phase 4.1/4.2 closed, and Phase 4.3 handoff locked/not started.`);
+  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2 frozen, Phase 3 complete, Phase 4.1/4.2/4.3 closed, and Phase 4.4 handoff locked/not started.`);
 }
