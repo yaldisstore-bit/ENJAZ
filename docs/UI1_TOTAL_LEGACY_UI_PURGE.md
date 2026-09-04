@@ -1,6 +1,6 @@
 # UI-1 — Total Legacy UI Purge
 
-Status: in progress until the UI-1 exit gate is verified.
+Status: **CLOSED ✅**
 
 ## Purpose
 
@@ -25,7 +25,7 @@ These files remain temporarily in the repository only because older feature/runt
 - `src/ui-v2/runtime/`
 - `src/ui-v2/styles/`
 
-`src/main.tsx` must mount UI V2 directly.
+`src/main.tsx` mounts UI V2 directly.
 
 ## KEEP
 
@@ -55,15 +55,21 @@ All presentation composition is rebuilt later inside UI V2:
 
 This debt must never be imported into UI V2. It will be migrated when the corresponding UI V2 auth/session surface is rebuilt.
 
-## Exit gate
+## Exit verification
 
-UI-1 passes only when:
+UI-1 passed with the following evidence:
 
-1. `src/ui-v2/` exists as a clean visual boundary.
-2. UI V2 contains no import or visual dependency on `ui-rebirth` or legacy visual layers.
-3. `src/main.tsx` mounts `UiV2Root` and UI V2 foundation styles only.
-4. The old visual runtime is explicitly quarantined rather than treated as a library.
-5. Existing domain/data/database contracts are not deleted or rewritten by the purge.
-6. The project remains structurally buildable; no legacy file is deleted merely to make an audit look clean.
+1. `src/ui-v2/` exists as a clean authoritative visual boundary.
+2. `src/ui-v2/` contains no dependency on `ui-rebirth` or legacy visual markers checked by `scripts/ui-v2-boundary-audit.mjs`.
+3. `src/main.tsx` mounts `UiV2Root` and `src/ui-v2/styles/foundation.css`; it no longer imports `RebirthRoot` or `ui-rebirth` styles.
+4. The previous visual runtime remains quarantined only for compatibility; it is not a permitted UI V2 dependency.
+5. Git diff from `uiux-rebirth-v2` shows no changes to `database/`, `src/core/`, `src/data/`, `src/features/` or `src/shared/`.
+6. GitHub Actions run `33872283891`, job `ui1-gate`, completed successfully with:
+   - UI V2 boundary audit ✅
+   - functional regression tests ✅
+   - TypeScript check ✅
+   - production build ✅
 
-The single decisive static gate is `scripts/ui-v2-boundary-audit.mjs`.
+**UI-1 Exit: GREEN ✅**
+
+Next stage: **UI-2 — ENJAZ Visual DNA 2.0**.
