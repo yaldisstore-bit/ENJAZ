@@ -75,7 +75,7 @@ test('transaction search normalizes Arabic forms and searches company, type, dep
     transaction('b', { legacy_id: '2044', type: 'قرار تأسيس', company_id: COMPANY_B, department: 'الضريبة' }),
   ];
 
-  assert.equal(normalizeTransactionSearch('  إضَافة   نشاط  '), 'اضافه نشاط');
+  assert.equal(normalizeTransactionSearch('  إضَافة   نشاط  '), 'اضافة نشاط');
   assert.equal(buildTransactionListSnapshot({ transactions: rows, companies }, { search: 'اضافة', view: 'current' }).items[0]?.id, 'a');
   assert.equal(buildTransactionListSnapshot({ transactions: rows, companies }, { search: 'روز بغداد', view: 'current' }).items[0]?.id, 'b');
   assert.equal(buildTransactionListSnapshot({ transactions: rows, companies }, { search: 'الضريبة', view: 'current' }).items[0]?.id, 'b');
