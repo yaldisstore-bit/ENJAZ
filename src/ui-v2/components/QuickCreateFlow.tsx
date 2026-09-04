@@ -80,7 +80,7 @@ export function QuickCreateFlow(props: Readonly<{ kind: CreateKind; onClose(): v
   };
 
   if (!config) {
-    return <EzStatePanel kind="empty" title="كل الإجراءات في مكان واحد" body="ستظهر هنا الإجراءات الإضافية عند تفعيل مجالاتها الوظيفية ضمن الخطة الأصلية." detail="لم تتم إضافة وظيفة وهمية في UI-8." />;
+    return <EzStatePanel kind="empty" title="كل الإجراءات في مكان واحد" body="ستظهر هنا الإجراءات الإضافية عندما تصبح متاحة في مساحة العمل." detail="يمكنك استخدام الإجراءات الظاهرة الآن دون التأثير على أي سجل آخر." />;
   }
 
   if (reviewed) {
@@ -88,7 +88,7 @@ export function QuickCreateFlow(props: Readonly<{ kind: CreateKind; onClose(): v
     return (
       <div className="ez-quick-create" data-create-review="true">
         <EzStatePanel kind="success" title="البيانات جاهزة للمراجعة" body="تم التحقق من الحقول المطلوبة ولم يتم حفظ أي سجل بعد." detail={isPayment && amount ? `المبلغ: ${amount} د.ع` : draft.primary} actionLabel="تعديل البيانات" onAction={() => setReviewed(false)} />
-        <EzNotice title="خطوة آمنة" body="الحفظ الفعلي يبقى مرتبطًا بعقد المجال وطبقة البيانات عند تنفيذ مرحلته الوظيفية؛ UI-8 لا يختلق عملية حفظ." tone="info" />
+        <EzNotice title="خطوة آمنة" body="هذه الخطوة للمراجعة فقط، ولن تغيّر أي سجل محفوظ. يمكنك العودة وتعديل البيانات قبل أي إجراء نهائي." tone="info" />
         <EzFormActions><EzButton tone="ghost" onClick={props.onClose}>إغلاق</EzButton></EzFormActions>
       </div>
     );
