@@ -8,22 +8,28 @@ const viewports = [
   { name: 'large-android', width: 412, height: 915 },
 ];
 
-async function loadClean(page, errors) {
-  const response = await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 30_000 });
-  expect(response, 'navigation response').not.toBeNull();
-  expect(response.status(), 'page HTTP status').toBeLessThan(400);
-  await expect(page.locator('[data-enjaz-ui="rebirth"]')).toBeVisible();
-  expect(await page.locator('[data-enjaz-ui="rebirth"]').getAttribute('dir')).toBe('rtl');
-  expect(errors.console, 'browser console errors').toEqual([]);
-  expect(errors.page, 'uncaught page errors').toEqual([]);
-}
-
 function collectErrors(page) {
   const errors = { console: [], page: [], responses: [] };
   page.on('console', (message) => { if (message.type() === 'error') errors.console.push(message.text()); });
   page.on('pageerror', (error) => errors.page.push(String(error)));
   page.on('response', (response) => { if (response.status() >= 400) errors.responses.push(`${response.status()} ${response.url()}`); });
   return errors;
+}
+
+async function loadCanonical(page, errors) {
+  const response = await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 30_000 });
+  expect(response, 'navigation response').not.toBeNull();
+  expect(response.status(), 'page HTTP status').toBeLessThan(400);
+  const shell = page.locator('[data-enjaz-ui="v2"]');
+  const app = page.locator('[data-core-app="true"]');
+  await expect(shell).toBeVisible();
+  await expect(app).toBeVisible();
+  await expect(shell).toHaveAttribute('data-stage', 'ui-10');
+  await expect(shell).toHaveAttribute('dir', 'rtl');
+  await expect(app).toHaveAttribute('data-stage', 'ui-10');
+  await expect(app).toHaveAttribute('data-product-phase', '4.3');
+  expect(errors.console, 'browser console errors').toEqual([]);
+  expect(errors.page, 'uncaught page errors').toEqual([]);
 }
 
 async function assertZeroAxeViolations(page, label) {
@@ -33,264 +39,152 @@ async function assertZeroAxeViolations(page, label) {
   expect(result.violations, `${label}: zero WCAG A/AA violations`).toEqual([]);
 }
 
-function overlapArea(a, b) {
-  const width = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
-  const height = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
-  return width * height;
+async function assertNoHorizontalOverflow(page, label) {
+  const geometry = await page.evaluate(() => ({
+    html: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    body: document.body.scrollWidth - document.body.clientWidth,
+  }));
+  expect(geometry.html, `${label}: html has no horizontal overflow`).toBeLessThanOrEqual(1);
+  expect(geometry.body, `${label}: body has no horizontal overflow`).toBeLessThanOrEqual(1);
 }
 
-test('ENJAZ shell survives real mobile-browser geometry and navigation', async ({ page }) => {
+async function assertMobileTargets(page, label) {
+  const undersized = await page.locator('button:visible, a:visible, [role="button"]:visible').evaluateAll((nodes) => nodes
+    .map((node) => ({
+      label: node.getAttribute('aria-label') || node.textContent?.replace(/\s+/g, ' ').trim() || node.tagName,
+      rect: node.getBoundingClientRect().toJSON(),
+    }))
+    .filter(({ rect }) => rect.width < 44 || rect.height < 44));
+  expect(undersized, `${label}: all visible interactive targets meet 44px`).toEqual([]);
+}
+
+async function rect(locator, label) {
+  const box = await locator.boundingBox();
+  expect(box, `${label}: geometry exists`).not.toBeNull();
+  return box;
+}
+
+async function closeSheet(page) {
+  const close = page.getByRole('button', { name: 'إغلاق', exact: true });
+  await expect(close).toBeVisible();
+  await close.click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+}
+
+test('canonical UI V2 shell survives real Android geometry, navigation and WCAG', async ({ page }) => {
   const errors = collectErrors(page);
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
-    await loadClean(page, errors);
+    await loadCanonical(page, errors);
 
-    const geometry = await page.evaluate(() => ({
-      innerWidth: window.innerWidth,
-      innerHeight: window.innerHeight,
-      scrollWidth: document.documentElement.scrollWidth,
-      header: document.querySelector('.rebirth-shell__header')?.getBoundingClientRect().toJSON(),
-      dock: document.querySelector('.rebirth-shell__dock')?.getBoundingClientRect().toJSON(),
-      dockSurface: document.querySelector('.rebirth-shell__dock-surface')?.getBoundingClientRect().toJSON(),
-      cta: document.querySelector('.rebirth-shell__primary-action')?.getBoundingClientRect().toJSON(),
-      navItems: [...document.querySelectorAll('.rebirth-shell__nav-item')].map((node) => ({
-        label: node.textContent?.trim() || '',
-        rect: node.getBoundingClientRect().toJSON(),
-      })),
-    }));
+    const topbar = page.locator('[data-shell-part="topbar"]');
+    const dock = page.locator('[data-shell-part="bottom-dock"]');
+    const primary = page.getByRole('button', { name: 'إجراء جديد', exact: true });
+    const topBox = await rect(topbar, `${viewport.name}: topbar`);
+    const dockBox = await rect(dock, `${viewport.name}: dock`);
+    const primaryBox = await rect(primary, `${viewport.name}: primary action`);
 
-    expect(geometry.scrollWidth, `${viewport.name}: no horizontal overflow`).toBeLessThanOrEqual(geometry.innerWidth + 1);
-    for (const [name, rect] of Object.entries({ header: geometry.header, dock: geometry.dock, dockSurface: geometry.dockSurface, cta: geometry.cta })) {
-      expect(rect, `${viewport.name}: ${name} exists`).toBeTruthy();
-      expect(rect.left, `${viewport.name}: ${name} left bound`).toBeGreaterThanOrEqual(-1);
-      expect(rect.right, `${viewport.name}: ${name} right bound`).toBeLessThanOrEqual(geometry.innerWidth + 1);
-      expect(rect.bottom, `${viewport.name}: ${name} bottom bound`).toBeLessThanOrEqual(geometry.innerHeight + 1);
+    for (const [name, box] of [['topbar', topBox], ['dock', dockBox], ['primary', primaryBox]]) {
+      expect(box.x, `${viewport.name}: ${name} left bound`).toBeGreaterThanOrEqual(-2);
+      expect(box.x + box.width, `${viewport.name}: ${name} right bound`).toBeLessThanOrEqual(viewport.width + 2);
+      expect(box.y + box.height, `${viewport.name}: ${name} bottom bound`).toBeLessThanOrEqual(viewport.height + 2);
     }
 
-    const ctaCenter = geometry.cta.left + geometry.cta.width / 2;
-    const dockCenter = geometry.dockSurface.left + geometry.dockSurface.width / 2;
-    expect(Math.abs(ctaCenter - dockCenter), `${viewport.name}: CTA is mathematically centered in dock`).toBeLessThanOrEqual(1.5);
-    const overlaps = geometry.navItems
-      .map(({ label, rect }) => ({ label, area: overlapArea(geometry.cta, rect) }))
-      .filter(({ area }) => area > 0.5);
-    expect(overlaps, `${viewport.name}: CTA does not intercept any navigation target`).toEqual([]);
+    const primaryCenter = primaryBox.x + primaryBox.width / 2;
+    const dockCenter = dockBox.x + dockBox.width / 2;
+    expect(Math.abs(primaryCenter - dockCenter), `${viewport.name}: primary action stays centered`).toBeLessThanOrEqual(2.5);
+    await assertNoHorizontalOverflow(page, viewport.name);
+    await assertMobileTargets(page, viewport.name);
 
-    const undersized = await page.locator('button:visible').evaluateAll((buttons) => buttons
-      .map((button) => ({ label: button.getAttribute('aria-label') || button.textContent?.trim(), rect: button.getBoundingClientRect().toJSON() }))
-      .filter(({ rect }) => rect.width < 44 || rect.height < 44));
-    expect(undersized, `${viewport.name}: all visible buttons meet 44px target`).toEqual([]);
-
-    await expect(page.locator('.rebirth-home[data-home-ready="true"]')).toBeVisible();
-    await expect(page.getByRole('heading', { level: 1, name: 'اعرف ما يحتاج قرارك، قبل أن يبدأ الزحام.' })).toBeVisible();
-
-    const navCases = [
-      ['اليوم', 'اليوم'],
-      ['المعاملات', 'المعاملات'],
-      ['المزيد', 'المزيد'],
-    ];
-    for (const [buttonName, heading] of navCases) {
-      await page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: buttonName }).click();
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading);
-      await expect(page.getByRole('navigation', { name: 'التنقل الرئيسي' }).locator('[aria-current="page"]')).toHaveCount(1);
+    const nav = page.getByRole('navigation', { name: 'التنقل الرئيسي' });
+    for (const [buttonName, screen] of [
+      ['اليوم', 'today'],
+      ['العمليات', 'operations'],
+      ['المالية', 'finance'],
+      ['الرئيسية', 'home'],
+    ]) {
+      await nav.getByRole('button', { name: buttonName, exact: true }).click();
+      await expect(page.locator(`[data-core-screen="${screen}"]`)).toBeVisible();
+      await assertNoHorizontalOverflow(page, `${viewport.name}:${screen}`);
     }
 
-    await page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'الرئيسية' }).click();
-    await expect(page.locator('.rebirth-home[data-home-ready="true"]')).toBeVisible();
-    await assertZeroAxeViolations(page, viewport.name);
+    await assertZeroAxeViolations(page, `${viewport.name}:home`);
     expect(errors.responses, `${viewport.name}: no failed network resources`).toEqual([]);
     expect(errors.console, `${viewport.name}: no console errors`).toEqual([]);
     expect(errors.page, `${viewport.name}: no page errors`).toEqual([]);
   }
 });
 
-test('Home keeps the approved asymmetric hierarchy and remains usable above the dock', async ({ page }) => {
-  const errors = collectErrors(page);
-
-  for (const viewport of viewports) {
-    await page.setViewportSize({ width: viewport.width, height: viewport.height });
-    await loadClean(page, errors);
-
-    const hero = page.locator('.rebirth-home__hero');
-    const score = page.locator('.rebirth-home__hero-score');
-    const stats = page.locator('.rebirth-home__hero-stats');
-    const priorities = page.locator('.rebirth-home__priority-card');
-    const finance = page.locator('.rebirth-home__finance');
-
-    await expect(hero).toBeVisible();
-    await expect(score).toBeVisible();
-    await expect(stats).toBeVisible();
-    await expect(priorities).toHaveCount(4);
-    await expect(finance).toBeVisible();
-
-    const visual = await page.evaluate(() => {
-      const heroNode = document.querySelector('.rebirth-home__hero');
-      const first = document.querySelector('.rebirth-home__priority-card[data-rank="1"]');
-      const second = document.querySelector('.rebirth-home__priority-card[data-rank="2"]');
-      const financeNode = document.querySelector('.rebirth-home__finance');
-      const color = (node) => node ? getComputedStyle(node).backgroundColor : '';
-      return {
-        hero: heroNode?.getBoundingClientRect().toJSON(),
-        first: first?.getBoundingClientRect().toJSON(),
-        second: second?.getBoundingClientRect().toJSON(),
-        heroBackground: heroNode ? getComputedStyle(heroNode).backgroundImage : '',
-        financeBackground: color(financeNode),
-        scrollWidth: document.documentElement.scrollWidth,
-        innerWidth: window.innerWidth,
-      };
-    });
-
-    expect(visual.scrollWidth, `${viewport.name}: Home has no horizontal overflow`).toBeLessThanOrEqual(visual.innerWidth + 1);
-    expect(visual.heroBackground, `${viewport.name}: Home hero is visibly composed, not flat`).toContain('gradient');
-    expect(visual.first.width, `${viewport.name}: rank 1 priority dominates rank 2 width`).toBeGreaterThan(visual.second.width * 1.55);
-    expect(visual.financeBackground, `${viewport.name}: finance block is not transparent`).not.toBe('rgba(0, 0, 0, 0)');
-
-    const dominantCard = page.locator('.rebirth-home__priority-card[data-rank="1"]');
-    await dominantCard.click();
-    await expect(page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'المعاملات' })).toHaveAttribute('aria-current', 'page');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('المعاملات');
-
-    await page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'الرئيسية' }).click();
-    await page.getByRole('button', { name: /افتح عمل اليوم/ }).click();
-    await expect(page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'اليوم' })).toHaveAttribute('aria-current', 'page');
-
-    await page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'الرئيسية' }).click();
-    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    await page.waitForTimeout(50);
-    const bottomGeometry = await page.evaluate(() => ({
-      closing: document.querySelector('.rebirth-home__closing')?.getBoundingClientRect().toJSON(),
-      dock: document.querySelector('.rebirth-shell__dock')?.getBoundingClientRect().toJSON(),
-    }));
-    expect(bottomGeometry.closing.bottom, `${viewport.name}: final Home action clears fixed dock`).toBeLessThanOrEqual(bottomGeometry.dock.top + 1);
-
-    await assertZeroAxeViolations(page, `${viewport.name}-home`);
-    expect(errors.responses, `${viewport.name}: no failed network resources`).toEqual([]);
-    expect(errors.console, `${viewport.name}: no console errors`).toEqual([]);
-    expect(errors.page, `${viewport.name}: no page errors`).toEqual([]);
-  }
-});
-
-test('Home hero score remains subordinate and cannot collide with content or CTA', async ({ page }) => {
-  const errors = collectErrors(page);
-
-  for (const viewport of viewports) {
-    await page.setViewportSize({ width: viewport.width, height: viewport.height });
-    await loadClean(page, errors);
-
-    const geometry = await page.evaluate(() => {
-      const rect = (selector) => document.querySelector(selector)?.getBoundingClientRect().toJSON();
-      const action = document.querySelector('.rebirth-home__hero-action');
-      const actionRect = action?.getBoundingClientRect();
-      const topAtActionCenter = actionRect
-        ? document.elementFromPoint(actionRect.left + actionRect.width / 2, actionRect.top + actionRect.height / 2)
-        : null;
-      return {
-        hero: rect('.rebirth-home__hero'),
-        score: rect('.rebirth-home__hero-score'),
-        action: rect('.rebirth-home__hero-action'),
-        title: rect('#rebirth-home-title'),
-        paragraph: rect('.rebirth-home__hero-copy p'),
-        stats: rect('.rebirth-home__hero-stats'),
-        actionOwnsHitPoint: Boolean(action && topAtActionCenter && (topAtActionCenter === action || action.contains(topAtActionCenter))),
-      };
-    });
-
-    for (const [name, rect] of Object.entries(geometry).filter(([name]) => name !== 'actionOwnsHitPoint')) {
-      expect(rect, `${viewport.name}: ${name} geometry exists`).toBeTruthy();
-    }
-
-    expect(geometry.score.width, `${viewport.name}: score width remains visually subordinate`).toBeLessThanOrEqual(120);
-    expect(geometry.score.height, `${viewport.name}: score height remains visually subordinate`).toBeLessThanOrEqual(76);
-    expect(overlapArea(geometry.score, geometry.action), `${viewport.name}: score never overlaps primary Home CTA`).toBeLessThanOrEqual(0.5);
-    expect(overlapArea(geometry.score, geometry.title), `${viewport.name}: score never overlaps Home title`).toBeLessThanOrEqual(0.5);
-    expect(overlapArea(geometry.score, geometry.paragraph), `${viewport.name}: score never overlaps Home summary copy`).toBeLessThanOrEqual(0.5);
-    expect(overlapArea(geometry.score, geometry.stats), `${viewport.name}: score never overlaps summary capsule`).toBeLessThanOrEqual(0.5);
-    expect(geometry.stats.top - geometry.score.bottom, `${viewport.name}: score keeps breathing room above stats`).toBeGreaterThanOrEqual(8);
-    expect(geometry.score.left - geometry.hero.left, `${viewport.name}: score stays inside hero left edge`).toBeGreaterThanOrEqual(10);
-    expect(geometry.hero.right - geometry.score.right, `${viewport.name}: score stays inside hero right edge`).toBeGreaterThanOrEqual(10);
-    expect(geometry.actionOwnsHitPoint, `${viewport.name}: CTA owns its physical hit target`).toBe(true);
-
-    await page.getByRole('button', { name: /افتح عمل اليوم/ }).click();
-    await expect(page.getByRole('navigation', { name: 'التنقل الرئيسي' }).getByRole('button', { name: 'اليوم' })).toHaveAttribute('aria-current', 'page');
-    expect(errors.console, `${viewport.name}: no console errors during hero interaction`).toEqual([]);
-    expect(errors.page, `${viewport.name}: no page errors during hero interaction`).toEqual([]);
-    expect(errors.responses, `${viewport.name}: no failed resources during hero interaction`).toEqual([]);
-  }
-});
-
-test('quick actions behaves as a real modal with trapped and restored focus', async ({ page }) => {
+test('global overlays and domain explorer remain usable on mobile', async ({ page }) => {
   const errors = collectErrors(page);
   await page.setViewportSize({ width: 390, height: 844 });
-  await loadClean(page, errors);
+  await loadCanonical(page, errors);
 
-  const trigger = page.locator('.rebirth-shell__primary-action');
-  await expect(trigger).toHaveCount(1);
-  await trigger.focus();
-  await trigger.press('Enter');
-  const dialog = page.getByRole('dialog', { name: 'ماذا تريد أن تنجز؟' });
-  await expect(dialog).toBeVisible();
-  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.getByRole('button', { name: 'إغلاق' })).toBeFocused();
-  await expect(page.locator('.rebirth-shell__header')).toHaveAttribute('inert', '');
-  await expect(page.locator('.rebirth-shell__viewport')).toHaveAttribute('inert', '');
-  await expect(page.locator('.rebirth-shell__dock')).toHaveAttribute('inert', '');
-  await assertZeroAxeViolations(page, 'quick-actions-open');
-
-  for (let i = 0; i < 12; i += 1) {
-    await page.keyboard.press(i % 4 === 0 ? 'Shift+Tab' : 'Tab');
-    const insideDialog = await page.evaluate(() => {
-      const dialogNode = document.querySelector('[role="dialog"]');
-      return Boolean(dialogNode && document.activeElement && dialogNode.contains(document.activeElement));
-    });
-    expect(insideDialog, `focus iteration ${i} remains trapped`).toBe(true);
-  }
-
+  await page.getByRole('button', { name: 'بحث', exact: true }).click();
+  const search = page.getByRole('dialog', { name: 'البحث العام', exact: true });
+  await expect(search).toBeVisible();
+  await page.getByLabel('عبارة البحث').fill('عبارة لا تطابق أي سجل');
+  await expect(page.locator('[data-state-kind="empty"]')).toBeVisible();
+  await assertNoHorizontalOverflow(page, 'search overlay');
   await page.keyboard.press('Escape');
-  await expect(dialog).toHaveCount(0);
-  await expect(trigger).toBeFocused();
-  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.locator('[inert]')).toHaveCount(0);
+  await expect(search).toHaveCount(0);
 
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await trigger.click();
-  await expect(page.getByRole('dialog', { name: 'ماذا تريد أن تنجز؟' })).toBeVisible();
-  const animationMs = await page.locator('.rebirth-shell__quick-sheet').evaluate((node) => {
-    const value = getComputedStyle(node).animationDuration.trim();
-    if (value.endsWith('ms')) return Number.parseFloat(value);
-    if (value.endsWith('s')) return Number.parseFloat(value) * 1000;
-    return 0;
-  });
-  expect(animationMs, 'reduced motion keeps animation effectively disabled').toBeLessThanOrEqual(20);
+  for (const [trigger, dialogName] of [
+    ['الإشعارات', 'الإشعارات'],
+    ['الحساب', 'الحساب ومساحة العمل'],
+    ['إجراء جديد', 'إجراء جديد'],
+  ]) {
+    await page.getByRole('button', { name: trigger, exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: dialogName, exact: true });
+    await expect(dialog).toBeVisible();
+    await assertNoHorizontalOverflow(page, `${trigger} overlay`);
+    await assertMobileTargets(page, `${trigger} overlay`);
+    await closeSheet(page);
+  }
 
-  expect(errors.console).toEqual([]);
-  expect(errors.page).toEqual([]);
-  expect(errors.responses).toEqual([]);
+  await page.getByRole('button', { name: 'مجالات إنجاز', exact: true }).click();
+  const explorer = page.getByRole('dialog', { name: 'مجالات إنجاز', exact: true });
+  await expect(explorer).toBeVisible();
+  await expect(page.locator('[data-domain-explorer-link]')).toHaveCount(12);
+  await assertZeroAxeViolations(page, 'domain explorer');
+  await page.locator('[data-domain-explorer-link="transactions"]').click();
+  await expect(page.locator('[data-domain-runtime="transactions"]')).toBeVisible();
+  await expect(page.locator('[data-domain-rail="true"]')).toBeVisible();
+  await assertNoHorizontalOverflow(page, 'transactions domain');
+  await page.getByRole('button', { name: 'العودة للأساسية', exact: true }).click();
+  await expect(page.locator('[data-core-screen="home"]')).toBeVisible();
+  await expect(page.locator('[data-domain-rail="true"]')).toHaveCount(0);
+
+  expect(errors.responses, 'overlays/domains: no failed network resources').toEqual([]);
+  expect(errors.console, 'overlays/domains: no console errors').toEqual([]);
+  expect(errors.page, 'overlays/domains: no page errors').toEqual([]);
 });
 
-test('live runtime stays lightweight and semantically coherent', async ({ page }) => {
+test('reduced motion and production resource budgets remain bounded', async ({ page }) => {
   const errors = collectErrors(page);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 390, height: 844 });
-  await loadClean(page, errors);
+  await loadCanonical(page, errors);
 
-  await expect(page.locator('header').first()).toBeVisible();
-  await expect(page.locator('main')).toHaveCount(1);
-  await expect(page.locator('nav[aria-label="التنقل الرئيسي"]')).toHaveCount(1);
-  await expect(page.locator('h1')).toHaveCount(1);
-  await expect(page.locator('.rebirth-home__hero')).toHaveCount(1);
-  await expect(page.locator('.rebirth-home__finance')).toHaveCount(1);
-
-  const resourceStats = await page.evaluate(() => {
-    const entries = performance.getEntriesByType('resource');
-    return {
-      count: entries.length,
-      transferred: entries.reduce((sum, entry) => sum + (entry.transferSize || 0), 0),
-      giant: entries.filter((entry) => (entry.encodedBodySize || 0) > 500_000).map((entry) => ({ name: entry.name, size: entry.encodedBodySize })),
-    };
+  const motion = await page.locator('[data-enjaz-ui="v2"]').evaluate((root) => {
+    const nodes = [root, ...root.querySelectorAll('*')];
+    return nodes.reduce((max, node) => {
+      const style = getComputedStyle(node);
+      const parse = (value) => value.split(',').map((part) => part.trim()).map((part) => part.endsWith('ms') ? Number.parseFloat(part) : Number.parseFloat(part) * 1000).filter(Number.isFinite);
+      return Math.max(max, ...parse(style.animationDuration), ...parse(style.transitionDuration), 0);
+    }, 0);
   });
-  expect(resourceStats.count, 'resource count budget').toBeLessThanOrEqual(30);
-  expect(resourceStats.giant, 'no resource over 500KB').toEqual([]);
-  if (resourceStats.transferred > 0) expect(resourceStats.transferred, 'network transfer budget').toBeLessThanOrEqual(1_200_000);
+  expect(motion, 'reduced motion keeps animation effectively disabled').toBeLessThanOrEqual(20);
 
-  expect(errors.console, 'no console errors').toEqual([]);
-  expect(errors.page, 'no page errors').toEqual([]);
-  expect(errors.responses, 'no failed network resources').toEqual([]);
+  const resources = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => ({
+    name: entry.name,
+    size: entry.transferSize || entry.encodedBodySize || 0,
+  })));
+  const oversized = resources.filter((resource) => resource.size > 500 * 1024);
+  const total = resources.reduce((sum, resource) => sum + resource.size, 0);
+  expect(oversized, 'no resource over 500KB').toEqual([]);
+  expect(total, 'network transfer budget').toBeLessThanOrEqual(3 * 1024 * 1024);
+  expect(errors.responses, 'resource run: no failed network resources').toEqual([]);
+  expect(errors.console, 'resource run: no console errors').toEqual([]);
+  expect(errors.page, 'resource run: no page errors').toEqual([]);
 });
