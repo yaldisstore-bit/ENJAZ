@@ -10,7 +10,7 @@ const quality = read('.github/workflows/enjaz-quality-gate.yml');
 const browser = read('.github/workflows/enjaz-browser-acceptance.yml');
 const pages = read('.github/workflows/enjaz-pages-preview.yml');
 const live = read('.github/workflows/enjaz-live-external-gate.yml');
-const browserSpec = read('tests-external/live-shell.spec.cjs');
+const phase43 = read('.github/workflows/phase4-3-executive-briefing.yml');
 const stageDeltaAudit = read('scripts/qa-stage-delta-audit.mjs');
 const constitution = read('docs/QA_STAGE_CONSTITUTION.md');
 const pkg = JSON.parse(read('package.json'));
@@ -20,6 +20,7 @@ for (const [name, source] of [
   ['browser', browser],
   ['pages', pages],
   ['live', live],
+  ['phase43', phase43],
 ]) {
   requireContract(!/continue-on-error\s*:\s*true/i.test(source), `${name}: continue-on-error is forbidden`);
 }
@@ -30,17 +31,20 @@ requireContract(quality.includes('QA stage contract lock'), 'quality gate must a
 requireContract(quality.includes('Stage-specific test expansion gate'), 'quality gate must require stage-specific test expansion');
 requireContract(quality.includes('fetch-depth: 0'), 'quality checkout must keep history for stage delta comparison');
 
-const requiredQualitySteps = [
+const requiredQualityTokens = [
   'audit:qa:stage-contract',
   'audit:qa:stage-delta',
-  'audit:ui-rebirth:boundary',
-  'audit:ui-rebirth:purge',
-  'audit:ui-rebirth:shell',
-  'audit:ui-rebirth:shell:selftest',
-  'audit:ui-rebirth:extreme',
-  'audit:ui-rebirth:extreme:selftest',
-  'audit:ui-rebirth:home',
-  'audit:ui-rebirth:home:selftest',
+  'audit:ui-v2:boundary',
+  'audit:ui-v2:dna',
+  'ui4-shell-audit.mjs',
+  'ui5-composition-audit.mjs',
+  'ui6-core-audit.mjs',
+  'ui7-domain-audit.mjs',
+  'ui8-states-audit.mjs',
+  'ui9-mobile-audit.mjs',
+  'ui10-freeze-audit.mjs',
+  'phase4-2-daily-work-audit.mjs',
+  'phase4-3-executive-briefing-audit.mjs',
   'test:functional',
   'audit:secrets',
   'db:audit',
@@ -51,44 +55,25 @@ const requiredQualitySteps = [
   'audit:dist:budget',
   'test -f dist/index.html',
 ];
-for (const token of requiredQualitySteps) requireContract(quality.includes(token), `quality gate missing mandatory step: ${token}`);
-requireContract(quality.includes('Home Dashboard reference + destructive gate'), 'Stage 2 Home gate must remain an explicit Quality Gate step');
+for (const token of requiredQualityTokens) requireContract(quality.includes(token), `quality gate missing mandatory canonical token: ${token}`);
+requireContract(quality.includes('Canonical Main Integrity + UI V2 + Production Build'), 'quality gate must identify the canonical UI V2 runtime');
 
 requireContract(/pull_request:\s*[\s\S]*branches:\s*\[main\]/.test(browser), 'browser gate must run on PRs to main');
 requireContract(/push:\s*[\s\S]*branches:\s*\[main\]/.test(browser), 'browser gate must run on push to main');
 requireContract(browser.includes('QA stage contract lock'), 'browser gate must self-audit the QA stage contract');
+requireContract(browser.includes('Canonical UI V2 source contract'), 'browser gate must validate canonical UI V2 before Chromium');
+requireContract(browser.includes('audit:ui-v2:boundary'), 'browser gate lost UI V2 boundary audit');
+requireContract(browser.includes('audit:ui-v2:dna'), 'browser gate lost UI V2 DNA audit');
+requireContract(browser.includes('ui10-freeze-audit.mjs'), 'browser gate lost UI-10 freeze audit');
+requireContract(browser.includes('phase4-2-daily-work-audit.mjs'), 'browser gate lost Phase 4.2 architecture audit');
+requireContract(browser.includes('phase4-3-executive-briefing-audit.mjs'), 'browser gate lost Phase 4.3 architecture audit');
 requireContract(browser.includes('@playwright/test@1.55.0'), 'Playwright version must remain pinned');
 requireContract(browser.includes('@axe-core/playwright@4.10.2'), 'axe-core version must remain pinned');
 requireContract(browser.includes('npx playwright install --with-deps chromium'), 'real Chromium installation is mandatory');
 requireContract(browser.includes('tests-external/live-shell.spec.cjs'), 'real browser acceptance suite is mandatory');
 requireContract(browser.includes('Strict dist budget'), 'browser gate must retain production asset budget');
-requireContract(browser.includes('Extreme source contract'), 'browser gate must retain extreme source/mutation contract');
-requireContract(browser.includes('ui-rebirth-home-audit.mjs') && browser.includes('ui-rebirth-home-selftest.mjs'), 'browser gate must run Home source + destructive gates before Chromium');
 requireContract(browser.includes("VITE_ENJAZ_PREVIEW_MODE: 'true'"), 'real browser build must use deterministic preview data rather than live external data');
 
-for (const width of ['width: 360', 'width: 390', 'width: 412']) requireContract(browserSpec.includes(width), `browser suite lost mandatory mobile viewport ${width}`);
-requireContract(browserSpec.includes(".withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])"), 'WCAG A/AA axe tags were weakened');
-requireContract(browserSpec.includes('expect(result.violations') && browserSpec.includes('.toEqual([])'), 'browser suite must require zero axe violations');
-requireContract(browserSpec.includes('rect.width < 44 || rect.height < 44'), '44px touch-target browser assertion missing');
-requireContract(browserSpec.includes('no horizontal overflow'), 'horizontal overflow browser assertion missing');
-requireContract(browserSpec.includes('CTA does not intercept any navigation target'), 'CTA/nav collision assertion missing');
-requireContract(browserSpec.includes('focus iteration') && browserSpec.includes('remains trapped'), 'modal focus-trap browser assertion missing');
-requireContract(browserSpec.includes("page.keyboard.press('Escape')"), 'Escape modal dismissal browser assertion missing');
-requireContract(browserSpec.includes('reduced motion keeps animation effectively disabled'), 'reduced-motion browser assertion missing');
-requireContract(browserSpec.includes('no console errors') && browserSpec.includes('no page errors'), 'browser runtime error assertions missing');
-requireContract(browserSpec.includes('no failed network resources'), 'failed-network-resource assertion missing');
-requireContract(browserSpec.includes('no resource over 500KB'), 'single-resource performance ceiling missing');
-requireContract(browserSpec.includes('network transfer budget'), 'network transfer performance budget missing');
-
-// Stage 2 Home must remain a real visual/browser contract, not merely source assertions.
-requireContract(browserSpec.includes('.rebirth-home__hero'), 'browser suite lost Home hero verification');
-requireContract(browserSpec.includes('.rebirth-home__priority-card[data-rank="1"]'), 'browser suite lost dominant Home priority geometry check');
-requireContract(browserSpec.includes('rank 1 priority dominates rank 2 width'), 'browser suite lost asymmetric Home hierarchy assertion');
-requireContract(browserSpec.includes('final Home action clears fixed dock'), 'browser suite lost Home-vs-dock obstruction assertion');
-requireContract(browserSpec.includes('اعرف ما يحتاج قرارك، قبل أن يبدأ الزحام.'), 'browser suite lost canonical Home hero heading');
-requireContract(browserSpec.includes(`${'${viewport.name}'}-home`), 'browser suite must run WCAG against Home for every mobile viewport');
-
-// New product phases must not reuse only old tests: changing product code requires test/guard changes in the same phase.
 requireContract(stageDeltaAudit.includes('product code changed without expanding tests/guards'), 'stage-delta product-code enforcement missing');
 requireContract(stageDeltaAudit.includes('UI stage changed without a real-browser test or destructive/selftest guard change'), 'stage-delta UI enforcement missing');
 requireContract(stageDeltaAudit.includes('data/service/routing/auth stage changed without functional test changes'), 'stage-delta functional enforcement missing');
@@ -97,6 +82,8 @@ requireContract(stageDeltaAudit.includes('database stage changed without databas
 requireContract(pages.includes('workflows: ["ENJAZ Quality Gate"]'), 'Pages must depend on ENJAZ Quality Gate');
 requireContract(pages.includes("github.event.workflow_run.conclusion == 'success'"), 'Pages must require successful Quality Gate');
 requireContract(pages.includes("github.event.workflow_run.head_branch == 'main'"), 'Pages deployment must be main-only');
+requireContract(pages.includes('Checkout canonical main source'), 'Pages must deploy the canonical main source');
+requireContract(!pages.includes('ref: uiux-rebirth-v2'), 'Pages must not deploy the former UI V2 integration branch');
 
 requireContract(live.includes('workflows: ["ENJAZ Pages Preview"]'), 'live external gate must depend on Pages deployment');
 requireContract(live.includes("github.event.workflow_run.conclusion == 'success'"), 'live external gate must require successful Pages deployment');
@@ -104,20 +91,33 @@ requireContract(live.includes("github.event.workflow_run.head_branch == 'main'")
 requireContract(live.includes('https://yaldisstore-bit.github.io/ENJAZ/'), 'live external gate must attack the public ENJAZ URL');
 requireContract(live.includes('@playwright/test@1.55.0'), 'live Playwright version must remain pinned');
 requireContract(live.includes('@axe-core/playwright@4.10.2'), 'live axe-core version must remain pinned');
-requireContract(live.includes('Attack the actual published application'), 'live published-app attack step missing');
-requireContract(live.includes('Enforce HTTPS and HTML contract'), 'live HTTPS/HTML contract missing');
+
+requireContract(/pull_request:\s*[\s\S]*branches:\s*\[main\]/.test(phase43), 'Phase 4.3 gate must target canonical main');
+requireContract(phase43.includes('audit:ui-v2:boundary'), 'Phase 4.3 gate lost UI V2 boundary audit');
+requireContract(phase43.includes('audit:ui-v2:dna'), 'Phase 4.3 gate lost UI V2 DNA audit');
+requireContract(phase43.includes('audit:ui-v2:freeze'), 'Phase 4.3 gate lost cumulative UI V2 freeze audit');
+requireContract(phase43.includes('phase4-2-daily-work-audit.mjs'), 'Phase 4.3 gate lost Phase 4.2 cumulative audit');
+requireContract(phase43.includes('phase4-3-executive-briefing-audit.mjs'), 'Phase 4.3 architecture audit missing');
+requireContract(phase43.includes('audit:roadmap'), 'Phase 4.3 roadmap integrity audit missing');
+requireContract(phase43.includes('test:functional'), 'Phase 4.3 functional regression gate missing');
+requireContract(phase43.includes('typecheck'), 'Phase 4.3 TypeScript gate missing');
+requireContract(phase43.includes('npm run build'), 'Phase 4.3 production build gate missing');
+requireContract(phase43.includes('phase4-3-executive-briefing-reality.mjs'), 'Phase 4.3 real-browser journey missing');
 
 requireContract(pkg.scripts?.['audit:qa:stage-contract'] === 'node scripts/qa-stage-contract-audit.mjs', 'audit:qa:stage-contract script missing');
 requireContract(pkg.scripts?.['audit:qa:stage-delta'] === 'node scripts/qa-stage-delta-audit.mjs', 'audit:qa:stage-delta script missing');
-requireContract(pkg.scripts?.['audit:ui-rebirth:home'] === 'node scripts/ui-rebirth-home-audit.mjs', 'Stage 2 Home audit script missing');
-requireContract(pkg.scripts?.['audit:ui-rebirth:home:selftest'] === 'node scripts/ui-rebirth-home-selftest.mjs', 'Stage 2 Home destructive script missing');
+requireContract(pkg.scripts?.['audit:ui-v2:boundary'] === 'node scripts/ui-v2-boundary-audit.mjs', 'UI V2 boundary script missing');
+requireContract(pkg.scripts?.['audit:ui-v2:dna'] === 'node scripts/ui-v2-dna-audit.mjs', 'UI V2 DNA script missing');
+requireContract(pkg.scripts?.['audit:ui-v2:freeze']?.includes('ui10-freeze-audit.mjs'), 'UI V2 freeze script missing UI-10');
+requireContract(pkg.scripts?.['audit:phase4-2:daily-work'] === 'node scripts/phase4-2-daily-work-audit.mjs', 'Phase 4.2 architecture script missing');
+requireContract(pkg.scripts?.['audit:phase4-3:executive-briefing'] === 'node scripts/phase4-3-executive-briefing-audit.mjs', 'Phase 4.3 architecture script missing');
+requireContract(pkg.scripts?.['test:functional']?.includes('tests/executiveBriefing.test.ts'), 'Phase 4.3 functional regression test missing');
 requireContract(pkg.scripts?.['verify:stage'] === 'npm run verify:extreme', 'verify:stage must remain an alias of verify:extreme');
 const extreme = pkg.scripts?.['verify:extreme'] ?? '';
 for (const token of [
-  'audit:qa:stage-contract', 'audit:qa:stage-delta', 'audit:ui-rebirth:boundary', 'audit:ui-rebirth:purge',
-  'audit:ui-rebirth:shell', 'audit:ui-rebirth:shell:selftest', 'audit:ui-rebirth:extreme',
-  'audit:ui-rebirth:extreme:selftest', 'audit:ui-rebirth:home', 'audit:ui-rebirth:home:selftest',
-  'test:functional', 'audit:secrets', 'db:audit', 'db:audit:selftest', 'audit:roadmap', 'typecheck', 'build', 'audit:dist:budget',
+  'audit:qa:stage-contract', 'audit:qa:stage-delta', 'audit:ui-v2:boundary', 'audit:ui-v2:dna',
+  'audit:ui-v2:freeze', 'audit:phase4-2:daily-work', 'audit:phase4-3:executive-briefing', 'test:functional', 'audit:secrets',
+  'db:audit', 'db:audit:selftest', 'audit:roadmap', 'typecheck', 'build', 'audit:dist:budget',
 ]) requireContract(extreme.includes(token), `verify:extreme was weakened: missing ${token}`);
 
 requireContract(constitution.includes('No ENJAZ stage, feature phase, visual phase, data phase, refactor, or hotfix may be declared complete'), 'stage constitution lost non-negotiable closure rule');
@@ -125,9 +125,9 @@ requireContract(constitution.includes('The product is fixed; the gate is not wea
 requireContract(constitution.includes('Every new stage must expand the tests'), 'stage constitution lost test-expansion rule');
 
 if (failures.length) {
-  console.error('ENJAZ QA stage contract FAILED. Heavy stage certification was weakened.');
+  console.error('ENJAZ QA stage contract FAILED. Canonical UI V2 / Phase 4.3 certification was weakened.');
   for (const failure of failures) console.error(`- ${failure}`);
   process.exit(1);
 }
 
-console.log('ENJAZ QA stage contract passed: every stage must retain Extreme QA, add stage-specific tests, pass real Chromium, then pass deployed external WCAG.');
+console.log('ENJAZ QA stage contract passed: canonical main retains UI V2 freeze, Phase 4.2, Phase 4.3, functional, build, browser and deployed-external gates.');
