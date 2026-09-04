@@ -11,6 +11,13 @@
   min-height: var(--ui-touch-min);
 }
 
+/* Logical-axis centering: unlike inline-start + negative translate, this is symmetric in RTL and LTR. */
+[data-enjaz-ui="rebirth"] .rebirth-shell__primary-action {
+  inset-inline: 0;
+  margin-inline: auto;
+  translate: none;
+}
+
 [data-enjaz-ui="rebirth"] :where(button, [href], [tabindex]):focus-visible {
   outline: 3px solid color-mix(in srgb, var(--ui-gold) 74%, #ffffff 26%);
   outline-offset: 3px;
