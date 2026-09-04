@@ -1,0 +1,93 @@
+:root {
+  color-scheme: light;
+
+  --ez-font-sans: "Noto Kufi Arabic", "IBM Plex Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+  --ez-font-display: "Noto Kufi Arabic", "IBM Plex Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+
+  --ez-canvas: #f3efe6;
+  --ez-canvas-raised: #faf7f0;
+  --ez-surface: #fffdf8;
+  --ez-surface-soft: #f8f3e8;
+  --ez-surface-strong: #ebe3d2;
+  --ez-ink: #171612;
+  --ez-ink-2: #2b2923;
+  --ez-muted: #756f63;
+  --ez-line: rgba(23, 22, 18, 0.10);
+  --ez-line-strong: rgba(23, 22, 18, 0.18);
+
+  --ez-gold-50: #fff8da;
+  --ez-gold-100: #ffefad;
+  --ez-gold-300: #ffdc58;
+  --ez-gold-500: #ffc72c;
+  --ez-gold-600: #e9aa10;
+  --ez-gold-700: #b97900;
+  --ez-gold-ink: #2a2100;
+
+  --ez-charcoal-700: #292823;
+  --ez-charcoal-800: #201f1b;
+  --ez-charcoal-900: #151511;
+  --ez-charcoal-950: #0f0f0c;
+  --ez-on-dark: #fff9e8;
+  --ez-on-dark-muted: rgba(255, 249, 232, 0.70);
+
+  --ez-success: #167a53;
+  --ez-success-soft: #e5f4ed;
+  --ez-warning: #9b6700;
+  --ez-warning-soft: #fff0c9;
+  --ez-danger: #ad3d34;
+  --ez-danger-soft: #fbe8e5;
+  --ez-info: #315ec9;
+  --ez-info-soft: #e8eefc;
+
+  --ez-domain-finance: #315fd6;
+  --ez-domain-finance-deep: #17346f;
+  --ez-domain-analytics: #7255d9;
+  --ez-domain-operations: #187b73;
+  --ez-domain-documents: #9f5e29;
+  --ez-domain-risk: #a9463b;
+
+  --ez-radius-xs: 10px;
+  --ez-radius-sm: 14px;
+  --ez-radius-md: 18px;
+  --ez-radius-lg: 24px;
+  --ez-radius-xl: 32px;
+  --ez-radius-pill: 999px;
+
+  --ez-space-1: 4px;
+  --ez-space-2: 8px;
+  --ez-space-3: 12px;
+  --ez-space-4: 16px;
+  --ez-space-5: 20px;
+  --ez-space-6: 24px;
+  --ez-space-8: 32px;
+  --ez-space-10: 40px;
+  --ez-space-12: 48px;
+
+  --ez-shadow-1: 0 8px 24px rgba(36, 30, 18, 0.08);
+  --ez-shadow-2: 0 18px 46px rgba(36, 30, 18, 0.13);
+  --ez-shadow-dark: 0 22px 48px rgba(11, 11, 9, 0.24);
+  --ez-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+
+  --ez-border-hairline: 1px solid var(--ez-line);
+  --ez-control-h: 46px;
+  --ez-control-h-compact: 38px;
+  --ez-touch-min: 44px;
+
+  --ez-ease-standard: cubic-bezier(.2,.8,.2,1);
+  --ez-ease-spring: cubic-bezier(.16,1,.3,1);
+  --ez-dur-fast: 140ms;
+  --ez-dur-base: 220ms;
+  --ez-dur-slow: 360ms;
+
+  --ez-gradient-gold: linear-gradient(145deg, #ffe16a 0%, #ffc72c 45%, #e7a70b 100%);
+  --ez-gradient-ink: linear-gradient(145deg, #2a2924 0%, #171612 55%, #0f0f0c 100%);
+  --ez-gradient-canvas: radial-gradient(circle at 90% 0%, rgba(255, 199, 44, 0.18), transparent 32%), linear-gradient(180deg, #f7f3ea 0%, #f1ecdf 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ez-dur-fast: 1ms;
+    --ez-dur-base: 1ms;
+    --ez-dur-slow: 1ms;
+  }
+}
