@@ -10,6 +10,17 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+async function assertInsideViewport(page, locator, label) {
+  const box = await locator.boundingBox();
+  const viewport = page.viewportSize();
+  assert(box && viewport, `${label}: geometry unavailable`);
+  const epsilon = 1;
+  assert(box.x >= -epsilon, `${label}: clipped at viewport left (${box.x})`);
+  assert(box.y >= -epsilon, `${label}: clipped at viewport top (${box.y})`);
+  assert(box.x + box.width <= viewport.width + epsilon, `${label}: clipped at viewport right (${box.x + box.width} > ${viewport.width})`);
+  assert(box.y + box.height <= viewport.height + epsilon, `${label}: clipped at viewport bottom (${box.y + box.height} > ${viewport.height})`);
+}
+
 async function verifyViewport(browser, profile) {
   const context = await browser.newContext({ viewport: profile.viewport, deviceScaleFactor: 1 });
   const page = await context.newPage();
@@ -40,8 +51,10 @@ async function verifyViewport(browser, profile) {
   assert(await page.getByRole('button', { name: 'الأسبوع' }).getAttribute('aria-pressed') === 'true', `${profile.name}: segmented control did not change`);
 
   await page.getByRole('button', { name: 'المزيد' }).click();
-  await page.getByRole('menu', { name: 'قائمة الإجراءات' }).waitFor();
+  const menu = page.getByRole('menu', { name: 'قائمة الإجراءات' });
+  await menu.waitFor();
   await page.waitForTimeout(300);
+  await assertInsideViewport(page, menu, `${profile.name} menu`);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-menu.png`) });
   await page.getByRole('menuitem', { name: /تثبيت العرض/ }).click();
   await page.getByText(/تم اختيار: pin/).waitFor();
@@ -54,6 +67,7 @@ async function verifyViewport(browser, profile) {
   const sheet = page.getByRole('dialog', { name: 'إجراء سريع' });
   await sheet.waitFor();
   await page.waitForTimeout(450);
+  await assertInsideViewport(page, sheet, `${profile.name} sheet`);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-sheet.png`) });
   await page.getByLabel('العنوان').fill('متابعة اختبار حقيقية طويلة للتأكد من مرونة الحقل على الهاتف');
   await page.getByRole('button', { name: 'إنشاء المتابعة' }).click();
@@ -63,6 +77,7 @@ async function verifyViewport(browser, profile) {
   const dialog = page.getByRole('dialog', { name: 'تأكيد إغلاق المعاملة؟' });
   await dialog.waitFor();
   await page.waitForTimeout(450);
+  await assertInsideViewport(page, dialog, `${profile.name} dialog`);
   await page.screenshot({ path: path.join(outDir, `${profile.name}-dialog.png`) });
   await page.getByRole('button', { name: 'تأكيد الإغلاق' }).click();
   await page.getByText(/تم اختبار Dialog وإجراء التأكيد بنجاح/).waitFor();
