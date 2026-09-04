@@ -10,6 +10,8 @@ const quality = read('.github/workflows/enjaz-quality-gate.yml');
 const browser = read('.github/workflows/enjaz-browser-acceptance.yml');
 const pages = read('.github/workflows/enjaz-pages-preview.yml');
 const live = read('.github/workflows/enjaz-live-external-gate.yml');
+const browserSpec = read('tests-external/live-shell.spec.cjs');
+const constitution = read('docs/QA_STAGE_CONSTITUTION.md');
 const pkg = JSON.parse(read('package.json'));
 
 // No critical QA workflow may silently tolerate failure.
@@ -52,12 +54,30 @@ for (const token of requiredQualitySteps) {
 // Real Chromium + WCAG must execute both before merge and after any direct push to main.
 requireContract(/pull_request:\s*[\s\S]*branches:\s*\[main\]/.test(browser), 'browser gate must run on PRs to main');
 requireContract(/push:\s*[\s\S]*branches:\s*\[main\]/.test(browser), 'browser gate must run on push to main');
+requireContract(browser.includes('QA stage contract lock'), 'browser gate must self-audit the QA stage contract');
 requireContract(browser.includes('@playwright/test@1.55.0'), 'Playwright version must remain pinned');
 requireContract(browser.includes('@axe-core/playwright@4.10.2'), 'axe-core version must remain pinned');
 requireContract(browser.includes('npx playwright install --with-deps chromium'), 'real Chromium installation is mandatory');
 requireContract(browser.includes('tests-external/live-shell.spec.cjs'), 'real browser acceptance suite is mandatory');
 requireContract(browser.includes('Strict dist budget'), 'browser gate must retain production asset budget');
 requireContract(browser.includes('Extreme source contract'), 'browser gate must retain extreme source/mutation contract');
+
+// Lock the semantics of the real-browser suite itself so it cannot be quietly diluted.
+for (const width of ['width: 360', 'width: 390', 'width: 412']) {
+  requireContract(browserSpec.includes(width), `browser suite lost mandatory mobile viewport ${width}`);
+}
+requireContract(browserSpec.includes(".withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])"), 'WCAG A/AA axe tags were weakened');
+requireContract(browserSpec.includes('expect(result.violations') && browserSpec.includes('.toEqual([])'), 'browser suite must require zero axe violations');
+requireContract(browserSpec.includes('rect.width < 44 || rect.height < 44'), '44px touch-target browser assertion missing');
+requireContract(browserSpec.includes('no horizontal overflow'), 'horizontal overflow browser assertion missing');
+requireContract(browserSpec.includes('CTA does not intercept any navigation target'), 'CTA/nav collision assertion missing');
+requireContract(browserSpec.includes('focus iteration') && browserSpec.includes('remains trapped'), 'modal focus-trap browser assertion missing');
+requireContract(browserSpec.includes("page.keyboard.press('Escape')"), 'Escape modal dismissal browser assertion missing');
+requireContract(browserSpec.includes('reduced motion keeps animation effectively disabled'), 'reduced-motion browser assertion missing');
+requireContract(browserSpec.includes('no console errors') && browserSpec.includes('no page errors'), 'browser runtime error assertions missing');
+requireContract(browserSpec.includes('no failed network resources'), 'failed-network-resource assertion missing');
+requireContract(browserSpec.includes('no resource over 500KB'), 'single-resource performance ceiling missing');
+requireContract(browserSpec.includes('network transfer budget'), 'network transfer performance budget missing');
 
 // A main build may only publish after the Quality Gate succeeds.
 requireContract(pages.includes('workflows: ["ENJAZ Quality Gate"]'), 'Pages must depend on ENJAZ Quality Gate');
@@ -76,6 +96,7 @@ requireContract(live.includes('Enforce HTTPS and HTML contract'), 'live HTTPS/HT
 
 // Package-level certification must preserve the entire heavy chain.
 requireContract(pkg.scripts?.['audit:qa:stage-contract'] === 'node scripts/qa-stage-contract-audit.mjs', 'audit:qa:stage-contract script missing');
+requireContract(pkg.scripts?.['verify:stage'] === 'npm run verify:extreme', 'verify:stage must remain an alias of verify:extreme');
 const extreme = pkg.scripts?.['verify:extreme'] ?? '';
 for (const token of [
   'audit:qa:stage-contract',
@@ -96,6 +117,11 @@ for (const token of [
 ]) {
   requireContract(extreme.includes(token), `verify:extreme was weakened: missing ${token}`);
 }
+
+// The policy itself is part of the contract and states the no-shortcut closure rule.
+requireContract(constitution.includes('No ENJAZ stage, feature phase, visual phase, data phase, refactor, or hotfix may be declared complete'), 'stage constitution lost non-negotiable closure rule');
+requireContract(constitution.includes('The product is fixed; the gate is not weakened'), 'stage constitution lost no-test-weakening rule');
+requireContract(constitution.includes('Every new stage must expand the tests'), 'stage constitution lost test-expansion rule');
 
 if (failures.length) {
   console.error('ENJAZ QA stage contract FAILED. Heavy stage certification was weakened.');
