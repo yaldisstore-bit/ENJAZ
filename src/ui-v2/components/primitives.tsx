@@ -31,7 +31,7 @@ export function EzIconButton(props: Readonly<ButtonHTMLAttributes<HTMLButtonElem
   );
 }
 
-export function EzField(props: Readonly<InputHTMLAttributes<HTMLInputElement> & {
+export function EzField(props: Readonly<Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix'> & {
   label: string;
   hint?: string;
   error?: string;
