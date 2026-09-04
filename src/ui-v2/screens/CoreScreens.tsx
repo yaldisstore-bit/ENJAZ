@@ -29,50 +29,6 @@ function MiniBars(props: Readonly<{ values: readonly number[]; label: string; to
   );
 }
 
-export function HomeCoreScreen() {
-  return (
-    <section className="ez-core-screen ez-core-home" data-core-screen="home">
-      <CoreIntro eyebrow="صباح العمل" title="الرئيسية" body="الأولوية والقرار والعمل الجاري في تسلسل واحد واضح." />
-
-      <div className="ez-core-home__lead">
-        <section className="ez-core-priority" data-pattern="focal-zone">
-          <div className="ez-core-priority__copy">
-            <span>الأولوية الآن</span>
-            <h2>إغلاق مراجعة عقد تأسيس قبل 12:30</h2>
-            <p>شركة الرافدين · متوقفة عند خطوة المراجعة منذ 31 ساعة.</p>
-            <div className="ez-core-chip-row"><EzChip tone="danger" dot>عاجلة</EzChip><EzChip tone="neutral">المسؤول: أحمد</EzChip></div>
-          </div>
-          <div className="ez-core-priority__progress">
-            <strong>68%</strong><small>3 من 5 خطوات</small><EzButton tone="dark">فتح المعاملة</EzButton>
-          </div>
-        </section>
-
-        <section className="ez-core-signal" data-pattern="trend-panel">
-          <span>إشارة تنفيذية</span>
-          <strong>3 قرارات تؤثر على إغلاق اليوم</strong>
-          <MiniBars label="وتيرة الإنجاز" values={[38, 52, 46, 66, 58, 78, 84]} />
-        </section>
-      </div>
-
-      <div className="ez-core-metrics" data-pattern="metric-cluster">
-        <EzMetric label="عمل نشط" value="24" detail="3 عاجلة" tone="gold" />
-        <EzMetric label="متابعات اليوم" value="14" detail="2 متأخرة" />
-        <EzMetric label="التحصيل" value="78%" detail="+8% هذا الأسبوع" />
-        <div className="ez-core-micro"><span>متوسط دورة العمل</span><strong>4.2 يوم</strong><small>تحسن 0.6 يوم</small></div>
-      </div>
-
-      <section className="ez-core-queue" data-pattern="dense-row">
-        <header><div><span>العمل الجاري</span><h2>أقرب عناصر تحتاج حركة</h2></div><EzBadge tone="gold">6 عناصر</EzBadge></header>
-        <div>
-          <EzRow index="01" title="تدقيق مستندات شركة الفجر" detail="6 وثائق · آخر تحديث منذ 18 دقيقة" meta="سارة" state={<EzChip tone="warning">مراجعة</EzChip>} />
-          <EzRow index="02" title="تحصيل أتعاب معاملة 1042" detail="متبقي 450,000 د.ع" meta="علي" state={<EzChip tone="info">تحصيل</EzChip>} />
-          <EzRow index="03" title="اتصال متابعة مع المحامي" detail="اليوم · 15:20" meta="أحمد" state={<EzChip tone="success">جاهزة</EzChip>} />
-        </div>
-      </section>
-    </section>
-  );
-}
-
 export function DailyWorkCoreScreen(props: Readonly<{ onNewFollowup(): void }>) {
   const days = ['الأحد 6', 'الاثنين 7', 'الثلاثاء 8', 'الأربعاء 9', 'الخميس 10'];
   return (
