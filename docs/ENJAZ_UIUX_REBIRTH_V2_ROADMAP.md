@@ -104,7 +104,7 @@
 
 ---
 
-# UI-7 — Domain-by-Domain Rebuild ⏭ CURRENT NEXT STAGE
+# UI-7 — Domain-by-Domain Rebuild ✅
 
 Presentation rebuild only for:
 - Transactions.
@@ -120,11 +120,11 @@ Presentation rebuild only for:
 - Follow-ups/Notifications.
 - AI surfaces where the original roadmap contract already defines them.
 
-**Exit:** every domain belongs to one coherent ENJAZ family while preserving its own information character.
+**Exit:** all 12 domain destinations now belong to one coherent ENJAZ family while preserving distinct information character. Core surfaces remain rail-free; the ENJAZ brand opens a viewport-safe Domain Explorer, and the Domain Rail appears only inside domain runtime. On implementation head `5329448dfc44f162f1fc1639558d524f35c6cf67`, UI-1, UI-3, UI-4, UI-5, UI-6 and UI-7 gates all passed together, including 46 functional tests, TypeScript, production build and a real Chromium domain journey at 1280×900, 390×844 and 320×700. Manual screenshot review caught and removed leaked technical composition labels after the automated gate was green. Full evidence and defect history are recorded in `docs/UI7_DOMAIN_BY_DOMAIN_REBUILD.md`.
 
 ---
 
-# UI-8 — States, Forms & Interaction Layer
+# UI-8 — States, Forms & Interaction Layer ⏭ CURRENT NEXT STAGE
 
 - Loading, empty, error, offline, retry, conflict, permission, archive and success states.
 - Form layout and validation presentation.

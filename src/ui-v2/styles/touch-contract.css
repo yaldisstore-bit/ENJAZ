@@ -8,7 +8,9 @@
   .ez-shell-close,
   .ez-bottom-dock__item,
   .ez-bottom-dock__primary,
-  .ez-shell-create-grid button {
+  .ez-shell-create-grid button,
+  .ez-domain-runtime__marker button,
+  .ez-domain-rail button {
     min-width: var(--ez-touch-min);
     min-height: var(--ez-touch-min);
   }

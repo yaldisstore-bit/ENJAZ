@@ -85,7 +85,8 @@ async function verifyProfile(browser, profile) {
     await assertNoHorizontalOverflow(page, `${profile.name}:nav-${label}`);
   }
 
-  await page.getByRole('button', { name: 'بحث' }).click();
+  const topbarNav = page.locator('[data-shell-part="topbar"]');
+  await topbarNav.getByRole('button', { name: 'بحث', exact: true }).click();
   const searchDialog = page.getByRole('dialog', { name: 'البحث العام' });
   await searchDialog.waitFor();
   await page.waitForTimeout(280);
@@ -99,7 +100,7 @@ async function verifyProfile(browser, profile) {
   await searchDialog.waitFor({ state: 'detached' });
   assert(await page.locator('[data-shell-part="bottom-dock"]').isVisible(), `${profile.name}: dock missing after search close`);
 
-  await page.getByRole('button', { name: 'الإشعارات' }).click();
+  await topbarNav.getByRole('button', { name: 'الإشعارات', exact: true }).click();
   const notifications = page.getByRole('dialog', { name: 'الإشعارات' });
   await notifications.waitFor();
   await page.waitForTimeout(420);
