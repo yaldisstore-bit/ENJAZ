@@ -27,7 +27,9 @@ async function loadCanonical(page, errors) {
   await expect(shell).toHaveAttribute('data-stage', 'ui-10');
   await expect(shell).toHaveAttribute('dir', 'rtl');
   await expect(app).toHaveAttribute('data-stage', 'ui-10');
-  await expect(app).toHaveAttribute('data-product-phase', '4.3');
+  const productPhase = Number(await app.getAttribute('data-product-phase'));
+  expect(Number.isFinite(productPhase), 'product phase marker is numeric').toBeTruthy();
+  expect(productPhase, 'product phase remains at or beyond the Phase 4.4 closure').toBeGreaterThanOrEqual(4.4);
   expect(errors.console, 'browser console errors').toEqual([]);
   expect(errors.page, 'uncaught page errors').toEqual([]);
 }
