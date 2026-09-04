@@ -43,7 +43,8 @@ for (const label of ['الرئيسية','اليوم','العمليات','الم�
   assert(productFiles.shell.includes(label) || productFiles.core.includes(label), `global destination/action disappeared: ${label}`);
 }
 
-const forbiddenVisibleTerms = ['UI-10','UI-9','Reality Gate','PROOF','AUDIT','Rebirth','Preview','pipeline+','معاينة','تجريبية'];
+// Product vocabulary such as document "معاينة" is legitimate. Block only developer/phase terminology.
+const forbiddenVisibleTerms = ['UI-10','UI-9','Reality Gate','PROOF','AUDIT','Rebirth','Preview','pipeline+','تجريبية'];
 const visibleSource = [productFiles.core, productFiles.shell, productFiles.coreScreens, productFiles.domainScreens, productFiles.quickCreate, productFiles.states].join('\n');
 for (const term of forbiddenVisibleTerms) assert(!visibleSource.includes(term), `developer/legacy terminology present in product source: ${term}`);
 
@@ -56,4 +57,5 @@ console.log(`- clean UI V2 source boundary across ${uiFiles.length} TS/TSX/CSS f
 console.log(`- ${domainIds.length} domain destinations preserved`);
 console.log('- core navigation and global actions preserved');
 console.log('- user-visible product sources contain no stage/developer/legacy terminology');
+console.log('- legitimate product vocabulary such as document preview remains allowed');
 console.log('- runtime and shell are promoted to UI-10');
