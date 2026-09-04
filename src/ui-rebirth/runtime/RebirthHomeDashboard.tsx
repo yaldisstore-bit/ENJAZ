@@ -178,8 +178,8 @@ function ReadyHome(props: Readonly<{
           <p>من أصل {formatMoney(snapshot.finance.activeFees)} ضمن المعاملات النشطة.</p>
         </div>
 
-        <div className="rebirth-home__finance-meter" aria-label={`نسبة التحصيل ${Math.round(percent)} بالمئة`}>
-          <div><span style={{ inlineSize: `${percent}%` }} /></div>
+        <div className="rebirth-home__finance-meter">
+          <progress max={100} value={percent} aria-label={`نسبة التحصيل ${Math.round(percent)} بالمئة`} />
           <strong>{Math.round(percent)}%</strong>
         </div>
 
