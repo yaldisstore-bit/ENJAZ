@@ -116,6 +116,7 @@ requireContract(phase44.includes('audit:phase4-2:daily-work'), 'Phase 4.4 gate l
 requireContract(phase44.includes('audit:phase4-3:executive-briefing'), 'Phase 4.4 gate lost Phase 4.3 cumulative audit');
 requireContract(phase44.includes('audit:phase4-4:home-destruction'), 'Phase 4.4 architecture audit missing');
 requireContract(phase44.includes('tests/homeDashboardDestruction.test.ts'), 'Phase 4.4 dataset destruction test missing');
+requireContract(phase44.includes('tests-external/live-shell.spec.cjs'), 'Phase 4.4 workflow must rerun when the canonical browser contract changes');
 requireContract(phase44.includes('test:functional'), 'Phase 4.4 full functional regression missing');
 requireContract(phase44.includes('typecheck'), 'Phase 4.4 TypeScript gate missing');
 requireContract(phase44.includes('npm run build'), 'Phase 4.4 production build gate missing');
