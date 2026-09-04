@@ -8,7 +8,7 @@ export function ExecutiveBriefingEntry(props: Readonly<{ onOpen(): void }>) {
         <h2>الملخص التنفيذي</h2>
         <p>المخاطر والعوائق وضغط العمل والنبضة المالية في قراءة واحدة قبل اتخاذ القرار.</p>
       </div>
-      <div><EzBadge tone="gold">4.3</EzBadge><EzButton tone="dark" onClick={props.onOpen}>فتح الملخص التنفيذي</EzButton></div>
+      <div><EzBadge tone="gold">مختصر</EzBadge><EzButton tone="dark" onClick={props.onOpen}>فتح الملخص التنفيذي</EzButton></div>
     </section>
   );
 }
