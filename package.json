@@ -14,6 +14,7 @@
     "test:functional": "node --experimental-strip-types --test tests/authService.test.ts tests/authValidation.test.ts tests/bootState.test.ts tests/config.test.ts tests/dataContracts.test.ts tests/dataGateway.test.ts tests/dataLayerFactory.test.ts tests/errors.test.ts tests/homeDashboard.test.ts tests/logger.test.ts tests/routes.test.ts tests/unhandled.test.ts",
     "test": "npm run test:functional",
     "audit:qa:stage-contract": "node scripts/qa-stage-contract-audit.mjs",
+    "audit:qa:stage-delta": "node scripts/qa-stage-delta-audit.mjs",
     "audit:ui-rebirth:boundary": "node scripts/ui-rebirth-boundary-audit.mjs",
     "audit:ui-rebirth:purge": "node scripts/ui-rebirth-hard-purge-audit.mjs",
     "audit:ui-rebirth:shell": "node scripts/ui-rebirth-shell-audit.mjs",
@@ -28,7 +29,7 @@
     "verify:ui-rebirth-stage0": "npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run typecheck && npm run build",
     "verify:ui-rebirth-stage1": "npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run audit:ui-rebirth:shell && npm run audit:ui-rebirth:shell:selftest && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && npm run typecheck && npm run build",
     "verify:stage": "npm run verify:extreme",
-    "verify:extreme": "npm run audit:qa:stage-contract && npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run audit:ui-rebirth:shell && npm run audit:ui-rebirth:shell:selftest && npm run audit:ui-rebirth:extreme && npm run audit:ui-rebirth:extreme:selftest && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && npm run typecheck && npm run build && npm run audit:dist:budget"
+    "verify:extreme": "npm run audit:qa:stage-contract && npm run audit:qa:stage-delta && npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge && npm run audit:ui-rebirth:shell && npm run audit:ui-rebirth:shell:selftest && npm run audit:ui-rebirth:extreme && npm run audit:ui-rebirth:extreme:selftest && npm run test:functional && npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && npm run typecheck && npm run build && npm run audit:dist:budget"
   },
   "dependencies": {
     "react": "19.2.8",
