@@ -12,10 +12,12 @@ on:
       - 'src/main.tsx'
       - 'tests/executiveBriefing.test.ts'
       - 'scripts/phase4-3-**'
+      - 'scripts/roadmap-audit.mjs'
       - 'package.json'
       - '.github/workflows/phase4-3-executive-briefing.yml'
       - 'docs/ENJAZ_MASTER_ROADMAP.md'
       - 'docs/PHASE4_3_**'
+      - 'README.md'
 
 jobs:
   phase4-3-executive-briefing-reality-gate:
@@ -35,6 +37,8 @@ jobs:
         run: node scripts/phase4-2-daily-work-audit.mjs
       - name: Phase 4.3 architecture audit
         run: node scripts/phase4-3-executive-briefing-audit.mjs
+      - name: Roadmap integrity audit
+        run: npm run audit:roadmap
       - name: Functional regression tests
         run: npm run test:functional
       - name: TypeScript
