@@ -3,7 +3,7 @@ import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react
 export type EzTone = 'neutral' | 'gold' | 'dark' | 'success' | 'warning' | 'danger' | 'info';
 
 export function EzButton(props: Readonly<ButtonHTMLAttributes<HTMLButtonElement> & {
-  tone?: 'gold' | 'dark' | 'ghost';
+  tone?: 'gold' | 'dark' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   icon?: ReactNode;
 }>) {
