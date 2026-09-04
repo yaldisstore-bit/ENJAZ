@@ -14,7 +14,8 @@ const domains = [
 const longArabic = 'طلب متابعة وتدقيق معاملة شركة ذات اسم طويل جدًا وتفاصيل تشغيلية متعددة للتأكد من التفاف النص العربي بصورة سليمة دون قص أو دفع أي عنصر خارج حدود الشاشة';
 const mixedToken = 'ENJAZ-CASE-2026-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789-LONG-REFERENCE';
 const hugeMoney = '999999999999999999.99 د.ع';
-const forbiddenText = ['UI-10','UI-9','Reality Gate','PROOF','AUDIT','Rebirth','Preview','pipeline+','معاينة','تجريبية'];
+// Document "معاينة" is legitimate user-facing vocabulary; block developer/phase terms only.
+const forbiddenText = ['UI-10','UI-9','Reality Gate','PROOF','AUDIT','Rebirth','Preview','pipeline+','تجريبية'];
 
 function assert(condition, message) { if (!condition) throw new Error(message); }
 async function rect(locator, label) { const box = await locator.boundingBox(); assert(box, `${label}: geometry unavailable`); return box; }
