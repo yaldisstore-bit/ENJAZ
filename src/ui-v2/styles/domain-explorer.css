@@ -28,6 +28,25 @@
   outline-offset: 2px;
 }
 
+/* Explorer-specific sheet contract: the sheet itself never exceeds the visual
+   viewport; only its body scrolls, keeping the title and close action stable. */
+.ez-sheet:has(.ez-domain-explorer) {
+  box-sizing: border-box;
+  max-height: min(calc(var(--ez-visual-viewport-height, 100dvh) - max(12px, env(safe-area-inset-top))), 720px);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto auto minmax(0,1fr);
+}
+
+.ez-sheet:has(.ez-domain-explorer) .ez-sheet__body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding-inline-end: 2px;
+  padding-bottom: max(4px, env(safe-area-inset-bottom));
+}
+
 .ez-domain-explorer {
   display: grid;
   gap: 18px;
@@ -149,6 +168,10 @@
     min-height: 44px;
     max-width: calc(100vw - 180px);
     padding-inline: 2px;
+  }
+
+  .ez-sheet:has(.ez-domain-explorer) {
+    max-height: calc(var(--ez-visual-viewport-height, 100dvh) - max(8px, env(safe-area-inset-top)));
   }
 
   .ez-domain-explorer__group button {
