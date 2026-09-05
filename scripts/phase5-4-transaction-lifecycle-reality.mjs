@@ -102,6 +102,7 @@ async function confirmAction(page, sheet, action, visibleLabel, label) {
   await settle(page, '.ez-overlay:not(.ez-overlay--sheet)');
   await dialog.getByRole('button', { name: visibleLabel, exact: true }).click();
   await page.getByText('تم تحديث دورة الحياة', { exact: true }).waitFor();
+  await dialog.waitFor({ state: 'hidden' });
 }
 
 async function verifyArchive(browser) {
