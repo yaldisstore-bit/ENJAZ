@@ -42,6 +42,12 @@ async function assertSheetOwnsModalLayer(page, label) {
   assert(result.bodyPortal, `${label}: sheet overlay is trapped inside an app stacking context`);
   assert(result.offenders.length === 0, `${label}: shell chrome rendered above modal layer ${JSON.stringify(result.offenders)}`);
 }
+async function settleSheet(page) {
+  await page.locator('.ez-overlay--sheet').evaluate(async (overlay) => {
+    const animations = overlay.getAnimations({ subtree: true });
+    await Promise.all(animations.map((animation) => animation.finished.catch(() => undefined)));
+  });
+}
 function collectErrors(page) {
   const errors = { console: [], page: [] };
   page.on('console', (message) => { if (message.type() === 'error') errors.console.push(message.text()); });
@@ -71,6 +77,7 @@ async function openFirst360(page, label) {
   await sheet.waitFor();
   await sheet.locator('[data-pattern="transaction-360"]').waitFor();
   await assertSheetOwnsModalLayer(page, label);
+  await settleSheet(page);
   return sheet;
 }
 
@@ -154,6 +161,7 @@ async function verifyArchivedBoundary(browser, width) {
   assert(await sheet.locator('[data-pattern="transaction-360"]').isVisible(), `archived-${width}: archived 360 did not open`);
   assert(await sheet.getByText('المعاملة للعرض فقط؛ الاستعادة غير متاحة هنا.', { exact: true }).isVisible(), `archived-${width}: 360 lifecycle boundary missing`);
   await assertSheetOwnsModalLayer(page, `archived-${width}`);
+  await settleSheet(page);
   await noHorizontalOverflow(page, `archived-${width}`);
   await assertTouchTargets(page, `archived-${width}`);
   await page.screenshot({ path: path.join(outDir, `transaction-360-archived-${width}.png`), fullPage: false });
