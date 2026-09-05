@@ -10,6 +10,7 @@ import { DomainScreen } from '../screens/DomainScreens.tsx';
 import { ExecutiveBriefingEntry } from '../screens/ExecutiveBriefingEntry.tsx';
 import { ConnectedExecutiveBriefingScreen, FixtureExecutiveBriefingScreen } from '../screens/ExecutiveBriefingScreen.tsx';
 import { ConnectedHomeScreen, FixtureHomeScreen } from '../screens/HomeScreen.tsx';
+import { ConnectedTransactionEditor, FixtureTransactionEditor } from '../screens/TransactionEditor.tsx';
 
 type ShellTab = 'home' | 'today' | 'operations' | 'finance';
 type DomainGroup = Readonly<{ label: string; ids: readonly EnjazDomainId[] }>;
@@ -99,12 +100,23 @@ export function CoreApp(props: Readonly<{ dailyWorkMode?: DailyWorkRuntimeMode }
       ? 'core-executive-briefing'
       : `core-${activeTab}-${commandMode ? 'command' : 'standard'}`;
 
+  const transactionCreateContent = (close: () => void) => {
+    const complete = () => {
+      close();
+      openDomain('transactions');
+    };
+    return dailyWorkMode === 'live'
+      ? <ConnectedTransactionEditor mode="create" onSaved={complete} onCancel={close} />
+      : <FixtureTransactionEditor mode="create" onSaved={complete} onCancel={close} />;
+  };
+
   return (
-    <div data-core-app="true" data-stage="ui-10" data-product-phase="5.1" data-daily-work-mode={dailyWorkMode} data-active-domain={activeDomain ?? 'core'} data-executive-briefing={briefingMode ? 'open' : 'closed'}>
+    <div data-core-app="true" data-stage="ui-10" data-product-phase="5.2" data-daily-work-mode={dailyWorkMode} data-active-domain={activeDomain ?? 'core'} data-executive-briefing={briefingMode ? 'open' : 'closed'}>
       <AppShell
         title={domain ? domain.label : briefingMode ? 'الملخص التنفيذي' : commandMode && activeTab === 'operations' ? 'القيادة' : current.title}
         subtitle={domain ? domain.eyebrow : briefingMode ? 'نظرة الإدارة' : commandMode && activeTab === 'operations' ? 'المركز التنفيذي' : current.subtitle}
         activeTab={activeTab}
+        transactionCreateContent={transactionCreateContent}
         onBrandAction={() => setDomainExplorerOpen(true)}
         onTabChange={(tab) => {
           setActiveTab(tab);
