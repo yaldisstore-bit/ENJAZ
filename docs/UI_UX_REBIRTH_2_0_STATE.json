@@ -77,7 +77,7 @@
     "evidenceRun": 33977682599
   },
   "findAnythingZeroLost": {
-    "status": "ACTIVE",
+    "status": "CLOSED",
     "kickoff": "docs/R2_0_8_FIND_ANYTHING_ZERO_LOST_KICKOFF.md",
     "scope": [
       "featureAliases",
@@ -89,16 +89,16 @@
       "searchBackRestoration"
     ],
     "canonicalRuntimeChanged": false,
-    "exitGatePassed": false,
+    "exitGatePassed": true,
     "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_ZERO_LOST_EVIDENCE.json",
-    "closureRecord": null,
-    "evidenceRun": null
+    "closureRecord": "docs/R2_0_8_FIND_ANYTHING_ZERO_LOST_CLOSURE.md",
+    "evidenceRun": 33980594257
   },
   "featureParity": {
     "inventoryComplete": true,
     "totalCapabilities": 35,
-    "migratedCapabilities": 26,
-    "testedCapabilities": 26,
+    "migratedCapabilities": 27,
+    "testedCapabilities": 27,
     "unresolvedCapabilities": 0
   },
   "informationArchitecture": {
@@ -140,9 +140,9 @@
     "exitGatePassed": true
   },
   "noMaze": {
-    "validated": false,
-    "scenarioCount": 0,
-    "passedCount": 0,
+    "validated": true,
+    "scenarioCount": 16,
+    "passedCount": 16,
     "maxMajorCapabilityActions": 3,
     "hiddenPrimaryNavigationCount": 0,
     "duplicateCanonicalHomesCount": 0,

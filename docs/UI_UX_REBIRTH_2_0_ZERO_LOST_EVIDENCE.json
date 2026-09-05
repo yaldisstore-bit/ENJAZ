@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "stage": "R2.0-8",
-  "status": "ACTIVE",
+  "status": "CLOSED",
   "branch": "r2-0-8-find-anything-zero-lost",
   "scope": [
     "featureAliases",
@@ -28,12 +28,21 @@
     "duplicateCanonicalHomesCount": 0,
     "backPathFailures": 0,
     "recordProvidersBounded": true,
-    "featureAliasesCanonical": true
+    "featureAliasesCanonical": true,
+    "scenarioCount": 16,
+    "passedCount": 16,
+    "authoritativeRecordProviderBound": true
   },
-  "hardWidths": [1280, 430, 390, 360, 320],
+  "hardWidths": [
+    1280,
+    430,
+    390,
+    360,
+    320
+  ],
   "checks": {
     "structuralAudit": "PASS",
-    "modelTests": "PASS_5_OF_5",
+    "modelTests": "PASS_8_OF_8_MODEL_PLUS_PROVIDER",
     "functionalRegression": "PASS_118_OF_118",
     "typescript": "PASS",
     "previewBuild": "PASS",
@@ -42,7 +51,12 @@
     "coreWorkRegression": "PASS",
     "recordsRegression": "PASS",
     "operationalRegression": "PASS",
-    "realBrowserZeroLost": "PASS_8_OF_8"
+    "realBrowserZeroLost": "PASS_16_OF_16",
+    "authoritativeDataLayerProvider": "PASS_3_OF_3",
+    "noMaze": "PASS_16_OF_16_MAX_3_ACTIONS",
+    "hiddenDoors": "PASS_0",
+    "duplicateHomes": "PASS_0",
+    "backPathFailures": "PASS_0"
   },
   "firstBrowserEvidence": {
     "run": 33979771042,
@@ -53,9 +67,19 @@
     "artifactSha256": "3e83709532507a73affc1595581556ef24d281e1e0d060c815f40e6ad04bccfc",
     "browserScenarios": 8
   },
-  "artifact": 9973406516,
-  "exitGatePassed": false,
+  "artifact": 9973639934,
+  "exitGatePassed": true,
   "gateRuns": {
-    "firstIntegratedZeroLost": 33979771042
+    "firstIntegratedZeroLost": 33979771042,
+    "closureProof": 33980594257
+  },
+  "authoritativeRecordProvider": "src/ui-r2/find-anything/find-anything-connected-model.ts",
+  "finalBrowserEvidence": {
+    "run": 33980594257,
+    "testedCommit": "98e072cfa5c9e242d5218d111a60252986ce9db6",
+    "artifactId": 9973639934,
+    "artifactBytes": 411091,
+    "artifactSha256": "de05d23b9f6d1605e58e89a6b2042139ce7a4445b0283b4b2235c3df75d5b667",
+    "browserScenarios": 16
   }
 }
