@@ -80,7 +80,7 @@ test('R2 Find Anything aliases navigate to canonical feature homes and browser b
   await input.fill('أتمتة');
   await page.getByRole('button', { name: /الأتمتة/ }).click();
   await expect(page).toHaveURL(/dest=automation/);
-  await expect(page.locator('[data-screen="launcher-destination"]')).toContainText('الأتمتة');
+  await expect(page.locator('[data-operational-domain="automation"], [data-screen="launcher-destination"]')).toContainText('الأتمتة');
 });
 
 test('R2 overlay ownership closes with Escape without losing current destination', async ({ page }) => {
