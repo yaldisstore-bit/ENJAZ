@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-7",
+  "status": "ACTIVE",
+  "branch": "r2-0-7-operational-intelligence",
+  "scope": [
+    "finance",
+    "operations",
+    "workflow",
+    "automation",
+    "command",
+    "risk",
+    "copilot"
+  ],
+  "targetCapabilities": [
+    "finance.workspace",
+    "operations.workspace",
+    "workflow.workspace",
+    "automation.workspace",
+    "command.workspace",
+    "risk.workspace",
+    "copilot.workspace"
+  ],
+  "composition": {
+    "taskAppropriate": true,
+    "universalDashboardForbidden": true,
+    "finance": "ledger-plus-aging",
+    "operations": "pulse-plus-ownership-plus-next-action",
+    "workflow": "stage-lanes-plus-transition",
+    "automation": "trigger-condition-action-result",
+    "command": "executive-focus-plus-cross-domain-decisions",
+    "risk": "risk-map-plus-explainable-signals",
+    "copilot": "context-plus-assistant"
+  },
+  "truthfulness": {
+    "canonicalRuntimeChanged": false,
+    "phase55Locked": true,
+    "productionWritesClaimedByPreview": false,
+    "generatedIntelligenceClaimedByPreview": false,
+    "automationMutationClaimedByPreview": false,
+    "financialMutationClaimedByPreview": false,
+    "aiExecutionClaimedByPreview": false
+  },
+  "hardWidths": [1280, 430, 390, 360, 320],
+  "checks": {
+    "structuralAudit": "PENDING",
+    "functionalRegression": "PENDING",
+    "typescript": "PENDING",
+    "previewBuild": "PENDING",
+    "previewBudget": "PENDING",
+    "goldenRegression": "PENDING",
+    "coreWorkRegression": "PENDING",
+    "recordsRegression": "PENDING",
+    "realBrowserOperational": "PENDING"
+  },
+  "artifact": null,
+  "exitGatePassed": false,
+  "gateRuns": {}
+}
