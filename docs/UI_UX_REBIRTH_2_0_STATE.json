@@ -12,8 +12,8 @@
     "approvedCommit": null,
     "approvalRecord": null,
     "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_GOLDEN_EVIDENCE.json",
-    "evidenceCommit": "2f15074c8ad159738edea2f3e0033c921ddba9b9",
-    "evidenceRun": 33965977016,
+    "evidenceCommit": "96da5a33560326e85caea623e8c750c4a0f6c6df",
+    "evidenceRun": 33966198099,
     "visualPolishContract": "docs/UI_UX_REBIRTH_2_0_GLOBAL_VISUAL_POLISH_CONTRACT.json",
     "visualPolishContractLocked": true,
     "requiredSpecimens": [
