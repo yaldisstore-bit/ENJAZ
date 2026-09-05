@@ -28,57 +28,19 @@ assert(Number.isFinite(phase) && phase >= 5.3, 'canonical runtime marker must be
 for (const token of ['transactionRoutes', 'transactionNotes', 'transactionActivity', 'followups', 'payments', 'feeChanges', 'documents', 'workflowInstances', 'blockers']) {
   assert(dataLayer.includes(token), `typed Data Layer lost ${token}`);
 }
-
-for (const token of [
-  'TRANSACTION_360_SECTION_LIMIT = 100',
-  'TRANSACTION_360_TIMELINE_LIMIT = 200',
-  'Transaction360SectionState',
-  'companyMissing',
-  'feePrecisionSafe',
-  'timelineTruncated',
-  'followupSummary',
-  'financialSummary',
-  'sectionStates',
-  'Deleted transaction cannot be represented by Phase 5.3',
-]) assert(model.includes(token), `360 model contract missing ${token}`);
-
-for (const token of [
-  'EnjazDataLayerFactory',
-  'resolveWorkspaceId',
-  'layer.transactions.getById',
-  'layer.companies.getById',
-  "column: 'transaction_id'",
-  "state: 'unavailable'",
-  'Transaction360CoreLoadError',
-  'Transaction360DeletedError',
-]) assert(service.includes(token), `360 service contract missing ${token}`);
-
-for (const token of ['useDataLayerFactory', 'useCurrentUserId', 'loadTransaction360Source', "'loading'", "'ready'", "'error'"]) {
-  assert(hook.includes(token), `360 controller contract missing ${token}`);
-}
+for (const token of ['TRANSACTION_360_SECTION_LIMIT = 100','TRANSACTION_360_TIMELINE_LIMIT = 200','Transaction360SectionState','companyMissing','feePrecisionSafe','timelineTruncated','followupSummary','financialSummary','sectionStates','Deleted transaction cannot be represented by Phase 5.3']) assert(model.includes(token), `360 model contract missing ${token}`);
+for (const token of ['EnjazDataLayerFactory','resolveWorkspaceId','layer.transactions.getById','layer.companies.getById',"column: 'transaction_id'","state: 'unavailable'",'Transaction360CoreLoadError','Transaction360DeletedError']) assert(service.includes(token), `360 service contract missing ${token}`);
+for (const token of ['useDataLayerFactory','useCurrentUserId','loadTransaction360Source',"'loading'", "'ready'", "'error'"]) assert(hook.includes(token), `360 controller contract missing ${token}`);
 
 assert(preview.includes('buildTransactionListPreviewSource'), '360 preview is not derived from the isolated transaction fixture');
-assert(preview.includes("workflow-1") && preview.includes("blocker-1") && preview.includes("document-1"), '360 preview does not exercise workflow/risk/document context');
-
-for (const token of [
-  'data-pattern="transaction-360"',
-  'data-transaction-360-section={props.id}',
-  '<Panel id="timeline"',
-  '<Panel id="followups"',
-  '<Panel id="finance"',
-  '<Panel id="notes"',
-  '<Panel id="documents"',
-  'ConnectedTransaction360',
-  'FixtureTransaction360',
-  'سياق 360° يحتاج انتباهًا',
-  'للعمليات الكاملة افتح مركز المالية',
-  'الاستعادة غير متاحة هنا',
-]) assert(screen.includes(token), `360 presentation contract missing ${token}`);
+assert(preview.includes('workflow-1') && preview.includes('blocker-1') && preview.includes('document-1'), '360 preview does not exercise workflow/risk/document context');
+for (const token of ['data-pattern="transaction-360"','data-transaction-360-section={props.id}','<Panel id="timeline"','<Panel id="followups"','<Panel id="finance"','<Panel id="notes"','<Panel id="documents"','ConnectedTransaction360','FixtureTransaction360','سياق 360° يحتاج انتباهًا','للعمليات الكاملة افتح مركز المالية','الاستعادة غير متاحة هنا']) assert(screen.includes(token), `360 presentation contract missing ${token}`);
 
 assert(list.includes('data-transaction-open-360={item.id}'), 'transaction cards cannot enter 360');
 assert(list.includes('فتح 360°'), 'transaction 360 action label missing');
-assert(list.includes('eyebrow="Phase 5.3"'), 'transaction 360 sheet is not marked as Phase 5.3');
-assert(list.includes('الاستعادة وإجراءات دورة الحياة تأتي في Phase 5.4'), 'archived transaction lifecycle boundary missing from list');
+assert(list.includes('eyebrow="360°"'), 'transaction 360 sheet lost its user-facing 360 identity');
+assert(list.includes('360° للعرض فقط؛ الاستعادة غير متاحة هنا.'), 'archived transaction read-only boundary missing from list');
+assert(!list.includes('eyebrow="Phase 5.3"'), 'Phase 5.3 developer terminology leaked into the 360 sheet');
 assert(list.includes('ConnectedTransaction360') && list.includes('FixtureTransaction360'), 'live/fixture 360 routing boundary missing');
 
 assert(main.includes("./ui-v2/styles/transaction-360.css"), 'transaction 360 stylesheet is not loaded by product entry');
@@ -106,5 +68,6 @@ console.log('- authoritative workspace-scoped Data Layer composition is locked')
 console.log('- core relation failures fail closed while optional context is explicitly unavailable/truncated');
 console.log('- timeline and section bounds prevent unbounded 360 rendering');
 console.log('- compact panel contract preserves five named 360 sections without legacy duplication');
+console.log('- archived transactions retain explicit read-only 360 access without lifecycle mutation');
 console.log('- live and isolated preview 360 routes use frozen UI V2 with mobile/reduced-motion guards');
 console.log('- lifecycle, full Finance and full Workflow mutations remain outside Phase 5.3');
