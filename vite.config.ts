@@ -19,10 +19,6 @@ export default defineConfig({
     cssCodeSplit: true,
     reportCompressedSize: true,
     rolldownOptions: {
-      input: {
-        app: 'index.html',
-        r2Preview: 'r2-preview.html',
-      },
       output: {
         strictExecutionOrder: true,
         codeSplitting: {
