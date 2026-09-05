@@ -66,7 +66,7 @@ test('R2.0-10 account surface exposes the real session identity and authoritativ
   expect(state.signOuts).toBe(1);
 });
 
-test('R2.0-10 recovery session updates password through AuthService and fails closed on mismatch', async ({ page }) => {
+test('R2.0-10 recovery session updates password through AuthService and returns to the protected workspace', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(pageUrl('?test=authenticated&auth=update-password'), { waitUntil: 'networkidle' });
   await expect(page.locator('[data-r2-password-update="true"]')).toBeVisible();
@@ -79,6 +79,9 @@ test('R2.0-10 recovery session updates password through AuthService and fails cl
   await expect(page.getByRole('status')).toContainText('تم تحديث كلمة المرور');
   const state = await page.evaluate(() => window.__ENJAZ_R2_PRODUCTION_TEST__);
   expect(state.passwordUpdates).toBe(1);
+  await page.getByRole('button', { name: 'العودة إلى إنجاز' }).click();
+  await expect(page).not.toHaveURL(/auth=update-password/);
+  await expect(page.locator('[data-r2-runtime-mode="live"]')).toBeVisible();
 });
 
 test('R2.0-10 intentional restructuring preserves review-only create truthfulness and notification availability truthfulness', async ({ page }) => {
