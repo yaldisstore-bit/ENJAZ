@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { UiR2Root } from './runtime/UiR2Root.tsx';
 import './runtime/shell-base.css';
 import './runtime/shell.css';
+import './golden/golden.css';
+import './golden/golden-journey.css';
+import './golden/golden-mobile-hardening.css';
 
 const rootElement = document.getElementById('r2-root');
 

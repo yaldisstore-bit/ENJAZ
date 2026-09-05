@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-4",
+  "status": "USER_APPROVED",
+  "branch": "r2-0-4-golden-experience",
+  "preview": "r2-preview.html",
+  "specimens": [
+    {
+      "id": "home",
+      "screen": "home",
+      "requirements": ["rounded priority inset", "strong hero hierarchy", "depth without card wall", "no horizontal overflow"]
+    },
+    {
+      "id": "more",
+      "screen": "more",
+      "requirements": ["four intent groups", "integrated group separation", "canonical homes remain obvious", "no horizontal overflow"]
+    },
+    {
+      "id": "transactions",
+      "screen": "transactions",
+      "requirements": ["interactive search", "interactive status segmentation", "one obvious Golden journey entry", "no fake persistence"]
+    },
+    {
+      "id": "transactionJourney",
+      "screens": ["golden-transaction-editor", "golden-transaction-lifecycle"],
+      "requirements": ["editable local specimen", "explicit non-production save", "lifecycle simulation", "return path to 360"]
+    },
+    {
+      "id": "transaction360",
+      "screen": "golden-transaction-360",
+      "requirements": ["identity-first header", "five contextual regions", "decision-first overview", "documents and finance contextual views", "edit and lifecycle paths"]
+    }
+  ],
+  "hardWidths": [1280, 430, 390, 360, 320],
+  "browserTest": "tests-external/r2-golden.spec.cjs",
+  "workflow": ".github/workflows/ui-rebirth-2-golden.yml",
+  "visualContract": "docs/UI_UX_REBIRTH_2_0_GLOBAL_VISUAL_POLISH_CONTRACT.json",
+  "evidenceCommit": "96da5a33560326e85caea623e8c750c4a0f6c6df",
+  "browserRun": 33966198099,
+  "browserConclusion": "success",
+  "artifact": {
+    "id": 9969511429,
+    "name": "enjaz-r2-golden-evidence-0cb310ac273817b7ee039d79c9c50ef29f516823",
+    "sizeBytes": 3022292,
+    "digest": "sha256:de5822bc4147b2d2d6d8a98129af010bfbd5453a7d4e3e65b0dc2ca0a3368b6b",
+    "expiresAt": "2026-09-19T12:31:06Z"
+  },
+  "checks": {
+    "globalVisualPolishGuard": "PASS",
+    "fiveSpecimenGuard": "PASS",
+    "functionalRegression": "PASS_118_OF_118",
+    "typescript": "PASS",
+    "previewBuild": "PASS",
+    "previewBudget": "PASS",
+    "realBrowserHardWidths": "PASS",
+    "manualArtifactReview": "PASS_320_SPECIMEN_BADGE_CONTAINED"
+  },
+  "visualEvidenceReady": true,
+  "professionalUxEvidenceReady": true,
+  "userApproval": {
+    "required": true,
+    "approved": true,
+    "approvedCommit": "96da5a33560326e85caea623e8c750c4a0f6c6df",
+    "approvalRecord": "docs/R2_0_4_GOLDEN_APPROVAL.md",
+    "approvedOn": "2026-09-05",
+    "note": "The user explicitly approved R2.0-4 after reviewing the real-browser Golden evidence. R2.0-5 may now begin; canonical runtime promotion remains forbidden until R2.0-11 gates pass."
+  }
+}

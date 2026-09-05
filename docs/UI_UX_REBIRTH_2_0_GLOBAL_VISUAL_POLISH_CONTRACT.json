@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "contractId": "enjaz-r2-global-visual-polish-v1",
+  "status": "LOCKED",
+  "appliesFrom": "R2.0-4",
+  "scope": "all-r2-presentation",
+  "goldenFirst": true,
+  "userIntent": "Preserve the approved ENJAZ Rebirth 2.0 identity and polish it globally through hierarchy, depth, separation, softer geometry and coherent composition without redesigning or damaging the current visual language.",
+  "preservation": {
+    "preserveCurrentIdentity": true,
+    "noFullRedesign": true,
+    "noLegacyDnaReintroduction": true,
+    "noPaletteDrift": true,
+    "noBusinessLogicChange": true,
+    "noFeatureRemoval": true
+  },
+  "requiredQualities": {
+    "hierarchy": true,
+    "depth": true,
+    "layerSeparation": true,
+    "softCorners": true,
+    "composition": true,
+    "coherentSinglePage": true,
+    "avoidFlatSingleSurfacePages": true,
+    "restrainedEffects": true,
+    "avoidCardWall": true
+  },
+  "layerModel": [
+    "identity",
+    "title",
+    "body",
+    "status",
+    "actions"
+  ],
+  "knownCorrections": {
+    "homePriorityInsetMustBeRounded": true,
+    "destinationPagesNeedTitleBodyActionSeparation": true,
+    "sectionHeadersNeedDistinctButIntegratedTreatment": true,
+    "depthMustComeFromTokensSpacingBordersElevationAndSurfaceContrast": true
+  },
+  "prohibited": [
+    "full redesign of the approved current Rebirth 2.0 identity",
+    "legacy visual DNA reintroduction",
+    "sharp unintegrated inset panels",
+    "flat single-surface page composition when hierarchy requires separation",
+    "random colors outside the locked palette",
+    "ornamental effect overload",
+    "repeated equal-weight card wall layouts",
+    "visual patching that breaks consistency"
+  ],
+  "propagation": {
+    "required": true,
+    "goldenStage": "R2.0-4",
+    "laterStages": [
+      "R2.0-5",
+      "R2.0-6",
+      "R2.0-7",
+      "R2.0-8",
+      "R2.0-9",
+      "R2.0-10",
+      "R2.0-11"
+    ]
+  },
+  "acceptanceRule": "A screen may be functionally correct and still fail if it feels flat, visually undifferentiated, sharply inset, or inconsistent with the approved ENJAZ identity."
+}

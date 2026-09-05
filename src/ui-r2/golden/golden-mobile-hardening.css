@@ -1,0 +1,17 @@
+/* R2.0-4 hard-width visual hardening. Keep specimen disclosure inside its surface. */
+
+.r2-golden-specimen-badge {
+  max-inline-size: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: var(--ez-r2-leading-normal);
+  text-align: start;
+}
+
+@media (max-width: 22rem) {
+  .r2-golden-specimen-badge {
+    border-radius: var(--ez-r2-radius-md);
+    padding: var(--ez-r2-space-1) var(--ez-r2-space-2);
+    font-size: 0.68rem;
+  }
+}

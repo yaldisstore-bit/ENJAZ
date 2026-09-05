@@ -1,0 +1,237 @@
+/*
+ * R2.0-4 Golden Experience — global visual polish layer.
+ * This file refines the approved R2 identity; it must not redefine the palette,
+ * reintroduce legacy presentation, or turn screens into equal-weight card walls.
+ */
+
+.ez-r2-root {
+  --r2-golden-shadow-soft: 0 1.5rem 3.5rem -2.7rem var(--ez-r2-structure);
+  --r2-golden-shadow-tight: 0 0.9rem 2rem -1.65rem var(--ez-r2-structure);
+}
+
+/* The Home priority inset from the approved shell must never read as a sharp white cutout. */
+.r2-hero__signal {
+  overflow: hidden;
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
+  border-inline-start: var(--ez-r2-stroke-strong) solid var(--ez-r2-accent);
+  border-radius: var(--ez-r2-radius-xl);
+  box-shadow: var(--r2-golden-shadow-tight);
+}
+
+/* Page identity/title layer: distinct, quiet and integrated with the same page. */
+.r2-section-heading--hero {
+  position: relative;
+  overflow: hidden;
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
+  border-radius: var(--ez-r2-radius-xl);
+  padding: clamp(var(--ez-r2-space-5), 4vw, var(--ez-r2-space-8));
+  background: linear-gradient(145deg, var(--ez-r2-canvas), var(--ez-r2-surface-warm));
+  box-shadow: var(--r2-golden-shadow-soft);
+}
+
+.r2-section-heading--hero::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: -2.5rem;
+  inset-block-start: -3rem;
+  inline-size: 8rem;
+  block-size: 8rem;
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-accent);
+  border-radius: 50%;
+  opacity: 0.32;
+  pointer-events: none;
+}
+
+.r2-section-heading--hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.r2-section-heading--hero .r2-supporting {
+  max-inline-size: 40rem;
+  margin-block-start: var(--ez-r2-space-4);
+}
+
+/* Lists receive one containing layer; individual rows remain rows, not cards. */
+.r2-record-list,
+.r2-focus-list,
+.r2-timeline {
+  overflow: hidden;
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
+  border-radius: var(--ez-r2-radius-xl);
+  background: var(--ez-r2-canvas);
+  box-shadow: var(--r2-golden-shadow-tight);
+}
+
+.r2-record-list,
+.r2-focus-list,
+.r2-timeline,
+.r2-launcher-list {
+  border-block-start: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
+}
+
+.r2-record-row,
+.r2-focus-row,
+.r2-timeline-row {
+  padding-inline: var(--ez-r2-space-5);
+}
+
+.r2-record-row:last-child,
+.r2-focus-row:last-child,
+.r2-timeline-row:last-child {
+  border-block-end: 0;
+}
+
+/* More remains a system map, but every intent group gets a soft spatial boundary. */
+.r2-launcher-group {
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
+  border-radius: var(--ez-r2-radius-xl);
+  padding: var(--ez-r2-space-5);
+  background: linear-gradient(145deg, var(--ez-r2-canvas), var(--ez-r2-surface-warm));
+}
+
+.r2-launcher-group h2 {
+  padding-inline: var(--ez-r2-space-1);
+}
+
+.r2-launcher-list {
+  overflow: hidden;
+  border-radius: var(--ez-r2-radius-lg);
+  background: var(--ez-r2-canvas);
+}
+
+.r2-launcher-row {
+  padding-inline: var(--ez-r2-space-4);
+}
+
+.r2-launcher-row:last-child {
+  border-block-end: 0;
+}
+
+/* Destination pages: one coherent page with visibly separate identity/body/actions. */
+.r2-destination-placeholder {
+  position: relative;
+  align-content: start;
+  min-block-size: auto;
+  max-inline-size: 56rem;
+  overflow: hidden;
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
+  border-radius: clamp(var(--ez-r2-radius-xl), 5vw, 2.5rem);
+  padding: clamp(var(--ez-r2-space-6), 5vw, var(--ez-r2-space-12));
+  background: linear-gradient(150deg, var(--ez-r2-canvas), var(--ez-r2-surface-warm));
+  box-shadow: var(--r2-golden-shadow-soft);
+}
+
+.r2-destination-placeholder::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: -4rem;
+  inset-block-start: -4rem;
+  inline-size: 11rem;
+  block-size: 11rem;
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-accent);
+  border-radius: 50%;
+  opacity: 0.26;
+  pointer-events: none;
+}
+
+.r2-destination-placeholder > * {
+  position: relative;
+  z-index: 1;
+}
+
+.r2-destination-placeholder > .r2-eyebrow {
+  inline-size: fit-content;
+  border-radius: var(--ez-r2-radius-pill);
+  padding: var(--ez-r2-space-2) var(--ez-r2-space-3);
+  background: var(--ez-r2-surface-warm);
+}
+
+.r2-destination-placeholder h1 {
+  max-inline-size: 15ch;
+  margin-block-start: var(--ez-r2-space-3);
+}
+
+.r2-destination-placeholder > p:not(.r2-eyebrow) {
+  max-inline-size: 46rem;
+  margin: 0;
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
+  border-radius: var(--ez-r2-radius-lg);
+  padding: var(--ez-r2-space-5);
+  background: var(--ez-r2-canvas);
+  color: var(--ez-r2-structure);
+  box-shadow: var(--r2-golden-shadow-tight);
+}
+
+.r2-placeholder-actions {
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  border-block-start: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
+  padding-block-start: var(--ez-r2-space-5);
+}
+
+/* Transaction context begins the Golden journey with a stronger identity/body split. */
+.r2-context-preview {
+  align-content: start;
+  min-block-size: auto;
+  max-inline-size: 60rem;
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
+  border-radius: var(--ez-r2-radius-xl);
+  padding: clamp(var(--ez-r2-space-6), 5vw, var(--ez-r2-space-10));
+  background: var(--ez-r2-canvas);
+  box-shadow: var(--r2-golden-shadow-soft);
+}
+
+.r2-context-preview__identity {
+  inline-size: 100%;
+  border-radius: var(--ez-r2-radius-lg);
+  padding: var(--ez-r2-space-5);
+  background: linear-gradient(145deg, var(--ez-r2-surface-warm), var(--ez-r2-canvas));
+}
+
+.r2-context-ribbon {
+  inline-size: 100%;
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
+  border-radius: var(--ez-r2-radius-lg);
+  padding: var(--ez-r2-space-3) var(--ez-r2-space-4);
+  background: var(--ez-r2-canvas);
+}
+
+@media (max-width: 42rem) {
+  .r2-section-heading--hero {
+    display: grid;
+    align-items: start;
+  }
+
+  .r2-section-heading--hero .r2-action {
+    inline-size: 100%;
+  }
+
+  .r2-record-row,
+  .r2-focus-row,
+  .r2-timeline-row {
+    padding-inline: var(--ez-r2-space-4);
+  }
+
+  .r2-launcher-group {
+    padding: var(--ez-r2-space-4);
+  }
+
+  .r2-destination-placeholder,
+  .r2-context-preview {
+    padding: var(--ez-r2-space-5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .r2-section-heading--hero,
+  .r2-record-list,
+  .r2-focus-list,
+  .r2-timeline,
+  .r2-launcher-group,
+  .r2-destination-placeholder,
+  .r2-context-preview,
+  .r2-hero__signal {
+    transition: none;
+  }
+}

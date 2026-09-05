@@ -8,6 +8,21 @@ const exists = (p) => fs.existsSync(path.join(root, p));
 const readJson = (p) => JSON.parse(read(p));
 const errors = [];
 
+const stageOrder = [
+  'R2.0-0',
+  'R2.0-1',
+  'R2.0-2',
+  'R2.0-3',
+  'R2.0-4',
+  'R2.0-5',
+  'R2.0-6',
+  'R2.0-7',
+  'R2.0-8',
+  'R2.0-9',
+  'R2.0-10',
+  'R2.0-11',
+];
+
 const required = [
   'docs/UI_UX_REBIRTH_2_0_STATE.json',
   'docs/UI_UX_REBIRTH_2_0_SHELL_MANIFEST.json',
@@ -23,7 +38,7 @@ const required = [
   'scripts/ui-rebirth-2-preview-budget-audit.mjs',
 ];
 
-for (const file of required) if (!exists(file)) errors.push(`missing R2.0-3 shell artifact: ${file}`);
+for (const file of required) if (!exists(file)) errors.push(`missing frozen R2.0-3 shell artifact: ${file}`);
 
 if (!errors.length) {
   const state = readJson('docs/UI_UX_REBIRTH_2_0_STATE.json');
@@ -35,25 +50,28 @@ if (!errors.length) {
   const main = read('src/main.tsx');
   const vite = read('vite.config.ts');
   const previewVite = read('vite.r2-preview.config.ts');
+  const stageIndex = stageOrder.indexOf(state.stage);
 
-  if (state.stage !== 'R2.0-3') errors.push(`state.stage must be R2.0-3, found ${state.stage}`);
-  if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 during R2.0-3');
-  if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked during shell work');
-  if (state.applicationShell?.status !== 'CLOSED' || state.applicationShell?.exitGatePassed !== true) errors.push('applicationShell state must be CLOSED with exitGatePassed=true');
-  if (state.applicationShell?.canonicalRuntimeChanged !== false) errors.push('R2.0-3 may not change canonical runtime');
-  if (state.goldenExperience?.implemented !== false || state.goldenExperience?.userApproved !== false) errors.push('R2.0-3 must not claim Golden Experience implementation or approval');
+  if (stageIndex < 3) errors.push(`frozen Application Shell requires stage R2.0-3 or later, found ${state.stage}`);
+  if (stageIndex < 11 && state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 until R2.0-11 promotion');
+  if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked while Rebirth 2.0 is active');
+  if (state.applicationShell?.status !== 'CLOSED' || state.applicationShell?.exitGatePassed !== true) errors.push('applicationShell state must remain CLOSED with exitGatePassed=true');
+  if (state.applicationShell?.canonicalRuntimeChanged !== false) errors.push('the frozen R2.0-3 shell may not claim canonical runtime cutover');
+  if (stageIndex === 3 && (state.goldenExperience?.implemented !== false || state.goldenExperience?.userApproved !== false)) {
+    errors.push('R2.0-3 itself must not claim Golden Experience implementation or approval');
+  }
 
-  if (manifest.stage !== 'R2.0-3' || manifest.status !== 'FROZEN' || manifest.exitGatePassed !== true) errors.push('shell manifest must be frozen for R2.0-3 with exitGatePassed=true');
+  if (manifest.stage !== 'R2.0-3' || manifest.status !== 'FROZEN' || manifest.exitGatePassed !== true) errors.push('shell manifest must remain frozen for R2.0-3 with exitGatePassed=true');
   if (manifest.primaryDoorCount !== 5 || manifest.primaryDoors?.length !== 5) errors.push('shell must contain exactly five primary doors');
   if (new Set(manifest.primaryDoors ?? []).size !== 5) errors.push('primary shell doors must be unique');
   if (manifest.canonicalRuntimeChanged !== false || manifest.canonicalRuntime !== 'ui-v2') errors.push('manifest must preserve ui-v2 canonical runtime');
-  if (manifest.minimumTouchPx !== 44) errors.push('R2.0-3 shell minimum touch target must remain 44px');
+  if (manifest.minimumTouchPx !== 44) errors.push('frozen shell minimum touch target must remain 44px');
   if (!manifest.historyFoundations?.pushState || !manifest.historyFoundations?.popState || !manifest.historyFoundations?.deepLinkQueryState) errors.push('shell history/deep-link foundations are incomplete');
   if (!manifest.responsive?.mobileDock || !manifest.responsive?.desktopRail) errors.push('shell must define both mobile dock and desktop rail behavior');
   for (const width of [1280, 430, 390, 360, 320]) if (!manifest.responsive?.hardWidths?.includes(width)) errors.push(`shell manifest missing hard viewport ${width}`);
 
   for (const marker of [
-    "data-r2-shell={SHELL_STAGE}",
+    'data-r2-shell={SHELL_STAGE}',
     'R2_PRIMARY_NAVIGATION.map',
     'R2_LAUNCHER_GROUPS.map',
     'R2_SEARCH_ALIASES',
@@ -81,15 +99,16 @@ if (!errors.length) {
   if (!previewVite.includes("input: 'r2-preview.html'")) errors.push('dedicated preview Vite config must build r2-preview.html');
   if (!previewVite.includes("outDir: 'dist-r2-preview'")) errors.push('dedicated preview Vite config must isolate output in dist-r2-preview');
 
-  if (/ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('canonical src/main.tsx must not import/boot UiR2Root during R2.0-3');
-  if (!/ui-v2\/runtime\/UiV2Root/.test(main)) errors.push('canonical src/main.tsx must continue to boot UiV2Root during R2.0-3');
-  if (/ui-v2|ui-rebirth/.test(shell) || /ui-v2|ui-rebirth/.test(css)) errors.push('R2.0-3 shell may not import or reference old presentation generations');
+  if (stageIndex < 11 && /ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('canonical src/main.tsx must not boot UiR2Root before R2.0-11');
+  if (stageIndex < 11 && !/ui-v2\/runtime\/UiV2Root/.test(main)) errors.push('canonical src/main.tsx must continue to boot UiV2Root before R2.0-11');
+  if (/ui-v2|ui-rebirth/.test(shell) || /ui-v2|ui-rebirth/.test(css)) errors.push('R2 shell may not import or reference old presentation generations');
 }
 
 if (errors.length) {
-  console.error('ENJAZ REBIRTH 2.0 R2.0-3 APPLICATION SHELL AUDIT FAIL');
+  console.error('ENJAZ REBIRTH 2.0 FROZEN APPLICATION SHELL AUDIT FAIL');
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ REBIRTH 2.0 R2.0-3 APPLICATION SHELL AUDIT PASS — isolated UiR2Root, dedicated preview bundle, five-door shell, location/search/overlay/history foundations, mobile+desktop composition, canonical ui-v2 preserved.');
+  const state = readJson('docs/UI_UX_REBIRTH_2_0_STATE.json');
+  console.log(`ENJAZ REBIRTH 2.0 FROZEN APPLICATION SHELL AUDIT PASS — R2.0-3 shell preserved while current stage is ${state.stage}.`);
 }

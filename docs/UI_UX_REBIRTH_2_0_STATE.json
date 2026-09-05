@@ -1,16 +1,29 @@
 {
   "schemaVersion": 1,
-  "stage": "R2.0-3",
+  "stage": "R2.0-4",
   "phase55Locked": true,
   "runtime": "ui-v2",
   "goldenExperience": {
-    "implemented": false,
-    "visualEvidenceReady": false,
-    "professionalUxEvidenceReady": false,
-    "userApproved": false,
-    "approvedCommit": null,
-    "approvalRecord": null,
-    "evidenceManifest": null
+    "status": "APPROVED",
+    "implemented": true,
+    "visualEvidenceReady": true,
+    "professionalUxEvidenceReady": true,
+    "userApproved": true,
+    "approvedCommit": "96da5a33560326e85caea623e8c750c4a0f6c6df",
+    "approvalRecord": "docs/R2_0_4_GOLDEN_APPROVAL.md",
+    "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_GOLDEN_EVIDENCE.json",
+    "evidenceCommit": "96da5a33560326e85caea623e8c750c4a0f6c6df",
+    "evidenceRun": 33966198099,
+    "visualPolishContract": "docs/UI_UX_REBIRTH_2_0_GLOBAL_VISUAL_POLISH_CONTRACT.json",
+    "visualPolishContractLocked": true,
+    "requiredSpecimens": [
+      "home",
+      "more",
+      "transactions",
+      "transactionJourney",
+      "transaction360"
+    ],
+    "completedSpecimens": 5
   },
   "featureParity": {
     "inventoryComplete": true,

@@ -1,0 +1,78 @@
+name: ENJAZ R2.0-4 — Golden Experience Gate
+
+on:
+  push:
+    branches:
+      - 'r2-0-4-*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  golden-gate:
+    name: R2.0-4 / Visual Contract + Regression + Real Browser Golden
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Enforce Rebirth freeze
+        run: node scripts/ui-rebirth-2-freeze-audit.mjs
+      - name: Enforce locked palette
+        run: node scripts/ui-rebirth-2-palette-audit.mjs
+      - name: Enforce hard Rebirth acceptance barriers
+        run: node scripts/ui-rebirth-2-acceptance-audit.mjs
+      - name: Preserve frozen Application Shell
+        run: node scripts/ui-rebirth-2-shell-audit.mjs
+      - name: Enforce user-locked global visual polish contract
+        run: node scripts/ui-rebirth-2-golden-visual-contract-audit.mjs
+      - name: Enforce complete five-specimen Golden contract
+        run: node scripts/ui-rebirth-2-golden-specimen-audit.mjs
+      - name: Functional regression
+        run: npm run test:functional
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Build isolated R2.0-4 Golden preview
+        run: npx vite build --config vite.r2-preview.config.ts --base=/
+      - name: Enforce isolated preview asset budget
+        run: node scripts/ui-rebirth-2-preview-budget-audit.mjs
+      - name: Install pinned Chromium test tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated Golden preview
+        run: |
+          nohup npx vite preview --config vite.r2-preview.config.ts --host 127.0.0.1 --port 4174 > /tmp/enjaz-r2-golden-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4174/r2-preview.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-r2-golden-preview.log
+          exit 1
+      - name: Real browser Golden acceptance / 1280 + 430 + 390 + 360 + 320
+        env:
+          R2_GOLDEN_BASE_URL: http://127.0.0.1:4174/
+          R2_GOLDEN_ARTIFACT_DIR: artifacts/r2-golden
+        run: npx playwright test tests-external/r2-golden.spec.cjs --reporter=line --workers=1
+      - name: Upload Golden visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-r2-golden-evidence-${{ github.sha }}
+          path: |
+            artifacts/r2-golden/
+            test-results/
+            /tmp/enjaz-r2-golden-preview.log
+          if-no-files-found: ignore
+          retention-days: 14
