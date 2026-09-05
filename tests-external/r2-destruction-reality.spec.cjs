@@ -300,16 +300,20 @@ test('R2.0-9 all visible primary controls preserve 44px touch geometry', async (
 
 test('R2.0-9 horizontal overflow attack remains contained', async ({ page }) => {
   await gotoPreview(page, 320, '?dest=more');
-  await page.evaluate(() => {
-    const target = document.querySelector('.r2-section-heading');
-    const stress = document.createElement('span');
-    stress.setAttribute('data-r2-overflow-attack', 'true');
-    stress.textContent = `عربي_${'X'.repeat(480)}_نهاية`;
-    target.appendChild(stress);
+  const target = page.locator('.r2-section-heading .r2-supporting').first();
+  await expect(target).toBeVisible();
+  await target.evaluate((node) => {
+    node.setAttribute('data-r2-overflow-attack', 'true');
+    node.textContent = `عربي_${'X'.repeat(480)}_نهاية`;
   });
   await assertNoHorizontalOverflow(page);
-  const stressBox = await page.locator('[data-r2-overflow-attack]').boundingBox();
-  expect(stressBox.width).toBeLessThanOrEqual(320 + 1);
+  const containment = await target.evaluate((node) => ({
+    clientWidth: node.clientWidth,
+    scrollWidth: node.scrollWidth,
+    parentWidth: node.parentElement?.clientWidth ?? 0,
+  }));
+  expect(containment.scrollWidth).toBeLessThanOrEqual(containment.clientWidth + 1);
+  expect(containment.clientWidth).toBeLessThanOrEqual(containment.parentWidth + 1);
 });
 
 test('R2.0-9 transaction 360 narrow reality survives every context tab', async ({ page }) => {
