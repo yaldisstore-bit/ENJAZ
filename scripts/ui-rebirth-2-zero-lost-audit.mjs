@@ -7,6 +7,7 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const json = (p) => JSON.parse(read(p));
 const exists = (p) => fs.existsSync(path.join(root, p));
 const errors = [];
+const stageOrder = ['R2.0-8', 'R2.0-9', 'R2.0-10', 'R2.0-11'];
 
 const paths = {
   state: 'docs/UI_UX_REBIRTH_2_0_STATE.json',
@@ -24,7 +25,7 @@ const paths = {
 
 for (const [name, file] of Object.entries(paths)) if (!exists(file)) errors.push(`missing R2.0-8 ${name}: ${file}`);
 if (errors.length) {
-  console.error('ENJAZ R2.0-8 ZERO-LOST AUDIT FAIL');
+  console.error('ENJAZ R2.0-8+ ZERO-LOST AUDIT FAIL');
   errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
@@ -41,17 +42,18 @@ const browser = read(paths.browser);
 const connectedTest = read(paths.connectedTest);
 const main = read(paths.main);
 
-if (state.stage !== 'R2.0-8') errors.push(`Zero-Lost guard requires stage R2.0-8, found ${state.stage}`);
+if (!stageOrder.includes(state.stage)) errors.push(`Zero-Lost cumulative guard requires R2.0-8 or later, found ${state.stage}`);
+if (state.stage !== 'R2.0-8' && state.findAnythingZeroLost?.status !== 'CLOSED') errors.push(`${state.stage} requires R2.0-8 Find Anything & Zero-Lost to remain CLOSED`);
 if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked');
-if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 during R2.0-8');
+if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 before R2.0-11 promotion');
 if (state.goldenExperience?.status !== 'APPROVED') errors.push('Golden Experience must remain approved');
 if (state.coreWorkMigration?.status !== 'CLOSED') errors.push('R2.0-5 must remain CLOSED');
 if (state.recordsRelationships?.status !== 'CLOSED') errors.push('R2.0-6 must remain CLOSED');
-if (state.operationalIntelligence?.status !== 'CLOSED') errors.push('R2.0-7 must remain CLOSED before R2.0-8');
+if (state.operationalIntelligence?.status !== 'CLOSED') errors.push('R2.0-7 must remain CLOSED');
 if (!['ACTIVE', 'CLOSED'].includes(state.findAnythingZeroLost?.status)) errors.push('findAnythingZeroLost status must be ACTIVE or CLOSED');
 if (state.findAnythingZeroLost?.canonicalRuntimeChanged !== false) errors.push('R2.0-8 cannot change canonical runtime');
-if (state.promotion?.requested !== false || state.promotion?.allowed !== false) errors.push('canonical promotion must remain blocked');
-if (/ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('src/main.tsx must not boot UiR2Root before R2.0-11');
+if (state.stage !== 'R2.0-11' && (state.promotion?.requested !== false || state.promotion?.allowed !== false)) errors.push('canonical promotion must remain blocked before R2.0-11');
+if (state.stage !== 'R2.0-11' && /ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('src/main.tsx must not boot UiR2Root before R2.0-11');
 
 const expectedScope = [
   'featureAliases',
@@ -62,7 +64,7 @@ const expectedScope = [
   'duplicateHomeElimination',
   'searchBackRestoration',
 ];
-if (evidence.stage !== 'R2.0-8' || evidence.status !== state.findAnythingZeroLost?.status) errors.push('R2.0-8 evidence status/stage must mirror state');
+if (evidence.stage !== 'R2.0-8' || evidence.status !== state.findAnythingZeroLost?.status) errors.push('R2.0-8 evidence status/stage must mirror preserved state');
 if (JSON.stringify(evidence.scope) !== JSON.stringify(expectedScope)) errors.push('R2.0-8 scope drifted');
 if (JSON.stringify(evidence.hardWidths) !== JSON.stringify([1280, 430, 390, 360, 320])) errors.push('R2.0-8 hard widths drifted');
 if (JSON.stringify(evidence.targetCapabilities) !== JSON.stringify(['global.search'])) errors.push('R2.0-8 must target global.search capability');
@@ -120,7 +122,7 @@ for (const marker of [
   'data-find-kind={item.kind}',
   'openTransaction={openTransaction}',
   'R2.0-8 Find Anything',
-]) if (!uiRoot.includes(marker)) errors.push(`UiR2Root missing active R2.0-8 integration marker: ${marker}`);
+]) if (!uiRoot.includes(marker)) errors.push(`UiR2Root missing preserved R2.0-8 integration marker: ${marker}`);
 
 for (const width of [1280, 430, 390, 360, 320]) if (!browser.includes(String(width))) errors.push(`R2.0-8 browser proof missing hard width ${width}`);
 for (const marker of [
@@ -149,17 +151,16 @@ if (!globalSearch) errors.push('Feature Parity is missing global.search');
 
 if (state.findAnythingZeroLost?.status === 'CLOSED') {
   if (state.findAnythingZeroLost?.exitGatePassed !== true || evidence.exitGatePassed !== true) errors.push('closed R2.0-8 requires exit gate PASS');
-  if (state.noMaze?.validated !== true || state.noMaze?.scenarioCount < 15 || state.noMaze?.passedCount !== state.noMaze?.scenarioCount) errors.push('closed R2.0-8 requires full No-Maze scenario proof');
-  if (state.noMaze?.scenarioCount !== 16 || state.noMaze?.passedCount !== 16) errors.push('R2.0-8 closure is pinned to the 16-scenario browser proof');
+  if (state.noMaze?.validated !== true || state.noMaze?.scenarioCount !== 16 || state.noMaze?.passedCount !== 16) errors.push('R2.0-8 closure is pinned to the 16-scenario No-Maze proof');
   if (evidence.zeroLost?.scenarioCount !== 16 || evidence.zeroLost?.passedCount !== 16) errors.push('closed evidence must pin all 16 No-Maze scenarios');
   if (evidence.authoritativeRecordProvider !== paths.connectedModel) errors.push('closed R2.0-8 evidence must pin the authoritative Data Layer provider');
   if (globalSearch?.migrated !== true || globalSearch?.tested !== true) errors.push('closed R2.0-8 requires global.search migrated and tested');
 }
 
 if (errors.length) {
-  console.error(`ENJAZ R2.0-8 ZERO-LOST AUDIT FAIL (${errors.length})`);
+  console.error(`ENJAZ R2.0-8+ ZERO-LOST AUDIT FAIL (${errors.length})`);
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ R2.0-8 ZERO-LOST AUDIT PASS — ${state.findAnythingZeroLost?.status}; authoritative discovery, canonical-home and 16-scenario No-Maze locks are fail-closed.`);
+  console.log(`ENJAZ R2.0-8+ ZERO-LOST AUDIT PASS — preserved at ${state.stage}; authoritative discovery and 16-scenario No-Maze closure remain fail-closed.`);
 }

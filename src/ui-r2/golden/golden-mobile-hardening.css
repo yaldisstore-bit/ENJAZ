@@ -1,4 +1,4 @@
-/* R2.0-4 hard-width visual hardening. Keep specimen disclosure inside its surface. */
+/* R2.0-4+ hard-width visual hardening. Keep specimen disclosure and real content inside their surfaces. */
 
 .r2-golden-specimen-badge {
   max-inline-size: 100%;
@@ -6,6 +6,72 @@
   overflow-wrap: anywhere;
   line-height: var(--ez-r2-leading-normal);
   text-align: start;
+}
+
+/* R2.0-9 reality defect: long identifiers/Latin tokens must shrink and wrap inside real section copy. */
+.r2-section-heading > div,
+.r2-section-heading > header {
+  min-inline-size: 0;
+}
+
+.r2-supporting {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* R2.0-9 reality defect: every text-bearing 360 region must contain hostile unbroken copy. */
+.r2-golden-transaction,
+.r2-golden-transaction__hero,
+.r2-golden-transaction__identity,
+.r2-golden-context-layout,
+.r2-golden-context-layout > main,
+.r2-golden-panel,
+.r2-golden-panel__heading,
+.r2-golden-panel__heading > div,
+.r2-golden-decision,
+.r2-golden-decision > div,
+.r2-golden-activity,
+.r2-golden-activity article,
+.r2-golden-activity article > div,
+.r2-golden-line-items,
+.r2-golden-line-items article,
+.r2-golden-line-items article > div,
+.r2-golden-finance,
+.r2-golden-finance > div,
+.r2-golden-facts,
+.r2-golden-facts > div,
+.r2-golden-sidecar,
+.r2-golden-sidecar__meta {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.r2-golden-transaction__identity h1,
+.r2-golden-transaction__identity > p,
+.r2-golden-panel__heading h2,
+.r2-golden-panel__heading > div > span,
+.r2-golden-decision h3,
+.r2-golden-decision p,
+.r2-golden-decision time,
+.r2-golden-activity article p,
+.r2-golden-activity article strong,
+.r2-golden-activity article small,
+.r2-golden-line-items article strong,
+.r2-golden-line-items article small,
+.r2-golden-finance strong,
+.r2-golden-finance span,
+.r2-golden-facts strong,
+.r2-golden-facts span,
+.r2-golden-sidecar h2,
+.r2-golden-sidecar p,
+.r2-golden-sidecar__meta strong,
+.r2-golden-sidecar__meta span {
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @media (max-width: 22rem) {

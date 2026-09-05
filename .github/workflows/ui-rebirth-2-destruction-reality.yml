@@ -1,0 +1,99 @@
+name: ENJAZ R2.0-9 — Destruction & Reality QA Gate
+
+on:
+  push:
+    branches:
+      - 'r2-0-9-*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  destruction-reality-gate:
+    name: R2.0-9 / Destruction + Reality + Cumulative Locks
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Enforce Phase 5.5 freeze
+        run: node scripts/ui-rebirth-2-freeze-audit.mjs
+      - name: Enforce locked palette
+        run: node scripts/ui-rebirth-2-palette-audit.mjs
+      - name: Preserve hard Rebirth acceptance
+        run: node scripts/ui-rebirth-2-acceptance-audit.mjs
+      - name: Preserve cumulative Rebirth closures
+        run: |
+          node scripts/ui-rebirth-2-golden-visual-contract-audit.mjs
+          node scripts/ui-rebirth-2-golden-specimen-audit.mjs
+          node scripts/ui-rebirth-2-core-work-audit.mjs
+          node scripts/ui-rebirth-2-records-audit.mjs
+          node scripts/ui-rebirth-2-operational-intelligence-audit.mjs
+          node scripts/ui-rebirth-2-zero-lost-audit.mjs
+      - name: Enforce R2.0-9 destruction contract
+        run: node scripts/ui-rebirth-2-destruction-reality-audit.mjs
+      - name: Functional regression
+        run: npm run test:functional
+      - name: Secrets audit
+        run: npm run audit:secrets
+      - name: Database schema and self-test
+        run: |
+          npm run db:audit
+          npm run db:audit:selftest
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Build isolated R2.0-9 preview
+        run: npx vite build --config vite.r2-preview.config.ts --base=/
+      - name: Enforce isolated preview budget
+        run: node scripts/ui-rebirth-2-preview-budget-audit.mjs
+      - name: Install pinned Chromium tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated R2.0-9 preview
+        run: |
+          nohup npx vite preview --config vite.r2-preview.config.ts --host 127.0.0.1 --port 4176 > /tmp/enjaz-r2-destruction-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4176/r2-preview.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-r2-destruction-preview.log
+          exit 1
+      - name: Preserve 16-scenario Zero-Lost browser closure
+        env:
+          R2_ZERO_LOST_BASE_URL: http://127.0.0.1:4176/
+          R2_ZERO_LOST_ARTIFACT_DIR: artifacts/r2-zero-lost-cumulative
+        run: npx playwright test tests-external/r2-zero-lost.spec.cjs --reporter=line --workers=1
+      - name: Real Chromium destruction wave 1 / 1280 + 430 + 390 + 360 + 320
+        env:
+          R2_DESTRUCTION_BASE_URL: http://127.0.0.1:4176/
+          R2_DESTRUCTION_ARTIFACT_DIR: artifacts/r2-destruction-reality
+        run: npx playwright test tests-external/r2-destruction-reality.spec.cjs --reporter=line --workers=1
+      - name: Real Chromium destruction wave 2 / focus + overlays + tiny height + malformed state
+        env:
+          R2_DESTRUCTION_BASE_URL: http://127.0.0.1:4176/
+          R2_DESTRUCTION_ARTIFACT_DIR: artifacts/r2-destruction-reality
+        run: npx playwright test tests-external/r2-destruction-reality-wave2.spec.cjs --reporter=line --workers=1
+      - name: Upload R2.0-9 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-r2-destruction-reality-${{ github.sha }}
+          path: |
+            artifacts/r2-destruction-reality/
+            artifacts/r2-zero-lost-cumulative/
+            test-results/
+            /tmp/enjaz-r2-destruction-preview.log
+          if-no-files-found: ignore
+          retention-days: 14

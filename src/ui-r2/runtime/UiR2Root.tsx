@@ -17,6 +17,7 @@ import {
 import { RecordsRelationshipsExperience } from '../records/RecordsRelationshipsExperience.tsx';
 import { OperationalIntelligenceExperience } from '../operational-intelligence/OperationalIntelligenceExperience.tsx';
 import { buildR2FindAnythingResults } from '../find-anything/find-anything-model.ts';
+import { useR2OverlayFocusGuard } from './useR2OverlayFocusGuard.ts';
 
 const SHELL_STAGE = 'R2.0-3' as const;
 type OverlayId = 'search' | 'account' | null;
@@ -181,6 +182,7 @@ export function UiR2Root() {
   const [overlay, setOverlay] = useState<OverlayId>(initial.overlay);
   const [searchQuery, setSearchQuery] = useState('');
   const ownedOverlay = useRef(false);
+  useR2OverlayFocusGuard(overlay);
 
   useEffect(() => {
     const syncFromHistory = () => { const next = readUrlState(); setDestinationId(next.destinationId); setTransactionId(next.transactionId); setOverlay(next.overlay); ownedOverlay.current = false; };
