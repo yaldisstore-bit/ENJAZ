@@ -32,15 +32,16 @@
   },
   "designSystem": {
     "artifact": "docs/UI_UX_REBIRTH_2_0_DESIGN_SYSTEM_MANIFEST.json",
-    "status": "ACTIVE",
+    "closureRecord": "docs/R2_0_2_DESIGN_SYSTEM_CLOSURE.md",
+    "status": "CLOSED",
     "requiredFamilies": 14,
-    "implementedFamilies": 0,
+    "implementedFamilies": 14,
     "touchMinimumPx": 44,
-    "reducedMotionEncoded": false,
-    "rtlSafeDefaultsEncoded": false,
-    "palettePurity": false,
+    "reducedMotionEncoded": true,
+    "rtlSafeDefaultsEncoded": true,
+    "palettePurity": true,
     "presentationIsolation": true,
-    "exitGatePassed": false
+    "exitGatePassed": true
   },
   "noMaze": {
     "validated": false,
