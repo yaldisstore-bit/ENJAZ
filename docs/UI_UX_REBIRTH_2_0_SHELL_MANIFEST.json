@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-3",
+  "status": "FROZEN",
+  "previewEntrypoint": "r2-preview.html",
+  "previewSource": "src/ui-r2/preview-main.tsx",
+  "previewBuildConfig": "vite.r2-preview.config.ts",
+  "previewOutput": "dist-r2-preview",
+  "previewBudgetGuard": "scripts/ui-rebirth-2-preview-budget-audit.mjs",
+  "canonicalBundleBudgetUnaffected": true,
+  "shellRoot": "src/ui-r2/runtime/UiR2Root.tsx",
+  "shellStyles": "src/ui-r2/runtime/shell.css",
+  "canonicalRuntimeChanged": false,
+  "canonicalRuntime": "ui-v2",
+  "primaryDoorCount": 5,
+  "primaryDoors": [
+    "home",
+    "transactions",
+    "create",
+    "today",
+    "more"
+  ],
+  "locationLayer": true,
+  "findAnythingEntry": true,
+  "overlayOwnership": [
+    "search",
+    "account"
+  ],
+  "historyFoundations": {
+    "pushState": true,
+    "popState": true,
+    "deepLinkQueryState": true,
+    "browserBackRestoresShellState": true
+  },
+  "responsive": {
+    "mobileDock": true,
+    "desktopRail": true,
+    "hardWidths": [1280, 430, 390, 360, 320]
+  },
+  "presentationIsolation": true,
+  "palettePurityRequired": true,
+  "minimumTouchPx": 44,
+  "goldenExperienceImplemented": false,
+  "exitGatePassed": true
+}

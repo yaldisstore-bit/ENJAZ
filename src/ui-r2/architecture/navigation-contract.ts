@@ -151,7 +151,7 @@ export const R2_CREATE_POLICY = {
   reviewOnlyMayClaimPersistence: false,
 } as const;
 
-export function getR2Destination(id: R2DestinationId): R2Destination {
+export function getR2Destination(id: R2DestinationId): (typeof R2_DESTINATIONS)[number] {
   const destination = R2_DESTINATIONS.find((item) => item.id === id);
   if (!destination) {
     throw new Error(`Unknown R2 destination: ${id}`);

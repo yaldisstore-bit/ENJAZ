@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   governance-contracts:
-    name: Rebirth 2.0 / Freeze + Palette + Hard Acceptance + IA + Design System
+    name: Rebirth 2.0 / Freeze + Palette + Hard Acceptance + IA + Design System + Shell
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -37,3 +37,5 @@ jobs:
         run: node scripts/ui-rebirth-2-ia-audit.mjs
       - name: Enforce R2.0-2 Design System
         run: node scripts/ui-rebirth-2-design-system-audit.mjs
+      - name: Enforce R2.0-3 Application Shell
+        run: node scripts/ui-rebirth-2-shell-audit.mjs

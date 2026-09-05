@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "R2.0-2",
+  "stage": "R2.0-3",
   "phase55Locked": true,
   "runtime": "ui-v2",
   "goldenExperience": {
@@ -41,6 +41,20 @@
     "rtlSafeDefaultsEncoded": true,
     "palettePurity": true,
     "presentationIsolation": true,
+    "exitGatePassed": true
+  },
+  "applicationShell": {
+    "artifact": "docs/UI_UX_REBIRTH_2_0_SHELL_MANIFEST.json",
+    "status": "CLOSED",
+    "previewEntrypoint": "r2-preview.html",
+    "shellRoot": "src/ui-r2/runtime/UiR2Root.tsx",
+    "primaryDoorCount": 5,
+    "locationLayer": true,
+    "findAnythingEntry": true,
+    "overlayOwnership": true,
+    "historyFoundations": true,
+    "mobileDesktopBehavior": true,
+    "canonicalRuntimeChanged": false,
     "exitGatePassed": true
   },
   "noMaze": {
