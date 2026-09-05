@@ -46,10 +46,10 @@ function RuntimeFailure({ message }: Readonly<{ message: string }>) {
   );
 }
 
-function clearRecoveryMode() {
+function leaveRecoveryMode() {
   const url = new URL(window.location.href);
   url.searchParams.delete('auth');
-  window.history.replaceState({ r2: true }, '', url);
+  window.location.replace(url.toString());
 }
 
 function AuthenticatedR2Runtime({ dataFactory }: Readonly<{ dataFactory: EnjazDataLayerFactory }>) {
@@ -58,7 +58,7 @@ function AuthenticatedR2Runtime({ dataFactory }: Readonly<{ dataFactory: EnjazDa
   if (auth.status === 'anonymous' || !auth.user) return <R2AuthScreen service={auth.service} />;
 
   const recoveryMode = new URLSearchParams(window.location.search).get('auth') === 'update-password';
-  if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={clearRecoveryMode} />;
+  if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode} />;
 
   const signOut = async () => {
     await auth.service.signOut();
