@@ -149,7 +149,7 @@ async function verifyArchivedBoundary(browser, width) {
   const sheet = page.getByRole('dialog', { name: 'ملف المعاملة 360°' });
   await sheet.waitFor();
   assert(await sheet.locator('[data-pattern="transaction-360"]').isVisible(), `archived-${width}: archived 360 did not open`);
-  assert(await sheet.getByText('الاستعادة في Phase 5.4.', { exact: false }).isVisible(), `archived-${width}: 360 lifecycle boundary missing`);
+  assert(await sheet.getByText('إعادة التفعيل أو الاستعادة تبقى في Phase 5.4.', { exact: false }).isVisible(), `archived-${width}: 360 lifecycle boundary missing`);
   await noHorizontalOverflow(page, `archived-${width}`);
   await assertTouchTargets(page, `archived-${width}`);
   assert(errors.console.length === 0, `archived-${width}: console errors ${errors.console.join(' | ')}`);
