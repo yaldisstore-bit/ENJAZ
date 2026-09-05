@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "stage": "R2.0-4",
-  "status": "READY_FOR_USER_APPROVAL",
+  "status": "USER_APPROVED",
   "branch": "r2-0-4-golden-experience",
   "preview": "r2-preview.html",
   "specimens": [
@@ -59,8 +59,10 @@
   "professionalUxEvidenceReady": true,
   "userApproval": {
     "required": true,
-    "approved": false,
-    "approvedCommit": null,
-    "note": "R2.0-5 remains forbidden until the user explicitly approves the Golden Experience and the approval is pinned to a concrete commit."
+    "approved": true,
+    "approvedCommit": "96da5a33560326e85caea623e8c750c4a0f6c6df",
+    "approvalRecord": "docs/R2_0_4_GOLDEN_APPROVAL.md",
+    "approvedOn": "2026-09-05",
+    "note": "The user explicitly approved R2.0-4 after reviewing the real-browser Golden evidence. R2.0-5 may now begin; canonical runtime promotion remains forbidden until R2.0-11 gates pass."
   }
 }
