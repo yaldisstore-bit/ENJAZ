@@ -13,6 +13,7 @@ const paths = {
   evidence: 'docs/UI_UX_REBIRTH_2_0_DESTRUCTION_REALITY_EVIDENCE.json',
   kickoff: 'docs/R2_0_9_DESTRUCTION_REALITY_QA_KICKOFF.md',
   browser: 'tests-external/r2-destruction-reality.spec.cjs',
+  wave2: 'tests-external/r2-destruction-reality-wave2.spec.cjs',
   workflow: '.github/workflows/ui-rebirth-2-destruction-reality.yml',
   main: 'src/main.tsx',
 };
@@ -28,6 +29,7 @@ const state = json(paths.state);
 const evidence = json(paths.evidence);
 const kickoff = read(paths.kickoff);
 const browser = read(paths.browser);
+const wave2 = read(paths.wave2);
 const workflow = read(paths.workflow);
 const main = read(paths.main);
 
@@ -49,6 +51,8 @@ const expectedScope = [
   'horizontalOverflow',
 ];
 const hardWidths = [1280, 430, 390, 360, 320];
+const closedScenarioCount = 30;
+const closurePath = 'docs/R2_0_9_DESTRUCTION_REALITY_QA_CLOSURE.md';
 
 if (state.stage !== 'R2.0-9') errors.push(`R2.0-9 guard requires state.stage R2.0-9, found ${state.stage}`);
 if (!['ACTIVE', 'CLOSED'].includes(state.destructionRealityQa?.status)) errors.push('destructionRealityQa status must be ACTIVE or CLOSED');
@@ -108,6 +112,18 @@ for (const marker of [
 ]) if (!browser.includes(marker)) errors.push(`browser destruction suite missing required attack marker: ${marker}`);
 
 for (const marker of [
+  'WAVE2_SCENARIOS',
+  'search modal keeps keyboard focus contained',
+  'account modal traps focus and restores its opener',
+  'repeated overlay ownership never stacks dialogs',
+  'tiny-height viewport can reach final More action above bottom navigation',
+  'transaction 360 contains extreme real copy across every tab',
+  'malformed transaction deep links fail safely without crashing shell',
+  'rapid search navigation and Back repeatedly restore query context',
+  'keyboard navigation retains visible focus at 320px',
+]) if (!wave2.includes(marker)) errors.push(`browser destruction wave 2 missing required attack marker: ${marker}`);
+
+for (const marker of [
   'ui-rebirth-2-destruction-reality-audit.mjs',
   'ui-rebirth-2-zero-lost-audit.mjs',
   'test:functional',
@@ -116,6 +132,7 @@ for (const marker of [
   'typecheck',
   'vite.r2-preview.config.ts',
   'r2-destruction-reality.spec.cjs',
+  'r2-destruction-reality-wave2.spec.cjs',
   '@playwright/test@1.55.0',
   'chromium',
   '1280 + 430 + 390 + 360 + 320',
@@ -124,13 +141,32 @@ for (const marker of [
 if (state.destructionRealityQa?.status === 'CLOSED') {
   const declared = state.destructionRealityQa?.declaredScenarioCount;
   const passed = state.destructionRealityQa?.passedScenarioCount;
-  if (!Number.isInteger(declared) || declared < 15) errors.push('closed R2.0-9 requires >=15 declared destructive scenarios');
+  if (declared !== closedScenarioCount) errors.push(`closed R2.0-9 requires exactly ${closedScenarioCount} declared destructive scenarios`);
   if (passed !== declared) errors.push('closed R2.0-9 requires every declared destructive scenario to pass');
   if (state.destructionRealityQa?.unresolvedDefectCount !== 0) errors.push('closed R2.0-9 requires zero unresolved defects');
   if (state.destructionRealityQa?.exitGatePassed !== true || evidence.exitGatePassed !== true) errors.push('closed R2.0-9 requires exit gate PASS');
   if (evidence.destruction?.declaredScenarioCount !== declared || evidence.destruction?.passedScenarioCount !== declared) errors.push('closed R2.0-9 evidence counts must match state');
   if (!Array.isArray(evidence.destruction?.unresolvedDefects) || evidence.destruction.unresolvedDefects.length !== 0) errors.push('closed R2.0-9 requires empty unresolved-defect evidence');
-  if (!evidence.finalEvidence?.run || !evidence.finalEvidence?.artifactId) errors.push('closed R2.0-9 requires pinned final browser evidence');
+  if (JSON.stringify(evidence.destruction?.attackClassesCovered) !== JSON.stringify(expectedScope)) errors.push('closed R2.0-9 requires every attack class to be covered');
+  if (!Array.isArray(evidence.resolvedAppDefects) || evidence.resolvedAppDefects.length < 3) errors.push('closed R2.0-9 requires pinned resolved app defects');
+  if (!Array.isArray(evidence.correctedTestDefects) || evidence.correctedTestDefects.length < 2) errors.push('closed R2.0-9 requires corrected false-positive test defects');
+  if (!evidence.finalEvidence?.run || !evidence.finalEvidence?.artifactId || !evidence.finalEvidence?.testedCommit || !evidence.finalEvidence?.artifactSha256) errors.push('closed R2.0-9 requires pinned final browser evidence');
+  if (evidence.finalEvidence?.destructiveScenarios !== closedScenarioCount || evidence.finalEvidence?.cumulativeZeroLostScenarios !== 16 || evidence.finalEvidence?.totalBrowserValidations !== 46) errors.push('closed R2.0-9 final browser counts must be 30 destructive + 16 cumulative = 46');
+  const expectedChecks = {
+    structuralAudit: 'PASS',
+    functionalRegression: 'PASS_118_OF_118',
+    typescript: 'PASS',
+    previewBuild: 'PASS',
+    previewBudget: 'PASS',
+    realChromiumDestruction: 'PASS_30_OF_30',
+    cumulativeRealBrowser: 'PASS_46_OF_46_WITH_16_ZERO_LOST',
+  };
+  for (const [name, value] of Object.entries(expectedChecks)) if (evidence.checks?.[name] !== value) errors.push(`closed R2.0-9 check ${name} must equal ${value}`);
+  if (!exists(closurePath)) errors.push(`closed R2.0-9 requires closure record: ${closurePath}`);
+  else {
+    const closure = read(closurePath);
+    for (const marker of ['Status: **CLOSED**', '30 / 30', '46 / 46', 'R2.0-10']) if (!closure.includes(marker)) errors.push(`R2.0-9 closure missing marker: ${marker}`);
+  }
 }
 
 if (errors.length) {
