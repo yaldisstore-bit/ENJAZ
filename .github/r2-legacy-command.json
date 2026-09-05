@@ -1,5 +1,5 @@
 {
-  "action": "resolve-parity",
+  "action": "mark-ui-v2-eradicated",
   "gateRun": 33986273961,
-  "sourceCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50"
+  "sourceCommit": "03c18e8c8bd9d4d3ff37ca3be18335f1a53a6833"
 }
