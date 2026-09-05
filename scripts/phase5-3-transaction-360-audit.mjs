@@ -70,8 +70,9 @@ for (const token of [
   '<Panel id="documents"',
   'ConnectedTransaction360',
   'FixtureTransaction360',
-  'بعض سياق 360° يحتاج انتباهًا',
-  'العمليات المالية الكاملة تبقى في Phase 7',
+  'سياق 360° يحتاج انتباهًا',
+  'للعمليات الكاملة افتح مركز المالية',
+  'الاستعادة غير متاحة هنا',
 ]) assert(screen.includes(token), `360 presentation contract missing ${token}`);
 
 assert(list.includes('data-transaction-open-360={item.id}'), 'transaction cards cannot enter 360');
