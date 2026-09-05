@@ -5,7 +5,7 @@ function assert(condition, message) {
 }
 async function read(file) { return fs.readFile(file, 'utf8'); }
 
-const [core, model, service, controller, listModel, dailyWorkService, panel, list, css, main, kickoff, roadmap, pkgText] = await Promise.all([
+const [core, model, service, controller, listModel, dailyWorkService, panel, list, css, main, kickoff, closure, roadmap, pkgText] = await Promise.all([
   read('src/ui-v2/runtime/CoreApp.tsx'),
   read('src/features/transactions/transactionLifecycleModel.ts'),
   read('src/features/transactions/transactionLifecycleService.ts'),
@@ -17,6 +17,7 @@ const [core, model, service, controller, listModel, dailyWorkService, panel, lis
   read('src/ui-v2/styles/transaction-lifecycle.css'),
   read('src/main.tsx'),
   read('docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_KICKOFF.md'),
+  read('docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md'),
   read('docs/ENJAZ_MASTER_ROADMAP.md'),
   read('package.json'),
 ]);
@@ -99,11 +100,19 @@ assert(css.includes('overflow-wrap: anywhere'), 'lifecycle long-text wrapping gu
 assert(!css.includes('!important'), 'lifecycle styles may not use !important');
 assert(!/z-index\s*:\s*\d{3,}/.test(css), 'lifecycle styles contain uncontrolled z-index escalation');
 
-assert(kickoff.includes('Status: **IN PROGRESS**'), 'Phase 5.4 kickoff is not in progress');
+assert(kickoff.includes('Status: **CLOSED**'), 'Phase 5.4 kickoff status is not closed');
 assert(kickoff.includes('does **not** allow a synthetic `archived` status'), 'database archive-state truth missing from kickoff');
 assert(kickoff.includes('Archive a non-deleted transaction'), 'archive scope missing');
 assert(kickoff.includes('Reactivate a completed transaction explicitly'), 'reactivation boundary missing');
 assert(kickoff.includes('No delete/purge implementation is introduced here'), 'delete/purge boundary missing');
+for (const token of [
+  'Status: **CLOSED**',
+  'Certified pre-closure head: `b49927d6d3a037fbb78eb5bd0ea639535c71e5e8`',
+  'dedicated lifecycle model/service tests **16/16**',
+  'complete functional regression suite **118/118**',
+  'Evidence artifact: `9966337167`',
+  'Phase 5.5 — Transaction Destruction Gate remains locked',
+]) assert(closure.includes(token), `Phase 5.4 closure evidence missing ${token}`);
 assert(roadmap.includes('## 5.4 — Archive/Restore/Lifecycle'), 'roadmap lost Phase 5.4');
 assert(roadmap.includes('## 5.5 — Transaction Destruction Gate'), 'roadmap lost Phase 5.5 boundary');
 
@@ -121,4 +130,5 @@ console.log('- Daily Work suppression is guarded at the authoritative repository
 console.log('- live lifecycle UI resolves the authoritative record before offering legal actions');
 console.log('- lifecycle confirmation, warnings, touch geometry and narrow-phone layout are locked');
 console.log('- transaction_activity is the append-only lifecycle evidence path for transactions');
+console.log('- Phase 5.4 closure evidence is permanently guarded');
 console.log('- Phase 5.5, Finance and Workflow authority remain locked');
