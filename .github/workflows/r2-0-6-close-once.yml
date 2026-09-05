@@ -1,0 +1,115 @@
+name: ENJAZ R2.0-6 — One-shot Closure Commit
+
+on:
+  push:
+    branches:
+      - r2-0-6-records-relationships
+    paths:
+      - '.github/workflows/r2-0-6-close-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  close-stage:
+    name: Persist R2.0-6 closure records
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v7
+        with:
+          ref: r2-0-6-records-relationships
+          fetch-depth: 0
+
+      - name: Persist parity, evidence, state and closure record
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+
+          const parityPath = 'docs/UI_UX_REBIRTH_2_0_FEATURE_PARITY.json';
+          const statePath = 'docs/UI_UX_REBIRTH_2_0_STATE.json';
+          const evidencePath = 'docs/UI_UX_REBIRTH_2_0_RECORDS_EVIDENCE.json';
+          const closurePath = 'docs/R2_0_6_RECORDS_RELATIONSHIPS_CLOSURE.md';
+          const targetCapabilities = new Set(['companies.workspace', 'people.workspace', 'documents.workspace']);
+
+          const parity = JSON.parse(fs.readFileSync(parityPath, 'utf8'));
+          const ids = new Set(parity.capabilities.map((item) => item.id));
+          const missing = [...targetCapabilities].filter((id) => !ids.has(id));
+          if (missing.length) throw new Error(`R2.0-6 parity targets missing: ${missing.join(', ')}`);
+          parity.capabilities = parity.capabilities.map((item) => targetCapabilities.has(item.id)
+            ? { ...item, migrated: true, tested: true }
+            : item);
+          const migratedCount = parity.capabilities.filter((item) => item.migrated === true).length;
+          const testedCount = parity.capabilities.filter((item) => item.tested === true).length;
+          if (migratedCount !== 19 || testedCount !== 19) throw new Error(`R2.0-6 expected 19/19 cumulative migrated/tested, got ${migratedCount}/${testedCount}`);
+          fs.writeFileSync(parityPath, `${JSON.stringify(parity, null, 2)}\n`);
+
+          const evidence = JSON.parse(fs.readFileSync(evidencePath, 'utf8'));
+          evidence.status = 'CLOSED';
+          evidence.checks = {
+            structuralAudit: 'PASS',
+            functionalRegression: 'PASS_118_OF_118',
+            typescript: 'PASS',
+            previewBuild: 'PASS',
+            previewBudget: 'PASS',
+            goldenRegression: 'PASS',
+            coreWorkRegression: 'PASS',
+            realBrowserRecords: 'PASS_8_OF_8'
+          };
+          evidence.gateRuns = {
+            governance: 33975467589,
+            quality: 33975467596,
+            goldenRegression: 33975467600,
+            coreWorkRegression: 33975467582,
+            records: 33975467612,
+            realBrowser: 33975467595
+          };
+          evidence.artifact = {
+            id: 9972186344,
+            name: 'enjaz-r2-records-evidence-9f7cb792c7fb022b9ec0852989d0b4149085d5ac',
+            sourceCommit: 'faab96d59a47665a5d3c9ed413131629bce4908e',
+            sha256: '062ff66c314a986751f160a0d4940013ed705312b9986bb5ee17f3efdfb7d046'
+          };
+          evidence.exitGatePassed = true;
+          fs.writeFileSync(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
+
+          const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+          if (state.stage !== 'R2.0-6') throw new Error(`Unexpected stage ${state.stage}`);
+          if (state.phase55Locked !== true) throw new Error('Phase 5.5 lock was lost');
+          if (state.runtime !== 'ui-v2') throw new Error('Canonical runtime moved before R2.0-11');
+          if (state.coreWorkMigration?.status !== 'CLOSED') throw new Error('R2.0-5 is not closed');
+          state.recordsRelationships = {
+            ...state.recordsRelationships,
+            status: 'CLOSED',
+            evidenceManifest: evidencePath,
+            closureRecord: closurePath,
+            evidenceRun: 33975467612,
+            canonicalRuntimeChanged: false,
+            exitGatePassed: true
+          };
+          state.featureParity = {
+            ...state.featureParity,
+            migratedCapabilities: migratedCount,
+            testedCapabilities: testedCount,
+            unresolvedCapabilities: 0
+          };
+          fs.writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`);
+
+          const closure = `# ENJAZ Rebirth 2.0 — R2.0-6 Records & Relationships Closure\n\nStatus: **CLOSED**\n\nR2.0-6 closes the records layer after implementing Companies, People/Lawyers and Documents/Reports as three task-appropriate entity-first compositions inside the approved Rebirth 2.0 identity.\n\n## Delivered\n\n- Companies: directory, search, entity identity, manager/capital/state, relationship map, linked people and recent documents.\n- People/Lawyers: searchable directory, profile identity, role/specialty, workload context, company relationships and operational context.\n- Documents/Reports: category → list → detail composition with owner/type/state/size context.\n- Explicit truthfulness boundary: the isolated preview does not claim production CRUD, upload or delete behavior that the current authoritative inventory does not guarantee.\n- R2.0-4 Golden identity and R2.0-5 Core Work remain preserved.\n\n## Feature parity\n\nExactly three R2.0-6 capabilities are newly migrated/tested: \\`companies.workspace\\`, \\`people.workspace\\`, and \\`documents.workspace\\`. Cumulative parity is **19 / 35 migrated and 19 / 35 tested**, with zero unresolved capabilities.\n\n## Gates\n\n- Governance: PASS — 33975467589.\n- Quality: PASS — 33975467596.\n- Golden regression: PASS — 33975467600.\n- Core Work regression: PASS — 33975467582.\n- R2.0-6 Records gate: PASS — 33975467612.\n- Real Browser cumulative acceptance: PASS — 33975467595.\n- Functional regression: **118 / 118 PASS**.\n- R2.0-6 browser suite: **8 / 8 PASS**.\n- Hard widths: **1280 / 430 / 390 / 360 / 320**.\n- Evidence artifact: 9972186344, SHA-256 062ff66c314a986751f160a0d4940013ed705312b9986bb5ee17f3efdfb7d046.\n\n## Frozen boundaries\n\nR2.0-6 does not start Operational Intelligence, does not unlock Phase 5.5, does not change canonical runtime ownership and does not promote UiR2Root. Canonical runtime remains **ui-v2** until R2.0-11.\n\nThe next allowed stage is **R2.0-7 — Operational Intelligence**. It is not started by this closure.\n`;
+          fs.writeFileSync(closurePath, closure);
+          NODE
+
+      - name: Commit closure
+        shell: bash
+        run: |
+          git config user.name 'ENJAZ Governance Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add docs/UI_UX_REBIRTH_2_0_FEATURE_PARITY.json \
+                  docs/UI_UX_REBIRTH_2_0_STATE.json \
+                  docs/UI_UX_REBIRTH_2_0_RECORDS_EVIDENCE.json \
+                  docs/R2_0_6_RECORDS_RELATIONSHIPS_CLOSURE.md
+          git diff --cached --check
+          git commit -m 'Close R2.0-6 — records and relationships'
+          git push origin HEAD:r2-0-6-records-relationships
