@@ -469,8 +469,8 @@
       "scope": [
         "domain discoverability without fake CRUD"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "people.workspace",
@@ -484,8 +484,8 @@
       "scope": [
         "domain discoverability without fake profiles"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "finance.workspace",
@@ -591,8 +591,8 @@
         "domain discoverability",
         "no fake vault upload"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "followups.workspace",
