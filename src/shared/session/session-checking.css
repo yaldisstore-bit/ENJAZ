@@ -1,0 +1,27 @@
+.enjaz-session-checking {
+  min-block-size: 100dvh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1rem;
+  color: inherit;
+  background: inherit;
+  font: inherit;
+}
+
+.enjaz-session-checking__spinner {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-inline-start-color: transparent;
+  animation: enjaz-session-spin 0.9s linear infinite;
+}
+
+@keyframes enjaz-session-spin {
+  to { transform: rotate(1turn); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enjaz-session-checking__spinner { animation: none; }
+}
