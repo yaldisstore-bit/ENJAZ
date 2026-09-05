@@ -36,8 +36,13 @@
 }
 
 .ez-transaction-editor input,
-.ez-transaction-editor select,
+.ez-transaction-editor select {
+  min-height: var(--ez-control-h);
+  font-size: 16px;
+}
+
 .ez-transaction-editor textarea {
+  min-height: var(--ez-touch-min);
   font-size: 16px;
 }
 
