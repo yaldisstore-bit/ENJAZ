@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-0",
+  "phase55Locked": true,
+  "runtime": "ui-v2",
+  "goldenExperience": {
+    "implemented": false,
+    "visualEvidenceReady": false,
+    "professionalUxEvidenceReady": false,
+    "userApproved": false,
+    "approvedCommit": null,
+    "approvalRecord": null,
+    "evidenceManifest": null
+  },
+  "featureParity": {
+    "inventoryComplete": false,
+    "totalCapabilities": 0,
+    "migratedCapabilities": 0,
+    "testedCapabilities": 0,
+    "unresolvedCapabilities": 0
+  },
+  "noMaze": {
+    "validated": false,
+    "scenarioCount": 0,
+    "passedCount": 0,
+    "maxMajorCapabilityActions": 3,
+    "hiddenPrimaryNavigationCount": 0,
+    "duplicateCanonicalHomesCount": 0,
+    "backPathFailures": 0,
+    "evidenceManifest": null
+  },
+  "legacy": {
+    "presentationIsolationEnforced": true,
+    "eradicated": false
+  },
+  "promotion": {
+    "requested": false,
+    "allowed": false
+  }
+}

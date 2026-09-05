@@ -1,73 +1,121 @@
 # ENJAZ UI/UX Rebirth 2.0 — Master Plan
 
-Status: **ACTIVE CHANGE-CONTROL DIRECTIVE**
+Status: **ACTIVE CHANGE-CONTROL DIRECTIVE / HARD-GATED**
 
-Canonical governance base: `main` at `a4696db56f9d5f7d850c43ee7d442bb315e66ed9` after Phase 5.5 was explicitly frozen and UI/UX Rebirth 2.0 was promoted as the active interface direction.
+Canonical governance base: `main` after Phase 5.4 closure, Phase 5.5 freeze, and official five-color palette lock.
 
-## Immediate governance decision
+Authoritative companion contracts:
+- `docs/UI_UX_REBIRTH_2_0_ACCEPTANCE_CONTRACT.md`
+- `docs/UI_UX_REBIRTH_2_0_PALETTE_CONTRACT.md`
+- `docs/UI_UX_REBIRTH_2_0_STATE.json`
+- `docs/UI_UX_REBIRTH_2_0_FEATURE_PARITY.json`
+
+## 1. Immediate governance decision
 
 **Phase 5.5 — Transaction Destruction Gate is PAUSED / LOCKED and must not start while UI/UX Rebirth 2.0 is active.**
 
-This directive intentionally interrupts the previous next-step pointer after Phase 5.4. It does not reopen Phase 5.1–5.4 business logic. It freezes new product-phase expansion until the new UI/UX shell, navigation architecture and visual direction are approved and re-certified.
+This does not reopen Phase 5.1–5.4 business logic. Supabase, RLS, typed Data Layer, repositories/services, transaction list/create-edit/360/lifecycle semantics, security and data-integrity contracts remain preserved.
 
-No Phase 5.5 implementation branch, kickoff document, workflow, runtime phase marker, or feature work may be introduced while this directive is active.
+No Phase 5.5 implementation branch, kickoff document, workflow, runtime phase marker or feature work may be introduced while this directive is active.
 
-## What is being rebuilt
+## 2. What is being rebuilt from zero
 
 Rebuild from zero:
 - visual language,
-- shell,
+- design system,
+- application shell,
 - navigation architecture,
 - information architecture,
-- home composition,
+- Home composition,
 - domain entry points,
 - page hierarchy,
 - search/discovery experience,
 - contextual actions,
-- mobile navigation,
-- screen composition and visual rhythm.
+- mobile and desktop composition,
+- motion language,
+- screen grammar and visual rhythm.
 
 Preserve:
 - Supabase schema and RLS,
 - typed Data Layer,
 - repositories/services,
-- business logic,
-- transaction list/create-edit/360/lifecycle semantics,
-- existing domain facts,
-- security and data-integrity contracts,
+- approved business logic,
+- approved field/domain facts,
+- transaction semantics already closed through Phase 5.4,
+- security/integrity contracts,
 - functional/destructive test knowledge.
 
-The current UI is not to be patched into the new one. Rebirth 2.0 must be built as a parallel presentation layer and promoted only after explicit acceptance.
+The current presentation layer is **not** to be patched into the new one. Rebirth 2.0 is built in parallel under `src/ui-r2` and receives canonical runtime ownership only after final promotion.
 
-## Design thesis
+## 3. Design philosophy
 
-**Calm Command Interface** — a premium Arabic-first productivity interface that feels obvious before it feels impressive.
+### ENJAZ Workspace — Clear, Spatial, Contextual
 
-The new UI must prioritize:
-1. location clarity,
-2. feature discoverability,
-3. one obvious primary action per context,
-4. strong information hierarchy,
-5. calm visual density,
-6. premium typography and spacing,
-7. contextual depth instead of card overload,
-8. predictable back/navigation behavior.
+The new interface is designed independently from prior reference screenshots and independently from the current UI structure.
 
-## New primary navigation
+It must be:
+- visually beautiful and premium,
+- professionally organized,
+- obvious before memorized,
+- spatially understandable,
+- context-aware,
+- powerful without exposing all power at once,
+- alive without decorative noise.
 
-Mobile bottom navigation is limited to five persistent destinations:
+The product must use progressive disclosure: show what matters now; keep deeper capability close and discoverable without making every screen a product map.
+
+## 4. Dual non-negotiable acceptance
+
+Rebirth 2.0 has two equal pillars:
+
+### Beauty Gate
+The interface must be beautiful, premium, distinctive, polished and visually coherent.
+
+### Professional UX / No-Maze Gate
+The interface must be clear, discoverable, predictable and fast to navigate.
+
+**Neither pillar may compensate for failure of the other.**
+
+- beautiful + confusing = FAIL
+- clear + cheap/generic = FAIL
+- feature-rich + card-wall overload = FAIL
+- premium + obvious + fast = PASS candidate
+
+The hard mechanics live in `UI_UX_REBIRTH_2_0_ACCEPTANCE_CONTRACT.md` and are enforced by CI.
+
+## 5. Locked palette
+
+Only these five colors may exist in Rebirth 2.0 presentation code:
+- `#F2F3F4`
+- `#DED1C6`
+- `#A77693`
+- `#174871`
+- `#0F2D4D`
+
+No sixth color may be introduced for branding, status, charts, errors, success, warnings, hover states, shadows, overlays or decoration.
+
+Semantic role:
+- `#F2F3F4` dominant canvas/light surface,
+- `#DED1C6` warm secondary surface,
+- `#A77693` restrained identity accent,
+- `#174871` primary interactive color,
+- `#0F2D4D` deepest structural/text color.
+
+Color is not the design. Composition, hierarchy, whitespace, typography, depth and motion must carry the product quality.
+
+## 6. Navigation thesis
+
+Primary mobile navigation is limited to five persistent destinations:
 
 1. **الرئيسية** — priorities and current context.
-2. **المعاملات** — the primary operational record domain.
+2. **المعاملات** — primary operational record domain.
 3. **＋ جديد** — global create.
 4. **اليوم** — current work and follow-ups.
-5. **المزيد** — explicit feature hub.
+5. **المزيد** — explicit system map.
 
-The application logo is no longer a hidden gateway to product domains.
+The logo is branding, not hidden navigation.
 
-## Feature Hub / المزيد
-
-`المزيد` is the explicit map of the system, grouped by user intent rather than technical architecture:
+`المزيد` groups capability by user intent:
 
 ### السجلات
 - الشركات
@@ -88,11 +136,13 @@ The application logo is no longer a hidden gateway to product domains.
 ### الذكاء
 - مساعد إنجاز
 
-Every capability has one canonical home. Other surfaces may link to it, but must not create competing homes or alternate implementations.
+Every capability has exactly one canonical home. Other surfaces may link to that home but may not create competing implementations.
 
-## Global discovery
+## 7. Find Anything
 
-Replace the current static-result search with a real **Find Anything** surface that can resolve:
+Global discovery is a real navigation surface, not static demo results.
+
+It must resolve:
 - transactions,
 - companies,
 - people/lawyers,
@@ -101,127 +151,304 @@ Replace the current static-result search with a real **Find Anything** surface t
 - features,
 - actions.
 
-Feature aliases must work. Examples:
+Aliases must work, for example:
 - `خزنة` → الوثائق
 - `دفعة` → المالية
 - `أرشفة` → transaction lifecycle context
-- `محامي` → people/lawyers
-- `قيادة` → command center
-- `أتمتة` → automation
+- `محامي` → الأشخاص والمحامون
+- `قيادة` → مركز القيادة
+- `أتمتة` → الأتمتة
 
-Selecting a result must navigate to the destination, not merely close the search.
+Selecting a result navigates to the canonical destination.
 
-## Location model
+## 8. Location model
 
-The user must always understand where they are.
+The user must always understand where they are inside nested work.
 
-Use a compact location trail such as:
+A compact location model may resemble:
 `الرئيسية ← المعاملات ← #1042 ← 360°`
 
-Do not show all product domains inside every domain screen. The existing 12-domain rail is removed from the new presentation layer.
+The exact visual form is decided by the new Design System; the requirement is cognitive clarity, not a specific breadcrumb component.
 
-## Screen grammar
+The old 12-domain rail does not exist in normal Rebirth 2.0 work.
+
+## 9. Screen grammar
 
 ### Home
 - one strong priority zone,
-- today/work queue,
+- work that needs attention now,
+- Today/work queue,
 - recent work,
 - concise financial/attention signals only when actionable,
 - no decorative metric wall,
-- no repeated card grids.
+- no repeated equal-weight card grid.
 
 ### Transactions
-- clear current/stalled/closed segmentation,
-- obvious search and filter layer,
-- rows/cards with a strong identity line and one primary action,
-- secondary actions in a contextual menu,
-- no competing navigation rail.
+- clear segmentation and search/filter layer,
+- strong record identity,
+- one obvious primary action,
+- contextual secondary actions,
+- no competing global navigation inside the domain.
 
 ### Transaction 360°
-- full contextual workspace rather than a stack of equal-weight cards,
-- sticky identity header,
-- compact section index,
-- timeline/details grouped into visually distinct regions,
-- read-only context remains distinct from lifecycle/edit actions.
+- contextual workspace, not a stack of equal-weight cards,
+- strong identity header,
+- clear internal information regions,
+- real timeline/activity treatment,
+- related documents/follow-ups/finance shown contextually,
+- read-only context remains distinct from edit/lifecycle mutation.
 
 ### Companies / People
-- profile-first layouts with relationships and recent activity,
-- strong entity identity,
-- related records grouped by importance rather than equal cards.
+- entity-first layouts,
+- relationships and recent activity,
+- related records grouped by importance.
 
 ### Finance
-- ledger-first, calm and numeric,
-- clear hierarchy between balance, due items and movement,
-- no decorative financial widgets.
+- ledger/workspace grammar,
+- numeric hierarchy,
+- due items and movement prioritized over decorative widgets.
 
 ### Operations / Workflow / Automation
-- operational canvases with lanes, state and ownership,
-- fewer boxes, stronger flow and causality.
+- flow/state/ownership grammar,
+- causality and next action visible,
+- not forced into the same layout as transaction pages.
 
-## Visual direction — palette now locked
+One visual identity, multiple task-appropriate compositions.
 
-The current yellow/black identity is retired from Rebirth 2.0.
+## 10. Non-negotiable UX rules
 
-The user-approved palette is now **final and exclusive** for the new presentation layer. The authoritative contract is:
-`docs/UI_UX_REBIRTH_2_0_PALETTE_CONTRACT.md`
+- Every major capability reachable from Home in at most **3 deliberate actions**.
+- Every feature has exactly **one canonical home**.
+- Hidden primary navigation = **0**.
+- Duplicate canonical feature homes = **0**.
+- Back returns to the logically previous level.
+- Search locates records and features.
+- No normal screen exposes unrelated product domains merely because they exist.
+- Mobile user must not need to memorize where a feature lives.
+- 320px is a hard acceptance width.
+- RTL and mixed Arabic/Latin content are first-class.
+- Touch geometry remains production-grade.
+- Rebirth 2.0 uses only the locked five-color palette.
+- No `src/ui-r2` presentation import from `src/ui-v2` or `src/ui-rebirth`.
 
-Only these five colors may exist in Rebirth 2.0:
-- `#F2F3F4`
-- `#DED1C6`
-- `#A77693`
-- `#174871`
-- `#0F2D4D`
+## 11. Delivery sequence — hard-gated
 
-No sixth color may be introduced for branding, status, charts, errors, success, warnings, hover states, shadows, overlays or decorative treatment. Semantic states must remain understandable through labels, icons and structure rather than foreign colors.
+### R2.0-0 — Feature & UX Extraction
 
-Visual composition:
-- `#F2F3F4` is the dominant canvas/light surface,
-- `#DED1C6` is the warm secondary surface,
-- `#A77693` is the restrained identity accent,
-- `#174871` is the primary interactive color,
-- `#0F2D4D` is the deepest structural/text color.
+No visual screen construction yet.
 
-The interface should use generous negative space, strong Arabic typography hierarchy, fewer borders, soft depth, structural radii and motion limited to navigation/state/hierarchy reinforcement. Palette usage must stay calm rather than giving all five colors equal visual weight.
+- inventory every current approved capability and meaningful action,
+- record old entry point,
+- identify authoritative data/service dependency,
+- assign exactly one future canonical home,
+- identify duplicates/overlaps,
+- build the machine-readable Feature Parity matrix.
 
-## Non-negotiable UX rules
+**Exit gate:** feature inventory complete, non-empty, unique ids, canonical home for every capability.
 
-- Every major capability reachable from Home in at most 3 deliberate actions.
-- Every feature has exactly one canonical home.
-- Back always returns to the logically previous level.
-- Search can locate both records and features.
-- No hidden primary navigation behind branding.
-- No 12-domain rail in normal domain work.
-- No screen may expose unrelated global features merely because they exist.
-- On mobile, the user must never need to remember where a feature lives.
-- 320px remains a hard acceptance width.
-- RTL and mixed Arabic/Latin content remain first-class.
-- Rebirth 2.0 must use only the five locked palette values in the palette contract.
+### R2.0-1 — Information Architecture from zero
 
-## Delivery sequence
+- final product map,
+- five-door primary navigation,
+- More/Feature Hub architecture,
+- route/deep-link model,
+- back behavior,
+- canonical home registry,
+- Find Anything contract,
+- contextual-action rules.
 
-### R2.0-0 — Freeze & extraction
-Freeze Phase 5.5, inventory current capabilities and map every feature to one canonical home.
+**Exit gate:** every inventoried capability has a reachable canonical path; no duplicate home; no hidden primary navigation.
 
-### R2.0-1 — Information architecture
-Build the final product map, navigation model, feature registry and Find Anything contract before visual styling.
+### R2.0-2 — New Design System
 
-### R2.0-2 — New shell prototype
-Build a parallel shell with Home / Transactions / New / Today / More and compact location trail.
+Build Rebirth 2.0 presentation primitives under `src/ui-r2`:
+- typography,
+- spacing,
+- radii,
+- elevation/depth,
+- icon rules,
+- buttons,
+- fields,
+- sheets/dialogs,
+- lists/tables,
+- headers,
+- navigation,
+- feedback/loading/empty/error states,
+- motion,
+- responsive composition primitives.
 
-### R2.0-3 — Visual identity prototype
-Create Home + More + one transaction flow as the approval specimen using the locked five-color palette. No broad propagation before explicit acceptance.
+No copying of old presentation components.
 
-### R2.0-4 — Core domain migration
-Migrate Transactions, Companies/People, Finance and operational domains into the approved grammar while preserving existing services/business rules.
+**Exit gate:** Design System manifest is frozen; palette purity and presentation isolation pass.
 
-### R2.0-5 — Discovery & navigation destruction
-Test findability, 3-action reachability, back behavior, deep links, mobile, keyboard, overflow, feature aliases, canonical-home uniqueness and palette purity.
+### R2.0-3 — New Application Shell
 
-### R2.0-6 — Promotion
-Only after visual approval and destructive gates pass, promote Rebirth 2.0 as the canonical UI and retire the current presentation layer.
+Build the parallel shell:
+- Home / Transactions / New / Today / More,
+- context/location layer,
+- Find Anything entry,
+- overlay/sheet ownership,
+- mobile and desktop shell behavior,
+- deep-link/back foundations.
 
-After promotion and re-certification, project governance will explicitly decide when Phase 5.5 may resume.
+The current canonical app still remains live; this shell is parallel.
 
-## Success criterion
+**Exit gate:** real interactive parallel `UiR2Root` exists and shell acceptance passes.
 
-A user who does not remember where a feature lives must still reach it quickly and confidently. The new interface is accepted only when ENJAZ stops feeling like a collection of powerful screens and starts feeling like one coherent product.
+### R2.0-4 — Golden Experience
+
+Build only the approval specimen:
+- Home,
+- More,
+- Transactions,
+- one complete transaction journey,
+- 360°.
+
+Do not propagate the design across all domains yet.
+
+Required Golden acceptance:
+- Beauty Gate evidence,
+- Professional UX evidence,
+- 1280 / 430 / 390 / 360 / 320 real-browser evidence,
+- interactive—not static—build,
+- explicit user approval pinned to a concrete commit.
+
+**Hard barrier:** no R2.0-5 work may begin while Golden user approval is false.
+
+### R2.0-5 — Core Work Migration
+
+After Golden approval only:
+- transactions fully,
+- Today,
+- follow-ups,
+- related documents,
+- create/edit,
+- lifecycle presentation.
+
+Preserve authoritative business/data semantics.
+
+### R2.0-6 — Records & Relationships
+
+Migrate:
+- companies,
+- people/lawyers,
+- documents/reports.
+
+Use entity-first composition, not a universal card template.
+
+### R2.0-7 — Operational Intelligence
+
+Migrate:
+- Finance,
+- Operations,
+- Workflow,
+- Automation,
+- Command Center,
+- Risk/Insights,
+- Copilot.
+
+Each domain receives a task-appropriate workspace grammar inside the same Design System.
+
+### R2.0-8 — Find Anything & Zero-Lost UX
+
+Complete discovery across features and authoritative records.
+
+Prove:
+- feature aliases,
+- record discovery,
+- canonical destination navigation,
+- <=3 action reachability,
+- no hidden doors,
+- no duplicate homes.
+
+### R2.0-9 — Destruction & Reality QA
+
+Real Chromium and mobile destruction across:
+- 1280,
+- 430,
+- 390,
+- 360,
+- 320.
+
+Required stress:
+- keyboard,
+- RTL,
+- mixed Arabic/Latin,
+- long names,
+- large datasets,
+- empty states,
+- failures,
+- permissions,
+- back stack,
+- deep links,
+- overlays,
+- orientation,
+- reduced motion,
+- 44px touch geometry,
+- horizontal-overflow attacks.
+
+No-Maze requires at least **15 real task scenarios**, all passing.
+
+### R2.0-10 — Legacy Eradication
+
+After new UI passes parity and No-Maze proof:
+- delete old shell,
+- delete old navigation,
+- delete old search presentation,
+- delete old CSS/presentation components/assets no longer used,
+- physically remove `src/ui-v2`,
+- physically remove `src/ui-rebirth`,
+- preserve shared business/services/Data Layer used by Rebirth 2.0.
+
+Legacy Eradication is mandatory, not optional cleanup.
+
+### R2.0-11 — Canonical Promotion
+
+Only now may `src/main.tsx` boot Rebirth 2.0.
+
+Promotion requires simultaneously:
+- explicit Golden approval,
+- Beauty Gate PASS,
+- Professional UX / No-Maze PASS,
+- Feature Parity = 100% migrated,
+- Feature Parity = 100% tested,
+- unresolved capabilities = 0,
+- Legacy-Zero PASS,
+- palette purity PASS,
+- TypeScript PASS,
+- production build PASS,
+- strict asset budget PASS,
+- real Browser Acceptance PASS,
+- cumulative business/data gates PASS.
+
+Then and only then:
+- Rebirth 2.0 becomes canonical UI,
+- canonical `main` is re-certified,
+- Pages/Live External is re-certified,
+- project governance may explicitly decide whether Phase 5.5 can resume.
+
+## 12. Machine enforcement
+
+The following are not documentation-only:
+
+- `scripts/ui-rebirth-2-freeze-audit.mjs` keeps 5.5 locked.
+- `scripts/ui-rebirth-2-palette-audit.mjs` rejects foreign colors.
+- `scripts/ui-rebirth-2-acceptance-audit.mjs` blocks illegal stage advancement, old-presentation imports, early Golden propagation, early runtime cutover, incomplete parity and promotion without Legacy-Zero/No-Maze/Beauty approval.
+
+`docs/UI_UX_REBIRTH_2_0_STATE.json` records the current machine-readable stage.
+
+The project must fail closed when these contracts are violated.
+
+## 13. Final success criterion
+
+Rebirth 2.0 is not accepted merely because it works, and not accepted merely because it looks good.
+
+It is accepted only when both are true:
+
+> **واجهة جميلة وفخمة أحب النظر إليها.**
+
+and
+
+> **تطبيق احترافي واضح أعرف أين أنا وكيف أصل لما أريد دون متاهة.**
+
+Both are mandatory.
