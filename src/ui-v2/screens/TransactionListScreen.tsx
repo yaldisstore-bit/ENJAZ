@@ -84,7 +84,7 @@ function TransactionCard(props: Readonly<{
           {props.onOpen ? <EzButton tone="dark" onClick={() => props.onOpen?.(item.id)} data-transaction-open-360={item.id}>فتح 360°</EzButton> : null}
           {editable ? <EzButton tone="ghost" onClick={() => props.onEdit?.(item.id)} data-transaction-edit={item.id}>تعديل المعاملة</EzButton> : null}
         </div>
-        {item.view === 'archived' ? <small>العرض 360° متاح؛ الاستعادة وإجراءات دورة الحياة تأتي في Phase 5.4.</small> : null}
+        {item.view === 'archived' ? <small>360° للعرض فقط؛ الاستعادة غير متاحة هنا.</small> : null}
       </footer>
     </article>
   );
@@ -197,7 +197,7 @@ export function ConnectedTransactionListScreen() {
   return (
     <>
       <TransactionListScreen {...controller} onCreate={() => { setDetailId(null); setEditor({ mode: 'create', transactionId: null }); }} onOpen={openDetail} onEdit={(transactionId) => { setDetailId(null); setEditor({ mode: 'edit', transactionId }); }} />
-      <EzSheet open={detailId !== null} title="ملف المعاملة 360°" eyebrow="Phase 5.3" onClose={() => setDetailId(null)}>
+      <EzSheet open={detailId !== null} title="ملف المعاملة 360°" eyebrow="360°" onClose={() => setDetailId(null)}>
         {detailId ? <ConnectedTransaction360 transactionId={detailId} /> : null}
       </EzSheet>
       <EzSheet open={editor !== null} title={editor?.mode === 'edit' ? 'تعديل المعاملة' : 'معاملة جديدة'} eyebrow="Phase 5.2" onClose={closeEditor}>
@@ -232,7 +232,7 @@ export function FixtureTransactionListScreen() {
   return (
     <>
       <TransactionListScreen {...controller} onCreate={() => { setDetailId(null); setEditor({ mode: 'create', transactionId: null }); }} onOpen={openDetail} onEdit={(transactionId) => { setDetailId(null); setEditor({ mode: 'edit', transactionId }); }} />
-      <EzSheet open={detailId !== null} title="ملف المعاملة 360°" eyebrow="Phase 5.3" onClose={() => setDetailId(null)}>
+      <EzSheet open={detailId !== null} title="ملف المعاملة 360°" eyebrow="360°" onClose={() => setDetailId(null)}>
         {detailId ? <FixtureTransaction360 transactionId={detailId} /> : null}
       </EzSheet>
       <EzSheet open={editor !== null} title={editor?.mode === 'edit' ? 'تعديل المعاملة' : 'معاملة جديدة'} eyebrow="Phase 5.2" onClose={closeEditor}>
