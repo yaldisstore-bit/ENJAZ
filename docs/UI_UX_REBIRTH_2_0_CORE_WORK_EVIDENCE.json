@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-5",
+  "status": "IMPLEMENTED_AWAITING_GATES",
+  "branch": "r2-0-5-core-work-migration",
+  "scope": ["transactions", "today", "followups", "relatedDocuments", "createEdit", "lifecyclePresentation"],
+  "authoritativeSources": [
+    "src/features/transactions/transactionListModel.ts",
+    "src/features/transactions/transactionEditorModel.ts",
+    "src/features/transactions/transaction360Model.ts",
+    "src/features/transactions/transactionLifecycleModel.ts",
+    "src/features/daily-work/dailyWorkModel.ts"
+  ],
+  "previewSources": [
+    "src/features/transactions/transactionListPreview.ts",
+    "src/features/transactions/transactionEditorPreview.ts",
+    "src/features/transactions/transaction360Preview.ts",
+    "src/features/daily-work/dailyWorkPreview.ts"
+  ],
+  "presentation": "src/ui-r2/core-work/CoreWorkExperience.tsx",
+  "styles": "src/ui-r2/core-work/core-work.css",
+  "browserTest": "tests-external/r2-core-work.spec.cjs",
+  "targetCapabilities": [
+    "today.universal_inbox",
+    "today.followup_actions",
+    "transactions.list_search",
+    "transactions.list_controls",
+    "transactions.create",
+    "transactions.edit",
+    "transactions.editor_relationships",
+    "transactions.editor_history",
+    "transactions.360",
+    "transactions.360_history",
+    "transactions.360_related_work",
+    "transactions.360_finance",
+    "transactions.lifecycle.archive",
+    "transactions.lifecycle.restore",
+    "transactions.lifecycle.reactivate",
+    "global.create.transaction"
+  ],
+  "truthfulness": {
+    "canonicalRuntimeChanged": false,
+    "productionWritesClaimedByPreview": false,
+    "generalNotificationsClaimedAuthoritative": false,
+    "fullDocumentsVaultClaimedAuthoritative": false,
+    "phase55Locked": true
+  },
+  "checks": {
+    "structuralAudit": "PENDING",
+    "functionalRegression": "PENDING",
+    "typescript": "PENDING",
+    "previewBuild": "PENDING",
+    "previewBudget": "PENDING",
+    "goldenRegression": "PENDING",
+    "realBrowserCoreWidths": "PENDING"
+  },
+  "hardWidths": [1280, 430, 390, 360, 320],
+  "artifact": null,
+  "exitGatePassed": false
+}
