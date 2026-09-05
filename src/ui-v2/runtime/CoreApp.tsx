@@ -137,20 +137,26 @@ export function CoreApp(props: Readonly<{ dailyWorkMode?: DailyWorkRuntimeMode }
             ))}
           </nav>
         ) : null}
-        <div key={motionKey} className="ez-screen-enter">
-          {domain ? <DomainScreen domain={domain} /> : coreScreen}
+
+        <div className="ez-motion-stage" data-motion-surface={motionKey} key={motionKey}>
+          {domain ? (
+            <div className="ez-domain-runtime" data-domain-runtime={domain.id}>
+              <div className={`ez-domain-runtime__marker is-${domain.accent}`}><span>{domain.eyebrow}</span><strong>{domain.description}</strong><button type="button" onClick={returnToCore}>العودة للأساسية</button></div>
+              <DomainScreen key={domain.id} domain={domain.id} runtimeMode={dailyWorkMode} />
+            </div>
+          ) : coreScreen}
         </div>
       </AppShell>
 
-      <EzSheet open={domainExplorerOpen} title="مجالات إنجاز" eyebrow="الانتقال السريع" onClose={() => setDomainExplorerOpen(false)}>
+      <EzSheet open={domainExplorerOpen} title="مجالات إنجاز" eyebrow="انتقل إلى مساحة العمل" onClose={() => setDomainExplorerOpen(false)}>
         <div className="ez-domain-explorer" data-domain-explorer="true">
           {domainGroups.map((group) => (
-            <section key={group.label}>
-              <span>{group.label}</span>
+            <section key={group.label} className="ez-domain-explorer__group">
+              <header><span>{group.label}</span></header>
               <div>
-                {group.ids.map((domainId) => {
-                  const item = domainById[domainId];
-                  return <button key={domainId} type="button" data-domain-explorer-link={domainId} onClick={() => openDomain(domainId)}><strong>{item.label}</strong><small>{item.eyebrow}</small></button>;
+                {group.ids.map((id) => {
+                  const item = domainById[id];
+                  return <button key={id} type="button" data-domain-explorer-link={id} onClick={() => openDomain(id)}><span className={`is-${item.accent}`} aria-hidden="true" /><strong>{item.label}</strong><small>{item.eyebrow}</small><b aria-hidden="true">‹</b></button>;
                 })}
               </div>
             </section>
