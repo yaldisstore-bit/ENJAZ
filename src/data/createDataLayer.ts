@@ -11,6 +11,7 @@ export interface EnjazWorkspaceDataLayer {
 
   readonly contacts: MutableRepository<'contacts'>;
   readonly companies: MutableRepository<'companies'>;
+  readonly companyContacts: ReadRepository<'company_contacts'>;
   readonly transactions: MutableRepository<'transactions'>;
   readonly followups: MutableRepository<'transaction_followups'>;
   readonly blockers: MutableRepository<'transaction_blockers'>;
@@ -19,7 +20,8 @@ export interface EnjazWorkspaceDataLayer {
   readonly renewals: MutableRepository<'renewals'>;
   readonly workflowItemStates: MutableRepository<'workflow_item_states'>;
 
-  readonly transactionRoutes: ReadRepository<'transaction_routes'>;
+  readonly transactionRoutes: AppendOnlyRepository<'transaction_routes'>;
+  readonly transactionNotes: AppendOnlyRepository<'transaction_notes'>;
   readonly workflowInstances: ReadRepository<'workflow_instances'>;
 
   readonly lifecycleEvents: AppendOnlyRepository<'entity_lifecycle_events'>;
@@ -53,6 +55,7 @@ export function createEnjazDataLayerFactory(client: EnjazSupabaseClient): EnjazD
         scope,
         contacts: createMutableRepository(gateway, scope, 'contacts'),
         companies: createMutableRepository(gateway, scope, 'companies'),
+        companyContacts: createReadRepository(gateway, scope, 'company_contacts'),
         transactions: createMutableRepository(gateway, scope, 'transactions'),
         followups: createMutableRepository(gateway, scope, 'transaction_followups'),
         blockers: createMutableRepository(gateway, scope, 'transaction_blockers'),
@@ -61,7 +64,8 @@ export function createEnjazDataLayerFactory(client: EnjazSupabaseClient): EnjazD
         renewals: createMutableRepository(gateway, scope, 'renewals'),
         workflowItemStates: createMutableRepository(gateway, scope, 'workflow_item_states'),
 
-        transactionRoutes: createReadRepository(gateway, scope, 'transaction_routes'),
+        transactionRoutes: createAppendOnlyRepository(gateway, scope, 'transaction_routes'),
+        transactionNotes: createAppendOnlyRepository(gateway, scope, 'transaction_notes'),
         workflowInstances: createReadRepository(gateway, scope, 'workflow_instances'),
 
         lifecycleEvents: createAppendOnlyRepository(gateway, scope, 'entity_lifecycle_events'),

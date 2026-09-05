@@ -1,0 +1,109 @@
+@import "./tokens.css";
+
+.ez-transaction-editor,
+.ez-transaction-editor__saved {
+  min-width: 0;
+  display: grid;
+  gap: var(--ez-space-5);
+}
+
+.ez-transaction-editor .ez-form-section {
+  min-width: 0;
+}
+
+.ez-transaction-editor__grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ez-transaction-editor__fee-reason {
+  margin-top: var(--ez-space-4);
+}
+
+.ez-transaction-editor__hint {
+  display: block;
+  margin-top: var(--ez-space-3);
+  color: var(--ez-muted);
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.ez-transaction-editor .ez-field,
+.ez-transaction-editor .ez-field__control,
+.ez-transaction-editor input,
+.ez-transaction-editor select,
+.ez-transaction-editor textarea {
+  min-width: 0;
+}
+
+.ez-transaction-editor input,
+.ez-transaction-editor select {
+  min-height: var(--ez-control-h);
+  font-size: 16px;
+}
+
+.ez-transaction-editor textarea {
+  min-height: var(--ez-touch-min);
+  font-size: 16px;
+}
+
+.ez-transaction-editor input[type="datetime-local"] {
+  direction: ltr;
+  text-align: start;
+}
+
+.ez-transaction-editor__loading {
+  display: grid;
+  gap: var(--ez-space-3);
+}
+
+.ez-transaction-editor__loading i {
+  display: block;
+  min-height: 92px;
+  border-radius: var(--ez-radius-lg);
+  background: linear-gradient(100deg, var(--ez-surface-soft), var(--ez-surface), var(--ez-surface-soft));
+  background-size: 200% 100%;
+  animation: ez-transaction-editor-shimmer var(--ez-dur-slow) linear infinite;
+}
+
+.ez-transaction-editor__saved .ez-form-actions {
+  margin-top: 0;
+}
+
+@keyframes ez-transaction-editor-shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 760px) {
+  .ez-transaction-editor__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ez-transaction-editor .ez-form-actions,
+  .ez-transaction-editor__saved .ez-form-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ez-transaction-editor .ez-form-actions .ez-button,
+  .ez-transaction-editor__saved .ez-form-actions .ez-button {
+    width: 100%;
+    min-height: var(--ez-touch-min);
+  }
+}
+
+@media (max-width: 390px) {
+  .ez-transaction-editor,
+  .ez-transaction-editor__saved {
+    gap: var(--ez-space-4);
+  }
+
+  .ez-transaction-editor .ez-form-section__body {
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ez-transaction-editor__loading i {
+    animation: none;
+  }
+}

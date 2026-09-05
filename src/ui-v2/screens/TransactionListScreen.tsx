@@ -12,7 +12,11 @@ import {
   type TransactionListView,
 } from '../../features/transactions/transactionListModel.ts';
 import { useTransactionList, type TransactionListController } from '../../features/transactions/useTransactionList.ts';
+import { EzSheet } from '../components/overlays.tsx';
 import { EzButton, EzChip, EzField, EzNotice, EzSegmented, EzStatPill } from '../components/primitives.tsx';
+import { ConnectedTransactionEditor, FixtureTransactionEditor } from './TransactionEditor.tsx';
+
+type EditorTarget = Readonly<{ mode: 'create' | 'edit'; transactionId: string | null }> | null;
 
 function formatMoney(item: TransactionListItem): string {
   if (!item.feePrecisionSafe) return 'تحقق من المالية';
@@ -55,8 +59,9 @@ function TransactionListSkeleton() {
   return <section className="ez-transaction-list__skeleton" aria-label="جارٍ تحميل المعاملات"><i /><i /><i /><i /></section>;
 }
 
-function TransactionCard(props: Readonly<{ item: TransactionListItem }>) {
+function TransactionCard(props: Readonly<{ item: TransactionListItem; onEdit?: ((transactionId: string) => void) | undefined }>) {
   const item = props.item;
+  const editable = item.view !== 'archived' && Boolean(props.onEdit);
   return (
     <article className="ez-transaction-card" data-transaction-id={item.id} data-transaction-view={item.view}>
       <header>
@@ -69,6 +74,9 @@ function TransactionCard(props: Readonly<{ item: TransactionListItem }>) {
         <div><small>الأتعاب</small><strong>{formatMoney(item)}</strong></div>
         <div><small>آخر حركة</small><strong>{formatActivity(item.lastActivityAt)}</strong></div>
       </div>
+      <footer className="ez-transaction-card__actions">
+        {editable ? <EzButton tone="ghost" onClick={() => props.onEdit?.(item.id)} data-transaction-edit={item.id}>تعديل المعاملة</EzButton> : <small>{item.view === 'archived' ? 'إجراءات الأرشفة والاستعادة تأتي في Phase 5.4.' : null}</small>}
+      </footer>
     </article>
   );
 }
@@ -80,6 +88,7 @@ function TransactionListReady(props: Readonly<{
   setSearch(search: string): void;
   setSort(sort: TransactionListSort): void;
   setPage(page: number): void;
+  onEdit?: ((transactionId: string) => void) | undefined;
 }>) {
   const snapshot = props.snapshot;
   const views = [
@@ -125,7 +134,7 @@ function TransactionListReady(props: Readonly<{
 
       {snapshot.items.length ? (
         <section className="ez-transaction-list__results" data-transaction-results="true">
-          {snapshot.items.map((item) => <TransactionCard key={item.id} item={item} />)}
+          {snapshot.items.map((item) => <TransactionCard key={item.id} item={item} onEdit={props.onEdit} />)}
         </section>
       ) : (
         <section className="ez-transaction-list__empty" data-transaction-empty="true">
@@ -143,27 +152,46 @@ function TransactionListReady(props: Readonly<{
   );
 }
 
-export function TransactionListScreen(props: Readonly<TransactionListController>) {
+export function TransactionListScreen(props: Readonly<TransactionListController & {
+  onCreate?: (() => void) | undefined;
+  onEdit?: ((transactionId: string) => void) | undefined;
+}>) {
   return (
     <section className="ez-domain-screen ez-domain-transactions ez-transaction-list" data-domain-screen="transactions" data-pattern="transaction-list-search" data-transaction-status={props.status}>
       <header className="ez-domain-intro">
         <div><span>دورة العمل</span><h1>المعاملات</h1><p>قائمة موحدة للمعاملات الجارية والمتلكئة والمؤرشفة، مع بحث وفرز من نفس مصدر البيانات الموثوق.</p></div>
+        {props.onCreate ? <EzButton tone="dark" onClick={props.onCreate} data-transaction-create="true">معاملة جديدة</EzButton> : null}
       </header>
 
       {props.status === 'loading' ? <TransactionListSkeleton /> : null}
       {props.status === 'error' ? <EzNotice title="تعذر تحميل المعاملات" body={props.errorMessage ?? 'تعذر تجهيز القائمة.'} tone="danger" action={<EzButton tone="dark" onClick={props.retry}>إعادة المحاولة</EzButton>} /> : null}
-      {props.status === 'ready' && props.snapshot ? <TransactionListReady snapshot={props.snapshot} request={props.request} setView={props.setView} setSearch={props.setSearch} setSort={props.setSort} setPage={props.setPage} /> : null}
+      {props.status === 'ready' && props.snapshot ? <TransactionListReady snapshot={props.snapshot} request={props.request} setView={props.setView} setSearch={props.setSearch} setSort={props.setSort} setPage={props.setPage} onEdit={props.onEdit} /> : null}
     </section>
   );
 }
 
 export function ConnectedTransactionListScreen() {
-  return <TransactionListScreen {...useTransactionList()} />;
+  const controller = useTransactionList();
+  const [editor, setEditor] = useState<EditorTarget>(null);
+  const closeEditor = () => setEditor(null);
+  const saved = () => {
+    setEditor(null);
+    controller.retry();
+  };
+  return (
+    <>
+      <TransactionListScreen {...controller} onCreate={() => setEditor({ mode: 'create', transactionId: null })} onEdit={(transactionId) => setEditor({ mode: 'edit', transactionId })} />
+      <EzSheet open={editor !== null} title={editor?.mode === 'edit' ? 'تعديل المعاملة' : 'معاملة جديدة'} eyebrow="Phase 5.2" onClose={closeEditor}>
+        {editor ? <ConnectedTransactionEditor mode={editor.mode} transactionId={editor.transactionId} onSaved={saved} onCancel={closeEditor} /> : null}
+      </EzSheet>
+    </>
+  );
 }
 
 export function FixtureTransactionListScreen() {
   const source = useMemo(() => buildTransactionListPreviewSource(), []);
   const [request, setRequest] = useState<TransactionListRequest>(() => normalizeTransactionListRequest());
+  const [editor, setEditor] = useState<EditorTarget>(null);
   const snapshot = useMemo(() => buildTransactionListSnapshot(source, request), [request, source]);
   const controller: TransactionListController = Object.freeze({
     status: 'ready',
@@ -176,5 +204,13 @@ export function FixtureTransactionListScreen() {
     setSort(sort: TransactionListSort) { setRequest((current) => normalizeTransactionListRequest({ ...current, sort, page: 0 })); },
     setPage(page: number) { setRequest((current) => normalizeTransactionListRequest({ ...current, page })); },
   });
-  return <TransactionListScreen {...controller} />;
+  const closeEditor = () => setEditor(null);
+  return (
+    <>
+      <TransactionListScreen {...controller} onCreate={() => setEditor({ mode: 'create', transactionId: null })} onEdit={(transactionId) => setEditor({ mode: 'edit', transactionId })} />
+      <EzSheet open={editor !== null} title={editor?.mode === 'edit' ? 'تعديل المعاملة' : 'معاملة جديدة'} eyebrow="Phase 5.2" onClose={closeEditor}>
+        {editor ? <FixtureTransactionEditor mode={editor.mode} onSaved={closeEditor} onCancel={closeEditor} /> : null}
+      </EzSheet>
+    </>
+  );
 }

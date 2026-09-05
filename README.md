@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 5.1 — Transaction List & Search ✅**  
-آخر مرحلة مغلقة: **Phase 5.1 — Transaction List & Search ✅**.  
-التالي المسموح: **Phase 5.2 — Transaction Create/Edit**، ولم تبدأ بعد.
+الحالة الرسمية: **Phase 5.2 — Transaction Create/Edit ✅**  
+آخر مرحلة مغلقة: **Phase 5.2 — Transaction Create/Edit ✅**.  
+التالي المسموح بعد دمج 5.2 وإعادة اعتماد `main`: **Phase 5.3 — Transaction Details / 360°**، ولم تبدأ بعد.
 
 إنجاز مشروع جديد مبني من الصفر بهوية مستقلة وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية الأساسية للمشروع السابق دون نقل واجهاته أو الـlegacy UI DNA.
 
@@ -16,8 +16,9 @@
 - [`docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md`](docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md) — أدلة إغلاق Executive Briefing.
 - [`docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md`](docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md) — أدلة إغلاق Home Destruction Gate وإغلاق Phase 4 كاملة.
 - [`docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md`](docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md) — أدلة إغلاق Transaction List & Search.
+- [`docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`](docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md) — أدلة إغلاق Transaction Create/Edit.
 
-**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. Phase 5.2 لا تبدأ قبل نجاح بوابات إغلاق Phase 5.1 ودمجها في `main`.
+**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. Phase 5.3 لا تبدأ قبل نجاح بوابات إغلاق Phase 5.2 ودمجها في `main` وإعادة اعتماد النسخة القانونية بعد الدمج.
 
 ## حالة المراحل
 
@@ -38,7 +39,8 @@
   - **Phase 4.4 — Home Destruction Gate** ✅ complete
 - **Phase 5 — Transactions Core** 🚧
   - **Phase 5.1 — Transaction List & Search** ✅ complete
-  - **Phase 5.2 — Transaction Create/Edit** ⏳ not started
+  - **Phase 5.2 — Transaction Create/Edit** ✅ complete
+  - **Phase 5.3 — Transaction Details / 360°** ⏳ not started
 
 ## Phase 4.1 — المكتمل رسميًا
 
@@ -106,6 +108,25 @@
 - Chromium حقيقي: 1280 / 430 / 390 / 360 / 320px، مع pagination/search/sort/view switching و44px touch وoverflow ✅.
 - Pre-closure gate `33944168202` على `5cf81aac4e527fc34ca1a7a03a148f083bb4ce60` ✅، evidence artifact `9962794607`.
 
+## Phase 5.2 — المكتمل رسميًا
+
+5.2 أضافت إنشاء وتعديل المعاملة عبر مسار موحد وآمن دون فتح نطاق 360° أو دورة الحياة:
+
+- إنشاء/تعديل موحد خلف Auth + Workspace-scoped Data Layer، مع fixture عامة/CI معزولة.
+- الشركة إلزامية، وجهة الاتصال لا تُقبل إلا إذا كانت متاحة ومرتبطة بالشركة الحالية.
+- Validation صريح للنوع والجهة والحالة والأولوية والأتعاب وتاريخ الإكمال والمحطة والمسؤول والملاحظات وسبب تغيير الأتعاب.
+- حماية مالية تقبل الأرقام العربية/الفارسية وتمنع القيم غير الموجبة أو غير الدقيقة أو الخارجة عن مجال الدقة الآمن.
+- إعادة قراءة السجل قبل التعديل ورفض stale edit بدل الكتابة فوق نسخة أحدث.
+- المؤرشف/المحذوف وإعادة تنشيط المكتمل خارج 5.2 وتبقى لـPhase 5.4.
+- مسار المحطات والملاحظات وسجل تغيير الأتعاب والنشاط يحافظ على التاريخ بدل محوه.
+- أي companion write غير مؤكد يظهر كتحذير ولا يُعرض نجاح كامل زائف.
+- تم اكتشاف عيب حقيقي في Chromium: بعض حقول الإنشاء كانت 40–42px؛ أصلح عبر Design Tokens وأصبح الحد الأدنى 44px دون إضعاف الاختبار.
+- اختبار Phase 5.2 المخصص: **12/12** ✅.
+- Full functional regression: **91/91** ✅.
+- Chromium الحقيقي لعملية create/edit نجح بعد إصلاح touch targets ✅.
+- Pre-closure gate `33946358543` على خط الإصلاح `74339f319e1e4b6a7a21079f15434733025c88b8` ✅، evidence artifact `9963457065`.
+- Quality Gate `33946358585` وReal Browser Acceptance `33946358556` والبوابات التراكمية 4.3/4.4/5.1 كلها خضراء ✅.
+
 ## المختبرات ومساحات الإثبات
 
 - `/foundation/identity` — 2.1
@@ -125,27 +146,28 @@
 - UI V2 Executive Briefing fixture runtime — 4.3 proof
 - UI V2 Home destruction scenarios — 4.4 proof
 - UI V2 transaction fixture + dedicated Chromium destruction — 5.1 Transaction List & Search proof
+- UI V2 transaction create/edit fixture + dedicated Chromium destruction — 5.2 Transaction Create/Edit proof
 
 ## Quality Gate
 
-Phase 5.1 pre-closure certification على head `5cf81aac4e527fc34ca1a7a03a148f083bb4ce60` أثبت:
+Phase 5.2 pre-closure certification على خط الإصلاح `74339f319e1e4b6a7a21079f15434733025c88b8` أثبت:
 
 1. QA stage contract ✅
 2. UI V2 Boundary + Visual DNA ✅
 3. UI-4 → UI-10 cumulative freeze ✅
-4. Phase 4.2 / 4.3 / 4.4 cumulative gates ✅
-5. Phase 5.1 architecture audit ✅
-6. Phase 5.1 functional/destructive tests **15/15** ✅
-7. Full functional tests **79/79** ✅
+4. Phase 4.2 / 4.3 / 4.4 + Phase 5.1 cumulative gates ✅
+5. Phase 5.2 architecture audit ✅
+6. Phase 5.2 model/service tests **12/12** ✅
+7. Full functional tests **91/91** ✅
 8. Secrets + roadmap + database integrity ✅
 9. TypeScript `tsc -b` ✅
 10. Vite production build ✅
 11. Strict production asset budget ✅
-12. Chromium responsive + search/sort/pagination destruction ✅
+12. Chromium create/edit + responsive/touch destruction ✅
 13. Global Browser Acceptance ✅
-14. Evidence artifact upload ✅
+14. Evidence artifact `9963457065` ✅
 
-أدلة التنفيذ مفصلة في `docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md`.
+أدلة التنفيذ مفصلة في `docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`، وبوابات الإغلاق نفسها أصبحت تراكمية بحيث لا تستطيع مرحلة لاحقة إسقاط حماية 5.2 بصمت.
 
 ## الأمان والأسرار
 
@@ -153,4 +175,4 @@ Phase 5.1 pre-closure certification على head `5cf81aac4e527fc34ca1a7a03a148f0
 
 ## ملاحظة التطوير
 
-`main` هو المصدر القانوني والوحيد بعد الدمج. التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1 مغلقة؛ Phase 5.2 — Transaction Create/Edit هي الخطوة التالية المسموحة ولم تبدأ.**
+`main` هو المصدر القانوني والوحيد بعد الدمج. التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1 وPhase 5.2 مغلقتان؛ Phase 5.3 — Transaction Details / 360° هي الخطوة التالية المسموحة فقط بعد دمج 5.2 وإعادة اعتماد `main`، ولم تبدأ بعد.**
