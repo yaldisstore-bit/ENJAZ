@@ -27,7 +27,7 @@
     },
     "src/ui-v2": {
       "presentAtStart": true,
-      "eradicated": false,
+      "eradicated": true,
       "order": 2,
       "liveCanonicalDependencyAtStart": true
     }
@@ -62,16 +62,16 @@
   },
   "deletion": {
     "uiRebirthDeleted": true,
-    "uiV2Deleted": false,
-    "legacyPresentationImportCount": null,
+    "uiV2Deleted": true,
+    "legacyPresentationImportCount": 0,
     "protectedBoundaryViolations": 0
   },
   "checks": {
     "preflightAudit": "PASS",
     "uiRebirthDependencyAudit": "PASS_ERADICATED",
     "parityResolution": "PASS_35_OF_35",
-    "legacyZero": "PENDING_UI_V2_REMOVAL",
-    "cumulativeRegression": "PASS_BEFORE_UI_V2_REMOVAL",
+    "legacyZero": "PENDING_POST_DELETE_GATE",
+    "cumulativeRegression": "PENDING_POST_DELETE_GATE",
     "productionBridge": "PASS",
     "productionBridgeBrowser": "PASS"
   },

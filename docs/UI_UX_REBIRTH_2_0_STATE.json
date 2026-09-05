@@ -150,13 +150,14 @@
     "liveAuthoritativeBlockerCount": 0,
     "presentationResolutionBlockerCount": 0,
     "uiRebirthEradicated": true,
-    "uiV2Eradicated": false,
+    "uiV2Eradicated": true,
     "protectedBusinessBoundariesPreserved": true,
     "canonicalRuntimeChanged": false,
     "legacyZero": false,
     "exitGatePassed": false,
     "parityResolvedAtCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50",
-    "parityEvidenceRun": 33986273961
+    "parityEvidenceRun": 33986273961,
+    "eradicationCommitCandidate": "03c18e8c8bd9d4d3ff37ca3be18335f1a53a6833"
   },
   "featureParity": {
     "inventoryComplete": true,
