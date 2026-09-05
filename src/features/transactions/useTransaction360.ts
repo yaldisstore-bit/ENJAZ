@@ -16,13 +16,10 @@ export interface Transaction360Controller {
 function toErrorMessage(error: unknown): string {
   if (error instanceof Transaction360WorkspaceUnavailableError) return 'تعذر تحديد مساحة العمل.';
   if (error instanceof Transaction360NotFoundError) return 'المعاملة غير متاحة.';
-  if (error instanceof Transaction360DeletedError) return 'المعاملة محذوفة ولا يمكن عرضها.';
-  if (error instanceof Transaction360CoreLoadError) return 'تعذر تحميل بيانات المعاملة كاملة.';
-  if (error instanceof DataAccessError) {
-    if (error.dataCode === 'DATA_FORBIDDEN') return 'لا تملك صلاحية عرض هذه المعاملة.';
-    if (error.dataCode === 'DATA_UNAVAILABLE') return 'تعذر الوصول للبيانات. أعد المحاولة.';
-  }
-  return 'تعذر تجهيز عرض 360°.';
+  if (error instanceof Transaction360DeletedError) return 'المعاملة محذوفة.';
+  if (error instanceof Transaction360CoreLoadError) return 'تعذر تحميل المعاملة.';
+  if (error instanceof DataAccessError) return error.dataCode === 'DATA_FORBIDDEN' ? 'لا تملك صلاحية العرض.' : 'تعذر الوصول للبيانات.';
+  return 'تعذر فتح 360°.';
 }
 
 export function useTransaction360(transactionId: string): Transaction360Controller {
