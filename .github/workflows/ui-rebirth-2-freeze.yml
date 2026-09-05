@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   governance-contracts:
-    name: Rebirth 2.0 / Freeze + Palette + Acceptance + IA + Design System + Shell + Golden Polish
+    name: Rebirth 2.0 / Freeze + Palette + Acceptance + IA + Design System + Shell + Golden + Core Work
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -41,3 +41,7 @@ jobs:
         run: node scripts/ui-rebirth-2-shell-audit.mjs
       - name: Enforce user-locked global visual polish rules from R2.0-4
         run: node scripts/ui-rebirth-2-golden-visual-contract-audit.mjs
+      - name: Preserve approved R2.0-4 Golden specimen
+        run: node scripts/ui-rebirth-2-golden-specimen-audit.mjs
+      - name: Enforce R2.0-5 Core Work migration
+        run: node scripts/ui-rebirth-2-core-work-audit.mjs
