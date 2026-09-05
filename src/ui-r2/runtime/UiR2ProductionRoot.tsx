@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from '../../features/auth/state/AuthContext.tsx
 import { CurrentUserIdProvider } from '../../shared/session/CurrentUserIdContext.tsx';
 import { SessionChecking } from '../../shared/session/SessionChecking.tsx';
 import { R2AuthScreen } from '../auth/R2AuthScreen.tsx';
+import { R2PasswordUpdateScreen } from '../auth/R2PasswordUpdateScreen.tsx';
 import { UiR2Root } from './UiR2Root.tsx';
 import './shell-base.css';
 import './shell.css';
@@ -45,10 +46,19 @@ function RuntimeFailure({ message }: Readonly<{ message: string }>) {
   );
 }
 
+function clearRecoveryMode() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('auth');
+  window.history.replaceState({ r2: true }, '', url);
+}
+
 function AuthenticatedR2Runtime({ dataFactory }: Readonly<{ dataFactory: EnjazDataLayerFactory }>) {
   const auth = useAuth();
   if (auth.status === 'checking') return <SessionChecking />;
   if (auth.status === 'anonymous' || !auth.user) return <R2AuthScreen service={auth.service} />;
+
+  const recoveryMode = new URLSearchParams(window.location.search).get('auth') === 'update-password';
+  if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={clearRecoveryMode} />;
 
   const signOut = async () => {
     await auth.service.signOut();
