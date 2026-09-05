@@ -75,15 +75,14 @@ export function useR2OverlayFocusGuard(overlay: R2OverlayId): void {
     const trapTab = (event: KeyboardEvent) => {
       if (event.key !== 'Tab') return;
       const focusables = visibleFocusableElements(panel);
-      if (!focusables.length) {
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (!first || !last) {
         event.preventDefault();
         return;
       }
 
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
       const active = document.activeElement;
-
       if (!(active instanceof HTMLElement) || !panel.contains(active)) {
         event.preventDefault();
         (event.shiftKey ? last : first).focus({ preventScroll: true });
