@@ -44,6 +44,8 @@ jobs:
           node scripts/phase5-1-transaction-list-audit.mjs
           node scripts/phase5-2-transaction-editor-audit.mjs
           node scripts/phase5-3-transaction-360-audit.mjs
+      - name: R2.0-3 parallel shell source contract
+        run: node scripts/ui-rebirth-2-shell-audit.mjs
       - name: Production build
         env:
           VITE_ENJAZ_PREVIEW_MODE: 'true'
@@ -67,6 +69,10 @@ jobs:
         env:
           BASE_URL: http://127.0.0.1:4173/
         run: npx playwright test tests-external/live-shell.spec.cjs --reporter=line --workers=1
+      - name: R2.0-3 real shell acceptance / 1280 + 430 + 390 + 360 + 320
+        env:
+          BASE_URL: http://127.0.0.1:4173/
+        run: npx playwright test tests-external/r2-shell.spec.cjs --reporter=line --workers=1
       - name: Phase 5.2 cumulative transaction editor reality
         env:
           PHASE52_BASE_URL: http://127.0.0.1:4173
