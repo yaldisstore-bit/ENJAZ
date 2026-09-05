@@ -150,7 +150,7 @@ function TransactionLifecycleView(props: Readonly<LifecycleViewProps>) {
         title={confirmAction ? actionLabel(confirmAction) : 'تأكيد الإجراء'}
         body={confirmAction ? actionDescription(confirmAction, transaction) : ''}
         tone={confirmAction ? confirmTone(confirmAction) : 'warning'}
-        primaryLabel={confirmAction ? actionLabel(confirmAction) : undefined}
+        primaryLabel={confirmAction ? actionLabel(confirmAction) : 'تأكيد الإجراء'}
         onPrimary={() => { void executeConfirmed(); }}
         onClose={() => setConfirmAction(null)}
       />
