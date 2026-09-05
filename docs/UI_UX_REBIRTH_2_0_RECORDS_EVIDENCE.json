@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-6",
+  "status": "IMPLEMENTING",
+  "branch": "r2-0-6-records-relationships",
+  "scope": ["companies", "peopleLawyers", "documentsReports"],
+  "targetCapabilities": ["companies.workspace", "people.workspace", "documents.workspace"],
+  "composition": {
+    "entityFirst": true,
+    "universalCardTemplateForbidden": true,
+    "companyPattern": "entity-profile-plus-relationships",
+    "peoplePattern": "directory-plus-profile-plus-links",
+    "documentsPattern": "category-list-detail"
+  },
+  "truthfulness": {
+    "canonicalRuntimeChanged": false,
+    "phase55Locked": true,
+    "fakeCrudClaimed": false,
+    "fakeUploadClaimed": false,
+    "productionWritesClaimedByPreview": false
+  },
+  "hardWidths": [1280, 430, 390, 360, 320],
+  "checks": {
+    "structuralAudit": "PENDING",
+    "functionalRegression": "PENDING",
+    "typescript": "PENDING",
+    "previewBuild": "PENDING",
+    "previewBudget": "PENDING",
+    "goldenRegression": "PENDING",
+    "coreWorkRegression": "PENDING",
+    "realBrowserRecords": "PENDING"
+  },
+  "artifact": null,
+  "exitGatePassed": false
+}
