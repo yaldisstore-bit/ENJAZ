@@ -56,6 +56,10 @@ assert(main.includes("./ui-v2/styles/transaction-list.css"), 'transaction styles
 assert(css.includes('overflow-wrap: anywhere'), 'long transaction text wrapping guard missing');
 assert(css.includes('@media (max-width: 390px)'), 'narrow-phone transaction hardening missing');
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'reduced-motion transaction hardening missing');
+assert(
+  css.includes('.ez-transaction-card__actions .ez-button { width: 100%; min-height: var(--ez-control-h); }'),
+  'narrow transaction edit action lost the 46px control-height margin required to survive Chromium subpixel rounding',
+);
 assert(!css.includes('!important'), 'transaction styles may not use !important');
 assert(!/z-index\s*:\s*\d{3,}/.test(css), 'transaction styles contain uncontrolled z-index escalation');
 
@@ -77,4 +81,5 @@ console.log('- canonical transaction domain uses live Data Layer and isolated pr
 console.log('- current/stalled/archived classification, Arabic search, sorting and bounded pagination are locked');
 console.log('- deleted rows, missing relations, unsafe money and source-capacity failures are fail-safe');
 console.log('- stable saved-view v1 definition excludes ephemeral page navigation');
+console.log('- narrow edit actions retain a 46px tokenized margin against Chromium subpixel rounding');
 console.log('- mobile, long-text, reduced-motion and frozen UI V2 boundaries remain protected');
