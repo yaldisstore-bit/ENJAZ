@@ -65,8 +65,13 @@ export function useR2OverlayFocusGuard(overlay: R2OverlayId): void {
     background.forEach((node) => node.setAttribute('inert', ''));
 
     const focusInitial = () => {
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && panel.contains(active)) return;
+
       const focusables = visibleFocusableElements(panel);
-      const preferred = panel.querySelector<HTMLElement>('input[autofocus], [data-r2-dialog-initial]');
+      const preferred = overlay === 'search'
+        ? panel.querySelector<HTMLElement>('input')
+        : panel.querySelector<HTMLElement>('[data-r2-dialog-initial]');
       const target = preferred && focusables.includes(preferred) ? preferred : focusables[0];
       target?.focus({ preventScroll: true });
     };
