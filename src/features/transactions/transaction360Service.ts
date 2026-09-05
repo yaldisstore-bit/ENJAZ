@@ -23,13 +23,13 @@ export async function loadTransaction360Source(factory: EnjazDataLayerFactory, u
 
   let transaction: RowOf<'transactions'> | null;
   try { transaction = await layer.transactions.getById(id); }
-  catch (error) { throw new Transaction360CoreLoadError('transaction', { cause: error }); }
+  catch { throw new Transaction360CoreLoadError(); }
   if (!transaction) throw new Transaction360NotFoundError();
   if (transaction.deleted_at !== null) throw new Transaction360DeletedError();
 
   let company: RowOf<'companies'> | null;
   try { company = await layer.companies.getById(transaction.company_id); }
-  catch (error) { throw new Transaction360CoreLoadError('company', { cause: error }); }
+  catch { throw new Transaction360CoreLoadError(); }
 
   let contact: RowOf<'contacts'> | null = null;
   let contactState: Transaction360Source['contactState'] = transaction.primary_contact_id ? 'ready' : 'missing';
