@@ -59,7 +59,7 @@ function TransactionListSkeleton() {
   return <section className="ez-transaction-list__skeleton" aria-label="جارٍ تحميل المعاملات"><i /><i /><i /><i /></section>;
 }
 
-function TransactionCard(props: Readonly<{ item: TransactionListItem; onEdit?(transactionId: string): void }>) {
+function TransactionCard(props: Readonly<{ item: TransactionListItem; onEdit?: ((transactionId: string) => void) | undefined }>) {
   const item = props.item;
   const editable = item.view !== 'archived' && Boolean(props.onEdit);
   return (
@@ -88,7 +88,7 @@ function TransactionListReady(props: Readonly<{
   setSearch(search: string): void;
   setSort(sort: TransactionListSort): void;
   setPage(page: number): void;
-  onEdit?(transactionId: string): void;
+  onEdit?: ((transactionId: string) => void) | undefined;
 }>) {
   const snapshot = props.snapshot;
   const views = [
@@ -153,8 +153,8 @@ function TransactionListReady(props: Readonly<{
 }
 
 export function TransactionListScreen(props: Readonly<TransactionListController & {
-  onCreate?(): void;
-  onEdit?(transactionId: string): void;
+  onCreate?: (() => void) | undefined;
+  onEdit?: ((transactionId: string) => void) | undefined;
 }>) {
   return (
     <section className="ez-domain-screen ez-domain-transactions ez-transaction-list" data-domain-screen="transactions" data-pattern="transaction-list-search" data-transaction-status={props.status}>
