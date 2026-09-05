@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "R2.0-6",
+  "stage": "R2.0-7",
   "phase55Locked": true,
   "runtime": "ui-v2",
   "goldenExperience": {
@@ -56,6 +56,25 @@
     "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_RECORDS_EVIDENCE.json",
     "closureRecord": "docs/R2_0_6_RECORDS_RELATIONSHIPS_CLOSURE.md",
     "evidenceRun": 33975467612
+  },
+  "operationalIntelligence": {
+    "status": "ACTIVE",
+    "kickoff": "docs/R2_0_7_OPERATIONAL_INTELLIGENCE_KICKOFF.md",
+    "scope": [
+      "finance",
+      "operations",
+      "workflow",
+      "automation",
+      "command",
+      "risk",
+      "copilot"
+    ],
+    "taskAppropriateComposition": true,
+    "canonicalRuntimeChanged": false,
+    "exitGatePassed": false,
+    "evidenceManifest": null,
+    "closureRecord": null,
+    "evidenceRun": null
   },
   "featureParity": {
     "inventoryComplete": true,
