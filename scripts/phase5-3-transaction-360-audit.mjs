@@ -37,12 +37,13 @@ for (const token of ['useDataLayerFactory','useCurrentUserId','loadTransaction36
 
 assert(preview.includes('buildTransactionListPreviewSource'), '360 preview is not derived from the isolated transaction fixture');
 assert(preview.includes('workflow-1') && preview.includes('blocker-1') && preview.includes('document-1'), '360 preview does not exercise workflow/risk/document context');
-for (const token of ['data-pattern="transaction-360"','data-transaction-360-section={props.id}','<Panel id="timeline"','<Panel id="followups"','<Panel id="finance"','<Panel id="notes"','<Panel id="documents"','ConnectedTransaction360','FixtureTransaction360','سياق 360° يحتاج انتباهًا','للعمليات الكاملة افتح مركز المالية','الاستعادة غير متاحة هنا']) assert(screen.includes(token), `360 presentation contract missing ${token}`);
+for (const token of ['data-pattern="transaction-360"','data-transaction-360-section={props.id}','<Panel id="timeline"','<Panel id="followups"','<Panel id="finance"','<Panel id="notes"','<Panel id="documents"','ConnectedTransaction360','FixtureTransaction360','سياق 360° يحتاج انتباهًا','للعمليات الكاملة افتح مركز المالية','المعاملة للعرض فقط داخل 360°؛ تغييرات دورة الحياة تتم من إدارة الحالة.']) assert(screen.includes(token), `360 presentation contract missing ${token}`);
+assert(!screen.includes('data-lifecycle-action'), 'Phase 5.4 lifecycle mutation leaked inside the read-only 360 surface');
 
 assert(list.includes('data-transaction-open-360={item.id}'), 'transaction cards cannot enter 360');
 assert(list.includes('فتح 360°'), 'transaction 360 action label missing');
 assert(list.includes('eyebrow="360°"'), 'transaction 360 sheet lost its user-facing 360 identity');
-assert(list.includes('360° للعرض فقط؛ الاستعادة غير متاحة هنا.'), 'archived transaction read-only boundary missing from list');
+assert(list.includes('360° للعرض؛ الاستعادة أو إعادة التنشيط تمر عبر إدارة الحالة وبحسب السجل الحقيقي.'), 'archived transaction read-only 360 boundary lost Phase 5.4 delegation copy');
 assert(!list.includes('eyebrow="Phase 5.3"'), 'Phase 5.3 developer terminology leaked into the 360 sheet');
 assert(list.includes('ConnectedTransaction360') && list.includes('FixtureTransaction360'), 'live/fixture 360 routing boundary missing');
 
@@ -61,7 +62,7 @@ assert(css.includes('.ez-transaction-360__facts > article'), '360 facts lost exp
 assert(css.includes('unicode-bidi: plaintext'), '360 mixed Arabic/Latin/numeric bidi hardening missing');
 assert(!css.includes('!important'), '360 styles may not use !important');
 assert(!/z-index\s*:\s*\d{3,}/.test(css), '360 styles contain uncontrolled z-index escalation');
-assert(listCss.includes('.ez-transaction-card__action-buttons'), 'dual transaction card actions lack layout contract');
+assert(listCss.includes('.ez-transaction-card__action-buttons'), 'transaction card actions lack layout contract');
 assert(listCss.includes('min-height: var(--ez-control-h)'), 'transaction 360/list actions lost safe touch-height margin');
 
 assert(!model.toLowerCase().includes('supabase'), '360 model directly depends on Supabase');
@@ -73,7 +74,7 @@ assert(kickoff.includes('Archive, restore, reactivation and lifecycle mutation r
 assert(kickoff.includes('Full Finance operations remain Phase 7'), 'Finance boundary missing');
 assert(kickoff.includes('Full workflow management remains Phase 8'), 'Workflow boundary missing');
 assert(closure.includes('Status: **CLOSED**'), 'Phase 5.3 closure document is not closed');
-assert(closure.includes('Phase 5.4 — Archive/Restore/Lifecycle remains locked'), 'closure lost Phase 5.4 lock');
+assert(closure.includes('Phase 5.4 — Archive/Restore/Lifecycle remains locked'), 'historical Phase 5.3 closure boundary changed unexpectedly');
 assert(closure.includes('9965684028'), 'closure lost certified Chromium evidence artifact');
 assert(closure.includes('33953751497'), 'closure lost certified Phase 5.3 gate run');
 assert(roadmap.includes('## 5.3 — Transaction Details / 360° ✅'), 'roadmap does not mark Phase 5.3 complete');
@@ -84,8 +85,8 @@ console.log('- authoritative workspace-scoped Data Layer composition is locked')
 console.log('- core relation failures fail closed while optional context is explicitly unavailable/truncated');
 console.log('- timeline and section bounds prevent unbounded 360 rendering');
 console.log('- compact panel contract preserves five named 360 sections without legacy duplication');
-console.log('- archived transactions retain explicit read-only 360 access without lifecycle mutation');
+console.log('- archived/completed transactions retain read-only 360 access; Phase 5.4 lifecycle actions stay outside 360 itself');
 console.log('- sheet/dialog overlays stay above fixed shell chrome through document.body portals and browser geometry guards');
 console.log('- 360 summary/facts retain explicit RTL/bidi-safe responsive layout');
 console.log('- live and isolated preview 360 routes use frozen UI V2 with mobile/reduced-motion guards');
-console.log('- Phase 5.3 is closed while lifecycle, full Finance and full Workflow mutations remain outside its scope');
+console.log('- Phase 5.3 remains closed while later lifecycle authority is delegated without rewriting its read-only contract');
