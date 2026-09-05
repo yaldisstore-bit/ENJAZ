@@ -1,0 +1,21 @@
+:root {
+  --ez-r2-canvas: #F2F3F4;
+  --ez-r2-surface: #F2F3F4;
+  --ez-r2-surface-warm: #DED1C6;
+  --ez-r2-accent: #A77693;
+  --ez-r2-interactive: #174871;
+  --ez-r2-structure: #0F2D4D;
+
+  --ez-r2-text-primary: var(--ez-r2-structure);
+  --ez-r2-text-on-dark: var(--ez-r2-canvas);
+  --ez-r2-action-primary: var(--ez-r2-interactive);
+  --ez-r2-action-primary-text: var(--ez-r2-canvas);
+  --ez-r2-active: var(--ez-r2-interactive);
+  --ez-r2-highlight: var(--ez-r2-accent);
+  --ez-r2-panel-secondary: var(--ez-r2-surface-warm);
+  --ez-r2-command-surface: var(--ez-r2-structure);
+
+  --ez-r2-gradient-warm: linear-gradient(180deg, var(--ez-r2-canvas), var(--ez-r2-surface-warm));
+  --ez-r2-gradient-accent: linear-gradient(180deg, var(--ez-r2-surface-warm), var(--ez-r2-accent));
+  --ez-r2-gradient-depth: linear-gradient(180deg, var(--ez-r2-accent), var(--ez-r2-interactive), var(--ez-r2-structure));
+}
