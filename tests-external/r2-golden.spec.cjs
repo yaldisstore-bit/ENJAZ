@@ -1,7 +1,11 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const { test, expect } = require('@playwright/test');
 
 const baseUrl = process.env.R2_GOLDEN_BASE_URL || 'http://127.0.0.1:4174/';
 const previewUrl = new URL('r2-preview.html', baseUrl).toString();
+const artifactDir = path.resolve(process.env.R2_GOLDEN_ARTIFACT_DIR || 'artifacts/r2-golden');
+fs.mkdirSync(artifactDir, { recursive: true });
 
 async function assertNoHorizontalOverflow(page) {
   const geometry = await page.evaluate(() => ({
@@ -25,6 +29,10 @@ async function assertRoundedAndLayered(page, selector) {
   expect(style.shadow).not.toBe('none');
 }
 
+async function shot(page, name) {
+  await page.screenshot({ path: path.join(artifactDir, `${name}.png`), fullPage: true });
+}
+
 for (const width of [1280, 430, 390, 360, 320]) {
   test(`Golden Home + More stay polished and overflow-safe at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: width === 1280 ? 900 : 844 });
@@ -34,6 +42,7 @@ for (const width of [1280, 430, 390, 360, 320]) {
     await expect(page.locator('[data-screen="home"]')).toBeVisible();
     await assertRoundedAndLayered(page, '.r2-hero__signal');
     await assertNoHorizontalOverflow(page);
+    await shot(page, `home-${width}`);
 
     const moreDoor = width >= 960
       ? page.locator('.r2-rail-nav [data-door="more"]')
@@ -43,6 +52,7 @@ for (const width of [1280, 430, 390, 360, 320]) {
     await assertRoundedAndLayered(page, '.r2-section-heading--hero');
     await expect(page.locator('.r2-launcher-group')).toHaveCount(4);
     await assertNoHorizontalOverflow(page);
+    await shot(page, `more-${width}`);
   });
 }
 
@@ -51,6 +61,7 @@ test('Golden Transactions provides real filtering/search and one complete journe
   await page.goto(`${previewUrl}?dest=transactions`, { waitUntil: 'networkidle' });
 
   await expect(page.locator('[data-screen="transactions"]')).toBeVisible();
+  await shot(page, 'transactions-390');
   const search = page.getByRole('textbox', { name: 'بحث المعاملات' });
   await search.fill('1042');
   await expect(page.getByRole('button', { name: /فتح المعاملة 1042/ })).toBeVisible();
@@ -65,9 +76,11 @@ test('Golden Transactions provides real filtering/search and one complete journe
   await expect(page).toHaveURL(/dest=transactions.detail/);
   await assertRoundedAndLayered(page, '.r2-golden-transaction__hero');
   await assertNoHorizontalOverflow(page);
+  await shot(page, 'transaction-360-overview-390');
 
   await page.getByRole('button', { name: 'الوثائق' }).click();
   await expect(page.locator('[data-golden-panel="documents"]')).toContainText('عقد التأسيس');
+  await shot(page, 'transaction-360-documents-390');
 
   await page.getByRole('button', { name: 'تعديل المعاملة' }).click();
   await expect(page.locator('[data-screen="golden-transaction-editor"]')).toBeVisible();
@@ -75,6 +88,7 @@ test('Golden Transactions provides real filtering/search and one complete journe
   await title.fill('تعديل عقد تأسيس — مراجعة Golden');
   await page.getByRole('button', { name: 'حفظ المعاينة' }).click();
   await expect(page.getByRole('status')).toContainText('لم تتغير أي بيانات إنتاجية');
+  await shot(page, 'transaction-editor-390');
   await page.getByRole('button', { name: 'العودة إلى 360°' }).click();
 
   await expect(page.locator('[data-screen="golden-transaction-360"]')).toBeVisible();
@@ -82,6 +96,7 @@ test('Golden Transactions provides real filtering/search and one complete journe
   await expect(page.locator('[data-screen="golden-transaction-lifecycle"]')).toBeVisible();
   await page.getByRole('button', { name: 'محاكاة الأرشفة' }).click();
   await expect(page.locator('.r2-golden-lifecycle__state')).toContainText('مؤرشفة · معاينة فقط');
+  await shot(page, 'transaction-lifecycle-archived-390');
   await page.getByRole('button', { name: 'استعادة المعاينة' }).click();
   await expect(page.locator('.r2-golden-lifecycle__state')).toContainText('نشطة · قيد المتابعة');
   await assertNoHorizontalOverflow(page);
@@ -96,5 +111,6 @@ for (const width of [430, 390, 360, 320]) {
     await page.getByRole('button', { name: 'المالية' }).click();
     await expect(page.locator('[data-golden-panel="finance"]')).toContainText('250,000 د.ع');
     await assertNoHorizontalOverflow(page);
+    await shot(page, `transaction-360-finance-${width}`);
   });
 }
