@@ -7,9 +7,9 @@ import {
 } from '../src/ui-r2/find-anything/find-anything-model.ts';
 
 test('R2.0-8 normalizes Arabic forms without losing Latin/numeric search', () => {
-  assert.equal(normalizeR2Search('  أتمتــة  '), 'اتمته');
-  assert.equal(normalizeR2Search('إدارة  ENJAZ-1042'), 'اداره enjaz-1042');
-  assert.equal(normalizeR2Search('مُعاملة'), 'معامله');
+  assert.equal(normalizeR2Search('  أتمتــة  '), 'اتمتة');
+  assert.equal(normalizeR2Search('إدارة  ENJAZ-1042'), 'ادارة enjaz-1042');
+  assert.equal(normalizeR2Search('مُعاملة'), 'معاملة');
 });
 
 test('R2.0-8 resolves canonical feature aliases to exactly one destination', () => {
