@@ -14,6 +14,8 @@ import {
   CoreTransactionExperience,
   CoreTransactions,
 } from '../core-work/CoreWorkExperience.tsx';
+import { ConnectedCoreWorkRouter } from '../core-work/CoreWorkConnected.tsx';
+import { ConnectedR2Home } from '../home/ConnectedHomeExperience.tsx';
 import { RecordsRelationshipsExperience } from '../records/RecordsRelationshipsExperience.tsx';
 import { OperationalIntelligenceExperience } from '../operational-intelligence/OperationalIntelligenceExperience.tsx';
 import { buildR2FindAnythingResults } from '../find-anything/find-anything-model.ts';
@@ -23,6 +25,12 @@ const SHELL_STAGE = 'R2.0-3' as const;
 type OverlayId = 'search' | 'account' | null;
 type PrimaryDoor = (typeof R2_PRIMARY_NAVIGATION)[number];
 type IconName = 'home' | 'transactions' | 'plus' | 'today' | 'more' | 'search' | 'user' | 'arrow' | 'spark' | 'module';
+export type UiR2RuntimeMode = 'preview' | 'live';
+export type UiR2RootProps = Readonly<{
+  runtimeMode?: UiR2RuntimeMode | undefined;
+  accountLabel?: string | undefined;
+  onSignOut?: (() => Promise<void> | void) | undefined;
+}>;
 
 const VALID_DESTINATIONS = new Set<R2DestinationId>(R2_DESTINATIONS.map((item) => item.id));
 const SEARCH_ALIAS_COUNT = Object.keys(R2_SEARCH_ALIASES).length;
@@ -171,11 +179,15 @@ function SearchOverlay({ query, setQuery, close, navigate, openTransaction }: { 
   return <div className="r2-overlay" role="dialog" aria-modal="true" data-overlay="search" data-zero-lost-search="R2.0-8" aria-labelledby="r2-search-title"><button type="button" className="r2-overlay__backdrop" aria-label="إغلاق البحث" onClick={close} /><section className="r2-search-panel"><div className="r2-search-panel__head"><div><p className="r2-eyebrow">Find Anything · Zero-Lost</p><h2 id="r2-search-title">ابحث عن أي شيء</h2></div><button type="button" className="r2-close-button" onClick={close} aria-label="إغلاق">×</button></div><label className="r2-search-input-wrap"><Icon name="search" /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="مثال: 1042، خزنة، أتمتة، شركة، مالية…" /></label><div className="r2-search-results" aria-live="polite">{results.length ? results.map((item) => <button type="button" key={item.key} className="r2-search-result" data-find-kind={item.kind} data-find-source={item.source} onClick={() => openResult(item)}><span className="r2-search-result__icon"><Icon name={item.kind === 'transaction' ? 'transactions' : 'module'} /></span><span><strong>{item.label}</strong><small>{item.secondary}</small></span><Icon name="arrow" /></button>) : <p className="r2-search-empty">لا توجد نتيجة مطابقة. لا يختلق إنجاز سجلات أو ميزات غير موجودة.</p>}</div><p className="r2-search-footnote" data-alias-count={SEARCH_ALIAS_COUNT}>R2.0-8 بدأ ببحث الميزات ومعاملات عينة Preview الموثقة؛ سجلات الإنتاج ستربط عبر Data Layer دون قناة جانبية.</p></section></div>;
 }
 
-function AccountOverlay({ close }: { close: () => void }) {
-  return <div className="r2-overlay" role="dialog" aria-modal="true" data-overlay="account" aria-labelledby="r2-account-title"><button type="button" className="r2-overlay__backdrop" aria-label="إغلاق الحساب" onClick={close} /><section className="r2-account-sheet"><div className="r2-account-sheet__handle" aria-hidden="true" /><div className="r2-account-sheet__profile"><span className="r2-avatar"><Icon name="user" /></span><div><p className="r2-eyebrow">مساحة العمل</p><h2 id="r2-account-title">حساب إنجاز</h2><small>واجهة Rebirth متوازية — لا تغيّر بيانات الحساب.</small></div></div><button type="button" className="r2-account-row" onClick={close}><span>إعدادات مساحة العمل</span><Icon name="arrow" /></button><button type="button" className="r2-account-row" onClick={close}><span>تفضيلات الواجهة</span><Icon name="arrow" /></button><button type="button" className="r2-action r2-action--secondary r2-account-close" onClick={close}>إغلاق</button></section></div>;
+function AccountOverlay({ close, runtimeMode, accountLabel, onSignOut }: Readonly<{ close: () => void; runtimeMode: UiR2RuntimeMode; accountLabel: string; onSignOut?: (() => Promise<void> | void) | undefined }>) {
+  const signOut = () => {
+    close();
+    if (onSignOut) void onSignOut();
+  };
+  return <div className="r2-overlay" role="dialog" aria-modal="true" data-overlay="account" aria-labelledby="r2-account-title"><button type="button" className="r2-overlay__backdrop" aria-label="إغلاق الحساب" onClick={close} /><section className="r2-account-sheet"><div className="r2-account-sheet__handle" aria-hidden="true" /><div className="r2-account-sheet__profile"><span className="r2-avatar"><Icon name="user" /></span><div><p className="r2-eyebrow">مساحة العمل</p><h2 id="r2-account-title">حساب إنجاز</h2><small>{runtimeMode === 'live' ? accountLabel : 'واجهة Rebirth متوازية — لا تغيّر بيانات الحساب.'}</small></div></div>{runtimeMode === 'live' ? <><div className="r2-account-row" data-account-session="protected"><span>جلسة مساحة العمل محمية عبر Auth الحالي</span></div>{onSignOut ? <button type="button" className="r2-account-row" onClick={signOut}><span>تسجيل الخروج</span><Icon name="arrow" /></button> : null}</> : <><button type="button" className="r2-account-row" onClick={close}><span>إعدادات مساحة العمل</span><Icon name="arrow" /></button><button type="button" className="r2-account-row" onClick={close}><span>تفضيلات الواجهة</span><Icon name="arrow" /></button></>}<button type="button" className="r2-action r2-action--secondary r2-account-close" onClick={close}>إغلاق</button></section></div>;
 }
 
-export function UiR2Root() {
+export function UiR2Root({ runtimeMode = 'preview', accountLabel = 'حساب إنجاز', onSignOut }: UiR2RootProps = {}) {
   const initial = readUrlState();
   const [destinationId, setDestinationId] = useState<R2DestinationId>(initial.destinationId);
   const [transactionId, setTransactionId] = useState<string | null>(initial.transactionId);
@@ -222,7 +234,12 @@ export function UiR2Root() {
   const currentDoor = doorFor(destinationId);
   const trail = trailFor(destinationId);
   let content: ReactNode;
-  if (destinationId === 'home') content = <Home navigate={navigate} />;
+  const connectedCore = runtimeMode === 'live'
+    ? ConnectedCoreWorkRouter({ destinationId: destinationId === 'today.notifications' ? 'today' : destinationId, transactionId, navigate, openTransaction })
+    : null;
+
+  if (destinationId === 'home') content = runtimeMode === 'live' ? <ConnectedR2Home navigate={navigate} /> : <Home navigate={navigate} />;
+  else if (connectedCore) content = connectedCore;
   else if (destinationId === 'transactions') content = <CoreTransactions navigate={navigate} openTransaction={openTransaction} />;
   else if (destinationId === 'today' || destinationId === 'today.notifications') content = <CoreToday navigate={navigate} />;
   else if (destinationId === 'create') content = <CoreCreate navigate={navigate} />;
@@ -230,11 +247,11 @@ export function UiR2Root() {
   else content = <Destination id={destinationId} transactionId={transactionId} navigate={navigate} />;
 
   return (
-    <div className="ez-r2-root r2-shell" data-r2-shell={SHELL_STAGE} data-golden-stage="R2.0-4" data-core-work-stage="R2.0-5" data-records-stage="R2.0-6" data-operational-stage="R2.0-7" data-zero-lost-stage="R2.0-8" data-destination={destinationId}>
+    <div className="ez-r2-root r2-shell" data-r2-shell={SHELL_STAGE} data-r2-runtime-mode={runtimeMode} data-golden-stage="R2.0-4" data-core-work-stage="R2.0-5" data-records-stage="R2.0-6" data-operational-stage="R2.0-7" data-zero-lost-stage="R2.0-8" data-destination={destinationId}>
       <aside className="r2-shell__rail" aria-label="التنقل الرئيسي"><button type="button" className="r2-brand" onClick={() => navigate('home')} aria-label="إنجاز — الرئيسية"><span className="r2-brand__mark">إ</span><span><strong>إنجاز</strong><small>Workspace</small></span></button><nav className="r2-rail-nav">{R2_PRIMARY_NAVIGATION.map((id) => <Door key={id} id={id} active={currentDoor === id} mode="rail" navigate={navigate} />)}</nav><div className="r2-rail-foot"><button type="button" onClick={() => openOverlay('search')}><Icon name="search" /><span>ابحث عن أي شيء</span></button><span className="r2-stage-pill">R2.0-8 Find Anything</span></div></aside>
       <div className="r2-shell__workspace"><header className="r2-topbar"><div className="r2-mobile-brand"><span className="r2-brand__mark">إ</span><strong>إنجاز</strong></div><div className="r2-location" aria-label="الموقع الحالي">{trail.map((item, index) => <span key={`${item}-${index}`}>{index > 0 && <b>←</b>}{item}</span>)}</div><div className="r2-topbar__actions"><button type="button" className="r2-icon-button" onClick={() => openOverlay('search')} aria-label="ابحث عن أي شيء"><Icon name="search" /></button><button type="button" className="r2-icon-button r2-icon-button--account" onClick={() => openOverlay('account')} aria-label="الحساب ومساحة العمل"><Icon name="user" /></button></div></header><main className="r2-shell__main" id="r2-main" aria-label={getR2Destination(destinationId).label}>{content}</main><nav className="r2-shell__mobile-nav" aria-label="التنقل الرئيسي للهاتف">{R2_PRIMARY_NAVIGATION.map((id) => <Door key={id} id={id} active={currentDoor === id} mode="dock" navigate={navigate} />)}</nav></div>
       {overlay === 'search' && <SearchOverlay query={searchQuery} setQuery={setSearchQuery} close={closeOverlay} navigate={navigate} openTransaction={openTransaction} />}
-      {overlay === 'account' && <AccountOverlay close={closeOverlay} />}
+      {overlay === 'account' && <AccountOverlay close={closeOverlay} runtimeMode={runtimeMode} accountLabel={accountLabel} onSignOut={onSignOut} />}
     </div>
   );
 }
