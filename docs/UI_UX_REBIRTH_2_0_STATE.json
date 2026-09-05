@@ -98,6 +98,7 @@
     "status": "ACTIVE",
     "kickoff": "docs/R2_0_9_DESTRUCTION_REALITY_QA_KICKOFF.md",
     "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_DESTRUCTION_REALITY_EVIDENCE.json",
+    "closureRecord": "docs/R2_0_9_DESTRUCTION_REALITY_QA_CLOSURE.md",
     "scope": [
       "keyboardFocus",
       "rtl",
@@ -117,10 +118,12 @@
     ],
     "hardWidths": [1280, 430, 390, 360, 320],
     "minimumScenarioCount": 15,
-    "declaredScenarioCount": 0,
-    "passedScenarioCount": 0,
+    "declaredScenarioCount": 30,
+    "passedScenarioCount": 30,
     "unresolvedDefectCount": 0,
     "canonicalRuntimeChanged": false,
+    "proofCommit": "91574e227b69f1dbff5a55278bfad3f68e0a7c1f",
+    "evidenceRun": 33983191470,
     "exitGatePassed": false
   },
   "featureParity": {
