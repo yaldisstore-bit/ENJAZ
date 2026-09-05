@@ -1,0 +1,29 @@
+name: ENJAZ UI/UX Rebirth 2.0 — Phase 5.5 Freeze
+
+on:
+  push:
+    branches:
+      - main
+      - ui-ux-rebirth-2-freeze-5.5
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  freeze-contract:
+    name: Rebirth 2.0 / Phase 5.5 Freeze Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Enforce UI/UX Rebirth 2.0 freeze
+        run: node scripts/ui-rebirth-2-freeze-audit.mjs
