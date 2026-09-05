@@ -167,6 +167,18 @@
   padding-top: var(--ez-space-3);
 }
 
+.ez-transaction-card__action-buttons {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: var(--ez-space-2);
+}
+
+.ez-transaction-card__action-buttons .ez-button {
+  min-height: var(--ez-control-h);
+}
+
 .ez-transaction-card__actions > small {
   color: var(--ez-muted);
   line-height: 1.6;
@@ -228,7 +240,8 @@
   .ez-transaction-card__chips { justify-content: start; }
   .ez-transaction-card__body { grid-template-columns: minmax(0, 1fr); }
   .ez-transaction-list__result-head { align-items: start; }
-  .ez-transaction-card__actions { justify-content: stretch; }
+  .ez-transaction-card__actions { display: grid; justify-content: stretch; }
+  .ez-transaction-card__action-buttons { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); justify-content: stretch; }
   .ez-transaction-card__actions .ez-button { width: 100%; min-height: var(--ez-control-h); }
 }
 
