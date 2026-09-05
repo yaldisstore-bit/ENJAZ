@@ -9,12 +9,10 @@ await fs.mkdir(outDir, { recursive: true });
 function assert(condition, message) {
   if (!condition) throw new Error(`Phase 5.3 Reality FAIL: ${message}`);
 }
-
 async function noHorizontalOverflow(page, label) {
   const overflow = await page.evaluate(() => ({ html: document.documentElement.scrollWidth - document.documentElement.clientWidth, body: document.body.scrollWidth - document.body.clientWidth }));
   assert(overflow.html <= 1 && overflow.body <= 1, `${label}: horizontal overflow ${JSON.stringify(overflow)}`);
 }
-
 async function assertTouchTargets(page, label) {
   const undersized = await page.evaluate(() => Array.from(document.querySelectorAll('button,a,[role="button"],input,select,textarea')).map((el) => {
     const rect = el.getBoundingClientRect();
@@ -23,14 +21,12 @@ async function assertTouchTargets(page, label) {
   }).filter((item) => item.visible && (item.width < 44 || item.height < 44)));
   assert(undersized.length === 0, `${label}: undersized interactive targets ${JSON.stringify(undersized)}`);
 }
-
 function collectErrors(page) {
   const errors = { console: [], page: [] };
   page.on('console', (message) => { if (message.type() === 'error') errors.console.push(message.text()); });
   page.on('pageerror', (error) => errors.page.push(error.message));
   return errors;
 }
-
 async function boot(page, label) {
   await page.goto(baseUrl, { waitUntil: 'networkidle', timeout: 30_000 });
   const app = page.locator('[data-core-app="true"]');
@@ -40,14 +36,12 @@ async function boot(page, label) {
   assert(Number.isFinite(productPhase) && productPhase >= 5.3, `${label}: product phase is below 5.3`);
   assert(await app.getAttribute('data-daily-work-mode') === 'preview', `${label}: CI runtime escaped preview isolation`);
 }
-
 async function openTransactions(page, label) {
   await boot(page, label);
   await page.getByRole('button', { name: 'مجالات إنجاز', exact: true }).click();
   await page.locator('[data-domain-explorer-link="transactions"]').click();
   await page.locator('[data-domain-screen="transactions"][data-transaction-status="ready"]').waitFor();
 }
-
 async function openFirst360(page) {
   const button = page.locator('[data-transaction-open-360]').first();
   await button.waitFor();
@@ -122,7 +116,7 @@ async function verifyNarrowLongText(browser) {
 }
 
 async function verifyArchivedBoundary(browser, width) {
-  const context = await browser.newContext({ viewport: { width, height: width <= 430 ? 844 : 900 }, deviceScaleFactor: 1, hasTouch: width <= 430, isMobile: width <= 430 });
+  const context = await browser.newContext({ viewport: { width, height: 844 }, deviceScaleFactor: 1, hasTouch: true, isMobile: true });
   const page = await context.newPage();
   const errors = collectErrors(page);
   await openTransactions(page, `archived-${width}`);
@@ -131,7 +125,7 @@ async function verifyArchivedBoundary(browser, width) {
   await card.waitFor();
   assert(await card.locator('[data-transaction-open-360]').isVisible(), `archived-${width}: archived transaction lost read-only 360 access`);
   assert(await card.locator('[data-transaction-edit]').count() === 0, `archived-${width}: Phase 5.3 leaked archived edit/lifecycle action`);
-  assert(await card.getByText('الاستعادة وإجراءات دورة الحياة تأتي في Phase 5.4.', { exact: true }).isVisible(), `archived-${width}: Phase 5.4 boundary label missing`);
+  assert(await card.getByText('360° للعرض فقط؛ الاستعادة غير متاحة هنا.', { exact: true }).isVisible(), `archived-${width}: archived read-only boundary label missing`);
   await card.locator('[data-transaction-open-360]').click();
   const sheet = page.getByRole('dialog', { name: 'ملف المعاملة 360°' });
   await sheet.waitFor();
@@ -139,6 +133,7 @@ async function verifyArchivedBoundary(browser, width) {
   assert(await sheet.getByText('المعاملة للعرض فقط؛ الاستعادة غير متاحة هنا.', { exact: true }).isVisible(), `archived-${width}: 360 lifecycle boundary missing`);
   await noHorizontalOverflow(page, `archived-${width}`);
   await assertTouchTargets(page, `archived-${width}`);
+  await page.screenshot({ path: path.join(outDir, `transaction-360-archived-${width}.png`), fullPage: true });
   assert(errors.console.length === 0, `archived-${width}: console errors ${errors.console.join(' | ')}`);
   assert(errors.page.length === 0, `archived-${width}: page errors ${errors.page.join(' | ')}`);
   await context.close();
