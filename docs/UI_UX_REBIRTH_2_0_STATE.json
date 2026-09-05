@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "R2.0-5",
+  "stage": "R2.0-6",
   "phase55Locked": true,
   "runtime": "ui-v2",
   "goldenExperience": {
@@ -42,11 +42,26 @@
     "closureRecord": "docs/R2_0_5_CORE_WORK_MIGRATION_CLOSURE.md",
     "evidenceRun": 33968400314
   },
+  "recordsRelationships": {
+    "status": "CLOSED",
+    "scope": [
+      "companies",
+      "peopleLawyers",
+      "documentsReports"
+    ],
+    "entityFirstComposition": true,
+    "canonicalRuntimeChanged": false,
+    "exitGatePassed": true,
+    "kickoff": "docs/R2_0_6_RECORDS_RELATIONSHIPS_KICKOFF.md",
+    "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_RECORDS_EVIDENCE.json",
+    "closureRecord": "docs/R2_0_6_RECORDS_RELATIONSHIPS_CLOSURE.md",
+    "evidenceRun": 33975467612
+  },
   "featureParity": {
     "inventoryComplete": true,
     "totalCapabilities": 35,
-    "migratedCapabilities": 16,
-    "testedCapabilities": 16,
+    "migratedCapabilities": 19,
+    "testedCapabilities": 19,
     "unresolvedCapabilities": 0
   },
   "informationArchitecture": {

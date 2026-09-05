@@ -7,6 +7,7 @@ import './golden/golden.css';
 import './golden/golden-journey.css';
 import './golden/golden-mobile-hardening.css';
 import './core-work/core-work.css';
+import './records/records.css';
 
 const rootElement = document.getElementById('r2-root');
 

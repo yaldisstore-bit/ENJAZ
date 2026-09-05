@@ -10,18 +10,22 @@ const errors = [];
 const state = fs.existsSync(statePath) ? JSON.parse(fs.readFileSync(statePath, 'utf8')) : null;
 const stage = state?.stage ?? '';
 const isGolden = stage === 'R2.0-4';
-const isCoreOrLater = /^R2\.0-(?:[5-9]|10|11)$/.test(stage);
+const isCore = stage === 'R2.0-5';
+const isRecordsOrLater = /^R2\.0-(?:[6-9]|10|11)$/.test(stage);
+const isCoreOrLater = isCore || isRecordsOrLater;
 
 // Budgets grow only when a hard-gated stage adds approved presentation/model composition.
-// R2.0-4: Golden specimen. R2.0-5: bounded Core Work model composition.
-// Total raw/gzip and file-count ceilings remain fixed so stage allowances cannot hide bundle sprawl.
+// R2.0-4: Golden specimen.
+// R2.0-5: bounded Core Work model composition.
+// R2.0-6+: bounded entity-first Records composition adds three distinct workspace grammars.
+// The total raw ceiling and file-count ceiling remain fixed so stage allowances cannot hide bundle sprawl.
 const limits = {
   totalRaw: 350_000,
-  jsRaw: isCoreOrLater ? 270_000 : 250_000,
-  jsGzip: isCoreOrLater ? 80_000 : 72_000,
-  cssRaw: isCoreOrLater ? 54_000 : isGolden ? 44_000 : 40_000,
-  cssGzip: 8_000,
-  totalGzip: 90_000,
+  jsRaw: isRecordsOrLater ? 285_000 : isCore ? 270_000 : 250_000,
+  jsGzip: isRecordsOrLater ? 83_000 : isCore ? 80_000 : 72_000,
+  cssRaw: isRecordsOrLater ? 70_000 : isCore ? 54_000 : isGolden ? 44_000 : 40_000,
+  cssGzip: isRecordsOrLater ? 10_000 : 8_000,
+  totalGzip: isRecordsOrLater ? 95_000 : 90_000,
   files: 12,
 };
 
