@@ -1,0 +1,41 @@
+@import '../tokens/foundation.css';
+
+.ez-r2-root {
+  min-block-size: 100%;
+  font-family: var(--ez-r2-font-sans);
+  font-size: var(--ez-r2-type-md);
+  line-height: var(--ez-r2-leading-normal);
+  font-weight: var(--ez-r2-weight-regular);
+  color: var(--ez-r2-structure);
+  background: var(--ez-r2-canvas);
+  direction: rtl;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ez-r2-root,
+.ez-r2-root *,
+.ez-r2-root *::before,
+.ez-r2-root *::after {
+  box-sizing: border-box;
+}
+
+.ez-r2-root :where(button, input, textarea, select) {
+  font: inherit;
+}
+
+.ez-r2-root :where(button, a, input, textarea, select):focus-visible {
+  outline: var(--ez-r2-stroke-strong) solid var(--ez-r2-interactive);
+  outline-offset: var(--ez-r2-space-1);
+}
+
+.ez-r2-icon {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  flex: 0 0 auto;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
