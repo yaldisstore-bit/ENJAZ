@@ -89,7 +89,7 @@ for (const marker of [
 ]) if (!uiRoot.includes(marker)) errors.push(`UiR2Root missing R2.0-7 integration marker: ${marker}`);
 if (!preview.includes("'./operational-intelligence/operational-intelligence.css'")) errors.push('preview must load R2.0-7 operational CSS');
 
-for (const marker of ['.r2-finance-ledger', '.r2-operations-pulse', '.r2-workflow-lanes', '.r2-automation-flow', '.r2-command-focus', '.r2-risk-map', '.r2-copilot-thread', 'border-radius', 'box-shadow', '@media (max-width: 42rem)', '@media (max-width: 22rem)', '@media (prefers-reduced-motion: reduce)']) if (!css.includes(marker)) errors.push(`operational CSS missing composition/resilience marker: ${marker}`);
+for (const marker of ['.r2-ledger-list', '.r2-operations-pulse', '.r2-workflow-lanes', '.r2-automation-flow', '.r2-command-focus', '.r2-risk-map', '.r2-copilot-thread', 'border-radius', 'box-shadow', '@media (max-width: 42rem)', '@media (max-width: 22rem)', '@media (prefers-reduced-motion: reduce)']) if (!css.includes(marker)) errors.push(`operational CSS missing composition/resilience marker: ${marker}`);
 const rawColors = css.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [];
 if (rawColors.length) errors.push(`operational CSS contains raw color literals: ${[...new Set(rawColors)].join(', ')}`);
 if (/\b(?:rgb|rgba|hsl|hsla|hwb|lab|lch|oklab|oklch|color|color-mix)\s*\(/i.test(css)) errors.push('operational CSS contains forbidden functional color syntax');
