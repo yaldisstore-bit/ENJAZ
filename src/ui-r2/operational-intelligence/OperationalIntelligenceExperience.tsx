@@ -36,7 +36,7 @@ function Finance() {
       <section className="r2-oi-panel r2-finance-ledger" aria-labelledby="r2-finance-ledger-title">
         <div className="r2-oi-section-head"><div><p className="r2-eyebrow">الحركة</p><h2 id="r2-finance-ledger-title">دفتر اليوم</h2></div><span>آخر 4 قيود</span></div>
         <div className="r2-ledger-list">
-          {[['دفعة معاملة #1042','+ 1,250,000 د.ع','اليوم · 10:40'],['رسم معاملة #1038','− 175,000 د.ع','اليوم · 09:15'],['تحصيل شركة النور','+ 3,500,000 د.ع','أمس · 16:20'],['تسوية قيد','− 90,000 د.ع','أمس · 13:05']].map(([label, amount, meta]) => <div className="r2-ledger-row" key={label}><span><strong>{label}</strong><small>{meta}</small></span><b dir="ltr">{amount}</b></div>)}
+          {[['دفعة معاملة 1042','+ 1,250,000 د.ع','اليوم · 10:40'],['رسم معاملة 1038','− 175,000 د.ع','اليوم · 09:15'],['تحصيل شركة النور','+ 3,500,000 د.ع','أمس · 16:20'],['تسوية قيد','− 90,000 د.ع','أمس · 13:05']].map(([label, amount, meta]) => <div className="r2-ledger-row" key={label}><span><strong>{label}</strong><small>{meta}</small></span><b dir="ltr">{amount}</b></div>)}
         </div>
       </section>
       <TruthNote />
@@ -56,7 +56,7 @@ function Operations() {
       <section className="r2-oi-panel">
         <div className="r2-oi-section-head"><div><p className="r2-eyebrow">أولوية التشغيل</p><h2>ما يحتاج حركة الآن</h2></div></div>
         <div className="r2-operations-queue">
-          {[['01','معاملة #1042 متوقفة عند جهة خارجية','سارة علي','تحديد التصعيد'],['02','دفعة مستحقة دون توثيق','أحمد كريم','مراجعة القيد'],['03','مسار عمل بلا انتقال منذ يومين','نور حسين','فحص الحاجز']].map(([n,title,owner,next]) => <div className="r2-operation-row" key={n}><span className="r2-operation-index">{n}</span><span><strong>{title}</strong><small>المالك: {owner}</small></span><b>{next}</b></div>)}
+          {[['01','معاملة 1042 متوقفة عند جهة خارجية','سارة علي','تحديد التصعيد'],['02','دفعة مستحقة دون توثيق','أحمد كريم','مراجعة القيد'],['03','مسار عمل بلا انتقال منذ يومين','نور حسين','فحص الحاجز']].map(([n,title,owner,next]) => <div className="r2-operation-row" key={n}><span className="r2-operation-index">{n}</span><span><strong>{title}</strong><small>المالك: {owner}</small></span><b>{next}</b></div>)}
         </div>
       </section>
       <TruthNote />
@@ -66,10 +66,10 @@ function Operations() {
 
 function Workflow() {
   const lanes = [
-    ['استلام', ['#1048', '#1047']],
-    ['مراجعة', ['#1042', '#1039', '#1037']],
-    ['اعتماد', ['#1035']],
-    ['إغلاق', ['#1028', '#1027']],
+    ['استلام', ['1048', '1047']],
+    ['مراجعة', ['1042', '1039', '1037']],
+    ['اعتماد', ['1035']],
+    ['إغلاق', ['1028', '1027']],
   ] as const;
   return (
     <div className="r2-screen r2-oi-workspace r2-oi-workflow" data-operational-domain="workflow">
@@ -103,7 +103,7 @@ function Command() {
         <div className="r2-command-signal"><span>أعلى أثر</span><strong>معاملة متوقفة + دفعة قريبة</strong><small>سياق عابر للمعاملات والمالية</small></div>
       </section>
       <section className="r2-command-decisions">
-        {[['تشغيل','اعتماد تصعيد معاملة #1042','مرتفع'],['مالية','مراجعة قيد غير موثق','متوسط'],['مخاطر','حسم إشارة تكررت 3 مرات','متوسط']].map(([domain,title,impact]) => <div className="r2-command-row" key={title}><span>{domain}</span><strong>{title}</strong><b>{impact}</b></div>)}
+        {[['تشغيل','اعتماد تصعيد معاملة 1042','مرتفع'],['مالية','مراجعة قيد غير موثق','متوسط'],['مخاطر','حسم إشارة تكررت 3 مرات','متوسط']].map(([domain,title,impact]) => <div className="r2-command-row" key={title}><span>{domain}</span><strong>{title}</strong><b>{impact}</b></div>)}
       </section>
       <TruthNote />
     </div>
