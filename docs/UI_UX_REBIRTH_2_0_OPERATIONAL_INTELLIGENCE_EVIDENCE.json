@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-7",
+  "status": "CLOSED",
+  "branch": "r2-0-7-operational-intelligence",
+  "scope": [
+    "finance",
+    "operations",
+    "workflow",
+    "automation",
+    "command",
+    "risk",
+    "copilot"
+  ],
+  "targetCapabilities": [
+    "finance.workspace",
+    "operations.workspace",
+    "workflow.workspace",
+    "automation.workspace",
+    "command.workspace",
+    "risk.workspace",
+    "copilot.workspace"
+  ],
+  "composition": {
+    "taskAppropriate": true,
+    "universalDashboardForbidden": true,
+    "finance": "ledger-plus-aging",
+    "operations": "pulse-plus-ownership-plus-next-action",
+    "workflow": "stage-lanes-plus-transition",
+    "automation": "trigger-condition-action-result",
+    "command": "executive-focus-plus-cross-domain-decisions",
+    "risk": "risk-map-plus-explainable-signals",
+    "copilot": "context-plus-assistant"
+  },
+  "truthfulness": {
+    "canonicalRuntimeChanged": false,
+    "phase55Locked": true,
+    "productionWritesClaimedByPreview": false,
+    "generatedIntelligenceClaimedByPreview": false,
+    "automationMutationClaimedByPreview": false,
+    "financialMutationClaimedByPreview": false,
+    "aiExecutionClaimedByPreview": false
+  },
+  "hardWidths": [1280, 430, 390, 360, 320],
+  "checks": {
+    "structuralAudit": "PASS",
+    "functionalRegression": "PASS",
+    "typescript": "PASS",
+    "previewBuild": "PASS",
+    "previewBudget": "PASS",
+    "goldenRegression": "PASS",
+    "coreWorkRegression": "PASS",
+    "recordsRegression": "PASS",
+    "realBrowserOperational": "PASS"
+  },
+  "artifact": {
+    "id": 9972815724,
+    "name": "enjaz-r2-operational-evidence-4f3e9d484cc7f9abc0265ba39106b44dbf3e5d39",
+    "sizeBytes": 527012,
+    "sha256": "faedbcc2753c8ffa97544dc18b29cfd256d5d86ceb0802ab57e9412fe0683fba"
+  },
+  "functionalTests": {
+    "passed": 118,
+    "failed": 0
+  },
+  "browserTests": {
+    "passed": 8,
+    "failed": 0
+  },
+  "exitGatePassed": true,
+  "gateRuns": {
+    "governance": 33977682343,
+    "quality": 33977682340,
+    "golden": 33977682298,
+    "coreWork": 33977682429,
+    "records": 33977682325,
+    "operationalIntelligence": 33977682599,
+    "realBrowser": 33977682323
+  }
+}
