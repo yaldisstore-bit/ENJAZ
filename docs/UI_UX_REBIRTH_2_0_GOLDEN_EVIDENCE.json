@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "stage": "R2.0-4",
-  "status": "AWAITING_REAL_BROWSER_PASS",
+  "status": "READY_FOR_USER_APPROVAL",
   "branch": "r2-0-4-golden-experience",
   "preview": "r2-preview.html",
   "specimens": [
@@ -35,11 +35,27 @@
   "browserTest": "tests-external/r2-golden.spec.cjs",
   "workflow": ".github/workflows/ui-rebirth-2-golden.yml",
   "visualContract": "docs/UI_UX_REBIRTH_2_0_GLOBAL_VISUAL_POLISH_CONTRACT.json",
-  "expectedEvidenceArtifact": "enjaz-r2-golden-evidence-<commit>",
-  "browserRun": null,
-  "browserConclusion": null,
-  "visualEvidenceReady": false,
-  "professionalUxEvidenceReady": false,
+  "evidenceCommit": "2f15074c8ad159738edea2f3e0033c921ddba9b9",
+  "browserRun": 33965977016,
+  "browserConclusion": "success",
+  "artifact": {
+    "id": 9969439831,
+    "name": "enjaz-r2-golden-evidence-a022939c14152c1820917e0263f5e9a47ab515ea",
+    "sizeBytes": 3022442,
+    "digest": "sha256:63ba3873e747b59b0fca4097bbab3751274a6b9d9641a975d00bc96d8045d8cb",
+    "expiresAt": "2026-09-19T12:26:12Z"
+  },
+  "checks": {
+    "globalVisualPolishGuard": "PASS",
+    "fiveSpecimenGuard": "PASS",
+    "functionalRegression": "PASS_118_OF_118",
+    "typescript": "PASS",
+    "previewBuild": "PASS",
+    "previewBudget": "PASS",
+    "realBrowserHardWidths": "PASS"
+  },
+  "visualEvidenceReady": true,
+  "professionalUxEvidenceReady": true,
   "userApproval": {
     "required": true,
     "approved": false,
