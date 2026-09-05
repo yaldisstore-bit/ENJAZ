@@ -1,21 +1,21 @@
-name: ENJAZ UI Rebirth Stage 0
+name: ENJAZ UI Rebirth Legacy Stage 0 — Manual Historical Gate
 
-# Historical pre-UI-V2 gate. Kept only for explicit legacy-branch verification.
+# Historical pre-UI-V2 gate. Its purge contract targets the old src/ui-rebirth generation
+# and is intentionally manual-only. UI/UX Rebirth 2.0 is governed by
+# .github/workflows/ui-rebirth-2-freeze.yml and src/ui-r2 isolation contracts.
 on:
-  push:
-    branches: ['ui-rebirth-*']
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: enjaz-ui-rebirth-stage0-${{ github.ref }}
+  group: enjaz-ui-rebirth-legacy-stage0-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   clean-visual-foundation:
-    name: Hard Purge + Clean Visual Foundation
+    name: Historical Hard Purge + Clean Visual Foundation
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -32,7 +32,7 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
-      - name: Reject any previous visual runtime
+      - name: Historical UI Rebirth boundary + purge audit
         run: npm run audit:ui-rebirth:boundary && npm run audit:ui-rebirth:purge
       - name: Functional regression baseline
         run: npm run test:functional
