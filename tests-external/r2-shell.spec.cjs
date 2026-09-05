@@ -67,7 +67,9 @@ test('R2 Find Anything aliases navigate to canonical feature homes and browser b
   await page.getByRole('button', { name: 'ابحث عن أي شيء' }).first().click();
   await expect(page.locator('[data-overlay="search"]')).toBeVisible();
 
-  const input = page.getByPlaceholder('مثال: خزنة، أتمتة، معاملات، مالية…');
+  // Bind to the stable search contract rather than placeholder copy, which may evolve by stage.
+  const input = page.locator('[data-overlay="search"] input').first();
+  await expect(input).toBeVisible();
   await input.fill('خزنة');
   await page.getByRole('button', { name: /الوثائق والتقارير/ }).click();
   await expect(page).toHaveURL(/dest=documents/);

@@ -377,10 +377,10 @@
       "id": "global.search",
       "family": "global_search",
       "label": "البحث العام",
-      "deliveryStatus": "defective_static_presentation",
+      "deliveryStatus": "live_authoritative_discovery",
       "oldEntryPoint": "AppShell search overlay",
       "newCanonicalHome": "search",
-      "dataBoundary": "Must become destination registry + authoritative record discovery; current hard-coded demo results are not data",
+      "dataBoundary": "Canonical R2 destination registry + workspace-scoped Data Layer transaction/company discovery; isolated preview records remain explicitly non-production",
       "major": true,
       "scope": [
         "feature discovery",
@@ -388,8 +388,8 @@
         "aliases",
         "result navigation"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "global.create.transaction",

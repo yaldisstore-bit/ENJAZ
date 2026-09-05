@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "R2.0-7",
+  "stage": "R2.0-8",
   "phase55Locked": true,
   "runtime": "ui-v2",
   "goldenExperience": {
@@ -76,11 +76,29 @@
     "closureRecord": "docs/R2_0_7_OPERATIONAL_INTELLIGENCE_CLOSURE.md",
     "evidenceRun": 33977682599
   },
+  "findAnythingZeroLost": {
+    "status": "CLOSED",
+    "kickoff": "docs/R2_0_8_FIND_ANYTHING_ZERO_LOST_KICKOFF.md",
+    "scope": [
+      "featureAliases",
+      "recordDiscovery",
+      "canonicalDestinationNavigation",
+      "maxThreeActionReachability",
+      "hiddenDoorElimination",
+      "duplicateHomeElimination",
+      "searchBackRestoration"
+    ],
+    "canonicalRuntimeChanged": false,
+    "exitGatePassed": true,
+    "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_ZERO_LOST_EVIDENCE.json",
+    "closureRecord": "docs/R2_0_8_FIND_ANYTHING_ZERO_LOST_CLOSURE.md",
+    "evidenceRun": 33980594257
+  },
   "featureParity": {
     "inventoryComplete": true,
     "totalCapabilities": 35,
-    "migratedCapabilities": 26,
-    "testedCapabilities": 26,
+    "migratedCapabilities": 27,
+    "testedCapabilities": 27,
     "unresolvedCapabilities": 0
   },
   "informationArchitecture": {
@@ -122,14 +140,14 @@
     "exitGatePassed": true
   },
   "noMaze": {
-    "validated": false,
-    "scenarioCount": 0,
-    "passedCount": 0,
+    "validated": true,
+    "scenarioCount": 16,
+    "passedCount": 16,
     "maxMajorCapabilityActions": 3,
     "hiddenPrimaryNavigationCount": 0,
     "duplicateCanonicalHomesCount": 0,
     "backPathFailures": 0,
-    "evidenceManifest": null
+    "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_ZERO_LOST_EVIDENCE.json"
   },
   "legacy": {
     "presentationIsolationEnforced": true,

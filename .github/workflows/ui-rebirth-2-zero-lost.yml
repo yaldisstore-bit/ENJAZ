@@ -1,0 +1,83 @@
+name: ENJAZ R2.0-8 — Find Anything & Zero-Lost UX Gate
+
+on:
+  push:
+    branches:
+      - 'r2-0-8-*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  zero-lost-gate:
+    name: R2.0-8 / Discovery + Zero-Lost + Real Browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Enforce Phase 5.5 freeze
+        run: node scripts/ui-rebirth-2-freeze-audit.mjs
+      - name: Enforce locked palette
+        run: node scripts/ui-rebirth-2-palette-audit.mjs
+      - name: Preserve hard Rebirth acceptance
+        run: node scripts/ui-rebirth-2-acceptance-audit.mjs
+      - name: Preserve Golden + Core Work + Records + Operational Intelligence
+        run: |
+          node scripts/ui-rebirth-2-golden-visual-contract-audit.mjs
+          node scripts/ui-rebirth-2-golden-specimen-audit.mjs
+          node scripts/ui-rebirth-2-core-work-audit.mjs
+          node scripts/ui-rebirth-2-records-audit.mjs
+          node scripts/ui-rebirth-2-operational-intelligence-audit.mjs
+      - name: Enforce R2.0-8 Zero-Lost contract
+        run: node scripts/ui-rebirth-2-zero-lost-audit.mjs
+      - name: Find Anything model + authoritative Data Layer provider tests
+        run: node --experimental-strip-types --test tests/findAnything.test.ts tests/findAnythingConnected.test.ts
+      - name: Functional regression
+        run: npm run test:functional
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Build isolated R2.0-8 preview
+        run: npx vite build --config vite.r2-preview.config.ts --base=/
+      - name: Enforce isolated preview budget
+        run: node scripts/ui-rebirth-2-preview-budget-audit.mjs
+      - name: Install pinned Chromium tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated R2.0-8 preview
+        run: |
+          nohup npx vite preview --config vite.r2-preview.config.ts --host 127.0.0.1 --port 4175 > /tmp/enjaz-r2-zero-lost-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4175/r2-preview.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-r2-zero-lost-preview.log
+          exit 1
+      - name: Real browser Zero-Lost acceptance / No-Maze + aliases + records + back + 1280 + 430 + 390 + 360 + 320
+        env:
+          R2_ZERO_LOST_BASE_URL: http://127.0.0.1:4175/
+          R2_ZERO_LOST_ARTIFACT_DIR: artifacts/r2-zero-lost
+        run: npx playwright test tests-external/r2-zero-lost.spec.cjs --reporter=line --workers=1
+      - name: Upload R2.0-8 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-r2-zero-lost-evidence-${{ github.sha }}
+          path: |
+            artifacts/r2-zero-lost/
+            test-results/
+            /tmp/enjaz-r2-zero-lost-preview.log
+          if-no-files-found: ignore
+          retention-days: 14
