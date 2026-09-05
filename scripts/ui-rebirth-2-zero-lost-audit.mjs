@@ -15,6 +15,7 @@ const paths = {
   navigation: 'src/ui-r2/architecture/navigation-contract.ts',
   model: 'src/ui-r2/find-anything/find-anything-model.ts',
   root: 'src/ui-r2/runtime/UiR2Root.tsx',
+  browser: 'tests-external/r2-zero-lost.spec.cjs',
   main: 'src/main.tsx',
 };
 
@@ -31,6 +32,7 @@ const parity = json(paths.parity);
 const navigation = read(paths.navigation);
 const model = read(paths.model);
 const uiRoot = read(paths.root);
+const browser = read(paths.browser);
 const main = read(paths.main);
 
 if (state.stage !== 'R2.0-8') errors.push(`Zero-Lost guard requires active stage R2.0-8, found ${state.stage}`);
@@ -86,11 +88,31 @@ for (const marker of [
 if (/\b(?:fetch|localStorage|sessionStorage)\s*\(/.test(model)) errors.push('Find Anything model may not create ad-hoc fetch or browser persistence channels');
 for (const forbidden of ['ui-v2', 'ui-rebirth']) if (model.includes(forbidden)) errors.push(`Find Anything model references legacy presentation marker: ${forbidden}`);
 
+for (const marker of [
+  "from '../find-anything/find-anything-model.ts'",
+  'buildR2FindAnythingResults',
+  'data-zero-lost-stage="R2.0-8"',
+  'data-zero-lost-search="R2.0-8"',
+  'data-find-kind={item.kind}',
+  'openTransaction={openTransaction}',
+  'R2.0-8 Find Anything',
+]) if (!uiRoot.includes(marker)) errors.push(`UiR2Root missing active R2.0-8 integration marker: ${marker}`);
+
+for (const width of [1280, 430, 390, 360, 320]) if (!browser.includes(String(width))) errors.push(`R2.0-8 browser proof missing hard width ${width}`);
+for (const marker of [
+  'canonical feature alias navigation restores exact search state on back',
+  'transaction record discovery opens canonical 360 and back restores query',
+  'Arabic normalization survives hamza, tatweel and mixed input',
+  'data-find-kind="transaction"',
+  'data-find-source="preview-record"',
+  'assertNoHorizontalOverflow',
+  'assertTouchTargets',
+]) if (!browser.includes(marker)) errors.push(`R2.0-8 browser proof missing scenario marker: ${marker}`);
+
 const globalSearch = (parity.capabilities ?? []).find((item) => item.id === 'global.search');
 if (!globalSearch) errors.push('Feature Parity is missing global.search');
 
 if (state.findAnythingZeroLost?.status === 'CLOSED') {
-  for (const marker of ['data-zero-lost-stage="R2.0-8"', 'buildR2FindAnythingResults', 'openTransaction', 'R2.0-8 Find Anything']) if (!uiRoot.includes(marker)) errors.push(`closed R2.0-8 root missing integration marker: ${marker}`);
   if (state.findAnythingZeroLost?.exitGatePassed !== true || evidence.exitGatePassed !== true) errors.push('closed R2.0-8 requires exit gate PASS');
   if (state.noMaze?.validated !== true || state.noMaze?.scenarioCount < 15 || state.noMaze?.passedCount !== state.noMaze?.scenarioCount) errors.push('closed R2.0-8 requires full No-Maze scenario proof');
   if (globalSearch?.migrated !== true || globalSearch?.tested !== true) errors.push('closed R2.0-8 requires global.search migrated and tested');
@@ -101,5 +123,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ R2.0-8 ZERO-LOST AUDIT PASS — ${state.findAnythingZeroLost?.status}; discovery, canonical-home and No-Maze locks are fail-closed.`);
+  console.log(`ENJAZ R2.0-8 ZERO-LOST AUDIT PASS — ${state.findAnythingZeroLost?.status}; discovery, canonical-home and browser No-Maze locks are fail-closed.`);
 }
