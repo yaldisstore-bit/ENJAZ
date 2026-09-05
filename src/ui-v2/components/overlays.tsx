@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { EzButton } from './primitives.tsx';
 
 type MotionState = 'entering' | 'open' | 'closing';
@@ -30,6 +31,10 @@ function useOverlayPresence(open: boolean) {
   return { mounted, motionState } as const;
 }
 
+function portal(node: ReactNode) {
+  return createPortal(node, document.body);
+}
+
 export function EzDialog(props: Readonly<{
   open: boolean;
   title: string;
@@ -43,7 +48,7 @@ export function EzDialog(props: Readonly<{
   const presence = useOverlayPresence(props.open);
   if (!presence.mounted) return null;
   const tone = props.tone ?? 'warning';
-  return (
+  return portal(
     <div className="ez-overlay" role="presentation" data-motion-state={presence.motionState} onMouseDown={(event) => { if (props.open && event.currentTarget === event.target) props.onClose(); }}>
       <section className={`ez-dialog ez-dialog--${tone}`} role="dialog" aria-modal="true" aria-labelledby="ez-dialog-title" data-dialog-tone={tone}>
         <div className="ez-dialog__mark" aria-hidden="true">{tone === 'danger' ? '×' : '!'}</div>
@@ -53,7 +58,7 @@ export function EzDialog(props: Readonly<{
           {props.primaryLabel && props.onPrimary ? <EzButton tone={tone === 'danger' ? 'danger' : 'dark'} onClick={props.onPrimary}>{props.primaryLabel}</EzButton> : null}
         </div>
       </section>
-    </div>
+    </div>,
   );
 }
 
@@ -66,7 +71,7 @@ export function EzSheet(props: Readonly<{
 }>) {
   const presence = useOverlayPresence(props.open);
   if (!presence.mounted) return null;
-  return (
+  return portal(
     <div className="ez-overlay ez-overlay--sheet" role="presentation" data-motion-state={presence.motionState} onMouseDown={(event) => { if (props.open && event.currentTarget === event.target) props.onClose(); }}>
       <section className="ez-sheet" role="dialog" aria-modal="true" aria-labelledby="ez-sheet-title">
         <span className="ez-sheet__grabber" aria-hidden="true" />
@@ -76,7 +81,7 @@ export function EzSheet(props: Readonly<{
         </header>
         <div className="ez-sheet__body">{props.children}</div>
       </section>
-    </div>
+    </div>,
   );
 }
 
