@@ -173,7 +173,7 @@ export function R2List({ className, ...props }: HTMLAttributes<HTMLUListElement>
   return <ul {...props} className={cx('ez-r2-list', className)} />;
 }
 
-export interface R2ListRowProps extends HTMLAttributes<HTMLLIElement> {
+export interface R2ListRowProps extends Omit<HTMLAttributes<HTMLLIElement>, 'title'> {
   title: ReactNode;
   meta?: ReactNode;
   trailing?: ReactNode;
@@ -195,7 +195,7 @@ export function R2TableFrame({ className, ...props }: HTMLAttributes<HTMLDivElem
   return <div {...props} className={cx('ez-r2-table-wrap', className)} />;
 }
 
-export interface R2PageHeaderProps extends HTMLAttributes<HTMLElement> {
+export interface R2PageHeaderProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
   kicker?: ReactNode;
   title: ReactNode;
   description?: ReactNode;
@@ -259,7 +259,7 @@ export function R2NavItem({ active = false, icon, className, children, type = 'b
   );
 }
 
-export interface R2NoticeProps extends HTMLAttributes<HTMLDivElement> {
+export interface R2NoticeProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   kind: R2NoticeKind;
   title: ReactNode;
   icon: ReactNode;
@@ -282,7 +282,7 @@ export function R2Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElemen
   return <div {...props} aria-hidden="true" className={cx('ez-r2-skeleton', className)} />;
 }
 
-export interface R2EmptyStateProps extends HTMLAttributes<HTMLDivElement> {
+export interface R2EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   title: ReactNode;
   description: ReactNode;
   action?: ReactNode;
