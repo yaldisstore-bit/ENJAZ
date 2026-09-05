@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - ui-ux-rebirth-2-freeze-5.5
+      - ui-rebirth-2-palette-lock
   pull_request:
     branches:
       - main
@@ -27,3 +28,5 @@ jobs:
           node-version: '24'
       - name: Enforce UI/UX Rebirth 2.0 freeze
         run: node scripts/ui-rebirth-2-freeze-audit.mjs
+      - name: Enforce locked five-color palette
+        run: node scripts/ui-rebirth-2-palette-audit.mjs
