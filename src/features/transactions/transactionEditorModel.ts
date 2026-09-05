@@ -185,6 +185,7 @@ export function validateTransactionEditorDraft(
     if (!transaction) errors.form = 'تعذر العثور على المعاملة المطلوب تعديلها.';
     else if (transaction.deleted_at) errors.form = 'المعاملة محذوفة ولا يمكن تعديلها من Phase 5.2.';
     else if (transaction.archived_at) errors.form = 'المعاملة مؤرشفة. الاستعادة والتعديل بعد الأرشفة يتبعان Phase 5.4.';
+    else if (transaction.status === 'completed' && draft.status !== 'completed') errors.form = 'إعادة تنشيط معاملة مكتملة إجراء دورة حياة ويتبع Phase 5.4.';
   }
 
   if (!draft.companyId.trim()) errors.companyId = 'اختر الشركة المرتبطة بالمعاملة.';
@@ -217,7 +218,11 @@ export function validateTransactionEditorDraft(
   if (stationName.length > TRANSACTION_STATION_MAX_LENGTH) errors.stationName = `اسم المحطة يتجاوز ${TRANSACTION_STATION_MAX_LENGTH} حرفًا.`;
   if (draft.assignedToText.trim().length > TRANSACTION_ASSIGNEE_MAX_LENGTH) errors.assignedToText = `اسم المسؤول يتجاوز ${TRANSACTION_ASSIGNEE_MAX_LENGTH} حرفًا.`;
   if (!stationName && draft.assignedToText.trim()) errors.stationName = 'أدخل اسم المحطة قبل تحديد المسؤول.';
-  if (stationName && !transactionLocalDateTimeToIso(draft.stationOccurredAt)) errors.stationOccurredAt = 'حدد وقتًا صالحًا للمحطة.';
+  if (stationName) {
+    const stationIso = transactionLocalDateTimeToIso(draft.stationOccurredAt);
+    if (!stationIso) errors.stationOccurredAt = 'حدد وقتًا صالحًا للمحطة.';
+    else if (new Date(stationIso).getTime() > now.getTime() + 5 * 60_000) errors.stationOccurredAt = 'وقت المحطة لا يمكن أن يكون في المستقبل.';
+  }
 
   if (draft.noteBody.trim().length > TRANSACTION_NOTE_MAX_LENGTH) errors.noteBody = `الملاحظة تتجاوز ${TRANSACTION_NOTE_MAX_LENGTH} حرفًا.`;
   if (draft.feeChangeReason.trim().length > TRANSACTION_FEE_REASON_MAX_LENGTH) errors.feeChangeReason = `سبب تغيير الأتعاب يتجاوز ${TRANSACTION_FEE_REASON_MAX_LENGTH} حرفًا.`;
