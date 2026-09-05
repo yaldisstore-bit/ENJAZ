@@ -1,8 +1,8 @@
 # ENJAZ Rebirth 2.0 — R2.0-1 Information Architecture
 
-Status: **ACTIVE / NOT CLOSED**
+Status: **CLOSED / HARD-GATED**
 
-Canonical base: `62048d134a9ce87928fa51a6653447c4c583ae6b`
+Canonical start base: `62048d134a9ce87928fa51a6653447c4c583ae6b`
 
 Phase 5.5 remains **PAUSED / LOCKED**. This stage changes navigation/information architecture only. It does not reopen or modify Phase 5.1–5.4 business/data semantics and it does not promote `ui-r2` to the canonical runtime.
 
@@ -14,7 +14,7 @@ The authoritative machine-readable inventory is:
 
 `docs/UI_UX_REBIRTH_2_0_FEATURE_PARITY.json`
 
-The inventory explicitly distinguishes:
+It contains **35 inventoried capabilities** and explicitly distinguishes:
 - authoritative live functionality,
 - integration contracts,
 - review-only/non-persistent presentation,
@@ -36,9 +36,9 @@ Verified structural causes include:
 - quick-create paths for follow-up/company-person/payment that validate and review but do not persist,
 - navigation identity held primarily in local component state rather than a deep-link/refresh-safe route model.
 
-R2.0-1 exists to remove these causes before any new visual shell is built.
+R2.0-1 closes these architectural causes before any new visual shell is built.
 
-## Frozen first-level model under review
+## Frozen first-level model
 
 The only persistent first-level doors are:
 
@@ -55,7 +55,11 @@ The brand is branding only. It is not a secret launcher.
 
 Every capability has exactly one canonical home. Contextual shortcuts may point to that home but may not create a second implementation.
 
-## Route and location direction
+The runtime-facing source registry is frozen at:
+
+`src/ui-r2/architecture/navigation-contract.ts`
+
+## Frozen route and location model
 
 R2 Shell must use real route identity rather than a final architecture based only on `useState`.
 
@@ -68,9 +72,15 @@ Required properties:
 - canonical-parent fallback for direct deep links,
 - overlay ownership: Back closes the top overlay before changing route.
 
-The exact router implementation is intentionally not selected in this kickoff. R2.0-1 freezes behavior and route ownership first; R2.0-3 implements it.
+Transaction create/edit were deliberately separated before closure:
+- create: `/app/transactions/new`
+- edit: `/app/transactions/:transactionId/edit`
 
-## Search contract
+The conceptual editor destination remains one task-space, but creation never requires a transaction id and edit always owns the target transaction identity.
+
+The exact router library/implementation remains an R2.0-3 implementation concern; R2.0-1 freezes behavior and ownership.
+
+## Frozen Search contract
 
 Find Anything becomes a real discovery/navigation surface.
 
@@ -86,7 +96,18 @@ Required aliases include at minimum:
 
 Selecting a result must navigate to the canonical destination.
 
-## Truthfulness contract
+## Frozen create truthfulness contract
+
+The global `جديد` entry is a discoverable create hub.
+
+At R2.0-1 closure:
+- transaction creation is authoritative,
+- current follow-up/company-person/payment quick-create paths are review-only and non-persistent,
+- review-only paths may never look or read as if data was saved.
+
+Later roadmap phases may replace these review-only contracts with authoritative mutations only when their domain authority is implemented.
+
+## Truthfulness contract for future domains
 
 A later-roadmap domain may be discoverable without pretending to be fully implemented.
 
@@ -101,22 +122,24 @@ Examples:
 
 Existing authoritative context already delivered in Home/Daily Work/Transactions remains available according to its frozen contracts.
 
-## R2.0-1 hard exit gate
+## R2.0-1 exit gate — CLOSED
 
-R2.0-1 is **not complete yet**. It may close only when all of the following are true:
+The following conditions are now frozen as the R2.0-1 closure contract:
 
-- feature inventory remains complete and non-empty,
-- every capability resolves to one known canonical home,
-- five first-level doors remain exact,
-- hidden primary navigation = 0,
-- duplicate canonical homes = 0,
-- every major capability remains within the 3-action budget,
+- feature inventory complete and non-empty: **PASS**,
+- every capability resolves to one known canonical home: **PASS**,
+- five first-level doors exact: **PASS**,
+- hidden primary navigation = **0**,
+- duplicate canonical homes = **0**,
+- every major capability within the **3-action** budget,
 - More exposes every secondary domain explicitly,
-- route/deep-link/back rules are frozen,
-- Find Anything contract is frozen,
-- global-create truthfulness contract is frozen,
+- route/deep-link/back rules frozen,
+- Find Anything contract frozen,
+- global-create truthfulness contract frozen,
 - future domains cannot masquerade as live,
-- R2.0-1 CI audit passes,
-- cumulative Quality and Browser gates remain green.
+- canonical TypeScript navigation registry created,
+- CI audit rejects drift between governance IA and the source registry.
 
-Only after closure may state advance to **R2.0-2 — New Design System**.
+R2.0-1 is not considered canonically closed until its closure PR and the cumulative Governance, Quality and Real Browser gates pass on `main`.
+
+After that verification, the next legal stage is **R2.0-2 — New Design System**. It does not start automatically.

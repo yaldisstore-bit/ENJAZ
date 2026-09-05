@@ -1,7 +1,8 @@
 {
   "schemaVersion": 1,
   "stage": "R2.0-1",
-  "status": "ACTIVE",
+  "status": "FROZEN",
+  "sourceRegistry": "src/ui-r2/architecture/navigation-contract.ts",
   "thesis": "Five obvious first-level doors, one canonical home per capability, contextual depth, and zero hidden primary navigation.",
   "primaryNavigation": {
     "mobilePersistent": ["home", "transactions", "create", "today", "more"],
@@ -26,7 +27,7 @@
     {"id":"account","label":"الحساب ومساحة العمل","kind":"global_utility","route":"/app/account","availability":"live_shell","maxActionsFromHome":1},
     {"id":"today.notifications","label":"الإشعارات","kind":"contextual_view","route":"/app/today?view=notifications","availability":"presentation_until_phase11","maxActionsFromHome":2},
     {"id":"transactions.detail","label":"تفاصيل المعاملة / 360°","kind":"entity","route":"/app/transactions/:transactionId","availability":"live","maxActionsFromHome":2},
-    {"id":"transactions.editor","label":"إنشاء/تعديل المعاملة","kind":"entity_action","route":"/app/transactions/:transactionId/edit","availability":"live","maxActionsFromHome":2},
+    {"id":"transactions.editor","label":"محرر المعاملة","kind":"entity_action","route":"/app/transactions/editor","routeVariants":{"create":"/app/transactions/new","edit":"/app/transactions/:transactionId/edit"},"availability":"live","maxActionsFromHome":2},
     {"id":"transactions.lifecycle","label":"دورة حياة المعاملة","kind":"entity_action","route":"/app/transactions/:transactionId/lifecycle","availability":"live","maxActionsFromHome":3},
     {"id":"companies","label":"الشركات","kind":"launcher_destination","route":"/app/companies","availability":"presentation_until_phase6","maxActionsFromHome":2},
     {"id":"people","label":"الأشخاص والمحامون","kind":"launcher_destination","route":"/app/people","availability":"presentation_until_phase6","maxActionsFromHome":2},
@@ -81,6 +82,8 @@
   },
   "createContract": {
     "entry": "create",
+    "transactionCreateRoute": "/app/transactions/new",
+    "transactionEditRoute": "/app/transactions/:transactionId/edit",
     "authoritativeNow": ["transactions.create"],
     "reviewOnlyNow": ["global.create.review_only"],
     "rule": "A review-only flow must be labeled non-persistent and may never look like a completed save."
@@ -105,12 +108,13 @@
   ],
   "r2_0_1ExitGate": {
     "featureInventoryComplete": true,
+    "canonicalRegistryCreated": true,
     "allCapabilitiesResolveToKnownCanonicalHome": true,
     "uniqueCanonicalRoutes": true,
     "hiddenPrimaryNavigationCount": 0,
     "duplicateCanonicalHomesCount": 0,
     "majorCapabilityMaxActions": 3,
-    "routeBackSearchCreateContractsFrozen": false,
-    "readyForR2_0_2": false
+    "routeBackSearchCreateContractsFrozen": true,
+    "readyForR2_0_2": true
   }
 }

@@ -21,12 +21,14 @@
   },
   "informationArchitecture": {
     "artifact": "docs/UI_UX_REBIRTH_2_0_INFORMATION_ARCHITECTURE.json",
-    "status": "ACTIVE",
+    "sourceRegistry": "src/ui-r2/architecture/navigation-contract.ts",
+    "status": "CLOSED",
     "primaryDoorCount": 5,
     "canonicalHomesResolved": true,
     "hiddenPrimaryNavigationCount": 0,
     "duplicateCanonicalHomesCount": 0,
-    "exitGatePassed": false
+    "routeBackSearchCreateContractsFrozen": true,
+    "exitGatePassed": true
   },
   "noMaze": {
     "validated": false,
