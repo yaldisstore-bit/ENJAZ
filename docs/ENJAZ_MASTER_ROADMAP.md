@@ -204,7 +204,7 @@ Phase 3 began only after 2.8 was green. Its exit was verified through the comple
 
 # Phase 4 — Home, Daily Work & Executive Overview ✅
 
-Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** Phase 5.1, Phase 5.2 and Phase 5.3 have since been completed under Phase 5 without changing the closed Phase 4 contract.
+Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** Phase 5.1, Phase 5.2, Phase 5.3 and Phase 5.4 have since been completed under Phase 5 without changing the closed Phase 4 contract.
 
 ## 4.1 — Home / Dashboard ✅
 - Build the actual ENJAZ home screen using Phase 2 patterns.
@@ -253,7 +253,7 @@ Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed �
 
 # Phase 5 — Transactions Core
 
-Phase 5 is in progress. **Phase 5.1, Phase 5.2 and Phase 5.3 are closed ✅.** The next permitted product step is **Phase 5.4 — Archive/Restore/Lifecycle**, which remains not started until the Phase 5.3 closure PR is merged and canonical `main` is re-certified. Phase 5 remains open until 5.4–5.5 are closed.
+Phase 5 is in progress. **Phase 5.1, Phase 5.2, Phase 5.3 and Phase 5.4 are closed ✅.** The next permitted product step is **Phase 5.5 — Transaction Destruction Gate**, which remains not started until the Phase 5.4 closure PR is merged and canonical `main` is re-certified. Phase 5 remains open until 5.5 is closed.
 
 ## 5.1 — Transaction List & Search ✅
 - Current, stalled/delayed, archived/closed views according to the frozen business contract.
@@ -300,9 +300,22 @@ Phase 5 is in progress. **Phase 5.1, Phase 5.2 and Phase 5.3 are closed ✅.** T
 - Evidence artifact: `9965684028`, digest `sha256:689be39bef0f28fec5cfdff09b82baa8493ae5dca8f7ec40b56f78cdad319e5f` ✅.
 - Closure evidence: `docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md`.
 
-## 5.4 — Archive/Restore/Lifecycle
-- Safe lifecycle actions.
-- Archived items must not continue producing active follow-ups unless explicitly restored/reactivated by business rules.
+## 5.4 — Archive/Restore/Lifecycle ✅
+- Archive is represented by `archived_at`; the implementation never invents an illegal archived status.
+- Restore clears the archive marker while preserving the underlying active/stalled/completed state.
+- Reactivate is a distinct explicit action that reopens a completed transaction by returning it to active and clearing completion/archive timestamps.
+- Deleted transactions and stale lifecycle contexts fail closed before mutation.
+- Open follow-ups are counted and preserved; archive suppresses them through the authoritative inactive-parent rules rather than deleting or rewriting history.
+- Lifecycle evidence is append-only through `transaction_activity`, with unconfirmed supporting-write outcomes surfaced as warnings instead of false clean success.
+- The live lifecycle surface loads the authoritative current record before offering legal actions, with separate Archive / Restore / Reactivate confirmations.
+- Transaction 360° remains read-only; lifecycle mutation stays in the separate Phase 5.4 surface.
+- Mobile/RTL/narrow-screen/long-text behavior retains 44px-or-larger interaction geometry and body-portaled modal ownership.
+- Dedicated lifecycle model/service tests passed **16/16** and full functional regression passed **118/118** on the certified pre-closure line.
+- Real Chromium destruction passed at **1280 / 430 / 390 / 360 / 320px** for archive, restore, reactivate, long mixed text, touch geometry, overflow, modal-layer ownership, and console/page errors.
+- Manual evidence review found and fixed the confirmation exit-animation ghost before closure; screenshots now wait until the confirmation overlay has left.
+- Pre-closure gate: `33955819739` on `b49927d6d3a037fbb78eb5bd0ea639535c71e5e8` ✅.
+- Evidence artifact: `9966337167`, digest `sha256:43e16a763e7e43a63c3e8dbace1a950c2d1732e6f796d2a1faf8e677096d5ac4` ✅.
+- Closure evidence: `docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md`.
 
 ## 5.5 — Transaction Destruction Gate
 - Large lists, malformed relations, conflicting edits, offline failures, repeated actions, destructive regression tests.
@@ -670,8 +683,9 @@ The project is considered delivered only when:
 - **Phase 5.1 — Transaction List & Search ✅**
 - **Phase 5.2 — Transaction Create/Edit ✅**
 - **Phase 5.3 — Transaction Details / 360° ✅**
-- **Next: Phase 5.4 — Archive/Restore/Lifecycle**
-- **Phase 5.4 remains not started**
+- **Phase 5.4 — Archive/Restore/Lifecycle ✅**
+- **Next: Phase 5.5 — Transaction Destruction Gate**
+- **Phase 5.5 remains not started**
 
 ---
 
@@ -679,7 +693,7 @@ The project is considered delivered only when:
 
 This file is intentionally difficult to change by accident.
 
-This closure changes only verified roadmap state: Phase 5.3 is marked complete after its architecture gate, 11/11 dedicated Transaction 360 model/service tests, 102/102 full functional regression tests, cumulative UI V2 and Phase 4/5.1/5.2 guards, secrets and database audits, roadmap integrity, TypeScript, production build, strict asset budget, real Chromium 360° validation, global browser acceptance, and manual screenshot inspection all succeeded on the certified pre-closure line `db5f52e82840f5f904a185cca6664d5ffb7f5a7d`. Real defects discovered during destruction—modal stacking over the fixed shell, evidence capture during entry animation, and compressed RTL/bidi summary/facts presentation—were fixed in the product and protected by permanent regression guards rather than by weakening tests. Phase 5 remains open. Phase 5.4 becomes the next permitted subphase only after the Phase 5.3 closure PR is merged and canonical `main` is re-certified, and remains not started until then. Feature parity and delivery scope are unchanged; no Phase 5.4/5.5 implementation is moved forward or skipped.
+This closure changes only verified roadmap state: Phase 5.4 is marked complete after its architecture gate, 16/16 dedicated lifecycle model/service tests, 118/118 full functional regression tests, cumulative UI V2 and Phase 4/5.1/5.2/5.3 guards, secrets and database audits, roadmap integrity, TypeScript, production build, strict asset budget, real Chromium archive/restore/reactivate validation, global browser acceptance, and manual screenshot inspection all succeeded on the certified pre-closure line `b49927d6d3a037fbb78eb5bd0ea639535c71e5e8`. Real defects discovered during destruction—including the stale Phase 5.3 no-restore expectation, exact optional TypeScript dialog contract, and the confirmation exit-animation ghost visible in screenshot evidence—were fixed and protected by regression guards rather than by weakening behavior tests. Phase 5 remains open. Phase 5.5 becomes the next permitted subphase only after the Phase 5.4 closure PR is merged and canonical `main` is re-certified, and remains not started until then. Feature parity and delivery scope are unchanged; no Phase 5.5 or Phase 6 implementation is moved forward or skipped.
 
 A roadmap change must state:
 1. what changes,

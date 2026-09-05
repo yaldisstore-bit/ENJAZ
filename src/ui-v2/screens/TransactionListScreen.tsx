@@ -16,6 +16,7 @@ import { EzSheet } from '../components/overlays.tsx';
 import { EzButton, EzChip, EzField, EzNotice, EzSegmented, EzStatPill } from '../components/primitives.tsx';
 import { ConnectedTransaction360, FixtureTransaction360 } from './Transaction360.tsx';
 import { ConnectedTransactionEditor, FixtureTransactionEditor } from './TransactionEditor.tsx';
+import { ConnectedTransactionLifecycle, FixtureTransactionLifecycle } from './TransactionLifecyclePanel.tsx';
 
 type EditorTarget = Readonly<{ mode: 'create' | 'edit'; transactionId: string | null }> | null;
 
@@ -64,6 +65,7 @@ function TransactionCard(props: Readonly<{
   item: TransactionListItem;
   onOpen?: ((transactionId: string) => void) | undefined;
   onEdit?: ((transactionId: string) => void) | undefined;
+  onLifecycle?: ((transactionId: string) => void) | undefined;
 }>) {
   const item = props.item;
   const editable = item.view !== 'archived' && Boolean(props.onEdit);
@@ -83,8 +85,9 @@ function TransactionCard(props: Readonly<{
         <div className="ez-transaction-card__action-buttons">
           {props.onOpen ? <EzButton tone="dark" onClick={() => props.onOpen?.(item.id)} data-transaction-open-360={item.id}>فتح 360°</EzButton> : null}
           {editable ? <EzButton tone="ghost" onClick={() => props.onEdit?.(item.id)} data-transaction-edit={item.id}>تعديل المعاملة</EzButton> : null}
+          {props.onLifecycle ? <EzButton tone="ghost" onClick={() => props.onLifecycle?.(item.id)} data-transaction-lifecycle={item.id}>إدارة الحالة</EzButton> : null}
         </div>
-        {item.view === 'archived' ? <small>360° للعرض فقط؛ الاستعادة غير متاحة هنا.</small> : null}
+        {item.view === 'archived' ? <small>360° للعرض؛ الاستعادة أو إعادة التنشيط تمر عبر إدارة الحالة وبحسب السجل الحقيقي.</small> : null}
       </footer>
     </article>
   );
@@ -99,6 +102,7 @@ function TransactionListReady(props: Readonly<{
   setPage(page: number): void;
   onOpen?: ((transactionId: string) => void) | undefined;
   onEdit?: ((transactionId: string) => void) | undefined;
+  onLifecycle?: ((transactionId: string) => void) | undefined;
 }>) {
   const snapshot = props.snapshot;
   const views = [
@@ -144,7 +148,7 @@ function TransactionListReady(props: Readonly<{
 
       {snapshot.items.length ? (
         <section className="ez-transaction-list__results" data-transaction-results="true">
-          {snapshot.items.map((item) => <TransactionCard key={item.id} item={item} onOpen={props.onOpen} onEdit={props.onEdit} />)}
+          {snapshot.items.map((item) => <TransactionCard key={item.id} item={item} onOpen={props.onOpen} onEdit={props.onEdit} onLifecycle={props.onLifecycle} />)}
         </section>
       ) : (
         <section className="ez-transaction-list__empty" data-transaction-empty="true">
@@ -166,6 +170,7 @@ export function TransactionListScreen(props: Readonly<TransactionListController 
   onCreate?: (() => void) | undefined;
   onOpen?: ((transactionId: string) => void) | undefined;
   onEdit?: ((transactionId: string) => void) | undefined;
+  onLifecycle?: ((transactionId: string) => void) | undefined;
 }>) {
   return (
     <section className="ez-domain-screen ez-domain-transactions ez-transaction-list" data-domain-screen="transactions" data-pattern="transaction-list-search" data-transaction-status={props.status}>
@@ -176,7 +181,7 @@ export function TransactionListScreen(props: Readonly<TransactionListController 
 
       {props.status === 'loading' ? <TransactionListSkeleton /> : null}
       {props.status === 'error' ? <EzNotice title="تعذر تحميل المعاملات" body={props.errorMessage ?? 'تعذر تجهيز القائمة.'} tone="danger" action={<EzButton tone="dark" onClick={props.retry}>إعادة المحاولة</EzButton>} /> : null}
-      {props.status === 'ready' && props.snapshot ? <TransactionListReady snapshot={props.snapshot} request={props.request} setView={props.setView} setSearch={props.setSearch} setSort={props.setSort} setPage={props.setPage} onOpen={props.onOpen} onEdit={props.onEdit} /> : null}
+      {props.status === 'ready' && props.snapshot ? <TransactionListReady snapshot={props.snapshot} request={props.request} setView={props.setView} setSearch={props.setSearch} setSort={props.setSort} setPage={props.setPage} onOpen={props.onOpen} onEdit={props.onEdit} onLifecycle={props.onLifecycle} /> : null}
     </section>
   );
 }
@@ -185,6 +190,7 @@ export function ConnectedTransactionListScreen() {
   const controller = useTransactionList();
   const [editor, setEditor] = useState<EditorTarget>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [lifecycleId, setLifecycleId] = useState<string | null>(null);
   const closeEditor = () => setEditor(null);
   const saved = () => {
     setEditor(null);
@@ -192,16 +198,31 @@ export function ConnectedTransactionListScreen() {
   };
   const openDetail = (transactionId: string) => {
     setEditor(null);
+    setLifecycleId(null);
     setDetailId(transactionId);
+  };
+  const openLifecycle = (transactionId: string) => {
+    setEditor(null);
+    setDetailId(null);
+    setLifecycleId(transactionId);
   };
   return (
     <>
-      <TransactionListScreen {...controller} onCreate={() => { setDetailId(null); setEditor({ mode: 'create', transactionId: null }); }} onOpen={openDetail} onEdit={(transactionId) => { setDetailId(null); setEditor({ mode: 'edit', transactionId }); }} />
+      <TransactionListScreen
+        {...controller}
+        onCreate={() => { setDetailId(null); setLifecycleId(null); setEditor({ mode: 'create', transactionId: null }); }}
+        onOpen={openDetail}
+        onEdit={(transactionId) => { setDetailId(null); setLifecycleId(null); setEditor({ mode: 'edit', transactionId }); }}
+        onLifecycle={openLifecycle}
+      />
       <EzSheet open={detailId !== null} title="ملف المعاملة 360°" eyebrow="360°" onClose={() => setDetailId(null)}>
         {detailId ? <ConnectedTransaction360 transactionId={detailId} /> : null}
       </EzSheet>
       <EzSheet open={editor !== null} title={editor?.mode === 'edit' ? 'تعديل المعاملة' : 'معاملة جديدة'} eyebrow="Phase 5.2" onClose={closeEditor}>
         {editor ? <ConnectedTransactionEditor mode={editor.mode} transactionId={editor.transactionId} onSaved={saved} onCancel={closeEditor} /> : null}
+      </EzSheet>
+      <EzSheet open={lifecycleId !== null} title="إدارة حالة المعاملة" eyebrow="دورة الحياة" onClose={() => setLifecycleId(null)}>
+        {lifecycleId ? <ConnectedTransactionLifecycle transactionId={lifecycleId} onChanged={controller.retry} /> : null}
       </EzSheet>
     </>
   );
@@ -212,6 +233,7 @@ export function FixtureTransactionListScreen() {
   const [request, setRequest] = useState<TransactionListRequest>(() => normalizeTransactionListRequest());
   const [editor, setEditor] = useState<EditorTarget>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [lifecycleId, setLifecycleId] = useState<string | null>(null);
   const snapshot = useMemo(() => buildTransactionListSnapshot(source, request), [request, source]);
   const controller: TransactionListController = Object.freeze({
     status: 'ready',
@@ -227,16 +249,31 @@ export function FixtureTransactionListScreen() {
   const closeEditor = () => setEditor(null);
   const openDetail = (transactionId: string) => {
     setEditor(null);
+    setLifecycleId(null);
     setDetailId(transactionId);
+  };
+  const openLifecycle = (transactionId: string) => {
+    setEditor(null);
+    setDetailId(null);
+    setLifecycleId(transactionId);
   };
   return (
     <>
-      <TransactionListScreen {...controller} onCreate={() => { setDetailId(null); setEditor({ mode: 'create', transactionId: null }); }} onOpen={openDetail} onEdit={(transactionId) => { setDetailId(null); setEditor({ mode: 'edit', transactionId }); }} />
+      <TransactionListScreen
+        {...controller}
+        onCreate={() => { setDetailId(null); setLifecycleId(null); setEditor({ mode: 'create', transactionId: null }); }}
+        onOpen={openDetail}
+        onEdit={(transactionId) => { setDetailId(null); setLifecycleId(null); setEditor({ mode: 'edit', transactionId }); }}
+        onLifecycle={openLifecycle}
+      />
       <EzSheet open={detailId !== null} title="ملف المعاملة 360°" eyebrow="360°" onClose={() => setDetailId(null)}>
         {detailId ? <FixtureTransaction360 transactionId={detailId} /> : null}
       </EzSheet>
       <EzSheet open={editor !== null} title={editor?.mode === 'edit' ? 'تعديل المعاملة' : 'معاملة جديدة'} eyebrow="Phase 5.2" onClose={closeEditor}>
         {editor ? <FixtureTransactionEditor mode={editor.mode} onSaved={closeEditor} onCancel={closeEditor} /> : null}
+      </EzSheet>
+      <EzSheet open={lifecycleId !== null} title="إدارة حالة المعاملة" eyebrow="دورة الحياة" onClose={() => setLifecycleId(null)}>
+        {lifecycleId ? <FixtureTransactionLifecycle transactionId={lifecycleId} /> : null}
       </EzSheet>
     </>
   );

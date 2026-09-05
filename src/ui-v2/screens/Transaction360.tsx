@@ -86,7 +86,7 @@ function Ready({ snapshot: s }: Readonly<{ snapshot: Transaction360Snapshot }>) 
       </Panel>
     </section>
 
-    <footer className="ez-transaction-360__footer"><span>إنشاء: {date(s.createdAt)}</span><span>تحديث: {date(s.updatedAt)}</span>{closed ? <span>المعاملة للعرض فقط؛ الاستعادة غير متاحة هنا.</span> : null}</footer>
+    <footer className="ez-transaction-360__footer"><span>إنشاء: {date(s.createdAt)}</span><span>تحديث: {date(s.updatedAt)}</span>{closed ? <span>المعاملة للعرض فقط داخل 360°؛ تغييرات دورة الحياة تتم من إدارة الحالة.</span> : null}</footer>
   </article>;
 }
 

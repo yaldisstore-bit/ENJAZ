@@ -153,13 +153,15 @@ async function verifyArchivedBoundary(browser, width) {
   const card = page.locator('[data-transaction-view="archived"]').first();
   await card.waitFor();
   assert(await card.locator('[data-transaction-open-360]').isVisible(), `archived-${width}: archived transaction lost read-only 360 access`);
-  assert(await card.locator('[data-transaction-edit]').count() === 0, `archived-${width}: Phase 5.3 leaked archived edit/lifecycle action`);
-  assert(await card.getByText('360° للعرض فقط؛ الاستعادة غير متاحة هنا.', { exact: true }).isVisible(), `archived-${width}: archived read-only boundary label missing`);
+  assert(await card.locator('[data-transaction-edit]').count() === 0, `archived-${width}: archived transaction leaked edit action`);
+  assert(await card.locator('[data-transaction-lifecycle]').isVisible(), `archived-${width}: Phase 5.4 lifecycle delegation is missing from the archived card`);
+  assert(await card.getByText('360° للعرض؛ الاستعادة أو إعادة التنشيط تمر عبر إدارة الحالة وبحسب السجل الحقيقي.', { exact: true }).isVisible(), `archived-${width}: archived read-only 360 delegation label missing`);
   await card.locator('[data-transaction-open-360]').click();
   const sheet = page.getByRole('dialog', { name: 'ملف المعاملة 360°' });
   await sheet.waitFor();
   assert(await sheet.locator('[data-pattern="transaction-360"]').isVisible(), `archived-${width}: archived 360 did not open`);
-  assert(await sheet.getByText('المعاملة للعرض فقط؛ الاستعادة غير متاحة هنا.', { exact: true }).isVisible(), `archived-${width}: 360 lifecycle boundary missing`);
+  assert(await sheet.getByText('المعاملة للعرض فقط داخل 360°؛ تغييرات دورة الحياة تتم من إدارة الحالة.', { exact: true }).isVisible(), `archived-${width}: 360 read-only lifecycle delegation missing`);
+  assert(await sheet.locator('[data-lifecycle-action]').count() === 0, `archived-${width}: Phase 5.4 mutation leaked inside the read-only 360 surface`);
   await assertSheetOwnsModalLayer(page, `archived-${width}`);
   await settleSheet(page);
   await noHorizontalOverflow(page, `archived-${width}`);
@@ -168,7 +170,7 @@ async function verifyArchivedBoundary(browser, width) {
   assert(errors.console.length === 0, `archived-${width}: console errors ${errors.console.join(' | ')}`);
   assert(errors.page.length === 0, `archived-${width}: page errors ${errors.page.join(' | ')}`);
   await context.close();
-  return { width, archivedReadOnly: true, modalLayer: true };
+  return { width, archivedReadOnly: true, lifecycleDelegated: true, modalLayer: true };
 }
 
 const browser = await chromium.launch({ headless: true });
