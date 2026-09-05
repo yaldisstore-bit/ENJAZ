@@ -14,8 +14,10 @@ const paths = {
   parity: 'docs/UI_UX_REBIRTH_2_0_FEATURE_PARITY.json',
   navigation: 'src/ui-r2/architecture/navigation-contract.ts',
   model: 'src/ui-r2/find-anything/find-anything-model.ts',
+  connected: 'src/ui-r2/find-anything/FindAnythingConnected.ts',
   root: 'src/ui-r2/runtime/UiR2Root.tsx',
   browser: 'tests-external/r2-zero-lost.spec.cjs',
+  connectedTest: 'tests/findAnythingConnected.test.ts',
   main: 'src/main.tsx',
 };
 
@@ -31,11 +33,13 @@ const evidence = json(paths.evidence);
 const parity = json(paths.parity);
 const navigation = read(paths.navigation);
 const model = read(paths.model);
+const connected = read(paths.connected);
 const uiRoot = read(paths.root);
 const browser = read(paths.browser);
+const connectedTest = read(paths.connectedTest);
 const main = read(paths.main);
 
-if (state.stage !== 'R2.0-8') errors.push(`Zero-Lost guard requires active stage R2.0-8, found ${state.stage}`);
+if (state.stage !== 'R2.0-8') errors.push(`Zero-Lost guard requires stage R2.0-8, found ${state.stage}`);
 if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked');
 if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 during R2.0-8');
 if (state.goldenExperience?.status !== 'APPROVED') errors.push('Golden Experience must remain approved');
@@ -89,6 +93,25 @@ if (/\b(?:fetch|localStorage|sessionStorage)\s*\(/.test(model)) errors.push('Fin
 for (const forbidden of ['ui-v2', 'ui-rebirth']) if (model.includes(forbidden)) errors.push(`Find Anything model references legacy presentation marker: ${forbidden}`);
 
 for (const marker of [
+  'EnjazDataLayerFactory',
+  'useDataLayerFactory',
+  'useCurrentUserId',
+  'resolveWorkspaceId',
+  'forWorkspace',
+  'data.transactions.list',
+  'data.companies.list',
+  'loadR2WorkspaceSearchRecords',
+  'buildR2ConnectedFindAnythingResults',
+  "'workspace-record'",
+  'بيانات مساحة العمل',
+  'limit: 80',
+  'limit: 100',
+]) if (!connected.includes(marker)) errors.push(`authoritative Find Anything provider missing Data Layer marker: ${marker}`);
+if (/\b(?:fetch|localStorage|sessionStorage)\s*\(/.test(connected)) errors.push('authoritative Find Anything provider may not create ad-hoc fetch or browser persistence channels');
+for (const forbidden of ['ui-v2', 'ui-rebirth']) if (connected.includes(forbidden)) errors.push(`authoritative Find Anything provider references legacy presentation marker: ${forbidden}`);
+for (const marker of ['loadR2WorkspaceSearchRecords', 'workspace-record', 'بيانات مساحة العمل', 'resolveWorkspaceId']) if (!connectedTest.includes(marker)) errors.push(`connected Find Anything tests missing truthfulness marker: ${marker}`);
+
+for (const marker of [
   "from '../find-anything/find-anything-model.ts'",
   'buildR2FindAnythingResults',
   'data-zero-lost-stage="R2.0-8"',
@@ -100,9 +123,20 @@ for (const marker of [
 
 for (const width of [1280, 430, 390, 360, 320]) if (!browser.includes(String(width))) errors.push(`R2.0-8 browser proof missing hard width ${width}`);
 for (const marker of [
+  'NO_MAZE_SCENARIOS',
+  'NO_MAZE_SCENARIOS.length !== 16',
+  'actions > 3',
   'canonical feature alias navigation restores exact search state on back',
   'transaction record discovery opens canonical 360 and back restores query',
   'Arabic normalization survives hamza, tatweel and mixed input',
+  'No-Maze reaches Transactions from Home in 1 action',
+  'No-Maze reaches Today from Home in 1 action',
+  'No-Maze reaches More from Home in 1 action',
+  'No-Maze reaches Create from Home in 1 action',
+  'No-Maze reaches Companies through More in 2 actions',
+  'No-Maze reaches People by lawyer alias in 2 actions',
+  'No-Maze reaches Finance by payment alias in 2 actions',
+  'No-Maze reaches Command Center by command alias in 2 actions',
   'data-find-kind="transaction"',
   'data-find-source="preview-record"',
   'assertNoHorizontalOverflow',
@@ -115,6 +149,9 @@ if (!globalSearch) errors.push('Feature Parity is missing global.search');
 if (state.findAnythingZeroLost?.status === 'CLOSED') {
   if (state.findAnythingZeroLost?.exitGatePassed !== true || evidence.exitGatePassed !== true) errors.push('closed R2.0-8 requires exit gate PASS');
   if (state.noMaze?.validated !== true || state.noMaze?.scenarioCount < 15 || state.noMaze?.passedCount !== state.noMaze?.scenarioCount) errors.push('closed R2.0-8 requires full No-Maze scenario proof');
+  if (state.noMaze?.scenarioCount !== 16 || state.noMaze?.passedCount !== 16) errors.push('R2.0-8 closure is pinned to the 16-scenario browser proof');
+  if (evidence.zeroLost?.scenarioCount !== 16 || evidence.zeroLost?.passedCount !== 16) errors.push('closed evidence must pin all 16 No-Maze scenarios');
+  if (evidence.authoritativeRecordProvider !== paths.connected) errors.push('closed R2.0-8 evidence must pin the authoritative Data Layer provider');
   if (globalSearch?.migrated !== true || globalSearch?.tested !== true) errors.push('closed R2.0-8 requires global.search migrated and tested');
 }
 
@@ -123,5 +160,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ R2.0-8 ZERO-LOST AUDIT PASS — ${state.findAnythingZeroLost?.status}; discovery, canonical-home and browser No-Maze locks are fail-closed.`);
+  console.log(`ENJAZ R2.0-8 ZERO-LOST AUDIT PASS — ${state.findAnythingZeroLost?.status}; authoritative discovery, canonical-home and 16-scenario No-Maze locks are fail-closed.`);
 }
