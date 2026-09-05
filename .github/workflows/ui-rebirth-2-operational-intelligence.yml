@@ -1,0 +1,51 @@
+name: ENJAZ R2.0-7 — Operational Intelligence Gate
+
+on:
+  push:
+    branches:
+      - 'r2-0-7-*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  operational-intelligence-gate:
+    name: R2.0-7 / Task-specific Operational Intelligence
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Enforce Phase 5.5 freeze
+        run: node scripts/ui-rebirth-2-freeze-audit.mjs
+      - name: Enforce locked palette
+        run: node scripts/ui-rebirth-2-palette-audit.mjs
+      - name: Preserve hard Rebirth acceptance
+        run: node scripts/ui-rebirth-2-acceptance-audit.mjs
+      - name: Preserve Golden + Core Work + Records
+        run: |
+          node scripts/ui-rebirth-2-golden-visual-contract-audit.mjs
+          node scripts/ui-rebirth-2-golden-specimen-audit.mjs
+          node scripts/ui-rebirth-2-core-work-audit.mjs
+          node scripts/ui-rebirth-2-records-audit.mjs
+      - name: Enforce R2.0-7 Operational Intelligence contract
+        run: node scripts/ui-rebirth-2-operational-intelligence-audit.mjs
+      - name: Functional regression
+        run: npm run test:functional
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Build isolated R2.0-7 preview
+        run: npx vite build --config vite.r2-preview.config.ts --base=/
+      - name: Enforce isolated preview budget
+        run: node scripts/ui-rebirth-2-preview-budget-audit.mjs
