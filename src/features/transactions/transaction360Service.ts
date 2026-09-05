@@ -2,10 +2,10 @@ import type { EnjazDataLayerFactory } from '../../data/createDataLayer.ts';
 import type { DataPage, RowOf } from '../../data/contracts/dataTypes.ts';
 import { TRANSACTION_360_SECTION_LIMIT, type Transaction360Section, type Transaction360Source } from './transaction360Model.ts';
 
-export class Transaction360WorkspaceUnavailableError extends Error { constructor() { super('No workspace is available for Transaction 360'); this.name = 'Transaction360WorkspaceUnavailableError'; } }
-export class Transaction360NotFoundError extends Error { constructor() { super('Transaction was not found'); this.name = 'Transaction360NotFoundError'; } }
-export class Transaction360DeletedError extends Error { constructor() { super('Deleted transaction is outside Phase 5.3'); this.name = 'Transaction360DeletedError'; } }
-export class Transaction360CoreLoadError extends Error { constructor(message: string, options?: ErrorOptions) { super(message, options); this.name = 'Transaction360CoreLoadError'; } }
+export class Transaction360WorkspaceUnavailableError extends Error {}
+export class Transaction360NotFoundError extends Error {}
+export class Transaction360DeletedError extends Error {}
+export class Transaction360CoreLoadError extends Error {}
 
 async function optionalSection<T>(loader: () => Promise<DataPage<T>>): Promise<Transaction360Section<T>> {
   try { const page = await loader(); return { state: page.hasMore ? 'truncated' : 'ready', items: page.items }; }
@@ -23,13 +23,13 @@ export async function loadTransaction360Source(factory: EnjazDataLayerFactory, u
 
   let transaction: RowOf<'transactions'> | null;
   try { transaction = await layer.transactions.getById(id); }
-  catch (error) { throw new Transaction360CoreLoadError('Authoritative transaction read failed', { cause: error }); }
+  catch (error) { throw new Transaction360CoreLoadError('transaction', { cause: error }); }
   if (!transaction) throw new Transaction360NotFoundError();
   if (transaction.deleted_at !== null) throw new Transaction360DeletedError();
 
   let company: RowOf<'companies'> | null;
   try { company = await layer.companies.getById(transaction.company_id); }
-  catch (error) { throw new Transaction360CoreLoadError('Authoritative company relation read failed', { cause: error }); }
+  catch (error) { throw new Transaction360CoreLoadError('company', { cause: error }); }
 
   let contact: RowOf<'contacts'> | null = null;
   let contactState: Transaction360Source['contactState'] = transaction.primary_contact_id ? 'ready' : 'missing';
