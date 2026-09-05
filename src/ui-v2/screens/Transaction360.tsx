@@ -36,6 +36,11 @@ function priorityTone(priority: string): 'danger' | 'warning' | 'neutral' {
   return 'neutral';
 }
 
+function isLifecycleClosed(snapshot: Transaction360Snapshot): boolean {
+  const status = snapshot.status.trim().toLowerCase();
+  return snapshot.archivedAt !== null || snapshot.completedAt !== null || ['completed', 'closed', 'archived'].includes(status);
+}
+
 function SectionHealth({ snapshot }: Readonly<{ snapshot: Transaction360Snapshot }>) {
   const entries = Object.entries(snapshot.sectionStates) as Array<[string, Transaction360SectionState]>;
   const unavailable = entries.filter(([, state]) => state === 'unavailable').map(([name]) => name);
@@ -51,6 +56,7 @@ function SectionHealth({ snapshot }: Readonly<{ snapshot: Transaction360Snapshot
 }
 
 function Transaction360Ready({ snapshot }: Readonly<{ snapshot: Transaction360Snapshot }>) {
+  const lifecycleClosed = isLifecycleClosed(snapshot);
   return (
     <article className="ez-transaction-360" data-pattern="transaction-360" data-transaction-360={snapshot.id}>
       <header className="ez-transaction-360__hero">
@@ -117,7 +123,7 @@ function Transaction360Ready({ snapshot }: Readonly<{ snapshot: Transaction360Sn
       <footer className="ez-transaction-360__footer">
         <span>إنشاء: {formatDate(snapshot.createdAt)}</span>
         <span>تحديث: {formatDate(snapshot.updatedAt)}</span>
-        {snapshot.archivedAt ? <span>الأرشفة للعرض فقط هنا؛ الاستعادة في Phase 5.4.</span> : null}
+        {lifecycleClosed ? <span>المعاملة غير نشطة؛ إعادة التفعيل أو الاستعادة تبقى في Phase 5.4.</span> : null}
       </footer>
     </article>
   );
