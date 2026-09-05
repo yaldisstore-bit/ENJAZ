@@ -35,15 +35,15 @@
   "browserTest": "tests-external/r2-golden.spec.cjs",
   "workflow": ".github/workflows/ui-rebirth-2-golden.yml",
   "visualContract": "docs/UI_UX_REBIRTH_2_0_GLOBAL_VISUAL_POLISH_CONTRACT.json",
-  "evidenceCommit": "2f15074c8ad159738edea2f3e0033c921ddba9b9",
-  "browserRun": 33965977016,
+  "evidenceCommit": "96da5a33560326e85caea623e8c750c4a0f6c6df",
+  "browserRun": 33966198099,
   "browserConclusion": "success",
   "artifact": {
-    "id": 9969439831,
-    "name": "enjaz-r2-golden-evidence-a022939c14152c1820917e0263f5e9a47ab515ea",
-    "sizeBytes": 3022442,
-    "digest": "sha256:63ba3873e747b59b0fca4097bbab3751274a6b9d9641a975d00bc96d8045d8cb",
-    "expiresAt": "2026-09-19T12:26:12Z"
+    "id": 9969511429,
+    "name": "enjaz-r2-golden-evidence-0cb310ac273817b7ee039d79c9c50ef29f516823",
+    "sizeBytes": 3022292,
+    "digest": "sha256:de5822bc4147b2d2d6d8a98129af010bfbd5453a7d4e3e65b0dc2ca0a3368b6b",
+    "expiresAt": "2026-09-19T12:31:06Z"
   },
   "checks": {
     "globalVisualPolishGuard": "PASS",
@@ -52,7 +52,8 @@
     "typescript": "PASS",
     "previewBuild": "PASS",
     "previewBudget": "PASS",
-    "realBrowserHardWidths": "PASS"
+    "realBrowserHardWidths": "PASS",
+    "manualArtifactReview": "PASS_320_SPECIMEN_BADGE_CONTAINED"
   },
   "visualEvidenceReady": true,
   "professionalUxEvidenceReady": true,
