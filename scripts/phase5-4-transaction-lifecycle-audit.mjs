@@ -5,12 +5,12 @@ function assert(condition, message) {
 }
 async function read(file) { return fs.readFile(file, 'utf8'); }
 
-const [core, model, service, listModel, dailyWork, kickoff, roadmap, pkgText] = await Promise.all([
+const [core, model, service, listModel, dailyWorkService, kickoff, roadmap, pkgText] = await Promise.all([
   read('src/ui-v2/runtime/CoreApp.tsx'),
   read('src/features/transactions/transactionLifecycleModel.ts'),
   read('src/features/transactions/transactionLifecycleService.ts'),
   read('src/features/transactions/transactionListModel.ts'),
-  read('src/features/daily-work/dailyWorkModel.ts'),
+  read('src/features/daily-work/dailyWorkService.ts'),
   read('docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_KICKOFF.md'),
   read('docs/ENJAZ_MASTER_ROADMAP.md'),
   read('package.json'),
@@ -49,7 +49,11 @@ for (const token of [
 assert(!service.includes('lifecycleEvents.create'), 'transaction lifecycle must not misuse company/contact entity_lifecycle_events');
 assert(!service.includes('createClient(') && !service.includes("from '@supabase"), 'lifecycle service may not create or import a direct Supabase client');
 assert(listModel.includes("row.archived_at !== null") && listModel.includes("row.completed_at !== null"), 'transaction list lost archive/completion classification');
-assert(dailyWork.includes('archived_at') && dailyWork.includes('completed_at') && dailyWork.includes('deleted_at'), 'Daily Work lost inactive-parent suppression contract');
+for (const token of [
+  "{ column: 'archived_at', operator: 'is', value: null }",
+  "{ column: 'deleted_at', operator: 'is', value: null }",
+  "{ column: 'status', operator: 'neq', value: 'completed' }",
+]) assert(dailyWorkService.includes(token), `Daily Work inactive-parent suppression missing ${token}`);
 
 assert(kickoff.includes('Status: **IN PROGRESS**'), 'Phase 5.4 kickoff is not in progress');
 assert(kickoff.includes('does **not** allow a synthetic `archived` status'), 'database archive-state truth missing from kickoff');
@@ -69,5 +73,6 @@ console.log('- archive is represented only by archived_at; no illegal archived s
 console.log('- restore and reactivate remain distinct explicit lifecycle actions');
 console.log('- deleted rows and stale contexts fail closed before mutation');
 console.log('- open followups are counted and preserved rather than destructively rewritten');
+console.log('- Daily Work suppression is guarded at the authoritative repository-query layer');
 console.log('- transaction_activity is the append-only lifecycle evidence path for transactions');
 console.log('- Phase 5.5, Finance and Workflow authority remain locked');
