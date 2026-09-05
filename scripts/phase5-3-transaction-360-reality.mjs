@@ -21,6 +21,27 @@ async function assertTouchTargets(page, label) {
   }).filter((item) => item.visible && (item.width < 44 || item.height < 44)));
   assert(undersized.length === 0, `${label}: undersized interactive targets ${JSON.stringify(undersized)}`);
 }
+async function assertSheetOwnsModalLayer(page, label) {
+  const result = await page.evaluate(() => {
+    const overlay = document.querySelector('.ez-overlay--sheet');
+    if (!(overlay instanceof HTMLElement)) return { bodyPortal: false, offenders: ['overlay-missing'] };
+    const offenders = [];
+    for (const selector of ['.ez-bottom-dock', '.ez-app-shell__topbar']) {
+      const element = document.querySelector(selector);
+      if (!(element instanceof HTMLElement)) continue;
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      if (rect.width <= 0 || rect.height <= 0 || style.display === 'none' || style.visibility === 'hidden') continue;
+      const x = Math.min(window.innerWidth - 1, Math.max(0, rect.left + rect.width / 2));
+      const y = Math.min(window.innerHeight - 1, Math.max(0, rect.top + rect.height / 2));
+      const top = document.elementFromPoint(x, y);
+      if (top && !overlay.contains(top)) offenders.push(`${selector}->${top instanceof HTMLElement ? top.className || top.tagName : String(top)}`);
+    }
+    return { bodyPortal: overlay.parentElement === document.body, offenders };
+  });
+  assert(result.bodyPortal, `${label}: sheet overlay is trapped inside an app stacking context`);
+  assert(result.offenders.length === 0, `${label}: shell chrome rendered above modal layer ${JSON.stringify(result.offenders)}`);
+}
 function collectErrors(page) {
   const errors = { console: [], page: [] };
   page.on('console', (message) => { if (message.type() === 'error') errors.console.push(message.text()); });
@@ -42,13 +63,14 @@ async function openTransactions(page, label) {
   await page.locator('[data-domain-explorer-link="transactions"]').click();
   await page.locator('[data-domain-screen="transactions"][data-transaction-status="ready"]').waitFor();
 }
-async function openFirst360(page) {
+async function openFirst360(page, label) {
   const button = page.locator('[data-transaction-open-360]').first();
   await button.waitFor();
   await button.click();
   const sheet = page.getByRole('dialog', { name: 'ملف المعاملة 360°' });
   await sheet.waitFor();
   await sheet.locator('[data-pattern="transaction-360"]').waitFor();
+  await assertSheetOwnsModalLayer(page, label);
   return sheet;
 }
 
@@ -57,7 +79,7 @@ async function verifyDesktopContext(browser) {
   const page = await context.newPage();
   const errors = collectErrors(page);
   await openTransactions(page, 'desktop-1280');
-  const sheet = await openFirst360(page);
+  const sheet = await openFirst360(page, 'desktop-1280');
   for (const name of ['timeline', 'followups', 'finance', 'notes', 'documents']) {
     const selector = `[data-transaction-360-section="${name}"]`;
     assert(await sheet.locator(selector).isVisible(), `desktop-1280: missing 360 section ${selector}`);
@@ -66,11 +88,11 @@ async function verifyDesktopContext(browser) {
   assert((await sheet.locator('[data-transaction-360-section="timeline"] li').count()) >= 3, 'desktop-1280: timeline did not compose multiple authoritative event families');
   await noHorizontalOverflow(page, 'desktop-1280');
   await assertTouchTargets(page, 'desktop-1280');
-  await page.screenshot({ path: path.join(outDir, 'transaction-360-1280.png'), fullPage: true });
+  await page.screenshot({ path: path.join(outDir, 'transaction-360-1280.png'), fullPage: false });
   assert(errors.console.length === 0, `desktop-1280: console errors ${errors.console.join(' | ')}`);
   assert(errors.page.length === 0, `desktop-1280: page errors ${errors.page.join(' | ')}`);
   await context.close();
-  return { width: 1280, context: true, timeline: true };
+  return { width: 1280, context: true, timeline: true, modalLayer: true };
 }
 
 async function verifyMissingRelation(browser) {
@@ -80,16 +102,16 @@ async function verifyMissingRelation(browser) {
   await openTransactions(page, 'missing-relation-390');
   await page.getByLabel('بحث المعاملات').fill('3001');
   await page.locator('[data-transaction-results="true"] [data-transaction-id]').first().waitFor();
-  const sheet = await openFirst360(page);
+  const sheet = await openFirst360(page, 'missing-relation-390');
   assert(await sheet.getByText('ربط الشركة يحتاج تحققًا', { exact: true }).isVisible(), 'missing-relation-390: missing company warning is hidden');
   assert(await sheet.getByText('بيانات الشركة غير متاحة', { exact: true }).isVisible(), 'missing-relation-390: missing company was fabricated');
   await noHorizontalOverflow(page, 'missing-relation-390');
   await assertTouchTargets(page, 'missing-relation-390');
-  await page.screenshot({ path: path.join(outDir, 'transaction-360-missing-company-390.png'), fullPage: true });
+  await page.screenshot({ path: path.join(outDir, 'transaction-360-missing-company-390.png'), fullPage: false });
   assert(errors.console.length === 0, `missing-relation-390: console errors ${errors.console.join(' | ')}`);
   assert(errors.page.length === 0, `missing-relation-390: page errors ${errors.page.join(' | ')}`);
   await context.close();
-  return { width: 390, missingRelation: true };
+  return { width: 390, missingRelation: true, modalLayer: true };
 }
 
 async function verifyNarrowLongText(browser) {
@@ -102,17 +124,17 @@ async function verifyNarrowLongText(browser) {
   await result.waitFor();
   assert(await result.locator('[data-transaction-open-360]').isVisible(), 'long-phone-320: 360 action disappeared on narrow long-text card');
   assert(await result.locator('[data-transaction-edit]').isVisible(), 'long-phone-320: edit action disappeared on narrow long-text card');
-  const sheet = await openFirst360(page);
+  const sheet = await openFirst360(page, 'long-phone-320');
   assert(await sheet.getByText('ENJAZ-LONG-MIXED-TOKEN-2026', { exact: false }).isVisible(), 'long-phone-320: long mixed transaction identity missing in 360');
   await noHorizontalOverflow(page, 'long-phone-320');
   await assertTouchTargets(page, 'long-phone-320');
   await sheet.getByRole('button', { name: 'إغلاق', exact: true }).focus();
   assert(await sheet.getByRole('button', { name: 'إغلاق', exact: true }).evaluate((node) => node === document.activeElement), 'long-phone-320: keyboard focus cannot reach sheet close action');
-  await page.screenshot({ path: path.join(outDir, 'transaction-360-long-320.png'), fullPage: true });
+  await page.screenshot({ path: path.join(outDir, 'transaction-360-long-320.png'), fullPage: false });
   assert(errors.console.length === 0, `long-phone-320: console errors ${errors.console.join(' | ')}`);
   assert(errors.page.length === 0, `long-phone-320: page errors ${errors.page.join(' | ')}`);
   await context.close();
-  return { width: 320, longText: true, touch: true };
+  return { width: 320, longText: true, touch: true, modalLayer: true };
 }
 
 async function verifyArchivedBoundary(browser, width) {
@@ -131,13 +153,14 @@ async function verifyArchivedBoundary(browser, width) {
   await sheet.waitFor();
   assert(await sheet.locator('[data-pattern="transaction-360"]').isVisible(), `archived-${width}: archived 360 did not open`);
   assert(await sheet.getByText('المعاملة للعرض فقط؛ الاستعادة غير متاحة هنا.', { exact: true }).isVisible(), `archived-${width}: 360 lifecycle boundary missing`);
+  await assertSheetOwnsModalLayer(page, `archived-${width}`);
   await noHorizontalOverflow(page, `archived-${width}`);
   await assertTouchTargets(page, `archived-${width}`);
-  await page.screenshot({ path: path.join(outDir, `transaction-360-archived-${width}.png`), fullPage: true });
+  await page.screenshot({ path: path.join(outDir, `transaction-360-archived-${width}.png`), fullPage: false });
   assert(errors.console.length === 0, `archived-${width}: console errors ${errors.console.join(' | ')}`);
   assert(errors.page.length === 0, `archived-${width}: page errors ${errors.page.join(' | ')}`);
   await context.close();
-  return { width, archivedReadOnly: true };
+  return { width, archivedReadOnly: true, modalLayer: true };
 }
 
 const browser = await chromium.launch({ headless: true });
