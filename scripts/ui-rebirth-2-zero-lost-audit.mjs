@@ -15,6 +15,7 @@ const paths = {
   navigation: 'src/ui-r2/architecture/navigation-contract.ts',
   model: 'src/ui-r2/find-anything/find-anything-model.ts',
   connected: 'src/ui-r2/find-anything/FindAnythingConnected.ts',
+  connectedModel: 'src/ui-r2/find-anything/find-anything-connected-model.ts',
   root: 'src/ui-r2/runtime/UiR2Root.tsx',
   browser: 'tests-external/r2-zero-lost.spec.cjs',
   connectedTest: 'tests/findAnythingConnected.test.ts',
@@ -34,6 +35,7 @@ const parity = json(paths.parity);
 const navigation = read(paths.navigation);
 const model = read(paths.model);
 const connected = read(paths.connected);
+const connectedModel = read(paths.connectedModel);
 const uiRoot = read(paths.root);
 const browser = read(paths.browser);
 const connectedTest = read(paths.connectedTest);
@@ -92,10 +94,9 @@ for (const marker of [
 if (/\b(?:fetch|localStorage|sessionStorage)\s*\(/.test(model)) errors.push('Find Anything model may not create ad-hoc fetch or browser persistence channels');
 for (const forbidden of ['ui-v2', 'ui-rebirth']) if (model.includes(forbidden)) errors.push(`Find Anything model references legacy presentation marker: ${forbidden}`);
 
+if (!connected.includes("from './find-anything-connected-model.ts'")) errors.push('FindAnythingConnected.ts must expose the authoritative Node-verifiable adapter');
 for (const marker of [
   'EnjazDataLayerFactory',
-  'useDataLayerFactory',
-  'useCurrentUserId',
   'resolveWorkspaceId',
   'forWorkspace',
   'data.transactions.list',
@@ -106,9 +107,9 @@ for (const marker of [
   'بيانات مساحة العمل',
   'limit: 80',
   'limit: 100',
-]) if (!connected.includes(marker)) errors.push(`authoritative Find Anything provider missing Data Layer marker: ${marker}`);
-if (/\b(?:fetch|localStorage|sessionStorage)\s*\(/.test(connected)) errors.push('authoritative Find Anything provider may not create ad-hoc fetch or browser persistence channels');
-for (const forbidden of ['ui-v2', 'ui-rebirth']) if (connected.includes(forbidden)) errors.push(`authoritative Find Anything provider references legacy presentation marker: ${forbidden}`);
+]) if (!connectedModel.includes(marker)) errors.push(`authoritative Find Anything provider missing Data Layer marker: ${marker}`);
+if (/\b(?:fetch|localStorage|sessionStorage)\s*\(/.test(connectedModel)) errors.push('authoritative Find Anything provider may not create ad-hoc fetch or browser persistence channels');
+for (const forbidden of ['ui-v2', 'ui-rebirth']) if (connectedModel.includes(forbidden)) errors.push(`authoritative Find Anything provider references legacy presentation marker: ${forbidden}`);
 for (const marker of ['loadR2WorkspaceSearchRecords', 'workspace-record', 'بيانات مساحة العمل', 'resolveWorkspaceId']) if (!connectedTest.includes(marker)) errors.push(`connected Find Anything tests missing truthfulness marker: ${marker}`);
 
 for (const marker of [
@@ -151,7 +152,7 @@ if (state.findAnythingZeroLost?.status === 'CLOSED') {
   if (state.noMaze?.validated !== true || state.noMaze?.scenarioCount < 15 || state.noMaze?.passedCount !== state.noMaze?.scenarioCount) errors.push('closed R2.0-8 requires full No-Maze scenario proof');
   if (state.noMaze?.scenarioCount !== 16 || state.noMaze?.passedCount !== 16) errors.push('R2.0-8 closure is pinned to the 16-scenario browser proof');
   if (evidence.zeroLost?.scenarioCount !== 16 || evidence.zeroLost?.passedCount !== 16) errors.push('closed evidence must pin all 16 No-Maze scenarios');
-  if (evidence.authoritativeRecordProvider !== paths.connected) errors.push('closed R2.0-8 evidence must pin the authoritative Data Layer provider');
+  if (evidence.authoritativeRecordProvider !== paths.connectedModel) errors.push('closed R2.0-8 evidence must pin the authoritative Data Layer provider');
   if (globalSearch?.migrated !== true || globalSearch?.tested !== true) errors.push('closed R2.0-8 requires global.search migrated and tested');
 }
 
