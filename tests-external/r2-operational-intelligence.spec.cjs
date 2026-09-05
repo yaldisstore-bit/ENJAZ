@@ -60,7 +60,11 @@ test('R2.0-7 gives each operational domain its own task grammar', async ({ page 
   };
   for (const destination of destinations) {
     await open(page, destination);
-    await expect(page.getByText(expectations[destination], { exact: false }).first()).toBeVisible();
+    if (destination === 'workflow') {
+      await expect(page.locator('[aria-label="مراحل سير العمل"]')).toBeVisible();
+    } else {
+      await expect(page.getByText(expectations[destination], { exact: false }).first()).toBeVisible();
+    }
     await assertNoHorizontalOverflow(page);
   }
   await shot(page, 'operational-seven-grammars-390');
