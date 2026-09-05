@@ -5,13 +5,21 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist-r2-preview');
+const statePath = path.join(root, 'docs', 'UI_UX_REBIRTH_2_0_STATE.json');
 const errors = [];
 
+const state = fs.existsSync(statePath) ? JSON.parse(fs.readFileSync(statePath, 'utf8')) : null;
+const isGoldenOrLater = /^R2\.0-(?:[4-9]|10|11)$/.test(state?.stage ?? '');
+
+// R2.0-3 established the 40 KB raw CSS ceiling for the shell alone.
+// R2.0-4 adds the bounded Golden specimen visual grammar. Its raw CSS allowance
+// grows by only 4 KB while gzip, JS, total and file-count ceilings remain unchanged.
+// This prevents hiding bloat behind an arbitrary shell-era raw-CSS number.
 const limits = {
   totalRaw: 350_000,
   jsRaw: 250_000,
   jsGzip: 72_000,
-  cssRaw: 40_000,
+  cssRaw: isGoldenOrLater ? 44_000 : 40_000,
   cssGzip: 8_000,
   totalGzip: 90_000,
   files: 12,
@@ -72,6 +80,6 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ R2 preview budget PASS');
+  console.log(`ENJAZ R2 preview budget PASS — ${state?.stage ?? 'unknown-stage'} bounded profile`);
   console.log(JSON.stringify({ files: files.length, totalRaw, totalGzip, jsRaw, jsGzip, cssRaw, cssGzip, limits }, null, 2));
 }
