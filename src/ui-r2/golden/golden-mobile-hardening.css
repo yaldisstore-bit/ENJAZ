@@ -1,4 +1,4 @@
-/* R2.0-4 hard-width visual hardening. Keep specimen disclosure inside its surface. */
+/* R2.0-4+ hard-width visual hardening. Keep specimen disclosure and real content inside their surfaces. */
 
 .r2-golden-specimen-badge {
   max-inline-size: 100%;
@@ -6,6 +6,20 @@
   overflow-wrap: anywhere;
   line-height: var(--ez-r2-leading-normal);
   text-align: start;
+}
+
+/* R2.0-9 reality defect: long identifiers/Latin tokens must shrink and wrap inside real section copy. */
+.r2-section-heading > div,
+.r2-section-heading > header {
+  min-inline-size: 0;
+}
+
+.r2-supporting {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @media (max-width: 22rem) {
