@@ -73,16 +73,13 @@ async function verifyDesktopContext(browser) {
   await openTransactions(page, 'desktop-1280');
   const sheet = await openFirst360(page);
 
-  for (const selector of [
-    '[data-transaction-360-timeline="true"]',
-    '[data-transaction-360-followups="true"]',
-    '[data-transaction-360-finance="true"]',
-    '[data-transaction-360-notes="true"]',
-    '[data-transaction-360-documents="true"]',
-  ]) assert(await sheet.locator(selector).isVisible(), `desktop-1280: missing 360 section ${selector}`);
+  for (const name of ['timeline', 'followups', 'finance', 'notes', 'documents']) {
+    const selector = `[data-transaction-360-section="${name}"]`;
+    assert(await sheet.locator(selector).isVisible(), `desktop-1280: missing 360 section ${selector}`);
+  }
 
   assert(await sheet.getByText('العمليات المالية الكاملة تبقى في Phase 7.', { exact: false }).isVisible(), 'desktop-1280: finance scope boundary missing');
-  assert((await sheet.locator('[data-transaction-360-timeline="true"] li').count()) >= 3, 'desktop-1280: timeline did not compose multiple authoritative event families');
+  assert((await sheet.locator('[data-transaction-360-section="timeline"] li').count()) >= 3, 'desktop-1280: timeline did not compose multiple authoritative event families');
   await noHorizontalOverflow(page, 'desktop-1280');
   await assertTouchTargets(page, 'desktop-1280');
   await page.screenshot({ path: path.join(outDir, 'transaction-360-1280.png'), fullPage: true });
