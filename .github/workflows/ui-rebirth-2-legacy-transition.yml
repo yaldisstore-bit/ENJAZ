@@ -1,0 +1,40 @@
+name: ENJAZ R2.0-10 — Atomic Legacy Transition
+
+on:
+  push:
+    branches:
+      - 'r2-0-10-*'
+    paths:
+      - '.github/r2-legacy-command.json'
+
+permissions:
+  contents: write
+
+jobs:
+  transition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Run atomic transition
+        run: node scripts/r2-legacy-transition.mjs
+      - name: Commit transition
+        run: |
+          git config user.name "ENJAZ R2.0-10 Gate"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/UI_UX_REBIRTH_2_0_FEATURE_PARITY.json docs/UI_UX_REBIRTH_2_0_STATE.json docs/UI_UX_REBIRTH_2_0_LEGACY_ERADICATION_EVIDENCE.json
+          if git diff --cached --quiet; then
+            echo "No transition changes to commit"
+            exit 0
+          fi
+          ACTION=$(node -p "require('./.github/r2-legacy-command.json').action")
+          git commit -m "R2.0-10 transition: ${ACTION}"
+          git push origin HEAD:${{ github.ref_name }}
