@@ -1,11 +1,11 @@
-name: ENJAZ UI/UX Rebirth 2.0 — Phase 5.5 Freeze
+name: ENJAZ UI/UX Rebirth 2.0 — Governance Gates
 
 on:
   push:
     branches:
       - main
-      - ui-ux-rebirth-2-freeze-5.5
-      - ui-rebirth-2-palette-lock
+      - 'ui-rebirth-2-*'
+      - 'ui-ux-rebirth-2-*'
   pull_request:
     branches:
       - main
@@ -15,8 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  freeze-contract:
-    name: Rebirth 2.0 / Phase 5.5 Freeze Contract
+  governance-contracts:
+    name: Rebirth 2.0 / Freeze + Palette + Hard Acceptance
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -26,7 +26,9 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: '24'
-      - name: Enforce UI/UX Rebirth 2.0 freeze
+      - name: Enforce Phase 5.5 freeze
         run: node scripts/ui-rebirth-2-freeze-audit.mjs
       - name: Enforce locked five-color palette
         run: node scripts/ui-rebirth-2-palette-audit.mjs
+      - name: Enforce Beauty + No-Maze + parity + Legacy-Zero contracts
+        run: node scripts/ui-rebirth-2-acceptance-audit.mjs
