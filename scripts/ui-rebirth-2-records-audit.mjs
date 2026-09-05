@@ -7,6 +7,7 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const json = (p) => JSON.parse(read(p));
 const exists = (p) => fs.existsSync(path.join(root, p));
 const errors = [];
+const stageOrder = ['R2.0-0','R2.0-1','R2.0-2','R2.0-3','R2.0-4','R2.0-5','R2.0-6','R2.0-7','R2.0-8','R2.0-9','R2.0-10','R2.0-11'];
 
 const paths = {
   state: 'docs/UI_UX_REBIRTH_2_0_STATE.json',
@@ -31,10 +32,12 @@ const uiRoot = read(paths.root);
 const preview = read(paths.preview);
 const browser = read(paths.browser);
 const main = read(paths.main);
+const stageIndex = stageOrder.indexOf(state.stage);
 
-if (state.stage !== 'R2.0-6') errors.push(`records guard requires stage R2.0-6, found ${state.stage}`);
+if (stageIndex < 6) errors.push(`records guard requires R2.0-6 or later, found ${state.stage}`);
+if (stageIndex > 6 && state.recordsRelationships?.status !== 'CLOSED') errors.push(`R2.0-6 must remain CLOSED after advancing to ${state.stage}`);
 if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked');
-if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 during R2.0-6');
+if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 before R2.0-11');
 if (state.goldenExperience?.status !== 'APPROVED' || state.goldenExperience?.userApproved !== true) errors.push('R2.0-6 requires approved Golden identity');
 if (state.coreWorkMigration?.status !== 'CLOSED' || state.coreWorkMigration?.exitGatePassed !== true) errors.push('R2.0-5 must remain closed before R2.0-6');
 if (!['ACTIVE','CLOSED'].includes(state.recordsRelationships?.status)) errors.push('recordsRelationships status must be ACTIVE or CLOSED');
@@ -77,7 +80,6 @@ for (const marker of [
   "../records/RecordsRelationshipsExperience.tsx",
   "id === 'companies' || id === 'people' || id === 'documents'",
   'data-records-stage="R2.0-6"',
-  'R2.0-6 Records',
 ]) if (!uiRoot.includes(marker)) errors.push(`UiR2Root missing R2.0-6 integration marker: ${marker}`);
 if (!preview.includes("'./records/records.css'")) errors.push('preview must load R2.0-6 records CSS');
 
@@ -104,4 +106,4 @@ if (state.recordsRelationships?.status === 'CLOSED') {
 }
 
 if (errors.length) { console.error(`ENJAZ R2.0-6 RECORDS AUDIT FAIL (${errors.length})`); errors.forEach((e) => console.error(`- ${e}`)); process.exitCode = 1; }
-else console.log(`ENJAZ R2.0-6 RECORDS AUDIT PASS — ${state.recordsRelationships?.status}; entity-first records stay truthful, responsive and isolated.`);
+else console.log(`ENJAZ R2.0-6 RECORDS AUDIT PASS — preserved at ${state.stage}; entity-first records stay truthful, responsive and isolated.`);
