@@ -32,18 +32,30 @@
   },
   "hardWidths": [1280, 430, 390, 360, 320],
   "checks": {
-    "structuralAudit": "PENDING",
-    "functionalRegression": "PENDING",
-    "typescript": "PENDING",
-    "previewBuild": "PENDING",
-    "previewBudget": "PENDING",
-    "goldenRegression": "PENDING",
-    "coreWorkRegression": "PENDING",
-    "recordsRegression": "PENDING",
-    "operationalRegression": "PENDING",
-    "realBrowserZeroLost": "PENDING"
+    "structuralAudit": "PASS",
+    "modelTests": "PASS_5_OF_5",
+    "functionalRegression": "PASS_118_OF_118",
+    "typescript": "PASS",
+    "previewBuild": "PASS",
+    "previewBudget": "PASS",
+    "goldenRegression": "PASS",
+    "coreWorkRegression": "PASS",
+    "recordsRegression": "PASS",
+    "operationalRegression": "PASS",
+    "realBrowserZeroLost": "PASS_8_OF_8"
   },
-  "artifact": null,
+  "firstBrowserEvidence": {
+    "run": 33979771042,
+    "testedCommit": "d7e520941ad4f5a11c75b671f4c1a32b7b191039",
+    "pullRequestMergeRef": "8ecc7cde5f56bec787aabeaf8661f99e34f2055d",
+    "artifactId": 9973406516,
+    "artifactBytes": 411091,
+    "artifactSha256": "3e83709532507a73affc1595581556ef24d281e1e0d060c815f40e6ad04bccfc",
+    "browserScenarios": 8
+  },
+  "artifact": 9973406516,
   "exitGatePassed": false,
-  "gateRuns": {}
+  "gateRuns": {
+    "firstIntegratedZeroLost": 33979771042
+  }
 }
