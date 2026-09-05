@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "R2.0-9",
+  "stage": "R2.0-10",
   "phase55Locked": true,
   "runtime": "ui-v2",
   "goldenExperience": {
@@ -116,7 +116,13 @@
       "touchGeometry44px",
       "horizontalOverflow"
     ],
-    "hardWidths": [1280, 430, 390, 360, 320],
+    "hardWidths": [
+      1280,
+      430,
+      390,
+      360,
+      320
+    ],
     "minimumScenarioCount": 15,
     "declaredScenarioCount": 30,
     "passedScenarioCount": 30,
@@ -126,11 +132,38 @@
     "evidenceRun": 33983191470,
     "exitGatePassed": true
   },
+  "legacyEradication": {
+    "status": "ACTIVE_ERADICATION",
+    "kickoff": "docs/R2_0_10_LEGACY_ERADICATION_KICKOFF.md",
+    "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_LEGACY_ERADICATION_EVIDENCE.json",
+    "scope": [
+      "oldShell",
+      "oldNavigation",
+      "oldSearchPresentation",
+      "oldCss",
+      "oldPresentationComponents",
+      "oldPresentationAssets",
+      "uiV2PhysicalRemoval",
+      "uiRebirthPhysicalRemoval"
+    ],
+    "parityBlockerCount": 0,
+    "liveAuthoritativeBlockerCount": 0,
+    "presentationResolutionBlockerCount": 0,
+    "uiRebirthEradicated": true,
+    "uiV2Eradicated": true,
+    "protectedBusinessBoundariesPreserved": true,
+    "canonicalRuntimeChanged": false,
+    "legacyZero": false,
+    "exitGatePassed": false,
+    "parityResolvedAtCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50",
+    "parityEvidenceRun": 33986273961,
+    "eradicationCommitCandidate": "03c18e8c8bd9d4d3ff37ca3be18335f1a53a6833"
+  },
   "featureParity": {
     "inventoryComplete": true,
     "totalCapabilities": 35,
-    "migratedCapabilities": 27,
-    "testedCapabilities": 27,
+    "migratedCapabilities": 35,
+    "testedCapabilities": 35,
     "unresolvedCapabilities": 0
   },
   "informationArchitecture": {

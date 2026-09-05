@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-10",
+  "status": "ACTIVE_ERADICATION",
+  "branch": "r2-0-10-legacy-eradication",
+  "truthfulness": {
+    "canonicalRuntimeChanged": false,
+    "phase55Locked": true,
+    "promotionRequested": false,
+    "promotionAllowed": false,
+    "businessLogicDeletionAllowed": false,
+    "dataLayerDeletionAllowed": false
+  },
+  "protectedBoundaries": [
+    "src/core",
+    "src/data",
+    "src/features",
+    "src/shared",
+    "src/ui-r2",
+    "database"
+  ],
+  "legacyTargets": {
+    "src/ui-rebirth": {
+      "presentAtStart": true,
+      "eradicated": true,
+      "order": 1
+    },
+    "src/ui-v2": {
+      "presentAtStart": true,
+      "eradicated": true,
+      "order": 2,
+      "liveCanonicalDependencyAtStart": true
+    }
+  },
+  "parity": {
+    "totalCapabilities": 35,
+    "migratedAtStart": 27,
+    "testedAtStart": 27,
+    "blockerCountAtStart": 8,
+    "liveAuthoritativeBlockers": [
+      "auth.session_access",
+      "auth.protected_workspace",
+      "home.workspace",
+      "home.executive_briefing"
+    ],
+    "presentationResolutionBlockers": [
+      "global.create.review_only",
+      "global.notifications",
+      "global.account",
+      "followups.workspace"
+    ],
+    "requiredAtExit": {
+      "migrated": 35,
+      "tested": 35,
+      "unresolved": 0
+    },
+    "resolved": 35,
+    "tested": 35,
+    "unresolved": 0,
+    "resolutionGateRun": 33986273961,
+    "resolutionSourceCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50"
+  },
+  "deletion": {
+    "uiRebirthDeleted": true,
+    "uiV2Deleted": true,
+    "legacyPresentationImportCount": 0,
+    "protectedBoundaryViolations": 0
+  },
+  "checks": {
+    "preflightAudit": "PASS",
+    "uiRebirthDependencyAudit": "PASS_ERADICATED",
+    "parityResolution": "PASS_35_OF_35",
+    "legacyZero": "PENDING_POST_DELETE_GATE",
+    "cumulativeRegression": "PENDING_POST_DELETE_GATE",
+    "productionBridge": "PASS",
+    "productionBridgeBrowser": "PASS"
+  },
+  "uiRebirthEradicationEvidence": {
+    "deletionCommit": "9dce12f0a10486b8b50dd6af382be4d94c407f2b",
+    "dependencyRepairCommit": "aa9496a224c059687d67242431fb5414a9752dce",
+    "guardTestCommit": "badb9025013dace628ba710050ef40f599c709a8",
+    "hiddenDependencyFound": "src/features/auth/pages/AuthRouteGuards.tsx -> ui-rebirth/runtime/RebirthSessionChecking.tsx",
+    "resolution": "neutral shared/session SessionChecking component; legacy presentation not restored",
+    "allCumulativeGatesGreen": true
+  },
+  "exitGatePassed": false
+}

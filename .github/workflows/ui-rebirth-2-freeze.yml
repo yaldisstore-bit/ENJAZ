@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   governance-contracts:
-    name: Rebirth 2.0 / Freeze + Palette + Acceptance + IA + Design System + Shell + Golden + Core Work + Records + Operational + Zero-Lost
+    name: Rebirth 2.0 / Freeze + Palette + Acceptance + IA + Design System + Shell + Golden + Core Work + Records + Operational + Zero-Lost + Reality + Legacy-Zero
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -49,5 +49,9 @@ jobs:
         run: node scripts/ui-rebirth-2-records-audit.mjs
       - name: Preserve closed R2.0-7 Operational Intelligence migration
         run: node scripts/ui-rebirth-2-operational-intelligence-audit.mjs
-      - name: Enforce active R2.0-8 Find Anything & Zero-Lost UX
+      - name: Preserve closed R2.0-8 Find Anything & Zero-Lost UX
         run: node scripts/ui-rebirth-2-zero-lost-audit.mjs
+      - name: Preserve closed R2.0-9 Destruction & Reality QA
+        run: node scripts/ui-rebirth-2-destruction-reality-audit.mjs
+      - name: Enforce R2.0-10 Legacy Eradication
+        run: node scripts/ui-rebirth-2-legacy-eradication-audit.mjs

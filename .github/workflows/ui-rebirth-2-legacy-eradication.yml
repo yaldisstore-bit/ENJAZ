@@ -1,0 +1,102 @@
+name: ENJAZ R2.0-10 — Legacy Eradication Gate
+
+on:
+  push:
+    branches:
+      - 'r2-0-10-*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  legacy-eradication-gate:
+    name: R2.0-10 / Legacy-Zero + Production Build + Production Bridge + Cumulative Locks
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Enforce Phase 5.5 freeze
+        run: node scripts/ui-rebirth-2-freeze-audit.mjs
+      - name: Enforce locked palette
+        run: node scripts/ui-rebirth-2-palette-audit.mjs
+      - name: Preserve hard Rebirth acceptance
+        run: node scripts/ui-rebirth-2-acceptance-audit.mjs
+      - name: Preserve cumulative Rebirth closures
+        run: |
+          node scripts/ui-rebirth-2-shell-audit.mjs
+          node scripts/ui-rebirth-2-golden-visual-contract-audit.mjs
+          node scripts/ui-rebirth-2-golden-specimen-audit.mjs
+          node scripts/ui-rebirth-2-core-work-audit.mjs
+          node scripts/ui-rebirth-2-records-audit.mjs
+          node scripts/ui-rebirth-2-operational-intelligence-audit.mjs
+          node scripts/ui-rebirth-2-zero-lost-audit.mjs
+          node scripts/ui-rebirth-2-destruction-reality-audit.mjs
+      - name: Enforce R2.0-10 Legacy Eradication contract
+        run: node scripts/ui-rebirth-2-legacy-eradication-audit.mjs
+      - name: Functional regression
+        run: npm run test:functional
+      - name: Phase 5 model/service regressions
+        run: |
+          npm run test:phase5-2
+          npm run test:phase5-3
+          npm run test:phase5-4
+      - name: Secrets audit
+        run: npm run audit:secrets
+      - name: Database schema and self-test
+        run: |
+          npm run db:audit
+          npm run db:audit:selftest
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Canonical production candidate build after legacy deletion
+        run: npm run build -- --base=/
+      - name: Enforce canonical production budget
+        run: npm run audit:dist:budget
+      - name: Assert production output
+        run: test -f dist/index.html
+      - name: Preserve frozen isolated R2 preview
+        run: npx vite build --config vite.r2-preview.config.ts --base=/
+      - name: Enforce frozen preview budget
+        run: node scripts/ui-rebirth-2-preview-budget-audit.mjs
+      - name: Build isolated R2 production bridge harness
+        run: npx vite build --config vite.r2-production-test.config.ts --base=/
+      - name: Install pinned Chromium tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated R2 production bridge harness
+        run: |
+          nohup npx vite preview --config vite.r2-production-test.config.ts --host 127.0.0.1 --port 4176 > /tmp/enjaz-r2-production-bridge.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4176/r2-production-test.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-r2-production-bridge.log
+          exit 1
+      - name: Real Chromium production bridge / Auth + Home + Executive + Account + truthfulness
+        env:
+          R2_PRODUCTION_BASE_URL: http://127.0.0.1:4176/
+        run: npx playwright test tests-external/r2-production-bridge.spec.cjs --reporter=line --workers=1
+      - name: Upload R2.0-10 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-r2-legacy-eradication-${{ github.sha }}
+          path: |
+            dist/
+            test-results/
+            /tmp/enjaz-r2-production-bridge.log
+          if-no-files-found: ignore
+          retention-days: 14

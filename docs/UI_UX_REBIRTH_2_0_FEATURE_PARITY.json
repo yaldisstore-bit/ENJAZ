@@ -55,8 +55,14 @@
         "password recovery",
         "password update"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true,
+      "r2_0_10Evidence": {
+        "gateRun": 33986273961,
+        "sourceCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50",
+        "browserSuite": "tests-external/r2-production-bridge.spec.cjs",
+        "resolution": "migrated_to_r2_authoritative_or_connected_surface"
+      }
     },
     {
       "id": "auth.protected_workspace",
@@ -72,8 +78,14 @@
         "workspace resolution",
         "owner-safe access"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true,
+      "r2_0_10Evidence": {
+        "gateRun": 33986273961,
+        "sourceCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50",
+        "browserSuite": "tests-external/r2-production-bridge.spec.cjs",
+        "resolution": "migrated_to_r2_authoritative_or_connected_surface"
+      }
     },
     {
       "id": "home.workspace",
@@ -91,8 +103,14 @@
         "bounded financial snapshot",
         "operational signals"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true,
+      "r2_0_10Evidence": {
+        "gateRun": 33986273961,
+        "sourceCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50",
+        "browserSuite": "tests-external/r2-production-bridge.spec.cjs",
+        "resolution": "migrated_to_r2_authoritative_or_connected_surface"
+      }
     },
     {
       "id": "home.executive_briefing",
@@ -110,8 +128,14 @@
         "7-day payment pulse",
         "links to Today/Finance/Transactions"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true,
+      "r2_0_10Evidence": {
+        "gateRun": 33986273961,
+        "sourceCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50",
+        "browserSuite": "tests-external/r2-production-bridge.spec.cjs",
+        "resolution": "migrated_to_r2_authoritative_or_connected_surface"
+      }
     },
     {
       "id": "today.universal_inbox",
@@ -421,8 +445,14 @@
         "payment review",
         "must never report saved"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true,
+      "r2_0_10Evidence": {
+        "gateRun": 33986273961,
+        "sourceCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50",
+        "browserSuite": "tests-external/r2-production-bridge.spec.cjs",
+        "resolution": "truthful_retirement_or_restructure_without_fake_authority"
+      }
     },
     {
       "id": "global.notifications",
@@ -437,8 +467,14 @@
         "attention entry",
         "truthful availability"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true,
+      "r2_0_10Evidence": {
+        "gateRun": 33986273961,
+        "sourceCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50",
+        "browserSuite": "tests-external/r2-production-bridge.spec.cjs",
+        "resolution": "truthful_retirement_or_restructure_without_fake_authority"
+      }
     },
     {
       "id": "global.account",
@@ -454,8 +490,14 @@
         "workspace identity",
         "session/logout actions when authoritative"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true,
+      "r2_0_10Evidence": {
+        "gateRun": 33986273961,
+        "sourceCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50",
+        "browserSuite": "tests-external/r2-production-bridge.spec.cjs",
+        "resolution": "migrated_to_r2_authoritative_or_connected_surface"
+      }
     },
     {
       "id": "companies.workspace",
@@ -607,8 +649,14 @@
         "one domain home",
         "Today remains queue not duplicate master implementation"
       ],
-      "migrated": false,
-      "tested": false
+      "migrated": true,
+      "tested": true,
+      "r2_0_10Evidence": {
+        "gateRun": 33986273961,
+        "sourceCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50",
+        "browserSuite": "tests-external/r2-production-bridge.spec.cjs",
+        "resolution": "migrated_to_r2_authoritative_or_connected_surface"
+      }
     },
     {
       "id": "copilot.workspace",

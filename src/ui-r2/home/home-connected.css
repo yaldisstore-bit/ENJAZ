@@ -1,0 +1,86 @@
+.r2-live-state {
+  min-block-size: min(70dvh, 42rem);
+  display: grid;
+  align-content: start;
+}
+
+.r2-live-home__facts,
+.r2-live-briefing__summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ez-r2-space-3);
+  margin-block: var(--ez-r2-space-6) var(--ez-r2-space-8);
+  padding: var(--ez-r2-space-3);
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
+  border-radius: var(--ez-r2-radius-xl);
+  background: var(--ez-r2-canvas);
+}
+
+.r2-live-home__facts > div,
+.r2-live-briefing__summary > div {
+  min-inline-size: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--ez-r2-space-1);
+  padding: var(--ez-r2-space-4) var(--ez-r2-space-5);
+  border-radius: var(--ez-r2-radius-lg);
+  background: var(--ez-r2-surface-warm);
+}
+
+.r2-live-home__facts span,
+.r2-live-briefing__summary span {
+  font-size: var(--ez-r2-type-sm);
+  font-weight: var(--ez-r2-weight-medium);
+  color: var(--ez-r2-interactive);
+}
+
+.r2-live-home__facts strong,
+.r2-live-briefing__summary strong {
+  overflow-wrap: anywhere;
+  font-size: var(--ez-r2-type-xl);
+  line-height: var(--ez-r2-leading-tight);
+  color: var(--ez-r2-structure);
+}
+
+.r2-live-home__facts small,
+.r2-live-briefing__summary small {
+  overflow-wrap: anywhere;
+  line-height: var(--ez-r2-leading-normal);
+  color: var(--ez-r2-structure);
+}
+
+.r2-live-briefing {
+  display: grid;
+  gap: var(--ez-r2-space-6);
+}
+
+.r2-live-empty {
+  display: grid;
+  gap: var(--ez-r2-space-2);
+  padding: var(--ez-r2-space-6);
+  border-radius: var(--ez-r2-radius-lg);
+  background: var(--ez-r2-surface-warm);
+}
+
+.r2-live-empty strong {
+  color: var(--ez-r2-structure);
+  font-size: var(--ez-r2-type-lg);
+}
+
+.r2-live-empty p {
+  margin: 0;
+  color: var(--ez-r2-structure);
+}
+
+@media (max-width: 42rem) {
+  .r2-live-home__facts,
+  .r2-live-briefing__summary {
+    grid-template-columns: 1fr;
+    gap: var(--ez-r2-space-2);
+  }
+
+  .r2-live-home__facts > div,
+  .r2-live-briefing__summary > div {
+    padding: var(--ez-r2-space-4);
+  }
+}
