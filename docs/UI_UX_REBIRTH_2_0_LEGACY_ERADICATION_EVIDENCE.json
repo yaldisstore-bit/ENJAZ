@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "stage": "R2.0-10",
-  "status": "ACTIVE_PREFLIGHT",
+  "status": "ACTIVE_ERADICATION",
   "branch": "r2-0-10-legacy-eradication",
   "truthfulness": {
     "canonicalRuntimeChanged": false,
@@ -53,7 +53,12 @@
       "migrated": 35,
       "tested": 35,
       "unresolved": 0
-    }
+    },
+    "resolved": 35,
+    "tested": 35,
+    "unresolved": 0,
+    "resolutionGateRun": 33986273961,
+    "resolutionSourceCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50"
   },
   "deletion": {
     "uiRebirthDeleted": true,
@@ -63,10 +68,12 @@
   },
   "checks": {
     "preflightAudit": "PASS",
-    "uiRebirthDependencyAudit": "PASS_AFTER_SESSION_CHECKING_EXTRACTION",
-    "parityResolution": "PENDING",
-    "legacyZero": "PENDING",
-    "cumulativeRegression": "PASS_GOVERNANCE_QUALITY_R2_4_TO_R2_9_REAL_BROWSER"
+    "uiRebirthDependencyAudit": "PASS_ERADICATED",
+    "parityResolution": "PASS_35_OF_35",
+    "legacyZero": "PENDING_UI_V2_REMOVAL",
+    "cumulativeRegression": "PASS_BEFORE_UI_V2_REMOVAL",
+    "productionBridge": "PASS",
+    "productionBridgeBrowser": "PASS"
   },
   "uiRebirthEradicationEvidence": {
     "deletionCommit": "9dce12f0a10486b8b50dd6af382be4d94c407f2b",
