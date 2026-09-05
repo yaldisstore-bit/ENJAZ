@@ -50,7 +50,7 @@ jobs:
         env:
           VITE_ENJAZ_PREVIEW_MODE: 'true'
         run: npm run build -- --base=/
-      - name: Canonical strict production budget
+      - name: Strict dist budget
         run: node scripts/dist-budget-audit.mjs
       - name: Isolated R2.0-3 preview build
         run: npx vite build --config vite.r2-preview.config.ts --base=/
