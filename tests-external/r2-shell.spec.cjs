@@ -71,7 +71,7 @@ test('R2 Find Anything aliases navigate to canonical feature homes and browser b
   await input.fill('خزنة');
   await page.getByRole('button', { name: /الوثائق والتقارير/ }).click();
   await expect(page).toHaveURL(/dest=documents/);
-  await expect(page.locator('[data-screen="launcher-destination"]')).toContainText('الوثائق والتقارير');
+  await expect(page.locator('[data-records-domain="documents"], [data-screen="launcher-destination"]')).toContainText('الوثائق والتقارير');
 
   await page.goBack();
   await expect(page.locator('[data-overlay="search"]')).toBeVisible();
