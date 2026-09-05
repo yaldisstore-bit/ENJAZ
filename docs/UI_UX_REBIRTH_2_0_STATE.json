@@ -5,13 +5,13 @@
   "runtime": "ui-v2",
   "goldenExperience": {
     "status": "ACTIVE",
-    "implemented": false,
+    "implemented": true,
     "visualEvidenceReady": false,
     "professionalUxEvidenceReady": false,
     "userApproved": false,
     "approvedCommit": null,
     "approvalRecord": null,
-    "evidenceManifest": null,
+    "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_GOLDEN_EVIDENCE.json",
     "visualPolishContract": "docs/UI_UX_REBIRTH_2_0_GLOBAL_VISUAL_POLISH_CONTRACT.json",
     "visualPolishContractLocked": true,
     "requiredSpecimens": [
@@ -21,7 +21,7 @@
       "transactionJourney",
       "transaction360"
     ],
-    "completedSpecimens": 0
+    "completedSpecimens": 5
   },
   "featureParity": {
     "inventoryComplete": true,
