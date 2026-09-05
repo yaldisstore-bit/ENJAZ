@@ -2,7 +2,7 @@
 
 Status: **ACTIVE CHANGE-CONTROL DIRECTIVE**
 
-Canonical base: `main` at `c2955971e32964b2671936fd1858e59ebb3a6cf2` after Phase 5.4 was merged and re-certified.
+Canonical governance base: `main` at `a4696db56f9d5f7d850c43ee7d442bb315e66ed9` after Phase 5.5 was explicitly frozen and UI/UX Rebirth 2.0 was promoted as the active interface direction.
 
 ## Immediate governance decision
 
@@ -158,23 +158,30 @@ Do not show all product domains inside every domain screen. The existing 12-doma
 - operational canvases with lanes, state and ownership,
 - fewer boxes, stronger flow and causality.
 
-## Visual direction
+## Visual direction — palette now locked
 
-The current yellow/black identity is **not frozen** for Rebirth 2.0.
+The current yellow/black identity is retired from Rebirth 2.0.
 
-Initial direction:
-- warm neutral canvas rather than bright white,
-- deep graphite text and structural surfaces,
-- one restrained premium accent family instead of yellow everywhere,
-- accent color reserved for action/state, not decoration,
-- generous negative space,
-- stronger Arabic typography hierarchy,
-- fewer borders,
-- deeper but softer elevation,
-- larger radii only where structural,
-- motion limited to navigation, state change and hierarchy reinforcement.
+The user-approved palette is now **final and exclusive** for the new presentation layer. The authoritative contract is:
+`docs/UI_UX_REBIRTH_2_0_PALETTE_CONTRACT.md`
 
-The first visual prototype will determine the final palette before propagation.
+Only these five colors may exist in Rebirth 2.0:
+- `#F2F3F4`
+- `#DED1C6`
+- `#A77693`
+- `#174871`
+- `#0F2D4D`
+
+No sixth color may be introduced for branding, status, charts, errors, success, warnings, hover states, shadows, overlays or decorative treatment. Semantic states must remain understandable through labels, icons and structure rather than foreign colors.
+
+Visual composition:
+- `#F2F3F4` is the dominant canvas/light surface,
+- `#DED1C6` is the warm secondary surface,
+- `#A77693` is the restrained identity accent,
+- `#174871` is the primary interactive color,
+- `#0F2D4D` is the deepest structural/text color.
+
+The interface should use generous negative space, strong Arabic typography hierarchy, fewer borders, soft depth, structural radii and motion limited to navigation/state/hierarchy reinforcement. Palette usage must stay calm rather than giving all five colors equal visual weight.
 
 ## Non-negotiable UX rules
 
@@ -188,6 +195,7 @@ The first visual prototype will determine the final palette before propagation.
 - On mobile, the user must never need to remember where a feature lives.
 - 320px remains a hard acceptance width.
 - RTL and mixed Arabic/Latin content remain first-class.
+- Rebirth 2.0 must use only the five locked palette values in the palette contract.
 
 ## Delivery sequence
 
@@ -201,13 +209,13 @@ Build the final product map, navigation model, feature registry and Find Anythin
 Build a parallel shell with Home / Transactions / New / Today / More and compact location trail.
 
 ### R2.0-3 — Visual identity prototype
-Create Home + More + one transaction flow as the approval specimen. No broad propagation before explicit acceptance.
+Create Home + More + one transaction flow as the approval specimen using the locked five-color palette. No broad propagation before explicit acceptance.
 
 ### R2.0-4 — Core domain migration
 Migrate Transactions, Companies/People, Finance and operational domains into the approved grammar while preserving existing services/business rules.
 
 ### R2.0-5 — Discovery & navigation destruction
-Test findability, 3-action reachability, back behavior, deep links, mobile, keyboard, overflow, feature aliases and canonical-home uniqueness.
+Test findability, 3-action reachability, back behavior, deep links, mobile, keyboard, overflow, feature aliases, canonical-home uniqueness and palette purity.
 
 ### R2.0-6 — Promotion
 Only after visual approval and destructive gates pass, promote Rebirth 2.0 as the canonical UI and retire the current presentation layer.
