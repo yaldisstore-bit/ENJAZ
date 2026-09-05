@@ -68,7 +68,7 @@ export interface Transaction360Snapshot {
   readonly sectionStates: Readonly<Record<'routes' | 'activity' | 'notes' | 'followups' | 'payments' | 'feeChanges' | 'documents' | 'workflows' | 'blockers', Transaction360SectionState>>;
 }
 
-function safeTimestamp(value: string): number | null {
+function timestamp(value: string): number | null {
   const parsed = Date.parse(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
@@ -77,137 +77,79 @@ export function isTransaction360MoneySafe(value: number): boolean {
   return Number.isFinite(value) && Number.isSafeInteger(Math.round(value * 100));
 }
 
-function relationLabel(company: RowOf<'companies'> | null): string {
-  if (!company || company.deleted_at !== null) return 'بيانات الشركة غير متاحة';
-  return company.display_name?.trim() || company.legal_name.trim() || 'بيانات الشركة غير متاحة';
-}
-
-function contactLabel(contact: RowOf<'contacts'> | null): string | null {
-  if (!contact || contact.deleted_at !== null) return null;
-  return contact.display_name.trim() || null;
-}
-
 function timelineItem(id: string, kind: Transaction360TimelineKind, title: string, detail: string | null, occurredAt: string): Transaction360TimelineItem {
-  return Object.freeze({ id, kind, title, detail, occurredAt, timestampValid: safeTimestamp(occurredAt) !== null });
+  return { id, kind, title, detail, occurredAt, timestampValid: timestamp(occurredAt) !== null };
 }
 
-function buildTimeline(source: Transaction360Source): Readonly<{ items: readonly Transaction360TimelineItem[]; truncated: boolean }> {
+function buildTimeline(source: Transaction360Source) {
   const items: Transaction360TimelineItem[] = [];
   for (const row of source.activity.items) items.push(timelineItem(`activity:${row.id}`, 'activity', row.summary.trim() || row.event_type, row.event_type, row.occurred_at));
   for (const row of source.routes.items) items.push(timelineItem(`route:${row.id}`, 'route', row.station_name.trim() || 'محطة معاملة', row.assigned_to_text?.trim() || null, row.occurred_at));
   for (const row of source.notes.items) items.push(timelineItem(`note:${row.id}`, 'note', 'ملاحظة', row.body.trim() || null, row.created_at));
   for (const row of source.feeChanges.items) items.push(timelineItem(`fee:${row.id}`, 'fee', 'تغيير الأتعاب', row.reason.trim() || null, row.effective_at));
   for (const row of source.payments.items) items.push(timelineItem(`payment:${row.id}`, 'payment', 'دفعة مالية', row.receipt_ref.trim() || null, row.paid_at));
-
-  items.sort((a, b) => {
-    const aTime = safeTimestamp(a.occurredAt) ?? Number.NEGATIVE_INFINITY;
-    const bTime = safeTimestamp(b.occurredAt) ?? Number.NEGATIVE_INFINITY;
-    return bTime - aTime || a.id.localeCompare(b.id);
-  });
-  const truncatedBySource = [source.activity, source.routes, source.notes, source.feeChanges, source.payments].some((section) => section.state === 'truncated');
-  const truncated = truncatedBySource || items.length > TRANSACTION_360_TIMELINE_LIMIT;
-  return Object.freeze({ items: Object.freeze(items.slice(0, TRANSACTION_360_TIMELINE_LIMIT)), truncated });
+  items.sort((a, b) => (timestamp(b.occurredAt) ?? -Infinity) - (timestamp(a.occurredAt) ?? -Infinity) || a.id.localeCompare(b.id));
+  return {
+    items: items.slice(0, TRANSACTION_360_TIMELINE_LIMIT),
+    truncated: [source.activity, source.routes, source.notes, source.feeChanges, source.payments].some((section) => section.state === 'truncated') || items.length > TRANSACTION_360_TIMELINE_LIMIT,
+  };
 }
 
 function summarizeFollowups(section: Transaction360Source['followups'], nowMs: number) {
-  let active = 0;
-  let overdue = 0;
-  let completed = 0;
+  let active = 0, overdue = 0, completed = 0;
   for (const row of section.items) {
     const status = row.status.trim().toLowerCase();
-    const done = row.completed_at !== null || status === 'completed' || status === 'done' || status === 'closed';
-    if (done) { completed += 1; continue; }
-    active += 1;
-    const due = safeTimestamp(row.due_at);
-    if (due !== null && due < nowMs) overdue += 1;
+    if (row.completed_at !== null || ['completed', 'done', 'closed'].includes(status)) { completed++; continue; }
+    active++;
+    const due = timestamp(row.due_at);
+    if (due !== null && due < nowMs) overdue++;
   }
-  return Object.freeze({ active, overdue, completed });
+  return { active, overdue, completed };
 }
 
 function summarizeFinance(source: Transaction360Source) {
-  let postedCount = 0;
-  let postedTotal = 0;
-  let precisionSafe = true;
+  let postedCount = 0, postedTotal = 0, precisionSafe = true;
   for (const row of source.payments.items) {
     if (row.status.trim().toLowerCase() !== 'posted') continue;
-    postedCount += 1;
-    if (!isTransaction360MoneySafe(row.amount)) precisionSafe = false;
-    else postedTotal += row.amount;
+    postedCount++;
+    if (isTransaction360MoneySafe(row.amount)) postedTotal += row.amount;
+    else precisionSafe = false;
   }
-  if (!isTransaction360MoneySafe(postedTotal)) precisionSafe = false;
-  return Object.freeze({ postedCount, postedTotal, precisionSafe, feeChanges: source.feeChanges.items.length });
+  return { postedCount, postedTotal, precisionSafe: precisionSafe && isTransaction360MoneySafe(postedTotal), feeChanges: source.feeChanges.items.length };
 }
 
 function currentWorkflow(section: Transaction360Source['workflows']): RowOf<'workflow_instances'> | null {
-  const sorted = [...section.items].sort((a, b) => {
-    const aTime = safeTimestamp(a.started_at) ?? Number.NEGATIVE_INFINITY;
-    const bTime = safeTimestamp(b.started_at) ?? Number.NEGATIVE_INFINITY;
-    return bTime - aTime || a.id.localeCompare(b.id);
-  });
-  return sorted[0] ?? null;
+  return [...section.items].sort((a, b) => (timestamp(b.started_at) ?? -Infinity) - (timestamp(a.started_at) ?? -Infinity) || a.id.localeCompare(b.id))[0] ?? null;
 }
 
 function summarizeRisk(section: Transaction360Source['blockers']) {
-  let open = 0;
-  let highOrCritical = 0;
+  let open = 0, highOrCritical = 0;
   for (const row of section.items) {
     const status = row.status.trim().toLowerCase();
     if (row.resolved_at !== null || status === 'resolved' || status === 'closed') continue;
-    open += 1;
-    const severity = row.severity.trim().toLowerCase();
-    if (severity === 'high' || severity === 'critical') highOrCritical += 1;
+    open++;
+    if (['high', 'critical'].includes(row.severity.trim().toLowerCase())) highOrCritical++;
   }
-  return Object.freeze({ state: section.state, open, highOrCritical, total: section.items.length });
+  return { state: section.state, open, highOrCritical, total: section.items.length };
 }
 
 export function buildTransaction360Snapshot(source: Transaction360Source, nowMs = Date.now()): Transaction360Snapshot {
-  if (source.transaction.deleted_at !== null) throw new Error('Deleted transaction cannot be represented by Phase 5.3');
+  const transaction = source.transaction;
+  if (transaction.deleted_at !== null) throw new Error('Deleted transaction cannot be represented by Phase 5.3');
   if (!Number.isFinite(nowMs)) throw new Error('Invalid Phase 5.3 clock');
-
   const timeline = buildTimeline(source);
-  const companyMissing = !source.company || source.company.deleted_at !== null || source.company.id !== source.transaction.company_id;
+  const companyMissing = !source.company || source.company.deleted_at !== null || source.company.id !== transaction.company_id;
   const workflow = currentWorkflow(source.workflows);
-  const sectionStates = Object.freeze({
-    routes: source.routes.state,
-    activity: source.activity.state,
-    notes: source.notes.state,
-    followups: source.followups.state,
-    payments: source.payments.state,
-    feeChanges: source.feeChanges.state,
-    documents: source.documents.state,
-    workflows: source.workflows.state,
-    blockers: source.blockers.state,
-  });
-
-  return Object.freeze({
-    id: source.transaction.id,
-    shortId: source.transaction.id.slice(0, 8),
-    type: source.transaction.type.trim() || 'معاملة بلا نوع',
-    department: source.transaction.department?.trim() || null,
-    status: source.transaction.status,
-    priority: source.transaction.priority,
-    companyId: source.transaction.company_id,
-    companyLabel: relationLabel(source.company),
-    companyMissing,
-    contactLabel: contactLabel(source.contact),
-    contactState: source.contactState,
-    currentFee: source.transaction.current_fee,
-    feePrecisionSafe: isTransaction360MoneySafe(source.transaction.current_fee),
-    createdAt: source.transaction.created_at,
-    updatedAt: source.transaction.updated_at,
-    lastActivityAt: source.transaction.last_activity_at,
-    completedAt: source.transaction.completed_at,
-    archivedAt: source.transaction.archived_at,
-    timeline: timeline.items,
-    timelineTruncated: timeline.truncated,
-    notes: source.notes,
-    followups: source.followups,
-    followupSummary: summarizeFollowups(source.followups, nowMs),
-    payments: source.payments,
-    financialSummary: summarizeFinance(source),
-    documents: source.documents,
-    workflow: Object.freeze({ state: source.workflows.state, current: workflow, total: source.workflows.items.length }),
-    risk: summarizeRisk(source.blockers),
-    sectionStates,
-  });
+  const companyLabel = !companyMissing ? source.company!.display_name?.trim() || source.company!.legal_name.trim() || 'بيانات الشركة غير متاحة' : 'بيانات الشركة غير متاحة';
+  const contactLabel = !source.contact || source.contact.deleted_at !== null ? null : source.contact.display_name.trim() || null;
+  return {
+    id: transaction.id, shortId: transaction.id.slice(0, 8), type: transaction.type.trim() || 'معاملة بلا نوع', department: transaction.department?.trim() || null,
+    status: transaction.status, priority: transaction.priority, companyId: transaction.company_id, companyLabel, companyMissing, contactLabel, contactState: source.contactState,
+    currentFee: transaction.current_fee, feePrecisionSafe: isTransaction360MoneySafe(transaction.current_fee), createdAt: transaction.created_at, updatedAt: transaction.updated_at,
+    lastActivityAt: transaction.last_activity_at, completedAt: transaction.completed_at, archivedAt: transaction.archived_at,
+    timeline: timeline.items, timelineTruncated: timeline.truncated, notes: source.notes, followups: source.followups, followupSummary: summarizeFollowups(source.followups, nowMs),
+    payments: source.payments, financialSummary: summarizeFinance(source), documents: source.documents,
+    workflow: { state: source.workflows.state, current: workflow, total: source.workflows.items.length }, risk: summarizeRisk(source.blockers),
+    sectionStates: { routes: source.routes.state, activity: source.activity.state, notes: source.notes.state, followups: source.followups.state, payments: source.payments.state, feeChanges: source.feeChanges.state, documents: source.documents.state, workflows: source.workflows.state, blockers: source.blockers.state },
+  };
 }
