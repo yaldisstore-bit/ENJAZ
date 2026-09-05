@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-2",
+  "status": "FROZEN",
+  "name": "ENJAZ Workspace Design System",
+  "direction": "Clear, Spatial, Contextual",
+  "palette": [
+    "#F2F3F4",
+    "#DED1C6",
+    "#A77693",
+    "#174871",
+    "#0F2D4D"
+  ],
+  "sources": {
+    "palette": "src/ui-r2/tokens/palette.css",
+    "foundation": "src/ui-r2/tokens/foundation.css",
+    "styles": "src/ui-r2/design-system/design-system.css",
+    "primitives": "src/ui-r2/design-system/primitives.tsx",
+    "entrypoint": "src/ui-r2/design-system/index.ts"
+  },
+  "families": [
+    { "id": "typography", "evidence": ["type scale", "Arabic-first system font stack", "tight/normal/relaxed leading", "weight hierarchy"] },
+    { "id": "spacing", "evidence": ["4px-rooted spacing scale", "mobile/tablet/desktop gutters", "stack and cluster rhythm"] },
+    { "id": "radii", "evidence": ["small/medium/large/xl/pill radius tokens", "task-appropriate use instead of universal rounded cards"] },
+    { "id": "elevation", "evidence": ["three structural depth offsets", "palette-only layered depth", "no foreign shadow colors"] },
+    { "id": "icons", "evidence": ["20px default geometry", "1.8 line weight", "current text color", "icons never carry semantics alone"] },
+    { "id": "buttons", "evidence": ["primary", "secondary", "quiet", "critical", "44px minimum touch"] },
+    { "id": "fields", "evidence": ["text field", "textarea", "label", "hint", "message", "focus-visible contract"] },
+    { "id": "overlays", "evidence": ["dialog frame", "sheet frame", "separate backdrop", "aria modal labeling"] },
+    { "id": "listsTables", "evidence": ["record list row", "metadata hierarchy", "responsive table wrapper", "start-aligned RTL-safe cells"] },
+    { "id": "headers", "evidence": ["page header", "kicker", "title hierarchy", "context/location slot", "accent rule"] },
+    { "id": "navigation", "evidence": ["navigation container", "active item", "location navigation", "44px targets"] },
+    { "id": "feedback", "evidence": ["info/success/warning/critical notices", "loading skeleton", "empty state", "non-color semantic cues"] },
+    { "id": "motion", "evidence": ["120/180/260ms motion scale", "single easing curve", "entry motion", "reduced-motion override"] },
+    { "id": "responsive", "evidence": ["320px-safe fluid base", "48rem and 80rem composition transitions", "frame", "split", "stack", "cluster"] }
+  ],
+  "componentExports": [
+    "R2Surface",
+    "R2Button",
+    "R2TextField",
+    "R2TextArea",
+    "R2DialogFrame",
+    "R2SheetFrame",
+    "R2List",
+    "R2ListRow",
+    "R2TableFrame",
+    "R2PageHeader",
+    "R2Location",
+    "R2Nav",
+    "R2NavItem",
+    "R2Notice",
+    "R2Skeleton",
+    "R2EmptyState",
+    "R2Frame",
+    "R2Stack",
+    "R2Cluster",
+    "R2Split"
+  ],
+  "rules": {
+    "cardWallAsDefault": false,
+    "statusRequiresNonColorCue": true,
+    "primaryActionPerRegion": 1,
+    "minimumTouchPx": 44,
+    "rtlFirst": true,
+    "mixedDirectionSafe": true,
+    "reducedMotionRequired": true,
+    "legacyPresentationImportsAllowed": false,
+    "foreignColorsAllowed": false,
+    "brandAsHiddenNavigationAllowed": false,
+    "decorativeMotionWithoutMeaningAllowed": false
+  },
+  "visualGrammar": {
+    "canvas": "dominant calm light field",
+    "warmSurface": "secondary grouping and state separation",
+    "accent": "restrained identity emphasis and graphic punctuation",
+    "interactive": "primary action, focus and active navigation",
+    "structure": "text, deep structural surfaces and critical actions",
+    "composition": "hierarchy and whitespace first; panels/lists/timelines/ledgers selected by task rather than one universal card template",
+    "depth": "layered surfaces and controlled structural offsets; never glow or foreign-color shadows",
+    "motion": "short spatial continuity, reduced on request, no ornamental loops except bounded loading feedback"
+  },
+  "responsiveAcceptance": {
+    "hardWidthsPx": [320, 360, 390, 430, 1280],
+    "horizontalOverflowAllowed": false,
+    "touchMinimumPx": 44,
+    "rtl": "first-class",
+    "mixedArabicLatin": "must remain readable with plaintext bidi handling where identity/data can mix scripts"
+  },
+  "exitGate": {
+    "familiesImplemented": 14,
+    "palettePurityRequired": true,
+    "presentationIsolationRequired": true,
+    "typecheckRequired": true,
+    "productionBuildRequired": true,
+    "assetBudgetRequired": true,
+    "qualityGateRequired": true,
+    "realBrowserCumulativeGateRequired": true
+  }
+}
