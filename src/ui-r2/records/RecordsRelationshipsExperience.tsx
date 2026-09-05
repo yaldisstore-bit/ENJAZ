@@ -150,6 +150,10 @@ const DOCUMENTS: DocumentRecord[] = [
   { id: 'doc-6', title: 'تقرير سنوي.pdf', category: 'تقارير', owner: 'قمر السلطان', kind: 'تقرير', date: '28 آب', size: '4.7 MB', state: 'أساسي' },
 ];
 
+const DEFAULT_COMPANY = COMPANIES[0]!;
+const DEFAULT_PERSON = PEOPLE[0]!;
+const DEFAULT_DOCUMENT = DOCUMENTS[0]!;
+
 function RecordIcon({ kind }: { kind: 'company' | 'person' | 'document' | 'relation' }) {
   const common = { viewBox: '0 0 24 24', 'aria-hidden': true, className: 'r2-record-icon' } as const;
   if (kind === 'company') return <svg {...common}><path d="M4 21V7l8-4 8 4v14" /><path d="M8 10h2M14 10h2M8 14h2M14 14h2M9 21v-4h6v4" /></svg>;
@@ -182,13 +186,13 @@ function TruthNote() {
 
 function CompaniesExperience() {
   const [query, setQuery] = useState('');
-  const [selectedId, setSelectedId] = useState(COMPANIES[0].id);
+  const [selectedId, setSelectedId] = useState(DEFAULT_COMPANY.id);
   const filtered = useMemo(() => {
     const value = query.trim();
     if (!value) return COMPANIES;
     return COMPANIES.filter((company) => `${company.name} ${company.location} ${company.manager}`.includes(value));
   }, [query]);
-  const selected = COMPANIES.find((company) => company.id === selectedId) ?? COMPANIES[0];
+  const selected = COMPANIES.find((company) => company.id === selectedId) ?? DEFAULT_COMPANY;
 
   return (
     <section className="r2-screen r2-records-screen" data-records-stage="R2.0-6" data-records-domain="companies" data-entity-first="true">
@@ -245,13 +249,13 @@ function CompaniesExperience() {
 
 function PeopleExperience() {
   const [query, setQuery] = useState('');
-  const [selectedId, setSelectedId] = useState(PEOPLE[0].id);
+  const [selectedId, setSelectedId] = useState(DEFAULT_PERSON.id);
   const filtered = useMemo(() => {
     const value = query.trim();
     if (!value) return PEOPLE;
     return PEOPLE.filter((person) => `${person.name} ${person.role} ${person.specialty}`.includes(value));
   }, [query]);
-  const selected = PEOPLE.find((person) => person.id === selectedId) ?? PEOPLE[0];
+  const selected = PEOPLE.find((person) => person.id === selectedId) ?? DEFAULT_PERSON;
 
   return (
     <section className="r2-screen r2-records-screen" data-records-stage="R2.0-6" data-records-domain="people" data-entity-first="true">
@@ -291,9 +295,9 @@ function PeopleExperience() {
 function DocumentsExperience() {
   const categories: DocumentRecord['category'][] = ['تأسيس', 'مالية', 'مراسلات', 'تقارير'];
   const [category, setCategory] = useState<DocumentRecord['category']>('تأسيس');
-  const [selectedId, setSelectedId] = useState(DOCUMENTS[0].id);
+  const [selectedId, setSelectedId] = useState(DEFAULT_DOCUMENT.id);
   const documents = DOCUMENTS.filter((document) => document.category === category);
-  const selected = DOCUMENTS.find((document) => document.id === selectedId && document.category === category) ?? documents[0] ?? DOCUMENTS[0];
+  const selected = DOCUMENTS.find((document) => document.id === selectedId && document.category === category) ?? documents[0] ?? DEFAULT_DOCUMENT;
   const chooseCategory = (next: DocumentRecord['category']) => {
     setCategory(next);
     const first = DOCUMENTS.find((document) => document.category === next);
