@@ -106,17 +106,12 @@ test('R2.0-9 wave2 tiny-height viewport can reach final More action above bottom
   await expect(lastRow).toBeVisible();
   await expect(nav).toBeVisible();
   await lastRow.scrollIntoViewIfNeeded();
-  const geometry = await page.evaluate(() => {
-    const row = document.querySelector('.r2-launcher-row:last-of-type');
-    const dock = document.querySelector('.r2-shell__mobile-nav');
-    if (!row || !dock) return null;
-    const rowRect = row.getBoundingClientRect();
-    const dockRect = dock.getBoundingClientRect();
-    return { rowTop: rowRect.top, rowBottom: rowRect.bottom, dockTop: dockRect.top, viewport: innerHeight };
-  });
-  expect(geometry).not.toBeNull();
-  expect(geometry.rowTop).toBeGreaterThanOrEqual(-1);
-  expect(geometry.rowBottom).toBeLessThanOrEqual(geometry.dockTop + 1);
+  const rowBox = await lastRow.boundingBox();
+  const navBox = await nav.boundingBox();
+  expect(rowBox).not.toBeNull();
+  expect(navBox).not.toBeNull();
+  expect(rowBox.y).toBeGreaterThanOrEqual(-1);
+  expect(rowBox.y + rowBox.height).toBeLessThanOrEqual(navBox.y + 1);
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: path.join(artifactDir, 'wave2-tiny-height-more-320x568.png'), fullPage: false });
 });
