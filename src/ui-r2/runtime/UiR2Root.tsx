@@ -7,6 +7,7 @@ import {
   getR2Destination,
   type R2DestinationId,
 } from '../architecture/navigation-contract.ts';
+import { GoldenTransactionExperience } from '../golden/GoldenTransactionExperience.tsx';
 
 const SHELL_STAGE = 'R2.0-3' as const;
 type OverlayId = 'search' | 'account' | null;
@@ -123,7 +124,7 @@ function Home({ navigate }: { navigate: (id: R2DestinationId) => void }) {
         <div className="r2-hero__signal">
           <span>الأولوية الآن</span>
           <strong>3 عناصر تحتاج قرارًا</strong>
-          <small>عينة Shell وليست بيانات إنتاج.</small>
+          <small>Golden specimen · ليست بيانات إنتاج.</small>
         </div>
       </section>
 
@@ -150,31 +151,52 @@ function Home({ navigate }: { navigate: (id: R2DestinationId) => void }) {
   );
 }
 
+type TransactionSegment = 'جارية' | 'متلكئة' | 'مغلقة';
+
 function Transactions({ navigate }: { navigate: (id: R2DestinationId) => void }) {
+  const [segment, setSegment] = useState<TransactionSegment>('جارية');
+  const [query, setQuery] = useState('');
   const rows = [
-    ['1042', 'تعديل عقد تأسيس', 'شركة الرافدين', 'آخر نشاط قبل 18 دقيقة'],
-    ['1038', 'زيادة رأس المال', 'شركة أفق بغداد', 'متابعة مستحقة اليوم'],
-    ['1029', 'تغيير مدير مفوض', 'شركة نقطة الأعمال', 'بانتظار مستند'],
+    { id: '1042', title: 'تعديل عقد تأسيس', company: 'شركة الرافدين', meta: 'آخر نشاط قبل 18 دقيقة', status: 'جارية' as const, goldenJourney: true },
+    { id: '1038', title: 'زيادة رأس المال', company: 'شركة أفق بغداد', meta: 'متابعة مستحقة اليوم', status: 'جارية' as const, goldenJourney: false },
+    { id: '1029', title: 'تغيير مدير مفوض', company: 'شركة نقطة الأعمال', meta: 'بانتظار مستند', status: 'متلكئة' as const, goldenJourney: false },
+    { id: '1016', title: 'تحديث عنوان شركة', company: 'شركة جسور', meta: 'أغلقت أمس', status: 'مغلقة' as const, goldenJourney: false },
   ];
+  const normalized = query.trim();
+  const visibleRows = rows.filter((row) => row.status === segment && (!normalized || `${row.id} ${row.title} ${row.company}`.includes(normalized)));
+
   return (
     <div className="r2-screen" data-screen="transactions">
       <div className="r2-section-heading r2-section-heading--hero">
-        <div><p className="r2-eyebrow">المجال التشغيلي الأساسي</p><h1>المعاملات</h1><p className="r2-supporting">قائمة واضحة، هوية قوية لكل سجل، وإجراء واحد ظاهر في كل سياق.</p></div>
+        <div><p className="r2-eyebrow">Golden Experience · المجال التشغيلي الأساسي</p><h1>المعاملات</h1><p className="r2-supporting">قائمة واضحة، بحث داخل السياق، وهوية قوية لكل سجل. الرحلة الذهبية الكاملة مثبتة على المعاملة #1042.</p></div>
         <ActionButton className="r2-action r2-action--primary" onClick={() => navigate('create')}><Icon name="plus" /> معاملة جديدة</ActionButton>
       </div>
-      <div className="r2-segment" aria-label="تقسيم المعاملات"><button type="button" aria-pressed="true">جارية</button><button type="button" aria-pressed="false">متلكئة</button><button type="button" aria-pressed="false">مغلقة</button></div>
-      <section className="r2-record-list" aria-label="عينة هيكل المعاملات">
-        {rows.map(([id, title, company, meta], index) => (
-          <button type="button" className="r2-record-row" key={id} onClick={() => navigate('transactions.detail')}>
-            <span className="r2-record-row__number">#{id}</span>
-            <span className="r2-record-row__identity"><strong>{title}</strong><small>{company}</small></span>
-            <span className="r2-record-row__meta">{meta}</span>
-            <span className="r2-record-row__index">0{index + 1}</span>
+      <div className="r2-transaction-tools">
+        <label className="r2-transaction-search"><Icon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ابحث بالرقم أو العنوان أو الشركة" aria-label="بحث المعاملات" /></label>
+        <div className="r2-segment" aria-label="تقسيم المعاملات">
+          {(['جارية', 'متلكئة', 'مغلقة'] as const).map((item) => <button key={item} type="button" aria-pressed={segment === item} onClick={() => setSegment(item)}>{item}</button>)}
+        </div>
+      </div>
+      <section className="r2-record-list" aria-label="عينة Golden للمعاملات">
+        {visibleRows.length ? visibleRows.map((row, index) => row.goldenJourney ? (
+          <button type="button" className="r2-record-row r2-record-row--golden" key={row.id} onClick={() => navigate('transactions.detail')} aria-label={`فتح المعاملة ${row.id} ${row.title}`}>
+            <span className="r2-record-row__number">#{row.id}</span>
+            <span className="r2-record-row__identity"><strong>{row.title}</strong><small>{row.company}</small></span>
+            <span className="r2-record-row__meta">{row.meta}</span>
+            <span className="r2-record-row__index">Golden</span>
             <Icon name="arrow" />
           </button>
-        ))}
+        ) : (
+          <article className="r2-record-row r2-record-row--static" key={row.id}>
+            <span className="r2-record-row__number">#{row.id}</span>
+            <span className="r2-record-row__identity"><strong>{row.title}</strong><small>{row.company}</small></span>
+            <span className="r2-record-row__meta">{row.meta}</span>
+            <span className="r2-record-row__index">0{index + 1}</span>
+            <span className="r2-record-row__sample">عينة قائمة</span>
+          </article>
+        )) : <p className="r2-golden-empty">لا توجد نتيجة ضمن عينة Golden الحالية.</p>}
       </section>
-      <p className="r2-preview-note">المحتوى عينة تركيبية لاختبار الـShell. رحلة المعاملة الكاملة تُبنى في Golden Experience.</p>
+      <p className="r2-preview-note">R2.0-4 يثبت تجربة واحدة كاملة قابلة للاختبار (#1042) قبل تعميم النمط على جميع السجلات في R2.0-5.</p>
     </div>
   );
 }
@@ -204,7 +226,7 @@ function Create({ navigate }: { navigate: (id: R2DestinationId) => void }) {
     <div className="r2-screen" data-screen="create">
       <div className="r2-section-heading r2-section-heading--hero"><div><p className="r2-eyebrow">إجراء عالمي</p><h1>ماذا تريد أن تنشئ؟</h1><p className="r2-supporting">نقطة إنشاء واحدة. الخيارات لا تظهر كوظائف حقيقية قبل ربطها ببياناتها وصلاحياتها.</p></div></div>
       <button type="button" className="r2-create-primary" onClick={() => navigate('transactions.editor')}>
-        <span className="r2-create-primary__icon"><Icon name="transactions" /></span><span><strong>معاملة جديدة</strong><small>المسار المعتمد حاليًا للإنشاء</small></span><Icon name="arrow" />
+        <span className="r2-create-primary__icon"><Icon name="transactions" /></span><span><strong>معاملة جديدة</strong><small>يفتح محرر Golden التفاعلي دون كتابة في بيانات الإنتاج</small></span><Icon name="arrow" />
       </button>
       <div className="r2-create-later"><span>خيارات أخرى</span><p>ستظهر هنا فقط عندما تصبح مدعومة ببيانات حقيقية وعقد صلاحيات واضح.</p></div>
     </div>
@@ -214,7 +236,7 @@ function Create({ navigate }: { navigate: (id: R2DestinationId) => void }) {
 function More({ navigate }: { navigate: (id: R2DestinationId) => void }) {
   return (
     <div className="r2-screen" data-screen="more">
-      <div className="r2-section-heading r2-section-heading--hero"><div><p className="r2-eyebrow">خريطة النظام</p><h1>المزيد</h1><p className="r2-supporting">كل قدرة لها منزل واحد واضح. لا شعار كباب سري، ولا شريط 12 مجالًا داخل كل شاشة.</p></div></div>
+      <div className="r2-section-heading r2-section-heading--hero"><div><p className="r2-eyebrow">خريطة النظام · Golden</p><h1>المزيد</h1><p className="r2-supporting">كل قدرة لها منزل واحد واضح. المجموعات منفصلة بصريًا لكن تبقى صفحة واحدة متماسكة، دون جدار بطاقات.</p></div></div>
       <div className="r2-launcher-groups">
         {R2_LAUNCHER_GROUPS.map((group) => (
           <section className="r2-launcher-group" key={group.id}>
@@ -237,20 +259,12 @@ function Destination({ id, navigate }: { id: R2DestinationId; navigate: (id: R2D
   const destination = getR2Destination(id);
   const transactionContext = id.startsWith('transactions.');
   if (transactionContext) {
-    return (
-      <div className="r2-screen r2-context-preview" data-screen="transaction-context">
-        <p className="r2-eyebrow">سياق المعاملة</p>
-        <div className="r2-context-preview__identity"><span>#</span><div><h1>{destination.label}</h1><p>1042 · تعديل عقد تأسيس · شركة الرافدين</p></div></div>
-        <div className="r2-context-ribbon"><span>نظرة عامة</span><span>النشاط</span><span>المتابعات</span><span>الوثائق</span><span>المالية</span></div>
-        <p className="r2-preview-note">هذه معاينة لسلوك السياق والموقع فقط. تجربة 360° الكاملة تُبنى وتُعرض للاعتماد في R2.0-4.</p>
-        <ActionButton className="r2-action r2-action--secondary" onClick={() => navigate('transactions')}>العودة للمعاملات</ActionButton>
-      </div>
-    );
+    return <GoldenTransactionExperience id={id as Extract<R2DestinationId, `transactions.${string}`>} navigate={navigate} />;
   }
   return (
     <div className="r2-screen r2-destination-placeholder" data-screen="launcher-destination">
       <div className="r2-destination-mark"><Icon name="module" /></div><p className="r2-eyebrow">وجهة مثبتة في بنية إنجاز الجديدة</p><h1>{destination.label}</h1>
-      <p>الـShell يعرف مكان هذه الميزة وطريق الوصول إليها. محتوى المجال نفسه سيُبنى في مرحلة الترحيل المخصصة له، لذلك لا نعرض واجهة وهمية.</p>
+      <p>الـShell يعرف مكان هذه الميزة وطريق الوصول إليها. محتوى المجال نفسه سيُبنى في مرحلة الترحيل المخصصة له؛ R2.0-4 يصقل طبقات الهوية والعنوان والوصف والأفعال دون ادعاء بيانات غير موجودة.</p>
       <div className="r2-placeholder-actions"><ActionButton className="r2-action r2-action--primary" onClick={() => navigate('more')}>العودة إلى المزيد</ActionButton><ActionButton className="r2-action r2-action--secondary" onClick={() => navigate('home')}>الرئيسية</ActionButton></div>
     </div>
   );
@@ -280,7 +294,7 @@ function SearchOverlay({ query, setQuery, close, navigate }: { query: string; se
             <button type="button" key={item.id} className="r2-search-result" onClick={() => navigate(item.id)}><span className="r2-search-result__icon"><Icon name="module" /></span><span><strong>{item.label}</strong><small>{item.kind === 'launcher_destination' ? 'ميزة' : 'وجهة'}</small></span><Icon name="arrow" /></button>
           )) : <p className="r2-search-empty">لا توجد نتيجة ضمن خريطة الـShell الحالية.</p>}
         </div>
-        <p className="r2-search-footnote">في R2.0-3 نثبت اكتشاف الميزات والتنقل إليها. البحث في السجلات الحقيقية يكتمل في R2.0-8.</p>
+        <p className="r2-search-footnote">البحث عن الميزات والتنقل القانوني مثبتان في الـShell؛ البحث في السجلات الحقيقية يكتمل في R2.0-8.</p>
       </section>
     </div>
   );
@@ -291,7 +305,7 @@ function AccountOverlay({ close }: { close: () => void }) {
     <div className="r2-overlay" role="dialog" aria-modal="true" data-overlay="account" aria-labelledby="r2-account-title">
       <button type="button" className="r2-overlay__backdrop" aria-label="إغلاق الحساب" onClick={close} />
       <section className="r2-account-sheet">
-        <div className="r2-account-sheet__handle" aria-hidden="true" /><div className="r2-account-sheet__profile"><span className="r2-avatar"><Icon name="user" /></span><div><p className="r2-eyebrow">مساحة العمل</p><h2 id="r2-account-title">حساب إنجاز</h2><small>واجهة Shell تجريبية — لا تغيّر بيانات الحساب.</small></div></div>
+        <div className="r2-account-sheet__handle" aria-hidden="true" /><div className="r2-account-sheet__profile"><span className="r2-avatar"><Icon name="user" /></span><div><p className="r2-eyebrow">مساحة العمل</p><h2 id="r2-account-title">حساب إنجاز</h2><small>واجهة Golden متوازية — لا تغيّر بيانات الحساب.</small></div></div>
         <button type="button" className="r2-account-row" onClick={close}><span>إعدادات مساحة العمل</span><Icon name="arrow" /></button><button type="button" className="r2-account-row" onClick={close}><span>تفضيلات الواجهة</span><Icon name="arrow" /></button><button type="button" className="r2-action r2-action--secondary r2-account-close" onClick={close}>إغلاق</button>
       </section>
     </div>
@@ -362,11 +376,11 @@ export function UiR2Root() {
   else content = <Destination id={destinationId} navigate={navigate} />;
 
   return (
-    <div className="ez-r2-root r2-shell" data-r2-shell={SHELL_STAGE} data-destination={destinationId}>
+    <div className="ez-r2-root r2-shell" data-r2-shell={SHELL_STAGE} data-golden-stage="R2.0-4" data-destination={destinationId}>
       <aside className="r2-shell__rail" aria-label="التنقل الرئيسي">
         <button type="button" className="r2-brand" onClick={() => navigate('home')} aria-label="إنجاز — الرئيسية"><span className="r2-brand__mark">إ</span><span><strong>إنجاز</strong><small>Workspace</small></span></button>
         <nav className="r2-rail-nav">{R2_PRIMARY_NAVIGATION.map((id) => <Door key={id} id={id} active={currentDoor === id} mode="rail" navigate={navigate} />)}</nav>
-        <div className="r2-rail-foot"><button type="button" onClick={() => openOverlay('search')}><Icon name="search" /><span>ابحث عن أي شيء</span></button><span className="r2-stage-pill">R2.0-3 Preview</span></div>
+        <div className="r2-rail-foot"><button type="button" onClick={() => openOverlay('search')}><Icon name="search" /><span>ابحث عن أي شيء</span></button><span className="r2-stage-pill">R2.0-4 Golden</span></div>
       </aside>
 
       <div className="r2-shell__workspace">
