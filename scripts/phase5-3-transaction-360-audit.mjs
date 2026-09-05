@@ -5,7 +5,7 @@ function assert(condition, message) {
 }
 async function read(file) { return fs.readFile(file, 'utf8'); }
 
-const [core, dataLayer, model, service, hook, preview, screen, list, css, listCss, main, kickoff, roadmap] = await Promise.all([
+const [core, dataLayer, model, service, hook, preview, screen, list, overlays, css, listCss, main, kickoff, closure, roadmap, reality] = await Promise.all([
   read('src/ui-v2/runtime/CoreApp.tsx'),
   read('src/data/createDataLayer.ts'),
   read('src/features/transactions/transaction360Model.ts'),
@@ -14,11 +14,14 @@ const [core, dataLayer, model, service, hook, preview, screen, list, css, listCs
   read('src/features/transactions/transaction360Preview.ts'),
   read('src/ui-v2/screens/Transaction360.tsx'),
   read('src/ui-v2/screens/TransactionListScreen.tsx'),
+  read('src/ui-v2/components/overlays.tsx'),
   read('src/ui-v2/styles/transaction-360.css'),
   read('src/ui-v2/styles/transaction-list.css'),
   read('src/main.tsx'),
   read('docs/PHASE5_3_TRANSACTION_DETAILS_360_KICKOFF.md'),
+  read('docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md'),
   read('docs/ENJAZ_MASTER_ROADMAP.md'),
+  read('scripts/phase5-3-transaction-360-reality.mjs'),
 ]);
 
 assert(core.includes('data-stage="ui-10"'), 'frozen UI-10 marker changed');
@@ -43,10 +46,19 @@ assert(list.includes('360° للعرض فقط؛ الاستعادة غير متا
 assert(!list.includes('eyebrow="Phase 5.3"'), 'Phase 5.3 developer terminology leaked into the 360 sheet');
 assert(list.includes('ConnectedTransaction360') && list.includes('FixtureTransaction360'), 'live/fixture 360 routing boundary missing');
 
+assert(overlays.includes("import { createPortal } from 'react-dom'"), 'overlay system lost React portal dependency');
+assert(overlays.includes('createPortal(node, document.body)'), 'sheet/dialog overlays are no longer portaled to document.body');
+assert(reality.includes('assertSheetOwnsModalLayer'), 'real-browser modal-layer regression guard missing');
+assert(reality.includes('overlay.parentElement === document.body'), 'reality gate no longer verifies body portal ownership');
+assert(reality.includes('document.elementFromPoint'), 'reality gate no longer detects fixed shell chrome above the modal layer');
+
 assert(main.includes("./ui-v2/styles/transaction-360.css"), 'transaction 360 stylesheet is not loaded by product entry');
 assert(css.includes('@media (max-width: 390px)'), '360 narrow-phone hardening missing');
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), '360 reduced-motion hardening missing');
 assert(css.includes('overflow-wrap: anywhere'), '360 long-text wrapping guard missing');
+assert(css.includes('repeat(auto-fit, minmax(220px, 1fr))'), '360 summary/facts lost container-resilient layout');
+assert(css.includes('.ez-transaction-360__facts > article'), '360 facts lost explicit article-card styling');
+assert(css.includes('unicode-bidi: plaintext'), '360 mixed Arabic/Latin/numeric bidi hardening missing');
 assert(!css.includes('!important'), '360 styles may not use !important');
 assert(!/z-index\s*:\s*\d{3,}/.test(css), '360 styles contain uncontrolled z-index escalation');
 assert(listCss.includes('.ez-transaction-card__action-buttons'), 'dual transaction card actions lack layout contract');
@@ -56,11 +68,15 @@ assert(!model.toLowerCase().includes('supabase'), '360 model directly depends on
 assert(!service.includes('createClient('), '360 service creates a direct Supabase client');
 assert(!service.includes("from '@supabase"), '360 service imports Supabase directly');
 assert(!hook.includes('createClient('), '360 controller creates a direct Supabase client');
-assert(kickoff.includes('Status: **IN PROGRESS**'), 'Phase 5.3 kickoff is not in progress');
+assert(kickoff.includes('Status: **CLOSED**'), 'Phase 5.3 kickoff must be closed after certification');
 assert(kickoff.includes('Archive, restore, reactivation and lifecycle mutation remain strictly Phase 5.4'), 'Phase 5.4 lifecycle boundary missing');
 assert(kickoff.includes('Full Finance operations remain Phase 7'), 'Finance boundary missing');
 assert(kickoff.includes('Full workflow management remains Phase 8'), 'Workflow boundary missing');
-assert(roadmap.includes('## 5.3 — Transaction Details / 360°'), 'roadmap lost Phase 5.3');
+assert(closure.includes('Status: **CLOSED**'), 'Phase 5.3 closure document is not closed');
+assert(closure.includes('Phase 5.4 — Archive/Restore/Lifecycle remains locked'), 'closure lost Phase 5.4 lock');
+assert(closure.includes('9965684028'), 'closure lost certified Chromium evidence artifact');
+assert(closure.includes('33953751497'), 'closure lost certified Phase 5.3 gate run');
+assert(roadmap.includes('## 5.3 — Transaction Details / 360° ✅'), 'roadmap does not mark Phase 5.3 complete');
 assert(roadmap.includes('## 5.4 — Archive/Restore/Lifecycle'), 'roadmap lost Phase 5.4 boundary');
 
 console.log(`Phase 5.3 Transaction Details / 360° architecture gate PASS on product phase ${phase}`);
@@ -69,5 +85,7 @@ console.log('- core relation failures fail closed while optional context is expl
 console.log('- timeline and section bounds prevent unbounded 360 rendering');
 console.log('- compact panel contract preserves five named 360 sections without legacy duplication');
 console.log('- archived transactions retain explicit read-only 360 access without lifecycle mutation');
+console.log('- sheet/dialog overlays stay above fixed shell chrome through document.body portals and browser geometry guards');
+console.log('- 360 summary/facts retain explicit RTL/bidi-safe responsive layout');
 console.log('- live and isolated preview 360 routes use frozen UI V2 with mobile/reduced-motion guards');
-console.log('- lifecycle, full Finance and full Workflow mutations remain outside Phase 5.3');
+console.log('- Phase 5.3 is closed while lifecycle, full Finance and full Workflow mutations remain outside its scope');
