@@ -1,8 +1,8 @@
 # Phase 5.2 — Transaction Create/Edit
 
-Status: **IN PROGRESS**.
+Status: **CLOSED ✅**. Closure evidence: `docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`. **Phase 5.3 remains not started until this closure is merged and canonical `main` is re-certified.**
 
-Phase 5.2 begins only after Phase 5.1 is closed and certified on canonical `main`. This phase owns transaction creation and safe editing; it does **not** start 360° details, archive/restore lifecycle, full workflow-engine management, or the Phase 5.5 destruction gate.
+Phase 5.2 began only after Phase 5.1 was closed and certified on canonical `main`. This phase owns transaction creation and safe editing; it does **not** start 360° details, archive/restore lifecycle, full workflow-engine management, or the Phase 5.5 destruction gate.
 
 ## Governing scope
 
@@ -63,4 +63,6 @@ Phase 5.2 cannot close until all of the following are green:
 - no horizontal overflow and no sub-44px interactive controls;
 - PR mergeability and post-merge canonical `main` re-certification.
 
-**Next phase remains locked:** Phase 5.3 — Transaction Details / 360° does not begin until this release gate is green and Phase 5.2 is closed.
+The implementation, destructive certification, and permanent cumulative gate protection are documented in `docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`.
+
+**Next phase remains locked:** Phase 5.3 — Transaction Details / 360° does not begin until this release gate is green, this closure is merged, and canonical `main` is re-certified.
