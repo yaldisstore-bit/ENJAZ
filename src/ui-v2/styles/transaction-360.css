@@ -72,35 +72,65 @@
   gap: var(--ez-space-2);
 }
 
-.ez-transaction-360__summary {
+.ez-transaction-360__summary,
+.ez-transaction-360__facts {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--ez-space-3);
 }
 
 .ez-transaction-360__summary .ez-stat-pill {
-  min-height: 78px;
-  align-content: center;
-}
-
-.ez-transaction-360__facts {
+  min-width: 0;
+  min-height: 88px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--ez-space-3);
+  align-content: center;
+  justify-items: start;
+  gap: 5px;
+  padding: var(--ez-space-3) var(--ez-space-4);
+  border-radius: var(--ez-radius-md);
+  overflow: hidden;
+  text-align: start;
 }
 
-.ez-transaction-360__facts .ez-surface {
+.ez-transaction-360__summary .ez-stat-pill strong,
+.ez-transaction-360__summary .ez-stat-pill small {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ez-transaction-360__summary .ez-stat-pill strong {
+  font-size: clamp(1.05rem, 3vw, 1.35rem);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  unicode-bidi: plaintext;
+}
+
+.ez-transaction-360__summary .ez-stat-pill small {
+  line-height: 1.55;
+  white-space: normal;
+}
+
+.ez-transaction-360__facts > article {
   min-width: 0;
   display: grid;
   align-content: start;
-  gap: var(--ez-space-2);
+  gap: 6px;
   padding: var(--ez-space-4);
+  border: 1px solid var(--ez-line);
+  border-radius: var(--ez-radius-md);
+  background: var(--ez-surface-soft);
+  box-shadow: var(--ez-highlight);
+  text-align: start;
 }
 
 .ez-transaction-360__facts small,
 .ez-transaction-360__facts span { color: var(--ez-muted); }
-.ez-transaction-360__facts strong { line-height: 1.65; overflow-wrap: anywhere; }
-.ez-transaction-360__facts span { font-size: .82rem; line-height: 1.6; }
+.ez-transaction-360__facts small,
+.ez-transaction-360__facts strong,
+.ez-transaction-360__facts span { display: block; min-width: 0; max-width: 100%; }
+.ez-transaction-360__facts strong { line-height: 1.65; overflow-wrap: anywhere; unicode-bidi: plaintext; }
+.ez-transaction-360__facts span { font-size: .82rem; line-height: 1.6; overflow-wrap: anywhere; unicode-bidi: plaintext; }
 
 .ez-transaction-360__grid {
   display: grid;
@@ -302,8 +332,6 @@
 @keyframes ez-transaction-360-shimmer { to { background-position: -200% 0; } }
 
 @media (max-width: 900px) {
-  .ez-transaction-360__summary,
-  .ez-transaction-360__facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ez-transaction-360__grid { grid-template-columns: minmax(0, 1fr); }
 }
 
