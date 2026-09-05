@@ -204,7 +204,7 @@ Phase 3 began only after 2.8 was green. Its exit was verified through the comple
 
 # Phase 4 — Home, Daily Work & Executive Overview ✅
 
-Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** Phase 5.1 has since been completed under Phase 5 without changing the closed Phase 4 contract.
+Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** Phase 5.1 and Phase 5.2 have since been completed under Phase 5 without changing the closed Phase 4 contract.
 
 ## 4.1 — Home / Dashboard ✅
 - Build the actual ENJAZ home screen using Phase 2 patterns.
@@ -253,7 +253,7 @@ Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed �
 
 # Phase 5 — Transactions Core
 
-Phase 5 is in progress. **Phase 5.1 is closed ✅.** The next permitted product step is **Phase 5.2 — Transaction Create/Edit**, which remains not started. Phase 5 remains open until 5.2–5.5 are closed.
+Phase 5 is in progress. **Phase 5.1 and Phase 5.2 are closed ✅.** The next permitted product step is **Phase 5.3 — Transaction Details / 360°**, which remains not started until the Phase 5.2 closure PR is merged and canonical `main` is re-certified. Phase 5 remains open until 5.3–5.5 are closed.
 
 ## 5.1 — Transaction List & Search ✅
 - Current, stalled/delayed, archived/closed views according to the frozen business contract.
@@ -268,10 +268,21 @@ Phase 5 is in progress. **Phase 5.1 is closed ✅.** The next permitted product 
 - Pre-closure evidence run: `33944168202` on `5cf81aac4e527fc34ca1a7a03a148f083bb4ce60` ✅.
 - Closure evidence: `docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md`.
 
-## 5.2 — Transaction Create/Edit
-- Validated forms.
-- Company/contact relations.
-- Dates, state, workflow/station assignment, notes, and required business fields.
+## 5.2 — Transaction Create/Edit ✅
+- Validated create/edit forms use one authoritative editor behind authenticated workspace-scoped Data Layer boundaries.
+- Company is required; primary contact must be a current valid contact related to the selected company.
+- Type, department, status, priority, fee, completion time, station/assignee/time, note, and fee-change reason are explicitly validated.
+- Money input normalizes Arabic/Persian digits while rejecting non-positive, imprecise, or JavaScript-unsafe values.
+- Stale edits fail as conflicts; archived/deleted transactions and completed reactivation stay outside Phase 5.2 and remain Phase 5.4 work.
+- Station, note, fee-change, and activity history is append-only; companion-write failures or outcome-unknown states are surfaced rather than reported as false complete success.
+- Global Create and Transaction List edit both enter the authoritative editor.
+- Mobile/RTL/keyboard-safe behavior stays within frozen UI V2, including 44px-or-larger interactive targets.
+- A real Chromium defect with 40–42px global-create controls was found and fixed using existing design tokens instead of weakening the test.
+- Dedicated model/service tests passed 12/12 and full functional regression passed 91/91 on the certified line.
+- Real Chromium create/edit destruction, Quality Gate, Global Browser Acceptance, and cumulative Phase 4.3/4.4/5.1 gates all passed.
+- Pre-closure evidence run: `33946358543` on certified fix line `74339f319e1e4b6a7a21079f15434733025c88b8` ✅.
+- Evidence artifact: `9963457065` with digest `sha256:0cbea0e11c94da1dd7e0119613543fb47d96a8d53d9d640f4e6f8c7bd5b3c645` ✅.
+- Closure evidence: `docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`.
 
 ## 5.3 — Transaction Details / 360°
 - Full transaction context.
@@ -649,8 +660,9 @@ The project is considered delivered only when:
 - **Phase 4.4 — Home Destruction Gate ✅**
 - **Phase 4 — Home, Daily Work & Executive Overview ✅**
 - **Phase 5.1 — Transaction List & Search ✅**
-- **Next: Phase 5.2 — Transaction Create/Edit**
-- **Phase 5.2 remains not started**
+- **Phase 5.2 — Transaction Create/Edit ✅**
+- **Next: Phase 5.3 — Transaction Details / 360°**
+- **Phase 5.3 remains not started**
 
 ---
 
@@ -658,7 +670,7 @@ The project is considered delivered only when:
 
 This file is intentionally difficult to change by accident.
 
-This closure changes only verified roadmap state: Phase 5.1 is marked complete after its dedicated architecture gate, 15/15 transaction functional/destructive tests, 79/79 full functional regression tests, cumulative UI V2 and Phase 4 gates, secrets audit, roadmap integrity, TypeScript, production build, strict asset budget, real Chromium validation across five responsive profiles plus search/sort/pagination/view-switching stress, and evidence artifact upload all succeeded on pre-closure head `5cf81aac4e527fc34ca1a7a03a148f083bb4ce60`. Phase 5 remains open. Phase 5.2 becomes the next permitted subphase but remains not started. Feature parity and delivery scope are unchanged; no Phase 5.2/5.3/5.4/5.5 implementation is moved forward or skipped.
+This closure changes only verified roadmap state: Phase 5.2 is marked complete after its dedicated architecture gate, 12/12 transaction-editor model/service tests, 91/91 full functional regression tests, cumulative UI V2 and Phase 4/5.1 gates, secrets and database audits, roadmap integrity, TypeScript, production build, strict asset budget, real Chromium create/edit validation, global browser acceptance, and evidence artifact upload all succeeded on the certified fix line `74339f319e1e4b6a7a21079f15434733025c88b8`. The real 40–42px interaction-target defect found during destruction was fixed through the frozen design-token contract rather than by weakening the test. Phase 5 remains open. Phase 5.3 becomes the next permitted subphase only after the Phase 5.2 closure PR is merged and canonical `main` is re-certified, and remains not started until then. Feature parity and delivery scope are unchanged; no Phase 5.3/5.4/5.5 implementation is moved forward or skipped.
 
 A roadmap change must state:
 1. what changes,
