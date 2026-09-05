@@ -18,6 +18,7 @@ import './ui-v2/styles/executive-briefing.css';
 import './ui-v2/styles/transaction-list.css';
 import './ui-v2/styles/transaction-editor.css';
 import './ui-v2/styles/transaction-360.css';
+import './ui-v2/styles/transaction-lifecycle.css';
 import './ui-v2/styles/auth-runtime.css';
 
 const rootElement = document.getElementById('root');
