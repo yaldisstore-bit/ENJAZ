@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { UiR2Root } from './runtime/UiR2Root.tsx';
-import './design-system/design-system.css';
+import './runtime/shell-base.css';
 import './runtime/shell.css';
 
 const rootElement = document.getElementById('r2-root');
