@@ -1,0 +1,47 @@
+name: ENJAZ R2.0-6 — One-shot TypeScript Fix
+
+on:
+  push:
+    branches:
+      - r2-0-6-records-relationships
+    paths:
+      - '.github/workflows/r2-0-6-fix-ts-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: r2-0-6-records-relationships
+      - name: Fix noUncheckedIndexedAccess defaults
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const p = 'src/ui-r2/records/RecordsRelationshipsExperience.tsx';
+          let s = fs.readFileSync(p, 'utf8');
+          const marker = "const DOCUMENTS: DocumentRecord[] = [";
+          if (!s.includes(marker)) throw new Error('records source marker missing');
+          const end = "];\n\nfunction RecordIcon";
+          if (!s.includes(end)) throw new Error('documents array end marker missing');
+          s = s.replace(end, "];\n\nconst DEFAULT_COMPANY = COMPANIES[0]!;\nconst DEFAULT_PERSON = PEOPLE[0]!;\nconst DEFAULT_DOCUMENT = DOCUMENTS[0]!;\n\nfunction RecordIcon");
+          s = s.replace('useState(COMPANIES[0].id)', 'useState(DEFAULT_COMPANY.id)');
+          s = s.replace('?? COMPANIES[0];', '?? DEFAULT_COMPANY;');
+          s = s.replace('useState(PEOPLE[0].id)', 'useState(DEFAULT_PERSON.id)');
+          s = s.replace('?? PEOPLE[0];', '?? DEFAULT_PERSON;');
+          s = s.replace('useState(DOCUMENTS[0].id)', 'useState(DEFAULT_DOCUMENT.id)');
+          s = s.replace('?? documents[0] ?? DOCUMENTS[0];', '?? documents[0] ?? DEFAULT_DOCUMENT;');
+          fs.writeFileSync(p, s);
+          NODE
+      - name: Commit fix
+        run: |
+          git config user.name 'ENJAZ Governance Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add src/ui-r2/records/RecordsRelationshipsExperience.tsx
+          git diff --cached --check
+          git commit -m 'Fix R2.0-6 record selection typing'
+          git push origin HEAD:r2-0-6-records-relationships
