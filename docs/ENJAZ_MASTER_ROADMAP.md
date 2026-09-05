@@ -204,7 +204,7 @@ Phase 3 began only after 2.8 was green. Its exit was verified through the comple
 
 # Phase 4 — Home, Daily Work & Executive Overview ✅
 
-Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** Phase 5.1 and Phase 5.2 have since been completed under Phase 5 without changing the closed Phase 4 contract.
+Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** Phase 5.1, Phase 5.2 and Phase 5.3 have since been completed under Phase 5 without changing the closed Phase 4 contract.
 
 ## 4.1 — Home / Dashboard ✅
 - Build the actual ENJAZ home screen using Phase 2 patterns.
@@ -253,7 +253,7 @@ Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed �
 
 # Phase 5 — Transactions Core
 
-Phase 5 is in progress. **Phase 5.1 and Phase 5.2 are closed ✅.** The next permitted product step is **Phase 5.3 — Transaction Details / 360°**, which remains not started until the Phase 5.2 closure PR is merged and canonical `main` is re-certified. Phase 5 remains open until 5.3–5.5 are closed.
+Phase 5 is in progress. **Phase 5.1, Phase 5.2 and Phase 5.3 are closed ✅.** The next permitted product step is **Phase 5.4 — Archive/Restore/Lifecycle**, which remains not started until the Phase 5.3 closure PR is merged and canonical `main` is re-certified. Phase 5 remains open until 5.4–5.5 are closed.
 
 ## 5.1 — Transaction List & Search ✅
 - Current, stalled/delayed, archived/closed views according to the frozen business contract.
@@ -284,13 +284,21 @@ Phase 5 is in progress. **Phase 5.1 and Phase 5.2 are closed ✅.** The next per
 - Evidence artifact: `9963457065` with digest `sha256:0cbea0e11c94da1dd7e0119613543fb47d96a8d53d9d640f4e6f8c7bd5b3c645` ✅.
 - Closure evidence: `docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`.
 
-## 5.3 — Transaction Details / 360°
-- Full transaction context.
-- Timeline/activity.
-- Notes/follow-ups.
-- Financial relation.
-- Documents.
-- Workflow and risk indicators.
+## 5.3 — Transaction Details / 360° ✅
+- One authoritative workspace-scoped 360° surface composes transaction identity, company/contact context, routes, activity, notes, follow-ups, payments, fee changes, documents, workflow state, and blockers through the typed Data Layer.
+- Required core identity sources fail closed; optional context is explicitly unavailable/truncated instead of being fabricated.
+- Timeline/activity ordering is deterministic and bounded; every contextual section has a fixed safety ceiling against unbounded rendering.
+- Unsafe monetary precision is never displayed as an exact fact.
+- Archived/completed transactions retain explicit read-only 360° access; archive/restore/reactivation and all lifecycle mutations remain Phase 5.4.
+- Full Finance operations remain Phase 7 and full Workflow management remains Phase 8.
+- Real Chromium destruction covers 1280 / 430 / 390 / 360 / 320px, long mixed Arabic/Latin text, missing-company relations, archived read-only records, 44px touch targets, horizontal overflow, console/page errors, and modal-layer ownership.
+- A real modal stacking defect was fixed by portaling Sheets/Dialogs to `document.body`; `elementFromPoint` browser guards now prevent the fixed Top Bar or Bottom Dock from rendering above the 360° sheet.
+- Evidence capture waits for overlay/sheet animations to settle so screenshot review reflects the stable user state.
+- Manual screenshot review found and fixed a summary/facts density defect; 360 now keeps container-resilient cards plus RTL/bidi-safe wrapping for Arabic, Latin, and numeric content.
+- Dedicated Phase 5.3 model/service tests passed **11/11** and full functional regression passed **102/102** on the certified pre-closure line.
+- Pre-closure gate: `33953751497` on `db5f52e82840f5f904a185cca6664d5ffb7f5a7d` ✅.
+- Evidence artifact: `9965684028`, digest `sha256:689be39bef0f28fec5cfdff09b82baa8493ae5dca8f7ec40b56f78cdad319e5f` ✅.
+- Closure evidence: `docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md`.
 
 ## 5.4 — Archive/Restore/Lifecycle
 - Safe lifecycle actions.
@@ -661,8 +669,9 @@ The project is considered delivered only when:
 - **Phase 4 — Home, Daily Work & Executive Overview ✅**
 - **Phase 5.1 — Transaction List & Search ✅**
 - **Phase 5.2 — Transaction Create/Edit ✅**
-- **Next: Phase 5.3 — Transaction Details / 360°**
-- **Phase 5.3 remains not started**
+- **Phase 5.3 — Transaction Details / 360° ✅**
+- **Next: Phase 5.4 — Archive/Restore/Lifecycle**
+- **Phase 5.4 remains not started**
 
 ---
 
@@ -670,7 +679,7 @@ The project is considered delivered only when:
 
 This file is intentionally difficult to change by accident.
 
-This closure changes only verified roadmap state: Phase 5.2 is marked complete after its dedicated architecture gate, 12/12 transaction-editor model/service tests, 91/91 full functional regression tests, cumulative UI V2 and Phase 4/5.1 gates, secrets and database audits, roadmap integrity, TypeScript, production build, strict asset budget, real Chromium create/edit validation, global browser acceptance, and evidence artifact upload all succeeded on the certified fix line `74339f319e1e4b6a7a21079f15434733025c88b8`. The real 40–42px interaction-target defect found during destruction was fixed through the frozen design-token contract rather than by weakening the test. Phase 5 remains open. Phase 5.3 becomes the next permitted subphase only after the Phase 5.2 closure PR is merged and canonical `main` is re-certified, and remains not started until then. Feature parity and delivery scope are unchanged; no Phase 5.3/5.4/5.5 implementation is moved forward or skipped.
+This closure changes only verified roadmap state: Phase 5.3 is marked complete after its architecture gate, 11/11 dedicated Transaction 360 model/service tests, 102/102 full functional regression tests, cumulative UI V2 and Phase 4/5.1/5.2 guards, secrets and database audits, roadmap integrity, TypeScript, production build, strict asset budget, real Chromium 360° validation, global browser acceptance, and manual screenshot inspection all succeeded on the certified pre-closure line `db5f52e82840f5f904a185cca6664d5ffb7f5a7d`. Real defects discovered during destruction—modal stacking over the fixed shell, evidence capture during entry animation, and compressed RTL/bidi summary/facts presentation—were fixed in the product and protected by permanent regression guards rather than by weakening tests. Phase 5 remains open. Phase 5.4 becomes the next permitted subphase only after the Phase 5.3 closure PR is merged and canonical `main` is re-certified, and remains not started until then. Feature parity and delivery scope are unchanged; no Phase 5.4/5.5 implementation is moved forward or skipped.
 
 A roadmap change must state:
 1. what changes,
