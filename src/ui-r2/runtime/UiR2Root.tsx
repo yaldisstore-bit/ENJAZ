@@ -16,6 +16,7 @@ import {
 } from '../core-work/CoreWorkExperience.tsx';
 import { RecordsRelationshipsExperience } from '../records/RecordsRelationshipsExperience.tsx';
 import { OperationalIntelligenceExperience } from '../operational-intelligence/OperationalIntelligenceExperience.tsx';
+import { buildR2FindAnythingResults } from '../find-anything/find-anything-model.ts';
 
 const SHELL_STAGE = 'R2.0-3' as const;
 type OverlayId = 'search' | 'account' | null;
@@ -23,6 +24,7 @@ type PrimaryDoor = (typeof R2_PRIMARY_NAVIGATION)[number];
 type IconName = 'home' | 'transactions' | 'plus' | 'today' | 'more' | 'search' | 'user' | 'arrow' | 'spark' | 'module';
 
 const VALID_DESTINATIONS = new Set<R2DestinationId>(R2_DESTINATIONS.map((item) => item.id));
+const SEARCH_ALIAS_COUNT = Object.keys(R2_SEARCH_ALIASES).length;
 
 function Icon({ name }: { name: IconName }) {
   const common = { className: 'ez-r2-icon', viewBox: '0 0 24 24', 'aria-hidden': true } as const;
@@ -159,18 +161,13 @@ function Destination({ id, transactionId, navigate }: { id: R2DestinationId; tra
   return <div className="r2-screen r2-destination-placeholder" data-screen="launcher-destination"><div className="r2-destination-mark"><Icon name="module" /></div><p className="r2-eyebrow">وجهة مثبتة في بنية إنجاز الجديدة</p><h1>{destination.label}</h1><p>هذه الوجهة محفوظة في خريطة إنجاز، لكن محتوى المجال نفسه لا يُرحّل قبل مرحلته. R2.0-7 يغطي المالية والتشغيل وسير العمل والأتمتة والقيادة والمخاطر ومساعد إنجاز.</p><div className="r2-placeholder-actions"><ActionButton className="r2-action r2-action--primary" onClick={() => navigate('more')}>العودة إلى المزيد</ActionButton><ActionButton className="r2-action r2-action--secondary" onClick={() => navigate('home')}>الرئيسية</ActionButton></div></div>;
 }
 
-function SearchOverlay({ query, setQuery, close, navigate }: { query: string; setQuery: (value: string) => void; close: () => void; navigate: (id: R2DestinationId) => void }) {
-  const normalized = query.trim();
-  const results = useMemo(() => {
-    const selected = new Map<R2DestinationId, (typeof R2_DESTINATIONS)[number]>();
-    if (!normalized) for (const id of ['transactions', 'today', 'companies', 'finance', 'automation', 'documents'] as R2DestinationId[]) selected.set(id, getR2Destination(id));
-    else {
-      for (const item of R2_DESTINATIONS) if (item.label.includes(normalized) || item.id.includes(normalized.toLowerCase())) selected.set(item.id, item);
-      for (const [alias, id] of Object.entries(R2_SEARCH_ALIASES)) if (alias.includes(normalized) || normalized.includes(alias)) selected.set(id, getR2Destination(id));
-    }
-    return Array.from(selected.values()).slice(0, 8);
-  }, [normalized]);
-  return <div className="r2-overlay" role="dialog" aria-modal="true" data-overlay="search" aria-labelledby="r2-search-title"><button type="button" className="r2-overlay__backdrop" aria-label="إغلاق البحث" onClick={close} /><section className="r2-search-panel"><div className="r2-search-panel__head"><div><p className="r2-eyebrow">Find Anything</p><h2 id="r2-search-title">ابحث عن أي شيء</h2></div><button type="button" className="r2-close-button" onClick={close} aria-label="إغلاق">×</button></div><label className="r2-search-input-wrap"><Icon name="search" /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="مثال: خزنة، أتمتة، معاملات، مالية…" /></label><div className="r2-search-results" aria-live="polite">{results.length ? results.map((item) => <button type="button" key={item.id} className="r2-search-result" onClick={() => navigate(item.id)}><span className="r2-search-result__icon"><Icon name="module" /></span><span><strong>{item.label}</strong><small>{item.kind === 'launcher_destination' ? 'ميزة' : 'وجهة'}</small></span><Icon name="arrow" /></button>) : <p className="r2-search-empty">لا توجد نتيجة ضمن خريطة الـShell الحالية.</p>}</div><p className="r2-search-footnote">اكتشاف الميزات مثبت؛ البحث في السجلات على مستوى التطبيق يكتمل في R2.0-8.</p></section></div>;
+function SearchOverlay({ query, setQuery, close, navigate, openTransaction }: { query: string; setQuery: (value: string) => void; close: () => void; navigate: (id: R2DestinationId) => void; openTransaction: (id: string) => void }) {
+  const results = useMemo(() => buildR2FindAnythingResults(query), [query]);
+  const openResult = (result: (typeof results)[number]) => {
+    if (result.kind === 'transaction' && result.transactionId) openTransaction(result.transactionId);
+    else navigate(result.destinationId);
+  };
+  return <div className="r2-overlay" role="dialog" aria-modal="true" data-overlay="search" data-zero-lost-search="R2.0-8" aria-labelledby="r2-search-title"><button type="button" className="r2-overlay__backdrop" aria-label="إغلاق البحث" onClick={close} /><section className="r2-search-panel"><div className="r2-search-panel__head"><div><p className="r2-eyebrow">Find Anything · Zero-Lost</p><h2 id="r2-search-title">ابحث عن أي شيء</h2></div><button type="button" className="r2-close-button" onClick={close} aria-label="إغلاق">×</button></div><label className="r2-search-input-wrap"><Icon name="search" /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="مثال: 1042، خزنة، أتمتة، شركة، مالية…" /></label><div className="r2-search-results" aria-live="polite">{results.length ? results.map((item) => <button type="button" key={item.key} className="r2-search-result" data-find-kind={item.kind} data-find-source={item.source} onClick={() => openResult(item)}><span className="r2-search-result__icon"><Icon name={item.kind === 'transaction' ? 'transactions' : 'module'} /></span><span><strong>{item.label}</strong><small>{item.secondary}</small></span><Icon name="arrow" /></button>) : <p className="r2-search-empty">لا توجد نتيجة مطابقة. لا يختلق إنجاز سجلات أو ميزات غير موجودة.</p>}</div><p className="r2-search-footnote" data-alias-count={SEARCH_ALIAS_COUNT}>R2.0-8 بدأ ببحث الميزات ومعاملات عينة Preview الموثقة؛ سجلات الإنتاج ستربط عبر Data Layer دون قناة جانبية.</p></section></div>;
 }
 
 function AccountOverlay({ close }: { close: () => void }) {
@@ -231,10 +228,10 @@ export function UiR2Root() {
   else content = <Destination id={destinationId} transactionId={transactionId} navigate={navigate} />;
 
   return (
-    <div className="ez-r2-root r2-shell" data-r2-shell={SHELL_STAGE} data-golden-stage="R2.0-4" data-core-work-stage="R2.0-5" data-records-stage="R2.0-6" data-operational-stage="R2.0-7" data-destination={destinationId}>
-      <aside className="r2-shell__rail" aria-label="التنقل الرئيسي"><button type="button" className="r2-brand" onClick={() => navigate('home')} aria-label="إنجاز — الرئيسية"><span className="r2-brand__mark">إ</span><span><strong>إنجاز</strong><small>Workspace</small></span></button><nav className="r2-rail-nav">{R2_PRIMARY_NAVIGATION.map((id) => <Door key={id} id={id} active={currentDoor === id} mode="rail" navigate={navigate} />)}</nav><div className="r2-rail-foot"><button type="button" onClick={() => openOverlay('search')}><Icon name="search" /><span>ابحث عن أي شيء</span></button><span className="r2-stage-pill">R2.0-7 Operational</span></div></aside>
+    <div className="ez-r2-root r2-shell" data-r2-shell={SHELL_STAGE} data-golden-stage="R2.0-4" data-core-work-stage="R2.0-5" data-records-stage="R2.0-6" data-operational-stage="R2.0-7" data-zero-lost-stage="R2.0-8" data-destination={destinationId}>
+      <aside className="r2-shell__rail" aria-label="التنقل الرئيسي"><button type="button" className="r2-brand" onClick={() => navigate('home')} aria-label="إنجاز — الرئيسية"><span className="r2-brand__mark">إ</span><span><strong>إنجاز</strong><small>Workspace</small></span></button><nav className="r2-rail-nav">{R2_PRIMARY_NAVIGATION.map((id) => <Door key={id} id={id} active={currentDoor === id} mode="rail" navigate={navigate} />)}</nav><div className="r2-rail-foot"><button type="button" onClick={() => openOverlay('search')}><Icon name="search" /><span>ابحث عن أي شيء</span></button><span className="r2-stage-pill">R2.0-8 Find Anything</span></div></aside>
       <div className="r2-shell__workspace"><header className="r2-topbar"><div className="r2-mobile-brand"><span className="r2-brand__mark">إ</span><strong>إنجاز</strong></div><div className="r2-location" aria-label="الموقع الحالي">{trail.map((item, index) => <span key={`${item}-${index}`}>{index > 0 && <b>←</b>}{item}</span>)}</div><div className="r2-topbar__actions"><button type="button" className="r2-icon-button" onClick={() => openOverlay('search')} aria-label="ابحث عن أي شيء"><Icon name="search" /></button><button type="button" className="r2-icon-button r2-icon-button--account" onClick={() => openOverlay('account')} aria-label="الحساب ومساحة العمل"><Icon name="user" /></button></div></header><main className="r2-shell__main" id="r2-main" aria-label={getR2Destination(destinationId).label}>{content}</main><nav className="r2-shell__mobile-nav" aria-label="التنقل الرئيسي للهاتف">{R2_PRIMARY_NAVIGATION.map((id) => <Door key={id} id={id} active={currentDoor === id} mode="dock" navigate={navigate} />)}</nav></div>
-      {overlay === 'search' && <SearchOverlay query={searchQuery} setQuery={setSearchQuery} close={closeOverlay} navigate={navigate} />}
+      {overlay === 'search' && <SearchOverlay query={searchQuery} setQuery={setSearchQuery} close={closeOverlay} navigate={navigate} openTransaction={openTransaction} />}
       {overlay === 'account' && <AccountOverlay close={closeOverlay} />}
     </div>
   );
