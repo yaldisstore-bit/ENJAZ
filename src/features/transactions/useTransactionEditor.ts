@@ -113,12 +113,12 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
     update(field: TransactionEditorField, value: string) {
       if (status === 'saving') return;
       setDraft((current) => {
-        const next = { ...current, [field]: value } as TransactionEditorDraft;
+        const next: Record<TransactionEditorField, string> = { ...current, [field]: value };
         if (field === 'companyId' && source && current.primaryContactId) {
           if (!getRelatedContactIds(source, value).has(current.primaryContactId)) next.primaryContactId = '';
         }
         if (field === 'status' && value !== 'completed') next.completedAt = '';
-        return Object.freeze(next);
+        return Object.freeze(next as unknown as TransactionEditorDraft);
       });
       setErrors((current) => {
         if (!(field in current)) return current;
