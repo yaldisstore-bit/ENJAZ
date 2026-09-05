@@ -70,18 +70,31 @@ function availableActions(capabilities: TransactionLifecycleCapabilities | null)
 
 function TransactionLifecycleView(props: Readonly<LifecycleViewProps>) {
   const [confirmAction, setConfirmAction] = useState<TransactionLifecycleAction | null>(null);
+  const [lastConfirmAction, setLastConfirmAction] = useState<TransactionLifecycleAction | null>(null);
   const [note, setNote] = useState('');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const transaction = props.transaction;
   const actions = availableActions(props.capabilities);
   const busy = props.status === 'mutating';
+  const dialogAction = confirmAction ?? lastConfirmAction;
+
+  const openConfirm = (action: TransactionLifecycleAction) => {
+    setLastConfirmAction(action);
+    setConfirmAction(action);
+  };
+
+  const closeConfirm = () => {
+    if (confirmAction) setLastConfirmAction(confirmAction);
+    setConfirmAction(null);
+  };
 
   const executeConfirmed = async () => {
     if (!confirmAction) return;
     const action = confirmAction;
-    setConfirmAction(null);
+    setLastConfirmAction(action);
     setSuccessMessage(null);
     const ok = await props.onExecute(action, note);
+    setConfirmAction(null);
     if (!ok) return;
     setNote('');
     setSuccessMessage(`${actionLabel(action)} تمت بنجاح وفق ضوابط دورة الحياة.`);
@@ -138,7 +151,7 @@ function TransactionLifecycleView(props: Readonly<LifecycleViewProps>) {
 
       <div className="ez-transaction-lifecycle__actions" aria-label="إجراءات دورة حياة المعاملة">
         {actions.length ? actions.map((action) => (
-          <EzButton key={action} tone={actionTone(action)} disabled={busy} onClick={() => setConfirmAction(action)} data-lifecycle-action={action}>
+          <EzButton key={action} tone={actionTone(action)} disabled={busy} onClick={() => openConfirm(action)} data-lifecycle-action={action}>
             {busy ? 'جارٍ التنفيذ…' : actionLabel(action)}
           </EzButton>
         )) : <EzNotice title="لا يوجد إجراء متاح" body="الحالة الحالية لا تسمح بتغيير إضافي من هذه الشاشة." tone="info" />}
@@ -147,12 +160,12 @@ function TransactionLifecycleView(props: Readonly<LifecycleViewProps>) {
       <EzDialog
         open={confirmAction !== null}
         eyebrow="تأكيد دورة الحياة"
-        title={confirmAction ? actionLabel(confirmAction) : 'تأكيد الإجراء'}
-        body={confirmAction ? actionDescription(confirmAction, transaction) : ''}
-        tone={confirmAction ? confirmTone(confirmAction) : 'warning'}
-        primaryLabel={confirmAction ? actionLabel(confirmAction) : 'تأكيد الإجراء'}
+        title={dialogAction ? actionLabel(dialogAction) : 'تأكيد الإجراء'}
+        body={dialogAction ? actionDescription(dialogAction, transaction) : ''}
+        tone={dialogAction ? confirmTone(dialogAction) : 'warning'}
+        primaryLabel={dialogAction ? actionLabel(dialogAction) : 'تأكيد الإجراء'}
         onPrimary={() => { void executeConfirmed(); }}
-        onClose={() => setConfirmAction(null)}
+        onClose={closeConfirm}
       />
     </section>
   );
