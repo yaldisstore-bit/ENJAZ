@@ -62,11 +62,12 @@ assert(preview.includes("workflow-1") && preview.includes("blocker-1") && previe
 
 for (const token of [
   'data-pattern="transaction-360"',
-  'data-transaction-360-timeline="true"',
-  'data-transaction-360-followups="true"',
-  'data-transaction-360-finance="true"',
-  'data-transaction-360-notes="true"',
-  'data-transaction-360-documents="true"',
+  'data-transaction-360-section={props.id}',
+  '<Panel id="timeline"',
+  '<Panel id="followups"',
+  '<Panel id="finance"',
+  '<Panel id="notes"',
+  '<Panel id="documents"',
   'ConnectedTransaction360',
   'FixtureTransaction360',
   'بعض سياق 360° يحتاج انتباهًا',
@@ -103,5 +104,6 @@ console.log(`Phase 5.3 Transaction Details / 360° architecture gate PASS on pro
 console.log('- authoritative workspace-scoped Data Layer composition is locked');
 console.log('- core relation failures fail closed while optional context is explicitly unavailable/truncated');
 console.log('- timeline and section bounds prevent unbounded 360 rendering');
+console.log('- compact panel contract preserves five named 360 sections without legacy duplication');
 console.log('- live and isolated preview 360 routes use frozen UI V2 with mobile/reduced-motion guards');
 console.log('- lifecycle, full Finance and full Workflow mutations remain outside Phase 5.3');
