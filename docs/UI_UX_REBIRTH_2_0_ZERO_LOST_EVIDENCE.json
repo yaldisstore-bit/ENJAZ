@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-8",
+  "status": "ACTIVE",
+  "branch": "r2-0-8-find-anything-zero-lost",
+  "scope": [
+    "featureAliases",
+    "recordDiscovery",
+    "canonicalDestinationNavigation",
+    "maxThreeActionReachability",
+    "hiddenDoorElimination",
+    "duplicateHomeElimination",
+    "searchBackRestoration"
+  ],
+  "targetCapabilities": [
+    "global.search"
+  ],
+  "truthfulness": {
+    "canonicalRuntimeChanged": false,
+    "phase55Locked": true,
+    "previewRecordsClaimedAsProduction": false,
+    "adHocPersistenceAllowed": false,
+    "adHocNetworkFetchAllowed": false
+  },
+  "zeroLost": {
+    "maxMajorCapabilityActions": 3,
+    "hiddenPrimaryNavigationCount": 0,
+    "duplicateCanonicalHomesCount": 0,
+    "backPathFailures": 0,
+    "recordProvidersBounded": true,
+    "featureAliasesCanonical": true
+  },
+  "hardWidths": [1280, 430, 390, 360, 320],
+  "checks": {
+    "structuralAudit": "PENDING",
+    "functionalRegression": "PENDING",
+    "typescript": "PENDING",
+    "previewBuild": "PENDING",
+    "previewBudget": "PENDING",
+    "goldenRegression": "PENDING",
+    "coreWorkRegression": "PENDING",
+    "recordsRegression": "PENDING",
+    "operationalRegression": "PENDING",
+    "realBrowserZeroLost": "PENDING"
+  },
+  "artifact": null,
+  "exitGatePassed": false,
+  "gateRuns": {}
+}
