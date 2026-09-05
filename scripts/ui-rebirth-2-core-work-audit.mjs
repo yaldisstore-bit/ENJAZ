@@ -7,6 +7,7 @@ const exists = (p) => fs.existsSync(path.join(root, p));
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const json = (p) => JSON.parse(read(p));
 const errors = [];
+const stageOrder = ['R2.0-0','R2.0-1','R2.0-2','R2.0-3','R2.0-4','R2.0-5','R2.0-6','R2.0-7','R2.0-8','R2.0-9','R2.0-10','R2.0-11'];
 
 const paths = {
   state: 'docs/UI_UX_REBIRTH_2_0_STATE.json', parity: 'docs/UI_UX_REBIRTH_2_0_FEATURE_PARITY.json',
@@ -28,10 +29,12 @@ const uiRoot = read(paths.root);
 const preview = read(paths.preview);
 const browser = read(paths.browser);
 const main = read(paths.main);
+const stageIndex = stageOrder.indexOf(state.stage);
 
-if (state.stage !== 'R2.0-5') errors.push(`core work guard requires stage R2.0-5, found ${state.stage}`);
+if (stageIndex < 5) errors.push(`core work guard requires R2.0-5 or later, found ${state.stage}`);
+if (stageIndex > 5 && state.coreWorkMigration?.status !== 'CLOSED') errors.push(`R2.0-5 must remain CLOSED after advancing to ${state.stage}`);
 if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked');
-if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 during R2.0-5');
+if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 before R2.0-11');
 if (state.goldenExperience?.status !== 'APPROVED' || state.goldenExperience?.userApproved !== true) errors.push('R2.0-5 requires the approved Golden Experience');
 if (state.coreWorkMigration?.status !== 'ACTIVE' && state.coreWorkMigration?.status !== 'CLOSED') errors.push('coreWorkMigration status must be ACTIVE or CLOSED');
 if (state.coreWorkMigration?.canonicalRuntimeChanged !== false) errors.push('R2.0-5 cannot change canonical runtime');
@@ -101,4 +104,4 @@ if (state.coreWorkMigration?.status === 'CLOSED') {
 }
 
 if (errors.length) { console.error(`ENJAZ R2.0-5 CORE WORK AUDIT FAIL (${errors.length})`); errors.forEach((e) => console.error(`- ${e}`)); process.exitCode = 1; }
-else console.log(`ENJAZ R2.0-5 CORE WORK AUDIT PASS — ${state.coreWorkMigration?.status}; preview proof + live feature-hook adapters preserve services, data truth and visual contract without canonical cutover.`);
+else console.log(`ENJAZ R2.0-5 CORE WORK AUDIT PASS — preserved at ${state.stage}; preview proof + live feature-hook adapters remain truthful and canonical-runtime safe.`);
