@@ -10,12 +10,20 @@ on:
       - 'src/data/createDataLayer.ts'
       - 'src/ui-v2/runtime/CoreApp.tsx'
       - 'src/ui-v2/screens/TransactionListScreen.tsx'
+      - 'src/ui-v2/screens/TransactionLifecyclePanel.tsx'
+      - 'src/ui-v2/screens/Transaction360.tsx'
+      - 'src/ui-v2/styles/transaction-list.css'
+      - 'src/ui-v2/styles/transaction-lifecycle.css'
+      - 'src/main.tsx'
       - 'tests/transactionLifecycle*.test.ts'
       - 'scripts/phase5-4-**'
+      - 'scripts/phase5-3-transaction-360-audit.mjs'
+      - 'scripts/phase5-3-transaction-360-reality.mjs'
       - 'scripts/roadmap-audit.mjs'
       - 'package.json'
       - '.github/workflows/phase5-4-transaction-lifecycle.yml'
       - '.github/workflows/enjaz-quality-gate.yml'
+      - '.github/workflows/enjaz-browser-acceptance.yml'
       - 'docs/ENJAZ_MASTER_ROADMAP.md'
       - 'docs/PHASE5_4_**'
       - 'README.md'
@@ -30,9 +38,9 @@ concurrency:
 
 jobs:
   phase5-4-transaction-lifecycle:
-    name: Archive / Restore / Reactivate Core Destruction
+    name: Archive / Restore / Reactivate / Mobile Destruction
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -90,3 +98,32 @@ jobs:
         run: npm run build -- --base=/
       - name: Strict production asset budget
         run: npm run audit:dist:budget
+      - name: Install Chromium destruction runtime
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated Phase 5.4 preview
+        env:
+          VITE_ENJAZ_PREVIEW_MODE: 'true'
+        run: |
+          VITE_ENJAZ_PREVIEW_MODE=true npm run dev -- --host 127.0.0.1 --port 4198 > /tmp/enjaz-phase54-vite.log 2>&1 &
+          echo $! > /tmp/enjaz-phase54-vite.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4198 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase54-vite.log
+          exit 1
+      - name: Phase 5.4 real Chromium lifecycle destruction
+        env:
+          PHASE54_BASE_URL: http://127.0.0.1:4198
+          PHASE54_ARTIFACT_DIR: artifacts/phase5-4-transaction-lifecycle
+        run: node scripts/phase5-4-transaction-lifecycle-reality.mjs
+      - name: Upload Phase 5.4 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase5-4-transaction-lifecycle-evidence-${{ github.sha }}
+          path: artifacts/phase5-4-transaction-lifecycle
+          if-no-files-found: warn
+          retention-days: 30
