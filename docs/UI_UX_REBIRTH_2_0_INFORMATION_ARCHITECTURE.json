@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-1",
+  "status": "ACTIVE",
+  "thesis": "Five obvious first-level doors, one canonical home per capability, contextual depth, and zero hidden primary navigation.",
+  "primaryNavigation": {
+    "mobilePersistent": ["home", "transactions", "create", "today", "more"],
+    "desktopPersistent": ["home", "transactions", "create", "today", "more"],
+    "brandBehavior": "branding_only",
+    "hiddenPrimaryNavigationAllowed": false
+  },
+  "launcherGroups": [
+    {"id": "records", "label": "السجلات", "destinations": ["companies", "people", "documents"]},
+    {"id": "operations_group", "label": "التشغيل", "destinations": ["operations", "workflow", "automation", "followups"]},
+    {"id": "management", "label": "الإدارة", "destinations": ["finance", "command", "risk"]},
+    {"id": "intelligence", "label": "الذكاء", "destinations": ["copilot"]}
+  ],
+  "destinations": [
+    {"id":"auth.gateway","label":"الدخول","kind":"system_boundary","route":"/auth","availability":"live","maxActionsFromHome":null},
+    {"id":"home","label":"الرئيسية","kind":"primary","route":"/app","availability":"live","maxActionsFromHome":0},
+    {"id":"transactions","label":"المعاملات","kind":"primary","route":"/app/transactions","availability":"live","maxActionsFromHome":1},
+    {"id":"create","label":"جديد","kind":"primary_action","route":"/app/new","availability":"mixed","maxActionsFromHome":1},
+    {"id":"today","label":"اليوم","kind":"primary","route":"/app/today","availability":"live","maxActionsFromHome":1},
+    {"id":"more","label":"المزيد","kind":"primary","route":"/app/more","availability":"live","maxActionsFromHome":1},
+    {"id":"search","label":"ابحث عن أي شيء","kind":"global_utility","route":"/app/search","availability":"must_rebuild","maxActionsFromHome":1},
+    {"id":"account","label":"الحساب ومساحة العمل","kind":"global_utility","route":"/app/account","availability":"live_shell","maxActionsFromHome":1},
+    {"id":"today.notifications","label":"الإشعارات","kind":"contextual_view","route":"/app/today?view=notifications","availability":"presentation_until_phase11","maxActionsFromHome":2},
+    {"id":"transactions.detail","label":"تفاصيل المعاملة / 360°","kind":"entity","route":"/app/transactions/:transactionId","availability":"live","maxActionsFromHome":2},
+    {"id":"transactions.editor","label":"إنشاء/تعديل المعاملة","kind":"entity_action","route":"/app/transactions/:transactionId/edit","availability":"live","maxActionsFromHome":2},
+    {"id":"transactions.lifecycle","label":"دورة حياة المعاملة","kind":"entity_action","route":"/app/transactions/:transactionId/lifecycle","availability":"live","maxActionsFromHome":3},
+    {"id":"companies","label":"الشركات","kind":"launcher_destination","route":"/app/companies","availability":"presentation_until_phase6","maxActionsFromHome":2},
+    {"id":"people","label":"الأشخاص والمحامون","kind":"launcher_destination","route":"/app/people","availability":"presentation_until_phase6","maxActionsFromHome":2},
+    {"id":"documents","label":"الوثائق والتقارير","kind":"launcher_destination","route":"/app/documents","availability":"presentation_until_phase10","maxActionsFromHome":2},
+    {"id":"operations","label":"مركز العمليات","kind":"launcher_destination","route":"/app/operations","availability":"presentation_until_phase8","maxActionsFromHome":2},
+    {"id":"workflow","label":"سير العمل","kind":"launcher_destination","route":"/app/workflow","availability":"presentation_until_phase8","maxActionsFromHome":2},
+    {"id":"automation","label":"الأتمتة","kind":"launcher_destination","route":"/app/automation","availability":"presentation_until_phase8","maxActionsFromHome":2},
+    {"id":"followups","label":"المتابعات والإشعارات","kind":"launcher_destination","route":"/app/followups","availability":"presentation_until_phase11","maxActionsFromHome":2},
+    {"id":"finance","label":"المالية","kind":"launcher_destination","route":"/app/finance","availability":"presentation_until_phase7","maxActionsFromHome":2},
+    {"id":"command","label":"مركز القيادة","kind":"launcher_destination","route":"/app/command","availability":"presentation_until_phase8","maxActionsFromHome":2},
+    {"id":"risk","label":"المخاطر والرؤى","kind":"launcher_destination","route":"/app/risk","availability":"presentation_until_phase9","maxActionsFromHome":2},
+    {"id":"copilot","label":"مساعد إنجاز","kind":"launcher_destination","route":"/app/copilot","availability":"presentation_until_phase12","maxActionsFromHome":2}
+  ],
+  "canonicalRules": {
+    "oneHomePerCapability": true,
+    "duplicateCanonicalHomesAllowed": false,
+    "majorCapabilityMaxActionsFromHome": 3,
+    "contextualShortcutsMayExist": true,
+    "contextualShortcutsMustTargetCanonicalDestination": true,
+    "futureDomainsMustNotMasqueradeAsLive": true
+  },
+  "routeModel": {
+    "strategy": "real_route_state_required_in_R2_shell",
+    "deepLinkSafe": true,
+    "refreshSafe": true,
+    "entityRoutesOwnIdentity": true,
+    "queryParametersForSecondaryViewsOnly": true,
+    "noUseStateOnlyNavigationAsFinalArchitecture": true
+  },
+  "backModel": [
+    {"case":"overlay_or_sheet_open","rule":"Back closes the top owned overlay before changing route."},
+    {"case":"nested_entity_from_list","rule":"Back returns to the exact originating list/search state when history exists."},
+    {"case":"deep_link_entity","rule":"Back without in-app history resolves to the canonical parent destination, never an unrelated screen."},
+    {"case":"search_result","rule":"Result opens the canonical target; Back returns to the search query/results."},
+    {"case":"global_create_cancel","rule":"Cancel/Back returns to the invoking context without losing its state."},
+    {"case":"global_create_success","rule":"Successful authoritative creation opens the created entity canonical destination when supported."}
+  ],
+  "searchContract": {
+    "entry": "global and reachable from every authenticated screen",
+    "searches": ["features", "actions", "transactions", "companies_when_authoritative", "people_when_authoritative", "documents_when_authoritative"],
+    "staticDemoResultsForbidden": true,
+    "resultClickMustNavigate": true,
+    "aliases": {
+      "خزنة": "documents",
+      "دفعة": "finance",
+      "أرشفة": "transactions.lifecycle",
+      "محامي": "people",
+      "قيادة": "command",
+      "أتمتة": "automation"
+    },
+    "lockedDestinationBehavior": "Show truthful availability/phase state; never fabricate records or actions."
+  },
+  "createContract": {
+    "entry": "create",
+    "authoritativeNow": ["transactions.create"],
+    "reviewOnlyNow": ["global.create.review_only"],
+    "rule": "A review-only flow must be labeled non-persistent and may never look like a completed save."
+  },
+  "contextRules": [
+    "Home answers what needs attention now; it is not a map of every domain.",
+    "Transactions owns transaction list, entity, editor and lifecycle context.",
+    "Today owns the operational queue, not duplicate master-record implementations.",
+    "More is the explicit product map for secondary domains.",
+    "Finance, Operations and Command each have one canonical destination; shell/domain duplicates are forbidden.",
+    "A normal domain screen never exposes the full 12-domain rail."
+  ],
+  "knownLegacyMazeDefects": [
+    {"id":"brand_hidden_domains","evidence":"CoreApp onBrandAction opens domain explorer from logo","resolution":"brand becomes branding-only; More becomes explicit map"},
+    {"id":"all_domain_rail","evidence":"CoreApp renders every enjazDomain in ez-domain-rail","resolution":"R2 uses location context and related shortcuts only"},
+    {"id":"duplicate_operations","evidence":"operations exists as shell tab and domain","resolution":"one canonical operations home"},
+    {"id":"duplicate_finance","evidence":"finance exists as shell tab and domain","resolution":"one canonical finance home"},
+    {"id":"duplicate_command","evidence":"command exists as commandMode and domain","resolution":"one canonical command home"},
+    {"id":"static_global_search","evidence":"AppShell searchResults are hard-coded and result clicks only close overlay","resolution":"destination registry + authoritative search and navigation"},
+    {"id":"review_only_quick_create","evidence":"QuickCreateFlow followup/party/payment paths only review and do not persist","resolution":"truthful non-persistent state until authoritative domain mutation exists"},
+    {"id":"state_only_navigation","evidence":"CoreApp navigation identity is local useState","resolution":"R2 shell must own deep-link and refresh-safe route identity"}
+  ],
+  "r2_0_1ExitGate": {
+    "featureInventoryComplete": true,
+    "allCapabilitiesResolveToKnownCanonicalHome": true,
+    "uniqueCanonicalRoutes": true,
+    "hiddenPrimaryNavigationCount": 0,
+    "duplicateCanonicalHomesCount": 0,
+    "majorCapabilityMaxActions": 3,
+    "routeBackSearchCreateContractsFrozen": false,
+    "readyForR2_0_2": false
+  }
+}
