@@ -71,6 +71,10 @@ jobs:
         run: npm run audit:phase5-3:transaction-360
       - name: Phase 5.3 dedicated model/service gate
         run: npm run test:phase5-3
+      - name: Phase 5.4 Archive / Restore / Lifecycle architecture gate
+        run: npm run audit:phase5-4:transaction-lifecycle
+      - name: Phase 5.4 dedicated model/service gate
+        run: npm run test:phase5-4
       - name: Functional regression baseline
         run: npm run test:functional
       - name: Secrets audit
