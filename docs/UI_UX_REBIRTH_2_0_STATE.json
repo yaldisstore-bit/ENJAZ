@@ -95,7 +95,7 @@
     "evidenceRun": 33980594257
   },
   "destructionRealityQa": {
-    "status": "ACTIVE",
+    "status": "CLOSED",
     "kickoff": "docs/R2_0_9_DESTRUCTION_REALITY_QA_KICKOFF.md",
     "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_DESTRUCTION_REALITY_EVIDENCE.json",
     "closureRecord": "docs/R2_0_9_DESTRUCTION_REALITY_QA_CLOSURE.md",
@@ -124,7 +124,7 @@
     "canonicalRuntimeChanged": false,
     "proofCommit": "91574e227b69f1dbff5a55278bfad3f68e0a7c1f",
     "evidenceRun": 33983191470,
-    "exitGatePassed": false
+    "exitGatePassed": true
   },
   "featureParity": {
     "inventoryComplete": true,
