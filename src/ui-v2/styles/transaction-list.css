@@ -153,6 +153,22 @@
   margin-top: var(--ez-space-1);
 }
 
+.ez-transaction-card__actions {
+  min-width: 0;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: var(--ez-space-3);
+  border-top: 1px solid var(--ez-line);
+  padding-top: var(--ez-space-3);
+}
+
+.ez-transaction-card__actions > small {
+  color: var(--ez-muted);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
 .ez-transaction-list__empty {
   min-height: 180px;
   display: grid;
@@ -208,6 +224,8 @@
   .ez-transaction-card__chips { justify-content: start; }
   .ez-transaction-card__body { grid-template-columns: minmax(0, 1fr); }
   .ez-transaction-list__result-head { align-items: start; }
+  .ez-transaction-card__actions { justify-content: stretch; }
+  .ez-transaction-card__actions .ez-button { width: 100%; min-height: var(--ez-touch-min); }
 }
 
 @media (prefers-reduced-motion: reduce) {
