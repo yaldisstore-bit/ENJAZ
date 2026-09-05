@@ -27,6 +27,6 @@ export function buildTransaction360PreviewSource(transactionId: string): Transac
     transaction, company, contact: null, contactState: 'missing',
     routes: ready(route), activity: ready(activity), notes: ready(note), followups: ready(followup),
     payments: ready(payment), feeChanges: ready(fee), documents: ready(document), workflows: ready(workflow),
-    blockers: transaction.priority === 'urgent' ? ready(blocker) : ready(),
+    blockers: transaction.priority === 'urgent' ? ready(blocker) : ready<RowOf<'transaction_blockers'>>(),
   });
 }
