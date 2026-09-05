@@ -46,12 +46,18 @@ jobs:
           node scripts/phase5-3-transaction-360-audit.mjs
       - name: R2.0-3 parallel shell source contract
         run: node scripts/ui-rebirth-2-shell-audit.mjs
-      - name: Production build
+      - name: Canonical production build
         env:
           VITE_ENJAZ_PREVIEW_MODE: 'true'
         run: npm run build -- --base=/
-      - name: Strict dist budget
+      - name: Canonical strict production budget
         run: node scripts/dist-budget-audit.mjs
+      - name: Isolated R2.0-3 preview build
+        run: npx vite build --config vite.r2-preview.config.ts --base=/
+      - name: Strict R2.0-3 preview budget
+        run: node scripts/ui-rebirth-2-preview-budget-audit.mjs
+      - name: Compose browser-test site after both budgets pass
+        run: cp -R dist-r2-preview/. dist/
       - name: Install pinned browser and WCAG tooling
         run: |
           npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2 playwright@1.55.0
@@ -60,7 +66,7 @@ jobs:
         run: |
           nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/enjaz-preview.log 2>&1 &
           for i in {1..30}; do
-            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null && curl --fail --silent http://127.0.0.1:4173/r2-preview.html >/dev/null; then exit 0; fi
             sleep 1
           done
           cat /tmp/enjaz-preview.log
