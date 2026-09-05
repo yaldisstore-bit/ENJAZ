@@ -1,16 +1,27 @@
 {
   "schemaVersion": 1,
-  "stage": "R2.0-3",
+  "stage": "R2.0-4",
   "phase55Locked": true,
   "runtime": "ui-v2",
   "goldenExperience": {
+    "status": "ACTIVE",
     "implemented": false,
     "visualEvidenceReady": false,
     "professionalUxEvidenceReady": false,
     "userApproved": false,
     "approvedCommit": null,
     "approvalRecord": null,
-    "evidenceManifest": null
+    "evidenceManifest": null,
+    "visualPolishContract": "docs/UI_UX_REBIRTH_2_0_GLOBAL_VISUAL_POLISH_CONTRACT.json",
+    "visualPolishContractLocked": true,
+    "requiredSpecimens": [
+      "home",
+      "more",
+      "transactions",
+      "transactionJourney",
+      "transaction360"
+    ],
+    "completedSpecimens": 0
   },
   "featureParity": {
     "inventoryComplete": true,
