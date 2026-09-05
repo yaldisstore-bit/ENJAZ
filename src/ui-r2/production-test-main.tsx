@@ -24,7 +24,7 @@ declare global {
 }
 window.__ENJAZ_R2_PRODUCTION_TEST__ = testState;
 
-let authCallback: ((event: string, session: EnjazAuthSession | null) => void) | null = null;
+let authCallback: Parameters<AuthGateway['onAuthStateChange']>[0] | null = null;
 let currentUser: EnjazAuthUser | null = initiallyAuthenticated ? testUser : null;
 
 const authGateway: AuthGateway = Object.freeze({
@@ -58,7 +58,7 @@ const authGateway: AuthGateway = Object.freeze({
   async bootstrapWorkspace() {
     return { data: '00000000-0000-4000-8000-000000000001', error: null };
   },
-  onAuthStateChange(callback) {
+  onAuthStateChange(callback: Parameters<AuthGateway['onAuthStateChange']>[0]) {
     authCallback = callback;
     return { unsubscribe() { if (authCallback === callback) authCallback = null; } };
   },
