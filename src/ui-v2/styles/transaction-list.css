@@ -229,7 +229,7 @@
   .ez-transaction-card__body { grid-template-columns: minmax(0, 1fr); }
   .ez-transaction-list__result-head { align-items: start; }
   .ez-transaction-card__actions { justify-content: stretch; }
-  .ez-transaction-card__actions .ez-button { width: 100%; min-height: var(--ez-touch-min); }
+  .ez-transaction-card__actions .ez-button { width: 100%; min-height: var(--ez-control-h); }
 }
 
 @media (prefers-reduced-motion: reduce) {
