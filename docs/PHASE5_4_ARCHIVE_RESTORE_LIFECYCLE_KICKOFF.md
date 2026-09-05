@@ -1,6 +1,6 @@
 # ENJAZ Phase 5.4 — Archive / Restore / Lifecycle
 
-Status: **IN PROGRESS**
+Status: **CLOSED**
 
 Canonical base: `main` at `924b40b1f8c21d212aa2857a4a3265401af99a84` after Phase 5.3 was merged and re-certified through Quality, real Chromium, Pages and Live External gates.
 
@@ -70,4 +70,4 @@ The first slice builds and tests the authoritative lifecycle model/service befor
 - dedicated unit/service tests and architecture audit;
 - cumulative Quality Gate integration.
 
-Phase 5.4 is not complete until its UI actions, confirmation states, real-browser destruction, cumulative guards, closure evidence, merge to `main`, and post-merge external re-certification are green.
+Phase 5.4 closure evidence is frozen in `docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md`. Phase 5.5 remains locked until PR #54 is merged into canonical `main` and the merged commit is re-certified by the cumulative gates.
