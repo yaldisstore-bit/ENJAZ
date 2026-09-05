@@ -17,7 +17,7 @@ function date(value: string | null) {
   return Number.isNaN(parsed.getTime()) ? 'وقت غير متاح' : new Intl.DateTimeFormat('ar-IQ', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(parsed);
 }
 function state(value: Transaction360SectionState) {
-  return value === 'unavailable' ? 'غير متاح مؤقتًا' : value === 'truncated' ? 'عرض محدود' : 'مكتمل';
+  return value === 'unavailable' ? 'غير متاح' : value === 'truncated' ? 'عرض محدود' : 'مكتمل';
 }
 function statusTone(value: string): 'success' | 'warning' | 'neutral' {
   value = value.trim().toLowerCase();
@@ -39,7 +39,7 @@ function Health({ snapshot }: Readonly<{ snapshot: Transaction360Snapshot }>) {
   const unavailable = states.filter((value) => value === 'unavailable').length;
   const truncated = states.filter((value) => value === 'truncated').length;
   if (!unavailable && !truncated) return null;
-  return <EzNotice tone={unavailable ? 'warning' : 'info'} title="بعض سياق 360° يحتاج انتباهًا" body={unavailable ? `تعذر تحميل ${unavailable} قسم دون اختلاق بيانات بديلة.${truncated ? ` و${truncated} قسم محدود.` : ''}` : `${truncated} قسم محدود لحماية الأداء.`} />;
+  return <EzNotice tone={unavailable ? 'warning' : 'info'} title="سياق 360° يحتاج انتباهًا" body={unavailable ? `${unavailable} قسم غير متاح.${truncated ? ` ${truncated} قسم محدود.` : ''}` : `${truncated} قسم معروض بشكل محدود.`} />;
 }
 
 function Ready({ snapshot: s }: Readonly<{ snapshot: Transaction360Snapshot }>) {
@@ -54,7 +54,7 @@ function Ready({ snapshot: s }: Readonly<{ snapshot: Transaction360Snapshot }>) 
   return <article className="ez-transaction-360" data-pattern="transaction-360" data-transaction-360={s.id}>
     <header className="ez-transaction-360__hero"><div className="ez-transaction-360__identity"><span>360° · {s.shortId}</span><h2>{s.type}</h2><p>{s.companyLabel}</p></div><div className="ez-transaction-360__chips"><EzChip tone={statusTone(s.status)}>{s.status}</EzChip><EzChip tone={priorityTone(s.priority)}>{s.priority}</EzChip>{s.companyMissing ? <EzChip tone="warning">ربط الشركة يحتاج تحققًا</EzChip> : null}</div></header>
 
-    <section className="ez-transaction-360__summary" aria-label="ملخص المعاملة 360">
+    <section className="ez-transaction-360__summary" aria-label="ملخص 360">
       <EzStatPill value={money(s.currentFee, s.feePrecisionSafe)} label="الأتعاب الحالية" tone="dark" />
       <EzStatPill value={String(s.followupSummary.active)} label="متابعات نشطة" tone={s.followupSummary.overdue ? 'gold' : 'soft'} />
       <EzStatPill value={String(s.documents.items.length)} label="مستندات مرتبطة" />
@@ -72,7 +72,7 @@ function Ready({ snapshot: s }: Readonly<{ snapshot: Transaction360Snapshot }>) 
           {s.followups.items.length ? <ul className={LIST}>{s.followups.items.slice(0, 6).map((row) => <li key={row.id}><div><strong>{row.title}</strong><small>{date(row.due_at)}</small></div><EzChip tone={row.completed_at ? 'success' : 'neutral'}>{row.status}</EzChip></li>)}</ul> : <p className={EMPTY}>لا توجد متابعات.</p>}
         </Panel>
         <Panel id="finance" eyebrow="علاقة مالية" title="المالية المرتبطة" badge={<EzChip>{s.financialSummary.postedCount} دفعة</EzChip>}>
-          <div className="ez-transaction-360__money"><small>إجمالي الدفعات المرحلة</small><strong>{money(s.financialSummary.postedTotal, s.financialSummary.precisionSafe)}</strong><span>{s.financialSummary.feeChanges} تغييرات أتعاب</span></div><p className="ez-transaction-360__scope-note">العمليات المالية الكاملة تبقى في Phase 7.</p>
+          <div className="ez-transaction-360__money"><small>إجمالي الدفعات المرحلة</small><strong>{money(s.financialSummary.postedTotal, s.financialSummary.precisionSafe)}</strong><span>{s.financialSummary.feeChanges} تغييرات أتعاب</span></div><p className="ez-transaction-360__scope-note">للعمليات الكاملة افتح مركز المالية.</p>
         </Panel>
       </div>
     </section>
@@ -86,12 +86,12 @@ function Ready({ snapshot: s }: Readonly<{ snapshot: Transaction360Snapshot }>) 
       </Panel>
     </section>
 
-    <footer className="ez-transaction-360__footer"><span>إنشاء: {date(s.createdAt)}</span><span>تحديث: {date(s.updatedAt)}</span>{closed ? <span>إعادة التفعيل أو الاستعادة تبقى في Phase 5.4.</span> : null}</footer>
+    <footer className="ez-transaction-360__footer"><span>إنشاء: {date(s.createdAt)}</span><span>تحديث: {date(s.updatedAt)}</span>{closed ? <span>المعاملة للعرض فقط؛ الاستعادة غير متاحة هنا.</span> : null}</footer>
   </article>;
 }
 
 export function Transaction360Screen(props: Readonly<Transaction360Controller>) {
-  if (props.status === 'loading') return <section className="ez-transaction-360__loading" aria-label="جارٍ تحميل عرض المعاملة 360"><i /><i /><i /></section>;
+  if (props.status === 'loading') return <section className="ez-transaction-360__loading" aria-label="تحميل 360"><i /><i /><i /></section>;
   if (props.status === 'error') return <EzNotice tone="danger" title="تعذر فتح 360°" body={props.errorMessage ?? 'تعذر تجهيز التفاصيل.'} action={<EzButton tone="dark" onClick={props.retry}>إعادة المحاولة</EzButton>} />;
   return props.snapshot ? <Ready snapshot={props.snapshot} /> : <EzNotice tone="warning" title="لا توجد تفاصيل" body="لم تتوفر لقطة 360°." />;
 }
