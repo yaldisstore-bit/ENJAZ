@@ -8,6 +8,11 @@ const exists = (p) => fs.existsSync(path.join(root, p));
 const readJson = (p) => JSON.parse(read(p));
 const errors = [];
 
+const stageOrder = [
+  'R2.0-0', 'R2.0-1', 'R2.0-2', 'R2.0-3', 'R2.0-4', 'R2.0-5',
+  'R2.0-6', 'R2.0-7', 'R2.0-8', 'R2.0-9', 'R2.0-10', 'R2.0-11',
+];
+
 const contractPath = 'docs/UI_UX_REBIRTH_2_0_GLOBAL_VISUAL_POLISH_CONTRACT.json';
 const kickoffPath = 'docs/R2_0_4_GOLDEN_EXPERIENCE_KICKOFF.md';
 const statePath = 'docs/UI_UX_REBIRTH_2_0_STATE.json';
@@ -30,6 +35,8 @@ const state = readJson(statePath);
 const css = read(goldenCssPath);
 const preview = read(previewPath);
 const main = read(mainPath);
+const stageIndex = stageOrder.indexOf(state.stage);
+const golden = state.goldenExperience ?? {};
 
 if (contract.schemaVersion !== 1) errors.push('visual polish contract schemaVersion must be 1');
 if (contract.status !== 'LOCKED') errors.push('visual polish contract must remain LOCKED');
@@ -72,14 +79,24 @@ if (contract.knownCorrections?.destinationPagesNeedTitleBodyActionSeparation !==
 if (contract.knownCorrections?.sectionHeadersNeedDistinctButIntegratedTreatment !== true) errors.push('section-header hierarchy treatment must remain locked');
 if (contract.propagation?.required !== true) errors.push('visual polish propagation to the whole app must remain required');
 
-if (state.stage !== 'R2.0-4') errors.push(`Golden visual guard requires active stage R2.0-4, found ${state.stage}`);
-if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 while R2.0-4 is under approval');
-if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked during R2.0-4');
-if (state.goldenExperience?.status !== 'ACTIVE') errors.push('goldenExperience.status must be ACTIVE at R2.0-4 kickoff');
-if (state.goldenExperience?.visualPolishContract !== contractPath) errors.push('state must point to the locked visual polish contract');
-if (state.goldenExperience?.visualPolishContractLocked !== true) errors.push('state must keep visualPolishContractLocked=true');
-if (state.goldenExperience?.userApproved !== false) errors.push('Golden user approval must remain false until explicit user acceptance');
-if (state.promotion?.requested !== false || state.promotion?.allowed !== false) errors.push('canonical promotion must remain blocked during Golden work');
+if (stageIndex < 4) errors.push(`Golden visual guard requires R2.0-4 or later, found ${state.stage}`);
+if (stageIndex >= 4 && stageIndex < 11 && state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 before R2.0-11 promotion');
+if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked during Rebirth 2.0');
+if (golden.visualPolishContract !== contractPath) errors.push('state must point to the locked visual polish contract');
+if (golden.visualPolishContractLocked !== true) errors.push('state must keep visualPolishContractLocked=true');
+
+if (golden.userApproved === true) {
+  if (golden.status !== 'APPROVED') errors.push('approved Golden Experience must have status APPROVED');
+  if (!golden.approvedCommit || typeof golden.approvedCommit !== 'string') errors.push('approved Golden Experience requires approvedCommit');
+  if (!golden.approvalRecord || !exists(golden.approvalRecord)) errors.push('approved Golden Experience requires an existing approvalRecord');
+} else {
+  if (stageIndex >= 5) errors.push('R2.0-5+ requires explicit Golden user approval');
+  if (golden.status !== 'ACTIVE') errors.push('unapproved R2.0-4 Golden Experience must remain ACTIVE');
+}
+
+if (stageIndex < 11 && (state.promotion?.requested !== false || state.promotion?.allowed !== false)) {
+  errors.push('canonical promotion must remain blocked before R2.0-11');
+}
 
 if (!preview.includes("./golden/golden.css")) errors.push('R2 preview must load the Golden visual polish layer');
 
@@ -109,7 +126,6 @@ for (const marker of [
   if (!css.includes(marker)) errors.push(`Golden polish CSS missing required depth/resilience marker: ${marker}`);
 }
 
-// The Golden polish layer must use the locked token system instead of inventing raw colors.
 const rawColorMatches = css.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [];
 if (rawColorMatches.length) errors.push(`Golden polish CSS must not contain raw color literals: ${[...new Set(rawColorMatches)].join(', ')}`);
 
@@ -117,14 +133,15 @@ for (const forbidden of ['ui-v2', 'ui-rebirth', '!important']) {
   if (css.includes(forbidden)) errors.push(`Golden polish CSS contains forbidden presentation marker: ${forbidden}`);
 }
 
-// Rebirth 2.0 is still parallel. Starting Golden must never silently cut over canonical runtime.
-if (/ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('R2.0-4 may not boot UiR2Root from canonical src/main.tsx');
-if (!/ui-v2\/runtime\/UiV2Root/.test(main)) errors.push('R2.0-4 must preserve canonical ui-v2 runtime until final promotion');
+if (stageIndex < 11) {
+  if (/ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('Rebirth 2.0 may not boot UiR2Root canonically before R2.0-11');
+  if (!/ui-v2\/runtime\/UiV2Root/.test(main)) errors.push('canonical ui-v2 runtime must remain live before R2.0-11');
+}
 
 if (errors.length) {
-  console.error(`ENJAZ R2.0-4 GLOBAL VISUAL POLISH GUARD FAIL (${errors.length})`);
+  console.error(`ENJAZ R2.0-4+ GLOBAL VISUAL POLISH GUARD FAIL (${errors.length})`);
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ R2.0-4 GLOBAL VISUAL POLISH GUARD PASS — identity preserved; hierarchy + depth + separation + soft corners + no-card-wall contract locked globally.');
+  console.log(`ENJAZ R2.0-4+ GLOBAL VISUAL POLISH GUARD PASS — ${state.stage}; approved identity and polish contract remain locked globally.`);
 }
