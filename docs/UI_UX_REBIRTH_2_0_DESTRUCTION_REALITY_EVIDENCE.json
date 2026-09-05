@@ -44,21 +44,92 @@
     "backPathFailures": 0
   },
   "destruction": {
-    "declaredScenarioCount": 0,
-    "passedScenarioCount": 0,
+    "declaredScenarioCount": 30,
+    "passedScenarioCount": 30,
     "unresolvedDefects": [],
-    "attackClassesCovered": []
+    "attackClassesCovered": [
+      "keyboardFocus",
+      "rtl",
+      "mixedArabicLatin",
+      "longContent",
+      "denseDatasets",
+      "emptyStates",
+      "failures",
+      "permissionMutationTruthfulness",
+      "backStack",
+      "deepLinks",
+      "overlays",
+      "orientation",
+      "reducedMotion",
+      "touchGeometry44px",
+      "horizontalOverflow"
+    ]
   },
+  "resolvedAppDefects": [
+    {
+      "id": "R2-09-D1",
+      "summary": "Unbroken identifiers could overflow real supporting copy.",
+      "resolution": "Shrink-safe section hierarchy plus anywhere wrapping on real supporting text.",
+      "path": "src/ui-r2/golden/golden-mobile-hardening.css",
+      "proofCommit": "cd64c3d14bd2e7ca6cd3479797327301516ed3d6"
+    },
+    {
+      "id": "R2-09-D2",
+      "summary": "Search/account dialogs allowed keyboard focus to escape and account focus was not reliably restored.",
+      "resolution": "Dedicated overlay focus guard with inert background, Tab loop and same-destination focus restoration.",
+      "path": "src/ui-r2/runtime/useR2OverlayFocusGuard.ts",
+      "proofCommit": "91574e227b69f1dbff5a55278bfad3f68e0a7c1f"
+    },
+    {
+      "id": "R2-09-D3",
+      "summary": "Transaction 360 real text regions could expand the document under hostile unbroken copy.",
+      "resolution": "All relevant 360 containers are shrink-safe and text-bearing nodes wrap hostile identifiers.",
+      "path": "src/ui-r2/golden/golden-mobile-hardening.css",
+      "proofCommit": "91574e227b69f1dbff5a55278bfad3f68e0a7c1f"
+    }
+  ],
+  "correctedTestDefects": [
+    {
+      "id": "R2-09-T1",
+      "summary": "Synthetic raw-span overflow assertion produced a false positive even when the page itself did not overflow.",
+      "resolution": "Attack hostile content inside a real R2 supporting-text node and compare its client/scroll width.",
+      "proofCommit": "1ad76a20b3b882575595a287fff195009c3254d3"
+    },
+    {
+      "id": "R2-09-T2",
+      "summary": "Tiny-height test scrolled the final launcher row but measured a different row through a generic selector.",
+      "resolution": "Measure the exact Playwright lastRow and mobile-nav locators after scrolling.",
+      "path": "tests-external/r2-destruction-reality-wave2.spec.cjs"
+    }
+  ],
   "checks": {
-    "structuralAudit": "PENDING",
-    "functionalRegression": "PENDING",
-    "typescript": "PENDING",
-    "previewBuild": "PENDING",
-    "previewBudget": "PENDING",
-    "realChromiumDestruction": "PENDING",
-    "cumulativeRealBrowser": "PENDING"
+    "structuralAudit": "PASS",
+    "functionalRegression": "PASS_118_OF_118",
+    "typescript": "PASS",
+    "previewBuild": "PASS",
+    "previewBudget": "PASS",
+    "realChromiumDestruction": "PASS_30_OF_30",
+    "cumulativeRealBrowser": "PASS_46_OF_46_WITH_16_ZERO_LOST"
   },
-  "firstEvidence": null,
-  "finalEvidence": null,
+  "firstEvidence": {
+    "run": 33982071626,
+    "testedCommit": "cd64c3d14bd2e7ca6cd3479797327301516ed3d6",
+    "artifactId": 9974058265,
+    "artifactBytes": 2573935,
+    "artifactSha256": "b8cbe571f40d65815fba5476cfc480df98b1e00a0c883a0c793fac3f8c803326",
+    "wave1DestructiveScenarios": 22,
+    "cumulativeZeroLostScenarios": 16
+  },
+  "finalEvidence": {
+    "run": 33983191470,
+    "testedCommit": "91574e227b69f1dbff5a55278bfad3f68e0a7c1f",
+    "artifactId": 9974374751,
+    "artifactBytes": 2619145,
+    "artifactSha256": "4ef4e591c4dff3b8f3701d4ae3caa595f32c172c622b83d7178e31b3b0c45943",
+    "destructiveScenarios": 30,
+    "cumulativeZeroLostScenarios": 16,
+    "totalBrowserValidations": 46,
+    "hardWidths": [1280, 430, 390, 360, 320]
+  },
   "exitGatePassed": false
 }
