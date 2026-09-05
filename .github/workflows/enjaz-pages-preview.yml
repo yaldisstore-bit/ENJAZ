@@ -1,6 +1,6 @@
 name: ENJAZ Pages Preview
 
-# Canonical deployment: main after UI/UX Rebirth V2 promotion on 2026-09-04.
+# Canonical deployment remains ui-v2. R2.0-3 is composed only after both bundles pass independent budgets.
 on:
   push:
     branches:
@@ -45,11 +45,19 @@ jobs:
       - name: Configure GitHub Pages
         id: pages
         uses: actions/configure-pages@v5
-      - name: Build safe UI preview
+      - name: Build canonical safe UI preview
         env:
           VITE_ENJAZ_PREVIEW_MODE: 'true'
         run: npm run build -- --base="${{ steps.pages.outputs.base_path }}/"
-      - name: Add SPA fallback
+      - name: Enforce canonical production budget
+        run: node scripts/dist-budget-audit.mjs
+      - name: Build isolated R2.0-3 shell preview
+        run: npx vite build --config vite.r2-preview.config.ts --base="${{ steps.pages.outputs.base_path }}/"
+      - name: Enforce isolated R2.0-3 preview budget
+        run: node scripts/ui-rebirth-2-preview-budget-audit.mjs
+      - name: Compose isolated R2 preview after both budgets pass
+        run: cp -R dist-r2-preview/. dist/
+      - name: Add SPA fallback for canonical runtime
         run: cp dist/index.html dist/404.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
@@ -63,6 +71,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy canonical main to GitHub Pages
+      - name: Deploy canonical main plus isolated R2 preview to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
