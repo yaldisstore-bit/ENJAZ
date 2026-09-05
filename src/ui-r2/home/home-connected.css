@@ -11,9 +11,9 @@
   gap: var(--ez-r2-space-3);
   margin-block: var(--ez-r2-space-6) var(--ez-r2-space-8);
   padding: var(--ez-r2-space-3);
-  border: var(--ez-r2-stroke-thin) solid color-mix(in srgb, var(--ez-r2-structure) 12%, transparent);
+  border: var(--ez-r2-stroke-thin) solid var(--ez-r2-surface-warm);
   border-radius: var(--ez-r2-radius-xl);
-  background: color-mix(in srgb, var(--ez-r2-canvas) 88%, var(--ez-r2-surface-warm));
+  background: var(--ez-r2-canvas);
 }
 
 .r2-live-home__facts > div,
@@ -24,7 +24,7 @@
   gap: var(--ez-r2-space-1);
   padding: var(--ez-r2-space-4) var(--ez-r2-space-5);
   border-radius: var(--ez-r2-radius-lg);
-  background: color-mix(in srgb, var(--ez-r2-canvas) 72%, var(--ez-r2-surface-warm));
+  background: var(--ez-r2-surface-warm);
 }
 
 .r2-live-home__facts span,
@@ -46,7 +46,7 @@
 .r2-live-briefing__summary small {
   overflow-wrap: anywhere;
   line-height: var(--ez-r2-leading-normal);
-  color: color-mix(in srgb, var(--ez-r2-structure) 68%, var(--ez-r2-canvas));
+  color: var(--ez-r2-structure);
 }
 
 .r2-live-briefing {
@@ -59,7 +59,7 @@
   gap: var(--ez-r2-space-2);
   padding: var(--ez-r2-space-6);
   border-radius: var(--ez-r2-radius-lg);
-  background: color-mix(in srgb, var(--ez-r2-canvas) 82%, var(--ez-r2-surface-warm));
+  background: var(--ez-r2-surface-warm);
 }
 
 .r2-live-empty strong {
@@ -69,7 +69,7 @@
 
 .r2-live-empty p {
   margin: 0;
-  color: color-mix(in srgb, var(--ez-r2-structure) 68%, var(--ez-r2-canvas));
+  color: var(--ez-r2-structure);
 }
 
 @media (max-width: 42rem) {
