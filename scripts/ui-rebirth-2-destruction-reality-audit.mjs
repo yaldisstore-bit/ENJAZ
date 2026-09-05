@@ -53,13 +53,20 @@ const expectedScope = [
 const hardWidths = [1280, 430, 390, 360, 320];
 const closedScenarioCount = 30;
 const closurePath = 'docs/R2_0_9_DESTRUCTION_REALITY_QA_CLOSURE.md';
+const laterStages = new Set(['R2.0-10', 'R2.0-11']);
+const preservingLaterStage = laterStages.has(state.stage);
 
-if (state.stage !== 'R2.0-9') errors.push(`R2.0-9 guard requires state.stage R2.0-9, found ${state.stage}`);
+if (state.stage !== 'R2.0-9' && !preservingLaterStage) errors.push(`R2.0-9 guard supports R2.0-9 or later preservation stages, found ${state.stage}`);
 if (!['ACTIVE', 'CLOSED'].includes(state.destructionRealityQa?.status)) errors.push('destructionRealityQa status must be ACTIVE or CLOSED');
-if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 during R2.0-9');
+if (preservingLaterStage && state.destructionRealityQa?.status !== 'CLOSED') errors.push(`${state.stage} requires R2.0-9 to remain CLOSED`);
+
+if (state.stage !== 'R2.0-11') {
+  if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 before R2.0-11');
+  if (state.promotion?.requested !== false || state.promotion?.allowed !== false) errors.push('promotion must remain blocked before R2.0-11');
+  if (/ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('src/main.tsx may not boot UiR2Root before R2.0-11');
+}
+
 if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked');
-if (state.promotion?.requested !== false || state.promotion?.allowed !== false) errors.push('promotion must remain blocked during R2.0-9');
-if (/ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('src/main.tsx may not boot UiR2Root during R2.0-9');
 if (state.goldenExperience?.status !== 'APPROVED') errors.push('Golden Experience must remain APPROVED');
 if (state.coreWorkMigration?.status !== 'CLOSED') errors.push('R2.0-5 must remain CLOSED');
 if (state.recordsRelationships?.status !== 'CLOSED') errors.push('R2.0-6 must remain CLOSED');
@@ -68,7 +75,7 @@ if (state.findAnythingZeroLost?.status !== 'CLOSED' || state.findAnythingZeroLos
 if (state.noMaze?.validated !== true || state.noMaze?.scenarioCount !== 16 || state.noMaze?.passedCount !== 16) errors.push('R2.0-8 16/16 No-Maze proof must remain preserved');
 if (state.noMaze?.maxMajorCapabilityActions !== 3) errors.push('No-Maze action ceiling must remain exactly 3');
 if (state.noMaze?.hiddenPrimaryNavigationCount !== 0) errors.push('hidden primary navigation must remain zero');
-if (state.noMaze?.duplicateCanonicalHomesCount !== 0) errors.push('duplicate canonical homes must remain zero');
+if (state.noMaze?.duplicateCanonicalHomesCount !== 0) errors.push('duplicate canonical homes count must remain zero');
 if (state.noMaze?.backPathFailures !== 0) errors.push('back-path failures must remain zero');
 
 if (evidence.schemaVersion !== 1 || evidence.stage !== 'R2.0-9') errors.push('R2.0-9 evidence schema/stage mismatch');
@@ -77,7 +84,7 @@ if (JSON.stringify(evidence.scope) !== JSON.stringify(expectedScope)) errors.pus
 if (JSON.stringify(state.destructionRealityQa?.scope) !== JSON.stringify(expectedScope)) errors.push('state destruction scope drifted');
 if (JSON.stringify(evidence.hardWidths) !== JSON.stringify(hardWidths)) errors.push('R2.0-9 evidence hard widths drifted');
 if (JSON.stringify(state.destructionRealityQa?.hardWidths) !== JSON.stringify(hardWidths)) errors.push('state R2.0-9 hard widths drifted');
-if (evidence.minimumScenarioCount !== 15 || state.destructionRealityQa?.minimumScenarioCount !== 15) errors.push('R2.0-9 minimum scenario count must remain exactly 15 or more through actual declared count');
+if (evidence.minimumScenarioCount !== 15 || state.destructionRealityQa?.minimumScenarioCount !== 15) errors.push('R2.0-9 minimum scenario count drifted');
 if (evidence.truthfulness?.canonicalRuntimeChanged !== false || evidence.truthfulness?.phase55Locked !== true) errors.push('R2.0-9 truthfulness runtime/freeze boundary drifted');
 if (evidence.truthfulness?.productionPersistenceClaimed !== false) errors.push('R2.0-9 preview may not claim production persistence');
 if (evidence.truthfulness?.adHocPersistenceAllowed !== false || evidence.truthfulness?.adHocNetworkFetchAllowed !== false) errors.push('R2.0-9 may not introduce ad-hoc persistence/network channels');
@@ -174,5 +181,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ R2.0-9 DESTRUCTION REALITY AUDIT PASS — ${state.destructionRealityQa?.status}; real-browser attack scope and cumulative locks are fail-closed.`);
+  console.log(`ENJAZ R2.0-9 DESTRUCTION REALITY AUDIT PASS — preserved at ${state.stage}; ${state.destructionRealityQa?.status}; real-browser attack scope and cumulative locks remain fail-closed.`);
 }
