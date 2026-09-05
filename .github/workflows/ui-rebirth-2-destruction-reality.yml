@@ -75,11 +75,16 @@ jobs:
           R2_ZERO_LOST_BASE_URL: http://127.0.0.1:4176/
           R2_ZERO_LOST_ARTIFACT_DIR: artifacts/r2-zero-lost-cumulative
         run: npx playwright test tests-external/r2-zero-lost.spec.cjs --reporter=line --workers=1
-      - name: Real Chromium destruction / 1280 + 430 + 390 + 360 + 320
+      - name: Real Chromium destruction wave 1 / 1280 + 430 + 390 + 360 + 320
         env:
           R2_DESTRUCTION_BASE_URL: http://127.0.0.1:4176/
           R2_DESTRUCTION_ARTIFACT_DIR: artifacts/r2-destruction-reality
         run: npx playwright test tests-external/r2-destruction-reality.spec.cjs --reporter=line --workers=1
+      - name: Real Chromium destruction wave 2 / focus + overlays + tiny height + malformed state
+        env:
+          R2_DESTRUCTION_BASE_URL: http://127.0.0.1:4176/
+          R2_DESTRUCTION_ARTIFACT_DIR: artifacts/r2-destruction-reality
+        run: npx playwright test tests-external/r2-destruction-reality-wave2.spec.cjs --reporter=line --workers=1
       - name: Upload R2.0-9 evidence
         if: always()
         uses: actions/upload-artifact@v4
