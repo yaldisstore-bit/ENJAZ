@@ -15,6 +15,10 @@
   align-items: end;
 }
 
+.ez-transaction-list__controls input {
+  min-height: var(--ez-touch-min);
+}
+
 .ez-transaction-list__sort {
   display: grid;
   gap: var(--ez-space-2);
