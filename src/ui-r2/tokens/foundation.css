@@ -1,0 +1,68 @@
+@import './palette.css';
+
+:root {
+  color-scheme: light;
+
+  --ez-r2-font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
+  --ez-r2-font-mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --ez-r2-type-xs: 0.75rem;
+  --ez-r2-type-sm: 0.875rem;
+  --ez-r2-type-md: 1rem;
+  --ez-r2-type-lg: 1.125rem;
+  --ez-r2-type-xl: 1.375rem;
+  --ez-r2-type-2xl: 1.75rem;
+  --ez-r2-type-3xl: clamp(2rem, 4vw, 2.75rem);
+  --ez-r2-leading-tight: 1.25;
+  --ez-r2-leading-normal: 1.6;
+  --ez-r2-leading-relaxed: 1.85;
+  --ez-r2-weight-regular: 400;
+  --ez-r2-weight-medium: 550;
+  --ez-r2-weight-semibold: 650;
+  --ez-r2-weight-bold: 750;
+
+  --ez-r2-space-0: 0;
+  --ez-r2-space-1: 0.25rem;
+  --ez-r2-space-2: 0.5rem;
+  --ez-r2-space-3: 0.75rem;
+  --ez-r2-space-4: 1rem;
+  --ez-r2-space-5: 1.25rem;
+  --ez-r2-space-6: 1.5rem;
+  --ez-r2-space-8: 2rem;
+  --ez-r2-space-10: 2.5rem;
+  --ez-r2-space-12: 3rem;
+  --ez-r2-space-16: 4rem;
+
+  --ez-r2-radius-sm: 0.625rem;
+  --ez-r2-radius-md: 0.875rem;
+  --ez-r2-radius-lg: 1.25rem;
+  --ez-r2-radius-xl: 1.75rem;
+  --ez-r2-radius-pill: 999px;
+
+  --ez-r2-stroke-thin: 1px;
+  --ez-r2-stroke-strong: 2px;
+  --ez-r2-depth-offset-1: 2px;
+  --ez-r2-depth-offset-2: 4px;
+  --ez-r2-depth-offset-3: 8px;
+
+  --ez-r2-touch-min: 44px;
+  --ez-r2-control-md: 48px;
+  --ez-r2-control-lg: 54px;
+
+  --ez-r2-content-reading: 46rem;
+  --ez-r2-content-wide: 76rem;
+  --ez-r2-gutter-mobile: 1rem;
+  --ez-r2-gutter-tablet: 1.5rem;
+  --ez-r2-gutter-desktop: 2rem;
+
+  --ez-r2-motion-fast: 120ms;
+  --ez-r2-motion-standard: 180ms;
+  --ez-r2-motion-slow: 260ms;
+  --ez-r2-motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --ez-r2-layer-base: 0;
+  --ez-r2-layer-sticky: 20;
+  --ez-r2-layer-overlay: 60;
+  --ez-r2-layer-dialog: 80;
+  --ez-r2-layer-toast: 100;
+}
