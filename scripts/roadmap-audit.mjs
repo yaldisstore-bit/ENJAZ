@@ -47,18 +47,20 @@ for (const marker of [
   '## 5.1 — Transaction List & Search ✅', 'docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md',
   '## 5.2 — Transaction Create/Edit ✅', 'docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md',
   '## 5.3 — Transaction Details / 360° ✅', 'docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md',
-  'Next: Phase 5.4 — Archive/Restore/Lifecycle', 'Phase 5.4 remains not started',
+  '## 5.4 — Archive/Restore/Lifecycle ✅', 'docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md',
+  'Next: Phase 5.5 — Transaction Destruction Gate', 'Phase 5.5 remains not started',
 ]) if (!roadmap.includes(marker)) errors.push(`roadmap marker missing: ${marker}`);
 
 for (const marker of [
   'docs/ENJAZ_MASTER_ROADMAP.md', 'docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md', 'docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md',
   'docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md', 'docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md',
+  'docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md',
   'Phase 2.8 — Visual Destruction & Quality Gate ✅', 'ENJAZ Design System 1.0', 'Phase 3 — Application Shell & Navigation',
   'Phase 4 — Home, Daily Work & Executive Overview', 'Phase 4.1 — Home / Dashboard** ✅ complete',
   'Phase 4.2 — Daily Work / Universal Inbox** ✅ complete', 'Phase 4.3 — Executive Briefing** ✅ complete',
   'Phase 4.4 — Home Destruction Gate** ✅ complete', 'Phase 5.1 — Transaction List & Search** ✅ complete',
   'Phase 5.2 — Transaction Create/Edit** ✅ complete', 'Phase 5.3 — Transaction Details / 360°** ✅ complete',
-  'Phase 5.4 — Archive/Restore/Lifecycle** ⏳ not started',
+  'Phase 5.4 — Archive/Restore/Lifecycle** ✅ complete', 'Phase 5.5 — Transaction Destruction Gate** ⏳ not started',
 ]) if (!readme.includes(marker)) errors.push(`README marker missing: ${marker}`);
 
 if (!/Phase 3\.4 — Shell Destruction Gate\*{0,2}\s*✅/.test(readme)) errors.push('README must keep Phase 3.4 explicitly complete');
@@ -70,7 +72,8 @@ for (const [label, expression] of [
   ['Phase 5.1', /^\s*-\s+\*\*Phase 5\.1 — Transaction List & Search\*\*\s+✅\s+complete\s*$/],
   ['Phase 5.2', /^\s*-\s+\*\*Phase 5\.2 — Transaction Create\/Edit\*\*\s+✅\s+complete\s*$/],
   ['Phase 5.3', /^\s*-\s+\*\*Phase 5\.3 — Transaction Details \/ 360°\*\*\s+✅\s+complete\s*$/],
-  ['Phase 5.4', /^\s*-\s+\*\*Phase 5\.4 — Archive\/Restore\/Lifecycle\*\*\s+⏳\s+not started\s*$/],
+  ['Phase 5.4', /^\s*-\s+\*\*Phase 5\.4 — Archive\/Restore\/Lifecycle\*\*\s+✅\s+complete\s*$/],
+  ['Phase 5.5', /^\s*-\s+\*\*Phase 5\.5 — Transaction Destruction Gate\*\*\s+⏳\s+not started\s*$/],
 ]) {
   const matches = readme.split(/\r?\n/).filter((line) => expression.test(line));
   if (matches.length !== 1) errors.push(`README must contain exactly one canonical ${label} status line`);
@@ -80,18 +83,20 @@ if (/Phase 4\.4 — Home Destruction Gate[^\n]*(?:⏳\s+not started|CURRENT NEXT
 if (/Phase 5\.1 — Transaction List & Search[^\n]*⏳\s+not started/.test(readme)) errors.push('README must not claim Phase 5.1 is pending after closure');
 if (/Phase 5\.2 — Transaction Create\/Edit[^\n]*⏳\s+not started/.test(readme)) errors.push('README must not claim Phase 5.2 is pending after closure');
 if (/Phase 5\.3 — Transaction Details \/ 360°[^\n]*⏳\s+not started/.test(readme)) errors.push('README must not claim Phase 5.3 is pending after closure');
-if (/Phase 5\.4 — Archive\/Restore\/Lifecycle[^\n]*(?:🚧|✅\s+complete)/.test(readme)) errors.push('README must not claim Phase 5.4 started during Phase 5.3 closure');
+if (/Phase 5\.4 — Archive\/Restore\/Lifecycle[^\n]*(?:⏳\s+not started|🚧)/.test(readme)) errors.push('README must not claim Phase 5.4 is pending after closure');
+if (/Phase 5\.5 — Transaction Destruction Gate[^\n]*✅\s+complete/.test(readme)) errors.push('README must not close Phase 5.5 during Phase 5.4 closure');
 if (/## 5\.1 — Transaction List & Search(?! ✅)/.test(roadmap)) errors.push('roadmap must mark Phase 5.1 complete');
 if (/## 5\.2 — Transaction Create\/Edit(?! ✅)/.test(roadmap)) errors.push('roadmap must mark Phase 5.2 complete');
 if (/## 5\.3 — Transaction Details \/ 360°(?! ✅)/.test(roadmap)) errors.push('roadmap must mark Phase 5.3 complete');
-if (/Next: Phase 5\.3 — Transaction Details \/ 360°/.test(roadmap)) errors.push('roadmap next pointer must advance beyond closed Phase 5.3');
-if (/## 5\.4 — Archive\/Restore\/Lifecycle[^\n]*✅/.test(roadmap)) errors.push('roadmap must not close Phase 5.4 during Phase 5.3 closure');
-if (!/Phase 5\.4 remains not started/.test(roadmap)) errors.push('roadmap must keep Phase 5.4 locked/not started until post-merge recertification');
+if (/## 5\.4 — Archive\/Restore\/Lifecycle(?! ✅)/.test(roadmap)) errors.push('roadmap must mark Phase 5.4 complete');
+if (/Next: Phase 5\.4 — Archive\/Restore\/Lifecycle/.test(roadmap)) errors.push('roadmap next pointer must advance beyond closed Phase 5.4');
+if (/## 5\.5 — Transaction Destruction Gate[^\n]*✅/.test(roadmap)) errors.push('roadmap must not close Phase 5.5 during Phase 5.4 closure');
+if (!/Phase 5\.5 remains not started/.test(roadmap)) errors.push('roadmap must keep Phase 5.5 locked/not started until post-merge recertification');
 
 if (errors.length) {
   console.error('ENJAZ ROADMAP AUDIT FAIL');
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2 frozen, Phase 3 and Phase 4 complete, Phase 5.1/5.2/5.3 closed, and Phase 5.4 locked/not started.`);
+  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases, Phase 2 frozen, Phase 3 and Phase 4 complete, Phase 5.1/5.2/5.3/5.4 closed, and Phase 5.5 locked/not started.`);
 }
