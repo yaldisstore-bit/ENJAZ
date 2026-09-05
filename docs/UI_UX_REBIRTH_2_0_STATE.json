@@ -85,7 +85,7 @@
     "parityBlockerCount": 8,
     "liveAuthoritativeBlockerCount": 4,
     "presentationResolutionBlockerCount": 4,
-    "uiRebirthEradicated": false,
+    "uiRebirthEradicated": true,
     "uiV2Eradicated": false,
     "protectedBusinessBoundariesPreserved": true,
     "canonicalRuntimeChanged": false,

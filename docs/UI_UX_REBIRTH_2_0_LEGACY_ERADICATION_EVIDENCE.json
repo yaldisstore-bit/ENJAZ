@@ -22,7 +22,7 @@
   "legacyTargets": {
     "src/ui-rebirth": {
       "presentAtStart": true,
-      "eradicated": false,
+      "eradicated": true,
       "order": 1
     },
     "src/ui-v2": {
@@ -56,14 +56,14 @@
     }
   },
   "deletion": {
-    "uiRebirthDeleted": false,
+    "uiRebirthDeleted": true,
     "uiV2Deleted": false,
     "legacyPresentationImportCount": null,
     "protectedBoundaryViolations": 0
   },
   "checks": {
     "preflightAudit": "PENDING",
-    "uiRebirthDependencyAudit": "PENDING",
+    "uiRebirthDependencyAudit": "DELETED_PENDING_CI",
     "parityResolution": "PENDING",
     "legacyZero": "PENDING",
     "cumulativeRegression": "PENDING"
