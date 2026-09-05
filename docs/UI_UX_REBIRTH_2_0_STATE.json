@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "R2.0-1",
+  "stage": "R2.0-2",
   "phase55Locked": true,
   "runtime": "ui-v2",
   "goldenExperience": {
@@ -28,6 +28,19 @@
     "hiddenPrimaryNavigationCount": 0,
     "duplicateCanonicalHomesCount": 0,
     "routeBackSearchCreateContractsFrozen": true,
+    "exitGatePassed": true
+  },
+  "designSystem": {
+    "artifact": "docs/UI_UX_REBIRTH_2_0_DESIGN_SYSTEM_MANIFEST.json",
+    "closureRecord": "docs/R2_0_2_DESIGN_SYSTEM_CLOSURE.md",
+    "status": "CLOSED",
+    "requiredFamilies": 14,
+    "implementedFamilies": 14,
+    "touchMinimumPx": 44,
+    "reducedMotionEncoded": true,
+    "rtlSafeDefaultsEncoded": true,
+    "palettePurity": true,
+    "presentationIsolation": true,
     "exitGatePassed": true
   },
   "noMaze": {
