@@ -20,9 +20,23 @@
     "rule": "Preserve authoritative capability and business facts, not legacy presentation. Presentation-only or review-only surfaces remain explicitly non-authoritative and must not be promoted into fake live behavior."
   },
   "seedFamilies": [
-    "auth", "home", "today", "transactions", "companies", "people_lawyers", "finance",
-    "workflow", "automation", "operations", "command", "risk", "documents_reports",
-    "followups_notifications", "copilot", "global_search", "global_create"
+    "auth",
+    "home",
+    "today",
+    "transactions",
+    "companies",
+    "people_lawyers",
+    "finance",
+    "workflow",
+    "automation",
+    "operations",
+    "command",
+    "risk",
+    "documents_reports",
+    "followups_notifications",
+    "copilot",
+    "global_search",
+    "global_create"
   ],
   "capabilities": [
     {
@@ -34,7 +48,13 @@
       "newCanonicalHome": "auth.gateway",
       "dataBoundary": "Supabase Auth session/sign-in/sign-up/recovery/update",
       "major": true,
-      "scope": ["login", "registration", "session", "password recovery", "password update"],
+      "scope": [
+        "login",
+        "registration",
+        "session",
+        "password recovery",
+        "password update"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -47,7 +67,11 @@
       "newCanonicalHome": "auth.gateway",
       "dataBoundary": "AuthRouteGuards + workspace resolution + RLS",
       "major": true,
-      "scope": ["protected routes", "workspace resolution", "owner-safe access"],
+      "scope": [
+        "protected routes",
+        "workspace resolution",
+        "owner-safe access"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -60,7 +84,13 @@
       "newCanonicalHome": "home",
       "dataBoundary": "Home service composed from authenticated workspace facts",
       "major": true,
-      "scope": ["priorities", "pending work", "urgent items", "bounded financial snapshot", "operational signals"],
+      "scope": [
+        "priorities",
+        "pending work",
+        "urgent items",
+        "bounded financial snapshot",
+        "operational signals"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -73,7 +103,13 @@
       "newCanonicalHome": "home",
       "dataBoundary": "Authoritative Home + Daily Work composition with bounded payment pulse",
       "major": true,
-      "scope": ["executive state", "attention decisions", "risks/blockers", "7-day payment pulse", "links to Today/Finance/Transactions"],
+      "scope": [
+        "executive state",
+        "attention decisions",
+        "risks/blockers",
+        "7-day payment pulse",
+        "links to Today/Finance/Transactions"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -86,9 +122,16 @@
       "newCanonicalHome": "today",
       "dataBoundary": "Daily Work service over workspace-scoped repositories",
       "major": true,
-      "scope": ["followups", "blockers", "calendar", "renewals", "workflow item states", "inactive-parent suppression"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "followups",
+        "blockers",
+        "calendar",
+        "renewals",
+        "workflow item states",
+        "inactive-parent suppression"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "today.followup_actions",
@@ -99,9 +142,12 @@
       "newCanonicalHome": "today",
       "dataBoundary": "transaction_followups mutable repository with lifecycle/snooze rules",
       "major": false,
-      "scope": ["complete", "snooze"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "complete",
+        "snooze"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.list_search",
@@ -112,9 +158,14 @@
       "newCanonicalHome": "transactions",
       "dataBoundary": "transactions repository + company relation + Arabic-normalized list model",
       "major": true,
-      "scope": ["list", "Arabic-normalized search", "missing-relation truthfulness", "deleted exclusion"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "list",
+        "Arabic-normalized search",
+        "missing-relation truthfulness",
+        "deleted exclusion"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.list_controls",
@@ -125,9 +176,15 @@
       "newCanonicalHome": "transactions",
       "dataBoundary": "transactionListModel + bounded loader + enjaz.transactions.list.v1 integration schema",
       "major": true,
-      "scope": ["current/stalled/closed-archived views", "filters", "sorting", "pagination", "saved-view integration contract"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "current/stalled/closed-archived views",
+        "filters",
+        "sorting",
+        "pagination",
+        "saved-view integration contract"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.create",
@@ -138,9 +195,13 @@
       "newCanonicalHome": "transactions.editor",
       "dataBoundary": "transactionEditorService + workspace Data Layer",
       "major": true,
-      "scope": ["validated create", "required company", "priority/status/type/department/fee/time fields"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "validated create",
+        "required company",
+        "priority/status/type/department/fee/time fields"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.edit",
@@ -151,9 +212,13 @@
       "newCanonicalHome": "transactions.editor",
       "dataBoundary": "transactionEditorService + stale/conflict/archive/delete guards",
       "major": true,
-      "scope": ["validated edit", "stale conflict", "archived/deleted fail-closed"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "validated edit",
+        "stale conflict",
+        "archived/deleted fail-closed"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.editor_relationships",
@@ -164,9 +229,12 @@
       "newCanonicalHome": "transactions.editor",
       "dataBoundary": "companies + contacts + company_contacts repositories",
       "major": false,
-      "scope": ["company required", "primary contact must belong to company"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "company required",
+        "primary contact must belong to company"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.editor_history",
@@ -177,9 +245,15 @@
       "newCanonicalHome": "transactions.editor",
       "dataBoundary": "append-only transaction_routes/transaction_notes/fee_changes/transaction_activity",
       "major": false,
-      "scope": ["station", "note", "fee change reason", "activity evidence", "outcome-unknown warnings"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "station",
+        "note",
+        "fee change reason",
+        "activity evidence",
+        "outcome-unknown warnings"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.360",
@@ -190,9 +264,14 @@
       "newCanonicalHome": "transactions.detail",
       "dataBoundary": "transaction360Service across typed workspace Data Layer",
       "major": true,
-      "scope": ["identity", "company/contact", "read-only inactive access", "bounded deterministic context"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "identity",
+        "company/contact",
+        "read-only inactive access",
+        "bounded deterministic context"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.360_history",
@@ -203,9 +282,14 @@
       "newCanonicalHome": "transactions.detail",
       "dataBoundary": "transaction_routes + transaction_activity + transaction_notes append-only sources",
       "major": false,
-      "scope": ["routes", "activity", "notes", "timeline ordering"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "routes",
+        "activity",
+        "notes",
+        "timeline ordering"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.360_related_work",
@@ -216,9 +300,14 @@
       "newCanonicalHome": "transactions.detail",
       "dataBoundary": "followups + documents + workflow states + blockers repositories",
       "major": false,
-      "scope": ["followups", "documents", "workflow", "blockers"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "followups",
+        "documents",
+        "workflow",
+        "blockers"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.360_finance",
@@ -229,9 +318,13 @@
       "newCanonicalHome": "transactions.detail",
       "dataBoundary": "payments + fee_changes append-only sources; not full Phase 7 Finance",
       "major": false,
-      "scope": ["payments", "fee history", "safe money precision"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "payments",
+        "fee history",
+        "safe money precision"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.lifecycle.archive",
@@ -242,9 +335,13 @@
       "newCanonicalHome": "transactions.lifecycle",
       "dataBoundary": "transactionLifecycleService; archived_at + append-only activity evidence",
       "major": true,
-      "scope": ["archive", "open followups preserved", "inactive-parent suppression"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "archive",
+        "open followups preserved",
+        "inactive-parent suppression"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.lifecycle.restore",
@@ -255,9 +352,11 @@
       "newCanonicalHome": "transactions.lifecycle",
       "dataBoundary": "transactionLifecycleService; clear archived_at and preserve underlying status",
       "major": true,
-      "scope": ["restore"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "restore"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "transactions.lifecycle.reactivate",
@@ -268,9 +367,11 @@
       "newCanonicalHome": "transactions.lifecycle",
       "dataBoundary": "transactionLifecycleService; status active + clear completion/archive timestamps",
       "major": true,
-      "scope": ["reactivate"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "reactivate"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "global.search",
@@ -281,7 +382,12 @@
       "newCanonicalHome": "search",
       "dataBoundary": "Must become destination registry + authoritative record discovery; current hard-coded demo results are not data",
       "major": true,
-      "scope": ["feature discovery", "record discovery", "aliases", "result navigation"],
+      "scope": [
+        "feature discovery",
+        "record discovery",
+        "aliases",
+        "result navigation"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -294,9 +400,11 @@
       "newCanonicalHome": "create",
       "dataBoundary": "Delegates to authoritative ConnectedTransactionEditor",
       "major": true,
-      "scope": ["transaction create"],
-      "migrated": false,
-      "tested": false
+      "scope": [
+        "transaction create"
+      ],
+      "migrated": true,
+      "tested": true
     },
     {
       "id": "global.create.review_only",
@@ -307,7 +415,12 @@
       "newCanonicalHome": "create",
       "dataBoundary": "Current flow validates/reviews only and persists nothing; authoritative mutations belong to later domain phases",
       "major": false,
-      "scope": ["followup review", "party review", "payment review", "must never report saved"],
+      "scope": [
+        "followup review",
+        "party review",
+        "payment review",
+        "must never report saved"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -320,7 +433,10 @@
       "newCanonicalHome": "today.notifications",
       "dataBoundary": "Current shell data is presentation-only; Phase 11 owns authoritative notification state",
       "major": false,
-      "scope": ["attention entry", "truthful availability"],
+      "scope": [
+        "attention entry",
+        "truthful availability"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -333,7 +449,11 @@
       "newCanonicalHome": "account",
       "dataBoundary": "Auth/workspace identity boundary; only authoritative session actions may mutate",
       "major": false,
-      "scope": ["account entry", "workspace identity", "session/logout actions when authoritative"],
+      "scope": [
+        "account entry",
+        "workspace identity",
+        "session/logout actions when authoritative"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -346,7 +466,9 @@
       "newCanonicalHome": "companies",
       "dataBoundary": "Phase 6 owns authoritative Companies CRUD/details; current domain is presentation-only",
       "major": true,
-      "scope": ["domain discoverability without fake CRUD"],
+      "scope": [
+        "domain discoverability without fake CRUD"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -359,7 +481,9 @@
       "newCanonicalHome": "people",
       "dataBoundary": "Phase 6 owns authoritative Contacts/Lawyers; current domain is presentation-only",
       "major": true,
-      "scope": ["domain discoverability without fake profiles"],
+      "scope": [
+        "domain discoverability without fake profiles"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -372,7 +496,10 @@
       "newCanonicalHome": "finance",
       "dataBoundary": "Phase 7 owns authoritative Finance; bounded Phase 4/5 facts remain truthful",
       "major": true,
-      "scope": ["collapse duplicate entry points", "do not fabricate full ledger"],
+      "scope": [
+        "collapse duplicate entry points",
+        "do not fabricate full ledger"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -385,7 +512,9 @@
       "newCanonicalHome": "workflow",
       "dataBoundary": "Phase 8 owns authoritative Workflow UI",
       "major": true,
-      "scope": ["domain discoverability without fake mutation"],
+      "scope": [
+        "domain discoverability without fake mutation"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -398,7 +527,9 @@
       "newCanonicalHome": "automation",
       "dataBoundary": "Phase 8 owns authoritative Automation UI",
       "major": true,
-      "scope": ["domain discoverability without fake activation"],
+      "scope": [
+        "domain discoverability without fake activation"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -411,7 +542,9 @@
       "newCanonicalHome": "operations",
       "dataBoundary": "Phase 8 owns authoritative Operations Center",
       "major": true,
-      "scope": ["collapse shell/domain duplicate to one canonical home"],
+      "scope": [
+        "collapse shell/domain duplicate to one canonical home"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -424,7 +557,9 @@
       "newCanonicalHome": "command",
       "dataBoundary": "Phase 8 owns authoritative Command Center",
       "major": true,
-      "scope": ["collapse commandMode/domain duplicate to one canonical home"],
+      "scope": [
+        "collapse commandMode/domain duplicate to one canonical home"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -437,7 +572,9 @@
       "newCanonicalHome": "risk",
       "dataBoundary": "Phase 9 owns authoritative Risk/Insights UI",
       "major": true,
-      "scope": ["domain discoverability without opaque/fake intelligence"],
+      "scope": [
+        "domain discoverability without opaque/fake intelligence"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -450,7 +587,10 @@
       "newCanonicalHome": "documents",
       "dataBoundary": "Phase 10 owns authoritative vault/reports; transaction-linked documents remain contextual live facts",
       "major": true,
-      "scope": ["domain discoverability", "no fake vault upload"],
+      "scope": [
+        "domain discoverability",
+        "no fake vault upload"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -463,7 +603,10 @@
       "newCanonicalHome": "followups",
       "dataBoundary": "Phase 11 owns authoritative center; Daily Work remains authoritative operational aggregation",
       "major": true,
-      "scope": ["one domain home", "Today remains queue not duplicate master implementation"],
+      "scope": [
+        "one domain home",
+        "Today remains queue not duplicate master implementation"
+      ],
       "migrated": false,
       "tested": false
     },
@@ -476,7 +619,10 @@
       "newCanonicalHome": "copilot",
       "dataBoundary": "Phase 12 owns authoritative Copilot; current domain must not claim AI data/actions that do not exist",
       "major": true,
-      "scope": ["domain discoverability", "truthful unavailable state until authoritative"],
+      "scope": [
+        "domain discoverability",
+        "truthful unavailable state until authoritative"
+      ],
       "migrated": false,
       "tested": false
     }

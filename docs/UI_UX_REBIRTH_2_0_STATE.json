@@ -26,7 +26,7 @@
     "completedSpecimens": 5
   },
   "coreWorkMigration": {
-    "status": "ACTIVE",
+    "status": "CLOSED",
     "kickoff": "docs/R2_0_5_CORE_WORK_MIGRATION_KICKOFF.md",
     "scope": [
       "transactions",
@@ -37,13 +37,16 @@
       "lifecyclePresentation"
     ],
     "canonicalRuntimeChanged": false,
-    "exitGatePassed": false
+    "exitGatePassed": true,
+    "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_CORE_WORK_EVIDENCE.json",
+    "closureRecord": "docs/R2_0_5_CORE_WORK_MIGRATION_CLOSURE.md",
+    "evidenceRun": 33968400314
   },
   "featureParity": {
     "inventoryComplete": true,
     "totalCapabilities": 35,
-    "migratedCapabilities": 0,
-    "testedCapabilities": 0,
+    "migratedCapabilities": 16,
+    "testedCapabilities": 16,
     "unresolvedCapabilities": 0
   },
   "informationArchitecture": {

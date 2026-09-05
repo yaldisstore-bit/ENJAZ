@@ -1,9 +1,16 @@
 {
   "schemaVersion": 1,
   "stage": "R2.0-5",
-  "status": "IMPLEMENTED_AWAITING_GATES",
+  "status": "CLOSED",
   "branch": "r2-0-5-core-work-migration",
-  "scope": ["transactions", "today", "followups", "relatedDocuments", "createEdit", "lifecyclePresentation"],
+  "scope": [
+    "transactions",
+    "today",
+    "followups",
+    "relatedDocuments",
+    "createEdit",
+    "lifecyclePresentation"
+  ],
   "authoritativeSources": [
     "src/features/transactions/transactionListModel.ts",
     "src/features/transactions/transactionEditorModel.ts",
@@ -46,15 +53,34 @@
     "phase55Locked": true
   },
   "checks": {
-    "structuralAudit": "PENDING",
-    "functionalRegression": "PENDING",
-    "typescript": "PENDING",
-    "previewBuild": "PENDING",
-    "previewBudget": "PENDING",
-    "goldenRegression": "PENDING",
-    "realBrowserCoreWidths": "PENDING"
+    "structuralAudit": "PASS",
+    "functionalRegression": "PASS_118_OF_118",
+    "typescript": "PASS",
+    "previewBuild": "PASS",
+    "previewBudget": "PASS",
+    "goldenRegression": "PASS",
+    "realBrowserCoreWidths": "PASS_11_OF_11"
   },
-  "hardWidths": [1280, 430, 390, 360, 320],
-  "artifact": null,
-  "exitGatePassed": false
+  "hardWidths": [
+    1280,
+    430,
+    390,
+    360,
+    320
+  ],
+  "artifact": {
+    "id": 9970170589,
+    "name": "enjaz-r2-core-work-evidence-c8807e986f097e2be85b7373ca2f2a05239bc034",
+    "sourceCommit": "652b1ae00e230de200da75564cf4b05d403c2ea1",
+    "sha256": "b48bee30e7c0b7068a70b41a037c7cd9065edae1297ecb70136385eea8ef97e9"
+  },
+  "exitGatePassed": true,
+  "connectedAdapter": "src/ui-r2/core-work/CoreWorkConnected.tsx",
+  "gateRuns": {
+    "governance": 33968400308,
+    "quality": 33968400316,
+    "goldenRegression": 33968400344,
+    "coreWork": 33968400314,
+    "realBrowser": 33968400329
+  }
 }
