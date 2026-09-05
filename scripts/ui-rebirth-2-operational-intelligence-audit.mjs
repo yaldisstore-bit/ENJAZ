@@ -7,6 +7,7 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const json = (p) => JSON.parse(read(p));
 const exists = (p) => fs.existsSync(path.join(root, p));
 const errors = [];
+const stageOrder = ['R2.0-0','R2.0-1','R2.0-2','R2.0-3','R2.0-4','R2.0-5','R2.0-6','R2.0-7','R2.0-8','R2.0-9','R2.0-10','R2.0-11'];
 
 const paths = {
   state: 'docs/UI_UX_REBIRTH_2_0_STATE.json',
@@ -34,14 +35,16 @@ const css = read(paths.css);
 const uiRoot = read(paths.root);
 const preview = read(paths.preview);
 const main = read(paths.main);
+const stageIndex = stageOrder.indexOf(state.stage);
 
-if (state.stage !== 'R2.0-7') errors.push(`operational guard requires stage R2.0-7, found ${state.stage}`);
+if (stageIndex < 7) errors.push(`operational guard requires R2.0-7 or later, found ${state.stage}`);
 if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked');
-if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 during R2.0-7');
+if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 before R2.0-11');
 if (state.goldenExperience?.status !== 'APPROVED' || state.goldenExperience?.userApproved !== true) errors.push('R2.0-7 requires approved Golden identity');
 if (state.coreWorkMigration?.status !== 'CLOSED' || state.coreWorkMigration?.exitGatePassed !== true) errors.push('R2.0-5 must remain closed');
 if (state.recordsRelationships?.status !== 'CLOSED' || state.recordsRelationships?.exitGatePassed !== true) errors.push('R2.0-6 must remain closed before R2.0-7');
 if (!['ACTIVE', 'CLOSED'].includes(state.operationalIntelligence?.status)) errors.push('operationalIntelligence status must be ACTIVE or CLOSED');
+if (stageIndex > 7 && (state.operationalIntelligence?.status !== 'CLOSED' || state.operationalIntelligence?.exitGatePassed !== true)) errors.push(`R2.0-7 must remain CLOSED after advancing to ${state.stage}`);
 if (state.operationalIntelligence?.taskAppropriateComposition !== true) errors.push('R2.0-7 requires task-appropriate composition');
 if (state.operationalIntelligence?.canonicalRuntimeChanged !== false) errors.push('R2.0-7 cannot change canonical runtime');
 if (state.promotion?.requested !== false || state.promotion?.allowed !== false) errors.push('canonical promotion must remain blocked');
@@ -85,7 +88,6 @@ for (const marker of [
   "../operational-intelligence/OperationalIntelligenceExperience.tsx",
   "id === 'finance' || id === 'operations' || id === 'workflow' || id === 'automation' || id === 'command' || id === 'risk' || id === 'copilot'",
   'data-operational-stage="R2.0-7"',
-  'R2.0-7 Operational',
 ]) if (!uiRoot.includes(marker)) errors.push(`UiR2Root missing R2.0-7 integration marker: ${marker}`);
 if (!preview.includes("'./operational-intelligence/operational-intelligence.css'")) errors.push('preview must load R2.0-7 operational CSS');
 
