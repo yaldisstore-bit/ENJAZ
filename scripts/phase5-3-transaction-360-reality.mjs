@@ -11,10 +11,7 @@ function assert(condition, message) {
 }
 
 async function noHorizontalOverflow(page, label) {
-  const overflow = await page.evaluate(() => ({
-    html: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    body: document.body.scrollWidth - document.body.clientWidth,
-  }));
+  const overflow = await page.evaluate(() => ({ html: document.documentElement.scrollWidth - document.documentElement.clientWidth, body: document.body.scrollWidth - document.body.clientWidth }));
   assert(overflow.html <= 1 && overflow.body <= 1, `${label}: horizontal overflow ${JSON.stringify(overflow)}`);
 }
 
@@ -22,12 +19,7 @@ async function assertTouchTargets(page, label) {
   const undersized = await page.evaluate(() => Array.from(document.querySelectorAll('button,a,[role="button"],input,select,textarea')).map((el) => {
     const rect = el.getBoundingClientRect();
     const style = getComputedStyle(el);
-    return {
-      name: el.getAttribute('aria-label') || el.textContent?.replace(/\s+/g, ' ').trim() || el.tagName,
-      width: rect.width,
-      height: rect.height,
-      visible: rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0.05,
-    };
+    return { name: el.getAttribute('aria-label') || el.textContent?.replace(/\s+/g, ' ').trim() || el.tagName, width: rect.width, height: rect.height, visible: rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0.05 };
   }).filter((item) => item.visible && (item.width < 44 || item.height < 44)));
   assert(undersized.length === 0, `${label}: undersized interactive targets ${JSON.stringify(undersized)}`);
 }
@@ -72,13 +64,11 @@ async function verifyDesktopContext(browser) {
   const errors = collectErrors(page);
   await openTransactions(page, 'desktop-1280');
   const sheet = await openFirst360(page);
-
   for (const name of ['timeline', 'followups', 'finance', 'notes', 'documents']) {
     const selector = `[data-transaction-360-section="${name}"]`;
     assert(await sheet.locator(selector).isVisible(), `desktop-1280: missing 360 section ${selector}`);
   }
-
-  assert(await sheet.getByText('العمليات المالية الكاملة تبقى في Phase 7.', { exact: false }).isVisible(), 'desktop-1280: finance scope boundary missing');
+  assert(await sheet.getByText('للعمليات الكاملة افتح مركز المالية.', { exact: true }).isVisible(), 'desktop-1280: finance scope boundary missing');
   assert((await sheet.locator('[data-transaction-360-section="timeline"] li').count()) >= 3, 'desktop-1280: timeline did not compose multiple authoritative event families');
   await noHorizontalOverflow(page, 'desktop-1280');
   await assertTouchTargets(page, 'desktop-1280');
@@ -146,7 +136,7 @@ async function verifyArchivedBoundary(browser, width) {
   const sheet = page.getByRole('dialog', { name: 'ملف المعاملة 360°' });
   await sheet.waitFor();
   assert(await sheet.locator('[data-pattern="transaction-360"]').isVisible(), `archived-${width}: archived 360 did not open`);
-  assert(await sheet.getByText('إعادة التفعيل أو الاستعادة تبقى في Phase 5.4.', { exact: false }).isVisible(), `archived-${width}: 360 lifecycle boundary missing`);
+  assert(await sheet.getByText('المعاملة للعرض فقط؛ الاستعادة غير متاحة هنا.', { exact: true }).isVisible(), `archived-${width}: 360 lifecycle boundary missing`);
   await noHorizontalOverflow(page, `archived-${width}`);
   await assertTouchTargets(page, `archived-${width}`);
   assert(errors.console.length === 0, `archived-${width}: console errors ${errors.console.join(' | ')}`);
@@ -157,15 +147,7 @@ async function verifyArchivedBoundary(browser, width) {
 
 const browser = await chromium.launch({ headless: true });
 try {
-  const results = [
-    await verifyDesktopContext(browser),
-    await verifyMissingRelation(browser),
-    await verifyNarrowLongText(browser),
-    await verifyArchivedBoundary(browser, 430),
-    await verifyArchivedBoundary(browser, 360),
-  ];
+  const results = [await verifyDesktopContext(browser), await verifyMissingRelation(browser), await verifyNarrowLongText(browser), await verifyArchivedBoundary(browser, 430), await verifyArchivedBoundary(browser, 360)];
   await fs.writeFile(path.join(outDir, 'result.json'), JSON.stringify({ passed: true, results }, null, 2));
   console.log(`Phase 5.3 Transaction 360 Reality PASS: ${JSON.stringify(results)}`);
-} finally {
-  await browser.close();
-}
+} finally { await browser.close(); }
