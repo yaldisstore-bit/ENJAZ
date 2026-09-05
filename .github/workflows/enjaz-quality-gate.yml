@@ -63,6 +63,10 @@ jobs:
         run: node scripts/phase4-4-home-destruction-audit.mjs
       - name: Phase 5.1 Transaction List & Search architecture gate
         run: node scripts/phase5-1-transaction-list-audit.mjs
+      - name: Phase 5.2 Transaction Create/Edit architecture gate
+        run: npm run audit:phase5-2:transaction-editor
+      - name: Phase 5.2 dedicated model/service gate
+        run: npm run test:phase5-2
       - name: Functional regression baseline
         run: npm run test:functional
       - name: Secrets audit
