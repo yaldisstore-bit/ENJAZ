@@ -64,7 +64,7 @@ for (const marker of [
   "transactions/useTransaction360.ts", "transactions/useTransactionLifecycle.ts",
   'useDailyWork()', 'useTransactionList()', 'useTransactionEditor(', 'useTransaction360(', 'useTransactionLifecycle(',
   'controller.complete(item)', 'controller.snooze(item)', 'controller.submit()', 'controller.execute(action, note)',
-  'data-core-connected="transactions"', 'data-core-connected="today"', 'data-core-connected="followups"',
+  'data-core-connected="transactions"', "data-core-connected={followupsOnly ? 'followups' : 'today'}",
   'data-core-connected="transaction-editor"', 'data-core-connected="transaction-360"', 'data-core-connected="transaction-lifecycle"',
   'ConnectedCoreWorkRouter', 'transactionEditorService', 'transaction360Service', 'transactionLifecycleService',
 ]) if (!connected.includes(marker)) errors.push(`R2.0-5 live adapter missing connection marker: ${marker}`);
