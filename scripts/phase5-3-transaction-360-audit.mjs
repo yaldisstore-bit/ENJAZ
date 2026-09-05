@@ -5,7 +5,8 @@ function assert(condition, message) {
 }
 async function read(file) { return fs.readFile(file, 'utf8'); }
 
-const [dataLayer, model, service, hook, preview, screen, list, css, listCss, main, kickoff, roadmap] = await Promise.all([
+const [core, dataLayer, model, service, hook, preview, screen, list, css, listCss, main, kickoff, roadmap] = await Promise.all([
+  read('src/ui-v2/runtime/CoreApp.tsx'),
   read('src/data/createDataLayer.ts'),
   read('src/features/transactions/transaction360Model.ts'),
   read('src/features/transactions/transaction360Service.ts'),
@@ -19,6 +20,10 @@ const [dataLayer, model, service, hook, preview, screen, list, css, listCss, mai
   read('docs/PHASE5_3_TRANSACTION_DETAILS_360_KICKOFF.md'),
   read('docs/ENJAZ_MASTER_ROADMAP.md'),
 ]);
+
+assert(core.includes('data-stage="ui-10"'), 'frozen UI-10 marker changed');
+const phase = Number(core.match(/data-product-phase="([0-9]+(?:\.[0-9]+)?)"/)?.[1]);
+assert(Number.isFinite(phase) && phase >= 5.3, 'canonical runtime marker must be at or beyond Phase 5.3');
 
 for (const token of ['transactionRoutes', 'transactionNotes', 'transactionActivity', 'followups', 'payments', 'feeChanges', 'documents', 'workflowInstances', 'blockers']) {
   assert(dataLayer.includes(token), `typed Data Layer lost ${token}`);
@@ -94,7 +99,7 @@ assert(kickoff.includes('Full workflow management remains Phase 8'), 'Workflow b
 assert(roadmap.includes('## 5.3 — Transaction Details / 360°'), 'roadmap lost Phase 5.3');
 assert(roadmap.includes('## 5.4 — Archive/Restore/Lifecycle'), 'roadmap lost Phase 5.4 boundary');
 
-console.log('Phase 5.3 Transaction Details / 360° architecture gate PASS');
+console.log(`Phase 5.3 Transaction Details / 360° architecture gate PASS on product phase ${phase}`);
 console.log('- authoritative workspace-scoped Data Layer composition is locked');
 console.log('- core relation failures fail closed while optional context is explicitly unavailable/truncated');
 console.log('- timeline and section bounds prevent unbounded 360 rendering');
