@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "R2.0-4",
+  "stage": "R2.0-5",
   "phase55Locked": true,
   "runtime": "ui-v2",
   "goldenExperience": {
@@ -24,6 +24,20 @@
       "transaction360"
     ],
     "completedSpecimens": 5
+  },
+  "coreWorkMigration": {
+    "status": "ACTIVE",
+    "kickoff": "docs/R2_0_5_CORE_WORK_MIGRATION_KICKOFF.md",
+    "scope": [
+      "transactions",
+      "today",
+      "followups",
+      "relatedDocuments",
+      "createEdit",
+      "lifecyclePresentation"
+    ],
+    "canonicalRuntimeChanged": false,
+    "exitGatePassed": false
   },
   "featureParity": {
     "inventoryComplete": true,
