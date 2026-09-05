@@ -80,6 +80,7 @@ export function AppShell(props: Readonly<{
   activeTab?: ShellTab;
   onTabChange?(tab: ShellTab): void;
   onBrandAction?(): void;
+  transactionCreateContent?(close: () => void): ReactNode;
 }>) {
   useVisualViewportContract();
   const [internalTab, setInternalTab] = useState<ShellTab>('home');
@@ -223,7 +224,9 @@ export function AppShell(props: Readonly<{
           <button type="button" className={createKind === 'payment' ? 'is-selected' : ''} onClick={() => setCreateKind('payment')} data-create-type="payment"><span><WalletIcon /></span><strong>دفعة مالية</strong><small>تسجيل حركة مالية</small></button>
           <button type="button" className={createKind === 'more' ? 'is-selected' : ''} onClick={() => setCreateKind('more')} data-create-type="more"><span><MoreIcon /></span><strong>المزيد</strong><small>كل الإجراءات المتاحة</small></button>
         </div>
-        <QuickCreateFlow kind={createKind} onClose={closeOverlay} />
+        {createKind === 'transaction' && props.transactionCreateContent
+          ? props.transactionCreateContent(closeOverlay)
+          : <QuickCreateFlow kind={createKind} onClose={closeOverlay} />}
       </EzSheet>
 
       <EzSheet open={overlay === 'account'} title="الحساب ومساحة العمل" eyebrow="إنجاز" onClose={closeOverlay}>
