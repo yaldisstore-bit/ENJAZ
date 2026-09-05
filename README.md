@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 5.2 — Transaction Create/Edit ✅**  
-آخر مرحلة مغلقة: **Phase 5.2 — Transaction Create/Edit ✅**.  
-التالي المسموح بعد دمج 5.2 وإعادة اعتماد `main`: **Phase 5.3 — Transaction Details / 360°**، ولم تبدأ بعد.
+الحالة الرسمية: **Phase 5.3 — Transaction Details / 360° ✅**  
+آخر مرحلة مغلقة: **Phase 5.3 — Transaction Details / 360° ✅**.  
+التالي المسموح بعد دمج 5.3 وإعادة اعتماد `main`: **Phase 5.4 — Archive/Restore/Lifecycle**، وتبقى مقفلة حتى ذلك الحين.
 
 إنجاز مشروع جديد مبني من الصفر بهوية مستقلة وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية الأساسية للمشروع السابق دون نقل واجهاته أو الـlegacy UI DNA.
 
@@ -17,8 +17,9 @@
 - [`docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md`](docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md) — أدلة إغلاق Home Destruction Gate وإغلاق Phase 4 كاملة.
 - [`docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md`](docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md) — أدلة إغلاق Transaction List & Search.
 - [`docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`](docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md) — أدلة إغلاق Transaction Create/Edit.
+- [`docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md`](docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md) — أدلة إغلاق Transaction Details / 360°.
 
-**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. Phase 5.3 لا تبدأ قبل نجاح بوابات إغلاق Phase 5.2 ودمجها في `main` وإعادة اعتماد النسخة القانونية بعد الدمج.
+**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. Phase 5.4 لا تبدأ قبل نجاح بوابات إغلاق Phase 5.3 ودمجها في `main` وإعادة اعتماد النسخة القانونية بعد الدمج.
 
 ## حالة المراحل
 
@@ -40,7 +41,8 @@
 - **Phase 5 — Transactions Core** 🚧
   - **Phase 5.1 — Transaction List & Search** ✅ complete
   - **Phase 5.2 — Transaction Create/Edit** ✅ complete
-  - **Phase 5.3 — Transaction Details / 360°** ⏳ not started
+  - **Phase 5.3 — Transaction Details / 360°** ✅ complete
+  - **Phase 5.4 — Archive/Restore/Lifecycle** ⏳ not started
 
 ## Phase 4.1 — المكتمل رسميًا
 
@@ -127,6 +129,25 @@
 - Pre-closure gate `33946358543` على خط الإصلاح `74339f319e1e4b6a7a21079f15434733025c88b8` ✅، evidence artifact `9963457065`.
 - Quality Gate `33946358585` وReal Browser Acceptance `33946358556` والبوابات التراكمية 4.3/4.4/5.1 كلها خضراء ✅.
 
+## Phase 5.3 — المكتمل رسميًا
+
+5.3 أضافت ملف المعاملة 360° كسطح قراءة وتجميع موحد فوق مصادر الحقيقة الحالية دون إنشاء منطق أعمال موازٍ:
+
+- Workspace-scoped Data Layer تجمع هوية المعاملة والشركة/جهة الاتصال والمسار والنشاط والملاحظات والمتابعات والدفعات وتغييرات الأتعاب والمستندات والـWorkflow والعوائق.
+- المصادر الأساسية تفشل مغلقًا، بينما السياق الاختياري يعلن unavailable/truncated صراحةً بدل اختلاق بيانات.
+- Timeline مرتبة deterministic ومحدودة، وكذلك أقسام 360 لمنع العرض غير المحدود.
+- القيم المالية غير الآمنة لا تُعرض كحقائق دقيقة.
+- المعاملات المؤرشفة/المكتملة تفتح 360° للقراءة فقط؛ archive/restore/reactivation تبقى Phase 5.4.
+- تم إصلاح عيب طبقات حقيقي بنقل Sheets/Dialogs إلى React Portal على `document.body`، وأضاف Chromium حارس `elementFromPoint` يمنع الدك أو Top Bar من الظهور فوق النافذة.
+- تم تصحيح توقيت Evidence screenshots لتلتقط الحالة المستقرة بعد انتهاء animation.
+- تم إصلاح ملخص 360 وFacts بعد فحص الصور يدويًا: شبكة تعتمد على عرض الحاوية، بطاقات واضحة، وRTL/bidi wrapping للنصوص العربية/اللاتينية/الأرقام.
+- اختبار Phase 5.3 المخصص: **11/11** ✅.
+- Full functional regression: **102/102** ✅.
+- Chromium حقيقي: 1280 / 430 / 390 / 360 / 320px، مع long mixed text، missing company، archived read-only، 44px touch، no overflow وmodal-layer guards ✅.
+- Pre-closure gate `33953751497` على `db5f52e82840f5f904a185cca6664d5ffb7f5a7d` ✅، evidence artifact `9965684028`.
+- Quality Gate `33953751483` وReal Browser Acceptance `33953751471` وبوابات 5.2/5.1/4.4/4.3 كلها خضراء ✅.
+- Closure evidence: `docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md`.
+
 ## المختبرات ومساحات الإثبات
 
 - `/foundation/identity` — 2.1
@@ -147,27 +168,28 @@
 - UI V2 Home destruction scenarios — 4.4 proof
 - UI V2 transaction fixture + dedicated Chromium destruction — 5.1 Transaction List & Search proof
 - UI V2 transaction create/edit fixture + dedicated Chromium destruction — 5.2 Transaction Create/Edit proof
+- UI V2 transaction 360 fixture + dedicated Chromium destruction — 5.3 Transaction Details / 360° proof
 
 ## Quality Gate
 
-Phase 5.2 pre-closure certification على خط الإصلاح `74339f319e1e4b6a7a21079f15434733025c88b8` أثبت:
+Phase 5.3 pre-closure certification على الرأس `db5f52e82840f5f904a185cca6664d5ffb7f5a7d` أثبت:
 
 1. QA stage contract ✅
 2. UI V2 Boundary + Visual DNA ✅
 3. UI-4 → UI-10 cumulative freeze ✅
-4. Phase 4.2 / 4.3 / 4.4 + Phase 5.1 cumulative gates ✅
-5. Phase 5.2 architecture audit ✅
-6. Phase 5.2 model/service tests **12/12** ✅
-7. Full functional tests **91/91** ✅
+4. Phase 4.2 / 4.3 / 4.4 + Phase 5.1 / 5.2 cumulative gates ✅
+5. Phase 5.3 architecture audit ✅
+6. Phase 5.3 model/service tests **11/11** ✅
+7. Full functional tests **102/102** ✅
 8. Secrets + roadmap + database integrity ✅
 9. TypeScript `tsc -b` ✅
 10. Vite production build ✅
 11. Strict production asset budget ✅
-12. Chromium create/edit + responsive/touch destruction ✅
+12. Chromium 360° + responsive/touch/modal-layer destruction ✅
 13. Global Browser Acceptance ✅
-14. Evidence artifact `9963457065` ✅
+14. Evidence artifact `9965684028` ✅
 
-أدلة التنفيذ مفصلة في `docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`، وبوابات الإغلاق نفسها أصبحت تراكمية بحيث لا تستطيع مرحلة لاحقة إسقاط حماية 5.2 بصمت.
+أدلة التنفيذ مفصلة في `docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md`، وبوابات الإغلاق نفسها أصبحت تراكمية بحيث لا تستطيع مرحلة لاحقة إسقاط حماية 5.3 بصمت.
 
 ## الأمان والأسرار
 
@@ -175,4 +197,4 @@ Phase 5.2 pre-closure certification على خط الإصلاح `74339f319e1e4b6a
 
 ## ملاحظة التطوير
 
-`main` هو المصدر القانوني والوحيد بعد الدمج. التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1 وPhase 5.2 مغلقتان؛ Phase 5.3 — Transaction Details / 360° هي الخطوة التالية المسموحة فقط بعد دمج 5.2 وإعادة اعتماد `main`، ولم تبدأ بعد.**
+`main` هو المصدر القانوني والوحيد بعد الدمج. التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1 وPhase 5.2 وPhase 5.3 مغلقة؛ Phase 5.4 — Archive/Restore/Lifecycle هي الخطوة التالية المسموحة فقط بعد دمج إغلاق 5.3 وإعادة اعتماد `main`، ولم تبدأ بعد.**
