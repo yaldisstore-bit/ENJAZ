@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
 import {
   createEmptyTransactionDraft,
   createTransactionEditDraft,
@@ -45,7 +45,7 @@ function TransactionEditorReady(props: Readonly<{
     ? Math.round(Number(controller.draft.currentFee || 0) * 100) !== Math.round(source.transaction.current_fee * 100)
     : false;
   const busy = controller.status === 'saving';
-  const update = (field: TransactionEditorField) => (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => controller.update(field, event.currentTarget.value);
+  const update = (field: TransactionEditorField) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => controller.update(field, event.currentTarget.value);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -82,7 +82,7 @@ function TransactionEditorReady(props: Readonly<{
         <div className="ez-form-grid ez-transaction-editor__grid">
           <EzSelect label="الحالة" value={controller.draft.status} onChange={update('status')} error={controller.errors.status} disabled={busy} options={statusOptions} />
           <EzSelect label="الأولوية" value={controller.draft.priority} onChange={update('priority')} error={controller.errors.priority} disabled={busy} options={priorityOptions} />
-          <EzField label="الأتعاب الحالية" inputMode="decimal" value={controller.draft.currentFee} onChange={update('currentFee')} error={controller.errors.currentFee} disabled={busy} autoComplete="off" placeholder="0" suffix="د.ع" />
+          <EzField label="الأتعاب الحالية" inputMode="decimal" value={controller.draft.currentFee} onChange={update('currentFee')} error={controller.errors.currentFee} hint="بالدينار العراقي · بحد أقصى منزلتان عشريتان" disabled={busy} autoComplete="off" placeholder="0" />
           {controller.draft.status === 'completed' ? <EzField label="تاريخ الإكمال" type="datetime-local" value={controller.draft.completedAt} onChange={update('completedAt')} error={controller.errors.completedAt} disabled={busy} /> : null}
         </div>
         {editingFeeChanged ? <div className="ez-transaction-editor__fee-reason"><EzTextarea label="سبب تغيير الأتعاب" rows={3} maxLength={600} value={controller.draft.feeChangeReason} onChange={update('feeChangeReason')} error={controller.errors.feeChangeReason} disabled={busy} hint="إلزامي عند تغيير الأتعاب حتى لا تضيع حقيقة مالية سابقة." /></div> : null}
@@ -123,7 +123,7 @@ export function TransactionEditorView(props: Readonly<{
   if (controller.status === 'saved' && controller.savedTransactionId) {
     return (
       <div className="ez-transaction-editor__saved" data-transaction-editor-saved="true">
-        <EzStatePanel kind={controller.warnings.length ? 'warning' : 'success'} title={controller.warnings.length ? 'تم حفظ المعاملة مع تنبيه' : 'تم حفظ المعاملة'} body={controller.warnings.length ? 'تم تأكيد السجل الأساسي، لكن توجد كتابة تاريخية لم يتم تأكيدها بالكامل. اقرأ التنبيه قبل أي محاولة جديدة.' : 'تم تأكيد عملية الحفظ ويمكن العودة إلى قائمة المعاملات.'} detail={`المعرّف: ${controller.savedTransactionId.slice(0, 8)}`} />
+        <EzStatePanel kind={controller.warnings.length ? 'conflict' : 'success'} title={controller.warnings.length ? 'تم حفظ السجل الأساسي مع نتيجة جزئية' : 'تم حفظ المعاملة'} body={controller.warnings.length ? 'تم تأكيد السجل الأساسي، لكن توجد كتابة تاريخية لم يتم تأكيدها بالكامل. اقرأ التنبيه قبل أي محاولة جديدة.' : 'تم تأكيد عملية الحفظ ويمكن العودة إلى قائمة المعاملات.'} detail={`المعرّف: ${controller.savedTransactionId.slice(0, 8)}`} />
         {controller.warnings.map((warning) => <EzNotice key={warning.code} title={warning.outcomeUnknown ? 'نتيجة كتابة غير مؤكدة' : 'تحتاج مراجعة'} body={warning.message} tone={warningTone(warning)} />)}
         <EzFormActions>
           {props.onSaved ? <EzButton tone="dark" onClick={() => props.onSaved?.(controller.savedTransactionId ?? '')}>العودة إلى المعاملات</EzButton> : null}
