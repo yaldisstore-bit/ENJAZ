@@ -42,6 +42,7 @@ jobs:
           node scripts/phase4-3-executive-briefing-audit.mjs
           node scripts/phase4-4-home-destruction-audit.mjs
           node scripts/phase5-1-transaction-list-audit.mjs
+          node scripts/phase5-2-transaction-editor-audit.mjs
       - name: Production build
         env:
           VITE_ENJAZ_PREVIEW_MODE: 'true'
@@ -50,7 +51,7 @@ jobs:
         run: node scripts/dist-budget-audit.mjs
       - name: Install pinned browser and WCAG tooling
         run: |
-          npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2 playwright@1.55.0
           npx playwright install --with-deps chromium
       - name: Start production preview
         run: |
@@ -65,6 +66,11 @@ jobs:
         env:
           BASE_URL: http://127.0.0.1:4173/
         run: npx playwright test tests-external/live-shell.spec.cjs --reporter=line --workers=1
+      - name: Phase 5.2 cumulative transaction editor reality
+        env:
+          PHASE52_BASE_URL: http://127.0.0.1:4173
+          PHASE52_ARTIFACT_DIR: artifacts/phase5-2-transaction-editor
+        run: node scripts/phase5-2-transaction-editor-reality.mjs
       - name: Upload browser diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -72,6 +78,7 @@ jobs:
           name: enjaz-browser-diagnostics-${{ github.sha }}
           path: |
             test-results/
+            artifacts/phase5-2-transaction-editor/
             /tmp/enjaz-preview.log
           if-no-files-found: ignore
           retention-days: 7
