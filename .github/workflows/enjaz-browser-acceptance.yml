@@ -16,9 +16,9 @@ concurrency:
 
 jobs:
   browser-acceptance:
-    name: Real Chromium / Mobile / Keyboard / WCAG Gate
+    name: Real Chromium / R2 Cumulative Reality / Legacy-Zero Candidate
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -27,68 +27,96 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: package-lock.json
       - name: Install locked app dependencies
         run: npm ci --no-audit --no-fund
       - name: QA stage contract lock
         run: npm run audit:qa:stage-contract
-      - name: Canonical UI V2 source contract
+      - name: R2 cumulative source contract
         run: |
-          npm run audit:ui-v2:boundary
-          npm run audit:ui-v2:dna
-          node scripts/ui9-mobile-audit.mjs
-          node scripts/ui10-freeze-audit.mjs
-          node scripts/phase4-2-daily-work-audit.mjs
-          node scripts/phase4-3-executive-briefing-audit.mjs
-          node scripts/phase4-4-home-destruction-audit.mjs
-          node scripts/phase5-1-transaction-list-audit.mjs
-          node scripts/phase5-2-transaction-editor-audit.mjs
-          node scripts/phase5-3-transaction-360-audit.mjs
-      - name: R2.0-3 parallel shell source contract
-        run: node scripts/ui-rebirth-2-shell-audit.mjs
+          node scripts/ui-rebirth-2-freeze-audit.mjs
+          node scripts/ui-rebirth-2-palette-audit.mjs
+          node scripts/ui-rebirth-2-acceptance-audit.mjs
+          node scripts/ui-rebirth-2-shell-audit.mjs
+          node scripts/ui-rebirth-2-golden-visual-contract-audit.mjs
+          node scripts/ui-rebirth-2-golden-specimen-audit.mjs
+          node scripts/ui-rebirth-2-core-work-audit.mjs
+          node scripts/ui-rebirth-2-records-audit.mjs
+          node scripts/ui-rebirth-2-operational-intelligence-audit.mjs
+          node scripts/ui-rebirth-2-zero-lost-audit.mjs
+          node scripts/ui-rebirth-2-destruction-reality-audit.mjs
+          node scripts/ui-rebirth-2-legacy-eradication-audit.mjs
       - name: Canonical production build
-        env:
-          VITE_ENJAZ_PREVIEW_MODE: 'true'
         run: npm run build -- --base=/
       - name: Strict dist budget
         run: node scripts/dist-budget-audit.mjs
-      - name: Isolated R2.0-3 preview build
+      - name: Isolated frozen R2 preview build
         run: npx vite build --config vite.r2-preview.config.ts --base=/
-      - name: Strict R2.0-3 preview budget
+      - name: Strict R2 preview budget
         run: node scripts/ui-rebirth-2-preview-budget-audit.mjs
-      - name: Compose browser-test site after both budgets pass
-        run: cp -R dist-r2-preview/. dist/
+      - name: Isolated production bridge harness build
+        run: npx vite build --config vite.r2-production-test.config.ts --base=/
       - name: Install pinned browser and WCAG tooling
         run: |
           npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2 playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Start production preview
+      - name: Start frozen R2 preview
         run: |
-          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/enjaz-preview.log 2>&1 &
+          nohup npx vite preview --config vite.r2-preview.config.ts --host 127.0.0.1 --port 4174 > /tmp/enjaz-r2-preview.log 2>&1 &
           for i in {1..30}; do
-            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null && curl --fail --silent http://127.0.0.1:4173/r2-preview.html >/dev/null; then exit 0; fi
+            if curl --fail --silent http://127.0.0.1:4174/r2-preview.html >/dev/null; then exit 0; fi
             sleep 1
           done
-          cat /tmp/enjaz-preview.log
+          cat /tmp/enjaz-r2-preview.log
           exit 1
-      - name: Real browser destruction-resistant acceptance
+      - name: Start R2 production bridge harness
+        run: |
+          nohup npx vite preview --config vite.r2-production-test.config.ts --host 127.0.0.1 --port 4176 > /tmp/enjaz-r2-production-bridge.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4176/r2-production-test.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-r2-production-bridge.log
+          exit 1
+      - name: R2 shell reality / 1280 + 430 + 390 + 360 + 320
         env:
-          BASE_URL: http://127.0.0.1:4173/
-        run: npx playwright test tests-external/live-shell.spec.cjs --reporter=line --workers=1
-      - name: R2.0-3 real shell acceptance / 1280 + 430 + 390 + 360 + 320
-        env:
-          BASE_URL: http://127.0.0.1:4173/
+          BASE_URL: http://127.0.0.1:4174/
         run: npx playwright test tests-external/r2-shell.spec.cjs --reporter=line --workers=1
-      - name: Phase 5.2 cumulative transaction editor reality
+      - name: Golden cumulative reality
         env:
-          PHASE52_BASE_URL: http://127.0.0.1:4173
-          PHASE52_ARTIFACT_DIR: artifacts/phase5-2-transaction-editor
-        run: node scripts/phase5-2-transaction-editor-reality.mjs
-      - name: Phase 5.3 cumulative transaction 360 reality
+          R2_GOLDEN_BASE_URL: http://127.0.0.1:4174/
+          R2_GOLDEN_ARTIFACT_DIR: artifacts/r2-golden-cumulative
+        run: npx playwright test tests-external/r2-golden.spec.cjs --reporter=line --workers=1
+      - name: Core Work cumulative reality
         env:
-          PHASE53_BASE_URL: http://127.0.0.1:4173
-          PHASE53_ARTIFACT_DIR: artifacts/phase5-3-transaction-360
-        run: node scripts/phase5-3-transaction-360-reality.mjs
+          R2_CORE_WORK_BASE_URL: http://127.0.0.1:4174/
+        run: npx playwright test tests-external/r2-core-work.spec.cjs --reporter=line --workers=1
+      - name: Records cumulative reality
+        env:
+          R2_RECORDS_BASE_URL: http://127.0.0.1:4174/
+        run: npx playwright test tests-external/r2-records.spec.cjs --reporter=line --workers=1
+      - name: Operational Intelligence cumulative reality
+        env:
+          R2_OPERATIONAL_BASE_URL: http://127.0.0.1:4174/
+        run: npx playwright test tests-external/r2-operational-intelligence.spec.cjs --reporter=line --workers=1
+      - name: Zero-Lost cumulative reality
+        env:
+          R2_ZERO_LOST_BASE_URL: http://127.0.0.1:4174/
+          R2_ZERO_LOST_ARTIFACT_DIR: artifacts/r2-zero-lost-cumulative
+        run: npx playwright test tests-external/r2-zero-lost.spec.cjs --reporter=line --workers=1
+      - name: Destruction reality wave 1
+        env:
+          R2_DESTRUCTION_BASE_URL: http://127.0.0.1:4174/
+          R2_DESTRUCTION_ARTIFACT_DIR: artifacts/r2-destruction-cumulative
+        run: npx playwright test tests-external/r2-destruction-reality.spec.cjs --reporter=line --workers=1
+      - name: Destruction reality wave 2
+        env:
+          R2_DESTRUCTION_BASE_URL: http://127.0.0.1:4174/
+          R2_DESTRUCTION_ARTIFACT_DIR: artifacts/r2-destruction-cumulative
+        run: npx playwright test tests-external/r2-destruction-reality-wave2.spec.cjs --reporter=line --workers=1
+      - name: R2 production bridge / Auth + Home + Executive + Account
+        env:
+          R2_PRODUCTION_BASE_URL: http://127.0.0.1:4176/
+        run: npx playwright test tests-external/r2-production-bridge.spec.cjs --reporter=line --workers=1
       - name: Upload browser diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -96,8 +124,8 @@ jobs:
           name: enjaz-browser-diagnostics-${{ github.sha }}
           path: |
             test-results/
-            artifacts/phase5-2-transaction-editor/
-            artifacts/phase5-3-transaction-360/
-            /tmp/enjaz-preview.log
+            artifacts/
+            /tmp/enjaz-r2-preview.log
+            /tmp/enjaz-r2-production-bridge.log
           if-no-files-found: ignore
           retention-days: 7

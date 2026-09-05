@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Canonical Main Integrity + UI V2 + Production Build
+    name: Canonical Integrity + R2 Legacy-Zero Candidate + Production Build
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -42,39 +42,25 @@ jobs:
         run: npm run audit:qa:stage-contract
       - name: Stage-specific test expansion gate
         run: npm run audit:qa:stage-delta
-      - name: UI V2 clean-boundary gate
-        run: npm run audit:ui-v2:boundary
-      - name: UI V2 visual DNA gate
-        run: npm run audit:ui-v2:dna
-      - name: UI V2 cumulative structural gates
+      - name: Rebirth 2.0 cumulative governance
         run: |
-          node scripts/ui4-shell-audit.mjs
-          node scripts/ui5-composition-audit.mjs
-          node scripts/ui6-core-audit.mjs
-          node scripts/ui7-domain-audit.mjs
-          node scripts/ui8-states-audit.mjs
-          node scripts/ui9-mobile-audit.mjs
-          node scripts/ui10-freeze-audit.mjs
-      - name: Phase 4.2 Daily Work architecture gate
-        run: node scripts/phase4-2-daily-work-audit.mjs
-      - name: Phase 4.3 Executive Briefing architecture gate
-        run: node scripts/phase4-3-executive-briefing-audit.mjs
-      - name: Phase 4.4 Home destruction architecture gate
-        run: node scripts/phase4-4-home-destruction-audit.mjs
-      - name: Phase 5.1 Transaction List & Search architecture gate
-        run: node scripts/phase5-1-transaction-list-audit.mjs
-      - name: Phase 5.2 Transaction Create/Edit architecture gate
-        run: npm run audit:phase5-2:transaction-editor
-      - name: Phase 5.2 dedicated model/service gate
-        run: npm run test:phase5-2
-      - name: Phase 5.3 Transaction Details / 360 architecture gate
-        run: npm run audit:phase5-3:transaction-360
-      - name: Phase 5.3 dedicated model/service gate
-        run: npm run test:phase5-3
-      - name: Phase 5.4 Archive / Restore / Lifecycle architecture gate
-        run: npm run audit:phase5-4:transaction-lifecycle
-      - name: Phase 5.4 dedicated model/service gate
-        run: npm run test:phase5-4
+          node scripts/ui-rebirth-2-freeze-audit.mjs
+          node scripts/ui-rebirth-2-palette-audit.mjs
+          node scripts/ui-rebirth-2-acceptance-audit.mjs
+          node scripts/ui-rebirth-2-shell-audit.mjs
+          node scripts/ui-rebirth-2-golden-visual-contract-audit.mjs
+          node scripts/ui-rebirth-2-golden-specimen-audit.mjs
+          node scripts/ui-rebirth-2-core-work-audit.mjs
+          node scripts/ui-rebirth-2-records-audit.mjs
+          node scripts/ui-rebirth-2-operational-intelligence-audit.mjs
+          node scripts/ui-rebirth-2-zero-lost-audit.mjs
+          node scripts/ui-rebirth-2-destruction-reality-audit.mjs
+          node scripts/ui-rebirth-2-legacy-eradication-audit.mjs
+      - name: Phase 5 model and service regressions
+        run: |
+          npm run test:phase5-2
+          npm run test:phase5-3
+          npm run test:phase5-4
       - name: Functional regression baseline
         run: npm run test:functional
       - name: Secrets audit

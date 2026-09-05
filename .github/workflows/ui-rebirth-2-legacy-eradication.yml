@@ -14,9 +14,9 @@ permissions:
 
 jobs:
   legacy-eradication-gate:
-    name: R2.0-10 / Legacy-Zero + Production Bridge + Cumulative Locks
+    name: R2.0-10 / Legacy-Zero + Production Build + Production Bridge + Cumulative Locks
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -47,6 +47,11 @@ jobs:
         run: node scripts/ui-rebirth-2-legacy-eradication-audit.mjs
       - name: Functional regression
         run: npm run test:functional
+      - name: Phase 5 model/service regressions
+        run: |
+          npm run test:phase5-2
+          npm run test:phase5-3
+          npm run test:phase5-4
       - name: Secrets audit
         run: npm run audit:secrets
       - name: Database schema and self-test
@@ -55,6 +60,12 @@ jobs:
           npm run db:audit:selftest
       - name: TypeScript
         run: npm run typecheck
+      - name: Canonical production candidate build after legacy deletion
+        run: npm run build -- --base=/
+      - name: Enforce canonical production budget
+        run: npm run audit:dist:budget
+      - name: Assert production output
+        run: test -f dist/index.html
       - name: Preserve frozen isolated R2 preview
         run: npx vite build --config vite.r2-preview.config.ts --base=/
       - name: Enforce frozen preview budget
@@ -84,6 +95,7 @@ jobs:
         with:
           name: enjaz-r2-legacy-eradication-${{ github.sha }}
           path: |
+            dist/
             test-results/
             /tmp/enjaz-r2-production-bridge.log
           if-no-files-found: ignore
