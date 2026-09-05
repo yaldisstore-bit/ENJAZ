@@ -71,11 +71,12 @@ for (const width of [1280, 430, 390, 360, 320]) {
     await page.setViewportSize({ width, height: width === 1280 ? 900 : 844 });
     for (const destination of ['companies', 'people', 'documents']) {
       await page.goto(`${previewUrl}?dest=${destination}`, { waitUntil: 'networkidle' });
-      await expect(page.locator('[data-records-stage="R2.0-6"]')).toBeVisible();
+      await expect(page.locator(`[data-records-domain="${destination}"]`)).toBeVisible();
       await assertNoHorizontalOverflow(page);
     }
     if (width <= 430) {
       await assertTouchTargets(page, '.r2-shell__mobile-nav button');
+      await page.goto(`${previewUrl}?dest=companies`, { waitUntil: 'networkidle' });
       await assertTouchTargets(page, '.r2-records-directory-list button');
     }
     await shot(page, `records-${width}`);
