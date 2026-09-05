@@ -5,7 +5,7 @@ function assert(condition, message) {
 }
 async function read(file) { return fs.readFile(file, 'utf8'); }
 
-const [core, shell, dataLayer, model, service, hook, editor, list, main, css, kickoff] = await Promise.all([
+const [core, shell, dataLayer, model, service, hook, editor, list, main, css, kickoff, closure] = await Promise.all([
   read('src/ui-v2/runtime/CoreApp.tsx'),
   read('src/ui-v2/components/AppShell.tsx'),
   read('src/data/createDataLayer.ts'),
@@ -17,6 +17,7 @@ const [core, shell, dataLayer, model, service, hook, editor, list, main, css, ki
   read('src/main.tsx'),
   read('src/ui-v2/styles/transaction-editor.css'),
   read('docs/PHASE5_2_TRANSACTION_CREATE_EDIT_KICKOFF.md'),
+  read('docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md'),
 ]);
 
 assert(core.includes('data-stage="ui-10"'), 'frozen UI-10 marker changed');
@@ -74,13 +75,25 @@ assert(main.includes("./ui-v2/styles/transaction-editor.css"), 'transaction edit
 assert(css.includes('@media (max-width: 390px)'), 'narrow-phone editor hardening missing');
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'reduced-motion editor hardening missing');
 assert(css.includes('font-size: 16px'), 'mobile input zoom protection missing');
+assert(css.includes('min-height: var(--ez-control-h)'), 'editor input/select minimum control height regression guard missing');
+assert(css.includes('min-height: var(--ez-touch-min)'), 'editor textarea/action minimum touch target regression guard missing');
 assert(!css.includes('!important'), 'editor styles may not use !important');
 assert(!/z-index\s*:\s*\d{3,}/.test(css), 'editor styles contain uncontrolled z-index escalation');
 
-assert(kickoff.includes('Status: **IN PROGRESS**'), 'Phase 5.2 kickoff status missing');
+assert(kickoff.includes('Status: **CLOSED ✅**'), 'Phase 5.2 kickoff must record closed status');
+assert(kickoff.includes('docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md'), 'Phase 5.2 kickoff must link closure evidence');
+assert(kickoff.includes('Phase 5.3 remains not started'), 'Phase 5.3 must remain explicitly locked after Phase 5.2 closure');
 for (const boundary of ['Phase 5.3', 'Phase 5.4', 'Phase 8']) assert(kickoff.includes(boundary), `kickoff scope boundary missing ${boundary}`);
 assert(kickoff.includes('stale') || kickoff.includes('Stale'), 'kickoff does not require stale edit conflict protection');
 assert(kickoff.includes('partial') || kickoff.includes('Partial'), 'kickoff does not define partial write outcome handling');
+
+assert(closure.includes('Status: **CLOSED**'), 'Phase 5.2 closure status missing');
+for (const token of [
+  '33946358543', '9963457065', '12/12', '91/91',
+  '74339f319e1e4b6a7a21079f15434733025c88b8',
+  '40–42px', '44px', 'Phase 5.3 — Transaction Details / 360° remains not started',
+  'canonical `main` is re-certified',
+]) assert(closure.includes(token), `Phase 5.2 closure evidence missing ${token}`);
 
 console.log(`Phase 5.2 Transaction Create/Edit architecture gate PASS on product phase ${phase}`);
 console.log('- transaction create/edit is workspace-scoped and live/fixture isolated');
@@ -89,3 +102,5 @@ console.log('- stale writes and unknown/partial companion-write outcomes cannot 
 console.log('- station, notes, fee changes and activity preserve append-only history boundaries');
 console.log('- archived/reactivation lifecycle stays locked to Phase 5.4 and full workflow authoring to Phase 8');
 console.log('- global create and transaction-list edit surfaces both enter the authoritative editor');
+console.log('- closure evidence and the 44px touch-target regression fix are permanently guarded');
+console.log('- Phase 5.3 remains locked until Phase 5.2 is merged and canonical main is re-certified');
