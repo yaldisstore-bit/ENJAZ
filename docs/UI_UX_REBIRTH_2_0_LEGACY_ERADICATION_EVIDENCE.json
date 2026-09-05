@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-10",
+  "status": "ACTIVE_PREFLIGHT",
+  "branch": "r2-0-10-legacy-eradication",
+  "truthfulness": {
+    "canonicalRuntimeChanged": false,
+    "phase55Locked": true,
+    "promotionRequested": false,
+    "promotionAllowed": false,
+    "businessLogicDeletionAllowed": false,
+    "dataLayerDeletionAllowed": false
+  },
+  "protectedBoundaries": [
+    "src/core",
+    "src/data",
+    "src/features",
+    "src/shared",
+    "src/ui-r2",
+    "database"
+  ],
+  "legacyTargets": {
+    "src/ui-rebirth": {
+      "presentAtStart": true,
+      "eradicated": false,
+      "order": 1
+    },
+    "src/ui-v2": {
+      "presentAtStart": true,
+      "eradicated": false,
+      "order": 2,
+      "liveCanonicalDependencyAtStart": true
+    }
+  },
+  "parity": {
+    "totalCapabilities": 35,
+    "migratedAtStart": 27,
+    "testedAtStart": 27,
+    "blockerCountAtStart": 8,
+    "liveAuthoritativeBlockers": [
+      "auth.session_access",
+      "auth.protected_workspace",
+      "home.workspace",
+      "home.executive_briefing"
+    ],
+    "presentationResolutionBlockers": [
+      "global.create.review_only",
+      "global.notifications",
+      "global.account",
+      "followups.workspace"
+    ],
+    "requiredAtExit": {
+      "migrated": 35,
+      "tested": 35,
+      "unresolved": 0
+    }
+  },
+  "deletion": {
+    "uiRebirthDeleted": false,
+    "uiV2Deleted": false,
+    "legacyPresentationImportCount": null,
+    "protectedBoundaryViolations": 0
+  },
+  "checks": {
+    "preflightAudit": "PENDING",
+    "uiRebirthDependencyAudit": "PENDING",
+    "parityResolution": "PENDING",
+    "legacyZero": "PENDING",
+    "cumulativeRegression": "PENDING"
+  },
+  "exitGatePassed": false
+}
