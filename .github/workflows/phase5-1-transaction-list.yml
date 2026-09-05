@@ -1,0 +1,116 @@
+name: ENJAZ Phase 5.1 — Transaction List & Search Gate
+
+on:
+  push:
+    branches: [main, phase-5.1-transaction-list-search]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/features/transactions/**'
+      - 'src/ui-v2/screens/TransactionListScreen.tsx'
+      - 'src/ui-v2/screens/DomainScreens.tsx'
+      - 'src/ui-v2/runtime/CoreApp.tsx'
+      - 'src/ui-v2/styles/transaction-list.css'
+      - 'src/main.tsx'
+      - 'tests/transactionList*.test.ts'
+      - 'tests-external/live-shell.spec.cjs'
+      - 'scripts/ui7-domain-audit.mjs'
+      - 'scripts/phase5-1-**'
+      - 'scripts/qa-stage-contract-audit.mjs'
+      - 'scripts/roadmap-audit.mjs'
+      - 'scripts/phase4-4-home-destruction-*.mjs'
+      - 'package.json'
+      - '.github/workflows/phase5-1-transaction-list.yml'
+      - '.github/workflows/enjaz-quality-gate.yml'
+      - '.github/workflows/enjaz-browser-acceptance.yml'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+      - 'docs/PHASE5_1_**'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase51-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase5-1-transaction-list:
+    name: Transaction Search / Pagination / Responsive Destruction
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: QA stage contract lock
+        run: npm run audit:qa:stage-contract
+      - name: Frozen UI V2 boundary
+        run: npm run audit:ui-v2:boundary
+      - name: Frozen UI V2 visual DNA
+        run: npm run audit:ui-v2:dna
+      - name: Frozen UI V2 cumulative gates
+        run: npm run audit:ui-v2:freeze
+      - name: Phase 4.2 cumulative Daily Work
+        run: npm run audit:phase4-2:daily-work
+      - name: Phase 4.3 cumulative Executive Briefing
+        run: npm run audit:phase4-3:executive-briefing
+      - name: Phase 4.4 cumulative Home destruction
+        run: npm run audit:phase4-4:home-destruction
+      - name: Phase 5.1 Transaction List architecture
+        run: npm run audit:phase5-1:transactions
+      - name: Phase 5.1 functional and destructive tests
+        run: npm run test:phase5-1
+      - name: Full functional regression baseline
+        run: npm run test:functional
+      - name: Secrets audit
+        run: npm run audit:secrets
+      - name: Roadmap integrity
+        run: npm run audit:roadmap
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Production build
+        env:
+          VITE_ENJAZ_PREVIEW_MODE: 'true'
+        run: npm run build -- --base=/
+      - name: Strict production asset budget
+        run: npm run audit:dist:budget
+      - name: Install Chromium destruction runtime
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated Phase 5.1 preview
+        env:
+          VITE_ENJAZ_PREVIEW_MODE: 'true'
+        run: |
+          VITE_ENJAZ_PREVIEW_MODE=true npm run dev -- --host 127.0.0.1 --port 4195 > /tmp/enjaz-phase51-vite.log 2>&1 &
+          echo $! > /tmp/enjaz-phase51-vite.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4195 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase51-vite.log
+          exit 1
+      - name: Phase 5.1 real Chromium transaction destruction
+        env:
+          PHASE51_BASE_URL: http://127.0.0.1:4195
+          PHASE51_ARTIFACT_DIR: artifacts/phase5-1-transaction-list
+        run: node scripts/phase5-1-transaction-list-reality.mjs
+      - name: Upload Phase 5.1 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase5-1-transaction-list-evidence-${{ github.sha }}
+          path: artifacts/phase5-1-transaction-list
+          if-no-files-found: warn
+          retention-days: 30

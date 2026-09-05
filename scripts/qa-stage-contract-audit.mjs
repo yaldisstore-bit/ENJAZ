@@ -12,20 +12,14 @@ const pages = read('.github/workflows/enjaz-pages-preview.yml');
 const live = read('.github/workflows/enjaz-live-external-gate.yml');
 const phase43 = read('.github/workflows/phase4-3-executive-briefing.yml');
 const phase44 = read('.github/workflows/phase4-4-home-destruction.yml');
+const phase51 = read('.github/workflows/phase5-1-transaction-list.yml');
 const stageDeltaAudit = read('scripts/qa-stage-delta-audit.mjs');
 const constitution = read('docs/QA_STAGE_CONSTITUTION.md');
 const pkg = JSON.parse(read('package.json'));
 
 for (const [name, source] of [
-  ['quality', quality],
-  ['browser', browser],
-  ['pages', pages],
-  ['live', live],
-  ['phase43', phase43],
-  ['phase44', phase44],
-]) {
-  requireContract(!/continue-on-error\s*:\s*true/i.test(source), `${name}: continue-on-error is forbidden`);
-}
+  ['quality', quality], ['browser', browser], ['pages', pages], ['live', live], ['phase43', phase43], ['phase44', phase44], ['phase51', phase51],
+]) requireContract(!/continue-on-error\s*:\s*true/i.test(source), `${name}: continue-on-error is forbidden`);
 
 requireContract(/push:\s*[\s\S]*branches:\s*\[main\]/.test(quality), 'quality gate must run on push to main');
 requireContract(/pull_request:\s*[\s\S]*branches:\s*\[main\]/.test(quality), 'quality gate must run on PRs to main');
@@ -34,29 +28,12 @@ requireContract(quality.includes('Stage-specific test expansion gate'), 'quality
 requireContract(quality.includes('fetch-depth: 0'), 'quality checkout must keep history for stage delta comparison');
 
 const requiredQualityTokens = [
-  'audit:qa:stage-contract',
-  'audit:qa:stage-delta',
-  'audit:ui-v2:boundary',
-  'audit:ui-v2:dna',
-  'ui4-shell-audit.mjs',
-  'ui5-composition-audit.mjs',
-  'ui6-core-audit.mjs',
-  'ui7-domain-audit.mjs',
-  'ui8-states-audit.mjs',
-  'ui9-mobile-audit.mjs',
-  'ui10-freeze-audit.mjs',
-  'phase4-2-daily-work-audit.mjs',
-  'phase4-3-executive-briefing-audit.mjs',
-  'phase4-4-home-destruction-audit.mjs',
-  'test:functional',
-  'audit:secrets',
-  'db:audit',
-  'db:audit:selftest',
-  'audit:roadmap',
-  'typecheck',
-  'npm run build',
-  'audit:dist:budget',
-  'test -f dist/index.html',
+  'audit:qa:stage-contract', 'audit:qa:stage-delta', 'audit:ui-v2:boundary', 'audit:ui-v2:dna',
+  'ui4-shell-audit.mjs', 'ui5-composition-audit.mjs', 'ui6-core-audit.mjs', 'ui7-domain-audit.mjs',
+  'ui8-states-audit.mjs', 'ui9-mobile-audit.mjs', 'ui10-freeze-audit.mjs',
+  'phase4-2-daily-work-audit.mjs', 'phase4-3-executive-briefing-audit.mjs', 'phase4-4-home-destruction-audit.mjs',
+  'phase5-1-transaction-list-audit.mjs', 'test:functional', 'audit:secrets', 'db:audit', 'db:audit:selftest',
+  'audit:roadmap', 'typecheck', 'npm run build', 'audit:dist:budget', 'test -f dist/index.html',
 ];
 for (const token of requiredQualityTokens) requireContract(quality.includes(token), `quality gate missing mandatory canonical token: ${token}`);
 requireContract(quality.includes('Canonical Main Integrity + UI V2 + Production Build'), 'quality gate must identify the canonical UI V2 runtime');
@@ -65,12 +42,9 @@ requireContract(/pull_request:\s*[\s\S]*branches:\s*\[main\]/.test(browser), 'br
 requireContract(/push:\s*[\s\S]*branches:\s*\[main\]/.test(browser), 'browser gate must run on push to main');
 requireContract(browser.includes('QA stage contract lock'), 'browser gate must self-audit the QA stage contract');
 requireContract(browser.includes('Canonical UI V2 source contract'), 'browser gate must validate canonical UI V2 before Chromium');
-requireContract(browser.includes('audit:ui-v2:boundary'), 'browser gate lost UI V2 boundary audit');
-requireContract(browser.includes('audit:ui-v2:dna'), 'browser gate lost UI V2 DNA audit');
-requireContract(browser.includes('ui10-freeze-audit.mjs'), 'browser gate lost UI-10 freeze audit');
-requireContract(browser.includes('phase4-2-daily-work-audit.mjs'), 'browser gate lost Phase 4.2 architecture audit');
-requireContract(browser.includes('phase4-3-executive-briefing-audit.mjs'), 'browser gate lost Phase 4.3 architecture audit');
-requireContract(browser.includes('phase4-4-home-destruction-audit.mjs'), 'browser gate lost Phase 4.4 Home destruction audit');
+for (const token of ['audit:ui-v2:boundary','audit:ui-v2:dna','ui10-freeze-audit.mjs','phase4-2-daily-work-audit.mjs','phase4-3-executive-briefing-audit.mjs','phase4-4-home-destruction-audit.mjs','phase5-1-transaction-list-audit.mjs']) {
+  requireContract(browser.includes(token), `browser gate lost canonical source audit: ${token}`);
+}
 requireContract(browser.includes('@playwright/test@1.55.0'), 'Playwright version must remain pinned');
 requireContract(browser.includes('@axe-core/playwright@4.10.2'), 'axe-core version must remain pinned');
 requireContract(browser.includes('npx playwright install --with-deps chromium'), 'real Chromium installation is mandatory');
@@ -97,32 +71,23 @@ requireContract(live.includes('@playwright/test@1.55.0'), 'live Playwright versi
 requireContract(live.includes('@axe-core/playwright@4.10.2'), 'live axe-core version must remain pinned');
 
 requireContract(/pull_request:\s*[\s\S]*branches:\s*\[main\]/.test(phase43), 'Phase 4.3 gate must target canonical main');
-requireContract(phase43.includes('audit:ui-v2:boundary'), 'Phase 4.3 gate lost UI V2 boundary audit');
-requireContract(phase43.includes('audit:ui-v2:dna'), 'Phase 4.3 gate lost UI V2 DNA audit');
-requireContract(phase43.includes('audit:ui-v2:freeze'), 'Phase 4.3 gate lost cumulative UI V2 freeze audit');
-requireContract(phase43.includes('phase4-2-daily-work-audit.mjs'), 'Phase 4.3 gate lost Phase 4.2 cumulative audit');
-requireContract(phase43.includes('phase4-3-executive-briefing-audit.mjs'), 'Phase 4.3 architecture audit missing');
-requireContract(phase43.includes('audit:roadmap'), 'Phase 4.3 roadmap integrity audit missing');
-requireContract(phase43.includes('test:functional'), 'Phase 4.3 functional regression gate missing');
-requireContract(phase43.includes('typecheck'), 'Phase 4.3 TypeScript gate missing');
-requireContract(phase43.includes('npm run build'), 'Phase 4.3 production build gate missing');
-requireContract(phase43.includes('phase4-3-executive-briefing-reality.mjs'), 'Phase 4.3 real-browser journey missing');
+for (const token of ['audit:ui-v2:boundary','audit:ui-v2:dna','audit:ui-v2:freeze','phase4-2-daily-work-audit.mjs','phase4-3-executive-briefing-audit.mjs','audit:roadmap','test:functional','typecheck','npm run build','phase4-3-executive-briefing-reality.mjs']) {
+  requireContract(phase43.includes(token), `Phase 4.3 gate lost ${token}`);
+}
 
 requireContract(/pull_request:\s*[\s\S]*branches:\s*\[main\]/.test(phase44), 'Phase 4.4 gate must target canonical main');
-requireContract(phase44.includes('audit:ui-v2:boundary'), 'Phase 4.4 gate lost UI V2 boundary audit');
-requireContract(phase44.includes('audit:ui-v2:dna'), 'Phase 4.4 gate lost UI V2 DNA audit');
-requireContract(phase44.includes('audit:ui-v2:freeze'), 'Phase 4.4 gate lost cumulative UI V2 freeze audit');
-requireContract(phase44.includes('audit:phase4-2:daily-work'), 'Phase 4.4 gate lost Phase 4.2 cumulative audit');
-requireContract(phase44.includes('audit:phase4-3:executive-briefing'), 'Phase 4.4 gate lost Phase 4.3 cumulative audit');
-requireContract(phase44.includes('audit:phase4-4:home-destruction'), 'Phase 4.4 architecture audit missing');
-requireContract(phase44.includes('tests/homeDashboardDestruction.test.ts'), 'Phase 4.4 dataset destruction test missing');
-requireContract(phase44.includes('tests-external/live-shell.spec.cjs'), 'Phase 4.4 workflow must rerun when the canonical browser contract changes');
-requireContract(phase44.includes('test:functional'), 'Phase 4.4 full functional regression missing');
-requireContract(phase44.includes('typecheck'), 'Phase 4.4 TypeScript gate missing');
-requireContract(phase44.includes('npm run build'), 'Phase 4.4 production build gate missing');
-requireContract(phase44.includes('audit:dist:budget'), 'Phase 4.4 production asset budget missing');
-requireContract(phase44.includes('phase4-4-home-destruction-reality.mjs'), 'Phase 4.4 real Chromium destruction journey missing');
-requireContract(phase44.includes('playwright@1.55.0'), 'Phase 4.4 Chromium runtime must remain pinned');
+for (const token of ['audit:ui-v2:boundary','audit:ui-v2:dna','audit:ui-v2:freeze','audit:phase4-2:daily-work','audit:phase4-3:executive-briefing','audit:phase4-4:home-destruction','tests/homeDashboardDestruction.test.ts','tests-external/live-shell.spec.cjs','test:functional','typecheck','npm run build','audit:dist:budget','phase4-4-home-destruction-reality.mjs','playwright@1.55.0']) {
+  requireContract(phase44.includes(token), `Phase 4.4 gate lost ${token}`);
+}
+
+requireContract(/pull_request:\s*[\s\S]*branches:\s*\[main\]/.test(phase51), 'Phase 5.1 gate must target canonical main');
+requireContract(phase51.includes('branches: [main, phase-5.1-transaction-list-search]'), 'Phase 5.1 gate must certify both working branch and canonical main');
+for (const token of [
+  'audit:ui-v2:boundary','audit:ui-v2:dna','audit:ui-v2:freeze','audit:phase4-2:daily-work','audit:phase4-3:executive-briefing',
+  'audit:phase4-4:home-destruction','audit:phase5-1:transactions','test:phase5-1','test:functional','audit:secrets','audit:roadmap',
+  'typecheck','npm run build','audit:dist:budget','playwright@1.55.0','phase5-1-transaction-list-reality.mjs','artifacts/phase5-1-transaction-list',
+]) requireContract(phase51.includes(token), `Phase 5.1 gate lost ${token}`);
+requireContract(phase51.includes('Transaction Search / Pagination / Responsive Destruction'), 'Phase 5.1 gate lost explicit destruction job');
 
 requireContract(pkg.scripts?.['audit:qa:stage-contract'] === 'node scripts/qa-stage-contract-audit.mjs', 'audit:qa:stage-contract script missing');
 requireContract(pkg.scripts?.['audit:qa:stage-delta'] === 'node scripts/qa-stage-delta-audit.mjs', 'audit:qa:stage-delta script missing');
@@ -131,15 +96,18 @@ requireContract(pkg.scripts?.['audit:ui-v2:dna'] === 'node scripts/ui-v2-dna-aud
 requireContract(pkg.scripts?.['audit:ui-v2:freeze']?.includes('ui10-freeze-audit.mjs'), 'UI V2 freeze script missing UI-10');
 requireContract(pkg.scripts?.['audit:phase4-2:daily-work'] === 'node scripts/phase4-2-daily-work-audit.mjs', 'Phase 4.2 architecture script missing');
 requireContract(pkg.scripts?.['audit:phase4-3:executive-briefing'] === 'node scripts/phase4-3-executive-briefing-audit.mjs', 'Phase 4.3 architecture script missing');
-requireContract(pkg.scripts?.['audit:phase4-4:home-destruction'] === 'node scripts/phase4-4-home-destruction-audit.mjs', 'Phase 4.4 Home destruction architecture script missing');
+requireContract(pkg.scripts?.['audit:phase4-4:home-destruction'] === 'node scripts/phase4-4-home-destruction-audit.mjs', 'Phase 4.4 architecture script missing');
+requireContract(pkg.scripts?.['audit:phase5-1:transactions'] === 'node scripts/phase5-1-transaction-list-audit.mjs', 'Phase 5.1 architecture script missing');
+requireContract(pkg.scripts?.['test:phase5-1']?.includes('tests/transactionListDestruction.test.ts'), 'Phase 5.1 dedicated destruction test missing');
 requireContract(pkg.scripts?.['test:functional']?.includes('tests/executiveBriefing.test.ts'), 'Phase 4.3 functional regression test missing');
 requireContract(pkg.scripts?.['test:functional']?.includes('tests/homeDashboardDestruction.test.ts'), 'Phase 4.4 destruction regression test missing from functional baseline');
+requireContract(pkg.scripts?.['test:functional']?.includes('tests/transactionListDestruction.test.ts'), 'Phase 5.1 destruction regression test missing from functional baseline');
 requireContract(pkg.scripts?.['verify:stage'] === 'npm run verify:extreme', 'verify:stage must remain an alias of verify:extreme');
 const extreme = pkg.scripts?.['verify:extreme'] ?? '';
 for (const token of [
-  'audit:qa:stage-contract', 'audit:qa:stage-delta', 'audit:ui-v2:boundary', 'audit:ui-v2:dna',
-  'audit:ui-v2:freeze', 'audit:phase4-2:daily-work', 'audit:phase4-3:executive-briefing', 'audit:phase4-4:home-destruction',
-  'test:functional', 'audit:secrets', 'db:audit', 'db:audit:selftest', 'audit:roadmap', 'typecheck', 'build', 'audit:dist:budget',
+  'audit:qa:stage-contract','audit:qa:stage-delta','audit:ui-v2:boundary','audit:ui-v2:dna','audit:ui-v2:freeze',
+  'audit:phase4-2:daily-work','audit:phase4-3:executive-briefing','audit:phase4-4:home-destruction','audit:phase5-1:transactions',
+  'test:functional','audit:secrets','db:audit','db:audit:selftest','audit:roadmap','typecheck','build','audit:dist:budget',
 ]) requireContract(extreme.includes(token), `verify:extreme was weakened: missing ${token}`);
 
 requireContract(constitution.includes('No ENJAZ stage, feature phase, visual phase, data phase, refactor, or hotfix may be declared complete'), 'stage constitution lost non-negotiable closure rule');
@@ -147,9 +115,9 @@ requireContract(constitution.includes('The product is fixed; the gate is not wea
 requireContract(constitution.includes('Every new stage must expand the tests'), 'stage constitution lost test-expansion rule');
 
 if (failures.length) {
-  console.error('ENJAZ QA stage contract FAILED. Canonical UI V2 / Phase 4.4 certification was weakened.');
+  console.error('ENJAZ QA stage contract FAILED. Canonical UI V2 / Phase 5.1 certification was weakened.');
   for (const failure of failures) console.error(`- ${failure}`);
   process.exit(1);
 }
 
-console.log('ENJAZ QA stage contract passed: canonical main retains UI V2 freeze, Phase 4.2, Phase 4.3, Phase 4.4, functional, build, browser and deployed-external gates.');
+console.log('ENJAZ QA stage contract passed: canonical main retains UI V2 freeze, Phase 4 cumulative gates, Phase 5.1 transaction gates, functional, build, browser and deployed-external gates.');

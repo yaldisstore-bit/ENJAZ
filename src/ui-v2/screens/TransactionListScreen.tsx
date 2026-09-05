@@ -3,6 +3,8 @@ import { buildTransactionListPreviewSource } from '../../features/transactions/t
 import {
   buildTransactionListSnapshot,
   normalizeTransactionListRequest,
+  TRANSACTION_SAVED_VIEW_SCHEMA,
+  TRANSACTION_SEARCH_MAX_LENGTH,
   type TransactionListItem,
   type TransactionListRequest,
   type TransactionListSnapshot,
@@ -94,11 +96,12 @@ function TransactionListReady(props: Readonly<{
         <EzStatPill value={String(snapshot.counts.archived)} label="مؤرشفة / مغلقة" />
       </section>
 
-      <section className="ez-transaction-list__controls" data-saved-view-anchor="transactions">
+      <section className="ez-transaction-list__controls" data-saved-view-anchor="transactions" data-saved-view-schema={TRANSACTION_SAVED_VIEW_SCHEMA}>
         <EzField
           label="بحث المعاملات"
           aria-label="بحث المعاملات"
           placeholder="رقم، نوع، شركة، جهة أو حالة"
+          maxLength={TRANSACTION_SEARCH_MAX_LENGTH}
           value={props.request.search}
           onChange={(event) => props.setSearch(event.currentTarget.value)}
         />

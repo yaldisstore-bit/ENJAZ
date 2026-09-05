@@ -6,12 +6,21 @@ export type TransactionListSort = 'activity-desc' | 'created-desc' | 'fee-desc' 
 export const TRANSACTION_LIST_PAGE_SIZE = 20;
 export const TRANSACTION_LIST_MAX_PAGE_SIZE = 50;
 export const TRANSACTION_SEARCH_MAX_LENGTH = 120;
+export const TRANSACTION_SAVED_VIEW_SCHEMA = 'enjaz.transactions.list.v1' as const;
 
 export interface TransactionListRequest {
   readonly view: TransactionListView;
   readonly search: string;
   readonly sort: TransactionListSort;
   readonly page: number;
+  readonly pageSize: number;
+}
+
+export interface TransactionSavedViewDefinition {
+  readonly schema: typeof TRANSACTION_SAVED_VIEW_SCHEMA;
+  readonly view: TransactionListView;
+  readonly search: string;
+  readonly sort: TransactionListSort;
   readonly pageSize: number;
 }
 
@@ -72,6 +81,57 @@ export function normalizeTransactionSearch(value: string): string {
   return normalizeArabic(value).slice(0, TRANSACTION_SEARCH_MAX_LENGTH);
 }
 
+function normalizeView(value: unknown): TransactionListView {
+  return value === 'stalled' || value === 'archived' ? value : 'current';
+}
+
+function normalizeSort(value: unknown): TransactionListSort {
+  return value === 'created-desc' || value === 'fee-desc' || value === 'fee-asc' ? value : 'activity-desc';
+}
+
+function normalizePageSize(value: unknown): number {
+  const requested = Number.isSafeInteger(value) ? Number(value) : TRANSACTION_LIST_PAGE_SIZE;
+  return Math.min(TRANSACTION_LIST_MAX_PAGE_SIZE, Math.max(1, requested));
+}
+
+export function normalizeTransactionListRequest(input: Partial<TransactionListRequest> = {}): TransactionListRequest {
+  const page = Number.isSafeInteger(input.page) && (input.page ?? 0) >= 0 ? input.page! : 0;
+  return Object.freeze({
+    view: normalizeView(input.view),
+    sort: normalizeSort(input.sort),
+    search: normalizeTransactionSearch(input.search ?? ''),
+    page,
+    pageSize: normalizePageSize(input.pageSize),
+  });
+}
+
+export function createTransactionSavedViewDefinition(input: Partial<TransactionListRequest> = {}): TransactionSavedViewDefinition {
+  const request = normalizeTransactionListRequest(input);
+  return Object.freeze({
+    schema: TRANSACTION_SAVED_VIEW_SCHEMA,
+    view: request.view,
+    search: request.search,
+    sort: request.sort,
+    pageSize: request.pageSize,
+  });
+}
+
+export function parseTransactionSavedViewDefinition(value: unknown): TransactionSavedViewDefinition | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const record = value as Readonly<Record<string, unknown>>;
+  if (record.schema !== TRANSACTION_SAVED_VIEW_SCHEMA) return null;
+  if (!['current', 'stalled', 'archived'].includes(String(record.view))) return null;
+  if (!['activity-desc', 'created-desc', 'fee-desc', 'fee-asc'].includes(String(record.sort))) return null;
+  if (typeof record.search !== 'string') return null;
+  if (!Number.isSafeInteger(record.pageSize) || Number(record.pageSize) < 1 || Number(record.pageSize) > TRANSACTION_LIST_MAX_PAGE_SIZE) return null;
+  return createTransactionSavedViewDefinition({
+    view: record.view as TransactionListView,
+    search: record.search,
+    sort: record.sort as TransactionListSort,
+    pageSize: Number(record.pageSize),
+  });
+}
+
 export function classifyTransactionView(row: RowOf<'transactions'>): TransactionListView | null {
   if (row.deleted_at !== null) return null;
   const status = row.status.trim().toLowerCase();
@@ -124,15 +184,6 @@ function compareRows(a: RowOf<'transactions'>, b: RowOf<'transactions'>, sort: T
   }
   const delta = safeTimestamp(b.last_activity_at) - safeTimestamp(a.last_activity_at);
   return delta || a.id.localeCompare(b.id);
-}
-
-export function normalizeTransactionListRequest(input: Partial<TransactionListRequest> = {}): TransactionListRequest {
-  const page = Number.isSafeInteger(input.page) && (input.page ?? 0) >= 0 ? input.page! : 0;
-  const requestedPageSize = Number.isSafeInteger(input.pageSize) ? input.pageSize! : TRANSACTION_LIST_PAGE_SIZE;
-  const pageSize = Math.min(TRANSACTION_LIST_MAX_PAGE_SIZE, Math.max(1, requestedPageSize));
-  const view: TransactionListView = input.view === 'stalled' || input.view === 'archived' ? input.view : 'current';
-  const sort: TransactionListSort = input.sort === 'created-desc' || input.sort === 'fee-desc' || input.sort === 'fee-asc' ? input.sort : 'activity-desc';
-  return Object.freeze({ view, sort, search: normalizeTransactionSearch(input.search ?? ''), page, pageSize });
 }
 
 export function buildTransactionListSnapshot(
