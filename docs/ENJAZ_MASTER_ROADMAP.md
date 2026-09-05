@@ -204,7 +204,7 @@ Phase 3 began only after 2.8 was green. Its exit was verified through the comple
 
 # Phase 4 — Home, Daily Work & Executive Overview ✅
 
-Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** The next permitted product step is Phase 5.1 and remains not started until the Phase 4.4 closure PR is green and merged into canonical `main`.
+Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** Phase 5.1 has since been completed under Phase 5 without changing the closed Phase 4 contract.
 
 ## 4.1 — Home / Dashboard ✅
 - Build the actual ENJAZ home screen using Phase 2 patterns.
@@ -253,9 +253,20 @@ Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed �
 
 # Phase 5 — Transactions Core
 
-## 5.1 — Transaction List & Search
+Phase 5 is in progress. **Phase 5.1 is closed ✅.** The next permitted product step is **Phase 5.2 — Transaction Create/Edit**, which remains not started. Phase 5 remains open until 5.2–5.5 are closed.
+
+## 5.1 — Transaction List & Search ✅
 - Current, stalled/delayed, archived/closed views according to the frozen business contract.
 - Filters, sorting, search, saved views integration points.
+- Canonical live path resolves the authenticated workspace through the typed Data Layer; public/CI preview remains isolated.
+- Arabic-normalized search covers transaction identity, legacy id, type, department, status, priority, and company label.
+- Pagination defaults to 20 and is bounded to 50 visible rows; the source loader fails closed beyond the 5,000-row safety ceiling instead of returning partial workspace data.
+- Deleted rows are excluded; missing company relations are explicit; unsafe money precision is never represented as exact.
+- Stable saved-view integration schema `enjaz.transactions.list.v1` stores view/search/sort/page-size but excludes ephemeral page navigation; full Smart Saved Views remain Phase 9.2.
+- Dedicated destructive tests cover dense datasets, long mixed Arabic/Latin search, invalid timestamps, malformed relations, unsafe money, and source capacity.
+- Real Chromium validation covers 1280/430/390/360/320 widths plus search, sorting, pagination, view switching, overflow, and mobile touch geometry.
+- Pre-closure evidence run: `33944168202` on `5cf81aac4e527fc34ca1a7a03a148f083bb4ce60` ✅.
+- Closure evidence: `docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md`.
 
 ## 5.2 — Transaction Create/Edit
 - Validated forms.
@@ -637,7 +648,9 @@ The project is considered delivered only when:
 - **Phase 4.3 — Executive Briefing ✅**
 - **Phase 4.4 — Home Destruction Gate ✅**
 - **Phase 4 — Home, Daily Work & Executive Overview ✅**
-- **Next: Phase 5.1 — Transaction List & Search**
+- **Phase 5.1 — Transaction List & Search ✅**
+- **Next: Phase 5.2 — Transaction Create/Edit**
+- **Phase 5.2 remains not started**
 
 ---
 
@@ -645,7 +658,7 @@ The project is considered delivered only when:
 
 This file is intentionally difficult to change by accident.
 
-This closure changes only verified roadmap state: Phase 4.4 is marked complete after the dedicated architecture gate, 4/4 destruction tests, 64/64 functional tests, cumulative UI V2/Phase 4.2/Phase 4.3 regressions, secrets audit, TypeScript, production build, strict asset budget, real Chromium destruction across empty/dense/conflict/slow/offline/interaction scenarios, and evidence upload succeeded. Phase 4 is therefore closed as a whole. Phase 5.1 becomes the next permitted subphase but remains not started until the closure PR is green and merged. Feature parity and delivery scope are unchanged; no business implementation is moved or skipped.
+This closure changes only verified roadmap state: Phase 5.1 is marked complete after its dedicated architecture gate, 15/15 transaction functional/destructive tests, 79/79 full functional regression tests, cumulative UI V2 and Phase 4 gates, secrets audit, roadmap integrity, TypeScript, production build, strict asset budget, real Chromium validation across five responsive profiles plus search/sort/pagination/view-switching stress, and evidence artifact upload all succeeded on pre-closure head `5cf81aac4e527fc34ca1a7a03a148f083bb4ce60`. Phase 5 remains open. Phase 5.2 becomes the next permitted subphase but remains not started. Feature parity and delivery scope are unchanged; no Phase 5.2/5.3/5.4/5.5 implementation is moved forward or skipped.
 
 A roadmap change must state:
 1. what changes,

@@ -16,7 +16,9 @@ const styles = read('src/ui-v2/styles/home-dashboard.css');
 const main = read('src/main.tsx');
 const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 
-requireContract(core.includes('data-product-phase="4.4"'), 'CoreApp is not promoted to Phase 4.4 on the destruction branch');
+const productPhaseMatch = core.match(/data-product-phase="([0-9]+(?:\.[0-9]+)?)"/);
+const productPhase = productPhaseMatch ? Number(productPhaseMatch[1]) : Number.NaN;
+requireContract(Number.isFinite(productPhase) && productPhase >= 4.4, 'runtime regressed below Phase 4.4');
 requireContract(core.includes('ConnectedHomeScreen') && core.includes('FixtureHomeScreen'), 'Home is not routed through live + isolated preview renderers');
 requireContract(!core.includes('HomeCoreScreen'), 'CoreApp still references the obsolete static Home implementation');
 requireContract(!coreScreens.includes('HomeCoreScreen'), 'obsolete static HomeCoreScreen dead code still exists');
@@ -62,7 +64,7 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Phase 4.4 Home Destruction architecture gate PASS');
+console.log(`Phase 4.4 Home Destruction architecture gate PASS on product phase ${productPhase}`);
 console.log('- live Home is connected to authoritative dashboard state');
 console.log('- obsolete static Home implementation is physically removed');
 console.log('- preview destruction scenarios cover empty/dense/conflict/slow/offline');

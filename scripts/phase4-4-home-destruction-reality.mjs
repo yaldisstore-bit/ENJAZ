@@ -48,7 +48,8 @@ async function assertRuntime(page, label) {
   const app = page.locator('[data-core-app="true"]');
   await app.waitFor();
   assert(await app.getAttribute('data-stage') === 'ui-10', `${label}: frozen UI marker changed`);
-  assert(await app.getAttribute('data-product-phase') === '4.4', `${label}: Phase 4.4 marker missing`);
+  const productPhase = Number(await app.getAttribute('data-product-phase'));
+  assert(Number.isFinite(productPhase) && productPhase >= 4.4, `${label}: product phase regressed below Phase 4.4`);
   assert(await app.getAttribute('data-daily-work-mode') === 'preview', `${label}: destruction runtime escaped preview isolation`);
   return app;
 }

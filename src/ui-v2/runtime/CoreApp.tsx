@@ -100,7 +100,7 @@ export function CoreApp(props: Readonly<{ dailyWorkMode?: DailyWorkRuntimeMode }
       : `core-${activeTab}-${commandMode ? 'command' : 'standard'}`;
 
   return (
-    <div data-core-app="true" data-stage="ui-10" data-product-phase="4.4" data-daily-work-mode={dailyWorkMode} data-active-domain={activeDomain ?? 'core'} data-executive-briefing={briefingMode ? 'open' : 'closed'}>
+    <div data-core-app="true" data-stage="ui-10" data-product-phase="5.1" data-daily-work-mode={dailyWorkMode} data-active-domain={activeDomain ?? 'core'} data-executive-briefing={briefingMode ? 'open' : 'closed'}>
       <AppShell
         title={domain ? domain.label : briefingMode ? 'الملخص التنفيذي' : commandMode && activeTab === 'operations' ? 'القيادة' : current.title}
         subtitle={domain ? domain.eyebrow : briefingMode ? 'نظرة الإدارة' : commandMode && activeTab === 'operations' ? 'المركز التنفيذي' : current.subtitle}
