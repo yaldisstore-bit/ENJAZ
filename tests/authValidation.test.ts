@@ -23,3 +23,24 @@ test('auth route guards remain independent from eradicated legacy presentation',
   assert.doesNotMatch(checkingCss, /--rebirth-|rebirth-/i);
   assert.match(checkingCss, /prefers-reduced-motion/);
 });
+
+test('R2 auth preserves sign-in, sign-up, recovery and password-update capabilities without legacy presentation', () => {
+  const authScreen = readFileSync(new URL('../src/ui-r2/auth/R2AuthScreen.tsx', import.meta.url), 'utf8');
+  const passwordUpdate = readFileSync(new URL('../src/ui-r2/auth/R2PasswordUpdateScreen.tsx', import.meta.url), 'utf8');
+  const productionRoot = readFileSync(new URL('../src/ui-r2/runtime/UiR2ProductionRoot.tsx', import.meta.url), 'utf8');
+
+  assert.match(authScreen, /service\.signIn/);
+  assert.match(authScreen, /service\.signUp/);
+  assert.match(authScreen, /service\.requestPasswordReset/);
+  assert.match(authScreen, /auth', 'update-password/);
+  assert.match(passwordUpdate, /service\.updatePassword/);
+  assert.match(passwordUpdate, /كلمتا المرور غير متطابقتين/);
+  assert.match(productionRoot, /createSupabaseAuthGateway/);
+  assert.match(productionRoot, /createEnjazDataLayerFactory/);
+  assert.match(productionRoot, /AuthProvider/);
+  assert.match(productionRoot, /DataLayerProvider/);
+  assert.match(productionRoot, /CurrentUserIdProvider/);
+  assert.match(productionRoot, /R2PasswordUpdateScreen/);
+  assert.match(productionRoot, /runtimeMode="live"/);
+  assert.doesNotMatch(`${authScreen}\n${passwordUpdate}\n${productionRoot}`, /ui-v2|ui-rebirth/);
+});
