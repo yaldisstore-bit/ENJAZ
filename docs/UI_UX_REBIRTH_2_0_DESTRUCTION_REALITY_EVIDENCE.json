@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "stage": "R2.0-9",
-  "status": "ACTIVE",
+  "status": "CLOSED",
   "branch": "r2-0-9-destruction-reality-qa",
   "hardWidths": [1280, 430, 390, 360, 320],
   "minimumScenarioCount": 15,
@@ -131,5 +131,5 @@
     "totalBrowserValidations": 46,
     "hardWidths": [1280, 430, 390, 360, 320]
   },
-  "exitGatePassed": false
+  "exitGatePassed": true
 }
