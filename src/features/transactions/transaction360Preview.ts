@@ -10,14 +10,14 @@ export function buildTransaction360PreviewSource(transactionId: string): Transac
   if (!transaction) throw new Error('360 preview requires a transaction');
   const company = list.companies.find((row) => row.id === transaction.company_id) ?? null;
 
-  const route = { id: 'route-1', station_name: 'تدقيق المستندات', assigned_to_text: 'فريق المتابعة', occurred_at: '2026-09-05T08:10:00Z' } as RowOf<'transaction_routes'>;
-  const activity = { id: 'activity-1', event_type: 'status', summary: 'تم تحديث حالة المعاملة', occurred_at: '2026-09-05T08:15:00Z' } as RowOf<'transaction_activity'>;
-  const note = { id: 'note-1', body: 'تمت مراجعة بيانات الشركة قبل التسليم.', created_at: '2026-09-05T07:45:00Z' } as RowOf<'transaction_notes'>;
-  const followup = { id: 'followup-1', title: 'متابعة المستند الناقص', due_at: '2026-09-05T11:00:00Z', status: 'open', completed_at: null } as RowOf<'transaction_followups'>;
-  const payment = { id: 'payment-1', amount: Math.min(transaction.current_fee, 150_000), paid_at: '2026-09-03T13:00:00Z', status: 'posted', receipt_ref: 'ENJAZ-1042' } as RowOf<'payments'>;
-  const fee = { id: 'fee-1', reason: 'متطلبات إضافية', effective_at: '2026-09-02T09:00:00Z' } as RowOf<'fee_changes'>;
-  const document = { id: 'document-1', title: 'عقد التأسيس.pdf', document_type: 'contract', mime_type: 'application/pdf', status: 'ready' } as RowOf<'documents'>;
-  const workflow = { id: 'workflow-1', current_stage_position: 3, status: 'active', started_at: '2026-09-01T08:30:00Z' } as RowOf<'workflow_instances'>;
+  const route = { id: 'route-1', station_name: 'تدقيق', occurred_at: '2026-09-05T08:10Z' } as RowOf<'transaction_routes'>;
+  const activity = { id: 'activity-1', event_type: 'status', summary: 'تحديث الحالة', occurred_at: '2026-09-05T08:15Z' } as RowOf<'transaction_activity'>;
+  const note = { id: 'note-1', body: 'مراجعة قبل التسليم.', created_at: '2026-09-05T07:45Z' } as RowOf<'transaction_notes'>;
+  const followup = { id: 'followup-1', title: 'المستند الناقص', due_at: '2026-09-05T11:00Z', status: 'open', completed_at: null } as RowOf<'transaction_followups'>;
+  const payment = { id: 'payment-1', amount: Math.min(transaction.current_fee, 150_000), paid_at: '2026-09-03T13:00Z', status: 'posted', receipt_ref: '' } as RowOf<'payments'>;
+  const fee = { id: 'fee-1', reason: 'تعديل', effective_at: '2026-09-02T09:00Z' } as RowOf<'fee_changes'>;
+  const document = { id: 'document-1', title: 'عقد.pdf', document_type: 'pdf', status: 'ready' } as RowOf<'documents'>;
+  const workflow = { id: 'workflow-1', current_stage_position: 3, status: 'active', started_at: '2026-09-01T08:30Z' } as RowOf<'workflow_instances'>;
   const blocker = { id: 'blocker-1', severity: 'high', status: 'open', resolved_at: null } as RowOf<'transaction_blockers'>;
 
   return {
