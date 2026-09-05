@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "R2.0-0",
+  "stage": "R2.0-1",
   "phase55Locked": true,
   "runtime": "ui-v2",
   "goldenExperience": {
@@ -13,11 +13,20 @@
     "evidenceManifest": null
   },
   "featureParity": {
-    "inventoryComplete": false,
-    "totalCapabilities": 0,
+    "inventoryComplete": true,
+    "totalCapabilities": 35,
     "migratedCapabilities": 0,
     "testedCapabilities": 0,
     "unresolvedCapabilities": 0
+  },
+  "informationArchitecture": {
+    "artifact": "docs/UI_UX_REBIRTH_2_0_INFORMATION_ARCHITECTURE.json",
+    "status": "ACTIVE",
+    "primaryDoorCount": 5,
+    "canonicalHomesResolved": true,
+    "hiddenPrimaryNavigationCount": 0,
+    "duplicateCanonicalHomesCount": 0,
+    "exitGatePassed": false
   },
   "noMaze": {
     "validated": false,
