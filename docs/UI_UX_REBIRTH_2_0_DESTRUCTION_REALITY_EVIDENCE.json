@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-9",
+  "status": "ACTIVE",
+  "branch": "r2-0-9-destruction-reality-qa",
+  "hardWidths": [1280, 430, 390, 360, 320],
+  "minimumScenarioCount": 15,
+  "scope": [
+    "keyboardFocus",
+    "rtl",
+    "mixedArabicLatin",
+    "longContent",
+    "denseDatasets",
+    "emptyStates",
+    "failures",
+    "permissionMutationTruthfulness",
+    "backStack",
+    "deepLinks",
+    "overlays",
+    "orientation",
+    "reducedMotion",
+    "touchGeometry44px",
+    "horizontalOverflow"
+  ],
+  "truthfulness": {
+    "canonicalRuntimeChanged": false,
+    "phase55Locked": true,
+    "productionPersistenceClaimed": false,
+    "adHocPersistenceAllowed": false,
+    "adHocNetworkFetchAllowed": false,
+    "previewMutationRequestsAllowed": false
+  },
+  "cumulativeLocks": {
+    "golden": "APPROVED",
+    "coreWork": "CLOSED",
+    "recordsRelationships": "CLOSED",
+    "operationalIntelligence": "CLOSED",
+    "findAnythingZeroLost": "CLOSED",
+    "noMazeScenarioCount": 16,
+    "noMazePassedCount": 16,
+    "maxMajorCapabilityActions": 3,
+    "hiddenPrimaryNavigationCount": 0,
+    "duplicateCanonicalHomesCount": 0,
+    "backPathFailures": 0
+  },
+  "destruction": {
+    "declaredScenarioCount": 0,
+    "passedScenarioCount": 0,
+    "unresolvedDefects": [],
+    "attackClassesCovered": []
+  },
+  "checks": {
+    "structuralAudit": "PENDING",
+    "functionalRegression": "PENDING",
+    "typescript": "PENDING",
+    "previewBuild": "PENDING",
+    "previewBudget": "PENDING",
+    "realChromiumDestruction": "PENDING",
+    "cumulativeRealBrowser": "PENDING"
+  },
+  "firstEvidence": null,
+  "finalEvidence": null,
+  "exitGatePassed": false
+}
