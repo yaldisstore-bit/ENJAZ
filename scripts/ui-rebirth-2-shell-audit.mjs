@@ -51,6 +51,9 @@ if (!errors.length) {
   const vite = read('vite.config.ts');
   const previewVite = read('vite.r2-preview.config.ts');
   const stageIndex = stageOrder.indexOf(state.stage);
+  const isolatedPreviewAllowed = stageIndex >= 10;
+  const isolatedPreviewPath = 'src/ui-r2/runtime/UiR2PreviewRoot.tsx';
+  const isolatedPreview = isolatedPreviewAllowed && exists(isolatedPreviewPath) ? read(isolatedPreviewPath) : null;
 
   if (stageIndex < 3) errors.push(`frozen Application Shell requires stage R2.0-3 or later, found ${state.stage}`);
   if (stageIndex < 11 && state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 until R2.0-11 promotion');
@@ -70,7 +73,7 @@ if (!errors.length) {
   if (!manifest.responsive?.mobileDock || !manifest.responsive?.desktopRail) errors.push('shell must define both mobile dock and desktop rail behavior');
   for (const width of [1280, 430, 390, 360, 320]) if (!manifest.responsive?.hardWidths?.includes(width)) errors.push(`shell manifest missing hard viewport ${width}`);
 
-  for (const marker of [
+  const shellMarkers = [
     'data-r2-shell={SHELL_STAGE}',
     'R2_PRIMARY_NAVIGATION.map',
     'R2_LAUNCHER_GROUPS.map',
@@ -81,7 +84,15 @@ if (!errors.length) {
     'data-overlay="account"',
     'r2-shell__mobile-nav',
     'r2-shell__rail',
-  ]) if (!shell.includes(marker)) errors.push(`UiR2Root missing shell contract marker: ${marker}`);
+  ];
+  for (const marker of shellMarkers) if (!shell.includes(marker)) errors.push(`UiR2Root missing shell contract marker: ${marker}`);
+
+  if (isolatedPreview) {
+    for (const marker of shellMarkers) if (!isolatedPreview.includes(marker)) errors.push(`UiR2PreviewRoot missing frozen shell marker: ${marker}`);
+    if (/ConnectedCoreWorkRouter|ConnectedR2Home|UiR2ProductionRoot|features\/auth|data\//.test(isolatedPreview)) {
+      errors.push('isolated R2 preview root may not import production-connected adapters');
+    }
+  }
 
   for (const label of ['الرئيسية', 'المعاملات', 'جديد', 'اليوم', 'المزيد']) if (!read('src/ui-r2/architecture/navigation-contract.ts').includes(label)) errors.push(`navigation contract missing primary label: ${label}`);
 
@@ -90,7 +101,11 @@ if (!errors.length) {
   if (!css.includes('@media (min-width: 60rem)')) errors.push('shell CSS missing desktop composition breakpoint');
   if (!css.includes('@media (prefers-reduced-motion: reduce)')) errors.push('shell CSS missing reduced-motion treatment');
 
-  if (!preview.includes("from './runtime/UiR2Root.tsx'")) errors.push('isolated preview entry must boot UiR2Root');
+  const directPreviewBoot = preview.includes("from './runtime/UiR2Root.tsx'");
+  const isolatedPreviewBoot = preview.includes("from './runtime/UiR2PreviewRoot.tsx'");
+  if (!directPreviewBoot && !(isolatedPreviewAllowed && isolatedPreview && isolatedPreviewBoot)) {
+    errors.push('isolated preview entry must boot UiR2Root or the guarded frozen UiR2PreviewRoot during R2.0-10+');
+  }
   if (!preview.includes("./runtime/shell.css")) errors.push('isolated preview entry must load shell visual grammar');
   if (!preview.includes("./runtime/shell-base.css")) errors.push('isolated preview entry must load its bounded shell foundation');
   if (!previewHtml.includes('id="r2-root"')) errors.push('r2-preview.html missing isolated r2 root');
