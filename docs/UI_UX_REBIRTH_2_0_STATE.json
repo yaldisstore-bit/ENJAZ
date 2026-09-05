@@ -6,12 +6,14 @@
   "goldenExperience": {
     "status": "ACTIVE",
     "implemented": true,
-    "visualEvidenceReady": false,
-    "professionalUxEvidenceReady": false,
+    "visualEvidenceReady": true,
+    "professionalUxEvidenceReady": true,
     "userApproved": false,
     "approvedCommit": null,
     "approvalRecord": null,
     "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_GOLDEN_EVIDENCE.json",
+    "evidenceCommit": "2f15074c8ad159738edea2f3e0033c921ddba9b9",
+    "evidenceRun": 33965977016,
     "visualPolishContract": "docs/UI_UX_REBIRTH_2_0_GLOBAL_VISUAL_POLISH_CONTRACT.json",
     "visualPolishContractLocked": true,
     "requiredSpecimens": [
