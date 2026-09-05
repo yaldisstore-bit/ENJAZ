@@ -62,11 +62,19 @@
     "protectedBoundaryViolations": 0
   },
   "checks": {
-    "preflightAudit": "PENDING",
-    "uiRebirthDependencyAudit": "DELETED_PENDING_CI",
+    "preflightAudit": "PASS",
+    "uiRebirthDependencyAudit": "PASS_AFTER_SESSION_CHECKING_EXTRACTION",
     "parityResolution": "PENDING",
     "legacyZero": "PENDING",
-    "cumulativeRegression": "PENDING"
+    "cumulativeRegression": "PASS_GOVERNANCE_QUALITY_R2_4_TO_R2_9_REAL_BROWSER"
+  },
+  "uiRebirthEradicationEvidence": {
+    "deletionCommit": "9dce12f0a10486b8b50dd6af382be4d94c407f2b",
+    "dependencyRepairCommit": "aa9496a224c059687d67242431fb5414a9752dce",
+    "guardTestCommit": "badb9025013dace628ba710050ef40f599c709a8",
+    "hiddenDependencyFound": "src/features/auth/pages/AuthRouteGuards.tsx -> ui-rebirth/runtime/RebirthSessionChecking.tsx",
+    "resolution": "neutral shared/session SessionChecking component; legacy presentation not restored",
+    "allCumulativeGatesGreen": true
   },
   "exitGatePassed": false
 }
