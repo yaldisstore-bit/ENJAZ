@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "name": "ENJAZ Major Product Systems Expansion",
+  "status": "GOVERNING_AMENDMENT_CANDIDATE",
+  "baseCommit": "2697884c953554939a8405fd701b5db67f3567e6",
+  "majorSystemCount": 14,
+  "definition": "A major system creates a new end-to-end product capability with its own authoritative data, permissions, workflows, UI, destructive tests and measurable business outcome.",
+  "closedPhasesReopened": false,
+  "phaseOrderChanged": false,
+  "previousCapabilityExpansionStillApplies": true,
+  "systems": [
+    {"id":"M1","name":"Government Procedure Operating System","anchors":["8"],"kind":"operational-system"},
+    {"id":"M2","name":"Corporate Governance & Ownership Engine","anchors":["9"],"kind":"corporate-registry"},
+    {"id":"M3","name":"Client Portal","anchors":["11"],"kind":"external-portal"},
+    {"id":"M4","name":"Omnichannel Communications Hub","anchors":["11"],"kind":"communications"},
+    {"id":"M5","name":"ENJAZ Field Operations / Runner Mode","anchors":["8"],"kind":"field-operations"},
+    {"id":"M6","name":"Service Catalog, CRM & Commercial Intake","anchors":["8"],"kind":"crm-intake"},
+    {"id":"M7","name":"Document Factory & Official Form Engine","anchors":["10"],"kind":"document-generation"},
+    {"id":"M8","name":"Regulatory / Knowledge Base Engine","anchors":["9","12"],"kind":"knowledge-system"},
+    {"id":"M9","name":"Agentic ENJAZ Copilot","anchors":["12"],"kind":"agentic-ai"},
+    {"id":"M10","name":"Scheduling, Appointments & Deadline Engine","anchors":["11"],"kind":"scheduling"},
+    {"id":"M11","name":"Integration Platform / API / Webhooks","anchors":["14","15"],"kind":"integration-platform"},
+    {"id":"M12","name":"Compliance, Audit & Evidence Center","anchors":["15"],"kind":"compliance"},
+    {"id":"M13","name":"Business Intelligence & Forecasting Center","anchors":["9","15"],"kind":"business-intelligence"},
+    {"id":"M14","name":"Backup, Restore & Workspace Portability","anchors":["15","18"],"kind":"resilience-portability"}
+  ],
+  "releaseRequirements": [
+    "authoritative-schema-data-contract",
+    "workspace-rls-permission-contract",
+    "domain-service-layer",
+    "complete-live-user-journey",
+    "real-error-offline-conflict-states",
+    "destructive-automated-tests",
+    "real-chromium-mobile-acceptance",
+    "audit-evidence-for-sensitive-writes",
+    "post-merge-recertification",
+    "no-demo-only-production-substitute"
+  ]
+}
