@@ -4,6 +4,7 @@ const root = new URL('../', import.meta.url);
 const roadmap = fs.readFileSync(new URL('docs/ENJAZ_MASTER_ROADMAP.md', root), 'utf8');
 const readme = fs.readFileSync(new URL('README.md', root), 'utf8');
 const phase55State = JSON.parse(fs.readFileSync(new URL('docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json', root), 'utf8'));
+const phase61State = JSON.parse(fs.readFileSync(new URL('docs/PHASE6_1_COMPANIES_STATE.json', root), 'utf8'));
 const errors = [];
 
 const phases = [
@@ -36,6 +37,7 @@ const phase5 = [
   '## 5.1 — Transaction List & Search', '## 5.2 — Transaction Create/Edit', '## 5.3 — Transaction Details / 360°',
   '## 5.4 — Archive/Restore/Lifecycle', '## 5.5 — Transaction Destruction Gate',
 ];
+const phase6 = ['## 6.1 — Companies', '## 6.2 — Lawyers / Contacts', '## 6.3 — Company / Lawyer 360°'];
 
 function checkOrder(items, label) {
   let last = -1;
@@ -50,6 +52,7 @@ function checkOrder(items, label) {
 checkOrder(phases, 'delivery phases');
 checkOrder(phase2, 'Phase 2 sequence');
 checkOrder(phase5, 'Phase 5 sequence');
+checkOrder(phase6, 'Phase 6 sequence');
 
 for (const marker of [
   'ENJAZ 1.0 — Delivered',
@@ -60,42 +63,32 @@ for (const marker of [
   '# Phase 4 — Home, Daily Work & Executive Overview ✅',
   '## 4.4 — Home Destruction Gate ✅',
   '# Phase 5 — Transactions Core ✅',
-  'Phase 5.1, Phase 5.2, Phase 5.3, Phase 5.4 and Phase 5.5 are closed ✅',
   '## 5.1 — Transaction List & Search ✅',
   '## 5.2 — Transaction Create/Edit ✅',
   '## 5.3 — Transaction Details / 360° ✅',
   '## 5.4 — Archive/Restore/Lifecycle ✅',
   '## 5.5 — Transaction Destruction Gate ✅',
-  'docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md',
-  'docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md',
-  '218a7bb85ff6098d9a3642063c6c406a57917e86',
-  '8/8 post-merge workflows SUCCESS, 0 failures',
-  '**Phase 5 exit:**',
-  '**Exit verified ✅.**',
-  '**Phase 5.5 — Transaction Destruction Gate ✅**',
-  '**Phase 5 — Transactions Core ✅**',
-  '**Next: Phase 6.1 — Companies**',
+  '## 6.1 — Companies',
+  '## 6.2 — Lawyers / Contacts',
+  '## 6.3 — Company / Lawyer 360°',
   'Change-control rule',
 ]) if (!roadmap.includes(marker)) errors.push(`roadmap marker missing: ${marker}`);
 
 for (const marker of [
-  'الحالة الرسمية: **Phase 5 — Transactions Core ✅ CLOSED**',
-  'آخر مرحلة مغلقة: **Phase 5.5 — Transaction Destruction Gate ✅**',
-  'التالي المسموح: **Phase 6.1 — Companies**',
+  'الحالة الرسمية: **Phase 6.1 — Companies ✅ CLOSED**',
+  'آخر مرحلة مغلقة: **Phase 6.1 — Companies ✅**',
+  'التالي المسموح: **Phase 6.2 — Lawyers / Contacts**',
   'docs/ENJAZ_MASTER_ROADMAP.md',
-  'docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json',
-  'docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md',
-  'docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md',
+  'docs/PHASE6_1_COMPANIES_STATE.json',
+  'docs/PHASE6_1_COMPANIES_CLOSURE.md',
+  'docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md',
   '**Phase 5 — Transactions Core** ✅',
-  '**Phase 5.1 — Transaction List & Search** ✅ complete',
-  '**Phase 5.2 — Transaction Create/Edit** ✅ complete',
-  '**Phase 5.3 — Transaction Details / 360°** ✅ complete',
-  '**Phase 5.4 — Archive/Restore/Lifecycle** ✅ complete',
   '**Phase 5.5 — Transaction Destruction Gate** ✅ complete',
-  '**Next: Phase 6.1 — Companies**',
-  '19/19 workflows SUCCESS',
+  '**Phase 6.1 — Companies** ✅ complete',
+  '**Next: Phase 6.2 — Lawyers / Contacts**',
+  '20/20 workflows SUCCESS',
   '8/8 post-merge workflows SUCCESS، 0 failures',
-  '218a7bb85ff6098d9a3642063c6c406a57917e86',
+  '6d70069995164500b3c05b027145bcdfed96e877',
 ]) if (!readme.includes(marker)) errors.push(`README marker missing: ${marker}`);
 
 for (const [label, expression] of [
@@ -104,26 +97,32 @@ for (const [label, expression] of [
   ['Phase 5.3', /^\s*-\s+\*\*Phase 5\.3 — Transaction Details \/ 360°\*\*\s+✅\s+complete\s*$/],
   ['Phase 5.4', /^\s*-\s+\*\*Phase 5\.4 — Archive\/Restore\/Lifecycle\*\*\s+✅\s+complete\s*$/],
   ['Phase 5.5', /^\s*-\s+\*\*Phase 5\.5 — Transaction Destruction Gate\*\*\s+✅\s+complete\s*$/],
+  ['Phase 6.1', /^\s*-\s+\*\*Phase 6\.1 — Companies\*\*\s+✅\s+complete\s*$/],
 ]) {
   const matches = readme.split(/\r?\n/).filter((line) => expression.test(line));
   if (matches.length !== 1) errors.push(`README must contain exactly one canonical ${label} status line`);
 }
 
 if (/Phase 5\.5[^\n]*(?:⏳\s+not started|remains not started)/i.test(readme)) errors.push('README must not claim Phase 5.5 is pending after canonical recertification');
-if (/Phase 5\.5 remains not started/.test(roadmap)) errors.push('roadmap must not keep Phase 5.5 locked after canonical recertification');
-if (/Next: Phase 5\.5 — Transaction Destruction Gate/.test(roadmap)) errors.push('roadmap next pointer must advance beyond closed Phase 5.5');
-if (/## 5\.5 — Transaction Destruction Gate(?! ✅)/.test(roadmap)) errors.push('roadmap must mark Phase 5.5 complete');
-if (!/# Phase 5 — Transactions Core ✅/.test(roadmap)) errors.push('roadmap must mark Phase 5 complete');
+if (/Phase 6\.1[^\n]*(?:⏳\s+not started|remains not started|Next:)/i.test(readme)) errors.push('README must not claim Phase 6.1 is pending after canonical recertification');
+if (/\*\*Next: Phase 6\.1 — Companies\*\*/.test(readme)) errors.push('README next pointer must advance beyond closed Phase 6.1');
 
 if (phase55State.status !== 'CLOSED' || phase55State.exitGatePassed !== true || phase55State.unresolvedDefectCount !== 0) errors.push('Phase 5.5 machine state must remain closed with zero unresolved defects');
-if (phase55State.postMergeRecertification?.status !== 'COMPLETE') errors.push('Phase 5.5 post-merge recertification must be COMPLETE');
-if (phase55State.postMergeRecertification?.mainCommit !== '218a7bb85ff6098d9a3642063c6c406a57917e86') errors.push('roadmap transition must preserve the recertified canonical main commit');
-if (phase55State.phase6Allowed !== true || phase55State.nextPhase !== '6.1') errors.push('Phase 6.1 may be next only after Phase 5.5 canonical recertification');
+if (phase55State.postMergeRecertification?.status !== 'COMPLETE') errors.push('Phase 5.5 post-merge recertification must remain COMPLETE');
+if (phase55State.phase6Allowed !== true || phase55State.nextPhase !== '6.1') errors.push('Phase 5.5 transition evidence must continue to authorize Phase 6.1 historically');
+
+if (phase61State.status !== 'CLOSED' || phase61State.exitGatePassed !== true || phase61State.unresolvedDefectCount !== 0) errors.push('Phase 6.1 machine state must be closed with zero unresolved defects');
+if (phase61State.implementationHead !== '9397131afab3688749d57bcaa721e6eb858aef30') errors.push('Phase 6.1 implementation head drifted');
+if (phase61State.preClosure?.workflowCount !== 20 || phase61State.preClosure?.successCount !== 20 || phase61State.preClosure?.failureCount !== 0) errors.push('Phase 6.1 requires 20/20 pre-closure workflows SUCCESS');
+if (phase61State.postMergeRecertification?.status !== 'COMPLETE') errors.push('Phase 6.1 post-merge recertification must be COMPLETE');
+if (phase61State.postMergeRecertification?.mainCommit !== '6d70069995164500b3c05b027145bcdfed96e877') errors.push('Phase 6.1 canonical recertified main commit drifted');
+if (phase61State.postMergeRecertification?.workflowCount !== 8 || phase61State.postMergeRecertification?.successCount !== 8 || phase61State.postMergeRecertification?.failureCount !== 0) errors.push('Phase 6.1 requires 8/8 post-merge workflows SUCCESS');
+if (phase61State.phase6_2Allowed !== true || phase61State.nextPhase !== '6.2') errors.push('Phase 6.2 may be next only after Phase 6.1 canonical recertification');
 
 if (errors.length) {
   console.error('ENJAZ ROADMAP AUDIT FAIL');
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases preserved; Phase 5 closed; Phase 5.5 recertified on canonical main; next=Phase 6.1.`);
+  console.log(`ENJAZ ROADMAP AUDIT PASS — ${phases.length} delivery phases preserved; Phase 6.1 closed and recertified on canonical main; next=Phase 6.2.`);
 }
