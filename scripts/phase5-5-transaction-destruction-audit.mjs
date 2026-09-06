@@ -99,7 +99,15 @@ for (const marker of [
   'setErrors(Object.freeze({ form: message }))',
   'status === \'saving\' || mutationInFlightRef.current || outcomeUnknown',
   'saveTransactionEditorDraft(factory, userId, loaded, mode, draft, userId, new Date(), createOperationId)',
-]) if (!editorHook.includes(marker)) errors.push(`Transaction editor hook missing safe uncertain-outcome retry behavior: ${marker}`);
+  'PENDING_CREATE_STORAGE_PREFIX',
+  'window.sessionStorage',
+  'readPendingCreate',
+  'writePendingCreate',
+  'clearPendingCreate',
+  'preservePendingCreateRef',
+  'unresolvedCreateCompanion',
+  'تم استعادة محاولة إنشاء',
+]) if (!editorHook.includes(marker)) errors.push(`Transaction editor hook missing safe uncertain-outcome/refresh recovery behavior: ${marker}`);
 
 if (!browserSpec) errors.push('Phase 5.5 requires a dedicated real-browser transaction destruction spec');
 for (const marker of [
