@@ -17,9 +17,9 @@ concurrency:
 
 jobs:
   phase6-3-entity-360:
-    name: Unified 360 / Composition / Regression
+    name: Unified 360 / Composition / Real Chromium
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -60,3 +60,40 @@ jobs:
         run: npm run build -- --base=/
       - name: Preserve production asset budget
         run: npm run audit:dist:budget
+      - name: Build isolated Phase 6.3 preview
+        run: npx vite build --config vite.phase6-3-preview.config.ts --base=/
+      - name: Enforce isolated preview size
+        run: |
+          test -f dist-phase6-3-preview/phase6-3-preview.html
+          BYTES=$(du -sb dist-phase6-3-preview | cut -f1)
+          echo "Phase 6.3 preview bytes: $BYTES"
+          test "$BYTES" -le 8388608
+      - name: Install pinned real-browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated Phase 6.3 preview
+        run: |
+          nohup npx vite preview --config vite.phase6-3-preview.config.ts --host 127.0.0.1 --port 4179 > /tmp/enjaz-phase63-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4179/phase6-3-preview.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase63-preview.log
+          exit 1
+      - name: Real Chromium Company / Lawyer 360 acceptance
+        env:
+          PHASE63_BASE_URL: http://127.0.0.1:4179/
+          PHASE63_ARTIFACT_DIR: artifacts/phase6-3-entity-360
+        run: npx playwright test tests-external/phase6-3-entity-360.spec.cjs --reporter=line --workers=1
+      - name: Upload Phase 6.3 diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-phase6-3-diagnostics-${{ github.sha }}
+          path: |
+            test-results/
+            artifacts/phase6-3-entity-360/
+            /tmp/enjaz-phase63-preview.log
+          if-no-files-found: ignore
+          retention-days: 7
