@@ -105,7 +105,7 @@ test('huge company and person names are rejected at the write boundary', () => {
 test('mixed Arabic Latin and digit search remains deterministic under noisy spacing', () => {
   const companies = buildCompanyListSnapshot({ companies: [
     company('mixed-company', { legal_name: 'شركة Al-Nahrain ٢٠٢٦ للتجارة', registration_number: 'IQ-BGD-77' }),
-  ] }, { search: '  النهرين   2026  IQ-BGD ' });
+  ] }, { search: '  شركة   al-nahrain   ٢٠٢٦   iq-bgd ' });
   assert.equal(companies.filteredTotal, 1);
 
   const contacts = buildContactListSnapshot({ contacts: [
