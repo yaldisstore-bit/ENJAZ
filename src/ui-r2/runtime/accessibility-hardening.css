@@ -1,0 +1,41 @@
+/*
+ * R2.0-10 WCAG hardening.
+ *
+ * The accent token remains part of the five-color identity for decoration,
+ * borders, fills and larger visual signals. Small foreground copy on the
+ * light canvas uses the interactive token so published UI meets WCAG AA.
+ */
+
+.ez-r2-root .r2-location {
+  overflow-x: clip;
+}
+
+.ez-r2-root .r2-location b,
+.ez-r2-root .r2-focus-row__marker,
+.ez-r2-root .r2-record-row__number,
+.ez-r2-root .r2-record-row__index,
+.ez-r2-root .r2-timeline-row time,
+.ez-r2-root .r2-create-later > span,
+.ez-r2-root .r2-context-preview__identity > span {
+  color: var(--ez-r2-interactive);
+}
+
+/* Static context ribbons wrap instead of becoming pointer-only scroll regions. */
+.ez-r2-root .r2-context-ribbon {
+  flex-wrap: wrap;
+  overflow-x: clip;
+  white-space: normal;
+}
+
+@media (max-width: 46rem) {
+  /* Keep the current location and its parent visible without a hidden scroller. */
+  .ez-r2-root .r2-location span:not(:nth-last-child(-n + 2)) {
+    display: none;
+  }
+}
+
+@media (min-width: 60rem) {
+  .ez-r2-root .r2-brand small {
+    color: var(--ez-r2-interactive);
+  }
+}
