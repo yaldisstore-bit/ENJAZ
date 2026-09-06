@@ -32,11 +32,7 @@ function source(patch: Partial<Parameters<typeof buildFinanceLedgerSnapshot>[0]>
 }
 
 test('7.1 summary composes opening balance, posted payments and ledger movement exactly', () => {
-  const snapshot = buildFinanceLedgerSnapshot(source({
-    payments: [payment('p1', 600.25)],
-    ledger: [ledger('l1', 'in', 100), ledger('l2', 'out', 50.25)],
-    cashboxes: [cashbox(2_000)],
-  }));
+  const snapshot = buildFinanceLedgerSnapshot(source({ payments: [payment('p1', 600.25)], ledger: [ledger('l1', 'in', 100), ledger('l2', 'out', 50.25)], cashboxes: [cashbox(2_000)] }));
   assert.equal(snapshot.summary.totalFeesCents, 100_000n);
   assert.equal(snapshot.summary.collectedCents, 60_025n);
   assert.equal(snapshot.summary.outstandingCents, 39_975n);
@@ -49,10 +45,7 @@ test('7.1 summary composes opening balance, posted payments and ledger movement 
 
 test('reversed payment is excluded even when only the reversal record exposes the reversal', () => {
   const p = payment('p-rev', 700);
-  const snapshot = buildFinanceLedgerSnapshot(source({
-    payments: [p],
-    paymentReversals: [{ id: 'r1', workspace_id: W, payment_id: p.id, reversed_at: '2026-09-06T10:00:00.000Z', reason: 'تصحيح', actor_user_id: null }],
-  }));
+  const snapshot = buildFinanceLedgerSnapshot(source({ payments: [p], paymentReversals: [{ id: 'r1', workspace_id: W, payment_id: p.id, reversed_at: '2026-09-06T10:00:00.000Z', reason: 'تصحيح', actor_user_id: null }] }));
   assert.equal(snapshot.summary.collectedCents, 0n);
   assert.equal(snapshot.summary.reversedPayments, 1);
   assert.equal(snapshot.summary.paymentIntegrityWarnings, 1);
@@ -61,10 +54,7 @@ test('reversed payment is excluded even when only the reversal record exposes th
 
 test('matching reversed status and reversal record creates no integrity warning', () => {
   const p = payment('p-rev2', 700, { status: 'reversed' });
-  const snapshot = buildFinanceLedgerSnapshot(source({
-    payments: [p],
-    paymentReversals: [{ id: 'r2', workspace_id: W, payment_id: p.id, reversed_at: '2026-09-06T10:00:00.000Z', reason: 'تصحيح', actor_user_id: null }],
-  }));
+  const snapshot = buildFinanceLedgerSnapshot(source({ payments: [p], paymentReversals: [{ id: 'r2', workspace_id: W, payment_id: p.id, reversed_at: '2026-09-06T10:00:00.000Z', reason: 'تصحيح', actor_user_id: null }] }));
   assert.equal(snapshot.summary.collectedCents, 0n);
   assert.equal(snapshot.summary.paymentIntegrityWarnings, 0);
 });
@@ -87,7 +77,8 @@ test('deleted transactions do not contribute current receivables', () => {
   assert.equal(snapshot.summary.outstandingCents, 0n);
 });
 
-test('money formatter keeps exact cents and Iraqi grouping', () => {
+test('money formatter keeps exact cents, sign and Iraqi grouping', () => {
   assert.equal(formatFinanceMoney(123_456_789n), '1,234,567.89 د.ع');
   assert.equal(formatFinanceMoney(100_000n), '1,000 د.ع');
+  assert.equal(formatFinanceMoney(-50n), '-0.5 د.ع');
 });
