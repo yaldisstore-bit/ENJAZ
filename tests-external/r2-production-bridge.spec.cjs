@@ -52,6 +52,19 @@ test('R2.0-10 protected workspace reaches connected Home and Executive Briefing 
   await noHorizontalOverflow(page);
 });
 
+test('Phase 7.1 full production bridge reaches the authoritative live finance surface', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(pageUrl('?test=authenticated&dest=finance'), { waitUntil: 'networkidle' });
+  await expect(page.locator('[data-r2-runtime-mode="live"]')).toBeVisible();
+  const finance = page.locator('[data-finance-stage="7.1"][data-finance-mode="live"][data-finance-readonly="true"]');
+  await expect(finance).toBeVisible();
+  await expect(finance).toContainText('Financial Ledger & Summary');
+  await expect(finance).toContainText('لا توجد حركة مالية بعد');
+  await expect(finance).toContainText('لا توجد ذمم مستحقة');
+  await expect(finance).toContainText('إنشاء الدفعات والإيصالات والعكس يبقى مقفلاً حتى Phase 7.2');
+  await noHorizontalOverflow(page);
+});
+
 test('R2.0-10 account surface exposes the real session identity and authoritative logout only', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(pageUrl('?test=authenticated'), { waitUntil: 'networkidle' });
