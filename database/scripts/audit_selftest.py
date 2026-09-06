@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import os, subprocess, tempfile
+import os, re, subprocess, tempfile
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -31,29 +31,37 @@ for name,content in cases.items():
 bootstrap_path=ROOT/'database/migrations/phase_1_3_auth_workspace_signup_trigger.sql'
 bootstrap=bootstrap_path.read_text(encoding='utf-8') if bootstrap_path.exists() else ''
 bootstrap_requirements={
-    'signup_trigger_function':'create or replace function private.bootstrap_workspace_on_auth_signup()',
-    'auth_users_trigger':'create trigger on_auth_user_created_bootstrap_workspace',
-    'profile_insert':'insert into public.profiles(id, display_name)',
-    'workspace_insert':'insert into public.workspaces(owner_user_id, name)',
-    'membership_insert':'insert into public.workspace_memberships(workspace_id, user_id, role)',
-    'settings_insert':'insert into public.workspace_settings(workspace_id)',
-    'existing_user_backfill':'for v_user in select u.id, u.raw_user_meta_data, u.email from auth.users u',
+    'signup_trigger_function':r'create\s+or\s+replace\s+function\s+private\.bootstrap_auth_user\s*\(\s*\)\s*returns\s+trigger',
+    'security_definer':r'function\s+private\.bootstrap_auth_user[\s\S]*?security\s+definer',
+    'auth_users_trigger':r'create\s+trigger\s+enjaz_bootstrap_auth_user\s+after\s+insert\s+on\s+auth\.users',
+    'profile_insert':r'insert\s+into\s+public\.profiles\s*\(\s*id\s*,\s*display_name\s*\)',
+    'workspace_insert':r'insert\s+into\s+public\.workspaces\s*\(\s*owner_user_id\s*,\s*name\s*\)',
+    'membership_insert':r'insert\s+into\s+public\.workspace_memberships\s*\(\s*workspace_id\s*,\s*user_id\s*,\s*role\s*\)',
+    'settings_insert':r'insert\s+into\s+public\.workspace_settings\s*\(\s*workspace_id\s*\)',
+    'existing_user_backfill':r'from\s+auth\.users\s+u',
+    'idempotent_profile':r'on\s+conflict\s*\(\s*id\s*\)\s+do\s+nothing',
+    'idempotent_membership':r'on\s+conflict\s*\(\s*workspace_id\s*,\s*user_id\s*\)\s+do\s+nothing',
 }
-for name,token in bootstrap_requirements.items():
-    if token not in bootstrap:
+for name,pattern in bootstrap_requirements.items():
+    if re.search(pattern, bootstrap, flags=re.IGNORECASE) is None:
         failed.append(f'bootstrap_{name}')
         print(f'FAIL selftest bootstrap_{name}: signup bootstrap contract missing')
     else:
         print(f'PASS selftest bootstrap_{name}: signup bootstrap contract present')
 
-# Destructive mutation check: each critical bootstrap capability must be independently detectable.
-for name,token in bootstrap_requirements.items():
-    corrupted=bootstrap.replace(token,'-- removed by destructive selftest --',1)
-    if token in corrupted:
+# Destructive contract proof: mutate the exact matched capability and ensure the
+# semantic matcher rejects that corrupted migration. This guards behavior rather
+# than whitespace, line wrapping, or harmless SQL formatting differences.
+for name,pattern in bootstrap_requirements.items():
+    match=re.search(pattern, bootstrap, flags=re.IGNORECASE)
+    if match is None:
+        continue
+    corrupted=bootstrap[:match.start()]+'-- removed by destructive selftest --'+bootstrap[match.end():]
+    if re.search(pattern, corrupted, flags=re.IGNORECASE) is not None:
         failed.append(f'bootstrap_mutation_{name}')
-        print(f'FAIL selftest bootstrap_mutation_{name}: corruption was not removed')
+        print(f'FAIL selftest bootstrap_mutation_{name}: corrupted capability still matched')
     else:
-        print(f'PASS selftest bootstrap_mutation_{name}: corruption detected')
+        print(f'PASS selftest bootstrap_mutation_{name}: corruption rejected')
 
 if failed:
     raise SystemExit(1)
