@@ -17,27 +17,40 @@ const browserPath = 'tests-external/phase6-4-companies-people-destruction.spec.c
 const browser = exists(browserPath) ? read(browserPath) : '';
 const closurePath = 'docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_CLOSURE.md';
 const closure = exists(closurePath) ? read(closurePath) : '';
+const postMergePath = 'docs/PHASE6_4_POSTMERGE_RECERTIFICATION.md';
+const postMerge = exists(postMergePath) ? read(postMergePath) : '';
 
 if (state.phase !== '6.4' || state.name !== 'Companies & People Destruction Gate') errors.push('Phase 6.4 canonical identity drifted');
 if (!['ACTIVE', 'CLOSED'].includes(state.status)) errors.push('Phase 6.4 state must be ACTIVE or CLOSED');
 if (state.baseCommit !== 'ce47fb2123608371139953496fdb95f4c82f2a63') errors.push('Phase 6.4 must remain anchored to the certified Phase 6.3 closure main');
 if (state.productionJavaScriptBudget !== 670000) errors.push('Phase 6.4 must preserve the 670000-byte production JavaScript budget');
-if (state.phase7Allowed !== false) errors.push('Phase 7 must remain locked until canonical Phase 6.4 post-merge recertification completes');
 if (prior.status !== 'CLOSED' || prior.exitGatePassed !== true || prior.unresolvedDefectCount !== 0 || prior.postMergeRecertification?.status !== 'COMPLETE' || prior.phase6_4Allowed !== true || prior.nextPhase !== '6.4') errors.push('Phase 6.3 canonical state does not authorize Phase 6.4');
 
 const requiredScope = ['missingRelations','duplicates','hugeNames','mixedLanguageData','largeRelationGraphs','invalidLegacyMappings','cumulativePhase6Regression','realBrowserCompaniesPeopleDestruction'];
 for (const item of requiredScope) if (!state.scope?.includes(item)) errors.push(`Phase 6.4 state missing scope: ${item}`);
 
 if (state.status === 'ACTIVE') {
-  if (state.exitGatePassed !== false || state.nextPhase !== null) errors.push('ACTIVE Phase 6.4 must fail closed');
+  if (state.exitGatePassed !== false || state.nextPhase !== null || state.phase7Allowed !== false) errors.push('ACTIVE Phase 6.4 must fail closed');
   if (exists(closurePath)) errors.push('ACTIVE Phase 6.4 cannot have closure evidence');
 }
+
 if (state.status === 'CLOSED') {
   if (state.exitGatePassed !== true || state.unresolvedDefectCount !== 0) errors.push('CLOSED Phase 6.4 requires exit gate and zero unresolved defects');
   if (!exists(closurePath)) errors.push('CLOSED Phase 6.4 requires closure evidence');
   if (state.postMergeRecertification?.required !== true || !['PENDING','COMPLETE'].includes(state.postMergeRecertification?.status)) errors.push('CLOSED Phase 6.4 requires explicit post-merge recertification state');
-  if (state.postMergeRecertification?.status === 'PENDING' && state.phase7Allowed !== false) errors.push('Phase 7 must stay locked while recertification is pending');
-  if (state.postMergeRecertification?.status === 'COMPLETE' && state.nextPhase !== '7.1') errors.push('Completed Phase 6.4 recertification must point to Phase 7.1');
+
+  if (state.postMergeRecertification?.status === 'PENDING') {
+    if (state.phase7Allowed !== false || state.nextPhase !== null) errors.push('Phase 7 must stay locked while recertification is pending');
+  }
+
+  if (state.postMergeRecertification?.status === 'COMPLETE') {
+    if (state.phase7Allowed !== true || state.nextPhase !== '7.1') errors.push('Completed Phase 6.4 recertification must authorize Phase 7.1');
+    if (!state.mergeCommit || state.postMergeRecertification?.mainCommit !== state.mergeCommit) errors.push('Completed Phase 6.4 recertification must bind to the canonical merge commit');
+    if (state.postMergeRecertification?.workflowCount !== 8 || state.postMergeRecertification?.successCount !== 8 || state.postMergeRecertification?.failureCount !== 0 || state.postMergeRecertification?.inProgressCount !== 0) errors.push('Completed Phase 6.4 recertification requires the certified 8/8 canonical workflow result');
+    if (state.postMergeEvidence !== postMergePath || !exists(postMergePath)) errors.push('Completed Phase 6.4 recertification requires canonical evidence');
+    for (const marker of ['Status: **COMPLETE**','8/8 SUCCESS','phase7Allowed=true','nextPhase=7.1','bd5d66a4e5e7e9e1a47dfa12a2d710dd0ce4537a']) if (!postMerge.includes(marker)) errors.push(`Phase 6.4 post-merge evidence missing marker: ${marker}`);
+  }
+
   for (const marker of ['Status: **CLOSED**','unresolved destructive defects: **0**','post-merge recertification']) if (!closure.includes(marker)) errors.push(`Phase 6.4 closure missing marker: ${marker}`);
 }
 
@@ -62,5 +75,6 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ PHASE 6.4 COMPANIES PEOPLE DESTRUCTION AUDIT PASS — ${state.status}; unresolved=${state.unresolvedDefectCount}; Phase 7 locked.`);
+  const transition = state.phase7Allowed ? 'Phase 7.1 authorized.' : 'Phase 7 locked.';
+  console.log(`ENJAZ PHASE 6.4 COMPANIES PEOPLE DESTRUCTION AUDIT PASS — ${state.status}; unresolved=${state.unresolvedDefectCount}; ${transition}`);
 }
