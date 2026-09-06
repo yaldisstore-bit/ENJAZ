@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react';
-import { useOptionalDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
-import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
 import type { R2DestinationId } from '../architecture/navigation-contract.ts';
-import { ConnectedCompanies } from './ConnectedCompanies.tsx';
+import { useLiveCompaniesExperience } from './LiveCompaniesExperienceContext.tsx';
 
 type RecordDestination = Extract<R2DestinationId, 'companies' | 'people' | 'documents'>;
 
@@ -337,9 +335,8 @@ function DocumentsExperience() {
 }
 
 export function RecordsRelationshipsExperience({ id }: { id: RecordDestination }) {
-  const dataFactory = useOptionalDataLayerFactory();
-  const userId = useCurrentUserId();
-  if (id === 'companies' && dataFactory && userId) return <ConnectedCompanies />;
+  const liveCompanies = useLiveCompaniesExperience();
+  if (id === 'companies' && liveCompanies) return <>{liveCompanies}</>;
   if (id === 'companies') return <CompaniesExperience />;
   if (id === 'people') return <PeopleExperience />;
   return <DocumentsExperience />;
