@@ -1,15 +1,16 @@
 # Phase 7.1 — Financial Ledger & Summary — Closure Evidence
 
-Status: **CLOSED — post-merge recertification pending**
+Status: **CLOSED — canonical post-merge recertification COMPLETE**
 
 ## Certified implementation
 
 - Implementation head: `0ac2174272d7ac0e5f79020ed78ad3872177af31`
 - Pull request: #90
+- Canonical merge commit: `3d4043c8e5d6784f327ff8ac9879402b7d933422`
 - Pre-closure result: **24/24 pull-request workflows SUCCESS, 0 failures**
+- Canonical post-merge result: **9/9 workflows SUCCESS, 0 failures, 0 in-progress**
 - unresolved defects: **0**
 - Production JavaScript budget remains **670000 bytes**; certified build = **628924/670000 bytes**.
-- Phase 7.2 remains locked until canonical post-merge recertification completes.
 
 ## Scope certified
 
@@ -24,7 +25,7 @@ Phase 7.1 establishes the authoritative read-only financial ledger and summary o
 
 The implementation uses an exact bigint-cents calculation boundary, posted/reversed payment semantics, explicit integrity warnings, transaction/company receivables, credits, ledger movement, cashbox opening balances, and an estimated balance that refuses unsafe monetary precision.
 
-No finance write operation is introduced in Phase 7.1. Payments, receipts, corrections and reversals remain Phase 7.2 work.
+No finance write operation is introduced in Phase 7.1. Payments, receipts, corrections and reversals are intentionally deferred to Phase 7.2.
 
 ## Real defects discovered and closed
 
@@ -58,7 +59,7 @@ Additional certified gates include secrets audit, roadmap integrity, TypeScript,
 
 ## Real Chromium evidence
 
-Phase 7.1 workflow run `34046837319` completed **SUCCESS**.
+Phase 7.1 pre-closure workflow run `34046837319` completed **SUCCESS**.
 
 Its dedicated Real Chromium finance acceptance completed **6/6 PASS**, covering authoritative summary semantics plus overflow-safe rendering at:
 
@@ -68,9 +69,9 @@ Its dedicated Real Chromium finance acceptance completed **6/6 PASS**, covering 
 - 360px
 - 320px
 
-R2.0-7 Operational Intelligence compatibility run `34046837347` completed **SUCCESS**, including its real-browser acceptance after the finance-preview handoff correction.
+R2.0-7 Operational Intelligence compatibility run `34046837347` completed **SUCCESS** after the finance-preview handoff correction.
 
-Cumulative Real Browser Acceptance run `34046837307` completed **SUCCESS** through the complete production bridge after Shell, Golden, Core Work, Records, Operational Intelligence, Zero-Lost and both destruction waves.
+Cumulative pre-closure Real Browser Acceptance run `34046837307` completed **SUCCESS** through the complete production bridge after Shell, Golden, Core Work, Records, Operational Intelligence, Zero-Lost and both destruction waves.
 
 ## Key pre-closure workflow evidence
 
@@ -86,16 +87,34 @@ Cumulative Real Browser Acceptance run `34046837307` completed **SUCCESS** throu
 
 All **24/24** pull-request workflows associated with implementation head `0ac2174272d7ac0e5f79020ed78ad3872177af31` completed SUCCESS.
 
+## Canonical post-merge recertification
+
+PR #90 merged into `main` as `3d4043c8e5d6784f327ff8ac9879402b7d933422`.
+
+That exact merged commit passed **9/9 post-merge workflows SUCCESS, 0 failures, 0 in-progress**:
+
+- Phase 7.1 Gate `34047520246`
+- Quality Gate `34047520176`
+- Governance Gates `34047520341`
+- Canonical Promotion `34047520209`
+- WCAG Hardening `34047520140`
+- Real Browser Acceptance `34047520268` — SUCCESS through Production Bridge
+- pages build and deployment `34047519622`
+- Pages Preview `34047555458`
+- Live External Gate `34047603734` — SUCCESS, including `Attack the actual published application`
+
+Detailed canonical evidence: `docs/PHASE7_1_POSTMERGE_RECERTIFICATION.md`.
+
 ## Transition decision
 
-The implementation exit gate has passed with zero unresolved defects, but Phase 7.1 is not yet allowed to authorize Phase 7.2 until the merged canonical `main` and published application complete post-merge recertification.
+The implementation exit gate and canonical post-merge recertification have both passed with zero unresolved defects. Phase 7.1 is fully CLOSED.
 
-Pending transition contract:
+Final transition contract:
 
 - `exitGatePassed=true`
 - `unresolvedDefectCount=0`
-- `postMergeRecertification.status=PENDING`
-- `phase7_2Allowed=false`
-- `nextPhase=null`
+- `postMergeRecertification.status=COMPLETE`
+- `phase7_2Allowed=true`
+- `nextPhase=7.2`
 
-**Phase 7.2 — Payments & Receipts remains locked until canonical post-merge recertification succeeds.**
+**Phase 7.2 — Payments & Receipts is authorized as the next and only newly allowed delivery phase.**
