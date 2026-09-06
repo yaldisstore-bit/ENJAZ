@@ -15,7 +15,19 @@ export class TransactionContactConflictError extends ContactDomainError { constr
 async function layerFor(factory: EnjazDataLayerFactory, userId: string) { const workspaceId = await factory.resolveWorkspaceId(userId); if (!workspaceId) throw new ContactDomainError('workspace', 'مساحة العمل غير متاحة.'); return { workspaceId, layer: factory.forWorkspace(workspaceId) }; }
 async function collectContacts(layer: EnjazWorkspaceDataLayer) { const rows: RowOf<'contacts'>[] = []; for (let offset = 0;;) { const page = await layer.contacts.list({ filters: [{ column: 'deleted_at', operator: 'is', value: null }], orderBy: [{ column: 'updated_at', ascending: false }], offset, limit: BATCH }); rows.push(...page.items); if (rows.length > CONTACT_SOURCE_LIMIT) throw new ContactDomainError('capacity', `تجاوز حد ${CONTACT_SOURCE_LIMIT}`); if (!page.hasMore) return rows; if (!page.items.length) throw new ContactDomainError('capacity', 'توقف تحميل الأشخاص.'); offset += page.items.length; } }
 export async function loadContactListSource(factory: EnjazDataLayerFactory, userId: string): Promise<Readonly<{ workspaceId: string; source: ContactListSource }>> { const { workspaceId, layer } = await layerFor(factory, userId); return { workspaceId, source: { contacts: await collectContacts(layer) } }; }
-export function isCurrentCompanyRelation(row: RowOf<'company_contacts'>, now = Date.now()) { const from = row.valid_from ? Date.parse(row.valid_from) : -Infinity, to = row.valid_to ? Date.parse(row.valid_to) : Infinity; return (!Number.isFinite(from) || from <= now) && (!Number.isFinite(to) || to > now); }
+
+function relationBoundary(value: string | null, fallback: number): number | null {
+  if (value === null) return fallback;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+export function isCurrentCompanyRelation(row: RowOf<'company_contacts'>, now = Date.now()) {
+  const from = relationBoundary(row.valid_from, Number.NEGATIVE_INFINITY);
+  const to = relationBoundary(row.valid_to, Number.POSITIVE_INFINITY);
+  if (from === null || to === null) return false;
+  return from <= now && to > now;
+}
 
 export interface ContactProfileSource { readonly contact: RowOf<'contacts'>; readonly companyRelations: readonly Readonly<{ relation: RowOf<'company_contacts'>; company: RowOf<'companies'> | null; current: boolean }>[]; readonly transactions: readonly RowOf<'transactions'>[]; readonly truncated: Readonly<{ companyRelations: boolean; transactions: boolean }>; }
 export async function loadContactProfileSource(factory: EnjazDataLayerFactory, userId: string, contactId: string): Promise<Readonly<{ workspaceId: string; source: ContactProfileSource }>> {
