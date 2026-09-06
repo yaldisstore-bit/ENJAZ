@@ -12,6 +12,7 @@ const required = [
   'src/ui-r2/finance/FinanceLedgerExperience.tsx',
   'src/ui-r2/finance/LiveFinanceProductionPortal.tsx',
   'src/ui-r2/finance/finance.css',
+  'src/ui-r2/finance/financePreviewSnapshot.ts',
   'tests/financeModel.test.ts',
   'tests/financeService.test.ts',
   'docs/PHASE7_1_FINANCIAL_LEDGER_STATE.json',
@@ -34,20 +35,16 @@ if (state.readOnly !== true || state.writeOperationsAllowed !== false) errors.pu
 if (state.phase7_2Allowed !== false && state.status !== 'CLOSED') errors.push('Phase 7.2 must remain locked while Phase 7.1 is in progress');
 if (state.status === 'IN_PROGRESS' && state.nextPhase !== null) errors.push('in-progress Phase 7.1 must not authorize a next phase');
 
-for (const marker of [
-  "RowOf<'payments'>",
-  "RowOf<'payment_reversals'>",
-  "RowOf<'financial_ledger_entries'>",
-  "RowOf<'cashbox_accounts'>",
-  'bigint',
-  'FinanceUnsafeMoneyError',
-  'paymentIntegrityWarnings',
-  'estimatedBalanceCents',
-]) if (!model.includes(marker)) errors.push(`finance model marker missing: ${marker}`);
-
-for (const marker of ['collectTransactions', 'collectCompanies', 'collectPayments', 'collectPaymentReversals', 'collectLedger', 'collectCashboxes', 'FINANCE_SOURCE_LIMIT']) {
-  if (!service.includes(marker)) errors.push(`finance source marker missing: ${marker}`);
+for (const marker of ["RowOf<'payments'>", "RowOf<'payment_reversals'>", "RowOf<'financial_ledger_entries'>", "RowOf<'cashbox_accounts'>", 'bigint', 'FinanceUnsafeMoneyError', 'paymentIntegrityWarnings', 'estimatedBalanceCents']) {
+  if (!model.includes(marker)) errors.push(`finance model marker missing: ${marker}`);
 }
+
+if (!service.includes('async function collect<T>') || !service.includes('FINANCE_BATCH_SIZE') || !service.includes('FINANCE_SOURCE_LIMIT')) errors.push('finance source must use the bounded shared paginator');
+for (const marker of ["collect('transactions'", "collect('companies'", "collect('payments'", "collect('payment_reversals'", "collect('financial_ledger_entries'", "collect('cashbox_accounts'"]) {
+  if (!service.includes(marker)) errors.push(`finance authoritative source missing: ${marker}`);
+}
+if (!service.includes('if (!page.items.length) throw new FinanceSourcePageStalledError')) errors.push('finance paginator must fail closed on stalled pages');
+if (!service.includes('if (rows.length > FINANCE_SOURCE_LIMIT) throw new FinanceSourceCapacityError')) errors.push('finance paginator must fail closed above source ceiling');
 
 for (const marker of [
   "readonly cashboxes: MutableRepository<'cashbox_accounts'>",
@@ -73,5 +70,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('PHASE 7.1 FINANCE AUDIT PASS — authoritative read-only ledger/summary contract active; Phase 7.2 locked.');
+  console.log(`PHASE 7.1 FINANCE AUDIT PASS — ${state.status}; authoritative read-only ledger/summary contract active; Phase 7.2 ${state.phase7_2Allowed ? 'authorized' : 'locked'}.`);
 }
