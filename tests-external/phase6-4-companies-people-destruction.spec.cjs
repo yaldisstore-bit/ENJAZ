@@ -78,8 +78,9 @@ test('relationship end remains historical after destructive interaction', async 
   const contact = page.locator('[data-contact-profile]');
   await expect(contact.getByText('محامية · حالية', { exact: true })).toBeVisible();
   await contact.getByRole('button', { name: 'إنهاء العلاقة' }).click();
-  await expect(contact.getByText('محامية · منتهية', { exact: true })).toBeVisible();
-  await expect(contact.getByText('قمر السلطان', { exact: true })).toBeVisible();
+  const endedStatus = contact.getByText('محامية · منتهية', { exact: true });
+  await expect(endedStatus).toBeVisible();
+  await expect(endedStatus.locator('..')).toContainText('قمر السلطان');
   expect(errors).toEqual([]);
   await assertNoHorizontalOverflow(page);
 });
