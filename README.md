@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 5 — Transactions Core ✅ CLOSED**  
-آخر مرحلة مغلقة: **Phase 5.5 — Transaction Destruction Gate ✅**  
-التالي المسموح: **Phase 6.1 — Companies**.
+الحالة الرسمية: **Phase 6.1 — Companies ✅ CLOSED**  
+آخر مرحلة مغلقة: **Phase 6.1 — Companies ✅**  
+التالي المسموح: **Phase 6.2 — Lawyers / Contacts**.
 
 إنجاز مشروع مستقل مبني من الصفر بهوية وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية المعتمدة دون نقل واجهات أو runtime أو legacy UI DNA من الأجيال السابقة.
 
@@ -13,8 +13,11 @@
 - [`docs/ENJAZ_MASTER_ROADMAP.md`](docs/ENJAZ_MASTER_ROADMAP.md) — الخطة الحاكمة من Phase 0 حتى **ENJAZ 1.0 — Delivered**.
 - [`docs/ENJAZ_ROADMAP_PROVENANCE.md`](docs/ENJAZ_ROADMAP_PROVENANCE.md) — مصدر الخطة وحدود استعادة التسميات التاريخية.
 - [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json) — حالة Phase 5.5 الآلية.
-- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md) — أدلة الإغلاق قبل الدمج.
-- [`docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md) — إعادة اعتماد `main` بعد الدمج وقرار فتح Phase 6.1.
+- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md) — أدلة إغلاق Phase 5.5.
+- [`docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md) — إعادة اعتماد Phase 5.5 بعد الدمج.
+- [`docs/PHASE6_1_COMPANIES_STATE.json`](docs/PHASE6_1_COMPANIES_STATE.json) — الحالة الآلية لـPhase 6.1.
+- [`docs/PHASE6_1_COMPANIES_CLOSURE.md`](docs/PHASE6_1_COMPANIES_CLOSURE.md) — أدلة إغلاق Companies.
+- [`docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md) — إعادة اعتماد `main` بعد دمج Phase 6.1 وقرار فتح 6.2.
 
 **قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو بدء مرحلة لاحقة قبل نجاح بوابة المرحلة الحالية وتسجيل قرار الانتقال في المستودع.
 
@@ -40,7 +43,9 @@
   - **Phase 5.3 — Transaction Details / 360°** ✅ complete
   - **Phase 5.4 — Archive/Restore/Lifecycle** ✅ complete
   - **Phase 5.5 — Transaction Destruction Gate** ✅ complete
-- **Next: Phase 6.1 — Companies**
+- **Phase 6 — Companies & People**
+  - **Phase 6.1 — Companies** ✅ complete
+  - **Next: Phase 6.2 — Lawyers / Contacts**
 
 ## أدلة Phase 4 وPhase 5
 
@@ -72,9 +77,27 @@ PR #79 دُمجت في `main` بالـcommit:
 
 `218a7bb85ff6098d9a3642063c6c406a57917e86`
 
-ثم أُعيد اعتماد الـcommit المدموج نفسه، لا رأس الـPR فقط، وكانت النتيجة **8/8 post-merge workflows SUCCESS، 0 failures**، وتشمل Quality، Governance، Canonical Promotion، WCAG، Real Browser حتى Production Bridge، Pages، وLive External Chromium/WCAG على التطبيق المنشور.
+ثم أُعيد اعتماد الـcommit المدموج نفسه وكانت النتيجة **8/8 post-merge workflows SUCCESS، 0 failures**.
 
-لذلك **Phase 5 مغلقة رسميًا وPhase 6.1 هي المرحلة التالية المسموحة**.
+## Phase 6.1 — النتيجة الرسمية
+
+Phase 6.1 — Companies أُغلقت بعد بناء وربط دليل الشركات، البحث والفلاتر، الإنشاء والتعديل، التفاصيل والعلاقات المقروءة من Data Layer القانونية، مع حماية replay/stale edit وحدود بيانات صريحة.
+
+قبل الدمج اجتاز رأس التنفيذ المعتمد:
+
+- **20/20 workflows SUCCESS**
+- Phase 6.1 Companies Chromium — PASS
+- Quality / Governance / WCAG / Legacy-Zero — PASS
+- R2 Destruction Wave 1 + Wave 2 — PASS
+- Real Browser Acceptance حتى Production Bridge — PASS
+
+PR #81 دُمجت في `main` بالـcommit:
+
+`6d70069995164500b3c05b027145bcdfed96e877`
+
+ثم أُعيد اعتماد الـcommit المدموج نفسه، وكانت النتيجة **8/8 post-merge workflows SUCCESS، 0 failures**. شملت إعادة الاعتماد Real Browser، Pages Preview، وLive External، بما فيها خطوة `Attack the actual published application` على النسخة المنشورة.
+
+لذلك **Phase 6.1 مغلقة رسميًا، وPhase 6.2 — Lawyers / Contacts هي المرحلة التالية المسموحة**.
 
 ## حدود البنية والأمان التي تستمر إلى المراحل التالية
 
@@ -102,8 +125,8 @@ PR #79 دُمجت في `main` بالـcommit:
 - `/foundation/interactions` — 3.3
 - `/foundation/shell-destruction` — 3.4
 - `/foundation/home` — 4.1
-- canonical R2 fixture/runtime gates — Phase 4 + Phase 5 cumulative proof
+- canonical R2 fixture/runtime gates — cumulative proof for closed product stages
 
 ## ملاحظة التطوير
 
-التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1–5.5 مغلقة ✅. Phase 6.1 — Companies هي الخطوة التالية المسموحة، ولم تبدأها وثيقة إعادة الاعتماد نفسها.**
+التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1–5.5 وPhase 6.1 مغلقة ✅. Phase 6.2 — Lawyers / Contacts هي الخطوة التالية المسموحة ولم تبدأ بعد.**

@@ -13,6 +13,8 @@ const paths = {
   state: 'docs/PHASE6_1_COMPANIES_STATE.json',
   kickoff: 'docs/PHASE6_1_COMPANIES_KICKOFF.md',
   prior: 'docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json',
+  closure: 'docs/PHASE6_1_COMPANIES_CLOSURE.md',
+  postMerge: 'docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md',
   model: 'src/features/companies/companyModel.ts',
   service: 'src/features/companies/companyService.ts',
   hooks: 'src/features/companies/useCompanies.ts',
@@ -26,7 +28,10 @@ const paths = {
   serviceTest: 'tests/companyService.test.ts',
   detailTest: 'tests/companyDetailService.test.ts',
 };
-for (const [label, file] of Object.entries(paths)) if (!exists(file)) errors.push(`missing Phase 6.1 ${label}: ${file}`);
+for (const [label, file] of Object.entries(paths)) {
+  if (label === 'postMerge') continue;
+  if (!exists(file)) errors.push(`missing Phase 6.1 ${label}: ${file}`);
+}
 if (errors.length) { console.error('ENJAZ PHASE 6.1 COMPANIES AUDIT FAIL'); errors.forEach((e) => console.error(`- ${e}`)); process.exit(1); }
 
 const state = json(paths.state);
@@ -65,14 +70,19 @@ if (state.status === 'CLOSED') {
   if (state.preClosure?.workflowCount !== 20 || state.preClosure?.successCount !== 20 || state.preClosure?.failureCount !== 0) errors.push('Phase 6.1 closure requires 20/20 pre-closure workflows with zero failures');
   const recert = state.postMergeRecertification;
   if (recert?.required !== true || !['PENDING', 'COMPLETE'].includes(recert?.status)) errors.push('CLOSED Phase 6.1 requires an explicit post-merge recertification state');
-  if (recert?.status === 'PENDING' && state.phase6_2Allowed !== false) errors.push('Phase 6.2 must remain locked while Phase 6.1 post-merge recertification is pending');
-  if (recert?.status === 'COMPLETE') {
-    if (state.phase6_2Allowed !== true) errors.push('Phase 6.2 may be allowed only after Phase 6.1 post-merge recertification completes');
-    if (typeof recert.mainCommit !== 'string' || recert.mainCommit.length !== 40) errors.push('completed Phase 6.1 recertification requires the canonical main commit');
+  const closure = read(paths.closure);
+  if (recert?.status === 'PENDING') {
+    if (state.phase6_2Allowed !== false) errors.push('Phase 6.2 must remain locked while Phase 6.1 post-merge recertification is pending');
+    for (const marker of ['Status: **CLOSED — post-merge recertification pending**','9397131afab3688749d57bcaa721e6eb858aef30','20/20 pull-request workflows SUCCESS','unresolvedDefectCount=0']) requireMarker(closure, marker, 'Phase 6.1 closure evidence');
   }
-  if (state.closureEvidence && exists(state.closureEvidence)) {
-    const closure = read(state.closureEvidence);
-    for (const marker of ['Status: **CLOSED — post-merge recertification pending**','9397131afab3688749d57bcaa721e6eb858aef30','20/20 pull-request workflows SUCCESS','34027280571','34027280543','unresolvedDefectCount=0','phase6_2Allowed` remains `false`']) requireMarker(closure, marker, 'Phase 6.1 closure evidence');
+  if (recert?.status === 'COMPLETE') {
+    if (state.phase6_2Allowed !== true || state.nextPhase !== '6.2') errors.push('Phase 6.2 may be allowed only after Phase 6.1 post-merge recertification completes');
+    if (recert.mainCommit !== '6d70069995164500b3c05b027145bcdfed96e877') errors.push('completed Phase 6.1 recertification must preserve the certified canonical main commit');
+    if (recert.workflowCount !== 8 || recert.successCount !== 8 || recert.failureCount !== 0) errors.push('completed Phase 6.1 recertification requires 8/8 workflows SUCCESS with zero failures');
+    if (!state.postMergeEvidence || state.postMergeEvidence !== paths.postMerge || !exists(paths.postMerge)) errors.push('completed Phase 6.1 recertification requires a canonical evidence file');
+    for (const marker of ['Status: **CLOSED — canonical post-merge recertification COMPLETE**','6d70069995164500b3c05b027145bcdfed96e877','8/8 post-merge workflows SUCCESS','phase6_2Allowed=true','Phase 6.2 — Lawyers / Contacts']) requireMarker(closure, marker, 'Phase 6.1 closure evidence');
+    const postMerge = read(paths.postMerge);
+    for (const marker of ['Status: **COMPLETE**','6d70069995164500b3c05b027145bcdfed96e877','8','34028184381','34028184482','34028207523','34028235528','Attack the actual published application','phase6_2Allowed=true','Phase 6.2 — Lawyers / Contacts']) requireMarker(postMerge, marker, 'Phase 6.1 post-merge evidence');
   }
 }
 
@@ -105,5 +115,5 @@ if (errors.length) {
   process.exitCode = 1;
 } else {
   const recert = state.postMergeRecertification?.status ?? 'N/A';
-  console.log(`ENJAZ PHASE 6.1 COMPANIES AUDIT PASS — ${state.status}; recert=${recert}; canonical workspace data only; frozen R2 previews remain isolated; Phase 6.2 remains ${state.phase6_2Allowed ? 'allowed' : 'locked'}.`);
+  console.log(`ENJAZ PHASE 6.1 COMPANIES AUDIT PASS — ${state.status}; recert=${recert}; canonical workspace data only; frozen R2 previews remain isolated; Phase 6.2 is ${state.phase6_2Allowed ? 'allowed' : 'locked'}.`);
 }

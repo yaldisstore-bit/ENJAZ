@@ -8,6 +8,7 @@
   "priorPhaseRecertified": true,
   "kickoff": "docs/PHASE6_1_COMPANIES_KICKOFF.md",
   "closureEvidence": "docs/PHASE6_1_COMPANIES_CLOSURE.md",
+  "postMergeEvidence": "docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md",
   "implementationHead": "9397131afab3688749d57bcaa721e6eb858aef30",
   "scope": [
     "companyList",
@@ -33,7 +34,8 @@
   "safeCompanySourceLimit": 5000,
   "exitGatePassed": true,
   "unresolvedDefectCount": 0,
-  "phase6_2Allowed": false,
+  "phase6_2Allowed": true,
+  "nextPhase": "6.2",
   "preClosure": {
     "workflowCount": 20,
     "successCount": 20,
@@ -47,9 +49,16 @@
   },
   "postMergeRecertification": {
     "required": true,
-    "status": "PENDING",
-    "mainCommit": null,
-    "completedAt": null
+    "status": "COMPLETE",
+    "mainCommit": "6d70069995164500b3c05b027145bcdfed96e877",
+    "workflowCount": 8,
+    "successCount": 8,
+    "failureCount": 0,
+    "governanceRun": 34028184381,
+    "realBrowserRun": 34028184482,
+    "pagesRun": 34028207523,
+    "liveExternalRun": 34028235528,
+    "completedAt": "2026-09-06T10:46:10Z"
   },
   "startedAt": "2026-09-06T08:50:00Z",
   "closedAt": "2026-09-06T10:27:00Z"

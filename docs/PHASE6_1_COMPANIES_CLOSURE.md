@@ -1,8 +1,8 @@
 # Phase 6.1 — Companies Closure
 
-Status: **CLOSED — post-merge recertification pending**
+Status: **CLOSED — canonical post-merge recertification COMPLETE**
 
-Phase 6.1 closes the Companies scope only. Phase 6.2 remains locked until the merged `main` commit is independently recertified.
+Phase 6.1 closes the Companies scope only. The merged `main` commit was independently recertified before Phase 6.2 was authorized.
 
 ## Certified implementation head
 
@@ -10,7 +10,7 @@ Phase 6.1 closes the Companies scope only. Phase 6.2 remains locked until the me
 
 This head completed **20/20 pull-request workflows SUCCESS with zero failures**.
 
-Key evidence:
+Key pre-merge evidence:
 
 - Phase 6.1 — Companies Gate: run `34027280571` — SUCCESS.
   - Phase 6.1 contract — PASS
@@ -38,7 +38,7 @@ Key evidence:
 - company details composed from authoritative workspace repositories
 - related transactions and documents
 - finance context without opening Phase 7
-- contact context without opening Phase 6.2 relationship management
+- contact context without opening Phase 6.2 relationship management during implementation
 - activity and blocker/risk context
 - explicit truncation truthfulness for bounded relationship reads
 - Arabic-first search and Arabic/Persian digit capital parsing
@@ -59,15 +59,30 @@ Key evidence:
 - no direct Supabase client, ad-hoc fetch, localStorage or sessionStorage channel was introduced inside the Companies feature
 - workspace-scoped Enjaz Data Layer remains the source of truth
 
-## Locked boundaries
+## Canonical post-merge recertification
 
-The following are **not** unlocked by this closure commit:
+PR #81 was merged into `main` at:
 
-- Phase 6.2 — Lawyers / Contacts CRUD and relationship management
-- Phase 6.3 — Company / Lawyer 360°
-- Phase 7 — full Finance
-- Phase 10 — document operations
+`6d70069995164500b3c05b027145bcdfed96e877`
+
+That merged commit completed **8/8 post-merge workflows SUCCESS with zero failures**.
+
+Key evidence:
+
+- Governance Gates: run `34028184381` — SUCCESS
+- Real Browser Acceptance: run `34028184482` — SUCCESS through Production Bridge
+- ENJAZ Pages Preview: run `34028207523` — SUCCESS
+- ENJAZ Live External Gate: run `34028235528` — SUCCESS, including `Attack the actual published application`
+- detailed evidence: `docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md`
 
 ## Transition rule
 
-`exitGatePassed=true` and `unresolvedDefectCount=0` certify Phase 6.1 itself. `phase6_2Allowed` remains `false` until PR #81 is merged and the resulting canonical `main` commit passes post-merge Quality/Governance/Real Browser/deployment checks. Only a separate recertification record may set `phase6_2Allowed=true`.
+`exitGatePassed=true`, `unresolvedDefectCount=0`, and canonical post-merge recertification `COMPLETE` certify Phase 6.1 fully.
+
+Therefore `phase6_2Allowed=true` and the next authorized stage is **Phase 6.2 — Lawyers / Contacts**.
+
+Still locked:
+
+- Phase 6.3 — Company / Lawyer 360°
+- Phase 7 — full Finance
+- Phase 10 — document operations
