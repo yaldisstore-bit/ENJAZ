@@ -16,9 +16,9 @@ concurrency:
 
 jobs:
   quality:
-    name: Canonical Integrity + R2 Legacy-Zero Candidate + Production Build
+    name: Canonical Integrity + R2 Legacy-Zero + Phase 5.5 + Production Build
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 40
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -56,11 +56,14 @@ jobs:
           node scripts/ui-rebirth-2-zero-lost-audit.mjs
           node scripts/ui-rebirth-2-destruction-reality-audit.mjs
           node scripts/ui-rebirth-2-legacy-eradication-audit.mjs
+      - name: Phase 5.5 destruction contract
+        run: npm run audit:phase5-5:transaction-destruction
       - name: Phase 5 model and service regressions
         run: |
           npm run test:phase5-2
           npm run test:phase5-3
           npm run test:phase5-4
+          npm run test:phase5-5
       - name: Functional regression baseline
         run: npm run test:functional
       - name: Secrets audit
