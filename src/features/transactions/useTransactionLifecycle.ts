@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DataAccessError } from '../../data/contracts/DataAccessError.ts';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
@@ -52,6 +52,7 @@ export function useTransactionLifecycle(transactionId: string): TransactionLifec
   const [status, setStatus] = useState<TransactionLifecycleControllerState>('loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<readonly TransactionLifecycleWarning[]>(Object.freeze([]));
+  const mutationInFlightRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -80,7 +81,8 @@ export function useTransactionLifecycle(transactionId: string): TransactionLifec
   }, [attempt, factory, transactionId, userId]);
 
   const execute = useCallback(async (action: TransactionLifecycleAction, note?: string | null): Promise<boolean> => {
-    if (!userId || !context || status === 'mutating') return false;
+    if (!userId || !context || status === 'mutating' || mutationInFlightRef.current) return false;
+    mutationInFlightRef.current = true;
     setStatus('mutating');
     setErrorMessage(null);
     setWarnings(Object.freeze([]));
@@ -98,6 +100,8 @@ export function useTransactionLifecycle(transactionId: string): TransactionLifec
       setStatus('error');
       setErrorMessage(lifecycleErrorMessage(error));
       return false;
+    } finally {
+      mutationInFlightRef.current = false;
     }
   }, [context, factory, status, userId]);
 
