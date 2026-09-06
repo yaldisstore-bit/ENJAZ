@@ -8,7 +8,9 @@
   "priorPhaseRecertified": true,
   "kickoff": "docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_KICKOFF.md",
   "closureEvidence": "docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_CLOSURE.md",
+  "postMergeEvidence": "docs/PHASE6_4_POSTMERGE_RECERTIFICATION.md",
   "implementationHead": "90f6c3bcc718a49ef8ca55dfa2b9e6abff4dff03",
+  "mergeCommit": "bd5d66a4e5e7e9e1a47dfa12a2d710dd0ce4537a",
   "scope": [
     "missingRelations",
     "duplicates",
@@ -45,11 +47,24 @@
       "summary": "Invalid non-null relationship dates now fail closed instead of becoming current relationships."
     }
   ],
-  "phase7Allowed": false,
-  "nextPhase": null,
+  "phase7Allowed": true,
+  "nextPhase": "7.1",
   "postMergeRecertification": {
     "required": true,
-    "status": "PENDING"
+    "status": "COMPLETE",
+    "mainCommit": "bd5d66a4e5e7e9e1a47dfa12a2d710dd0ce4537a",
+    "workflowCount": 8,
+    "successCount": 8,
+    "failureCount": 0,
+    "inProgressCount": 0,
+    "qualityRun": 34042534890,
+    "governanceRun": 34042534837,
+    "canonicalPromotionRun": 34042534842,
+    "wcagRun": 34042534865,
+    "pagesRun": 34042560785,
+    "realBrowserRun": 34042534843,
+    "liveExternalRun": 34042591087,
+    "completedAt": "2026-09-06T15:34:05Z"
   },
   "startedAt": "2026-09-06T14:53:00Z",
   "closedAt": "2026-09-06T15:22:00Z"
