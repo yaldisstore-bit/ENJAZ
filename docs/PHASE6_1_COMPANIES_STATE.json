@@ -2,11 +2,13 @@
   "schemaVersion": 1,
   "phase": "6.1",
   "name": "Companies",
-  "status": "ACTIVE",
+  "status": "CLOSED",
   "baseCommit": "3381dfdb3d85f36836052e6611d5d14e12cfb7f7",
   "priorPhase": "5.5",
   "priorPhaseRecertified": true,
   "kickoff": "docs/PHASE6_1_COMPANIES_KICKOFF.md",
+  "closureEvidence": "docs/PHASE6_1_COMPANIES_CLOSURE.md",
+  "implementationHead": "9397131afab3688749d57bcaa721e6eb858aef30",
   "scope": [
     "companyList",
     "companySearch",
@@ -29,8 +31,26 @@
   },
   "sourceOfTruth": "workspace-scoped EnjazDataLayerFactory",
   "safeCompanySourceLimit": 5000,
-  "exitGatePassed": false,
-  "unresolvedDefectCount": null,
+  "exitGatePassed": true,
+  "unresolvedDefectCount": 0,
   "phase6_2Allowed": false,
-  "startedAt": "2026-09-06T08:50:00Z"
+  "preClosure": {
+    "workflowCount": 20,
+    "successCount": 20,
+    "failureCount": 0,
+    "phase61Run": 34027280571,
+    "qualityRun": 34027280503,
+    "governanceRun": 34027280555,
+    "wcagRun": 34027280565,
+    "destructionRun": 34027280467,
+    "realBrowserRun": 34027280543
+  },
+  "postMergeRecertification": {
+    "required": true,
+    "status": "PENDING",
+    "mainCommit": null,
+    "completedAt": null
+  },
+  "startedAt": "2026-09-06T08:50:00Z",
+  "closedAt": "2026-09-06T10:27:00Z"
 }
