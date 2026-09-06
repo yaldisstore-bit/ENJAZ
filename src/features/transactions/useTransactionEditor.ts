@@ -130,9 +130,10 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
         return Object.freeze(next as unknown as TransactionEditorDraft);
       });
       setErrors((current) => {
-        if (!(field in current)) return current;
+        if (!(field in current) && !('form' in current)) return current;
         const next = { ...current };
         delete next[field];
+        delete next.form;
         return Object.freeze(next);
       });
       setErrorMessage(null);
@@ -159,10 +160,12 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
         setStatus('saved');
         return true;
       } catch (error: unknown) {
+        const message = toEditorErrorMessage(error);
         const unknownOutcome = error instanceof DataAccessError && error.dataCode === 'DATA_OUTCOME_UNKNOWN';
         setOutcomeUnknown(unknownOutcome);
         setStatus(loaded ? 'ready' : 'error');
-        setErrorMessage(toEditorErrorMessage(error));
+        setErrorMessage(message);
+        if (loaded) setErrors(Object.freeze({ form: message }));
         return false;
       } finally {
         mutationInFlightRef.current = false;
