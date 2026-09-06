@@ -1,9 +1,11 @@
 {
   "schemaVersion": 1,
   "stage": "R2.0-11",
-  "status": "CLOSED_CANDIDATE",
+  "status": "CLOSED",
   "activePromotionCommit": "2edb1bf8e1127233e80d20eea42e28c0f93928ae",
+  "closureCommit": "9895a93419c6fef939186adc4779e481c851d6a9",
   "candidatePullRequest": 76,
+  "closurePullRequest": 77,
   "candidateHeadCommit": "ff8da5aaa469563f6d6393435c02cfbbad196e37",
   "preconditions": {
     "goldenApproved": true,
@@ -61,11 +63,32 @@
     "publishedChromiumAttackPassed": true,
     "wcagPassed": true
   },
+  "finalClosureRecertification": {
+    "commit": "9895a93419c6fef939186adc4779e481c851d6a9",
+    "canonicalPromotionRun": 34018283282,
+    "governanceRun": 34018283251,
+    "qualityRun": 34018283279,
+    "wcagRun": 34018283312,
+    "realBrowserRun": 34018283236,
+    "pagesRun": 34018307309,
+    "liveExternalRun": 34018327494,
+    "canonicalPromotionPassed": true,
+    "governancePassed": true,
+    "qualityPassed": true,
+    "wcagPassed": true,
+    "realBrowserPassed": true,
+    "productionBridgePassed": true,
+    "destructionWave1Passed": true,
+    "destructionWave2Passed": true,
+    "pagesDeployPassed": true,
+    "publishedChromiumAttackPassed": true
+  },
   "closureDecision": {
     "canonicalMainRecertified": true,
     "pagesRecertified": true,
     "liveExternalRecertified": true,
     "promotionAllowed": true,
+    "exitGatePassed": true,
     "phase55Unlocked": false
   }
 }
