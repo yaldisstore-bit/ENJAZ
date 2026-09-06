@@ -42,8 +42,9 @@ for (const marker of [
   'Status: **AUTHORIZED / ACTIVE**',
   'separate governance decision',
   'defc0bf964b4446f92f6e96931f5643f586d9cfd',
-  'Attack the actual published application',
-]) if (!unlock.includes(marker)) errors.push(`Phase 5.5 unlock decision missing marker: ${marker}`);
+  'Live External recertification passed',
+  'real published-app Chromium attack',
+]) if (!unlock.includes(marker)) errors.push(`Phase 5.5 unlock decision missing semantic evidence marker: ${marker}`);
 
 if (!roadmap.includes('## 5.5 — Transaction Destruction Gate')) errors.push('Master roadmap no longer contains the frozen Phase 5.5 stage');
 
