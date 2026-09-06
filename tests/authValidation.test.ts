@@ -28,6 +28,7 @@ test('R2 auth preserves sign-in, sign-up, recovery and password-update capabilit
   const authScreen = readFileSync(new URL('../src/ui-r2/auth/R2AuthScreen.tsx', import.meta.url), 'utf8');
   const passwordUpdate = readFileSync(new URL('../src/ui-r2/auth/R2PasswordUpdateScreen.tsx', import.meta.url), 'utf8');
   const productionRoot = readFileSync(new URL('../src/ui-r2/runtime/UiR2ProductionRoot.tsx', import.meta.url), 'utf8');
+  const liveRoot = readFileSync(new URL('../src/ui-r2/runtime/UiR2LiveRoot.tsx', import.meta.url), 'utf8');
 
   assert.match(authScreen, /service\.signIn/);
   assert.match(authScreen, /service\.signUp/);
@@ -41,6 +42,9 @@ test('R2 auth preserves sign-in, sign-up, recovery and password-update capabilit
   assert.match(productionRoot, /DataLayerProvider/);
   assert.match(productionRoot, /CurrentUserIdProvider/);
   assert.match(productionRoot, /R2PasswordUpdateScreen/);
-  assert.match(productionRoot, /runtimeMode="live"/);
-  assert.doesNotMatch(`${authScreen}\n${passwordUpdate}\n${productionRoot}`, /ui-v2|ui-rebirth/);
+  assert.match(productionRoot, /UiR2LiveRoot/);
+  assert.doesNotMatch(productionRoot, /from '\.\/UiR2Root\.tsx'/);
+  assert.match(liveRoot, /data-r2-runtime-mode="live"/);
+  assert.doesNotMatch(liveRoot, /CoreWorkExperience|RecordsRelationshipsExperience/);
+  assert.doesNotMatch(`${authScreen}\n${passwordUpdate}\n${productionRoot}\n${liveRoot}`, /ui-v2|ui-rebirth/);
 });

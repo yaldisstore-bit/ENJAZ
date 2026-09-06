@@ -21,6 +21,7 @@ const paths = {
   connected: 'src/ui-r2/records/ConnectedPeople.tsx',
   portal: 'src/ui-r2/records/LivePeopleProductionPortal.tsx',
   production: 'src/ui-r2/runtime/UiR2ProductionRoot.tsx',
+  liveRoot: 'src/ui-r2/runtime/UiR2LiveRoot.tsx',
   records: 'src/ui-r2/records/RecordsRelationshipsExperience.tsx',
   data: 'src/data/createDataLayer.ts',
   modelTest: 'tests/contactModel.test.ts',
@@ -41,6 +42,7 @@ const hooks = read(paths.hooks);
 const connected = read(paths.connected);
 const portal = read(paths.portal);
 const production = read(paths.production);
+const liveRoot = read(paths.liveRoot);
 const records = read(paths.records);
 const data = read(paths.data);
 
@@ -89,7 +91,10 @@ for (const marker of ['CONTACT_SOURCE_LIMIT = 5_000','loadContactListSource','lo
 for (const marker of ['mutationInFlightRef','globalThis.crypto.randomUUID()','useContactDirectory','useContactProfile','useContactEditor','useContactRelationshipActions','DATA_OUTCOME_UNKNOWN']) requireMarker(hooks, marker, 'contact hooks');
 for (const marker of ['data-phase6-2="lawyers-contacts"','data-contact-source="workspace"','بحث الأشخاص','المحامون','جهة اتصال جديدة','إضافة علاقة مع شركة','company_contacts','primary_contact_id','Phase 6.3','Phase 7']) requireMarker(connected, marker, 'connected people UI');
 for (const marker of ['createPortal','data-r2-runtime-mode="live"','data-destination','data-records-domain="people"','<ConnectedPeople />']) requireMarker(portal, marker, 'live people portal');
-for (const marker of ['<LiveCompaniesProductionPortal />','<LivePeopleProductionPortal />','<DataLayerProvider','<UiR2Root runtimeMode="live"']) requireMarker(production, marker, 'production root');
+for (const marker of ['<LiveCompaniesProductionPortal />','<LivePeopleProductionPortal />','<DataLayerProvider','<UiR2LiveRoot']) requireMarker(production, marker, 'production root');
+requireMarker(liveRoot, 'data-r2-runtime-mode="live"', 'live-only production shell');
+if (production.includes("from './UiR2Root.tsx'")) errors.push('production root must not import preview UiR2Root');
+if (liveRoot.includes('RecordsRelationshipsExperience')) errors.push('live-only production shell must not import records preview implementation');
 for (const marker of ["contacts: MutableRepository<'contacts'>","companyContacts: MutableRepository<'company_contacts'>","transactions: MutableRepository<'transactions'>"]) requireMarker(data, marker, 'data layer');
 
 for (const forbidden of ['ConnectedPeople', 'LivePeopleProductionPortal', 'useContactDirectory']) if (records.includes(forbidden)) errors.push(`frozen R2 records preview must not import Phase 6.2 live code: ${forbidden}`);

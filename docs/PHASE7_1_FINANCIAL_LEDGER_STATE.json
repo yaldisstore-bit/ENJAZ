@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "phase": "7.1",
+  "name": "Financial Ledger & Summary",
+  "status": "CLOSED",
+  "startedFromMain": "41412b2402f705449f6030b8fe414271ffbdb330",
+  "startedAfterPhase": "6.4",
+  "readOnly": true,
+  "authoritativeSources": [
+    "transactions.current_fee",
+    "payments",
+    "payment_reversals",
+    "financial_ledger_entries",
+    "cashbox_accounts",
+    "companies"
+  ],
+  "moneyRepresentation": "bigint-cents",
+  "writeOperationsAllowed": false,
+  "productionJavaScriptBudget": 670000,
+  "closureEvidence": "docs/PHASE7_1_FINANCIAL_LEDGER_CLOSURE.md",
+  "implementationHead": "0ac2174272d7ac0e5f79020ed78ad3872177af31",
+  "preClosure": {
+    "workflowCount": 24,
+    "successCount": 24,
+    "failureCount": 0,
+    "productionJavaScriptBytes": 628924,
+    "phase71Run": 34046837319,
+    "qualityRun": 34046837354,
+    "governanceRun": 34046837385,
+    "canonicalPromotionRun": 34046837350,
+    "wcagRun": 34046837380,
+    "operationalIntelligenceRun": 34046837347,
+    "destructionRun": 34046837394,
+    "phase64Run": 34046837407,
+    "realBrowserRun": 34046837307
+  },
+  "exitGatePassed": true,
+  "unresolvedDefectCount": 0,
+  "knownDefects": [
+    {
+      "id": "P7-1-PRODUCTION-BUNDLE-DUPLICATION",
+      "status": "CLOSED",
+      "summary": "Preview-only R2 modules were removed from the live production dependency graph through an explicit UiR2LiveRoot while QA previews remain isolated."
+    },
+    {
+      "id": "P7-1-R2-FINANCE-PREVIEW-HANDOFF",
+      "status": "CLOSED",
+      "summary": "The frozen R2.0-7 finance preview now truthfully identifies itself as visual-only and hands off to the authoritative Phase 7.1 live surface."
+    }
+  ],
+  "phase7_2Allowed": false,
+  "nextPhase": null,
+  "postMergeRecertification": {
+    "required": true,
+    "status": "PENDING"
+  }
+}

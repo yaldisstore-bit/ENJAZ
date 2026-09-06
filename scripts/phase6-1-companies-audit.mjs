@@ -23,6 +23,7 @@ const paths = {
   portal: 'src/ui-r2/records/LiveCompaniesProductionPortal.tsx',
   records: 'src/ui-r2/records/RecordsRelationshipsExperience.tsx',
   production: 'src/ui-r2/runtime/UiR2ProductionRoot.tsx',
+  liveRoot: 'src/ui-r2/runtime/UiR2LiveRoot.tsx',
   data: 'src/data/createDataLayer.ts',
   context: 'src/data/react/DataLayerContext.tsx',
   modelTest: 'tests/companyModel.test.ts',
@@ -46,6 +47,7 @@ const connected = read(paths.connected);
 const portal = read(paths.portal);
 const records = read(paths.records);
 const production = read(paths.production);
+const liveRoot = read(paths.liveRoot);
 const data = read(paths.data);
 const context = read(paths.context);
 
@@ -95,7 +97,10 @@ for (const marker of ['mutationInFlightRef','globalThis.crypto.randomUUID()','DA
 for (const marker of ['data-phase6-1="companies"','data-company-source="workspace"','بحث الشركات','ترتيب الشركات','تصفية الشركات','شركة جديدة','تعديل البيانات','إدارة الأشخاص والعلاقات الكاملة تبقى Phase 6.2','Company/Lawyer 360° تبقى Phase 6.3','Phase 7','Phase 10','أي نتيجة كتابة غير مؤكدة لا تُعرض كنجاح']) requireMarker(connected, marker, 'connected companies UI');
 for (const marker of ['عرض فقط في R2.0-6','لا تنفّذ إنشاءً أو تعديلًا أو رفع ملفات إنتاجية','data-records-domain="people"','data-records-domain="documents"']) requireMarker(records, marker, 'frozen records compatibility');
 for (const marker of ['createPortal','MutationObserver','data-r2-runtime-mode="live"','data-destination','data-records-stage="R2.0-6"','data-records-domain="companies"','<ConnectedCompanies />']) requireMarker(portal, marker, 'production Companies portal');
-for (const marker of ['<LiveCompaniesProductionPortal />','<DataLayerProvider','<CurrentUserIdProvider','<UiR2Root runtimeMode="live"']) requireMarker(production, marker, 'production Companies mount');
+for (const marker of ['<LiveCompaniesProductionPortal />','<DataLayerProvider','<CurrentUserIdProvider','<UiR2LiveRoot']) requireMarker(production, marker, 'production Companies mount');
+requireMarker(liveRoot, 'data-r2-runtime-mode="live"', 'live-only production shell');
+if (production.includes("from './UiR2Root.tsx'")) errors.push('production Companies mount must not import preview UiR2Root');
+if (liveRoot.includes('RecordsRelationshipsExperience')) errors.push('live-only production shell must not import records preview implementation');
 requireMarker(data, "companies: MutableRepository<'companies'>", 'data layer');
 if (phase62) {
   if (phase62.phase !== '6.2' || phase62.priorPhase !== '6.1' || phase62.priorPhaseRecertified !== true) errors.push('Phase 6.2 state cannot authorize the mutable companyContacts evolution');
