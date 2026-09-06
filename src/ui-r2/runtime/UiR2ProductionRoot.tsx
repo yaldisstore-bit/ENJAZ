@@ -10,8 +10,7 @@ import { CurrentUserIdProvider } from '../../shared/session/CurrentUserIdContext
 import { SessionChecking } from '../../shared/session/SessionChecking.tsx';
 import { R2AuthScreen } from '../auth/R2AuthScreen.tsx';
 import { R2PasswordUpdateScreen } from '../auth/R2PasswordUpdateScreen.tsx';
-import { ConnectedCompanies } from '../records/ConnectedCompanies.tsx';
-import { LiveCompaniesExperienceContext } from '../records/LiveCompaniesExperienceContext.tsx';
+import { LiveCompaniesProductionPortal } from '../records/LiveCompaniesProductionPortal.tsx';
 import { UiR2Root } from './UiR2Root.tsx';
 import './shell-base.css';
 import './shell.css';
@@ -70,9 +69,8 @@ function AuthenticatedR2Runtime({ dataFactory }: Readonly<{ dataFactory: EnjazDa
   return (
     <DataLayerProvider factory={dataFactory}>
       <CurrentUserIdProvider userId={auth.user.id}>
-        <LiveCompaniesExperienceContext.Provider value={<ConnectedCompanies />}>
-          <UiR2Root runtimeMode="live" accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} />
-        </LiveCompaniesExperienceContext.Provider>
+        <UiR2Root runtimeMode="live" accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} />
+        <LiveCompaniesProductionPortal />
       </CurrentUserIdProvider>
     </DataLayerProvider>
   );

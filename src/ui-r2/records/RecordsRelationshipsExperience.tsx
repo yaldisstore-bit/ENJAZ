@@ -1,6 +1,5 @@
-import { useContext, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { R2DestinationId } from '../architecture/navigation-contract.ts';
-import { LiveCompaniesExperienceContext } from './LiveCompaniesExperienceContext.tsx';
 
 type RecordDestination = Extract<R2DestinationId, 'companies' | 'people' | 'documents'>;
 
@@ -335,8 +334,6 @@ function DocumentsExperience() {
 }
 
 export function RecordsRelationshipsExperience({ id }: { id: RecordDestination }) {
-  const liveCompanies = useContext(LiveCompaniesExperienceContext);
-  if (id === 'companies' && liveCompanies) return <>{liveCompanies}</>;
   if (id === 'companies') return <CompaniesExperience />;
   if (id === 'people') return <PeopleExperience />;
   return <DocumentsExperience />;

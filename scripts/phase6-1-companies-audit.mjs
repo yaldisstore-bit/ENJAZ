@@ -17,7 +17,7 @@ const paths = {
   service: 'src/features/companies/companyService.ts',
   hooks: 'src/features/companies/useCompanies.ts',
   connected: 'src/ui-r2/records/ConnectedCompanies.tsx',
-  bridge: 'src/ui-r2/records/LiveCompaniesExperienceContext.tsx',
+  portal: 'src/ui-r2/records/LiveCompaniesProductionPortal.tsx',
   records: 'src/ui-r2/records/RecordsRelationshipsExperience.tsx',
   production: 'src/ui-r2/runtime/UiR2ProductionRoot.tsx',
   data: 'src/data/createDataLayer.ts',
@@ -36,7 +36,7 @@ const model = read(paths.model);
 const service = read(paths.service);
 const hooks = read(paths.hooks);
 const connected = read(paths.connected);
-const bridge = read(paths.bridge);
+const portal = read(paths.portal);
 const records = read(paths.records);
 const production = read(paths.production);
 const data = read(paths.data);
@@ -63,13 +63,15 @@ for (const marker of ['COMPANY_SOURCE_LIMIT = 5_000','loadCompanyListSource','lo
 for (const marker of ['normalizeCompanySearch','buildCompanyListSnapshot','validateCompanyDraft','COMPANY_LIST_MAX_PAGE_SIZE = 50','COMPANY_SEARCH_MAX_LENGTH = 160','ARABIC_DIACRITICS','merged_into_id','deleted_at','normalizeDigits','Number.isSafeInteger']) requireMarker(model, marker, 'company model');
 for (const marker of ['mutationInFlightRef','globalThis.crypto.randomUUID()','DATA_OUTCOME_UNKNOWN','useCompanyDirectory','useCompanyDetail','useCompanyEditor']) requireMarker(hooks, marker, 'company hooks');
 for (const marker of ['data-phase6-1="companies"','data-company-source="workspace"','بحث الشركات','ترتيب الشركات','تصفية الشركات','شركة جديدة','تعديل البيانات','إدارة الأشخاص والعلاقات الكاملة تبقى Phase 6.2','Company/Lawyer 360° تبقى Phase 6.3','Phase 7','Phase 10','أي نتيجة كتابة غير مؤكدة لا تُعرض كنجاح']) requireMarker(connected, marker, 'connected companies UI');
-for (const marker of ['LiveCompaniesExperienceContext','useContext(LiveCompaniesExperienceContext)','عرض فقط في R2.0-6','لا تنفّذ إنشاءً أو تعديلًا أو رفع ملفات إنتاجية','data-records-domain="people"','data-records-domain="documents"']) requireMarker(records, marker, 'records compatibility');
-for (const marker of ['LiveCompaniesExperienceContext','createContext<ReactNode>(null)']) requireMarker(bridge, marker, 'live companies bridge');
-for (const marker of ['LiveCompaniesExperienceContext.Provider','<ConnectedCompanies />','<DataLayerProvider','<CurrentUserIdProvider']) requireMarker(production, marker, 'production Companies mount');
+for (const marker of ['عرض فقط في R2.0-6','لا تنفّذ إنشاءً أو تعديلًا أو رفع ملفات إنتاجية','data-records-domain="people"','data-records-domain="documents"']) requireMarker(records, marker, 'frozen records compatibility');
+for (const marker of ['createPortal','MutationObserver','data-r2-runtime-mode="live"','data-destination','data-records-stage="R2.0-6"','data-records-domain="companies"','<ConnectedCompanies />']) requireMarker(portal, marker, 'production Companies portal');
+for (const marker of ['<LiveCompaniesProductionPortal />','<DataLayerProvider','<CurrentUserIdProvider','<UiR2Root runtimeMode="live"']) requireMarker(production, marker, 'production Companies mount');
 for (const marker of ["companies: MutableRepository<'companies'>","companyContacts: ReadRepository<'company_contacts'>"]) requireMarker(data, marker, 'data layer');
 requireMarker(context, 'useOptionalDataLayerFactory', 'data context');
 
-if (records.includes('ConnectedCompanies') || records.includes('useOptionalDataLayerFactory')) errors.push('frozen R2 records preview must not directly import live Companies/data-layer implementation');
+for (const forbidden of ['ConnectedCompanies', 'LiveCompaniesExperienceContext', 'LiveCompaniesProductionPortal', 'useOptionalDataLayerFactory']) {
+  if (records.includes(forbidden)) errors.push(`frozen R2 records preview must not import live Phase 6.1 implementation: ${forbidden}`);
+}
 for (const [label, source] of [['model', model], ['service', service], ['hooks', hooks], ['connected UI', connected]]) {
   for (const forbidden of ['@supabase/supabase-js', 'createEnjazSupabaseClient', 'localStorage', 'sessionStorage']) if (source.includes(forbidden)) errors.push(`${label} creates forbidden direct persistence/runtime channel: ${forbidden}`);
 }
@@ -84,5 +86,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ PHASE 6.1 COMPANIES AUDIT PASS — ${state.status}; canonical workspace data only; Phase 6.2 remains ${state.phase6_2Allowed ? 'allowed' : 'locked'}.`);
+  console.log(`ENJAZ PHASE 6.1 COMPANIES AUDIT PASS — ${state.status}; canonical workspace data only; frozen R2 previews remain isolated; Phase 6.2 remains ${state.phase6_2Allowed ? 'allowed' : 'locked'}.`);
 }
