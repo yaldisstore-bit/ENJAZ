@@ -101,6 +101,7 @@ const emptyLayer = Object.freeze({
   paymentReversals: appendOnlyRepository,
   feeChanges: appendOnlyRepository,
   ledger: appendOnlyRepository,
+  cashboxes: mutableRepository,
   automationRuns: readRepository,
   intelligenceSnapshots: readRepository,
   notificationDeliveries: readRepository,
