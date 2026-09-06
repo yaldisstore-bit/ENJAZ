@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 6.1 — Companies ✅ CLOSED**  
-آخر مرحلة مغلقة: **Phase 6.1 — Companies ✅**  
-التالي المسموح: **Phase 6.2 — Lawyers / Contacts**.
+الحالة الرسمية: **Phase 6.2 — Lawyers / Contacts ✅ CLOSED**  
+آخر مرحلة مغلقة: **Phase 6.2 — Lawyers / Contacts ✅**  
+التالي المسموح: **Phase 6.3 — Company / Lawyer 360°**.
 
 إنجاز مشروع مستقل مبني من الصفر بهوية وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية المعتمدة دون نقل واجهات أو runtime أو legacy UI DNA من الأجيال السابقة.
 
@@ -18,6 +18,9 @@
 - [`docs/PHASE6_1_COMPANIES_STATE.json`](docs/PHASE6_1_COMPANIES_STATE.json) — الحالة الآلية لـPhase 6.1.
 - [`docs/PHASE6_1_COMPANIES_CLOSURE.md`](docs/PHASE6_1_COMPANIES_CLOSURE.md) — أدلة إغلاق Companies.
 - [`docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md) — إعادة اعتماد `main` بعد دمج Phase 6.1 وقرار فتح 6.2.
+- [`docs/PHASE6_2_LAWYERS_CONTACTS_STATE.json`](docs/PHASE6_2_LAWYERS_CONTACTS_STATE.json) — الحالة الآلية لـPhase 6.2.
+- [`docs/PHASE6_2_LAWYERS_CONTACTS_CLOSURE.md`](docs/PHASE6_2_LAWYERS_CONTACTS_CLOSURE.md) — أدلة إغلاق Lawyers / Contacts.
+- [`docs/PHASE6_2_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_2_POSTMERGE_RECERTIFICATION.md) — إعادة اعتماد `main` بعد دمج Phase 6.2 وقرار فتح 6.3.
 
 **قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو بدء مرحلة لاحقة قبل نجاح بوابة المرحلة الحالية وتسجيل قرار الانتقال في المستودع.
 
@@ -45,7 +48,8 @@
   - **Phase 5.5 — Transaction Destruction Gate** ✅ complete
 - **Phase 6 — Companies & People**
   - **Phase 6.1 — Companies** ✅ complete
-  - **Next: Phase 6.2 — Lawyers / Contacts**
+  - **Phase 6.2 — Lawyers / Contacts** ✅ complete
+  - **Next: Phase 6.3 — Company / Lawyer 360°**
 
 ## أدلة Phase 4 وPhase 5
 
@@ -97,7 +101,28 @@ PR #81 دُمجت في `main` بالـcommit:
 
 ثم أُعيد اعتماد الـcommit المدموج نفسه، وكانت النتيجة **8/8 post-merge workflows SUCCESS، 0 failures**. شملت إعادة الاعتماد Real Browser، Pages Preview، وLive External، بما فيها خطوة `Attack the actual published application` على النسخة المنشورة.
 
-لذلك **Phase 6.1 مغلقة رسميًا، وPhase 6.2 — Lawyers / Contacts هي المرحلة التالية المسموحة**.
+## Phase 6.2 — النتيجة الرسمية
+
+Phase 6.2 — Lawyers / Contacts أُغلقت بعد بناء دليل الأشخاص والمحامين وربطه بالـData Layer القانونية، مع البحث العربي والفلاتر والإنشاء والتعديل وملف جهة الاتصال وعلاقات الشركات وإسناد جهة الاتصال الأساسية للمعاملة.
+
+قبل الدمج اجتاز رأس التنفيذ المعتمد:
+
+- **21/21 workflows SUCCESS**
+- Phase 6.2 Contacts contract + 9/9 model/service tests — PASS
+- full functional regression 144/144 — PASS
+- strict production JS budget `669889/670000` — PASS دون رفع الحد
+- Real Chromium Contacts على 1280 / 430 / 390 / 360 / 320 — PASS بعد إصلاح overflow حقيقي في المقاسات الضيقة
+- Phase 6.1 cumulative gate / Quality / Governance / WCAG / Legacy-Zero — PASS
+- R2 Destruction Wave 1 + Wave 2 — PASS
+- Real Browser Acceptance حتى Production Bridge — PASS
+
+PR #83 دُمجت في `main` بالـcommit:
+
+`e35555237d6a631e55a0c248bea0f22d0cbd0c37`
+
+ثم أُعيد اعتماد الـcommit المدموج نفسه، وكانت النتيجة **8/8 post-merge workflows SUCCESS، 0 failures**. شملت إعادة الاعتماد Canonical Promotion، Quality، Governance، WCAG، Real Browser حتى Production Bridge، Pages Preview، وLive External. كما نجحت خطوة `Attack the actual published application` على النسخة المنشورة.
+
+لذلك **Phase 6.2 مغلقة رسميًا، وPhase 6.3 — Company / Lawyer 360° هي المرحلة التالية المسموحة**.
 
 ## حدود البنية والأمان التي تستمر إلى المراحل التالية
 
@@ -129,4 +154,4 @@ PR #81 دُمجت في `main` بالـcommit:
 
 ## ملاحظة التطوير
 
-التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1–5.5 وPhase 6.1 مغلقة ✅. Phase 6.2 — Lawyers / Contacts هي الخطوة التالية المسموحة ولم تبدأ بعد.**
+التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1–5.5 وPhase 6.1–6.2 مغلقة ✅. Phase 6.3 — Company / Lawyer 360° هي الخطوة التالية المسموحة ولم تبدأها وثيقة إعادة الاعتماد نفسها.**
