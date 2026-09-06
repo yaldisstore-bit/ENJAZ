@@ -13,6 +13,8 @@ const unlock = read('docs/PHASE5_5_UNLOCK_DECISION.md');
 const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 const workflow = read('.github/workflows/phase5-5-transaction-destruction.yml');
 const destructionTest = read('tests/transactionDestructionGate.test.ts');
+const browserSpecPath = 'tests-external/phase5-5-transaction-destruction.spec.cjs';
+const browserSpec = exists(browserSpecPath) ? read(browserSpecPath) : '';
 
 if (phaseState.phase !== '5.5') errors.push('Phase 5.5 state must declare phase=5.5');
 if (!['ACTIVE', 'CLOSED'].includes(phaseState.status)) errors.push('Phase 5.5 state must be ACTIVE or CLOSED');
@@ -61,6 +63,15 @@ for (const marker of [
   'malformed relation',
 ]) if (!destructionTest.includes(marker)) errors.push(`Phase 5.5 destruction test missing attack marker: ${marker}`);
 
+if (!browserSpec) errors.push('Phase 5.5 requires a dedicated real-browser transaction destruction spec');
+for (const marker of [
+  'long mixed search',
+  'repeated lifecycle activation',
+  'malformed transaction identity',
+  'list-detail-back-lifecycle pressure',
+  'assertNoHorizontalOverflow',
+]) if (!browserSpec.includes(marker)) errors.push(`Phase 5.5 browser destruction spec missing attack marker: ${marker}`);
+
 for (const marker of [
   'npm run audit:phase5-5:transaction-destruction',
   'npm run test:phase5-5',
@@ -69,6 +80,10 @@ for (const marker of [
   'npm run typecheck',
   'npm run build -- --base=/',
   'npm run audit:dist:budget',
+  'vite.r2-preview.config.ts',
+  '@playwright/test@1.55.0',
+  'tests-external/phase5-5-transaction-destruction.spec.cjs',
+  'Real Chromium transaction destruction',
 ]) if (!workflow.includes(marker)) errors.push(`Phase 5.5 workflow missing gate command: ${marker}`);
 
 if (phaseState.status === 'ACTIVE' && exists('docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md')) errors.push('Phase 5.5 closure record cannot exist while stage state is ACTIVE');
