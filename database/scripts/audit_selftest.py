@@ -42,26 +42,30 @@ bootstrap_requirements={
     'idempotent_profile':r'on\s+conflict\s*\(\s*id\s*\)\s+do\s+nothing',
     'idempotent_membership':r'on\s+conflict\s*\(\s*workspace_id\s*,\s*user_id\s*\)\s+do\s+nothing',
 }
+flags=re.IGNORECASE
 for name,pattern in bootstrap_requirements.items():
-    if re.search(pattern, bootstrap, flags=re.IGNORECASE) is None:
+    count=len(list(re.finditer(pattern, bootstrap, flags=flags)))
+    if count == 0:
         failed.append(f'bootstrap_{name}')
         print(f'FAIL selftest bootstrap_{name}: signup bootstrap contract missing')
     else:
-        print(f'PASS selftest bootstrap_{name}: signup bootstrap contract present')
+        print(f'PASS selftest bootstrap_{name}: signup bootstrap contract present ({count} match(es))')
 
-# Destructive contract proof: mutate the exact matched capability and ensure the
-# semantic matcher rejects that corrupted migration. This guards behavior rather
-# than whitespace, line wrapping, or harmless SQL formatting differences.
+# Destructive contract proof: remove one concrete occurrence and require the
+# semantic match count to fall. Capabilities intentionally shared by trigger and
+# backfill may still have another valid occurrence after the mutation.
 for name,pattern in bootstrap_requirements.items():
-    match=re.search(pattern, bootstrap, flags=re.IGNORECASE)
-    if match is None:
+    matches=list(re.finditer(pattern, bootstrap, flags=flags))
+    if not matches:
         continue
+    match=matches[0]
     corrupted=bootstrap[:match.start()]+'-- removed by destructive selftest --'+bootstrap[match.end():]
-    if re.search(pattern, corrupted, flags=re.IGNORECASE) is not None:
+    remaining=len(list(re.finditer(pattern, corrupted, flags=flags)))
+    if remaining != len(matches)-1:
         failed.append(f'bootstrap_mutation_{name}')
-        print(f'FAIL selftest bootstrap_mutation_{name}: corrupted capability still matched')
+        print(f'FAIL selftest bootstrap_mutation_{name}: match count did not fall exactly once ({len(matches)} -> {remaining})')
     else:
-        print(f'PASS selftest bootstrap_mutation_{name}: corruption rejected')
+        print(f'PASS selftest bootstrap_mutation_{name}: corruption reduced capability count ({len(matches)} -> {remaining})')
 
 if failed:
     raise SystemExit(1)
