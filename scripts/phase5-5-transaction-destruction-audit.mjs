@@ -68,8 +68,9 @@ for (const marker of [
   'unknown outcomes',
   'activity-history-unconfirmed',
   'create-replay-detected',
-  'payload drift',
-]) if (!destructionTest.includes(marker)) errors.push(`Phase 5.5 destruction test missing attack marker: ${marker}`);
+  'driftedDraft',
+  'TransactionEditorConflictError',
+]) if (!destructionTest.includes(marker)) errors.push(`Phase 5.5 destruction test missing semantic attack marker: ${marker}`);
 
 for (const marker of [
   'createOperationId',
