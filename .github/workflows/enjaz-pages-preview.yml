@@ -1,9 +1,9 @@
 name: ENJAZ Pages Preview
 
 # GitHub Pages keeps the frozen Legacy-Zero review surface at the root while also
-# publishing the real Supabase-backed ENJAZ runtime under /live/. The live build
-# fails closed unless the repository exposes the modern public Supabase runtime
-# variables required by src/core/config/env.ts.
+# publishing the real Supabase-backed ENJAZ runtime under /live/. The live client
+# uses only the public Supabase publishable key; no service-role/secret key exists
+# in this browser build.
 on:
   push:
     branches:
@@ -36,8 +36,8 @@ jobs:
     env:
       VITE_APP_ENV: production
       VITE_APP_LOG_LEVEL: info
-      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
     steps:
       - name: Checkout canonical main source
         uses: actions/checkout@v7
@@ -59,7 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "${VITE_SUPABASE_URL:-}" || -z "${VITE_SUPABASE_PUBLISHABLE_KEY:-}" ]]; then
-            echo "Real ENJAZ publish requires repository variables VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."
+            echo "Real ENJAZ publish requires Supabase public runtime configuration."
             exit 1
           fi
           if [[ ! "$VITE_SUPABASE_URL" =~ ^https://[^/]+\.supabase\.co/?$ ]]; then
