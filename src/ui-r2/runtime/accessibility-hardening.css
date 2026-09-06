@@ -21,14 +21,25 @@
   color: var(--ez-r2-interactive);
 }
 
-/*
- * Real public Chromium proved that an inherited 0.65 row opacity blends both
- * structure and interactive text into the light canvas and drops small-copy
- * contrast below AA. Interactive focus rows are actionable content, not a
- * disabled state, so they must render at full opacity.
- */
+/* Actionable focus rows are content, never a disabled/faded state. */
 .ez-r2-root .r2-focus-row {
   opacity: 1;
+}
+
+/*
+ * The public Chromium gate proved that fading the whole .r2-screen during its
+ * 180 ms entry animation temporarily blends every foreground into the canvas,
+ * dropping otherwise-valid palette pairs below WCAG AA. Preserve the premium
+ * entrance motion as transform-only so text contrast is valid on every frame,
+ * including the first painted frame.
+ */
+@keyframes r2-screen-enter {
+  from {
+    transform: translateY(0.5rem);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 /*
