@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 
 type R2OverlayId = 'search' | 'account' | null;
 
@@ -54,7 +54,7 @@ export function useR2OverlayFocusGuard(overlay: R2OverlayId): void {
     previousOverlay.current = overlay;
   }, [overlay]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!overlay) return undefined;
 
     const overlayNode = document.querySelector<HTMLElement>(`[data-overlay="${overlay}"]`);
@@ -75,7 +75,7 @@ export function useR2OverlayFocusGuard(overlay: R2OverlayId): void {
       const target = preferred && focusables.includes(preferred) ? preferred : focusables[0];
       target?.focus({ preventScroll: true });
     };
-    const frame = requestAnimationFrame(focusInitial);
+    focusInitial();
 
     const trapTab = (event: KeyboardEvent) => {
       if (event.key !== 'Tab') return;
@@ -105,7 +105,6 @@ export function useR2OverlayFocusGuard(overlay: R2OverlayId): void {
 
     document.addEventListener('keydown', trapTab, true);
     return () => {
-      cancelAnimationFrame(frame);
       document.removeEventListener('keydown', trapTab, true);
       background.forEach((node) => node.removeAttribute('inert'));
     };
