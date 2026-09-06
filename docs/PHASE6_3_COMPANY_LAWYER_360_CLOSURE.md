@@ -1,6 +1,6 @@
 # Phase 6.3 — Company / Lawyer 360° — Closure Evidence
 
-Status: **CLOSED — post-merge recertification pending**
+Status: **CLOSED — post-merge recertification complete**
 
 ## Certified implementation
 
@@ -9,8 +9,8 @@ Status: **CLOSED — post-merge recertification pending**
 - Pre-closure result: **22/22 pull-request workflows SUCCESS, 0 failures**
 - `unresolvedDefectCount=0`
 - Production JavaScript budget remains **670000 bytes**; certified build = **669997/670000 bytes**.
-- Phase 6.4 remains locked until canonical post-merge recertification completes.
-- Phase 7 remains locked.
+- Canonical post-merge recertification: **COMPLETE** on `main@46165bfc9f3237b7ff77e7ca11baed3272910831`.
+- Phase 6.4 is now authorized; Phase 7 remains locked.
 
 ## Phase 6.3 evidence
 
@@ -42,6 +42,7 @@ Backward browser compatibility was also recertified:
 1. Chromium exposed the company sort `<select>` at 40px height. The component was fixed at the shared CSS source to use `var(--ez-r2-touch-min)`; the test was not weakened.
 2. Phase 6.2 Chromium exposed duplicate accessible entity headings after adding the nested 360° title. The shared 360 heading received its own compact accessible identity (`360°`) while preserving the visible entity title, eliminating strict semantic collision without removing information.
 3. The first semantic wording exceeded the 670000-byte JavaScript cap. The cap was not raised; wording was compacted while preserving semantics. Final certified JavaScript is **669997/670000 bytes**.
+4. Canonical post-merge recertification exposed a Pages verifier defect: the production bridge was measured with `/ENJAZ/` rather than canonical `/`, producing `670003/670000` solely from the six additional path bytes. PR #86 corrected the verifier without changing product code or raising the budget. The final canonical deployment then passed all latest gates.
 
 ## Key pre-closure workflow evidence
 
@@ -57,13 +58,24 @@ Backward browser compatibility was also recertified:
 
 All 22 workflows on implementation head `c3d8d886424c52113b8bf78bdace95528f429c5f` completed SUCCESS.
 
+## Canonical post-merge result
+
+The final canonical target is `46165bfc9f3237b7ff77e7ca11baed3272910831` after the verified Pages correction in PR #86.
+
+- **9/9 final successful workflows, 0 failures**.
+- Cumulative Real Browser run `34039348382` — SUCCESS through Production Bridge.
+- Final Live External run `34039447623` — SUCCESS, including `Attack the actual published application`.
+- One older Live External run `34039399127` was superseded and cancelled by concurrency when the newer verified Pages deployment replaced it; it is not counted as a failure and its successor passed.
+- Detailed evidence: `docs/PHASE6_3_POSTMERGE_RECERTIFICATION.md`.
+
 ## Transition decision
 
-This evidence closes the implementation and pre-merge exit gate only. The canonical `main` deployment must still be recertified after merge before Phase 6.4 can be authorized.
+Canonical post-merge recertification is complete. Phase 6.4 — Companies & People Destruction Gate is the only newly authorized phase; later phases remain locked by the roadmap.
 
 - `exitGatePassed=true`
 - `unresolvedDefectCount=0`
-- `phase6_4Allowed=false`
+- `postMergeRecertification.status=COMPLETE`
+- `phase6_4Allowed=true`
 - `phase7Allowed=false`
-- `nextPhase=null`
-- post-merge recertification: **PENDING**
+- `nextPhase=6.4`
+- post-merge recertification: **COMPLETE**

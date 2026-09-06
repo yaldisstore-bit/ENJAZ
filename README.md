@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 6.2 — Lawyers / Contacts ✅ CLOSED**  
-آخر مرحلة مغلقة: **Phase 6.2 — Lawyers / Contacts ✅**  
-التالي المسموح: **Phase 6.3 — Company / Lawyer 360°**.
+الحالة الرسمية: **Phase 6.3 — Company / Lawyer 360° ✅ CLOSED**  
+آخر مرحلة مغلقة: **Phase 6.3 — Company / Lawyer 360° ✅**  
+التالي المسموح: **Phase 6.4 — Companies & People Destruction Gate**.
 
 إنجاز مشروع مستقل مبني من الصفر بهوية وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية المعتمدة دون نقل واجهات أو runtime أو legacy UI DNA من الأجيال السابقة.
 
@@ -12,15 +12,18 @@
 
 - [`docs/ENJAZ_MASTER_ROADMAP.md`](docs/ENJAZ_MASTER_ROADMAP.md) — الخطة الحاكمة من Phase 0 حتى **ENJAZ 1.0 — Delivered**.
 - [`docs/ENJAZ_ROADMAP_PROVENANCE.md`](docs/ENJAZ_ROADMAP_PROVENANCE.md) — مصدر الخطة وحدود استعادة التسميات التاريخية.
-- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json) — حالة Phase 5.5 الآلية.
-- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md) — أدلة إغلاق Phase 5.5.
-- [`docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md) — إعادة اعتماد Phase 5.5 بعد الدمج.
-- [`docs/PHASE6_1_COMPANIES_STATE.json`](docs/PHASE6_1_COMPANIES_STATE.json) — الحالة الآلية لـPhase 6.1.
-- [`docs/PHASE6_1_COMPANIES_CLOSURE.md`](docs/PHASE6_1_COMPANIES_CLOSURE.md) — أدلة إغلاق Companies.
-- [`docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md) — إعادة اعتماد `main` بعد دمج Phase 6.1 وقرار فتح 6.2.
-- [`docs/PHASE6_2_LAWYERS_CONTACTS_STATE.json`](docs/PHASE6_2_LAWYERS_CONTACTS_STATE.json) — الحالة الآلية لـPhase 6.2.
-- [`docs/PHASE6_2_LAWYERS_CONTACTS_CLOSURE.md`](docs/PHASE6_2_LAWYERS_CONTACTS_CLOSURE.md) — أدلة إغلاق Lawyers / Contacts.
-- [`docs/PHASE6_2_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_2_POSTMERGE_RECERTIFICATION.md) — إعادة اعتماد `main` بعد دمج Phase 6.2 وقرار فتح 6.3.
+- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json)
+- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md)
+- [`docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md)
+- [`docs/PHASE6_1_COMPANIES_STATE.json`](docs/PHASE6_1_COMPANIES_STATE.json)
+- [`docs/PHASE6_1_COMPANIES_CLOSURE.md`](docs/PHASE6_1_COMPANIES_CLOSURE.md)
+- [`docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md)
+- [`docs/PHASE6_2_LAWYERS_CONTACTS_STATE.json`](docs/PHASE6_2_LAWYERS_CONTACTS_STATE.json)
+- [`docs/PHASE6_2_LAWYERS_CONTACTS_CLOSURE.md`](docs/PHASE6_2_LAWYERS_CONTACTS_CLOSURE.md)
+- [`docs/PHASE6_2_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_2_POSTMERGE_RECERTIFICATION.md)
+- [`docs/PHASE6_3_COMPANY_LAWYER_360_STATE.json`](docs/PHASE6_3_COMPANY_LAWYER_360_STATE.json)
+- [`docs/PHASE6_3_COMPANY_LAWYER_360_CLOSURE.md`](docs/PHASE6_3_COMPANY_LAWYER_360_CLOSURE.md)
+- [`docs/PHASE6_3_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_3_POSTMERGE_RECERTIFICATION.md)
 
 **قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو بدء مرحلة لاحقة قبل نجاح بوابة المرحلة الحالية وتسجيل قرار الانتقال في المستودع.
 
@@ -31,9 +34,6 @@
 - **Phase 2 — ENJAZ Design System 1.0** ✅ frozen
   - **Phase 2.8 — Visual Destruction & Quality Gate** ✅
 - **Phase 3 — Application Shell & Navigation** ✅
-  - **Phase 3.1 — App Shell** ✅
-  - **Phase 3.2 — Navigation Architecture** ✅
-  - **Phase 3.3 — Global Interaction Surfaces** ✅
   - **Phase 3.4 — Shell Destruction Gate** ✅
 - **Phase 4 — Home, Daily Work & Executive Overview** ✅
   - **Phase 4.1 — Home / Dashboard** ✅ complete
@@ -49,109 +49,57 @@
 - **Phase 6 — Companies & People**
   - **Phase 6.1 — Companies** ✅ complete
   - **Phase 6.2 — Lawyers / Contacts** ✅ complete
-  - **Next: Phase 6.3 — Company / Lawyer 360°**
+  - **Phase 6.3 — Company / Lawyer 360°** ✅ complete
+  - **Next: Phase 6.4 — Companies & People Destruction Gate**
 
-## أدلة Phase 4 وPhase 5
+## الإغلاق الكانوني للمراحل الأخيرة
 
-- [`docs/PHASE4_2_DAILY_WORK_CLOSURE.md`](docs/PHASE4_2_DAILY_WORK_CLOSURE.md)
-- [`docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md`](docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md)
-- [`docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md`](docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md)
-- [`docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md`](docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md)
-- [`docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`](docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md)
-- [`docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md`](docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md)
-- [`docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md`](docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md)
-- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md)
-- [`docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md)
+### Phase 5.5
 
-## Phase 5.5 — النتيجة الرسمية
+Phase 5.5 أُغلقت بعد **19/19 workflows SUCCESS** ثم إعادة اعتماد `main` بنتيجة **8/8 post-merge workflows SUCCESS، 0 failures**. الأدلة التفصيلية محفوظة في ملفات الحالة والإغلاق وإعادة الاعتماد أعلاه.
 
-Phase 5.5 لم تكن بوابة شكلية. أثناء التدمير تم اكتشاف وإصلاح عيوب فعلية في مسار المعاملات، أهمها:
+### Phase 6.1 — Companies
 
-- منع same-tick double submit بحارس mutation متزامن.
-- تثبيت UUID لعملية الإنشاء حتى يصبح retry idempotent.
-- منع تكرار/فقد route وnote وactivity عند unknown write outcome باستخدام IDs حتمية مشتقة من العملية والتحقق قبل الكتابة.
-- استعادة محاولة الإنشاء غير المحسومة بعد refresh داخل `sessionStorage` لنفس المستخدم/التبويب.
-- قفل الـdraft عند `DATA_OUTCOME_UNKNOWN` حتى يعاد إرسال نفس العملية بدل تغيير payload غير مؤكدة.
-- إبقاء نموذج الحفظ والـdraft ظاهرين عند فشل الحفظ بدل استبدالهما بحالة load error.
-- تحويل حارس payload-drift من فحص عبارة نصية هشة إلى اختبار semantic للتعارض الحقيقي.
+قبل الدمج اجتازت Phase 6.1 **20/20 workflows SUCCESS** مع Chromium وQuality وGovernance وWCAG وReal Browser حتى Production Bridge. أُعيد اعتماد `main@6d70069995164500b3c05b027145bcdfed96e877` بنتيجة **8/8 post-merge workflows SUCCESS، 0 failures**، بما فيها النسخة المنشورة.
 
-النتيجة قبل الدمج: **19/19 workflows SUCCESS، unresolved destructive defects = 0** على Closure Candidate.
+### Phase 6.2 — Lawyers / Contacts
 
-PR #79 دُمجت في `main` بالـcommit:
+قبل الدمج اجتازت Phase 6.2 **21/21 workflows SUCCESS**، واختبارات model/service، وfull regression، وReal Chromium، وstrict production JS budget `669889/670000`. أُعيد اعتماد `main@e35555237d6a631e55a0c248bea0f22d0cbd0c37` بنتيجة **8/8 post-merge workflows SUCCESS، 0 failures**، بما فيها النسخة المنشورة.
 
-`218a7bb85ff6098d9a3642063c6c406a57917e86`
+### Phase 6.3 — Company / Lawyer 360°
 
-ثم أُعيد اعتماد الـcommit المدموج نفسه وكانت النتيجة **8/8 post-merge workflows SUCCESS، 0 failures**.
+أُغلقت Phase 6.3 بعد بناء سطح 360° موحد ومقروء فقط للشركة والمحامي/جهة الاتصال من مصادر الحقيقة المعتمدة في Phase 6.1 وPhase 6.2.
 
-## Phase 6.1 — النتيجة الرسمية
+قبل الدمج اجتاز رأس التنفيذ `c3d8d886424c52113b8bf78bdace95528f429c5f`:
 
-Phase 6.1 — Companies أُغلقت بعد بناء وربط دليل الشركات، البحث والفلاتر، الإنشاء والتعديل، التفاصيل والعلاقات المقروءة من Data Layer القانونية، مع حماية replay/stale edit وحدود بيانات صريحة.
-
-قبل الدمج اجتاز رأس التنفيذ المعتمد:
-
-- **20/20 workflows SUCCESS**
-- Phase 6.1 Companies Chromium — PASS
-- Quality / Governance / WCAG / Legacy-Zero — PASS
-- R2 Destruction Wave 1 + Wave 2 — PASS
-- Real Browser Acceptance حتى Production Bridge — PASS
-
-PR #81 دُمجت في `main` بالـcommit:
-
-`6d70069995164500b3c05b027145bcdfed96e877`
-
-ثم أُعيد اعتماد الـcommit المدموج نفسه، وكانت النتيجة **8/8 post-merge workflows SUCCESS، 0 failures**. شملت إعادة الاعتماد Real Browser، Pages Preview، وLive External، بما فيها خطوة `Attack the actual published application` على النسخة المنشورة.
-
-## Phase 6.2 — النتيجة الرسمية
-
-Phase 6.2 — Lawyers / Contacts أُغلقت بعد بناء دليل الأشخاص والمحامين وربطه بالـData Layer القانونية، مع البحث العربي والفلاتر والإنشاء والتعديل وملف جهة الاتصال وعلاقات الشركات وإسناد جهة الاتصال الأساسية للمعاملة.
-
-قبل الدمج اجتاز رأس التنفيذ المعتمد:
-
-- **21/21 workflows SUCCESS**
-- Phase 6.2 Contacts contract + 9/9 model/service tests — PASS
+- **22/22 workflows SUCCESS**
+- Phase 6.3 composition audit + 3/3 entity360 tests — PASS
 - full functional regression 144/144 — PASS
-- strict production JS budget `669889/670000` — PASS دون رفع الحد
-- Real Chromium Contacts على 1280 / 430 / 390 / 360 / 320 — PASS بعد إصلاح overflow حقيقي في المقاسات الضيقة
-- Phase 6.1 cumulative gate / Quality / Governance / WCAG / Legacy-Zero — PASS
-- R2 Destruction Wave 1 + Wave 2 — PASS
-- Real Browser Acceptance حتى Production Bridge — PASS
+- strict production JS budget `669997/670000` — PASS دون رفع الحد
+- Real Chromium Phase 6.3 — **7/7 PASS**
+- cumulative Phase 6.1/6.2, Quality, Governance, WCAG, Legacy-Zero, Destruction Wave 1/2، وReal Browser حتى Production Bridge — PASS
 
-PR #83 دُمجت في `main` بالـcommit:
+بعد دمج PR #85 كشفت إعادة الاعتماد مشكلة في verifier الخاص بـPages: قياس production bridge على `/ENJAZ/` أضاف ستة بايتات لمسار base وأظهر `670003/670000` بدل الحجم الكانوني `669997/670000`. لم يتغير التطبيق ولم يُرفع السقف؛ PR #86 صححت verifier فقط واجتازت **23/23 workflows SUCCESS**.
 
-`e35555237d6a631e55a0c248bea0f22d0cbd0c37`
+الهدف الكانوني النهائي المعاد اعتماده:
 
-ثم أُعيد اعتماد الـcommit المدموج نفسه، وكانت النتيجة **8/8 post-merge workflows SUCCESS، 0 failures**. شملت إعادة الاعتماد Canonical Promotion، Quality، Governance، WCAG، Real Browser حتى Production Bridge، Pages Preview، وLive External. كما نجحت خطوة `Attack the actual published application` على النسخة المنشورة.
+`46165bfc9f3237b7ff77e7ca11baed3272910831`
 
-لذلك **Phase 6.2 مغلقة رسميًا، وPhase 6.3 — Company / Lawyer 360° هي المرحلة التالية المسموحة**.
+النتيجة: **9/9 post-merge workflows SUCCESS، 0 failures**. نجح Real Browser حتى Production Bridge ونجح Live External النهائي `34039447623` بما فيه `Attack the actual published application`. تشغيل Live External الأقدم `34039399127` أُلغي تلقائياً بعد استبداله بنشر Pages الأحدث، ثم نجح التشغيل النهائي البديل بالكامل.
+
+لذلك **Phase 6.3 مغلقة رسميًا، وPhase 6.4 — Companies & People Destruction Gate هي المرحلة التالية والوحيدة المسموحة**. Phase 7 تبقى مغلقة.
 
 ## حدود البنية والأمان التي تستمر إلى المراحل التالية
 
 - `main` هو المصدر القانوني بعد الدمج.
 - canonical runtime يبقى `ui-r2` ما لم تغيّره مرحلة موثقة صراحةً.
-- Legacy-Zero إلزامي؛ لا عودة إلى `src/ui-v2` أو `src/ui-rebirth` أو DNA الأجيال القديمة.
+- Legacy-Zero إلزامي؛ لا عودة إلى DNA الأجيال القديمة.
 - Feature parity المجمدة تبقى محمية؛ لا يجوز إسقاط قدرة قائمة بصمت أثناء بناء المجالات الجديدة.
-- Supabase/Postgres + RLS وData Layer الموثوقة هي حدود البيانات؛ لا عميل أو secret موازي داخل feature UI.
+- Supabase/Postgres + RLS وData Layer الموثوقة هي حدود البيانات.
 - كل bug حقيقي يُكتشف يضاف له regression guard.
 - لا تُقبل smoke tests وحدها كدليل انتقال مرحلة.
-- Mobile/RTL/Android keyboard/back/safe-area وaccessibility جزء من عقد الجودة، لا تحسينات اختيارية.
-
-## المختبرات ومساحات الإثبات
-
-- `/foundation/identity` — 2.1
-- `/foundation/tokens` — 2.2
-- `/foundation/typography` — 2.3
-- `/foundation/components` — 2.4
-- `/foundation/motion` — 2.5
-- `/foundation/mobile` — 2.6
-- `/foundation/patterns` — 2.7
-- `/foundation/destruction` — 2.8
-- `/foundation/shell` — 3.1
-- `/foundation/navigation` — 3.2
-- `/foundation/interactions` — 3.3
-- `/foundation/shell-destruction` — 3.4
-- `/foundation/home` — 4.1
-- canonical R2 fixture/runtime gates — cumulative proof for closed product stages
+- Mobile/RTL/Android keyboard/back/safe-area وaccessibility جزء من عقد الجودة.
 
 ## ملاحظة التطوير
 
-التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1–5.5 وPhase 6.1–6.2 مغلقة ✅. Phase 6.3 — Company / Lawyer 360° هي الخطوة التالية المسموحة ولم تبدأها وثيقة إعادة الاعتماد نفسها.**
+التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1–5.5 وPhase 6.1–6.3 مغلقة ✅. Phase 6.4 — Companies & People Destruction Gate هي الخطوة التالية المسموحة ولم تبدأها وثيقة إعادة الاعتماد نفسها.**
