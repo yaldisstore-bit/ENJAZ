@@ -1,6 +1,6 @@
 # R2.0-11 — Canonical Promotion Closure
 
-Status: **CLOSED CANDIDATE — promotion closure awaiting closure-PR gates and merge**
+Status: **CLOSED**
 
 ## Promotion path
 
@@ -63,9 +63,50 @@ It passed:
 
 No public-response failure evidence was produced because the live attack succeeded.
 
+## Closure merge
+
+PR #77 changed the machine-declared runtime from `ui-r2-candidate` to `ui-r2` and closed promotion fail-closed state only after the required recertification evidence was green. It merged into `main` as commit `9895a93419c6fef939186adc4779e481c851d6a9`.
+
+The final machine state is:
+
+- `runtime=ui-r2`
+- `promotion.status=CLOSED`
+- `promotion.allowed=true`
+- `canonicalMainRecertified=true`
+- `pagesRecertified=true`
+- `liveExternalRecertified=true`
+- `exitGatePassed=true`
+- `phase55Locked=true`
+
+## Final post-closure recertification
+
+The actual closure commit `9895a93419c6fef939186adc4779e481c851d6a9` was re-tested after merge, not merely trusted from PR checks:
+
+- R2.0-11 Canonical Promotion Gate: run `34018283282` — SUCCESS
+- Rebirth Governance: run `34018283251` — SUCCESS
+- Quality Gate: run `34018283279` — SUCCESS
+- WCAG Hardening Gate: run `34018283312` — SUCCESS
+- Real Browser Acceptance: run `34018283236` — SUCCESS
+- Pages Preview / deployment: run `34018307309` — SUCCESS
+- Live External Gate: run `34018327494` — SUCCESS
+
+The final Real Browser run again passed:
+
+- Shell reality,
+- Golden,
+- Core Work,
+- Records,
+- Operational Intelligence,
+- Zero-Lost,
+- Destruction wave 1,
+- Destruction wave 2,
+- Production Bridge / Auth + Home + Executive + Account.
+
+The final published application also passed the external Chromium/Axe attack after the closure deployment.
+
 ## Closure invariants
 
-The closure transition is allowed only because all of the following remain simultaneously true:
+R2.0-11 is CLOSED because all of the following remain simultaneously true:
 
 - Golden approval and Beauty evidence remain locked.
 - Professional UX / No-Maze remains PASS.
@@ -77,18 +118,6 @@ The closure transition is allowed only because all of the following remain simul
 - authoritative Auth / Supabase / Data Layer production wiring remains intact.
 - TypeScript, production build and strict budgets are green.
 - cumulative browser, destruction, WCAG and public-live gates are green.
-
-## Closure transition
-
-The closure PR may therefore declare:
-
-- `runtime=ui-r2`
-- `promotion.status=CLOSED`
-- `promotion.allowed=true`
-- `canonicalMainRecertified=true`
-- `pagesRecertified=true`
-- `liveExternalRecertified=true`
-- `exitGatePassed=true`
 
 This closure does **not** unlock Phase 5.5. `phase55Locked=true` remains mandatory until a separate explicit governance decision after R2.0-11 closure.
 
