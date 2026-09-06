@@ -2,33 +2,28 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 5.4 — Archive/Restore/Lifecycle ✅**  
-آخر مرحلة مغلقة: **Phase 5.4 — Archive/Restore/Lifecycle ✅**.  
-التالي المسموح بعد دمج 5.4 وإعادة اعتماد `main`: **Phase 5.5 — Transaction Destruction Gate**، وتبقى مقفلة حتى ذلك الحين.
+الحالة الرسمية: **Phase 5 — Transactions Core ✅ CLOSED**  
+آخر مرحلة مغلقة: **Phase 5.5 — Transaction Destruction Gate ✅**  
+التالي المسموح: **Phase 6.1 — Companies**.
 
-إنجاز مشروع جديد مبني من الصفر بهوية مستقلة وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية الأساسية للمشروع السابق دون نقل واجهاته أو الـlegacy UI DNA.
+إنجاز مشروع مستقل مبني من الصفر بهوية وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية المعتمدة دون نقل واجهات أو runtime أو legacy UI DNA من الأجيال السابقة.
 
-## الخطة الرسمية حتى التسليم
+## المصدر القانوني للخطة
 
-- [`docs/ENJAZ_MASTER_ROADMAP.md`](docs/ENJAZ_MASTER_ROADMAP.md) — التسلسل الرسمي حتى **ENJAZ 1.0 — Delivered**.
+- [`docs/ENJAZ_MASTER_ROADMAP.md`](docs/ENJAZ_MASTER_ROADMAP.md) — الخطة الحاكمة من Phase 0 حتى **ENJAZ 1.0 — Delivered**.
 - [`docs/ENJAZ_ROADMAP_PROVENANCE.md`](docs/ENJAZ_ROADMAP_PROVENANCE.md) — مصدر الخطة وحدود استعادة التسميات التاريخية.
-- [`docs/PHASE4_2_DAILY_WORK_CLOSURE.md`](docs/PHASE4_2_DAILY_WORK_CLOSURE.md) — أدلة إغلاق Daily Work / Universal Inbox.
-- [`docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md`](docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md) — أدلة إغلاق Executive Briefing.
-- [`docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md`](docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md) — أدلة إغلاق Home Destruction Gate وإغلاق Phase 4 كاملة.
-- [`docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md`](docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md) — أدلة إغلاق Transaction List & Search.
-- [`docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`](docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md) — أدلة إغلاق Transaction Create/Edit.
-- [`docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md`](docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md) — أدلة إغلاق Transaction Details / 360°.
-- [`docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md`](docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md) — أدلة إغلاق Archive / Restore / Lifecycle.
+- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json) — حالة Phase 5.5 الآلية.
+- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md) — أدلة الإغلاق قبل الدمج.
+- [`docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md) — إعادة اعتماد `main` بعد الدمج وقرار فتح Phase 6.1.
 
-**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو القفز إلى مرحلة لاحقة بصمت. Phase 5.5 لا تبدأ قبل نجاح بوابات إغلاق Phase 5.4 ودمجها في `main` وإعادة اعتماد النسخة القانونية بعد الدمج.
+**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو بدء مرحلة لاحقة قبل نجاح بوابة المرحلة الحالية وتسجيل قرار الانتقال في المستودع.
 
 ## حالة المراحل
 
 - **Phase 0 — Specification Freeze** ✅
 - **Phase 1 — Engineering Foundation** ✅
-- **Phase 2 — ENJAZ Design System 1.0** ✅
-  - **Phase 2.8 — Visual Destruction & Quality Gate ✅**
-- **ENJAZ Design System 1.0** ✅ frozen
+- **Phase 2 — ENJAZ Design System 1.0** ✅ frozen
+  - **Phase 2.8 — Visual Destruction & Quality Gate** ✅
 - **Phase 3 — Application Shell & Navigation** ✅
   - **Phase 3.1 — App Shell** ✅
   - **Phase 3.2 — Navigation Architecture** ✅
@@ -39,136 +34,58 @@
   - **Phase 4.2 — Daily Work / Universal Inbox** ✅ complete
   - **Phase 4.3 — Executive Briefing** ✅ complete
   - **Phase 4.4 — Home Destruction Gate** ✅ complete
-- **Phase 5 — Transactions Core** 🚧
+- **Phase 5 — Transactions Core** ✅
   - **Phase 5.1 — Transaction List & Search** ✅ complete
   - **Phase 5.2 — Transaction Create/Edit** ✅ complete
   - **Phase 5.3 — Transaction Details / 360°** ✅ complete
   - **Phase 5.4 — Archive/Restore/Lifecycle** ✅ complete
-  - **Phase 5.5 — Transaction Destruction Gate** ⏳ not started
+  - **Phase 5.5 — Transaction Destruction Gate** ✅ complete
+- **Next: Phase 6.1 — Companies**
 
-## Phase 4.1 — المكتمل رسميًا
+## أدلة Phase 4 وPhase 5
 
-4.1 استبدلت الـHome المؤقتة بشاشة تشغيلية حقيقية فوق الـApp Shell وDesign System 1.0 المجمد:
+- [`docs/PHASE4_2_DAILY_WORK_CLOSURE.md`](docs/PHASE4_2_DAILY_WORK_CLOSURE.md)
+- [`docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md`](docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md)
+- [`docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md`](docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md)
+- [`docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md`](docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md)
+- [`docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`](docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md)
+- [`docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md`](docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md)
+- [`docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md`](docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md)
+- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md)
+- [`docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md)
 
-- استعادة Workspace للمستخدم من `workspace_memberships` عبر Data Layer المركزية وRLS، لا باشتقاق معرف وهمي.
-- معاملات نشطة فقط؛ المؤرشف والمحذوف والمكتمل لا يدخل في عدادات العمل النشط.
-- الأولويات مشتقة من العوائق الحرجة/المرتفعة، المتابعات المتأخرة، المعاملات العاجلة والمتلكئة.
-- احترام `snoozed_until` وعدم إظهار المتابعة المؤجلة كأولوية متأخرة.
-- Financial snapshot محدود بوضوح إلى أتعاب العمل النشط والمدفوعات `posted` المرتبطة به؛ Phase 7 يبقى المرجع المحاسبي الكامل.
-- كشف نطاق الدقة الرقمية وعدم الادعاء بدقة مالية زائفة عند تجاوز مجال JavaScript الآمن.
-- Loading / Empty / Error / Retry states فعلية، ولا تُعرض أرقام جزئية عند فشل تحميل جزء من المصادر.
+## Phase 5.5 — النتيجة الرسمية
 
-## Phase 4.2 — المكتمل رسميًا
+Phase 5.5 لم تكن بوابة شكلية. أثناء التدمير تم اكتشاف وإصلاح عيوب فعلية في مسار المعاملات، أهمها:
 
-4.2 حولت وجهة «اليوم» إلى **Daily Work / Universal Inbox** حقيقية داخل ENJAZ UI/UX 2.0 المجمد:
+- منع same-tick double submit بحارس mutation متزامن.
+- تثبيت UUID لعملية الإنشاء حتى يصبح retry idempotent.
+- منع تكرار/فقد route وnote وactivity عند unknown write outcome باستخدام IDs حتمية مشتقة من العملية والتحقق قبل الكتابة.
+- استعادة محاولة الإنشاء غير المحسومة بعد refresh داخل `sessionStorage` لنفس المستخدم/التبويب.
+- قفل الـdraft عند `DATA_OUTCOME_UNKNOWN` حتى يعاد إرسال نفس العملية بدل تغيير payload غير مؤكدة.
+- إبقاء نموذج الحفظ والـdraft ظاهرين عند فشل الحفظ بدل استبدالهما بحالة load error.
+- تحويل حارس payload-drift من فحص عبارة نصية هشة إلى اختبار semantic للتعارض الحقيقي.
 
-- Queue موحدة تجمع المتابعات، العوائق، المواعيد القريبة، التجديدات، وإجراءات الـWorkflow المعلقة.
-- استبعاد أي عمل تابع لمعاملة مكتملة أو مؤرشفة أو محذوفة.
-- احترام تأجيل المتابعات وعدم إعادتها إلى الـInbox قبل `snoozed_until`.
-- ترتيب تشغيلي حسب الأثر والوقت، مع Ownership من أحدث `transaction_routes.assigned_to_text`.
-- إكمال المتابعة/الموعد/التجديد/Workflow عبر الـRepositories الموثوقة نفسها.
-- منع Universal Inbox من حلّ Blocker بصمت؛ العائق يفتح سياق العمل بدل تجاوز قواعد المعاملة.
-- Live runtime يستخدم Auth + Data Layer + Supabase، بينما CI/GitHub Pages يستخدم fixture معزولة بلا أسرار أو بيانات إنتاج.
-- Loading / Empty / Error / Retry وحالات الإجراء موجودة فعليًا.
-- اختبار حقيقي على 1280 / 430 / 390 / 360 / 320px مع Touch 44px وoverflow وconsole/page errors.
+النتيجة قبل الدمج: **19/19 workflows SUCCESS، unresolved destructive defects = 0** على Closure Candidate.
 
-## Phase 4.3 — المكتمل رسميًا
+PR #79 دُمجت في `main` بالـcommit:
 
-4.3 أضافت **Executive Briefing** فوق المصادر التشغيلية الموثوقة دون إنشاء منطق أعمال موازٍ:
+`218a7bb85ff6098d9a3642063c6c406a57917e86`
 
-- تعيد استخدام حقائق وأولويات Home من 4.1 وضغط العمل من 4.2.
-- تضيف نبضة مالية محدودة لدفعات `posted` خلال آخر 7 أيام مقارنة بالـ7 السابقة عبر Data Layer نفسها.
-- تعرض حالة تنفيذية وقرارات محدودة بالأعلى أثرًا.
-- تحمي الدقة المالية ولا تعرض قيمة غير آمنة كرقم دقيق.
-- Live runtime يستخدم Auth/Data Layer؛ Public Preview تستخدم fixture معزولة.
-- Chromium Reality Gate اختبرت 1280 / 430 / 390 / 360 / 320px مع النصوص المختلطة والقيم الضخمة.
+ثم أُعيد اعتماد الـcommit المدموج نفسه، لا رأس الـPR فقط، وكانت النتيجة **8/8 post-merge workflows SUCCESS، 0 failures**، وتشمل Quality، Governance، Canonical Promotion، WCAG، Real Browser حتى Production Bridge، Pages، وLive External Chromium/WCAG على التطبيق المنشور.
 
-## Phase 4.4 — المكتمل رسميًا
+لذلك **Phase 5 مغلقة رسميًا وPhase 6.1 هي المرحلة التالية المسموحة**.
 
-4.4 هاجمت الـHome الحقيقية وأغلقت بقايا التنفيذ المؤقت:
+## حدود البنية والأمان التي تستمر إلى المراحل التالية
 
-- ربطت الـHome التشغيلية بمسار live وبـfixture معزولة في CI/Pages.
-- أزيل `HomeCoreScreen` الثابت القديم فعليًا.
-- أضيفت سيناريوهات deterministic: empty / dense / conflict / slow / offline.
-- الأولويات أصبحت transaction-distinct ومحدودة.
-- بقيت حماية الدقة المالية واستبعاد المؤرشف/المحذوف/المكتمل واحترام snooze.
-- Functional regression عند الإغلاق: **64/64** ✅، وPhase 4.4 dataset destruction: **4/4** ✅.
-
-## Phase 5.1 — المكتمل رسميًا
-
-5.1 استبدلت العرض الثابت للمعاملات بقائمة تشغيلية حقيقية ومتصلة ببنية البيانات القانونية:
-
-- Live runtime يحل Workspace من المستخدم المصادق ويقرأ عبر `EnjazDataLayerFactory` والـRepositories المقيّدة بالـWorkspace؛ Preview/CI معزولة.
-- ثلاث حالات واضحة: **الجارية / المتلكئة والمتأخرة / المؤرشفة والمغلقة**.
-- المعاملات المحذوفة لا تدخل العدادات أو البحث أو الصفحات.
-- بحث عربي مُطبّع يغطي رقم/هوية المعاملة، `legacy_id`، النوع، الجهة، الحالة، الأولوية واسم الشركة.
-- فرز حسب آخر حركة، تاريخ الإنشاء، والأتعاب صعودًا/نزولًا.
-- Pagination افتراضية 20 صفًا ومحدودة إلى 50؛ ومصدر البيانات يفشل بأمان إذا تجاوز 5,000 سجل بدل عرض نتيجة ناقصة.
-- العلاقة المفقودة مع الشركة تظهر صراحةً، والقيم المالية خارج مجال الدقة الآمن لا تُعرض كحقائق دقيقة.
-- عقد Saved View ثابت باسم `enjaz.transactions.list.v1` يحتفظ بالعرض/البحث/الفرز/حجم الصفحة ولا يحتفظ برقم الصفحة المؤقت؛ التنفيذ الكامل للـSmart Saved Views يبقى Phase 9.2.
-- Loading / Error / Retry / Empty والنصوص الطويلة وRTL والموبايل وReduced Motion محمية.
-- اختبار Phase 5.1 المخصص: **15/15** ✅.
-- Full functional regression: **79/79** ✅.
-- Chromium حقيقي: 1280 / 430 / 390 / 360 / 320px، مع pagination/search/sort/view switching و44px touch وoverflow ✅.
-- Pre-closure gate `33944168202` على `5cf81aac4e527fc34ca1a7a03a148f083bb4ce60` ✅، evidence artifact `9962794607`.
-
-## Phase 5.2 — المكتمل رسميًا
-
-5.2 أضافت إنشاء وتعديل المعاملة عبر مسار موحد وآمن دون فتح نطاق 360° أو دورة الحياة:
-
-- إنشاء/تعديل موحد خلف Auth + Workspace-scoped Data Layer، مع fixture عامة/CI معزولة.
-- الشركة إلزامية، وجهة الاتصال لا تُقبل إلا إذا كانت متاحة ومرتبطة بالشركة الحالية.
-- Validation صريح للنوع والجهة والحالة والأولوية والأتعاب وتاريخ الإكمال والمحطة والمسؤول والملاحظات وسبب تغيير الأتعاب.
-- حماية مالية تقبل الأرقام العربية/الفارسية وتمنع القيم غير الموجبة أو غير الدقيقة أو الخارجة عن مجال الدقة الآمن.
-- إعادة قراءة السجل قبل التعديل ورفض stale edit بدل الكتابة فوق نسخة أحدث.
-- المؤرشف/المحذوف وإعادة تنشيط المكتمل خارج 5.2 وتبقى لـPhase 5.4.
-- مسار المحطات والملاحظات وسجل تغيير الأتعاب والنشاط يحافظ على التاريخ بدل محوه.
-- أي companion write غير مؤكد يظهر كتحذير ولا يُعرض نجاح كامل زائف.
-- تم اكتشاف عيب حقيقي في Chromium: بعض حقول الإنشاء كانت 40–42px؛ أصلح عبر Design Tokens وأصبح الحد الأدنى 44px دون إضعاف الاختبار.
-- اختبار Phase 5.2 المخصص: **12/12** ✅.
-- Full functional regression: **91/91** ✅.
-- Chromium الحقيقي لعملية create/edit نجح بعد إصلاح touch targets ✅.
-- Pre-closure gate `33946358543` على خط الإصلاح `74339f319e1e4b6a7a21079f15434733025c88b8` ✅، evidence artifact `9963457065`.
-- Quality Gate `33946358585` وReal Browser Acceptance `33946358556` والبوابات التراكمية 4.3/4.4/5.1 كلها خضراء ✅.
-
-## Phase 5.3 — المكتمل رسميًا
-
-5.3 أضافت ملف المعاملة 360° كسطح قراءة وتجميع موحد فوق مصادر الحقيقة الحالية دون إنشاء منطق أعمال موازٍ:
-
-- Workspace-scoped Data Layer تجمع هوية المعاملة والشركة/جهة الاتصال والمسار والنشاط والملاحظات والمتابعات والدفعات وتغييرات الأتعاب والمستندات والـWorkflow والعوائق.
-- المصادر الأساسية تفشل مغلقًا، بينما السياق الاختياري يعلن unavailable/truncated صراحةً بدل اختلاق بيانات.
-- Timeline مرتبة deterministic ومحدودة، وكذلك أقسام 360 لمنع العرض غير المحدود.
-- القيم المالية غير الآمنة لا تُعرض كحقائق دقيقة.
-- المعاملات المؤرشفة/المكتملة تفتح 360° للقراءة فقط؛ archive/restore/reactivation تبقى Phase 5.4.
-- تم إصلاح عيب طبقات حقيقي بنقل Sheets/Dialogs إلى React Portal على `document.body`، وأضاف Chromium حارس `elementFromPoint` يمنع الدك أو Top Bar من الظهور فوق النافذة.
-- تم تصحيح توقيت Evidence screenshots لتلتقط الحالة المستقرة بعد انتهاء animation.
-- تم إصلاح ملخص 360 وFacts بعد فحص الصور يدويًا: شبكة تعتمد على عرض الحاوية، بطاقات واضحة، وRTL/bidi wrapping للنصوص العربية/اللاتينية/الأرقام.
-- اختبار Phase 5.3 المخصص: **11/11** ✅.
-- Full functional regression: **102/102** ✅.
-- Chromium حقيقي: 1280 / 430 / 390 / 360 / 320px، مع long mixed text، missing company، archived read-only، 44px touch، no overflow وmodal-layer guards ✅.
-- Pre-closure gate `33953751497` على `db5f52e82840f5f904a185cca6664d5ffb7f5a7d` ✅، evidence artifact `9965684028`.
-- Quality Gate `33953751483` وReal Browser Acceptance `33953751471` وبوابات 5.2/5.1/4.4/4.3 كلها خضراء ✅.
-- Closure evidence: `docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md`.
-
-## Phase 5.4 — المكتمل رسميًا
-
-5.4 أضافت إدارة دورة حياة المعاملة كمسار مستقل وآمن دون خلط الأرشفة بالإكمال أو فتح نطاق الحذف/المالية/الـWorkflow:
-
-- الأرشفة تستخدم `archived_at` فقط ولا تختلق حالة `archived` غير موجودة في قاعدة البيانات.
-- الاستعادة تزيل `archived_at` وتحافظ على الحالة الأصلية؛ المعاملة المكتملة تبقى مكتملة حتى إعادة تنشيط صريحة.
-- إعادة التنشيط تعيد المكتملة إلى `active` وتمسح `completed_at` و`archived_at` عند الحاجة.
-- المعاملات المحذوفة والتعديلات stale تفشل مغلقًا قبل أي mutation.
-- المتابعات المفتوحة تُحصى وتُحفظ ولا تُحذف أو يعاد تشكيل تاريخها؛ الإقصاء من Daily Work يحصل عبر حالة المعاملة القانونية.
-- النشاط يسجل append-only في `transaction_activity`، وأي outcome غير مؤكد يظهر كتحذير بدل نجاح زائف.
-- واجهة «إدارة الحالة» تعرض فقط الإجراءات القانونية بعد قراءة السجل الحالي، مع confirmation منفصلة لكل فعل.
-- 360° بقيت read-only، بينما lifecycle mutation بقيت خارجها في سطح 5.4 المنفصل.
-- تم اكتشاف عيب بصري حقيقي في evidence: ومضة نص generic أثناء 180ms exit animation لنافذة التأكيد؛ أصلح بالاحتفاظ بهوية الفعل حتى خروج الـDialog وانتظار اختفائه قبل screenshot.
-- اختبار Phase 5.4 المخصص: **16/16** ✅.
-- Full functional regression: **118/118** ✅.
-- Chromium حقيقي: 1280 / 430 / 390 / 360 / 320px، مع archive/restore/reactivate، long mixed text، 44px touch، no overflow، Portal/modal-layer، console/page error guards ✅.
-- Pre-closure gate `33955819739` على `b49927d6d3a037fbb78eb5bd0ea639535c71e5e8` ✅، evidence artifact `9966337167`.
-- Quality Gate `33955819741` وReal Browser Acceptance `33955819735` وبوابات 5.3/5.2/5.1/4.4/4.3 كلها خضراء ✅.
-- Closure evidence: `docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md`.
+- `main` هو المصدر القانوني بعد الدمج.
+- canonical runtime يبقى `ui-r2` ما لم تغيّره مرحلة موثقة صراحةً.
+- Legacy-Zero إلزامي؛ لا عودة إلى `src/ui-v2` أو `src/ui-rebirth` أو DNA الأجيال القديمة.
+- Feature parity المجمدة تبقى محمية؛ لا يجوز إسقاط قدرة قائمة بصمت أثناء بناء المجالات الجديدة.
+- Supabase/Postgres + RLS وData Layer الموثوقة هي حدود البيانات؛ لا عميل أو secret موازي داخل feature UI.
+- كل bug حقيقي يُكتشف يضاف له regression guard.
+- لا تُقبل smoke tests وحدها كدليل انتقال مرحلة.
+- Mobile/RTL/Android keyboard/back/safe-area وaccessibility جزء من عقد الجودة، لا تحسينات اختيارية.
 
 ## المختبرات ومساحات الإثبات
 
@@ -184,41 +101,9 @@
 - `/foundation/navigation` — 3.2
 - `/foundation/interactions` — 3.3
 - `/foundation/shell-destruction` — 3.4
-- `/foundation/home` — 4.1 deterministic Home proof
-- UI V2 fixture runtime — 4.2 Daily Work proof
-- UI V2 Executive Briefing fixture runtime — 4.3 proof
-- UI V2 Home destruction scenarios — 4.4 proof
-- UI V2 transaction fixture + dedicated Chromium destruction — 5.1 Transaction List & Search proof
-- UI V2 transaction create/edit fixture + dedicated Chromium destruction — 5.2 Transaction Create/Edit proof
-- UI V2 transaction 360 fixture + dedicated Chromium destruction — 5.3 Transaction Details / 360° proof
-- UI V2 transaction lifecycle fixture + dedicated Chromium destruction — 5.4 Archive / Restore / Lifecycle proof
-
-## Quality Gate
-
-Phase 5.4 pre-closure certification على الرأس `b49927d6d3a037fbb78eb5bd0ea639535c71e5e8` أثبت:
-
-1. QA stage contract ✅
-2. UI V2 Boundary + Visual DNA ✅
-3. UI-4 → UI-10 cumulative freeze ✅
-4. Phase 4.2 / 4.3 / 4.4 + Phase 5.1 / 5.2 / 5.3 cumulative gates ✅
-5. Phase 5.4 architecture audit ✅
-6. Phase 5.4 model/service tests **16/16** ✅
-7. Full functional tests **118/118** ✅
-8. Secrets + roadmap + database integrity ✅
-9. TypeScript `tsc -b` ✅
-10. Vite production build ✅
-11. Strict production asset budget ✅
-12. Chromium Archive / Restore / Reactivate + responsive/touch/modal-layer destruction ✅
-13. Global Browser Acceptance ✅
-14. Evidence artifact `9966337167` ✅
-15. Manual screenshot review after settled confirmation exit ✅
-
-أدلة التنفيذ مفصلة في `docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md`، وبوابات الإغلاق نفسها أصبحت تراكمية بحيث لا تستطيع مرحلة لاحقة إسقاط حماية 5.4 بصمت.
-
-## الأمان والأسرار
-
-المستودع لا يحتوي على `.env.local` أو مفاتيح Supabase الفعلية أو Service Role secrets. Feature layers التشغيلية لا تنشئ عميل Supabase مباشرًا خارج البنية المعتمدة؛ الوصول يمر عبر Data Layer المركزية، والـfixtures العامة معزولة عن بيانات الإنتاج.
+- `/foundation/home` — 4.1
+- canonical R2 fixture/runtime gates — Phase 4 + Phase 5 cumulative proof
 
 ## ملاحظة التطوير
 
-`main` هو المصدر القانوني والوحيد بعد الدمج. التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1 وPhase 5.2 وPhase 5.3 وPhase 5.4 مغلقة؛ Phase 5.5 — Transaction Destruction Gate هي الخطوة التالية المسموحة فقط بعد دمج إغلاق 5.4 وإعادة اعتماد `main`، ولم تبدأ بعد.**
+التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1–5.5 مغلقة ✅. Phase 6.1 — Companies هي الخطوة التالية المسموحة، ولم تبدأها وثيقة إعادة الاعتماد نفسها.**
