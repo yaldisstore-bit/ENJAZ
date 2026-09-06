@@ -8,7 +8,7 @@
   "priorPhaseRecertified": true,
   "kickoff": "docs/PHASE6_3_COMPANY_LAWYER_360_KICKOFF.md",
   "closureEvidence": "docs/PHASE6_3_COMPANY_LAWYER_360_CLOSURE.md",
-  "postMergeEvidence": null,
+  "postMergeEvidence": "docs/PHASE6_3_POSTMERGE_RECERTIFICATION.md",
   "implementationHead": "c3d8d886424c52113b8bf78bdace95528f429c5f",
   "scope": [
     "company360",
@@ -44,12 +44,28 @@
   },
   "postMergeRecertification": {
     "required": true,
-    "status": "PENDING"
+    "status": "COMPLETE",
+    "mainCommit": "46165bfc9f3237b7ff77e7ca11baed3272910831",
+    "workflowCount": 9,
+    "successCount": 9,
+    "failureCount": 0,
+    "supersededCancelledCount": 1,
+    "canonicalPromotionRun": 34039348365,
+    "qualityRun": 34039348403,
+    "realBrowserRun": 34039348382,
+    "wcagRun": 34039348388,
+    "governanceRun": 34039348417,
+    "pagesPushRun": 34039348376,
+    "pagesBuildDeploymentRun": 34039347689,
+    "pagesWorkflowRun": 34039414219,
+    "liveExternalRun": 34039447623,
+    "supersededLiveExternalRun": 34039399127,
+    "completedAt": "2026-09-06T14:33:24Z"
   },
   "exitGatePassed": true,
   "unresolvedDefectCount": 0,
-  "phase6_4Allowed": false,
+  "phase6_4Allowed": true,
   "phase7Allowed": false,
-  "nextPhase": null,
+  "nextPhase": "6.4",
   "startedAt": "2026-09-06T13:20:00Z"
 }
