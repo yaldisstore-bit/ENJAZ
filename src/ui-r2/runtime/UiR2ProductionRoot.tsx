@@ -21,6 +21,7 @@ import '../records/records.css';
 import '../operational-intelligence/operational-intelligence.css';
 import '../home/home-connected.css';
 import '../auth/auth.css';
+import './accessibility-hardening.css';
 
 export type UiR2ProductionResources = Readonly<{
   authGateway: AuthGateway;
