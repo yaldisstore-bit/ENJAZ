@@ -51,7 +51,7 @@ export function useContactEditor(mode: 'create' | 'edit', contact: RowOf<'contac
     const valid = validateContactDraft(draft); if (!valid.value) { setErrors(valid.errors); return; }
     if (mode === 'create' && !createId.current) createId.current = globalThis.crypto.randomUUID();
     mutationInFlightRef.current = true; setSaving(true); setError(null); setErrors({});
-    try { setSaved(await saveContact(factory, userId, mode, draft, { contactId: contact?.id, expectedUpdatedAt: contact?.updated_at, createOperationId: createId.current })); }
+    try { setSaved(await saveContact(factory, userId, mode, draft, { contactId: contact?.id ?? null, expectedUpdatedAt: contact?.updated_at ?? null, createOperationId: createId.current })); }
     catch (error) { setError(message(error)); }
     finally { mutationInFlightRef.current = false; setSaving(false); }
   };
