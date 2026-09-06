@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { FinanceLedgerPreviewExperience } from './FinanceLedgerExperience.tsx';
+import { FinanceLedgerExperience } from './FinanceLedgerExperience.tsx';
+import { FINANCE_PREVIEW_SNAPSHOT } from './financePreviewSnapshot.ts';
 import '../runtime/shell-base.css';
 import '../runtime/shell.css';
 import './finance.css';
@@ -13,7 +14,7 @@ createRoot(root).render(
   <StrictMode>
     <div className="r2-shell" data-r2-runtime-mode="preview" data-destination="finance" dir="rtl">
       <main id="r2-main" className="r2-main">
-        <FinanceLedgerPreviewExperience />
+        <FinanceLedgerExperience snapshot={FINANCE_PREVIEW_SNAPSHOT} mode="preview" />
       </main>
     </div>
   </StrictMode>,
