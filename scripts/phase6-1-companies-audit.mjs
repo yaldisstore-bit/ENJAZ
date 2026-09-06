@@ -52,13 +52,31 @@ if (prior.status !== 'CLOSED' || prior.exitGatePassed !== true || prior.unresolv
 const expectedScope = ['companyList','companySearch','companyFilters','companyCreate','companyEdit','companyDetails','relatedTransactions','relatedDocuments','financeContext','contactContext','companyActivity','companyRisk'];
 if (JSON.stringify(state.scope) !== JSON.stringify(expectedScope)) errors.push('Phase 6.1 scope drifted');
 if (state.boundaries?.peopleRelationshipManagement !== '6.2' || state.boundaries?.companyLawyer360 !== '6.3' || state.boundaries?.fullFinance !== '7' || state.boundaries?.documentOperations !== '10') errors.push('Phase 6.1 later-phase boundaries drifted');
-if (state.status === 'ACTIVE' && (state.exitGatePassed !== false || state.phase6_2Allowed !== false)) errors.push('ACTIVE Phase 6.1 must fail closed and keep Phase 6.2 locked');
-if (state.status === 'CLOSED') {
-  if (state.exitGatePassed !== true || state.unresolvedDefectCount !== 0 || state.phase6_2Allowed !== true) errors.push('CLOSED Phase 6.1 requires exitGatePassed, zero defects and explicit 6.2 unlock');
-  if (!state.closureEvidence || !exists(state.closureEvidence)) errors.push('CLOSED Phase 6.1 requires closure evidence');
+
+if (state.status === 'ACTIVE') {
+  if (state.exitGatePassed !== false || state.phase6_2Allowed !== false) errors.push('ACTIVE Phase 6.1 must fail closed and keep Phase 6.2 locked');
+  requireMarker(kickoff, 'Status: **ACTIVE / NOT CLOSED**', 'kickoff');
 }
 
-for (const marker of ['Status: **ACTIVE / NOT CLOSED**','Company list','Arabic-first search','Company create','Company edit','Related transactions','Related documents','Phase 6.2','Phase 6.3','Phase 7','Phase 10','5,000-row','stable operation UUID','stale `updated_at`','real-browser Companies acceptance']) requireMarker(kickoff, marker, 'kickoff');
+if (state.status === 'CLOSED') {
+  if (state.exitGatePassed !== true || state.unresolvedDefectCount !== 0) errors.push('CLOSED Phase 6.1 requires exitGatePassed and zero unresolved defects');
+  if (!state.closureEvidence || !exists(state.closureEvidence)) errors.push('CLOSED Phase 6.1 requires closure evidence');
+  if (state.implementationHead !== '9397131afab3688749d57bcaa721e6eb858aef30') errors.push('Phase 6.1 closure must preserve the certified 20/20 implementation head');
+  if (state.preClosure?.workflowCount !== 20 || state.preClosure?.successCount !== 20 || state.preClosure?.failureCount !== 0) errors.push('Phase 6.1 closure requires 20/20 pre-closure workflows with zero failures');
+  const recert = state.postMergeRecertification;
+  if (recert?.required !== true || !['PENDING', 'COMPLETE'].includes(recert?.status)) errors.push('CLOSED Phase 6.1 requires an explicit post-merge recertification state');
+  if (recert?.status === 'PENDING' && state.phase6_2Allowed !== false) errors.push('Phase 6.2 must remain locked while Phase 6.1 post-merge recertification is pending');
+  if (recert?.status === 'COMPLETE') {
+    if (state.phase6_2Allowed !== true) errors.push('Phase 6.2 may be allowed only after Phase 6.1 post-merge recertification completes');
+    if (typeof recert.mainCommit !== 'string' || recert.mainCommit.length !== 40) errors.push('completed Phase 6.1 recertification requires the canonical main commit');
+  }
+  if (state.closureEvidence && exists(state.closureEvidence)) {
+    const closure = read(state.closureEvidence);
+    for (const marker of ['Status: **CLOSED — post-merge recertification pending**','9397131afab3688749d57bcaa721e6eb858aef30','20/20 pull-request workflows SUCCESS','34027280571','34027280543','unresolvedDefectCount=0','phase6_2Allowed` remains `false`']) requireMarker(closure, marker, 'Phase 6.1 closure evidence');
+  }
+}
+
+for (const marker of ['Company list','Arabic-first search','Company create','Company edit','Related transactions','Related documents','Phase 6.2','Phase 6.3','Phase 7','Phase 10','5,000-row','stable operation UUID','stale `updated_at`','real-browser Companies acceptance']) requireMarker(kickoff, marker, 'kickoff');
 for (const marker of ['COMPANY_SOURCE_LIMIT = 5_000','loadCompanyListSource','loadCompanyDetailSource','layer.companies.getById','layer.companies.create','layer.companies.update','createOperationId','expectedUpdatedAt','CompanyEditConflictError','CompanyCreateReplayConflictError','companyContacts','lifecycleEvents','blockers','truncated']) requireMarker(service, marker, 'company service');
 for (const marker of ['normalizeCompanySearch','buildCompanyListSnapshot','validateCompanyDraft','COMPANY_LIST_MAX_PAGE_SIZE = 50','COMPANY_SEARCH_MAX_LENGTH = 160','ARABIC_DIACRITICS','merged_into_id','deleted_at','normalizeDigits','Number.isSafeInteger']) requireMarker(model, marker, 'company model');
 for (const marker of ['mutationInFlightRef','globalThis.crypto.randomUUID()','DATA_OUTCOME_UNKNOWN','useCompanyDirectory','useCompanyDetail','useCompanyEditor']) requireMarker(hooks, marker, 'company hooks');
@@ -86,5 +104,6 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ PHASE 6.1 COMPANIES AUDIT PASS — ${state.status}; canonical workspace data only; frozen R2 previews remain isolated; Phase 6.2 remains ${state.phase6_2Allowed ? 'allowed' : 'locked'}.`);
+  const recert = state.postMergeRecertification?.status ?? 'N/A';
+  console.log(`ENJAZ PHASE 6.1 COMPANIES AUDIT PASS — ${state.status}; recert=${recert}; canonical workspace data only; frozen R2 previews remain isolated; Phase 6.2 remains ${state.phase6_2Allowed ? 'allowed' : 'locked'}.`);
 }
