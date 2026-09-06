@@ -1,1 +1,8 @@
 .r2-companies-connected .r2-core-sort select{min-height:var(--ez-r2-touch-min)}
+@media (max-width:42rem){
+  .r2-companies-connected:has(.r2-company-editor) .r2-records-truth,
+  .r2-companies-connected:has(.r2-company-editor) .r2-core-toolbar,
+  .r2-companies-connected:has(.r2-company-editor) .r2-core-segment,
+  .r2-companies-connected:has(.r2-company-editor) .r2-records-directory{display:none}
+  .r2-companies-connected:has(.r2-company-editor) .r2-records-workspace{grid-template-columns:1fr}
+}

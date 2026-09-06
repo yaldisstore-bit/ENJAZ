@@ -58,6 +58,8 @@ test('Phase 6.1 create confirms one company and exposes no fake later-phase CRUD
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(previewUrl, { waitUntil: 'networkidle' });
   await page.getByRole('button', { name: '＋ شركة جديدة' }).click();
+  await expect(page.locator('[data-company-editor="create"]')).toBeVisible();
+  await expect(page.locator('.r2-records-directory')).toBeHidden();
   await page.getByLabel('الاسم القانوني *').fill('شركة اختبار Phase 6.1 للتجارة العامة محدودة المسؤولية');
   await page.getByLabel('الاسم المختصر').fill('اختبار 6.1');
   await page.getByLabel('رأس المال').fill('١٠٠٠٠٠٠٠٠');
