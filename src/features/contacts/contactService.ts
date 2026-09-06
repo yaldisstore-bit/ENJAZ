@@ -11,6 +11,15 @@ export type ContactErrorCode = 'workspace' | 'capacity' | 'missing' | 'conflict'
 export class ContactDomainError extends Error {
   constructor(readonly code: ContactErrorCode, message: string) { super(message); this.name = 'ContactDomainError'; }
 }
+export class ContactCreateReplayConflictError extends ContactDomainError {
+  constructor() { super('conflict', 'معرف الإنشاء مستخدم لبيانات مختلفة.'); }
+}
+export class ContactEditConflictError extends ContactDomainError {
+  constructor() { super('conflict', 'تم تعديل السجل؛ أعد تحميله.'); }
+}
+export class TransactionContactConflictError extends ContactDomainError {
+  constructor(message = 'تعارض ربط جهة الاتصال مع المعاملة.') { super('conflict', message); }
+}
 
 async function layerFor(factory: EnjazDataLayerFactory, userId: string) {
   const workspaceId = await factory.resolveWorkspaceId(userId);
@@ -77,7 +86,7 @@ export async function saveContact(factory: EnjazDataLayerFactory, userId: string
     const id = options.createOperationId?.trim();
     if (!id) throw new ContactDomainError('conflict', 'معرف عملية الإنشاء مطلوب.');
     const existing = await layer.contacts.getById(id);
-    if (existing) { if (sameContact(existing, value)) return existing; throw new ContactDomainError('conflict', 'معرف الإنشاء مستخدم لبيانات مختلفة.'); }
+    if (existing) { if (sameContact(existing, value)) return existing; throw new ContactCreateReplayConflictError(); }
     return layer.contacts.create({ id, display_name: value.displayName, contact_type: value.contactType, phone: value.phone, email: value.email, notes: value.notes, status: value.status, merged_into_id: null, legacy_id: null, legacy_source: null, deleted_at: null });
   }
   const id = options.contactId?.trim();
@@ -85,7 +94,7 @@ export async function saveContact(factory: EnjazDataLayerFactory, userId: string
   const current = await layer.contacts.getById(id);
   if (!current || current.deleted_at !== null) throw new ContactDomainError('missing', 'جهة الاتصال غير موجودة.');
   if (current.merged_into_id !== null) throw new ContactDomainError('merged', 'السجل المدمج للقراءة فقط.');
-  if (options.expectedUpdatedAt && current.updated_at !== options.expectedUpdatedAt) throw new ContactDomainError('conflict', 'تم تعديل السجل؛ أعد تحميله.');
+  if (options.expectedUpdatedAt && current.updated_at !== options.expectedUpdatedAt) throw new ContactEditConflictError();
   return layer.contacts.update(id, { display_name: value.displayName, contact_type: value.contactType, phone: value.phone, email: value.email, notes: value.notes, status: value.status });
 }
 
@@ -114,4 +123,15 @@ export async function endCompanyContactRelationship(factory: EnjazDataLayerFacto
   const time = Date.parse(endedAt), start = current.valid_from ? Date.parse(current.valid_from) : -Infinity;
   if (!Number.isFinite(time) || Number.isFinite(start) && time < start) throw new ContactDomainError('relation', 'تاريخ إنهاء العلاقة غير صالح.');
   return layer.companyContacts.update(relationId, { valid_to: new Date(time).toISOString() });
+}
+
+export async function assignTransactionPrimaryContact(factory: EnjazDataLayerFactory, userId: string, input: Readonly<{ transactionId: string; contactId: string; expectedUpdatedAt?: string | null }>) {
+  const { layer } = await layerFor(factory, userId);
+  const [transaction, contact] = await Promise.all([layer.transactions.getById(input.transactionId), layer.contacts.getById(input.contactId)]);
+  if (!transaction || transaction.deleted_at !== null) throw new TransactionContactConflictError('المعاملة غير متاحة.');
+  if (!contact || contact.deleted_at !== null || contact.merged_into_id !== null || contact.status.trim().toLowerCase() !== 'active') throw new TransactionContactConflictError('جهة الاتصال غير نشطة.');
+  if (input.expectedUpdatedAt && transaction.updated_at !== input.expectedUpdatedAt) throw new TransactionContactConflictError('تم تعديل المعاملة؛ أعد تحميلها.');
+  const relations = await layer.companyContacts.list({ filters: [{ column: 'company_id', operator: 'eq', value: transaction.company_id }, { column: 'contact_id', operator: 'eq', value: input.contactId }], orderBy: [{ column: 'created_at', ascending: false }], offset: 0, limit: PROFILE_LIMIT });
+  if (!relations.items.some((row) => isCurrentCompanyRelation(row))) throw new TransactionContactConflictError('يجب أن تكون جهة الاتصال مرتبطة حاليًا بشركة المعاملة.');
+  return layer.transactions.update(transaction.id, { primary_contact_id: input.contactId });
 }
