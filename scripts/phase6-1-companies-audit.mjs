@@ -63,9 +63,9 @@ for (const marker of ['COMPANY_SOURCE_LIMIT = 5_000','loadCompanyListSource','lo
 for (const marker of ['normalizeCompanySearch','buildCompanyListSnapshot','validateCompanyDraft','COMPANY_LIST_MAX_PAGE_SIZE = 50','COMPANY_SEARCH_MAX_LENGTH = 160','ARABIC_DIACRITICS','merged_into_id','deleted_at','normalizeDigits','Number.isSafeInteger']) requireMarker(model, marker, 'company model');
 for (const marker of ['mutationInFlightRef','globalThis.crypto.randomUUID()','DATA_OUTCOME_UNKNOWN','useCompanyDirectory','useCompanyDetail','useCompanyEditor']) requireMarker(hooks, marker, 'company hooks');
 for (const marker of ['data-phase6-1="companies"','data-company-source="workspace"','بحث الشركات','ترتيب الشركات','تصفية الشركات','شركة جديدة','تعديل البيانات','إدارة الأشخاص والعلاقات الكاملة تبقى Phase 6.2','Company/Lawyer 360° تبقى Phase 6.3','Phase 7','Phase 10','أي نتيجة كتابة غير مؤكدة لا تُعرض كنجاح']) requireMarker(connected, marker, 'connected companies UI');
-for (const marker of ['useLiveCompaniesExperience','عرض فقط في R2.0-6','لا تنفّذ إنشاءً أو تعديلًا أو رفع ملفات إنتاجية','data-records-domain="people"','data-records-domain="documents"']) requireMarker(records, marker, 'records compatibility');
-for (const marker of ['LiveCompaniesExperienceProvider','useLiveCompaniesExperience','createContext<ReactNode>(null)']) requireMarker(bridge, marker, 'live companies bridge');
-for (const marker of ['LiveCompaniesExperienceProvider','<ConnectedCompanies />','<DataLayerProvider','<CurrentUserIdProvider']) requireMarker(production, marker, 'production Companies mount');
+for (const marker of ['LiveCompaniesExperienceContext','useContext(LiveCompaniesExperienceContext)','عرض فقط في R2.0-6','لا تنفّذ إنشاءً أو تعديلًا أو رفع ملفات إنتاجية','data-records-domain="people"','data-records-domain="documents"']) requireMarker(records, marker, 'records compatibility');
+for (const marker of ['LiveCompaniesExperienceContext','createContext<ReactNode>(null)']) requireMarker(bridge, marker, 'live companies bridge');
+for (const marker of ['LiveCompaniesExperienceContext.Provider','<ConnectedCompanies />','<DataLayerProvider','<CurrentUserIdProvider']) requireMarker(production, marker, 'production Companies mount');
 for (const marker of ["companies: MutableRepository<'companies'>","companyContacts: ReadRepository<'company_contacts'>"]) requireMarker(data, marker, 'data layer');
 requireMarker(context, 'useOptionalDataLayerFactory', 'data context');
 
