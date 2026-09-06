@@ -6,6 +6,8 @@ import { createEnjazSupabaseClient } from '../../core/supabase/client.ts';
 import { createEnjazDataLayerFactory, type EnjazDataLayerFactory } from '../../data/createDataLayer.ts';
 import { DataLayerProvider } from '../../data/react/DataLayerContext.tsx';
 import { AuthProvider, useAuth } from '../../features/auth/state/AuthContext.tsx';
+import { FinanceCommandProvider } from '../../features/finance/FinanceCommandContext.tsx';
+import { createSupabaseFinanceCommandGateway, type FinanceCommandGateway } from '../../features/finance/financeCommands.ts';
 import { CurrentUserIdProvider } from '../../shared/session/CurrentUserIdContext.tsx';
 import { SessionChecking } from '../../shared/session/SessionChecking.tsx';
 import { R2AuthScreen } from '../auth/R2AuthScreen.tsx';
@@ -26,12 +28,20 @@ import '../home/home-connected.css';
 import '../auth/auth.css';
 import './accessibility-hardening.css';
 
-export type UiR2ProductionResources = Readonly<{ authGateway: AuthGateway; dataFactory: EnjazDataLayerFactory }>;
+export type UiR2ProductionResources = Readonly<{
+  authGateway: AuthGateway;
+  dataFactory: EnjazDataLayerFactory;
+  financeCommands: FinanceCommandGateway;
+}>;
 
 function createProductionResources(): UiR2ProductionResources {
   const config = createRuntimeConfig(import.meta.env as unknown as Readonly<Record<string, unknown>>);
   const client = createEnjazSupabaseClient(config);
-  return Object.freeze({ authGateway: createSupabaseAuthGateway(client), dataFactory: createEnjazDataLayerFactory(client) });
+  return Object.freeze({
+    authGateway: createSupabaseAuthGateway(client),
+    dataFactory: createEnjazDataLayerFactory(client),
+    financeCommands: createSupabaseFinanceCommandGateway(client),
+  });
 }
 
 function RuntimeFailure({ message }: Readonly<{ message: string }>) {
@@ -44,7 +54,7 @@ function leaveRecoveryMode() {
   window.location.replace(url.toString());
 }
 
-function AuthenticatedR2Runtime({ dataFactory }: Readonly<{ dataFactory: EnjazDataLayerFactory }>) {
+function AuthenticatedR2Runtime({ dataFactory, financeCommands }: Readonly<{ dataFactory: EnjazDataLayerFactory; financeCommands: FinanceCommandGateway }>) {
   const auth = useAuth();
   if (auth.status === 'checking') return <SessionChecking />;
   if (auth.status === 'anonymous' || !auth.user) return <R2AuthScreen service={auth.service} />;
@@ -52,12 +62,12 @@ function AuthenticatedR2Runtime({ dataFactory }: Readonly<{ dataFactory: EnjazDa
   if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode} />;
   const signOut = async () => { await auth.service.signOut(); };
 
-  return <DataLayerProvider factory={dataFactory}><CurrentUserIdProvider userId={auth.user.id}>
+  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><CurrentUserIdProvider userId={auth.user.id}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} />
     <LiveCompaniesProductionPortal />
     <LivePeopleProductionPortal />
     <LiveFinanceProductionPortal />
-  </CurrentUserIdProvider></DataLayerProvider>;
+  </CurrentUserIdProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
 export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2ProductionResources | undefined }> = {}) {
@@ -67,5 +77,5 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     catch { return Object.freeze({ resources: null, error: 'إعدادات الاتصال بإنجاز غير مكتملة. لم يتم تشغيل قناة بيانات بديلة أو وضع وهمي.' }); }
   });
   if (!runtime.resources) return <RuntimeFailure message={runtime.error ?? 'إعدادات التشغيل غير صالحة.'} />;
-  return <AuthProvider gateway={runtime.resources.authGateway}><AuthenticatedR2Runtime dataFactory={runtime.resources.dataFactory} /></AuthProvider>;
+  return <AuthProvider gateway={runtime.resources.authGateway}><AuthenticatedR2Runtime dataFactory={runtime.resources.dataFactory} financeCommands={runtime.resources.financeCommands} /></AuthProvider>;
 }
