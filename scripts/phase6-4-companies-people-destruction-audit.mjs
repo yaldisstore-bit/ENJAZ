@@ -49,7 +49,7 @@ if (!String(packageJson.scripts?.['test:functional'] ?? '').includes('companiesP
 if (!String(packageJson.scripts?.['verify:extreme'] ?? '').includes('audit:phase6-4:companies-people-destruction')) errors.push('verify:extreme must preserve Phase 6.4 audit');
 
 for (const marker of ['invalid legacy relationship dates fail closed','duplicate legacy mappings','huge company and person names','mixed Arabic Latin and digit search','large relationship graphs','missing relation targets']) if (!testSource.includes(marker)) errors.push(`Phase 6.4 destructive test missing marker: ${marker}`);
-for (const marker of ['row.valid_from === null ? null : Date.parse(row.valid_from)','row.valid_to === null ? null : Date.parse(row.valid_to)','Number.isFinite(from) && from <= now','Number.isFinite(to) && to > now']) if (!contactService.includes(marker)) errors.push(`malformed relationship fail-closed fix missing: ${marker}`);
+for (const marker of ['row.valid_from === null ? -Infinity : Date.parse(row.valid_from)','row.valid_to === null ? Infinity : Date.parse(row.valid_to)','return from <= now && to > now']) if (!contactService.includes(marker)) errors.push(`malformed relationship fail-closed fix missing: ${marker}`);
 
 if (!browser) errors.push('Phase 6.4 requires a dedicated Real Chromium destruction spec');
 for (const marker of ['long mixed company/person search','repeated company and people filter pressure','relationship end remains historical','assertNoHorizontalOverflow','assertTouchTargets']) if (!browser.includes(marker)) errors.push(`Phase 6.4 browser destruction spec missing marker: ${marker}`);
