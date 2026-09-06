@@ -43,10 +43,70 @@ export interface TransactionEditorController {
   readonly editAgain: () => void;
 }
 
+const PENDING_CREATE_STORAGE_PREFIX = 'enjaz.transaction.create.pending.v1:';
+const DRAFT_FIELDS: readonly TransactionEditorField[] = Object.freeze([
+  'companyId', 'primaryContactId', 'type', 'department', 'status', 'priority', 'currentFee',
+  'completedAt', 'stationName', 'assignedToText', 'stationOccurredAt', 'noteBody', 'feeChangeReason',
+]);
+
+interface PendingCreateAttempt {
+  readonly operationId: string;
+  readonly draft: TransactionEditorDraft;
+}
+
+function pendingCreateKey(userId: string): string {
+  return `${PENDING_CREATE_STORAGE_PREFIX}${userId}`;
+}
+
+function parsePendingCreate(value: unknown): PendingCreateAttempt | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const record = value as Readonly<Record<string, unknown>>;
+  if (typeof record.operationId !== 'string' || !record.operationId) return null;
+  if (!record.draft || typeof record.draft !== 'object' || Array.isArray(record.draft)) return null;
+  const rawDraft = record.draft as Readonly<Record<string, unknown>>;
+  if (!DRAFT_FIELDS.every((field) => typeof rawDraft[field] === 'string')) return null;
+  return Object.freeze({
+    operationId: record.operationId,
+    draft: Object.freeze(Object.fromEntries(DRAFT_FIELDS.map((field) => [field, rawDraft[field]])) as unknown as TransactionEditorDraft),
+  });
+}
+
+function readPendingCreate(userId: string): PendingCreateAttempt | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.sessionStorage.getItem(pendingCreateKey(userId));
+    if (!raw) return null;
+    const parsed = parsePendingCreate(JSON.parse(raw));
+    if (!parsed) window.sessionStorage.removeItem(pendingCreateKey(userId));
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writePendingCreate(userId: string, attempt: PendingCreateAttempt): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    window.sessionStorage.setItem(pendingCreateKey(userId), JSON.stringify(attempt));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function clearPendingCreate(userId: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.removeItem(pendingCreateKey(userId));
+  } catch {
+    // The recovery record is best-effort removable; write protection already happens before mutation.
+  }
+}
+
 function toEditorErrorMessage(error: unknown): string {
   if (error instanceof TransactionEditorWorkspaceUnavailableError) return 'تعذر العثور على مساحة العمل المرتبطة بحسابك.';
   if (error instanceof TransactionEditorNotFoundError) return 'المعاملة غير موجودة أو لم تعد متاحة في مساحة العمل.';
-  if (error instanceof TransactionEditorConflictError) return 'تغيّرت المعاملة منذ فتح النموذج. أعد تحميل البيانات قبل الحفظ حتى لا تستبدل تعديلًا أحدث.';
+  if (error instanceof TransactionEditorConflictError) return 'تغيّرت المعاملة أو تعارضت هوية محاولة الإنشاء مع بيانات أخرى. لا تُنشئ نسخة جديدة قبل مراجعة المحاولة الحالية.';
   if (error instanceof TransactionEditorCapacityError) return 'حجم بيانات الشركات أو جهات الاتصال أكبر من حد المحرر الآمن الحالي. لم يتم عرض قائمة جزئية.';
   if (error instanceof DataAccessError) {
     if (error.dataCode === 'DATA_FORBIDDEN') return 'ليس لديك صلاحية لتنفيذ هذا التعديل في مساحة العمل الحالية.';
@@ -68,11 +128,11 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
   const [warnings, setWarnings] = useState<readonly TransactionEditorWarning[]>([]);
   const [savedTransactionId, setSavedTransactionId] = useState<string | null>(null);
   const [outcomeUnknown, setOutcomeUnknown] = useState(false);
-  const mutationInFlightRef = useRef(false);
-  const createOperationId = useMemo(
+  const [createOperationId, setCreateOperationId] = useState<string | null>(
     () => mode === 'create' ? globalThis.crypto.randomUUID() : null,
-    [mode, transactionId],
   );
+  const mutationInFlightRef = useRef(false);
+  const preservePendingCreateRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -93,7 +153,26 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
       .then((result) => {
         if (!active) return;
         setLoaded(result);
-        setDraft(mode === 'edit' ? createTransactionEditDraft(result.source) : createEmptyTransactionDraft());
+        if (mode === 'edit') {
+          setCreateOperationId(null);
+          preservePendingCreateRef.current = false;
+          setDraft(createTransactionEditDraft(result.source));
+        } else {
+          const pending = readPendingCreate(userId);
+          if (pending) {
+            const message = 'تم استعادة محاولة إنشاء لم تُحسم نتيجتها قبل إعادة تحميل الصفحة. الحقول مقفلة؛ أعد الحفظ نفسه لتأكيد النتيجة دون تكرار المعاملة.';
+            setCreateOperationId(pending.operationId);
+            setDraft(pending.draft);
+            setOutcomeUnknown(true);
+            setErrorMessage(message);
+            setErrors(Object.freeze({ form: message }));
+            preservePendingCreateRef.current = true;
+          } else {
+            setCreateOperationId((current) => current ?? globalThis.crypto.randomUUID());
+            setDraft(createEmptyTransactionDraft());
+            preservePendingCreateRef.current = false;
+          }
+        }
         setStatus('ready');
       })
       .catch((error: unknown) => {
@@ -103,7 +182,10 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
         setErrorMessage(toEditorErrorMessage(error));
       });
 
-    return () => { active = false; };
+    return () => {
+      active = false;
+      if (mode === 'create' && userId && !preservePendingCreateRef.current) clearPendingCreate(userId);
+    };
   }, [attempt, factory, mode, transactionId, userId]);
 
   const source = loaded?.source ?? null;
@@ -146,6 +228,16 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
         setStatus('ready');
         return false;
       }
+      if (mode === 'create') {
+        if (!createOperationId || !writePendingCreate(userId, Object.freeze({ operationId: createOperationId, draft }))) {
+          const message = 'تعذر تثبيت هوية محاولة الإنشاء محليًا قبل الإرسال، لذلك تم إيقاف الحفظ لحماية المعاملة من التكرار.';
+          setErrors(Object.freeze({ form: message }));
+          setErrorMessage(message);
+          setStatus('ready');
+          return false;
+        }
+        preservePendingCreateRef.current = true;
+      }
       if (mutationInFlightRef.current) return false;
       mutationInFlightRef.current = true;
       setStatus('saving');
@@ -154,15 +246,36 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
       setWarnings([]);
       try {
         const result = await saveTransactionEditorDraft(factory, userId, loaded, mode, draft, userId, new Date(), createOperationId);
+        const unresolvedCreateCompanion = mode === 'create' && result.warnings.some((warning) => warning.outcomeUnknown);
         setWarnings(result.warnings);
         setSavedTransactionId(result.transaction.id);
+        if (unresolvedCreateCompanion) {
+          const message = 'تم تأكيد المعاملة الأساسية لكن توجد كتابة مساندة لم تُحسم نتيجتها. بقيت نفس محاولة الإنشاء محفوظة ومقفلة؛ أعد الحفظ نفسه لإجراء المطابقة دون تكرار أي سجل.';
+          setOutcomeUnknown(true);
+          setErrorMessage(message);
+          setErrors(Object.freeze({ form: message }));
+          setStatus('ready');
+          preservePendingCreateRef.current = true;
+          return false;
+        }
+        if (mode === 'create') {
+          clearPendingCreate(userId);
+          preservePendingCreateRef.current = false;
+        }
         setOutcomeUnknown(false);
         setStatus('saved');
         return true;
       } catch (error: unknown) {
         const message = toEditorErrorMessage(error);
-        const unknownOutcome = error instanceof DataAccessError && error.dataCode === 'DATA_OUTCOME_UNKNOWN';
-        setOutcomeUnknown(unknownOutcome);
+        const preserveCreate = mode === 'create' && (
+          (error instanceof DataAccessError && error.dataCode === 'DATA_OUTCOME_UNKNOWN')
+          || error instanceof TransactionEditorConflictError
+        );
+        if (mode === 'create' && !preserveCreate) {
+          clearPendingCreate(userId);
+          preservePendingCreateRef.current = false;
+        }
+        setOutcomeUnknown(preserveCreate);
         setStatus(loaded ? 'ready' : 'error');
         setErrorMessage(message);
         if (loaded) setErrors(Object.freeze({ form: message }));
