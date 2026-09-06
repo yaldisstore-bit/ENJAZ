@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "phase": "6.4",
+  "name": "Companies & People Destruction Gate",
+  "status": "ACTIVE",
+  "baseCommit": "ce47fb2123608371139953496fdb95f4c82f2a63",
+  "priorPhase": "6.3",
+  "priorPhaseRecertified": true,
+  "kickoff": "docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_KICKOFF.md",
+  "scope": [
+    "missingRelations",
+    "duplicates",
+    "hugeNames",
+    "mixedLanguageData",
+    "largeRelationGraphs",
+    "invalidLegacyMappings",
+    "cumulativePhase6Regression",
+    "realBrowserCompaniesPeopleDestruction"
+  ],
+  "productionJavaScriptBudget": 670000,
+  "exitGatePassed": false,
+  "unresolvedDefectCount": 1,
+  "knownDefects": [
+    {
+      "id": "P6-4-RELATION-INVALID-DATE",
+      "status": "OPEN",
+      "summary": "Invalid non-null relationship dates are interpreted as unbounded/current relationships."
+    }
+  ],
+  "phase7Allowed": false,
+  "nextPhase": null,
+  "postMergeRecertification": {
+    "required": true,
+    "status": "NOT_APPLICABLE"
+  },
+  "startedAt": "2026-09-06T14:53:00Z"
+}
