@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "stage": "R2.0-11",
+  "status": "CLOSED_CANDIDATE",
+  "activePromotionCommit": "2edb1bf8e1127233e80d20eea42e28c0f93928ae",
+  "candidatePullRequest": 76,
+  "candidateHeadCommit": "ff8da5aaa469563f6d6393435c02cfbbad196e37",
+  "preconditions": {
+    "goldenApproved": true,
+    "beautyEvidenceLocked": true,
+    "professionalUxNoMazePassed": true,
+    "featureParity": {
+      "total": 35,
+      "migrated": 35,
+      "tested": 35,
+      "unresolved": 0
+    },
+    "legacyZero": true,
+    "uiV2PhysicallyAbsent": true,
+    "uiRebirthPhysicallyAbsent": true,
+    "palettePurity": true,
+    "phase55Locked": true
+  },
+  "candidateRecertification": {
+    "allPullRequestWorkflowsGreen": true,
+    "canonicalPromotionGateRun": 34017666308,
+    "governanceRun": 34017666336,
+    "qualityRun": 34017666353,
+    "wcagRun": 34017666330,
+    "legacyEradicationRun": 34017666322,
+    "destructionRealityRun": 34017666383,
+    "realBrowserRun": 34017666350
+  },
+  "postMergeMainRecertification": {
+    "commit": "2edb1bf8e1127233e80d20eea42e28c0f93928ae",
+    "qualityRun": 34017876131,
+    "canonicalPromotionRun": 34017876137,
+    "governanceRun": 34017876155,
+    "wcagRun": 34017876122,
+    "realBrowserRun": 34017876130,
+    "qualityPassed": true,
+    "canonicalPromotionPassed": true,
+    "governancePassed": true,
+    "wcagPassed": true,
+    "realBrowserPassed": true,
+    "productionBridgePassed": true,
+    "destructionWave1Passed": true,
+    "destructionWave2Passed": true
+  },
+  "pagesRecertification": {
+    "run": 34017892324,
+    "buildPassed": true,
+    "budgetPassed": true,
+    "deployPassed": true,
+    "serializedAfterLegacyPublisher": true
+  },
+  "liveExternalRecertification": {
+    "run": 34017913484,
+    "publicProbePassed": true,
+    "httpsHtmlContractPassed": true,
+    "publishedChromiumAttackPassed": true,
+    "wcagPassed": true
+  },
+  "closureDecision": {
+    "canonicalMainRecertified": true,
+    "pagesRecertified": true,
+    "liveExternalRecertified": true,
+    "promotionAllowed": true,
+    "phase55Unlocked": false
+  }
+}
