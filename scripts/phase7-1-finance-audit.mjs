@@ -18,9 +18,11 @@ const paths = {
   portal: 'src/ui-r2/finance/LiveFinanceProductionPortal.tsx',
   css: 'src/ui-r2/finance/finance.css',
   preview: 'src/ui-r2/finance/financePreviewSnapshot.ts',
+  productionTest: 'src/ui-r2/production-test-main.tsx',
+  pagesWorkflow: '.github/workflows/enjaz-pages-preview.yml',
 };
 
-for (const path of [paths.state, paths.notes, paths.model, paths.service, paths.hooks, paths.experience, paths.portal, paths.css, paths.preview, 'tests/financeModel.test.ts', 'tests/financeService.test.ts']) {
+for (const path of [paths.state, paths.notes, paths.model, paths.service, paths.hooks, paths.experience, paths.portal, paths.css, paths.preview, paths.productionTest, paths.pagesWorkflow, 'tests/financeModel.test.ts', 'tests/financeService.test.ts']) {
   if (!exists(path)) errors.push(`missing ${path}`);
 }
 if (errors.length) {
@@ -35,6 +37,8 @@ const service = read(paths.service);
 const dataLayer = read('src/data/createDataLayer.ts');
 const portal = read(paths.portal);
 const productionRoot = read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
+const productionTest = read(paths.productionTest);
+const pagesWorkflow = read(paths.pagesWorkflow);
 const packageJson = JSON.parse(read('package.json'));
 
 if (state.phase !== '7.1' || state.name !== 'Financial Ledger & Summary') errors.push('Phase 7.1 machine state identity drifted');
@@ -67,10 +71,14 @@ if (state.status === 'CLOSED') {
   }
   if (recert?.status === 'COMPLETE') {
     if (state.phase7_2Allowed !== true || state.nextPhase !== '7.2') errors.push('Phase 7.2 may be authorized only after Phase 7.1 canonical recertification completes');
-    if (recert.successCount !== recert.workflowCount || recert.failureCount !== 0 || recert.inProgressCount !== 0) errors.push('completed Phase 7.1 recertification requires every recorded canonical workflow to succeed');
+    if (state.mergeCommit !== '3d4043c8e5d6784f327ff8ac9879402b7d933422') errors.push('Phase 7.1 merge commit drifted');
+    if (recert.mainCommit !== '3d4043c8e5d6784f327ff8ac9879402b7d933422') errors.push('Phase 7.1 canonical recertified main commit drifted');
+    if (recert.workflowCount !== 9 || recert.successCount !== 9 || recert.failureCount !== 0 || recert.inProgressCount !== 0) errors.push('completed Phase 7.1 recertification requires 9/9 canonical workflows SUCCESS');
+    if (recert.phase71Run !== 34047520246 || recert.qualityRun !== 34047520176 || recert.governanceRun !== 34047520341 || recert.canonicalPromotionRun !== 34047520209 || recert.wcagRun !== 34047520140 || recert.realBrowserRun !== 34047520268 || recert.pagesBuildDeploymentRun !== 34047519622 || recert.pagesRun !== 34047555458 || recert.liveExternalRun !== 34047603734) errors.push('Phase 7.1 canonical workflow evidence drifted');
     if (!state.postMergeEvidence || state.postMergeEvidence !== paths.postMerge || !exists(paths.postMerge)) errors.push('completed Phase 7.1 recertification requires canonical post-merge evidence');
     const postMerge = exists(paths.postMerge) ? read(paths.postMerge) : '';
-    for (const marker of ['Status: **COMPLETE**','Attack the actual published application','phase7_2Allowed=true','Phase 7.2 — Payments & Receipts']) requireMarker(postMerge, marker, 'Phase 7.1 post-merge evidence');
+    for (const marker of ['Status: **COMPLETE**','3d4043c8e5d6784f327ff8ac9879402b7d933422','9/9 workflows SUCCESS','34047520246','34047520176','34047520341','34047520209','34047520140','34047520268','34047519622','34047555458','34047603734','Attack the actual published application','phase7_2Allowed=true','Phase 7.2 — Payments & Receipts']) requireMarker(postMerge, marker, 'Phase 7.1 post-merge evidence');
+    for (const marker of ['Status: **CLOSED — canonical post-merge recertification COMPLETE**','3d4043c8e5d6784f327ff8ac9879402b7d933422','9/9 workflows SUCCESS','phase7_2Allowed=true','nextPhase=7.2']) requireMarker(closure, marker, 'complete Phase 7.1 closure evidence');
   }
 }
 
@@ -96,6 +104,9 @@ if (!portal.includes("useLiveRecordsPortal('finance'")) errors.push('live financ
 if (!portal.includes('ConnectedFinanceLedgerExperience')) errors.push('live finance portal must render connected 7.1 experience');
 if (!productionRoot.includes('<LiveFinanceProductionPortal />')) errors.push('production runtime must mount the live finance portal');
 
+for (const marker of ['cashboxes: mutableRepository', '<UiR2ProductionRoot resources={{ authGateway, dataFactory }} />']) requireMarker(productionTest, marker, 'full latest preview harness');
+for (const marker of ['Build full latest application preview','vite.r2-production-test.config.ts','/latest/','dist/latest/index.html']) requireMarker(pagesWorkflow, marker, 'Pages full latest preview publisher');
+
 if (!packageJson.scripts?.['test:phase7-1']?.includes('financeModel.test.ts') || !packageJson.scripts?.['test:phase7-1']?.includes('financeService.test.ts')) errors.push('package test:phase7-1 is incomplete');
 if (packageJson.scripts?.['audit:phase7-1:finance'] !== 'node scripts/phase7-1-finance-audit.mjs') errors.push('package finance audit script missing');
 if (!packageJson.scripts?.['test:functional']?.includes('financeModel.test.ts') || !packageJson.scripts?.['test:functional']?.includes('financeService.test.ts')) errors.push('finance tests must join functional regression');
@@ -110,5 +121,5 @@ if (errors.length) {
   process.exitCode = 1;
 } else {
   const recert = state.postMergeRecertification?.status ?? 'N/A';
-  console.log(`PHASE 7.1 FINANCE AUDIT PASS — ${state.status}; recert=${recert}; authoritative read-only ledger/summary contract preserved; Phase 7.2 ${state.phase7_2Allowed ? 'authorized' : 'locked'}.`);
+  console.log(`PHASE 7.1 FINANCE AUDIT PASS — ${state.status}; recert=${recert}; authoritative read-only ledger/summary contract preserved; Phase 7.2 ${state.phase7_2Allowed ? 'authorized' : 'locked'}; /latest/ full-app preview guarded.`);
 }
