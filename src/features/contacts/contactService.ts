@@ -9,7 +9,8 @@ const PROFILE_LIMIT = 100;
 
 export type ContactErrorCode = 'workspace' | 'capacity' | 'missing' | 'conflict' | 'merged' | 'relation';
 export class ContactDomainError extends Error {
-  constructor(readonly code: ContactErrorCode, message: string) { super(message); this.name = 'ContactDomainError'; }
+  readonly code: ContactErrorCode;
+  constructor(code: ContactErrorCode, message: string) { super(message); this.code = code; this.name = 'ContactDomainError'; }
 }
 export class ContactCreateReplayConflictError extends ContactDomainError {
   constructor() { super('conflict', 'معرف الإنشاء مستخدم لبيانات مختلفة.'); }
