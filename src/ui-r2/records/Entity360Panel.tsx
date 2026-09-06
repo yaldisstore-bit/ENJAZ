@@ -2,7 +2,7 @@ import type { Entity360Source } from '../../features/entity360/entity360Service.
 
 const number = (value: number) => new Intl.NumberFormat('ar-IQ').format(value);
 const cash = (value: number | null) => value !== null && Number.isFinite(value) && Number.isSafeInteger(Math.round(value * 100)) ? `${number(value)} د.ع` : value === null ? 'غير محدد' : 'قيمة غير آمنة';
-const pulse = (source: Entity360Source) => !source.finance.safe || source.finance.amount === null ? 'قيمة غير آمنة للعرض الدقيق' : `${number(source.finance.amount)} د.ع${source.finance.partial ? ' · جزئي' : ''}`;
+const pulse = (source: Entity360Source) => !source.finance.safe || source.finance.amount === null ? 'قيمة غير آمنة' : `${number(source.finance.amount)} د.ع${source.finance.partial ? ' · جزئي' : ''}`;
 
 export function Entity360Panel({ source, openTransaction }: Readonly<{ source: Entity360Source; openTransaction?: ((id: string) => void) | undefined }>) {
   const company = source.kind === 'company' ? source.company : null, contact = source.kind === 'contact' ? source.contact : null;
@@ -20,7 +20,7 @@ export function Entity360Panel({ source, openTransaction }: Readonly<{ source: E
       <section><h3>المخاطر التشغيلية</h3>{company.blockers.filter(row=>!['resolved','closed','done'].includes(row.status.trim().toLowerCase())).slice(0,8).map(row=><p key={row.id}><strong>{row.title}</strong> · {row.severity} · {row.status}</p>)}</section>
     </div></> : null}
     {contact ? <><div className="r2-records-facts"><div><span>الهاتف</span><strong>{contact.contact.phone || 'غير مسجل'}</strong></div><div><span>البريد</span><strong>{contact.contact.email || 'غير مسجل'}</strong></div></div><div className="r2-records-related-lists"><section><h3>الشركات والعلاقات</h3>{contact.companyRelations.map(({relation,company:row,current})=><p key={relation.id}><strong>{row?.display_name||row?.legal_name||'شركة غير متاحة'}</strong> · {relation.relation_type} · {current?'حالية':'منتهية'}</p>)}</section><section><h3>المعاملات المرتبطة</h3>{contact.transactions.map(tx)}</section></div>{contact.contact.notes ? <p className="r2-contacts-notes">{contact.contact.notes}</p> : null}</> : null}
-    {source.truncatedScopes.length ? <aside className="r2-records-truth" role="note"><strong>بعض السياق مقتطع عند حد القراءة الآمن</strong><span>{source.truncatedScopes.join(' · ')}</span></aside> : null}
-    <aside className="r2-records-truth" role="note"><strong>مصادر الحقيقة محفوظة</strong><span>360° تجمع سياق 6.1 و6.2 للقراءة فقط. المالية الكاملة تبقى Phase 7.</span></aside>
+    {source.truncatedScopes.length ? <aside className="r2-records-truth" role="note"><strong>سياق جزئي عند حد القراءة</strong><span>{source.truncatedScopes.join(' · ')}</span></aside> : null}
+    <aside className="r2-records-truth" role="note"><strong>مصادر الحقيقة محفوظة</strong><span>360° تجمع سياق 6.1 و6.2 فقط. المالية الكاملة Phase 7.</span></aside>
   </article>;
 }
