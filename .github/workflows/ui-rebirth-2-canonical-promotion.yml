@@ -1,0 +1,59 @@
+name: ENJAZ R2.0-11 — Canonical Promotion Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - r2-0-11-canonical-promotion
+      - r2-0-11-canonical-promotion-closure
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r2-0-11-canonical-promotion-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  canonical-promotion:
+    name: Canonical Promotion / Fail-Closed Recertification
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.0
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Enforce R2.0-11 canonical promotion contract
+        run: node scripts/ui-rebirth-2-canonical-promotion-audit.mjs
+
+      - name: Preserve Rebirth governance and Phase 5.5 lock
+        run: |
+          node scripts/ui-rebirth-2-freeze-audit.mjs
+          node scripts/ui-rebirth-2-acceptance-audit.mjs
+
+      - name: Preserve five-color palette purity
+        run: node scripts/ui-rebirth-2-palette-audit.mjs
+
+      - name: Cumulative functional business/data regression
+        run: npm run test:functional
+
+      - name: TypeScript canonical candidate check
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Strict production asset budget
+        run: npm run audit:dist:budget

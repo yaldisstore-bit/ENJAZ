@@ -37,14 +37,19 @@ const stageIndex = stageOrder.indexOf(state.stage);
 if (stageIndex < 6) errors.push(`records guard requires R2.0-6 or later, found ${state.stage}`);
 if (stageIndex > 6 && state.recordsRelationships?.status !== 'CLOSED') errors.push(`R2.0-6 must remain CLOSED after advancing to ${state.stage}`);
 if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked');
-if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 before R2.0-11');
+if (stageIndex < 11) {
+  if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 before R2.0-11');
+  if (state.promotion?.requested !== false || state.promotion?.allowed !== false) errors.push('canonical promotion must remain blocked before R2.0-11');
+  if (/ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('src/main.tsx must not boot UiR2Root before R2.0-11');
+} else {
+  if (!['ui-r2-candidate','ui-r2'].includes(state.runtime)) errors.push('R2.0-11 must use ui-r2-candidate or ui-r2 runtime label');
+  if (state.promotion?.requested !== true) errors.push('R2.0-11 must explicitly request canonical promotion');
+}
 if (state.goldenExperience?.status !== 'APPROVED' || state.goldenExperience?.userApproved !== true) errors.push('R2.0-6 requires approved Golden identity');
 if (state.coreWorkMigration?.status !== 'CLOSED' || state.coreWorkMigration?.exitGatePassed !== true) errors.push('R2.0-5 must remain closed before R2.0-6');
 if (!['ACTIVE','CLOSED'].includes(state.recordsRelationships?.status)) errors.push('recordsRelationships status must be ACTIVE or CLOSED');
 if (state.recordsRelationships?.entityFirstComposition !== true) errors.push('R2.0-6 requires entity-first composition');
 if (state.recordsRelationships?.canonicalRuntimeChanged !== false) errors.push('R2.0-6 cannot change canonical runtime');
-if (state.promotion?.requested !== false || state.promotion?.allowed !== false) errors.push('canonical promotion must remain blocked');
-if (/ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('src/main.tsx must not boot UiR2Root before R2.0-11');
 
 const expectedScope = ['companies','peopleLawyers','documentsReports'];
 if (evidence.stage !== 'R2.0-6') errors.push('records evidence stage must be R2.0-6');

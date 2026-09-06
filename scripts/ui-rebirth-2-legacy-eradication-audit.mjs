@@ -13,10 +13,16 @@ for (const p of ['src/core','src/data','src/features','src/shared','src/ui-r2','
 if (errors.length) { console.error('ENJAZ R2.0-10 LEGACY ERADICATION AUDIT FAIL'); errors.forEach((e)=>console.error(`- ${e}`)); process.exit(1); }
 
 const state = json(paths.state); const parity = json(paths.parity); const evidence = json(paths.evidence); const kickoff = read(paths.kickoff); const main = read(paths.main);
-if (state.stage !== 'R2.0-10') errors.push(`requires R2.0-10, found ${state.stage}`);
+if (!['R2.0-10','R2.0-11'].includes(state.stage)) errors.push(`requires R2.0-10 or R2.0-11 preservation, found ${state.stage}`);
 if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked');
-if (state.runtime !== 'ui-v2') errors.push('machine canonical runtime label stays ui-v2 until R2.0-11');
-if (state.promotion?.requested !== false || state.promotion?.allowed !== false) errors.push('promotion must remain blocked during R2.0-10');
+if (state.stage === 'R2.0-10') {
+  if (state.runtime !== 'ui-v2') errors.push('machine canonical runtime label stays ui-v2 until R2.0-11');
+  if (state.promotion?.requested !== false || state.promotion?.allowed !== false) errors.push('promotion must remain blocked during R2.0-10');
+} else {
+  if (!['ui-r2-candidate','ui-r2'].includes(state.runtime)) errors.push('R2.0-11 must use ui-r2-candidate or ui-r2 runtime label');
+  if (state.promotion?.requested !== true) errors.push('R2.0-11 must explicitly request canonical promotion');
+  if (state.legacyEradication?.status !== 'CLOSED' || state.legacyEradication?.legacyZero !== true || state.legacyEradication?.exitGatePassed !== true) errors.push('R2.0-11 requires R2.0-10 to remain CLOSED with Legacy-Zero PASS');
+}
 if (state.destructionRealityQa?.status !== 'CLOSED' || state.destructionRealityQa?.exitGatePassed !== true) errors.push('R2.0-9 must remain CLOSED');
 if (state.noMaze?.validated !== true || state.noMaze?.scenarioCount < 15 || state.noMaze?.passedCount !== state.noMaze?.scenarioCount) errors.push('No-Maze proof must remain complete');
 if (evidence.schemaVersion !== 1 || evidence.stage !== 'R2.0-10' || state.legacyEradication?.status !== evidence.status) errors.push('R2.0-10 state/evidence mismatch');
@@ -59,4 +65,4 @@ if (errors.length) {
   console.error(`ENJAZ R2.0-10 LEGACY ERADICATION AUDIT FAIL (${errors.length})`);
   errors.forEach((error)=>console.error(`- ${error}`));
   process.exitCode = 1;
-} else console.log(`ENJAZ R2.0-10 LEGACY ERADICATION AUDIT PASS — ${state.legacyEradication?.status}; blockers=${unresolved.length}; ui-v2=${uiV2Exists?'present':'absent'}; ui-rebirth=${uiRebirthExists?'present':'absent'}.`);
+} else console.log(`ENJAZ R2.0-10 LEGACY ERADICATION AUDIT PASS — preserved at ${state.stage}; ${state.legacyEradication?.status}; blockers=${unresolved.length}; ui-v2=${uiV2Exists?'present':'absent'}; ui-rebirth=${uiRebirthExists?'present':'absent'}.`);

@@ -12,7 +12,11 @@ const stageOrder = ['R2.0-0','R2.0-1','R2.0-2','R2.0-3','R2.0-4','R2.0-5','R2.0-
 for (const file of ['docs/UI_UX_REBIRTH_2_0_MASTER_PLAN.md','docs/UI_UX_REBIRTH_2_0_ACCEPTANCE_CONTRACT.md','docs/UI_UX_REBIRTH_2_0_STATE.json','docs/UI_UX_REBIRTH_2_0_FEATURE_PARITY.json','src/main.tsx']) {
   if (!exists(file)) errors.push(`missing Rebirth acceptance artifact: ${file}`);
 }
-if (errors.length) { console.error('ENJAZ REBIRTH 2.0 HARD ACCEPTANCE AUDIT FAIL'); errors.forEach((e) => console.error(`- ${e}`)); process.exit(1); }
+if (errors.length) {
+  console.error('ENJAZ REBIRTH 2.0 HARD ACCEPTANCE AUDIT FAIL');
+  errors.forEach((e) => console.error(`- ${e}`));
+  process.exit(1);
+}
 
 const plan = read('docs/UI_UX_REBIRTH_2_0_MASTER_PLAN.md');
 const contract = read('docs/UI_UX_REBIRTH_2_0_ACCEPTANCE_CONTRACT.md');
@@ -20,6 +24,7 @@ const state = json('docs/UI_UX_REBIRTH_2_0_STATE.json');
 const parity = json('docs/UI_UX_REBIRTH_2_0_FEATURE_PARITY.json');
 const main = read('src/main.tsx');
 const stageIndex = stageOrder.indexOf(state.stage);
+const promotion = state.promotion ?? {};
 
 for (const marker of ['Beauty Gate','Professional UX / No-Maze Gate','Golden Experience','Legacy-Zero','Feature Parity','R2.0-11']) {
   if (!plan.includes(marker) && !contract.includes(marker)) errors.push(`governance missing marker: ${marker}`);
@@ -50,16 +55,22 @@ for (const file of walk(path.join(root, 'src', 'ui-r2'))) {
   const text = fs.readFileSync(file, 'utf8');
   const rel = path.relative(root, file);
   if (/from\s+['"][^'"]*ui-v2|import\s+['"][^'"]*ui-v2|from\s+['"][^'"]*ui-rebirth|import\s+['"][^'"]*ui-rebirth/i.test(text)) errors.push(`${rel}: imports deleted legacy presentation`);
-  for (const forbidden of ['ez-domain-rail','domain-explorer','onBrandAction']) if (text.includes(forbidden)) errors.push(`${rel}: forbidden legacy DNA ${forbidden}`);
+  for (const forbidden of ['ez-domain-rail','domain-explorer','onBrandAction']) {
+    if (text.includes(forbidden)) errors.push(`${rel}: forbidden legacy DNA ${forbidden}`);
+  }
 }
 
 if (stageIndex >= 5) {
   const g = state.goldenExperience ?? {};
-  if (g.status !== 'APPROVED' || g.userApproved !== true || g.visualEvidenceReady !== true || g.professionalUxEvidenceReady !== true) errors.push('approved Golden Beauty + UX evidence must remain locked');
+  if (g.status !== 'APPROVED' || g.userApproved !== true || g.visualEvidenceReady !== true || g.professionalUxEvidenceReady !== true) {
+    errors.push('approved Golden Beauty + UX evidence must remain locked');
+  }
 }
 if (stageIndex >= 10) {
   const n = state.noMaze ?? {};
-  if (n.validated !== true || n.scenarioCount < 15 || n.passedCount !== n.scenarioCount || n.hiddenPrimaryNavigationCount !== 0 || n.duplicateCanonicalHomesCount !== 0 || n.backPathFailures !== 0) errors.push('full No-Maze proof must remain intact before/during Legacy Eradication');
+  if (n.validated !== true || n.scenarioCount < 15 || n.passedCount !== n.scenarioCount || n.hiddenPrimaryNavigationCount !== 0 || n.duplicateCanonicalHomesCount !== 0 || n.backPathFailures !== 0) {
+    errors.push('full No-Maze proof must remain intact before/during Legacy Eradication and Promotion');
+  }
 }
 
 const uiV2Exists = exists('src/ui-v2');
@@ -68,12 +79,17 @@ const mainUsesProductionR2 = /ui-r2\/runtime\/UiR2ProductionRoot/.test(main);
 const mainUsesDirectR2 = /ui-r2\/runtime\/UiR2Root/.test(main);
 const mainUsesLegacy = /ui-v2|ui-rebirth/.test(main);
 const parityComplete = capabilities.length > 0 && migrated === capabilities.length && tested === capabilities.length && unresolved === 0;
+const legacyZero = state.legacy?.eradicated === true
+  && state.legacyEradication?.status === 'CLOSED'
+  && state.legacyEradication?.legacyZero === true
+  && state.legacyEradication?.exitGatePassed === true
+  && !uiV2Exists && !uiRebirthExists && !mainUsesLegacy;
 const r210Candidate = state.stage === 'R2.0-10'
   && ['ACTIVE_ERADICATION','CLOSED'].includes(state.legacyEradication?.status)
   && parityComplete
   && !uiV2Exists && !uiRebirthExists
   && mainUsesProductionR2 && !mainUsesLegacy
-  && state.promotion?.requested === false && state.promotion?.allowed === false;
+  && promotion.requested === false && promotion.allowed === false;
 
 if (stageIndex < 10 && (mainUsesProductionR2 || mainUsesDirectR2)) errors.push('R2 production boot is forbidden before Legacy Eradication');
 if (state.stage === 'R2.0-10' && !uiV2Exists && !r210Candidate) errors.push('R2.0-10 after ui-v2 deletion requires a 35/35 UiR2ProductionRoot candidate with promotion still blocked');
@@ -81,13 +97,37 @@ if (state.stage === 'R2.0-10' && uiV2Exists && (mainUsesProductionR2 || mainUses
 if (mainUsesDirectR2 && state.stage !== 'R2.0-11') errors.push('direct UiR2Root canonical boot belongs only to R2.0-11');
 
 if (stageIndex < 11 && state.runtime !== 'ui-v2') errors.push('machine canonical runtime label must remain ui-v2 until R2.0-11');
-if (stageIndex < 11 && (state.promotion?.requested !== false || state.promotion?.allowed !== false)) errors.push('promotion must remain blocked before R2.0-11');
+if (stageIndex < 11 && (promotion.requested !== false || promotion.allowed !== false)) errors.push('promotion must remain blocked before R2.0-11');
 
-if (state.stage === 'R2.0-11' || state.promotion?.requested === true || state.promotion?.allowed === true) {
+if (state.stage === 'R2.0-11') {
   if (!parityComplete) errors.push('promotion requires 100% migrated/tested parity');
-  if (state.legacy?.eradicated !== true || uiV2Exists || uiRebirthExists || mainUsesLegacy) errors.push('promotion requires physical Legacy-Zero');
+  if (!legacyZero) errors.push('promotion requires physical Legacy-Zero with R2.0-10 closed');
   if (!mainUsesProductionR2 && !mainUsesDirectR2) errors.push('promotion requires R2 production entrypoint');
-  if (state.promotion?.requested !== true || state.promotion?.allowed !== true) errors.push('R2.0-11 promotion requires requested=true and allowed=true');
+  if (promotion.requested !== true) errors.push('R2.0-11 requires promotion requested=true');
+  if (!['ACTIVE_PROMOTION','CLOSED'].includes(promotion.status)) errors.push(`invalid R2.0-11 promotion status: ${promotion.status}`);
+
+  if (promotion.status === 'ACTIVE_PROMOTION') {
+    if (promotion.allowed !== false) errors.push('ACTIVE_PROMOTION must remain fail-closed with allowed=false');
+    if (state.runtime !== 'ui-r2-candidate') errors.push('ACTIVE_PROMOTION runtime label must be ui-r2-candidate');
+    if (promotion.preconditionsVerified !== true) errors.push('ACTIVE_PROMOTION requires verified preconditions');
+    if (promotion.exitGatePassed !== false) errors.push('ACTIVE_PROMOTION may not claim exitGatePassed');
+    if (promotion.canonicalMainRecertified === true || promotion.pagesRecertified === true || promotion.liveExternalRecertified === true) {
+      errors.push('ACTIVE_PROMOTION may not claim final post-merge recertification');
+    }
+  }
+
+  if (promotion.status === 'CLOSED') {
+    if (promotion.allowed !== true) errors.push('CLOSED promotion requires allowed=true');
+    if (state.runtime !== 'ui-r2') errors.push('CLOSED promotion canonical runtime label must be ui-r2');
+    if (promotion.canonicalMainRecertified !== true || promotion.pagesRecertified !== true || promotion.liveExternalRecertified !== true) {
+      errors.push('CLOSED promotion requires main + Pages + Live External recertification');
+    }
+    if (promotion.exitGatePassed !== true) errors.push('CLOSED promotion requires exitGatePassed=true');
+  }
+}
+
+if (state.stage !== 'R2.0-11' && (promotion.status === 'ACTIVE_PROMOTION' || promotion.status === 'CLOSED' || promotion.requested === true || promotion.allowed === true)) {
+  errors.push('promotion state may only be active/closed inside R2.0-11');
 }
 
 if (errors.length) {
@@ -95,5 +135,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ REBIRTH 2.0 HARD ACCEPTANCE AUDIT PASS — ${state.stage}; Beauty + UX + parity + Legacy-Zero remain fail-closed.`);
+  console.log(`ENJAZ REBIRTH 2.0 HARD ACCEPTANCE AUDIT PASS — ${state.stage}/${promotion.status ?? 'blocked'}; Beauty + UX + parity + Legacy-Zero + promotion remain fail-closed.`);
 }
