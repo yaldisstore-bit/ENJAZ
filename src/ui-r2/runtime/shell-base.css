@@ -1,5 +1,4 @@
 @import '../tokens/foundation.css';
-@import './accessibility-hardening.css';
 
 .ez-r2-root {
   min-block-size: 100%;

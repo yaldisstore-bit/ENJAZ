@@ -50,9 +50,19 @@ async function assertWcagAA(page, label) {
   expect(result.violations, `${label}: WCAG A/AA violations`).toEqual([]);
 }
 
+async function assertFocusRowsAreFullyOpaque(page, label) {
+  const opacities = await page.locator('.r2-focus-row').evaluateAll((rows) =>
+    rows.map((row) => getComputedStyle(row).opacity),
+  );
+  expect(opacities.length, `${label}: focus rows exist`).toBeGreaterThan(0);
+  expect(opacities, `${label}: actionable focus rows must not lose text contrast through parent opacity`)
+    .toEqual(opacities.map(() => '1'));
+}
+
 for (const width of [360, 390, 1280]) {
   test(`R2 home is WCAG A/AA clean at ${width}px`, async ({ page }) => {
     await openSurface(page, 'home', width, width >= 960 ? 900 : 844);
+    await assertFocusRowsAreFullyOpaque(page, `home:${width}`);
     await assertWcagAA(page, `home:${width}`);
   });
 }

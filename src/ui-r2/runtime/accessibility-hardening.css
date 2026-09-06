@@ -1,6 +1,7 @@
 /*
  * R2.0-10 WCAG hardening.
  *
+ * This file is deliberately loaded LAST by every R2 runtime entrypoint.
  * The accent token remains part of the five-color identity for decoration,
  * borders, fills and larger visual signals. Small foreground copy on the
  * light canvas uses the interactive token so published UI meets WCAG AA.
@@ -21,9 +22,19 @@
 }
 
 /*
+ * Real public Chromium proved that an inherited 0.65 row opacity blends both
+ * structure and interactive text into the light canvas and drops small-copy
+ * contrast below AA. Interactive focus rows are actionable content, not a
+ * disabled state, so they must render at full opacity.
+ */
+.ez-r2-root .r2-focus-row {
+  opacity: 1;
+}
+
+/*
  * The active segmented-control count keeps the warm identity fill, but must
  * not inherit the light-on-dark foreground from the pressed button. The
- * interactive token is 6.37:1 against the warm fill, clearing WCAG AA.
+ * interactive token clears WCAG AA against the warm fill.
  */
 .ez-r2-root .r2-segment > button[aria-pressed='true'] > span {
   color: var(--ez-r2-interactive);
