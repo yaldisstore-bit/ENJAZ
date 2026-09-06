@@ -1,8 +1,9 @@
 name: ENJAZ Pages Preview
 
-# GitHub Pages is a review surface, not canonical-runtime promotion. R2.0-10 keeps
-# production on UiR2ProductionRoot while Pages publishes the isolated Legacy-Zero
-# preview only after both production and preview bundles pass independent budgets.
+# GitHub Pages is a review surface, not canonical-runtime promotion. The root keeps
+# the isolated frozen R2 Legacy-Zero review entry for historical QA. A separate
+# /latest/ path publishes the authenticated production-bridge harness so reviewers
+# can inspect the full application through the latest closed delivery phase.
 on:
   push:
     branches:
@@ -62,6 +63,15 @@ jobs:
         run: cp dist/r2-preview.html dist/index.html
       - name: Add SPA fallback for Pages review surface
         run: cp dist/index.html dist/404.html
+      - name: Build full latest application preview
+        run: npx vite build --config vite.r2-production-test.config.ts --base="${{ steps.pages.outputs.base_path }}/latest/"
+      - name: Publish full latest application under /latest/
+        run: |
+          mkdir -p dist/latest
+          cp -R dist-r2-production-test/. dist/latest/
+          cp dist/latest/r2-production-test.html dist/latest/index.html
+          test -f dist/latest/index.html
+          grep -q 'r2-production-test-root' dist/latest/index.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
