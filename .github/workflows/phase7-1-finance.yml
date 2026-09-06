@@ -3,6 +3,7 @@ name: ENJAZ Phase 7.1 — Financial Ledger & Summary Gate
 on:
   push:
     branches:
+      - main
       - 'phase7-1-*'
   pull_request:
     branches: [main]
