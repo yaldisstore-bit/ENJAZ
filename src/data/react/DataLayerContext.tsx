@@ -7,8 +7,12 @@ export function DataLayerProvider(props: { readonly factory: EnjazDataLayerFacto
   return <DataLayerContext.Provider value={props.factory}>{props.children}</DataLayerContext.Provider>;
 }
 
+export function useOptionalDataLayerFactory(): EnjazDataLayerFactory | null {
+  return useContext(DataLayerContext);
+}
+
 export function useDataLayerFactory(): EnjazDataLayerFactory {
-  const value = useContext(DataLayerContext);
+  const value = useOptionalDataLayerFactory();
   if (!value) throw new Error('DataLayerProvider is missing');
   return value;
 }
