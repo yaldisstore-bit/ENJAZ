@@ -213,6 +213,6 @@ test('malformed relation and timestamp remain explicit instead of crashing or in
   const snapshot = buildTransactionListSnapshot(source, { sort: 'activity-desc' });
   assert.equal(snapshot.items.length, 1);
   assert.equal(snapshot.items[0]?.companyMissing, true);
-  assert.equal(snapshot.items[0]?.companyName, 'شركة غير متاحة');
+  assert.equal(snapshot.items[0]?.companyLabel, 'بيانات الشركة غير متاحة');
   assert.equal(snapshot.items[0]?.id, TX_ID);
 });
