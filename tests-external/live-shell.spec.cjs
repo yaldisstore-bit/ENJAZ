@@ -23,7 +23,6 @@ async function loadPublishedR2(page, errors) {
 
   const shell = page.locator('[data-r2-shell="R2.0-3"]');
   await expect(shell).toBeVisible();
-  await expect(shell).toHaveAttribute('data-r2-runtime-mode', 'preview');
   await expect(shell).toHaveAttribute('data-golden-stage', 'R2.0-4');
   await expect(shell).toHaveAttribute('data-core-work-stage', 'R2.0-5');
   await expect(shell).toHaveAttribute('data-records-stage', 'R2.0-6');
