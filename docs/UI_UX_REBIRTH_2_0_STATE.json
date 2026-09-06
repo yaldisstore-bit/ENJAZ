@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "stage": "R2.0-11",
   "phase55Locked": true,
-  "runtime": "ui-r2-candidate",
+  "runtime": "ui-r2",
   "goldenExperience": {
     "status": "APPROVED",
     "implemented": true,
@@ -222,17 +222,28 @@
     "eradicated": true
   },
   "promotion": {
-    "status": "ACTIVE_PROMOTION",
+    "status": "CLOSED",
     "requested": true,
-    "allowed": false,
+    "allowed": true,
     "kickoff": "docs/R2_0_11_CANONICAL_PROMOTION_KICKOFF.md",
     "baseCommit": "609c4d524cffd00da872d3c44e988d33e971ebec",
     "candidateEntrypoint": "src/main.tsx",
     "candidateRoot": "src/ui-r2/runtime/UiR2ProductionRoot.tsx",
     "preconditionsVerified": true,
-    "canonicalMainRecertified": false,
-    "pagesRecertified": false,
-    "liveExternalRecertified": false,
-    "exitGatePassed": false
+    "activePromotionCommit": "2edb1bf8e1127233e80d20eea42e28c0f93928ae",
+    "canonicalMainRecertified": true,
+    "pagesRecertified": true,
+    "liveExternalRecertified": true,
+    "canonicalMainQualityRun": 34017876131,
+    "canonicalPromotionRun": 34017876137,
+    "canonicalGovernanceRun": 34017876155,
+    "canonicalWcagRun": 34017876122,
+    "canonicalRealBrowserRun": 34017876130,
+    "pagesRun": 34017892324,
+    "liveExternalRun": 34017913484,
+    "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_CANONICAL_PROMOTION_EVIDENCE.json",
+    "closureRecord": "docs/R2_0_11_CANONICAL_PROMOTION_CLOSURE.md",
+    "phase55Unlocked": false,
+    "exitGatePassed": true
   }
 }
