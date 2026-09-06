@@ -34,7 +34,7 @@ test('Phase 6.1 company directory is connected, searchable and bounded', async (
   await expect(page.getByText('لا توجد شركة مطابقة للبحث والتصفية الحالية.')).toBeVisible();
   await page.getByRole('button', { name: 'الكل 2', exact: true }).click();
   await page.getByRole('textbox', { name: 'بحث الشركات' }).fill('');
-  await expect(page.getByText('قمر السلطان', { exact: true })).toBeVisible();
+  await expect(page.locator('.r2-records-directory-list').getByText('قمر السلطان', { exact: true })).toBeVisible();
   expect(errors).toEqual([]);
   await assertNoHorizontalOverflow(page);
 });
