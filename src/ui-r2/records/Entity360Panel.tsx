@@ -21,6 +21,6 @@ export function Entity360Panel({ source, openTransaction }: Readonly<{ source: E
     </div></> : null}
     {contact ? <><div className="r2-records-facts"><div><span>الهاتف</span><strong>{contact.contact.phone || 'غير مسجل'}</strong></div><div><span>البريد</span><strong>{contact.contact.email || 'غير مسجل'}</strong></div></div><div className="r2-records-related-lists"><section><h3>الشركات والعلاقات</h3>{contact.companyRelations.map(({relation,company:row,current})=><p key={relation.id}><strong>{row?.display_name||row?.legal_name||'شركة غير متاحة'}</strong> · {relation.relation_type} · {current?'حالية':'منتهية'}</p>)}</section><section><h3>المعاملات المرتبطة</h3>{contact.transactions.map(tx)}</section></div>{contact.contact.notes ? <p className="r2-contacts-notes">{contact.contact.notes}</p> : null}</> : null}
     {source.truncatedScopes.length ? <aside className="r2-records-truth" role="note"><strong>سياق جزئي عند حد القراءة</strong><span>{source.truncatedScopes.join(' · ')}</span></aside> : null}
-    <aside className="r2-records-truth" role="note"><strong>مصادر الحقيقة محفوظة</strong><span>360° تجمع سياق 6.1 و6.2 فقط. المالية الكاملة Phase 7.</span></aside>
+    <aside className="r2-records-truth" role="note"><strong>مصادر الحقيقة محفوظة</strong><span>سياق 6.1 و6.2 فقط. المالية Phase 7.</span></aside>
   </article>;
 }
