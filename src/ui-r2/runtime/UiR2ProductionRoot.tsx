@@ -10,6 +10,7 @@ import { CurrentUserIdProvider } from '../../shared/session/CurrentUserIdContext
 import { SessionChecking } from '../../shared/session/SessionChecking.tsx';
 import { R2AuthScreen } from '../auth/R2AuthScreen.tsx';
 import { R2PasswordUpdateScreen } from '../auth/R2PasswordUpdateScreen.tsx';
+import { LiveFinanceProductionPortal } from '../finance/LiveFinanceProductionPortal.tsx';
 import { LiveCompaniesProductionPortal } from '../records/LiveCompaniesProductionPortal.tsx';
 import { LivePeopleProductionPortal } from '../records/LivePeopleProductionPortal.tsx';
 import { UiR2Root } from './UiR2Root.tsx';
@@ -73,6 +74,7 @@ function AuthenticatedR2Runtime({ dataFactory }: Readonly<{ dataFactory: EnjazDa
         <UiR2Root runtimeMode="live" accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} />
         <LiveCompaniesProductionPortal />
         <LivePeopleProductionPortal />
+        <LiveFinanceProductionPortal />
       </CurrentUserIdProvider>
     </DataLayerProvider>
   );
