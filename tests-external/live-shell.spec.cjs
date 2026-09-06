@@ -16,20 +16,22 @@ function collectErrors(page) {
   return errors;
 }
 
-async function loadCanonical(page, errors) {
+async function loadPublishedR2(page, errors) {
   const response = await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 30_000 });
   expect(response, 'navigation response').not.toBeNull();
   expect(response.status(), 'page HTTP status').toBeLessThan(400);
-  const shell = page.locator('[data-enjaz-ui="v2"]');
-  const app = page.locator('[data-core-app="true"]');
+
+  const shell = page.locator('[data-r2-shell="R2.0-3"]');
   await expect(shell).toBeVisible();
-  await expect(app).toBeVisible();
-  await expect(shell).toHaveAttribute('data-stage', 'ui-10');
-  await expect(shell).toHaveAttribute('dir', 'rtl');
-  await expect(app).toHaveAttribute('data-stage', 'ui-10');
-  const productPhase = Number(await app.getAttribute('data-product-phase'));
-  expect(Number.isFinite(productPhase), 'product phase marker is numeric').toBeTruthy();
-  expect(productPhase, 'product phase remains at or beyond the Phase 4.4 closure').toBeGreaterThanOrEqual(4.4);
+  await expect(shell).toHaveAttribute('data-r2-runtime-mode', 'preview');
+  await expect(shell).toHaveAttribute('data-golden-stage', 'R2.0-4');
+  await expect(shell).toHaveAttribute('data-core-work-stage', 'R2.0-5');
+  await expect(shell).toHaveAttribute('data-records-stage', 'R2.0-6');
+  await expect(shell).toHaveAttribute('data-operational-stage', 'R2.0-7');
+  await expect(shell).toHaveAttribute('data-zero-lost-stage', 'R2.0-8');
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+  await expect(page.locator('[data-enjaz-ui="v2"]')).toHaveCount(0);
+  await expect(page.locator('[data-r2-runtime-error="true"]')).toHaveCount(0);
   expect(errors.console, 'browser console errors').toEqual([]);
   expect(errors.page, 'uncaught page errors').toEqual([]);
 }
@@ -66,23 +68,19 @@ async function rect(locator, label) {
   return box;
 }
 
-async function closeSheet(page) {
-  const dialog = page.getByRole('dialog');
-  const close = dialog.locator('.ez-sheet__close');
-  await expect(close).toBeVisible();
-  await close.click();
-  await expect(dialog).toHaveCount(0);
-}
-
-test('canonical UI V2 shell survives real Android geometry, navigation and WCAG', async ({ page }) => {
+test('published R2 Legacy-Zero shell survives real Android geometry, navigation and WCAG', async ({ page }) => {
   const errors = collectErrors(page);
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
-    await loadCanonical(page, errors);
+    await loadPublishedR2(page, errors);
 
-    const topbar = page.locator('[data-shell-part="topbar"]');
-    const dock = page.locator('[data-shell-part="bottom-dock"]');
-    const primary = page.getByRole('button', { name: 'إجراء جديد', exact: true });
+    const topbar = page.locator('.r2-topbar');
+    const dock = page.locator('.r2-shell__mobile-nav');
+    const primary = dock.locator('[data-door="create"]');
+    await expect(dock).toBeVisible();
+    await expect(page.locator('.r2-shell__rail')).toBeHidden();
+    await expect(dock.locator('[data-door]')).toHaveCount(5);
+
     const topBox = await rect(topbar, `${viewport.name}: topbar`);
     const dockBox = await rect(dock, `${viewport.name}: dock`);
     const primaryBox = await rect(primary, `${viewport.name}: primary action`);
@@ -99,15 +97,14 @@ test('canonical UI V2 shell survives real Android geometry, navigation and WCAG'
     await assertNoHorizontalOverflow(page, viewport.name);
     await assertMobileTargets(page, viewport.name);
 
-    const nav = page.getByRole('navigation', { name: 'التنقل الرئيسي' });
-    for (const [buttonName, screen] of [
-      ['اليوم', 'today'],
-      ['العمليات', 'operations'],
-      ['المالية', 'finance'],
-      ['الرئيسية', 'home'],
+    for (const [door, screen] of [
+      ['transactions', 'transactions'],
+      ['today', 'today'],
+      ['more', 'more'],
+      ['home', 'home'],
     ]) {
-      await nav.getByRole('button', { name: buttonName, exact: true }).click();
-      await expect(page.locator(`[data-core-screen="${screen}"]`)).toBeVisible();
+      await dock.locator(`[data-door="${door}"]`).click();
+      await expect(page.locator(`[data-screen="${screen}"]`)).toBeVisible();
       await assertNoHorizontalOverflow(page, `${viewport.name}:${screen}`);
     }
 
@@ -118,58 +115,50 @@ test('canonical UI V2 shell survives real Android geometry, navigation and WCAG'
   }
 });
 
-test('global overlays and domain explorer remain usable on mobile', async ({ page }) => {
+test('published R2 global overlays and operational destinations remain usable on mobile', async ({ page }) => {
   const errors = collectErrors(page);
   await page.setViewportSize({ width: 390, height: 844 });
-  await loadCanonical(page, errors);
+  await loadPublishedR2(page, errors);
 
-  await page.getByRole('button', { name: 'بحث', exact: true }).click();
-  const search = page.getByRole('dialog', { name: 'البحث العام', exact: true });
+  await page.getByRole('button', { name: 'ابحث عن أي شيء' }).first().click();
+  const search = page.locator('[data-overlay="search"]');
   await expect(search).toBeVisible();
-  await page.getByLabel('عبارة البحث').fill('عبارة لا تطابق أي سجل');
-  await expect(page.locator('[data-state-kind="empty"]')).toBeVisible();
+  const input = search.locator('input').first();
+  await input.fill('عبارة لا تطابق أي سجل');
+  await expect(search.locator('.r2-search-empty')).toBeVisible();
   await assertNoHorizontalOverflow(page, 'search overlay');
+  await assertMobileTargets(page, 'search overlay');
   await page.keyboard.press('Escape');
   await expect(search).toHaveCount(0);
 
-  for (const [trigger, dialogName] of [
-    ['الإشعارات', 'الإشعارات'],
-    ['الحساب', 'الحساب ومساحة العمل'],
-    ['إجراء جديد', 'إجراء جديد'],
-  ]) {
-    await page.getByRole('button', { name: trigger, exact: true }).click();
-    const dialog = page.getByRole('dialog', { name: dialogName, exact: true });
-    await expect(dialog).toBeVisible();
-    await assertNoHorizontalOverflow(page, `${trigger} overlay`);
-    await assertMobileTargets(page, `${trigger} overlay`);
-    await closeSheet(page);
-  }
+  await page.getByRole('button', { name: 'الحساب ومساحة العمل' }).click();
+  const account = page.locator('[data-overlay="account"]');
+  await expect(account).toBeVisible();
+  await assertNoHorizontalOverflow(page, 'account overlay');
+  await assertMobileTargets(page, 'account overlay');
+  await page.keyboard.press('Escape');
+  await expect(account).toHaveCount(0);
 
-  await page.getByRole('button', { name: 'مجالات إنجاز', exact: true }).click();
-  const explorer = page.getByRole('dialog', { name: 'مجالات إنجاز', exact: true });
-  await expect(explorer).toBeVisible();
-  await expect(page.locator('[data-domain-explorer-link]')).toHaveCount(12);
-  await assertZeroAxeViolations(page, 'domain explorer');
-  await page.locator('[data-domain-explorer-link="transactions"]').click();
-  await expect(page.locator('[data-domain-runtime="transactions"]')).toBeVisible();
-  await expect(page.locator('[data-domain-rail="true"]')).toBeVisible();
-  await assertNoHorizontalOverflow(page, 'transactions domain');
-  await page.getByRole('button', { name: 'العودة للأساسية', exact: true }).click();
-  await expect(page.locator('[data-core-screen="home"]')).toBeVisible();
-  await expect(page.locator('[data-domain-rail="true"]')).toHaveCount(0);
+  const dock = page.locator('.r2-shell__mobile-nav');
+  await dock.locator('[data-door="more"]').click();
+  await expect(page.locator('[data-screen="more"]')).toBeVisible();
+  await page.getByRole('button', { name: /مركز العمليات/ }).click();
+  await expect(page.locator('[data-operational-domain="operations"]')).toBeVisible();
+  await assertNoHorizontalOverflow(page, 'operations destination');
+  await assertZeroAxeViolations(page, 'operations destination');
 
-  expect(errors.responses, 'overlays/domains: no failed network resources').toEqual([]);
-  expect(errors.console, 'overlays/domains: no console errors').toEqual([]);
-  expect(errors.page, 'overlays/domains: no page errors').toEqual([]);
+  expect(errors.responses, 'overlays/destinations: no failed network resources').toEqual([]);
+  expect(errors.console, 'overlays/destinations: no console errors').toEqual([]);
+  expect(errors.page, 'overlays/destinations: no page errors').toEqual([]);
 });
 
-test('reduced motion and production resource budgets remain bounded', async ({ page }) => {
+test('published R2 reduced motion and resource budgets remain bounded', async ({ page }) => {
   const errors = collectErrors(page);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 390, height: 844 });
-  await loadCanonical(page, errors);
+  await loadPublishedR2(page, errors);
 
-  const motion = await page.locator('[data-enjaz-ui="v2"]').evaluate((root) => {
+  const motion = await page.locator('[data-r2-shell="R2.0-3"]').evaluate((root) => {
     const nodes = [root, ...root.querySelectorAll('*')];
     return nodes.reduce((max, node) => {
       const style = getComputedStyle(node);
