@@ -54,11 +54,13 @@ if (state.status === 'CLOSED') {
   }
   if (recert?.status === 'COMPLETE') {
     if (state.phase6_4Allowed !== true || state.nextPhase !== '6.4') errors.push('Phase 6.4 may be authorized only after Phase 6.3 post-merge recertification completes');
-    if (typeof recert.mainCommit !== 'string' || recert.mainCommit.length !== 40) errors.push('completed Phase 6.3 recertification requires canonical main commit');
-    if (recert.workflowCount !== 8 || recert.successCount !== 8 || recert.failureCount !== 0) errors.push('completed Phase 6.3 recertification requires 8/8 workflows SUCCESS');
+    if (recert.mainCommit !== '46165bfc9f3237b7ff77e7ca11baed3272910831') errors.push('Phase 6.3 canonical recertified main commit drifted');
+    if (recert.workflowCount !== 9 || recert.successCount !== 9 || recert.failureCount !== 0) errors.push('completed Phase 6.3 recertification requires 9/9 final workflows SUCCESS');
+    if (recert.supersededCancelledCount !== 1 || recert.supersededLiveExternalRun !== 34039399127) errors.push('Phase 6.3 must preserve the single superseded Live External cancellation evidence');
+    if (recert.canonicalPromotionRun !== 34039348365 || recert.qualityRun !== 34039348403 || recert.realBrowserRun !== 34039348382 || recert.wcagRun !== 34039348388 || recert.governanceRun !== 34039348417 || recert.pagesPushRun !== 34039348376 || recert.pagesBuildDeploymentRun !== 34039347689 || recert.pagesWorkflowRun !== 34039414219 || recert.liveExternalRun !== 34039447623) errors.push('Phase 6.3 key post-merge run evidence drifted');
     if (state.postMergeEvidence !== paths.postMerge || !exists(paths.postMerge)) errors.push('completed Phase 6.3 recertification requires canonical post-merge evidence');
     const postMerge = exists(paths.postMerge) ? read(paths.postMerge) : '';
-    for (const marker of ['Status: **COMPLETE**','8/8 post-merge workflows SUCCESS','Attack the actual published application','phase6_4Allowed=true','Phase 6.4']) requireMarker(postMerge, marker, 'post-merge evidence');
+    for (const marker of ['Status: **COMPLETE**','9/9 post-merge workflows SUCCESS','46165bfc9f3237b7ff77e7ca11baed3272910831','34039347689','34039447623','34039399127','Attack the actual published application','phase6_4Allowed=true','Phase 6.4 — Companies & People Destruction Gate']) requireMarker(postMerge, marker, 'post-merge evidence');
   }
 }
 
