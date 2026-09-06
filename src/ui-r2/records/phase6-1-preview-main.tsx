@@ -11,6 +11,7 @@ import '../golden/golden-journey.css';
 import '../golden/golden-mobile-hardening.css';
 import '../core-work/core-work.css';
 import './records.css';
+import './companies.css';
 import '../runtime/accessibility-hardening.css';
 
 const factory = createPhase61PreviewDataFactory();

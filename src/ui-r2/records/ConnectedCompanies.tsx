@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from 'react';
 import { isSafeCompanyCapital, type CompanyDraftField } from '../../features/companies/companyModel.ts';
 import type { CompanyDetailSource } from '../../features/companies/companyService.ts';
 import { useCompanyDetail, useCompanyDirectory, useCompanyEditor } from '../../features/companies/useCompanies.ts';
@@ -27,18 +27,14 @@ function companyStatus(value: string, merged: boolean): string {
 function CompanyEditor(props: Readonly<{ mode: 'create' | 'edit'; source: CompanyDetailSource | null; onClose: () => void; onSaved: (id: string) => void }>) {
   const row = props.mode === 'edit' ? props.source?.company ?? null : null;
   const controller = useCompanyEditor(props.mode, row);
-  const reportedSavedId = useRef<string | null>(null);
-
-  useEffect(() => {
-    const id = controller.state === 'saved' ? controller.savedCompany?.id ?? null : null;
-    if (id && reportedSavedId.current !== id) {
-      reportedSavedId.current = id;
-      props.onSaved(id);
-    }
-  }, [controller.savedCompany?.id, controller.state, props.onSaved]);
 
   if (controller.state === 'saved' && controller.savedCompany) {
-    return <section className="r2-records-entity-profile r2-company-editor" data-company-editor="saved"><StatePanel title="تم حفظ الشركة" body="تم تأكيد السجل عبر Data Layer الموثوقة، وسيعاد تحميل الدليل والتفاصيل من المصدر القانوني." action={props.onClose} actionLabel="العودة إلى التفاصيل" /></section>;
+    const savedId = controller.savedCompany.id;
+    const returnToDetail = () => {
+      props.onSaved(savedId);
+      props.onClose();
+    };
+    return <section className="r2-records-entity-profile r2-company-editor" data-company-editor="saved"><StatePanel title="تم حفظ الشركة" body="تم تأكيد السجل عبر Data Layer الموثوقة، وسيعاد تحميل الدليل والتفاصيل من المصدر القانوني عند العودة." action={returnToDetail} actionLabel="العودة إلى التفاصيل" /></section>;
   }
 
   const field = (name: CompanyDraftField) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => controller.update(name, event.currentTarget.value);

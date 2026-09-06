@@ -30,9 +30,9 @@ test('Phase 6.1 company directory is connected, searchable and bounded', async (
   await expect(page.getByText('حدود 6.1 محفوظة')).toBeVisible();
   await page.getByRole('textbox', { name: 'بحث الشركات' }).fill('الكرادة');
   await expect(page.getByText('روز بغداد', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: /نشطة 1/ }).click();
+  await page.getByRole('button', { name: 'نشطة 1', exact: true }).click();
   await expect(page.getByText('لا توجد شركة مطابقة للبحث والتصفية الحالية.')).toBeVisible();
-  await page.getByRole('button', { name: /الكل 2/ }).click();
+  await page.getByRole('button', { name: 'الكل 2', exact: true }).click();
   await page.getByRole('textbox', { name: 'بحث الشركات' }).fill('');
   await expect(page.getByText('قمر السلطان', { exact: true })).toBeVisible();
   expect(errors).toEqual([]);

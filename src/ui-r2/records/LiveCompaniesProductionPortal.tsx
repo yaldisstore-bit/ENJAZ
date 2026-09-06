@@ -1,6 +1,7 @@
 import { useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ConnectedCompanies } from './ConnectedCompanies.tsx';
+import './companies.css';
 
 const LIVE_COMPANIES_DESTINATION = 'companies';
 
