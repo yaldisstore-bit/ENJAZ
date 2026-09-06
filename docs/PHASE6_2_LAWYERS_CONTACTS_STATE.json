@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "phase": "6.2",
+  "name": "Lawyers / Contacts",
+  "status": "ACTIVE",
+  "baseCommit": "6a9b940cc267e5fdd59774faed5a976804dff74b",
+  "priorPhase": "6.1",
+  "priorPhaseRecertified": true,
+  "kickoff": "docs/PHASE6_2_LAWYERS_CONTACTS_KICKOFF.md",
+  "scope": [
+    "contactList",
+    "contactSearch",
+    "contactFilters",
+    "contactCreate",
+    "contactEdit",
+    "contactProfile",
+    "companyRelationships",
+    "transactionRelationships",
+    "operationalContext",
+    "financialContext"
+  ],
+  "boundaries": {
+    "companyLawyer360": "6.3",
+    "fullFinance": "7",
+    "workflowAutomation": "8",
+    "documents": "10"
+  },
+  "sourceOfTruth": "workspace-scoped EnjazDataLayerFactory",
+  "safeContactSourceLimit": 5000,
+  "exitGatePassed": false,
+  "unresolvedDefectCount": null,
+  "phase6_3Allowed": false,
+  "startedAt": "2026-09-06T11:00:00Z",
+  "closedAt": null
+}
