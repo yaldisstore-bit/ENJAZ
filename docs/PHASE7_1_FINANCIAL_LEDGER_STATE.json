@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "phase": "7.1",
   "name": "Financial Ledger & Summary",
   "status": "CLOSED",
@@ -45,13 +45,22 @@
     {
       "id": "P7-1-R2-FINANCE-PREVIEW-HANDOFF",
       "status": "CLOSED",
-      "summary": "The frozen R2.0-7 finance preview now truthfully identifies itself as visual-only and hands off to the authoritative Phase 7.1 live surface."
+      "summary": "The frozen R2.0-7 finance preview truthfully identifies itself as visual-only and hands off to the authoritative Phase 7.1 live surface."
     }
   ],
-  "phase7_2Allowed": false,
-  "nextPhase": null,
+  "mergeCommit": "3d4043c8e5d6784f327ff8ac9879402b7d933422",
+  "postMergeEvidence": "docs/PHASE7_1_POSTMERGE_RECERTIFICATION.md",
   "postMergeRecertification": {
     "required": true,
-    "status": "PENDING"
-  }
+    "status": "COMPLETE",
+    "mainCommit": "3d4043c8e5d6784f327ff8ac9879402b7d933422",
+    "workflowCount": 9,
+    "successCount": 9,
+    "failureCount": 0,
+    "inProgressCount": 0,
+    "liveExternalRun": 34047603734,
+    "publishedApplicationVerified": true
+  },
+  "phase7_2Allowed": true,
+  "nextPhase": "7.2"
 }

@@ -2,127 +2,122 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 6.4 — Companies & People Destruction Gate ✅ CLOSED**  
-آخر مرحلة مغلقة: **Phase 6.4 — Companies & People Destruction Gate ✅**  
-التالي المسموح: **Phase 7.1 — Financial Ledger & Summary**.
+الحالة الرسمية: **Phase 7.1 — Financial Ledger & Summary ✅ CLOSED + POST-MERGE RECERTIFIED**  
+آخر مرحلة مغلقة: **Phase 7.1 — Financial Ledger & Summary ✅**  
+التالي المسموح: **Phase 7.2 — Payments & Receipts**.
 
-إنجاز مشروع مستقل مبني من الصفر بهوية وبنية حديثة، مع الحفاظ على المفاهيم التشغيلية المعتمدة دون نقل واجهات أو runtime أو legacy UI DNA من الأجيال السابقة.
+ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية حديثة وبنية Supabase/Postgres + RLS، من دون إعادة إحياء legacy UI/runtime DNA.
 
-## المصدر القانوني للخطة
+## التطبيق الحقيقي
 
-- [`docs/ENJAZ_MASTER_ROADMAP.md`](docs/ENJAZ_MASTER_ROADMAP.md) — الخطة الحاكمة من Phase 0 حتى **ENJAZ 1.0 — Delivered**.
-- [`docs/ENJAZ_ROADMAP_PROVENANCE.md`](docs/ENJAZ_ROADMAP_PROVENANCE.md) — مصدر الخطة وحدود استعادة التسميات التاريخية.
-- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json)
-- [`docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md`](docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md)
-- [`docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md)
-- [`docs/PHASE6_1_COMPANIES_STATE.json`](docs/PHASE6_1_COMPANIES_STATE.json)
-- [`docs/PHASE6_1_COMPANIES_CLOSURE.md`](docs/PHASE6_1_COMPANIES_CLOSURE.md)
-- [`docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md)
-- [`docs/PHASE6_2_LAWYERS_CONTACTS_STATE.json`](docs/PHASE6_2_LAWYERS_CONTACTS_STATE.json)
-- [`docs/PHASE6_2_LAWYERS_CONTACTS_CLOSURE.md`](docs/PHASE6_2_LAWYERS_CONTACTS_CLOSURE.md)
-- [`docs/PHASE6_2_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_2_POSTMERGE_RECERTIFICATION.md)
-- [`docs/PHASE6_3_COMPANY_LAWYER_360_STATE.json`](docs/PHASE6_3_COMPANY_LAWYER_360_STATE.json)
-- [`docs/PHASE6_3_COMPANY_LAWYER_360_CLOSURE.md`](docs/PHASE6_3_COMPANY_LAWYER_360_CLOSURE.md)
-- [`docs/PHASE6_3_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_3_POSTMERGE_RECERTIFICATION.md)
-- [`docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_STATE.json`](docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_STATE.json)
-- [`docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_CLOSURE.md`](docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_CLOSURE.md)
-- [`docs/PHASE6_4_POSTMERGE_RECERTIFICATION.md`](docs/PHASE6_4_POSTMERGE_RECERTIFICATION.md)
+- Live runtime: `https://yaldisstore-bit.github.io/ENJAZ/live/`
+- الجذر `/ENJAZ/` يبقى سطح QA/Preview تاريخيًا ولا يمثل مصدر الحقيقة للبيانات الحية.
 
-**قاعدة حاكمة:** لا يجوز تخطي مرحلة أو إعادة تسميتها أو بدء مرحلة لاحقة قبل نجاح بوابة المرحلة الحالية وتسجيل قرار الانتقال في المستودع.
+## مصادر الخطة والحوكمة
 
-## حالة المراحل
+- [`docs/ENJAZ_MASTER_ROADMAP.md`](docs/ENJAZ_MASTER_ROADMAP.md) — الخطة الحاكمة المدمجة حتى `ENJAZ 1.0 — Delivered`.
+- [`docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`](docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json) — الأنظمة الكبيرة M1–M18 وحالتها machine-readable.
+- [`docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md`](docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md) — قانون الإغلاق الصارم للأنظمة الكبيرة.
+- [`docs/ENJAZ_CAPABILITY_EXPANSION_2026.json`](docs/ENJAZ_CAPABILITY_EXPANSION_2026.json) — التوسعة التفصيلية للقدرات.
+- [`docs/PHASE7_1_FINANCIAL_LEDGER_STATE.json`](docs/PHASE7_1_FINANCIAL_LEDGER_STATE.json)
+- [`docs/PHASE7_1_FINANCIAL_LEDGER_CLOSURE.md`](docs/PHASE7_1_FINANCIAL_LEDGER_CLOSURE.md)
+- [`docs/PHASE7_1_POSTMERGE_RECERTIFICATION.md`](docs/PHASE7_1_POSTMERGE_RECERTIFICATION.md)
 
-- **Phase 0 — Specification Freeze** ✅
-- **Phase 1 — Engineering Foundation** ✅
-- **Phase 2 — ENJAZ Design System 1.0** ✅ frozen
-  - **Phase 2.8 — Visual Destruction & Quality Gate** ✅
-- **Phase 3 — Application Shell & Navigation** ✅
-  - **Phase 3.4 — Shell Destruction Gate** ✅
-- **Phase 4 — Home, Daily Work & Executive Overview** ✅
-  - **Phase 4.1 — Home / Dashboard** ✅ complete
-  - **Phase 4.2 — Daily Work / Universal Inbox** ✅ complete
-  - **Phase 4.3 — Executive Briefing** ✅ complete
-  - **Phase 4.4 — Home Destruction Gate** ✅ complete
-- **Phase 5 — Transactions Core** ✅
+## الحالة الكانونية للمراحل
+
+- **Phase 0 — Product Freeze & Migration Contract** ✅ complete
+- **Phase 1 — Engineering Foundation** ✅ complete
+- **Phase 2 — ENJAZ Design System 1.0** ✅ complete/frozen
+- **Phase 3 — Application Shell & Navigation** ✅ complete
+- **Phase 4 — Home, Daily Work & Executive Overview** ✅ complete
+- **Phase 5 — Transactions Core** ✅ complete
   - **Phase 5.1 — Transaction List & Search** ✅ complete
   - **Phase 5.2 — Transaction Create/Edit** ✅ complete
   - **Phase 5.3 — Transaction Details / 360°** ✅ complete
   - **Phase 5.4 — Archive/Restore/Lifecycle** ✅ complete
   - **Phase 5.5 — Transaction Destruction Gate** ✅ complete
-- **Phase 6 — Companies & People** ✅
+- **Phase 6 — Companies & People** ✅ complete
   - **Phase 6.1 — Companies** ✅ complete
   - **Phase 6.2 — Lawyers / Contacts** ✅ complete
   - **Phase 6.3 — Company / Lawyer 360°** ✅ complete
   - **Phase 6.4 — Companies & People Destruction Gate** ✅ complete
-- **Next: Phase 7.1 — Financial Ledger & Summary**
+- **Phase 7.1 — Financial Ledger & Summary** ✅ complete + post-merge recertified
+- **Next: Phase 7.2 — Payments & Receipts**
 
-## الإغلاق الكانوني للمراحل الأخيرة
+### Phase 7.1 canonical evidence
 
-### Phase 5.5
+- Certified pre-closure implementation passed **24/24 pull-request workflows SUCCESS**.
+- Dedicated finance tests: **11/11 PASS**.
+- Full functional regression at closure: **164/164 PASS**.
+- Production JavaScript: **628924/670000** without raising the budget.
+- Canonical merge: `3d4043c8e5d6784f327ff8ac9879402b7d933422`.
+- Exact merged commit passed **9/9 canonical post-merge workflows SUCCESS، 0 failures**.
+- Pages deployment and Live External validation succeeded.
+- Published verification included **Attack the actual published application**.
+- `phase7_2Allowed=true`; Phase 7.2 is authorized but not yet implemented.
 
-Phase 5.5 أُغلقت بعد **19/19 workflows SUCCESS** ثم إعادة اعتماد `main` بنتيجة **8/8 post-merge workflows SUCCESS، 0 failures**. الأدلة التفصيلية محفوظة في ملفات الحالة والإغلاق وإعادة الاعتماد أعلاه.
+## Major Product Systems — M1–M18
 
-### Phase 6.1 — Companies
+The following are now **governing product scope**, not optional ideas. They remain `PLANNED` until implementation and Zero-Escape closure evidence proves otherwise:
 
-قبل الدمج اجتازت Phase 6.1 **20/20 workflows SUCCESS** مع Chromium وQuality وGovernance وWCAG وReal Browser حتى Production Bridge. أُعيد اعتماد `main@6d70069995164500b3c05b027145bcdfed96e877` بنتيجة **8/8 post-merge workflows SUCCESS، 0 failures**، بما فيها النسخة المنشورة.
+1. **M1 — Government Procedure Operating System**
+2. **M2 — Corporate Governance & Ownership Engine**
+3. **M3 — Client Portal**
+4. **M4 — Omnichannel Communications Hub**
+5. **M5 — ENJAZ Field Operations / Runner Mode**
+6. **M6 — Service Catalog, CRM & Commercial Intake**
+7. **M7 — Document Factory & Official Form Engine**
+8. **M8 — Regulatory / Knowledge Base Engine**
+9. **M9 — Agentic ENJAZ Copilot**
+10. **M10 — Scheduling, Appointments & Deadline Engine**
+11. **M11 — Integration Platform / API / Webhooks**
+12. **M12 — Compliance, Audit & Evidence Center**
+13. **M13 — Business Intelligence & Forecasting Center**
+14. **M14 — Backup, Restore & Workspace Portability**
+15. **M15 — Multi-Branch, Departments & Team Operating Model**
+16. **M16 — Engagements, Contracts & Retainers**
+17. **M17 — Smart Intake Forms & Secure Submission Links**
+18. **M18 — Process Mining & Predictive Operations**
 
-### Phase 6.2 — Lawyers / Contacts
+The Master Roadmap embeds these systems into Phases 7–18. Adding them expanded the project scope but did not silently reorder the phase sequence or reopen already certified phases.
 
-قبل الدمج اجتازت Phase 6.2 **21/21 workflows SUCCESS**، واختبارات model/service، وfull regression، وReal Chromium، وstrict production JS budget `669889/670000`. أُعيد اعتماد `main@e35555237d6a631e55a0c248bea0f22d0cbd0c37` بنتيجة **8/8 post-merge workflows SUCCESS، 0 failures**، بما فيها النسخة المنشورة.
+## Zero-Escape rule
 
-### Phase 6.3 — Company / Lawyer 360°
+No M1–M18 system may be marked `CLOSED` because UI looks complete or branch CI is green.
 
-أُغلقت Phase 6.3 بعد بناء سطح 360° موحد ومقروء فقط للشركة والمحامي/جهة الاتصال من مصادر الحقيقة المعتمدة في Phase 6.1 وPhase 6.2.
+Closure requires, where applicable:
 
-قبل الدمج اجتاز رأس التنفيذ `c3d8d886424c52113b8bf78bdace95528f429c5f`:
+- authoritative schema/data contract;
+- real ENJAZ Supabase + authenticated user;
+- fresh-user/fresh-workspace bootstrap;
+- durable create/write → read → refresh round trip;
+- positive and negative permission/RLS matrix;
+- real Chromium/mobile journeys at 1280/430/390/360/320;
+- keyboard/back/reload/deep-link/long-content stress;
+- offline/error/conflict/duplicate-submit/recovery tests;
+- audit/reconciliation for sensitive writes;
+- zero Critical/High/functional blockers;
+- exact merged SHA deployed;
+- critical path verified on the deployed application;
+- post-merge recertification COMPLETE.
 
-- **22/22 workflows SUCCESS**
-- Phase 6.3 composition audit + 3/3 entity360 tests — PASS
-- full functional regression 144/144 — PASS
-- strict production JS budget `669997/670000` — PASS دون رفع الحد
-- Real Chromium Phase 6.3 — **7/7 PASS**
-- cumulative Phase 6.1/6.2, Quality, Governance, WCAG, Legacy-Zero, Destruction Wave 1/2، وReal Browser حتى Production Bridge — PASS
+If a real defect escapes after a system is closed, it is classified as a **Gate Escape**: the affected certification is reopened, a regression guard is added, the missing gate is strengthened, and Real Cloud + Real Browser + deployed-live verification is repeated before recertification.
 
-بعد دمج PR #85 كشفت إعادة الاعتماد مشكلة في verifier الخاص بـPages: قياس production bridge على `/ENJAZ/` أضاف ستة بايتات لمسار base وأظهر `670003/670000` بدل الحجم الكانوني `669997/670000`. لم يتغير التطبيق ولم يُرفع السقف؛ PR #86 صححت verifier فقط واجتازت **23/23 workflows SUCCESS**.
+## Persistent architecture/security rules
 
-الهدف الكانوني النهائي المعاد اعتماده:
+- `main` is canonical after merge.
+- The real production path uses authenticated Auth/DataLayer/Supabase boundaries.
+- No mock/demo-only implementation can substitute for a production critical path.
+- Supabase/Postgres + RLS is the authoritative data boundary.
+- Financial facts remain exact and reconciled to authoritative sources.
+- Sensitive writes require domain-service validation and audit evidence where applicable.
+- No weakening tests to obtain green CI.
+- Every real bug gets a regression test.
+- Mobile/RTL/Android keyboard/back/safe-area/accessibility remain release requirements.
+- The 18-system Zero-Escape policy may be made stricter, never silently weakened.
 
-`46165bfc9f3237b7ff77e7ca11baed3272910831`
+## Current development pointer
 
-النتيجة: **9/9 post-merge workflows SUCCESS، 0 failures**. نجح Real Browser حتى Production Bridge ونجح Live External النهائي `34039447623` بما فيه `Attack the actual published application`. تشغيل Live External الأقدم `34039399127` أُلغي تلقائياً بعد استبداله بنشر Pages الأحدث، ثم نجح التشغيل النهائي البديل بالكامل.
+**Phase 7.1 is closed and canonically recertified. Phase 7.2 — Payments & Receipts is the only next authorized implementation stage.**
 
-### Phase 6.4 — Companies & People Destruction Gate
-
-أُغلقت Phase 6.4 بعد تدمير نطاق الشركات والأشخاص والعلاقات و360° فعليًا. كُشف defect حقيقي `P6-4-RELATION-INVALID-DATE` كان يسمح للتاريخ التالف بأن يُفهم كعلاقة حالية، وتم إصلاحه بحارس fail-closed واختبار regression دائم.
-
-قبل الدمج اجتاز رأس الإغلاق:
-
-- **23/23 workflows SUCCESS، 0 failures**
-- Phase 6.4 model/service destruction — **28/28 PASS**
-- full functional regression — **153/153 PASS**
-- database audit — **45 tables / 118 RLS policies / 42 indexes** + **5/5 corruption selftests**
-- dedicated Real Chromium destruction — **8/8 PASS** على 1280/430/390/360/320
-- strict production JS budget — `669966/670000` PASS دون رفع الحد
-
-دُمج PR #88 في `main` بالـcommit:
-
-`bd5d66a4e5e7e9e1a47dfa12a2d710dd0ce4537a`
-
-ثم أُعيد اعتماد الـcanonical `main` بنتيجة **8/8 post-merge workflows SUCCESS، 0 failures، 0 in-progress**، بما فيها Quality وGovernance وCanonical Promotion وWCAG وPages Preview وReal Browser حتى Production Bridge وLive External ضد النسخة المنشورة.
-
-لذلك **Phase 6.4 مغلقة رسميًا، وPhase 6 بالكامل مغلقة ✅، وPhase 7.1 — Financial Ledger & Summary هي المرحلة التالية والوحيدة المسموحة**.
-
-## حدود البنية والأمان التي تستمر إلى المراحل التالية
-
-- `main` هو المصدر القانوني بعد الدمج.
-- canonical runtime يبقى `ui-r2` ما لم تغيّره مرحلة موثقة صراحةً.
-- Legacy-Zero إلزامي؛ لا عودة إلى DNA الأجيال القديمة.
-- Feature parity المجمدة تبقى محمية؛ لا يجوز إسقاط قدرة قائمة بصمت أثناء بناء المجالات الجديدة.
-- Supabase/Postgres + RLS وData Layer الموثوقة هي حدود البيانات.
-- كل bug حقيقي يُكتشف يضاف له regression guard.
-- لا تُقبل smoke tests وحدها كدليل انتقال مرحلة.
-- Mobile/RTL/Android keyboard/back/safe-area وaccessibility جزء من عقد الجودة.
-
-## ملاحظة التطوير
-
-التطوير المرحلي يتم على فرع مخصص ثم PR إلى `main` مع البوابات التراكمية. **Phase 5.1–5.5 وPhase 6.1–6.4 مغلقة ✅. Phase 7.1 — Financial Ledger & Summary هي الخطوة التالية المسموحة، ولا تُعتبر منفذة حتى يبدأ فرعها وعقدها الخاصان.**
+The 18 major systems are already part of the governing roadmap, but none is considered implemented merely because its scope document exists.
