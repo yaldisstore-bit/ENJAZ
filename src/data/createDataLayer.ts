@@ -11,7 +11,7 @@ export interface EnjazWorkspaceDataLayer {
 
   readonly contacts: MutableRepository<'contacts'>;
   readonly companies: MutableRepository<'companies'>;
-  readonly companyContacts: ReadRepository<'company_contacts'>;
+  readonly companyContacts: MutableRepository<'company_contacts'>;
   readonly transactions: MutableRepository<'transactions'>;
   readonly followups: MutableRepository<'transaction_followups'>;
   readonly blockers: MutableRepository<'transaction_blockers'>;
@@ -55,7 +55,7 @@ export function createEnjazDataLayerFactory(client: EnjazSupabaseClient): EnjazD
         scope,
         contacts: createMutableRepository(gateway, scope, 'contacts'),
         companies: createMutableRepository(gateway, scope, 'companies'),
-        companyContacts: createReadRepository(gateway, scope, 'company_contacts'),
+        companyContacts: createMutableRepository(gateway, scope, 'company_contacts'),
         transactions: createMutableRepository(gateway, scope, 'transactions'),
         followups: createMutableRepository(gateway, scope, 'transaction_followups'),
         blockers: createMutableRepository(gateway, scope, 'transaction_blockers'),
