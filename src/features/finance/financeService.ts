@@ -5,116 +5,49 @@ import type { FinanceSource } from './financeModel.ts';
 const FINANCE_BATCH_SIZE = 100;
 export const FINANCE_SOURCE_LIMIT = 10_000;
 
+type Page<T> = Readonly<{ items: readonly T[]; hasMore: boolean }>;
+type PageRepository<T> = { list(request: Readonly<Record<string, unknown>>): Promise<Page<T>> };
+
 export class FinanceWorkspaceUnavailableError extends Error {
-  constructor() {
-    super('finance workspace unavailable');
-    this.name = 'FinanceWorkspaceUnavailableError';
-  }
+  constructor() { super('finance workspace unavailable'); this.name = 'FinanceWorkspaceUnavailableError'; }
 }
 
 export class FinanceSourceCapacityError extends Error {
   readonly sourceName: string;
-  constructor(sourceName: string) {
-    super(`finance source capacity exceeded: ${sourceName}`);
-    this.name = 'FinanceSourceCapacityError';
-    this.sourceName = sourceName;
-  }
+  constructor(sourceName: string) { super(`finance source capacity exceeded: ${sourceName}`); this.name = 'FinanceSourceCapacityError'; this.sourceName = sourceName; }
 }
 
 export class FinanceSourcePageStalledError extends Error {
   readonly sourceName: string;
-  constructor(sourceName: string) {
-    super(`finance source page stalled: ${sourceName}`);
-    this.name = 'FinanceSourcePageStalledError';
-    this.sourceName = sourceName;
-  }
+  constructor(sourceName: string) { super(`finance source page stalled: ${sourceName}`); this.name = 'FinanceSourcePageStalledError'; this.sourceName = sourceName; }
 }
 
-type Page<T> = Readonly<{ items: readonly T[]; hasMore: boolean }>;
-
-async function collectAll<T>(
-  sourceName: string,
-  readPage: (offset: number, limit: number) => Promise<Page<T>>,
-): Promise<readonly T[]> {
+async function collect<T>(sourceName: string, repository: PageRepository<T>, orderColumn: string, ascending = false): Promise<readonly T[]> {
   const rows: T[] = [];
   let offset = 0;
   for (;;) {
-    const page = await readPage(offset, FINANCE_BATCH_SIZE);
+    const page = await repository.list({ orderBy: [{ column: orderColumn, ascending }], offset, limit: FINANCE_BATCH_SIZE });
     rows.push(...page.items);
     if (rows.length > FINANCE_SOURCE_LIMIT) throw new FinanceSourceCapacityError(sourceName);
     if (!page.hasMore) return Object.freeze(rows);
-    if (page.items.length === 0) throw new FinanceSourcePageStalledError(sourceName);
+    if (!page.items.length) throw new FinanceSourcePageStalledError(sourceName);
     offset += page.items.length;
   }
 }
 
-async function collectTransactions(layer: EnjazWorkspaceDataLayer): Promise<readonly RowOf<'transactions'>[]> {
-  return collectAll('transactions', async (offset, limit) => layer.transactions.list({
-    orderBy: [{ column: 'created_at', ascending: false }],
-    offset,
-    limit,
-  }));
-}
+function repo<T>(value: unknown): PageRepository<T> { return value as PageRepository<T>; }
 
-async function collectCompanies(layer: EnjazWorkspaceDataLayer): Promise<readonly RowOf<'companies'>[]> {
-  return collectAll('companies', async (offset, limit) => layer.companies.list({
-    orderBy: [{ column: 'created_at', ascending: false }],
-    offset,
-    limit,
-  }));
-}
-
-async function collectPayments(layer: EnjazWorkspaceDataLayer): Promise<readonly RowOf<'payments'>[]> {
-  return collectAll('payments', async (offset, limit) => layer.payments.list({
-    orderBy: [{ column: 'paid_at', ascending: false }],
-    offset,
-    limit,
-  }));
-}
-
-async function collectPaymentReversals(layer: EnjazWorkspaceDataLayer): Promise<readonly RowOf<'payment_reversals'>[]> {
-  return collectAll('payment_reversals', async (offset, limit) => layer.paymentReversals.list({
-    orderBy: [{ column: 'reversed_at', ascending: false }],
-    offset,
-    limit,
-  }));
-}
-
-async function collectLedger(layer: EnjazWorkspaceDataLayer): Promise<readonly RowOf<'financial_ledger_entries'>[]> {
-  return collectAll('financial_ledger_entries', async (offset, limit) => layer.ledger.list({
-    orderBy: [{ column: 'occurred_at', ascending: false }],
-    offset,
-    limit,
-  }));
-}
-
-async function collectCashboxes(layer: EnjazWorkspaceDataLayer): Promise<readonly RowOf<'cashbox_accounts'>[]> {
-  return collectAll('cashbox_accounts', async (offset, limit) => layer.cashboxes.list({
-    orderBy: [{ column: 'opened_at', ascending: true }],
-    offset,
-    limit,
-  }));
-}
-
-export async function loadFinanceSource(
-  factory: EnjazDataLayerFactory,
-  userId: string,
-): Promise<Readonly<{ workspaceId: string; source: FinanceSource }>> {
+export async function loadFinanceSource(factory: EnjazDataLayerFactory, userId: string): Promise<Readonly<{ workspaceId: string; source: FinanceSource }>> {
   const workspaceId = await factory.resolveWorkspaceId(userId);
   if (!workspaceId) throw new FinanceWorkspaceUnavailableError();
-  const layer = factory.forWorkspace(workspaceId);
-
+  const layer: EnjazWorkspaceDataLayer = factory.forWorkspace(workspaceId);
   const [transactions, companies, payments, paymentReversals, ledger, cashboxes] = await Promise.all([
-    collectTransactions(layer),
-    collectCompanies(layer),
-    collectPayments(layer),
-    collectPaymentReversals(layer),
-    collectLedger(layer),
-    collectCashboxes(layer),
+    collect('transactions', repo<RowOf<'transactions'>>(layer.transactions), 'created_at'),
+    collect('companies', repo<RowOf<'companies'>>(layer.companies), 'created_at'),
+    collect('payments', repo<RowOf<'payments'>>(layer.payments), 'paid_at'),
+    collect('payment_reversals', repo<RowOf<'payment_reversals'>>(layer.paymentReversals), 'reversed_at'),
+    collect('financial_ledger_entries', repo<RowOf<'financial_ledger_entries'>>(layer.ledger), 'occurred_at'),
+    collect('cashbox_accounts', repo<RowOf<'cashbox_accounts'>>(layer.cashboxes), 'opened_at', true),
   ]);
-
-  return Object.freeze({
-    workspaceId,
-    source: Object.freeze({ transactions, companies, payments, paymentReversals, ledger, cashboxes }),
-  });
+  return Object.freeze({ workspaceId, source: Object.freeze({ transactions, companies, payments, paymentReversals, ledger, cashboxes }) });
 }
