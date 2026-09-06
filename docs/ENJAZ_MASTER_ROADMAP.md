@@ -204,7 +204,7 @@ Phase 3 began only after 2.8 was green. Its exit was verified through the comple
 
 # Phase 4 — Home, Daily Work & Executive Overview ✅
 
-Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** Phase 5.1, Phase 5.2, Phase 5.3 and Phase 5.4 have since been completed under Phase 5 without changing the closed Phase 4 contract.
+Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** Phase 5.1 through Phase 5.5 have since been completed under Phase 5 without changing the closed Phase 4 contract.
 
 ## 4.1 — Home / Dashboard ✅
 - Build the actual ENJAZ home screen using Phase 2 patterns.
@@ -251,9 +251,9 @@ Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed �
 
 ---
 
-# Phase 5 — Transactions Core
+# Phase 5 — Transactions Core ✅
 
-Phase 5 is in progress. **Phase 5.1, Phase 5.2, Phase 5.3 and Phase 5.4 are closed ✅.** The next permitted product step is **Phase 5.5 — Transaction Destruction Gate**, which remains not started until the Phase 5.4 closure PR is merged and canonical `main` is re-certified. Phase 5 remains open until 5.5 is closed.
+Phase 5 is closed. **Phase 5.1, Phase 5.2, Phase 5.3, Phase 5.4 and Phase 5.5 are closed ✅.** The canonical `main` merge of Phase 5.5 was independently recertified before Phase 6 was unlocked.
 
 ## 5.1 — Transaction List & Search ✅
 - Current, stalled/delayed, archived/closed views according to the frozen business contract.
@@ -317,8 +317,25 @@ Phase 5 is in progress. **Phase 5.1, Phase 5.2, Phase 5.3 and Phase 5.4 are clos
 - Evidence artifact: `9966337167`, digest `sha256:43e16a763e7e43a63c3e8dbace1a950c2d1732e6f796d2a1faf8e677096d5ac4` ✅.
 - Closure evidence: `docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md`.
 
-## 5.5 — Transaction Destruction Gate
-- Large lists, malformed relations, conflicting edits, offline failures, repeated actions, destructive regression tests.
+## 5.5 — Transaction Destruction Gate ✅
+- Large lists and the 5,000-row safety boundary remained fail-closed rather than returning partial authoritative data.
+- Malformed/missing relations, invalid timestamps, long mixed Arabic/Latin input, unsafe money and malformed transaction identity remained explicit and non-crashing.
+- Stale editor/lifecycle context cannot overwrite newer state.
+- Same-tick repeated create/lifecycle actions are blocked by synchronous single-flight mutation guards.
+- Create uses a stable operation UUID so `DATA_OUTCOME_UNKNOWN` retry is idempotent instead of creating duplicates.
+- Route/note/activity companion writes use deterministic operation-derived IDs and get-before-write checks so retry completes missing writes without duplicating confirmed history.
+- Pending unresolved create operation + draft survive refresh in per-session state for the same user/tab and are removed on a confirmed terminal result.
+- An unknown create outcome locks the draft so retry cannot drift the original payload.
+- Save failures preserve the loaded editor and draft instead of replacing them with a generic load-error surface.
+- Real Chromium transaction destruction passed long search, repeated lifecycle activation, malformed identity, list/detail/back/lifecycle pressure, responsive/touch/overflow checks.
+- Certified pre-closure hardening head: `862d741978111050ace0944aa7957c4bc781ae1b` with **19/19 workflows SUCCESS** and **0 unresolved destructive defects**.
+- Formal closure candidate also passed the full 19/19 cumulative workflow set before PR #79 merged.
+- Closure evidence: `docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md`.
+- Canonical post-merge evidence: `docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md`.
+- PR #79 merged as canonical `main` commit `218a7bb85ff6098d9a3642063c6c406a57917e86`.
+- The merged commit then passed **8/8 post-merge workflows SUCCESS, 0 failures**, including Quality, Governance, Canonical Promotion, WCAG, Pages, Real Browser through Production Bridge, and Live External Chromium/WCAG against the published application.
+
+**Phase 5 exit:** Transaction List/Search, Create/Edit, 360°, Lifecycle and the cumulative Transaction Destruction Gate are closed and protected by canonical post-merge evidence. **Exit verified ✅.**
 
 ---
 
@@ -684,8 +701,9 @@ The project is considered delivered only when:
 - **Phase 5.2 — Transaction Create/Edit ✅**
 - **Phase 5.3 — Transaction Details / 360° ✅**
 - **Phase 5.4 — Archive/Restore/Lifecycle ✅**
-- **Next: Phase 5.5 — Transaction Destruction Gate**
-- **Phase 5.5 remains not started**
+- **Phase 5.5 — Transaction Destruction Gate ✅**
+- **Phase 5 — Transactions Core ✅**
+- **Next: Phase 6.1 — Companies**
 
 ---
 
@@ -693,7 +711,7 @@ The project is considered delivered only when:
 
 This file is intentionally difficult to change by accident.
 
-This closure changes only verified roadmap state: Phase 5.4 is marked complete after its architecture gate, 16/16 dedicated lifecycle model/service tests, 118/118 full functional regression tests, cumulative UI V2 and Phase 4/5.1/5.2/5.3 guards, secrets and database audits, roadmap integrity, TypeScript, production build, strict asset budget, real Chromium archive/restore/reactivate validation, global browser acceptance, and manual screenshot inspection all succeeded on the certified pre-closure line `b49927d6d3a037fbb78eb5bd0ea639535c71e5e8`. Real defects discovered during destruction—including the stale Phase 5.3 no-restore expectation, exact optional TypeScript dialog contract, and the confirmation exit-animation ghost visible in screenshot evidence—were fixed and protected by regression guards rather than by weakening behavior tests. Phase 5 remains open. Phase 5.5 becomes the next permitted subphase only after the Phase 5.4 closure PR is merged and canonical `main` is re-certified, and remains not started until then. Feature parity and delivery scope are unchanged; no Phase 5.5 or Phase 6 implementation is moved forward or skipped.
+This transition changes only verified roadmap state: Phase 5.5 closed after destructive transaction hardening reached 0 unresolved destructive defects and the formal closure candidate passed the full 19/19 cumulative PR workflow set. PR #79 then merged into canonical `main` as `218a7bb85ff6098d9a3642063c6c406a57917e86`. The merged commit itself was independently recertified with 8/8 post-merge workflows SUCCESS and 0 failures, including Quality, Governance, Canonical Promotion, WCAG, Real Browser through both destruction waves and Production Bridge, Pages deployment/preview, and Live External Chromium/WCAG against the published application. Therefore Phase 5 is closed and Phase 6.1 becomes the next permitted stage. Feature parity and delivery scope are unchanged; no Phase 6.2+ work is authorized by this transition.
 
 A roadmap change must state:
 1. what changes,

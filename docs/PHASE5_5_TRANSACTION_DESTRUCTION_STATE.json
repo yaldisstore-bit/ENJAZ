@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "phase": "5.5",
   "name": "Transaction Destruction Gate",
   "status": "CLOSED",
@@ -7,6 +7,7 @@
   "unlockDecision": "docs/PHASE5_5_UNLOCK_DECISION.md",
   "kickoff": "docs/PHASE5_5_TRANSACTION_DESTRUCTION_KICKOFF.md",
   "closureEvidence": "docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md",
+  "postMergeEvidence": "docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md",
   "scope": [
     "largeLists",
     "capacityBoundaries",
@@ -36,12 +37,26 @@
   },
   "exitGatePassed": true,
   "unresolvedDefectCount": 0,
-  "phase6Allowed": false,
+  "phase6Allowed": true,
+  "nextPhase": "6.1",
   "postMergeRecertification": {
     "required": true,
-    "status": "PENDING",
-    "mainCommit": null,
-    "verifiedWorkflowCount": 0
+    "status": "COMPLETE",
+    "mainCommit": "218a7bb85ff6098d9a3642063c6c406a57917e86",
+    "verifiedWorkflowCount": 8,
+    "successfulWorkflowCount": 8,
+    "failedWorkflowCount": 0,
+    "runs": {
+      "quality": 34021916847,
+      "governance": 34021916851,
+      "realBrowser": 34021916852,
+      "canonicalPromotion": 34021916853,
+      "wcag": 34021916855,
+      "pagesDeployment": 34021916549,
+      "pagesPreview": 34021938343,
+      "liveExternal": 34021965559
+    }
   },
-  "closedAt": "2026-09-06T08:19:00Z"
+  "closedAt": "2026-09-06T08:19:00Z",
+  "recertifiedAt": "2026-09-06T08:30:00Z"
 }
