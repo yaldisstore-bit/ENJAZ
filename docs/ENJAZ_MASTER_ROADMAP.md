@@ -1,709 +1,530 @@
-# ENJAZ Master Roadmap — Frozen Delivery Plan
+# ENJAZ Master Roadmap — Reconciled Governing Delivery Plan
 
-> **Status:** Governing roadmap for ENJAZ from foundation through final handoff.
+> **Status:** Governing roadmap for ENJAZ from foundation through `ENJAZ 1.0 — Delivered`.
 >
-> **Rule:** No phase may be skipped, silently renamed, or reordered. Any future change to this roadmap must be explicit, documented, and reviewed before implementation.
+> **Rule:** No phase may be skipped, silently renamed, reordered, or declared complete from preview/mock evidence alone.
 >
 > **Source-of-truth hierarchy:**
 > 1. `ENJAZ_NON_NEGOTIABLE_RULES.md`
 > 2. `ENJAZ_PHASE0_MASTER_SPEC.md` and Phase 0 contracts
 > 3. This roadmap
-> 4. Phase-specific implementation documents
+> 4. `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`
+> 5. `docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md`
+> 6. Phase/system-specific state, closure, and post-merge evidence
+>
+> **Scope amendments now incorporated:**
+> - `docs/ENJAZ_CAPABILITY_EXPANSION_2026.json`
+> - `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json` — 18 major end-to-end systems M1–M18
+> - Zero-Escape closure governance merged on canonical `main`
 
 ---
 
 ## 0. Delivery principles that never change
 
-ENJAZ is a clean rebuild, not a continuation of the legacy UI generations.
-
-- No R4/R6/V7/V8 UI/CSS/DOM contracts or legacy visual DNA.
-- One design system and one architecture.
-- PostgreSQL + Supabase RLS is the primary persistent data model; local state is not the database.
+- ENJAZ is a clean rebuild with no R4/R6/V7/V8 UI/runtime DNA.
+- PostgreSQL + Supabase RLS is the authoritative persistent boundary.
 - Mobile-first, RTL-first, Android keyboard/back/safe-area behavior are first-class requirements.
-- No structural fixes based on `!important`, arbitrary z-index escalation, or duplicated global state.
-- No phase passes on smoke tests alone. Behavior, integration, destructive/regression, and production-build gates are mandatory where applicable.
-- Every real bug fixed must receive a regression test.
-- Stability and data integrity outrank speed of feature delivery.
-- Feature parity means preserving approved capabilities and business facts, not copying legacy implementation or visual structure.
-- No transition to the next phase before the current phase Release Gate is green.
+- No critical business fact may be fabricated from partial/mock state.
+- Every real bug fixed receives a permanent regression guard.
+- Stability, data integrity, permissions, and reproducibility outrank delivery speed.
+- Feature parity protects approved business capability, not legacy implementation.
+- A phase cannot unlock its successor before its own closure and required post-merge recertification are complete.
+- A major product system M1–M18 cannot be marked `CLOSED` merely because branch CI is green.
+
+## 0.1 — Zero-Escape closure law for M1–M18
+
+Every major system must remain `PLANNED`, `IN_PROGRESS`, or `CLOSURE_CANDIDATE` until all required evidence is complete:
+
+1. authoritative schema/data contract;
+2. authenticated ENJAZ cloud boundary;
+3. fresh-user/fresh-workspace bootstrap where applicable;
+4. real durable write → read → refresh round trip;
+5. positive and negative RLS/permission matrix;
+6. service/domain-layer ownership with no duplicate shadow implementation;
+7. real Chromium/mobile journey on 1280/430/390/360/320;
+8. keyboard/back/reload/deep-link/long Arabic/dense-state stress;
+9. failure, offline, duplicate-submit, stale-state and conflict recovery;
+10. audit/reconciliation evidence for sensitive writes;
+11. zero known Critical, High, or functional blocker defects;
+12. exact merged SHA deployed;
+13. critical path verified against the deployed application;
+14. post-merge recertification COMPLETE.
+
+Any defect that escapes after closure is a **Gate Escape**: the affected system/phase must regain an open certification state, receive a regression test and stronger gate, then repeat the applicable Real Cloud + Real Browser + deployed-live evidence before being re-certified.
 
 ---
 
 # Phase 0 — Product Freeze & Migration Contract ✅
 
 ## 0A — Product & Feature Extraction ✅
-- Extract the real product capabilities from MOAQIB.
-- Separate essential business capabilities from historical implementation baggage.
-- Establish ENJAZ as an independent product.
+- Extract approved product capabilities and separate them from implementation baggage.
 
 ## 0B — Domain Consolidation ✅
-- Define authoritative domains and eliminate duplicated implementations.
-- Consolidate transactions, companies, contacts/lawyers, finance, workflows, automation, documents, risk, intelligence, and reporting boundaries.
+- Freeze authoritative domain ownership across transactions, companies/people, finance, workflow/automation, documents, risk/intelligence, communication, reporting and integrations.
 
 ## 0C — Field-Level Contract & Freeze ✅
-- Freeze field-level contracts.
-- Freeze use-case contracts.
-- Freeze permission/RLS direction.
-- Freeze selective legacy import mapping and reconciliation rules.
-- Establish non-negotiable architecture and UI rules.
+- Freeze field/use-case contracts, permission direction, migration mapping and non-negotiable architecture rules.
 
-**Phase 0 exit:** a stable specification exists before application construction begins.
+**Phase 0 exit:** verified and closed.
 
 ---
 
 # Phase 1 — Engineering Foundation ✅
 
 ## 1.1 — Project Foundation ✅
-- React + TypeScript + Vite application foundation.
-- Strict project structure and routing baseline.
-- Core error boundaries and configuration boundaries.
+- React + TypeScript + Vite foundation and strict project boundaries.
 
 ## 1.2 — Database Architecture ✅
-- Relational Supabase/Postgres schema foundation.
-- Core entity relations and migration discipline.
-- Owner-safe data model ready for RLS.
+- Supabase/Postgres schema, migrations, indexes and owner-safe relational model.
 
 ## 1.3 — Auth & Security ✅
-- Registration, login, password recovery/update, protected routes, session handling.
-- Security contracts and owner-only access baseline.
+- Registration/login/recovery/session/protected-route contracts.
 
 ## 1.4 — Data Layer ✅
-- Repository/service boundaries.
-- Typed data access.
-- Error normalization and durable data contracts.
+- Typed repository/service boundaries and normalized failures.
 
 ## 1.5 — Foundation Destruction ✅
-- Destructive checks of the engineering foundation.
-- Validate that architecture, auth, data, and security fail safely.
-- No hidden dependency on legacy runtime assumptions.
+- Architecture/auth/data/security fail-safe validation.
 
-**Phase 1 exit:** the application can safely authenticate, persist, retrieve, and protect data before visual product construction begins.
+**Phase 1 exit:** verified and closed.
 
 ---
 
 # Phase 2 — ENJAZ Design System 1.0 ✅
 
 ## 2.1 — Visual Identity Foundation ✅
-- Establish the new ENJAZ visual identity with no legacy DNA.
-- Premium, modern, high-clarity direction inspired by the precision/elegance targets agreed for the product.
-- Define the visual grammar before screens.
-
 ## 2.2 — Design Tokens ✅
-- Color, surface, border, radius, spacing, shadow, elevation, sizing, focus, state, and semantic token systems.
-- Components must consume tokens instead of arbitrary visual literals.
-
 ## 2.3 — Typography & RTL System ✅
-- Premium Arabic typography hierarchy.
-- RTL layout contracts.
-- Numeric/Latin handling and readable information density.
-
 ## 2.4 — Core Component System ✅
-- Buttons, fields, cards, badges, status elements, overlays, sheets, menus, navigation primitives, feedback primitives, and accessibility contracts.
-- Components remain domain-neutral at this phase.
-
 ## 2.5 — Motion & Interaction System ✅
-- Motion language, transitions, press/hover/focus feedback, skeleton/success feedback.
-- `prefers-reduced-motion` respected.
-- The app must feel alive without ornamental or distracting animation.
-
 ## 2.6 — Mobile & Android Hardening ✅
-- Safe Areas.
-- Dynamic/visual viewport behavior.
-- Android keyboard behavior.
-- Rotation and back-gesture resilience.
-- Touch targets at or above the agreed minimum.
-- Prevent keyboard obstruction of fields/actions.
-- Test across different phone viewport sizes.
-
 ## 2.7 — Premium Pattern Library ✅
-
-Build reusable **ENJAZ-specific composite patterns** before building full screens.
-
-Required pattern families include:
-- Transaction cards and transaction-state summaries.
-- Company cards and relationship summaries.
-- Lawyer/contact cards where applicable.
-- Financial summary and payment/receivable patterns.
-- Risk-state and urgency patterns.
-- Timeline/activity history.
-- Follow-up patterns.
-- Command Center cards/modules.
-- Workflow and automation summaries.
-- Search result patterns.
-- Action menus and contextual actions.
-- Empty states.
-- Loading/skeleton states.
-- Success, warning, error, conflict, offline, and recovery messages.
-- Dense and compact mobile variants where required.
-
-**Constraint:** these are composable patterns, **not complete product screens**.
-
-**2.7 exit:** ENJAZ has a domain-aware pattern library that can build real screens without inventing UI ad hoc.
-
 ## 2.8 — Visual Destruction & Quality Gate ✅
 
-Deliberately break the design system and pattern library before screen construction.
+The frozen design system covers tokens, typography, responsive/mobile behavior, interaction geometry, composite domain patterns, accessibility, reduced motion, long-content stress, dense states, layering and visual destruction.
 
-Required torture scenarios include:
-- Extremely long text, including company names around 200 characters.
-- Very large financial values and unusual number lengths.
-- High notification counts.
-- Keyboard open over constrained mobile layouts.
-- Narrow phone screens.
-- Rotation.
-- Browser/app zoom stress where relevant.
-- Dark/light contrast behavior if both modes are supported at that point.
-- Offline/error/conflict states.
-- Long timelines and dense lists.
-- Overflow and wrapping abuse.
-- Long Arabic + Latin mixed text.
-- Reduced-motion behavior.
-- Accessibility/focus traversal.
-- Token-only visual contract checks.
-- Audits preventing arbitrary colors, tiny fonts, uncontrolled z-index, `!important`, and visual values outside tokens.
-
-**Phase 2 exit:** `ENJAZ Design System 1.0` is frozen and green. Product shell/screens may now begin under Phase 3 while continuing to obey the frozen system.
+**Phase 2 exit:** `ENJAZ Design System 1.0` frozen and green.
 
 ---
 
 # Phase 3 — Application Shell & Navigation ✅
 
-Phase 3 began only after 2.8 was green. Its exit was verified through the completed Phase 3.4 Shell Destruction Gate before the roadmap advanced.
-
 ## 3.1 — App Shell ✅
-- Build the authenticated application frame.
-- Top Bar.
-- Bottom Navigation optimized for mobile.
-- Page container and safe-area integration.
-- Global loading/offline/error surfaces.
-- App-level responsive structure.
-
 ## 3.2 — Navigation Architecture ✅
-- Final route map for product domains.
-- Section transitions and back behavior.
-- Deep-link-safe routing.
-- Active navigation state.
-- Navigation permissions/availability contracts.
-
 ## 3.3 — Global Interaction Surfaces ✅
-- Global search entry point.
-- Notification/inbox entry point.
-- Global create/quick-action entry point where justified.
-- Command/operations entry point without duplicating domain logic.
-
 ## 3.4 — Shell Destruction Gate ✅
-- Keyboard/back/rotation/navigation torture.
-- Route refresh/deep-link tests.
-- Session expiry during navigation.
-- Offline shell behavior.
-- Small-screen and long-label stress.
 
-**Phase 3 exit:** a production-grade shell exists, but business screens are still built domain-by-domain afterward. **Exit verified ✅.**
+Authenticated shell, top/bottom navigation, deep links, global surfaces, mobile safe areas, back/keyboard/rotation behavior and shell destruction are closed.
+
+**Phase 3 exit:** verified and closed.
 
 ---
 
 # Phase 4 — Home, Daily Work & Executive Overview ✅
 
-Phase 4 is closed. **Phase 4.1, Phase 4.2, Phase 4.3 and Phase 4.4 are closed ✅.** Phase 5.1 through Phase 5.5 have since been completed under Phase 5 without changing the closed Phase 4 contract.
-
 ## 4.1 — Home / Dashboard ✅
-- Build the actual ENJAZ home screen using Phase 2 patterns.
-- Priorities, pending work, urgent items, financial snapshot, and meaningful operational signals.
-- No decorative metrics without business value.
-- Exit verified through the complete Phase 4.1 Quality Gate, destructive Home selftest, merged-main production build/artifact, and GitHub Pages deployment.
-
 ## 4.2 — Daily Work / Universal Inbox ✅
-- Consolidated work queue.
-- Follow-ups, overdue work, approvals/action-needed items, and task-like operational signals.
-- Clear ownership and state.
-- Consolidates open follow-ups, blockers, near calendar events, renewals, and pending workflow item states through the preserved typed Data Layer.
-- Excludes work tied to completed, archived, or deleted transactions and respects follow-up snooze state.
-- Direct completion/snooze writes stay behind authoritative repositories; blockers cannot be silently resolved from Universal Inbox.
-- Live runtime uses authenticated Auth/DataLayer/Supabase boundaries; the public/CI fixture is isolated from live data and secrets.
-- Exit verified through 56/56 functional tests, architecture audit, TypeScript, production build, Chromium Reality Gate on 1280/430/390/360/320, manual screenshot review, and cumulative UI-1/UI-3/UI-4/UI-5/UI-6/UI-7/UI-8/UI-9/UI-10 gates all green.
-- Closure evidence: `docs/PHASE4_2_DAILY_WORK_CLOSURE.md`.
-
 ## 4.3 — Executive Briefing ✅
-- Concise operational summary.
-- Risks, blockers, important financial changes, and workload signals.
-- Composes authoritative Home and Daily Work facts instead of duplicating domain logic.
-- Adds only a bounded posted-payment pulse for the latest 7 days versus the prior 7 days; Phase 7 remains the authoritative full Finance implementation.
-- Provides stable/watch/critical executive state, bounded attention decisions, and explicit navigation to Daily Work, Finance, or Transactions context.
-- Refuses partial/guessed executive values when an authoritative source fails and protects monetary precision.
-- Live runtime stays behind Auth/Data Layer/workspace scope; public/CI preview remains an isolated fixture.
-- Exit verified through 60/60 functional tests, architecture audit, TypeScript, production build, Chromium Reality Gate on 1280/430/390/360/320, long Arabic/mixed-token/huge-money stress, manual screenshot review, and cumulative frozen UI regressions.
-- Closure evidence: `docs/PHASE4_3_EXECUTIVE_BRIEFING_CLOSURE.md`.
-
 ## 4.4 — Home Destruction Gate ✅
-- Empty/huge/dense datasets.
-- Conflicting urgency states.
-- Slow/offline backend behavior.
-- Responsive and interaction torture.
-- Canonical live Home remains behind Auth/Data Layer while deterministic fixtures isolate CI/Public Preview.
-- Obsolete static `HomeCoreScreen` was physically removed; the cumulative UI-6 guard now verifies the canonical Home instead of preserving dead code.
-- Priority output is bounded and transaction-distinct under dense/conflicting input.
-- Unsafe financial precision is hidden rather than guessed or rounded as an exact business fact.
-- Exit verified by the Phase 4.4 architecture gate, 4/4 dedicated destruction tests, 64/64 functional tests, secrets audit, TypeScript, production build, strict asset budget, and real Chromium destruction across empty/dense/conflict/slow/offline/interaction scenarios including five responsive profiles.
-- Pre-closure evidence run: `33917241943` on `622a110422fa6c584e054ffdd8d803dc1f31aac4` ✅.
-- Closure evidence: `docs/PHASE4_4_HOME_DESTRUCTION_CLOSURE.md`.
 
-**Phase 4 exit:** Home, Daily Work, Executive Briefing, and destructive Home validation are all green and protected by cumulative canonical gates. **Exit verified ✅.**
+Authoritative home signals, daily work queue, executive briefing and destructive validation are closed with their dedicated evidence files.
+
+**Phase 4 exit:** verified and closed.
 
 ---
 
 # Phase 5 — Transactions Core ✅
 
-Phase 5 is closed. **Phase 5.1, Phase 5.2, Phase 5.3, Phase 5.4 and Phase 5.5 are closed ✅.** The canonical `main` merge of Phase 5.5 was independently recertified before Phase 6 was unlocked.
-
 ## 5.1 — Transaction List & Search ✅
-- Current, stalled/delayed, archived/closed views according to the frozen business contract.
-- Filters, sorting, search, saved views integration points.
-- Canonical live path resolves the authenticated workspace through the typed Data Layer; public/CI preview remains isolated.
-- Arabic-normalized search covers transaction identity, legacy id, type, department, status, priority, and company label.
-- Pagination defaults to 20 and is bounded to 50 visible rows; the source loader fails closed beyond the 5,000-row safety ceiling instead of returning partial workspace data.
-- Deleted rows are excluded; missing company relations are explicit; unsafe money precision is never represented as exact.
-- Stable saved-view integration schema `enjaz.transactions.list.v1` stores view/search/sort/page-size but excludes ephemeral page navigation; full Smart Saved Views remain Phase 9.2.
-- Dedicated destructive tests cover dense datasets, long mixed Arabic/Latin search, invalid timestamps, malformed relations, unsafe money, and source capacity.
-- Real Chromium validation covers 1280/430/390/360/320 widths plus search, sorting, pagination, view switching, overflow, and mobile touch geometry.
-- Pre-closure evidence run: `33944168202` on `5cf81aac4e527fc34ca1a7a03a148f083bb4ce60` ✅.
-- Closure evidence: `docs/PHASE5_1_TRANSACTION_LIST_SEARCH_CLOSURE.md`.
-
 ## 5.2 — Transaction Create/Edit ✅
-- Validated create/edit forms use one authoritative editor behind authenticated workspace-scoped Data Layer boundaries.
-- Company is required; primary contact must be a current valid contact related to the selected company.
-- Type, department, status, priority, fee, completion time, station/assignee/time, note, and fee-change reason are explicitly validated.
-- Money input normalizes Arabic/Persian digits while rejecting non-positive, imprecise, or JavaScript-unsafe values.
-- Stale edits fail as conflicts; archived/deleted transactions and completed reactivation stay outside Phase 5.2 and remain Phase 5.4 work.
-- Station, note, fee-change, and activity history is append-only; companion-write failures or outcome-unknown states are surfaced rather than reported as false complete success.
-- Global Create and Transaction List edit both enter the authoritative editor.
-- Mobile/RTL/keyboard-safe behavior stays within frozen UI V2, including 44px-or-larger interactive targets.
-- A real Chromium defect with 40–42px global-create controls was found and fixed using existing design tokens instead of weakening the test.
-- Dedicated model/service tests passed 12/12 and full functional regression passed 91/91 on the certified line.
-- Real Chromium create/edit destruction, Quality Gate, Global Browser Acceptance, and cumulative Phase 4.3/4.4/5.1 gates all passed.
-- Pre-closure evidence run: `33946358543` on certified fix line `74339f319e1e4b6a7a21079f15434733025c88b8` ✅.
-- Evidence artifact: `9963457065` with digest `sha256:0cbea0e11c94da1dd7e0119613543fb47d96a8d53d9d640f4e6f8c7bd5b3c645` ✅.
-- Closure evidence: `docs/PHASE5_2_TRANSACTION_CREATE_EDIT_CLOSURE.md`.
-
 ## 5.3 — Transaction Details / 360° ✅
-- One authoritative workspace-scoped 360° surface composes transaction identity, company/contact context, routes, activity, notes, follow-ups, payments, fee changes, documents, workflow state, and blockers through the typed Data Layer.
-- Required core identity sources fail closed; optional context is explicitly unavailable/truncated instead of being fabricated.
-- Timeline/activity ordering is deterministic and bounded; every contextual section has a fixed safety ceiling against unbounded rendering.
-- Unsafe monetary precision is never displayed as an exact fact.
-- Archived/completed transactions retain explicit read-only 360° access; archive/restore/reactivation and all lifecycle mutations remain Phase 5.4.
-- Full Finance operations remain Phase 7 and full Workflow management remains Phase 8.
-- Real Chromium destruction covers 1280 / 430 / 390 / 360 / 320px, long mixed Arabic/Latin text, missing-company relations, archived read-only records, 44px touch targets, horizontal overflow, console/page errors, and modal-layer ownership.
-- A real modal stacking defect was fixed by portaling Sheets/Dialogs to `document.body`; `elementFromPoint` browser guards now prevent the fixed Top Bar or Bottom Dock from rendering above the 360° sheet.
-- Evidence capture waits for overlay/sheet animations to settle so screenshot review reflects the stable user state.
-- Manual screenshot review found and fixed a summary/facts density defect; 360 now keeps container-resilient cards plus RTL/bidi-safe wrapping for Arabic, Latin, and numeric content.
-- Dedicated Phase 5.3 model/service tests passed **11/11** and full functional regression passed **102/102** on the certified pre-closure line.
-- Pre-closure gate: `33953751497` on `db5f52e82840f5f904a185cca6664d5ffb7f5a7d` ✅.
-- Evidence artifact: `9965684028`, digest `sha256:689be39bef0f28fec5cfdff09b82baa8493ae5dca8f7ec40b56f78cdad319e5f` ✅.
-- Closure evidence: `docs/PHASE5_3_TRANSACTION_DETAILS_360_CLOSURE.md`.
-
 ## 5.4 — Archive/Restore/Lifecycle ✅
-- Archive is represented by `archived_at`; the implementation never invents an illegal archived status.
-- Restore clears the archive marker while preserving the underlying active/stalled/completed state.
-- Reactivate is a distinct explicit action that reopens a completed transaction by returning it to active and clearing completion/archive timestamps.
-- Deleted transactions and stale lifecycle contexts fail closed before mutation.
-- Open follow-ups are counted and preserved; archive suppresses them through the authoritative inactive-parent rules rather than deleting or rewriting history.
-- Lifecycle evidence is append-only through `transaction_activity`, with unconfirmed supporting-write outcomes surfaced as warnings instead of false clean success.
-- The live lifecycle surface loads the authoritative current record before offering legal actions, with separate Archive / Restore / Reactivate confirmations.
-- Transaction 360° remains read-only; lifecycle mutation stays in the separate Phase 5.4 surface.
-- Mobile/RTL/narrow-screen/long-text behavior retains 44px-or-larger interaction geometry and body-portaled modal ownership.
-- Dedicated lifecycle model/service tests passed **16/16** and full functional regression passed **118/118** on the certified pre-closure line.
-- Real Chromium destruction passed at **1280 / 430 / 390 / 360 / 320px** for archive, restore, reactivate, long mixed text, touch geometry, overflow, modal-layer ownership, and console/page errors.
-- Manual evidence review found and fixed the confirmation exit-animation ghost before closure; screenshots now wait until the confirmation overlay has left.
-- Pre-closure gate: `33955819739` on `b49927d6d3a037fbb78eb5bd0ea639535c71e5e8` ✅.
-- Evidence artifact: `9966337167`, digest `sha256:43e16a763e7e43a63c3e8dbace1a950c2d1732e6f796d2a1faf8e677096d5ac4` ✅.
-- Closure evidence: `docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md`.
-
 ## 5.5 — Transaction Destruction Gate ✅
-- Large lists and the 5,000-row safety boundary remained fail-closed rather than returning partial authoritative data.
-- Malformed/missing relations, invalid timestamps, long mixed Arabic/Latin input, unsafe money and malformed transaction identity remained explicit and non-crashing.
-- Stale editor/lifecycle context cannot overwrite newer state.
-- Same-tick repeated create/lifecycle actions are blocked by synchronous single-flight mutation guards.
-- Create uses a stable operation UUID so `DATA_OUTCOME_UNKNOWN` retry is idempotent instead of creating duplicates.
-- Route/note/activity companion writes use deterministic operation-derived IDs and get-before-write checks so retry completes missing writes without duplicating confirmed history.
-- Pending unresolved create operation + draft survive refresh in per-session state for the same user/tab and are removed on a confirmed terminal result.
-- An unknown create outcome locks the draft so retry cannot drift the original payload.
-- Save failures preserve the loaded editor and draft instead of replacing them with a generic load-error surface.
-- Real Chromium transaction destruction passed long search, repeated lifecycle activation, malformed identity, list/detail/back/lifecycle pressure, responsive/touch/overflow checks.
-- Certified pre-closure hardening head: `862d741978111050ace0944aa7957c4bc781ae1b` with **19/19 workflows SUCCESS** and **0 unresolved destructive defects**.
-- Formal closure candidate also passed the full 19/19 cumulative workflow set before PR #79 merged.
-- Closure evidence: `docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md`.
-- Canonical post-merge evidence: `docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md`.
-- PR #79 merged as canonical `main` commit `218a7bb85ff6098d9a3642063c6c406a57917e86`.
-- The merged commit then passed **8/8 post-merge workflows SUCCESS, 0 failures**, including Quality, Governance, Canonical Promotion, WCAG, Pages, Real Browser through Production Bridge, and Live External Chromium/WCAG against the published application.
 
-**Phase 5 exit:** Transaction List/Search, Create/Edit, 360°, Lifecycle and the cumulative Transaction Destruction Gate are closed and protected by canonical post-merge evidence. **Exit verified ✅.**
+Transaction search/list, validated create/edit, authoritative 360°, lifecycle, idempotency/conflict protection and destruction are closed and post-merge recertified.
+
+**Phase 5 exit:** verified and closed.
 
 ---
 
-# Phase 6 — Companies & People
+# Phase 6 — Companies & People ✅
 
-## 6.1 — Companies
-- Company list, search, filters, create/edit, and full details.
-- Related transactions, documents, finance, contacts, activity, and risk.
+## 6.1 — Companies ✅
+- Authoritative company CRUD/search/detail and relationships.
 
-## 6.2 — Lawyers / Contacts
-- Contact/lawyer list and profiles.
-- Relationship to companies/transactions.
-- Relevant operational and financial context.
+## 6.2 — Lawyers / Contacts ✅
+- Authoritative people/contact/lawyer profiles and relations.
 
-## 6.3 — Company / Lawyer 360°
-- Unified contextual view without duplicating source-of-truth data.
+## 6.3 — Company / Lawyer 360° ✅
+- Unified contextual read model without duplicate sources of truth.
 
-## 6.4 — Companies & People Destruction Gate
-- Missing relations, duplicates, huge names, mixed-language data, large relation graphs, invalid legacy mappings.
+## 6.4 — Companies & People Destruction Gate ✅
+- Missing/invalid relations, duplicates, long names, mixed-language data, graph pressure and date corruption.
+
+**Phase 6 exit:** closed and canonically recertified before Phase 7 began.
 
 ---
 
 # Phase 7 — Finance
 
-## 7.1 — Financial Ledger & Summary
-- Authoritative financial overview.
-- Payments, receivables, balances, and transaction/company associations.
+Phase 7 now owns both the original finance roadmap and the finance/commercial portions of the expanded major systems. No finance write path may bypass authoritative ledger/payment/reversal contracts.
 
-## 7.2 — Payments & Receipts
-- Stable receipt references.
-- Safe reversal/correction model rather than destructive silent mutation.
-- Correct exclusion of reversed payments from totals.
+## 7.1 — Financial Ledger & Summary ✅
+- Authoritative read-only financial overview from transactions, payments, reversals, ledger entries, cashboxes and companies.
+- Bigint-cents money boundary and fail-closed unsafe precision.
+- Receivables, credit, balances, opening balance, ledger movement and integrity warnings.
+- Certified implementation: 24/24 pre-merge workflows SUCCESS.
+- Canonical merge `3d4043c8e5d6784f327ff8ac9879402b7d933422` independently recertified 9/9 on `main`, including deployed-application validation.
+
+## 7.2 — Payments & Receipts — NEXT
+- Real posted-payment creation with idempotency and duplicate-submit protection.
+- Stable human/audit receipt references.
+- Receipt PDF/print/QR/barcode contracts where justified.
+- Safe reversal/correction; no destructive silent mutation.
+- Exact reconciliation between payment, reversal, ledger and transaction/company balances.
+- Real authenticated cloud create → read → refresh → reverse/reconcile journey.
+- **M16 — Engagements, Contracts & Retainers:** establish commercial billing links needed by retainers/contracts without creating a second finance store.
 
 ## 7.3 — Financial Intelligence
-- Useful trends and summaries without creating a second finance implementation.
+- Aging/receivables analysis, collection trends, cash movement, overpayment/credit visibility and anomaly signals.
+- No shadow calculations outside authoritative finance services.
+- **M13 — Business Intelligence & Forecasting Center:** finance forecasting inputs begin here and remain reconciled to source facts.
 
 ## 7.4 — Financial Reports
-- Accurate totals and period views.
-- Export/print contracts connected to the reporting phase.
+- Period/company/transaction/cashbox financial reports.
+- Deterministic export/print/PDF totals and drill-down provenance.
+- Contract/retainer reporting hooks for M16.
 
 ## 7.5 — Finance Destruction & Reconciliation Gate
-- Large money values.
-- Decimal/rounding cases.
-- Reversals.
-- Duplicate submission protection.
-- Reconciliation against source facts.
+- Huge values, sub-cent/unsafe inputs, reversals, repeated submit, network uncertainty, stale state, partial history and source-capacity pressure.
+- Authoritative reconciliation proves no lost/duplicated money event.
+- Real Cloud + Real Browser + deployed-live finance critical path required.
+
+**Phase 7 exit:** only after 7.2–7.5 are green and all anchored finance/commercial capabilities have Zero-Escape evidence. Phase 8 remains locked until then.
 
 ---
 
 # Phase 8 — Workflow, Automation & Operations
 
-## 8.1 — Workflow Engine UI
-- Workflow templates and execution state.
-- Stage progression.
-- Clear active/completed/upcoming states.
+Phase 8 expands from workflow UI into the main operational operating system of ENJAZ.
 
-## 8.2 — Automation Engine UI
-- Rule/template management around the frozen automation engine contract.
-- Human-readable trigger/action presentation.
-- Safe activation/deactivation.
+## 8.1 — Workflow Engine & Government Procedure OS — M1
+- Visual/stateful workflow templates, instances, stages, requirements and allowed transitions.
+- **M1 Government Procedure Operating System:** authoritative procedure catalog, government entities/branches, required documents, fees, prerequisites, stage SLA and state history.
+- Procedure instances attach to real transactions; no duplicated transaction state.
 
-## 8.3 — Operations Center
-- Operational control surface that composes workflow, automation, queues, risk, and action modules.
+## 8.2 — Automation Engine
+- Human-readable trigger/condition/action rules.
+- Idempotency, replay protection, activation/deactivation and explicit failure state.
+- Human approval gates for sensitive actions.
 
-## 8.4 — Global Command Center
-- High-level command surface for cross-domain actions and visibility.
-- No duplicate business logic hidden in the UI.
+## 8.3 — Operations Center + Field Operations — M5
+- Queues, workloads, blocked items, workflow/automation actions and operational health.
+- **M5 ENJAZ Field Operations / Runner Mode:** field assignments, visits, check-in/out evidence, captured receipts/documents, offline-safe work and handoff to office staff.
 
-## 8.5 — Operations Destruction Gate
-- Repeated triggers, stale state, conflicting transitions, long workflow histories, failure isolation.
+## 8.4 — CRM, Service Catalog & Smart Intake — M6 + M17
+- **M6 Service Catalog, CRM & Commercial Intake:** leads/clients, service requests, quotations/intake, conversion into authoritative company/transaction work.
+- **M17 Smart Intake Forms & Secure Submission Links:** external forms, scoped secure links, upload validation, expiry/revocation and reviewed conversion into internal records.
+
+## 8.5 — Multi-Branch / Departments / Teams — M15 foundation
+- Organization structure, branch/department/team membership and scoped operational ownership.
+- Permission inheritance must remain explicit and RLS-verifiable.
+
+## 8.6 — Global Command Center
+- Cross-domain command surface for authorized operational actions.
+- No hidden business logic in presentation components.
+
+## 8.7 — Operations Zero-Escape Destruction Gate
+- Repeated triggers, stale transitions, conflicting actors, large histories, field offline recovery, intake abuse, branch/team permission boundaries and automation failure isolation.
+- M1/M5/M6/M17 and Phase-8 portion of M15 cannot close without their individual Zero-Escape evidence.
 
 ---
 
-# Phase 9 — Risk, Saved Views & Intelligence
+# Phase 9 — Risk, Governance & Intelligence
 
-## 9.1 — Smart Risk Engine UI
-- Risk signals and explanations.
-- Prioritization without opaque visual noise.
+## 9.1 — Smart Risk Engine
+- Explainable risk signals, urgency, anomaly and prioritization.
 
-## 9.2 — Smart Saved Views
-- Reusable filtered views across supported domains.
-- Stable query definitions.
+## 9.2 — Smart Saved Views & Cross-domain Search Intelligence
+- Stable reusable query definitions and high-value cross-domain discovery.
 
-## 9.3 — Cross-domain Insights
-- Compose authoritative data from transactions, companies, finance, workflows, and follow-ups.
-- No shadow database and no duplicated calculations.
+## 9.3 — Corporate Governance & Ownership Engine — M2
+- Shareholders/partners, ownership percentages, directors/authorized persons, beneficial-owner context, ownership transfers and historical control timeline.
+- Validation prevents impossible ownership states and unauthorized governance changes.
 
-## 9.4 — Intelligence Destruction Gate
-- Conflicting signals, stale data, no-data states, high-volume datasets, deterministic regression checks.
+## 9.4 — Regulatory / Knowledge Base Engine — M8 foundation
+- Structured laws, regulations, circulars, procedural knowledge and source/version metadata.
+- Knowledge facts remain distinct from AI-generated interpretation.
+
+## 9.5 — Business Intelligence & Forecasting Center — M13
+- Operational/financial KPI models, trends, capacity and forecast surfaces with source provenance.
+
+## 9.6 — Process Mining & Predictive Operations — M18
+- Derive actual process paths from authoritative histories.
+- Detect bottlenecks, rework and delay patterns; prediction must expose confidence and evidence.
+
+## 9.7 — Intelligence Zero-Escape Gate
+- Conflicting/stale signals, no-data states, high-volume datasets, invalid ownership, model drift and prediction uncertainty.
+- M2/M8/M13/M18 require individual closure evidence.
 
 ---
 
 # Phase 10 — Documents, Vault, OCR & Reports
 
 ## 10.1 — Document Vault
-- Metadata-first document model.
-- Safe binary handling and ownership checks.
-- Entity relationships.
+- Metadata-first document model, safe binary handling, ownership and entity relationships.
 
 ## 10.2 — Document Intelligence / OCR
-- OCR/intelligence only through explicit, reviewable flows.
-- Source document remains authoritative.
-- Extracted information must be distinguishable from verified information.
+- Explicit extraction/review/verification flow; source file remains authoritative.
 
-## 10.3 — Reports & PDF
-- Professional reports for the approved domains.
-- Page-break, overflow, signature/footer, and barcode/QR handling must be deterministic.
-- No blank PDFs or last-page layout corruption.
+## 10.3 — Document Factory & Official Form Engine — M7
+- Template/version management, approved merge fields and deterministic generation of official requests, letters, decisions and submission packs.
+- Generated documents retain provenance to source entities/data and template version.
 
-## 10.4 — Documents/Reports Destruction Gate
-- Missing files, oversized files, broken metadata, long reports, multi-page overflow, unavailable OCR, offline states.
+## 10.4 — Reports & PDF
+- Professional reports, deterministic pagination/footer/signature/QR/barcode handling and no blank/overflow-corrupt output.
 
----
+## 10.5 — Engagement/Contract Document Layer — M16
+- Contract/retainer documents, revisions, signatures/status/effective dates and links to clients/services/finance.
 
-# Phase 11 — Notifications, Follow-ups & Communication Surfaces
-
-## 11.1 — Notifications
-- Meaningful product notifications tied to authoritative events.
-- Read/unread state and navigation target integrity.
-
-## 11.2 — Follow-ups
-- Create, schedule/state, complete, dismiss/cancel according to frozen business rules.
-- Archived/closed objects must respect lifecycle rules.
-
-## 11.3 — Universal Inbox Integration
-- Merge notifications/follow-ups/action-needed items without duplicating records.
-
-## 11.4 — Notification/Follow-up Destruction Gate
-- Large counts, stale targets, duplicate events, archived relations, offline delivery/read-state issues.
+## 10.6 — Documents Zero-Escape Gate
+- Missing/oversized/corrupt files, broken metadata, OCR failure, malicious uploads, long reports, multi-page overflow, offline upload/retry and unauthorized access.
+- M7 and document portion of M16 require deployed-live evidence.
 
 ---
 
-# Phase 12 — ENJAZ AI Copilot
+# Phase 11 — Notifications, Follow-ups, Client & Communications
 
-AI is integrated only after authoritative business screens and data flows are stable.
+## 11.1 — Notifications & Follow-ups
+- Authoritative event-driven notifications, read/unread, scheduling, completion, snooze/cancel and lifecycle integrity.
+
+## 11.2 — Universal Inbox Integration
+- Consolidated actionable work without duplicating underlying records.
+
+## 11.3 — Client Portal — M3
+- External client authentication/secure access to permitted companies, transactions, statuses, requests, documents, approvals and financial/receipt facts.
+- Strict tenant/object scope; no internal-only data leakage.
+
+## 11.4 — Omnichannel Communications Hub — M4
+- Conversation/event model for supported email/SMS/WhatsApp-style integrations where configured.
+- Link communication to authoritative entities, preserve consent/audit/delivery state and avoid duplicate message facts.
+
+## 11.5 — Scheduling, Appointments & Deadline Engine — M10
+- Appointments, deadlines, reminders, calendar views, conflicts, escalation and timezone-safe behavior.
+
+## 11.6 — Smart Intake & Contract Communication — M17 + M16
+- Secure submission follow-up, client approvals, contract/retainer renewal reminders and communication evidence.
+
+## 11.7 — Communication Zero-Escape Gate
+- Large counts, stale targets, duplicate events, revoked links, unauthorized portal access, delivery failure, timezone boundaries and archived relations.
+- M3/M4/M10 and Phase-11 portions of M16/M17 require individual evidence.
+
+---
+
+# Phase 12 — ENJAZ AI & Knowledge Agent
+
+AI is allowed only after authoritative business domains and permission boundaries are stable.
 
 ## 12.1 — Copilot Foundation
-- Explicit tool/data boundaries.
-- Owner-checked data access.
-- Structured output contracts.
-- Rate limiting and failure isolation.
+- Tool/data boundaries, workspace/permission enforcement, structured outputs, rate limiting, tracing and provider failure isolation.
 
 ## 12.2 — Contextual Assistance
-- Assist with finding, summarizing, drafting, and explaining ENJAZ data/actions.
-- Never silently mutate critical business/financial data.
+- Search, summarize, compare, draft and explain authoritative ENJAZ information with citations/provenance where applicable.
 
-## 12.3 — AI Destruction & Safety Gate
-- Hallucination resistance around missing data.
-- Permission tests.
-- Prompt-injection/data-boundary tests where applicable.
-- Structured-output regression tests.
-- Graceful degradation when an AI provider is unavailable.
+## 12.3 — Agentic ENJAZ Copilot — M9
+- Plan multi-step work and propose actions across ENJAZ tools.
+- Sensitive mutations require explicit user approval and domain-service validation.
+- Agent cannot bypass RLS, workflow/legal transitions, finance rules or document approval state.
+
+## 12.4 — Regulatory Knowledge Assistance — M8
+- Retrieve/version regulatory sources and distinguish source text, structured facts and AI interpretation.
+
+## 12.5 — AI Zero-Escape & Safety Gate
+- Hallucination/missing-data resistance, prompt injection, permission attacks, malicious documents, structured-output regression, tool approval and provider outage recovery.
+- M9/M8 AI portions require real authorized/unauthorized journeys.
 
 ---
 
 # Phase 13 — Legacy Import & Reconciliation
 
-Legacy import occurs only into the stable ENJAZ model.
-
 ## 13.1 — Read-only Legacy Snapshot Intake
-- Parse old backup/snapshot without executing old UI/runtime code.
-
 ## 13.2 — Normalize & Map
-- Normalize legacy identifiers, dates, money, and relations.
-- Create `legacy_id -> enjaz_uuid` mapping.
-
 ## 13.3 — Ordered Import
-- Contacts/people.
-- Companies.
-- Transactions.
-- Stations/notes/follow-ups/activity.
-- Payments while preserving status, receipt references, and reversals.
-- Document metadata before binaries.
-- Selectively map approved R6/V7 extensions only.
-
 ## 13.4 — Reconciliation
-- Counts.
-- Missing/skipped/recalculated items.
-- Orphan relations.
-- Financial totals.
-- Workflow state reconciliation.
-- Audit event for imported groups.
-
 ## 13.5 — Import Destruction Gate
-- Corrupt snapshots.
-- Partial data.
-- Duplicate legacy IDs.
-- Referential breaks.
-- Money mismatch.
-- Repeat/import-idempotency behavior.
+
+Import may target the expanded model only where explicit mappings exist. Unknown legacy concepts remain quarantined/reviewable instead of being guessed into M1–M18 structures. Counts, orphan relations, money, workflow state, ownership, documents and duplicate/idempotency behavior must reconcile.
 
 ---
 
-# Phase 14 — Full-system Integration & Real E2E
+# Phase 14 — Full-system Integration, API & Real E2E
 
 ## 14.1 — Cross-domain Journeys
-Examples:
-- Create company → create transaction → attach workflow → add follow-up → receive payment → generate report → archive/restore.
-- Search → open 360° → execute allowed action → verify timeline/audit.
+- Company → transaction → procedure/workflow → field/office work → follow-up → payment/receipt → document/report → client visibility → archive/restore.
+- Ownership/governance and contract/retainer journeys where applicable.
 
-## 14.2 — Auth/Session/Cloud Failure Journeys
-- Expired sessions.
-- Offline/online recovery.
-- Failed writes.
-- Conflicts.
-- Retry behavior.
+## 14.2 — Integration Platform / API / Webhooks — M11
+- Versioned integration API, scoped credentials/tokens, webhook subscriptions, signing/replay protection, idempotency, delivery history and retry/dead-letter behavior.
 
-## 14.3 — Mobile Real-device Journeys
-- Android keyboard.
-- Back gesture/button.
-- Rotation.
-- Safe areas.
-- Long forms.
-- Bottom navigation.
-- Overlays and sheets.
+## 14.3 — Auth/Session/Cloud Failure Journeys
+- Expiry, offline/online recovery, failed/unknown writes, stale conflict and recovery.
 
-## 14.4 — Integration Exit Gate
-- No critical path relies only on mocked behavior.
-- Every discovered real defect gets a regression test.
+## 14.4 — Mobile Real-device Journeys
+- Android keyboard/back/rotation/safe-area/long forms/overlays/navigation.
+
+## 14.5 — Integration Exit Gate
+- No critical path depends only on mocks.
+- M11 API/webhook contract receives positive/negative permission and replay/destruction evidence.
 
 ---
 
-# Phase 15 — Performance, Security & Reliability Hardening
+# Phase 15 — Performance, Security, Reliability & Enterprise Controls
 
 ## 15.1 — Performance
-- Bundle analysis.
-- Route/component loading discipline.
-- Large-list performance.
-- Rendering and interaction latency.
+- Bundle/code splitting, large-list/data performance, interaction/render latency and expensive cross-domain queries.
 
 ## 15.2 — Security
-- RLS verification.
-- Auth/session boundaries.
-- Injection/XSS/CSP review.
-- File access ownership.
-- Sensitive operation checks.
+- RLS/session/XSS/CSP/file ownership/sensitive-action review across all implemented systems.
 
 ## 15.3 — Reliability
-- Network failures.
-- Supabase errors.
-- Conflict handling.
-- repeated/duplicate actions.
-- Recovery paths.
+- Network/Supabase/integration failures, conflicts, repeated actions and recovery.
 
-## 15.4 — Hardening Gate
-- Real TypeScript check.
-- Production build.
-- Automated test suites.
-- Destructive regression suite.
-- No known critical/high-severity defect accepted into release candidate.
+## 15.4 — Compliance, Audit & Evidence Center — M12
+- Immutable/append-safe audit evidence, actor/action/object/result provenance, sensitive-operation review and exportable evidence packages.
+
+## 15.5 — Backup, Restore & Workspace Portability — M14
+- Verified export/backup, restore into controlled target, integrity checks, schema/version compatibility and disaster-recovery drills.
+
+## 15.6 — Multi-Branch Enterprise Hardening — M15
+- Branch/department/team boundaries, cross-branch roles, reporting scope and RLS matrices under real multi-user conditions.
+
+## 15.7 — BI / Process Intelligence Hardening — M13 + M18
+- Performance, explainability, source reconciliation and model/forecast drift protections.
+
+## 15.8 — Integration Platform Hardening — M11
+- Rate limits, credential rotation, webhook replay/ordering/retry and external dependency isolation.
+
+## 15.9 — Enterprise Zero-Escape Hardening Gate
+- Real TypeScript/build/tests/destruction/security/performance plus deployed critical paths.
+- M11/M12/M13/M14/M15/M18 cannot be declared closed without their system closure evidence.
 
 ---
 
 # Phase 16 — Final Visual & UX Destruction
 
-This is not a cosmetic review. It is a product-wide torture pass.
+This is a product-wide torture pass over **every implemented screen and all M1–M18 surfaces**:
 
-- Every screen on narrow and typical phone sizes.
-- Long Arabic content.
-- Huge monetary values.
-- Empty and extremely dense states.
-- 20+ notification/action counts.
-- Open keyboard.
-- Rotation.
-- Offline/error/conflict.
-- Reduced motion.
-- Focus/accessibility.
-- Visual hierarchy and contrast.
-- Typography consistency.
-- Icon size/clarity.
-- No cheap flat rectangles, uncontrolled glare, clipped bars, hidden labels, or legacy styling remnants.
-- No screen or component may bypass ENJAZ Design System 1.0 without an explicit documented exception.
+- 1280/430/390/360/320 and representative real Android device behavior;
+- long Arabic/Latin content, huge values, empty/dense states;
+- keyboard/back/rotation/safe areas;
+- offline/error/conflict/loading/recovery;
+- reduced motion, focus/accessibility, touch targets;
+- hierarchy, typography, contrast, layering and no legacy DNA;
+- client portal, field mode, documents, AI, finance, command center and enterprise surfaces receive equal scrutiny.
 
-**Exit:** UI/UX freeze for Release Candidate.
+**Exit:** UI/UX freeze for Release Candidate only after no Critical/High UX blocker remains.
 
 ---
 
 # Phase 17 — Release Candidate & Production Validation
 
 ## 17.1 — RC Build
-- Clean production build from the release candidate commit.
-- No dev/test-only payload in production output beyond intentionally retained diagnostics.
+- Clean reproducible production build from exact RC commit.
 
 ## 17.2 — Fresh-install / Fresh-session Validation
-- New user flow.
-- Existing user flow.
-- Password recovery.
-- Cloud data retrieval.
-- Clean cache/device scenario.
+- New and existing users, password recovery, fresh workspace bootstrap, cloud retrieval and clean-cache/device scenarios.
 
-## 17.3 — Production-like Validation
-- Verify environment configuration.
-- Verify Supabase integration against intended production project/configuration.
-- Verify routing/deployment fallback.
-- Verify PWA/mobile web behavior if enabled.
+## 17.3 — Production Validation
+- Intended Supabase project/config, routing/deployment, PWA/mobile behavior and exact deployed SHA.
+- Execute representative critical paths across Finance, Operations, Documents, Communication, AI and enterprise controls.
 
-## 17.4 — RC Gate
-- Full automated gate green.
-- Full E2E gate green.
-- Manual/real-device critical-path checklist green.
-- No critical/high unresolved defect.
+## 17.4 — Major Systems Closure Matrix
+- Every M1–M18 status must be explicit.
+- Any system required for v1.0 must have Zero-Escape closure evidence and post-merge/deployed-live recertification.
+
+## 17.5 — RC Gate
+- Full automated + real E2E + real-device critical-path matrix green.
+- Zero Critical/High/functional blockers.
 
 ---
 
 # Phase 18 — Final Delivery & Handoff
 
 ## 18.1 — Final Release Freeze
-- Tag/freeze the final approved commit.
-- Record app version, schema version, migration state, and build hash.
+- Tag/freeze exact approved commit, schema/migration state and build hash.
 
 ## 18.2 — Final Deliverables
-- Production-ready source repository.
-- Production build artifact.
-- Database migrations/schema documentation.
-- Environment/configuration guide without exposing secrets.
-- Backup/export/import guide.
-- User-critical operational notes.
-- Test/quality-gate report.
-- Known limitations only if explicitly accepted before release.
+- Source, production artifact, migrations/schema docs, configuration guide, operational notes, test/gate report and accepted limitations only.
 
-## 18.3 — Deployment Verification
-- Verify the deployed application matches the frozen release commit/build.
-- Verify login, core data access, critical transaction/company/finance flows, reports, navigation, and mobile behavior on the deployed target.
+## 18.3 — Backup / Restore / Portability Acceptance — M14
+- Final disaster-recovery and workspace portability proof is part of handoff, not optional documentation.
 
-## 18.4 — Final Acceptance
-The project is considered delivered only when:
-- All roadmap phases required for v1.0 are complete.
-- The final Release Gate is green.
-- The production deployment is verified.
-- No critical/high-severity known defect remains.
-- Core approved feature inventory is present.
-- Data integrity/reconciliation is proven.
-- ENJAZ has no dependency on legacy UI/runtime architecture.
-- The final build and documentation are reproducible from the repository.
+## 18.4 — Deployment Verification
+- Deployed application must match frozen release and pass login/core data/transaction/company/finance/procedure/document/client/integration critical paths.
+
+## 18.5 — Final Acceptance
+The project is delivered only when:
+- all v1.0 roadmap phases are complete;
+- all required M1–M18 systems are closed under Zero-Escape evidence;
+- final production deployment is verified;
+- no Critical/High known defect remains;
+- data integrity/reconciliation and backup/restore are proven;
+- build and documentation are reproducible;
+- no dependency on legacy UI/runtime architecture exists.
 
 **Final state:** `ENJAZ 1.0 — Delivered`.
 
 ---
 
-# Current position
+# Current position — canonical reconciled state
 
 - Phase 0 ✅
 - Phase 1 ✅
-- Phase 2.1 ✅
-- Phase 2.2 ✅
-- Phase 2.3 ✅
-- Phase 2.4 ✅
-- Phase 2.5 ✅
-- Phase 2.6 ✅
-- Phase 2.7 ✅
-- Phase 2.8 ✅
-- Phase 3.1 ✅
-- Phase 3.2 ✅
-- Phase 3.3 ✅
-- Phase 3.4 ✅
+- Phase 2.1–2.8 ✅
+- **Phase 2 — ENJAZ Design System 1.0 ✅**
+- Phase 3.1–3.4 ✅
 - **Phase 3 — Application Shell & Navigation ✅**
-- **Phase 4.1 — Home / Dashboard ✅**
-- **Phase 4.2 — Daily Work / Universal Inbox ✅**
-- **Phase 4.3 — Executive Briefing ✅**
-- **Phase 4.4 — Home Destruction Gate ✅**
+- Phase 4.1–4.4 ✅
 - **Phase 4 — Home, Daily Work & Executive Overview ✅**
-- **Phase 5.1 — Transaction List & Search ✅**
-- **Phase 5.2 — Transaction Create/Edit ✅**
-- **Phase 5.3 — Transaction Details / 360° ✅**
-- **Phase 5.4 — Archive/Restore/Lifecycle ✅**
-- **Phase 5.5 — Transaction Destruction Gate ✅**
+- Phase 5.1–5.5 ✅
 - **Phase 5 — Transactions Core ✅**
-- **Next: Phase 6.1 — Companies**
+- Phase 6.1 ✅
+- Phase 6.2 ✅
+- Phase 6.3 ✅
+- Phase 6.4 ✅
+- **Phase 6 — Companies & People ✅**
+- **Phase 7.1 — Financial Ledger & Summary ✅ CLOSED + post-merge recertified**
+- **18 major systems M1–M18: GOVERNING SCOPE, currently PLANNED unless a later state file proves otherwise**
+- **Next: Phase 7.2 — Payments & Receipts**
+
+Phase 7.2 is the only newly authorized implementation stage. Adding the 18 systems expanded delivery scope but did **not** silently reorder phases or retroactively reopen closed phases.
+
+---
+
+# Major-system anchor matrix
+
+| System | Name | Governing anchor phases |
+| --- | --- | --- |
+| M1 | Government Procedure Operating System | 8 |
+| M2 | Corporate Governance & Ownership Engine | 9 |
+| M3 | Client Portal | 11 |
+| M4 | Omnichannel Communications Hub | 11 |
+| M5 | ENJAZ Field Operations / Runner Mode | 8 |
+| M6 | Service Catalog, CRM & Commercial Intake | 8 |
+| M7 | Document Factory & Official Form Engine | 10 |
+| M8 | Regulatory / Knowledge Base Engine | 9, 12 |
+| M9 | Agentic ENJAZ Copilot | 12 |
+| M10 | Scheduling, Appointments & Deadline Engine | 11 |
+| M11 | Integration Platform / API / Webhooks | 14, 15 |
+| M12 | Compliance, Audit & Evidence Center | 15 |
+| M13 | Business Intelligence & Forecasting Center | 7, 9, 15 |
+| M14 | Backup, Restore & Workspace Portability | 15, 18 |
+| M15 | Multi-Branch, Departments & Team Operating Model | 8, 15 |
+| M16 | Engagements, Contracts & Retainers | 7, 10, 11 |
+| M17 | Smart Intake Forms & Secure Submission Links | 8, 11 |
+| M18 | Process Mining & Predictive Operations | 9, 15 |
+
+The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; this table makes that scope visible inside the Master Roadmap.
 
 ---
 
@@ -711,14 +532,22 @@ The project is considered delivered only when:
 
 This file is intentionally difficult to change by accident.
 
-This transition changes only verified roadmap state: Phase 5.5 closed after destructive transaction hardening reached 0 unresolved destructive defects and the formal closure candidate passed the full 19/19 cumulative PR workflow set. PR #79 then merged into canonical `main` as `218a7bb85ff6098d9a3642063c6c406a57917e86`. The merged commit itself was independently recertified with 8/8 post-merge workflows SUCCESS and 0 failures, including Quality, Governance, Canonical Promotion, WCAG, Real Browser through both destruction waves and Production Bridge, Pages deployment/preview, and Live External Chromium/WCAG against the published application. Therefore Phase 5 is closed and Phase 6.1 becomes the next permitted stage. Feature parity and delivery scope are unchanged; no Phase 6.2+ work is authorized by this transition.
+This reconciliation makes four explicit changes:
 
-A roadmap change must state:
-1. what changes,
-2. why it changes,
-3. which existing phase/contract is affected,
-4. whether feature parity or delivery scope changes,
-5. which tests/gates must change,
-6. whether the change creates migration or compatibility risk.
+1. records the already-proven Phase 7.1 canonical post-merge recertification and advances the next pointer to 7.2;
+2. incorporates the 18 major product systems M1–M18 into their governing future phases rather than leaving them as detached amendments;
+3. makes Zero-Escape closure mandatory across every major system and future phase exit where that system is anchored;
+4. replaces the stale Current Position that incorrectly pointed to Phase 6.1.
 
-Silently skipping a phase, renaming it in conversation, or starting a later phase before its predecessor passes is a roadmap violation.
+It does **not** silently reopen Phases 0–6, mark any M1–M18 system implemented, or authorize work beyond Phase 7.2.
+
+Any future roadmap change must state:
+1. what changes;
+2. why it changes;
+3. which phase/system contract is affected;
+4. whether delivery scope changes;
+5. which tests/gates must change;
+6. migration/compatibility/security risk;
+7. whether Zero-Escape closure evidence requirements change (default: they may only become stricter, never weaker).
+
+Silently skipping a phase, weakening a gate, marking a planned system complete without evidence, or starting a later phase before predecessor recertification is a roadmap violation.
