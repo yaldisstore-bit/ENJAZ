@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "stage": "R2.0-10",
-  "status": "ACTIVE_ERADICATION",
+  "status": "CLOSED",
   "branch": "r2-0-10-legacy-eradication",
   "truthfulness": {
     "canonicalRuntimeChanged": false,
@@ -70,8 +70,8 @@
     "preflightAudit": "PASS",
     "uiRebirthDependencyAudit": "PASS_ERADICATED",
     "parityResolution": "PASS_35_OF_35",
-    "legacyZero": "PENDING_POST_DELETE_GATE",
-    "cumulativeRegression": "PENDING_POST_DELETE_GATE",
+    "legacyZero": "PASS",
+    "cumulativeRegression": "PASS_POST_DELETE",
     "productionBridge": "PASS",
     "productionBridgeBrowser": "PASS"
   },
@@ -83,5 +83,14 @@
     "resolution": "neutral shared/session SessionChecking component; legacy presentation not restored",
     "allCumulativeGatesGreen": true
   },
-  "exitGatePassed": false
+  "exitGatePassed": true,
+  "closure": {
+    "gateRun": 34011524594,
+    "sourceCommit": "1bbdd2c6ddcf170b35e9e772be34502d94b55c83",
+    "parity": "35/35",
+    "unresolved": 0,
+    "uiV2Absent": true,
+    "uiRebirthAbsent": true,
+    "promotionDeferredTo": "R2.0-11"
+  }
 }

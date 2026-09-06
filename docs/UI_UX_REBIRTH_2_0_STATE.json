@@ -133,7 +133,7 @@
     "exitGatePassed": true
   },
   "legacyEradication": {
-    "status": "ACTIVE_ERADICATION",
+    "status": "CLOSED",
     "kickoff": "docs/R2_0_10_LEGACY_ERADICATION_KICKOFF.md",
     "evidenceManifest": "docs/UI_UX_REBIRTH_2_0_LEGACY_ERADICATION_EVIDENCE.json",
     "scope": [
@@ -153,11 +153,14 @@
     "uiV2Eradicated": true,
     "protectedBusinessBoundariesPreserved": true,
     "canonicalRuntimeChanged": false,
-    "legacyZero": false,
-    "exitGatePassed": false,
+    "legacyZero": true,
+    "exitGatePassed": true,
     "parityResolvedAtCommit": "dae42bb5b41a13b9f6ef07db0ecff1564b7ddc50",
     "parityEvidenceRun": 33986273961,
-    "eradicationCommitCandidate": "03c18e8c8bd9d4d3ff37ca3be18335f1a53a6833"
+    "eradicationCommitCandidate": "03c18e8c8bd9d4d3ff37ca3be18335f1a53a6833",
+    "closureRecord": "docs/R2_0_10_LEGACY_ERADICATION_CLOSURE.md",
+    "closureEvidenceRun": 34011524594,
+    "closureCommitCandidate": "1bbdd2c6ddcf170b35e9e772be34502d94b55c83"
   },
   "featureParity": {
     "inventoryComplete": true,
@@ -216,7 +219,7 @@
   },
   "legacy": {
     "presentationIsolationEnforced": true,
-    "eradicated": false
+    "eradicated": true
   },
   "promotion": {
     "requested": false,
