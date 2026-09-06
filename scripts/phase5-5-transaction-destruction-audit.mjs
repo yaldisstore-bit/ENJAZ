@@ -65,6 +65,8 @@ for (const marker of [
   'stale editor context',
   'malformed relation',
   'stable create operation id',
+  'unknown outcomes',
+  'activity-history-unconfirmed',
   'create-replay-detected',
   'payload drift',
 ]) if (!destructionTest.includes(marker)) errors.push(`Phase 5.5 destruction test missing attack marker: ${marker}`);
@@ -74,8 +76,15 @@ for (const marker of [
   'globalThis.crypto.randomUUID()',
   'create-replay-detected',
   'replayMatches',
+  'deriveOperationChildId',
   'layer.transactions.getById(operationId)',
-]) if (!editorService.includes(marker)) errors.push(`Transaction editor service missing duplicate-create defense: ${marker}`);
+  'layer.transactionRoutes.getById(routeId)',
+  'layer.transactionNotes.getById(noteId)',
+  'layer.transactionActivity.getById(activityId)',
+  'sameRoute',
+  'sameNote',
+  'sameCreateActivity',
+]) if (!editorService.includes(marker)) errors.push(`Transaction editor service missing duplicate/unknown-outcome defense: ${marker}`);
 
 for (const [label, source] of [['editor', editorHook], ['lifecycle', lifecycleHook]]) {
   for (const marker of ['useRef', 'mutationInFlightRef.current', 'finally']) {
