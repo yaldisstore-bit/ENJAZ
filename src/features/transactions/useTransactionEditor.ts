@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DataAccessError } from '../../data/contracts/DataAccessError.ts';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
@@ -49,7 +49,7 @@ function toEditorErrorMessage(error: unknown): string {
   if (error instanceof TransactionEditorCapacityError) return 'حجم بيانات الشركات أو جهات الاتصال أكبر من حد المحرر الآمن الحالي. لم يتم عرض قائمة جزئية.';
   if (error instanceof DataAccessError) {
     if (error.dataCode === 'DATA_FORBIDDEN') return 'ليس لديك صلاحية لتنفيذ هذا التعديل في مساحة العمل الحالية.';
-    if (error.dataCode === 'DATA_OUTCOME_UNKNOWN') return 'انتهت مهلة الحفظ قبل تأكيد النتيجة. لا تعِد الإرسال قبل إعادة تحميل المعاملة والتحقق من حالتها.';
+    if (error.dataCode === 'DATA_OUTCOME_UNKNOWN') return 'انتهت مهلة الحفظ قبل تأكيد النتيجة. أعد المحاولة من نفس المحرر فقط؛ هوية العملية ثابتة وستمنع إنشاء نسخة ثانية.';
     if (error.dataCode === 'DATA_UNAVAILABLE') return 'تعذر الوصول إلى بيانات المعاملة الآن. تحقق من الاتصال ثم أعد المحاولة.';
   }
   return 'حدث خطأ غير متوقع أثناء تجهيز أو حفظ المعاملة.';
@@ -66,6 +66,11 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<readonly TransactionEditorWarning[]>([]);
   const [savedTransactionId, setSavedTransactionId] = useState<string | null>(null);
+  const mutationInFlightRef = useRef(false);
+  const createOperationId = useMemo(
+    () => mode === 'create' ? globalThis.crypto.randomUUID() : null,
+    [mode, transactionId],
+  );
 
   useEffect(() => {
     let active = true;
@@ -111,7 +116,7 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
     warnings,
     savedTransactionId,
     update(field: TransactionEditorField, value: string) {
-      if (status === 'saving') return;
+      if (status === 'saving' || mutationInFlightRef.current) return;
       setDraft((current) => {
         const next: Record<TransactionEditorField, string> = { ...current, [field]: value };
         if (field === 'companyId' && source && current.primaryContactId) {
@@ -129,19 +134,21 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
       setErrorMessage(null);
     },
     async submit(): Promise<boolean> {
-      if (!loaded || !userId || status === 'saving') return false;
+      if (!loaded || !userId || status === 'saving' || mutationInFlightRef.current) return false;
       const nextErrors = validateTransactionEditorDraft(draft, loaded.source, mode);
       if (Object.keys(nextErrors).length) {
         setErrors(nextErrors);
         setStatus('ready');
         return false;
       }
+      if (mutationInFlightRef.current) return false;
+      mutationInFlightRef.current = true;
       setStatus('saving');
       setErrors({});
       setErrorMessage(null);
       setWarnings([]);
       try {
-        const result = await saveTransactionEditorDraft(factory, userId, loaded, mode, draft, userId);
+        const result = await saveTransactionEditorDraft(factory, userId, loaded, mode, draft, userId, new Date(), createOperationId);
         setWarnings(result.warnings);
         setSavedTransactionId(result.transaction.id);
         setStatus('saved');
@@ -150,6 +157,8 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
         setStatus('error');
         setErrorMessage(toEditorErrorMessage(error));
         return false;
+      } finally {
+        mutationInFlightRef.current = false;
       }
     },
     retry() { setAttempt((value) => value + 1); },
@@ -157,7 +166,7 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
       if (!savedTransactionId) return;
       setAttempt((value) => value + 1);
     },
-  }), [draft, errorMessage, errors, factory, loaded, mode, savedTransactionId, source, status, transactionId, userId, warnings]);
+  }), [createOperationId, draft, errorMessage, errors, factory, loaded, mode, savedTransactionId, source, status, transactionId, userId, warnings]);
 
   return controller;
 }
