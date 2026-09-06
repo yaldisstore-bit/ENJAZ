@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { UiR2Root } from './runtime/UiR2Root.tsx';
+import { UiR2Root } from './runtime/UiR2PreviewRoot.tsx';
 import './runtime/shell-base.css';
 import './runtime/shell.css';
 import './golden/golden.css';
