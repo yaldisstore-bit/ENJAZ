@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "phase": "5.5",
+  "name": "Transaction Destruction Gate",
+  "status": "CLOSED",
+  "baseCommit": "defc0bf964b4446f92f6e96931f5643f586d9cfd",
+  "unlockDecision": "docs/PHASE5_5_UNLOCK_DECISION.md",
+  "kickoff": "docs/PHASE5_5_TRANSACTION_DESTRUCTION_KICKOFF.md",
+  "closureEvidence": "docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md",
+  "scope": [
+    "largeLists",
+    "capacityBoundaries",
+    "malformedRelations",
+    "missingRelations",
+    "conflictingEdits",
+    "offlineFailures",
+    "unknownWriteOutcomes",
+    "repeatedLifecycleActions",
+    "cumulativePhase5Regression",
+    "realBrowserTransactionDestruction"
+  ],
+  "requiredPriorClosures": [
+    "5.1",
+    "5.2",
+    "5.3",
+    "5.4"
+  ],
+  "preClosureHead": "862d741978111050ace0944aa7957c4bc781ae1b",
+  "preClosureCertification": {
+    "workflowCount": 19,
+    "successfulWorkflowCount": 19,
+    "phase55RunId": 34020884861,
+    "globalRealBrowserRunId": 34020884795,
+    "r2DestructionRunId": 34020884782,
+    "operationalIntelligenceRunId": 34020884849
+  },
+  "exitGatePassed": true,
+  "unresolvedDefectCount": 0,
+  "phase6Allowed": false,
+  "postMergeRecertification": {
+    "required": true,
+    "status": "PENDING",
+    "mainCommit": null,
+    "verifiedWorkflowCount": 0
+  },
+  "closedAt": "2026-09-06T08:19:00Z"
+}

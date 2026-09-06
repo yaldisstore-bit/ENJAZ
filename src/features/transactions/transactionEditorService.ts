@@ -12,8 +12,10 @@ import {
 const EDITOR_BATCH_SIZE = 100;
 const EDITOR_ENTITY_LIMIT = 2_000;
 const EDITOR_RELATION_LIMIT = 5_000;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type TransactionEditorWarningCode =
+  | 'create-replay-detected'
   | 'fee-history-unconfirmed'
   | 'station-history-unconfirmed'
   | 'note-history-unconfirmed'
@@ -166,6 +168,52 @@ function changesSummary(previous: RowOf<'transactions'> | null, next: RowOf<'tra
   return labels.length ? `تعديل المعاملة: ${labels.join('، ')}` : 'حفظ المعاملة دون تغيير في الحقول الأساسية';
 }
 
+function replayMatches(
+  existing: RowOf<'transactions'>,
+  normalized: ReturnType<typeof normalizeTransactionEditorDraft>,
+): boolean {
+  return existing.deleted_at === null
+    && existing.company_id === normalized.companyId
+    && existing.primary_contact_id === normalized.primaryContactId
+    && existing.type === normalized.type
+    && existing.department === normalized.department
+    && existing.status === normalized.status
+    && existing.priority === normalized.priority
+    && Math.round(existing.current_fee * 100) === Math.round(normalized.currentFee * 100)
+    && existing.completed_at === normalized.completedAt;
+}
+
+function deriveOperationChildId(operationId: string, discriminator: 1 | 2 | 3): string {
+  const compact = operationId.replaceAll('-', '');
+  const tail = Number.parseInt(compact.slice(-2), 16) ^ discriminator;
+  const derived = `${compact.slice(0, -2)}${tail.toString(16).padStart(2, '0')}`;
+  return `${derived.slice(0, 8)}-${derived.slice(8, 12)}-${derived.slice(12, 16)}-${derived.slice(16, 20)}-${derived.slice(20)}`;
+}
+
+function sameRoute(
+  row: RowOf<'transaction_routes'>,
+  transactionId: string,
+  stationName: string,
+  assignedToText: string | null,
+  occurredAt: string,
+): boolean {
+  return row.transaction_id === transactionId
+    && row.station_name === stationName
+    && row.assigned_to_text === assignedToText
+    && row.occurred_at === occurredAt;
+}
+
+function sameNote(row: RowOf<'transaction_notes'>, transactionId: string, body: string): boolean {
+  return row.transaction_id === transactionId && row.body === body;
+}
+
+function sameCreateActivity(row: RowOf<'transaction_activity'>, transactionId: string): boolean {
+  return row.transaction_id === transactionId
+    && row.event_type === 'transaction_created'
+    && row.source_entity_type === 'transaction'
+    && row.source_entity_id === transactionId;
+}
+
 export async function saveTransactionEditorDraft(
   factory: EnjazDataLayerFactory,
   userId: string,
@@ -174,6 +222,7 @@ export async function saveTransactionEditorDraft(
   draft: TransactionEditorDraft,
   actorUserId: string | null,
   now = new Date(),
+  createOperationId: string | null = null,
 ): Promise<TransactionEditorSaveResult> {
   const workspaceId = await factory.resolveWorkspaceId(userId);
   if (!workspaceId || workspaceId !== loaded.workspaceId) throw new TransactionEditorWorkspaceUnavailableError();
@@ -181,20 +230,36 @@ export async function saveTransactionEditorDraft(
   const normalized = normalizeTransactionEditorDraft(draft, loaded.source, mode, now);
   const previous = loaded.source.transaction;
   const timestamp = now.toISOString();
+  const stableCreateOperationId = mode === 'create' && createOperationId ? createOperationId : null;
+  let createReplayDetected = false;
 
   let saved: RowOf<'transactions'>;
   if (mode === 'create') {
-    saved = await layer.transactions.create({
-      company_id: normalized.companyId,
-      primary_contact_id: normalized.primaryContactId,
-      type: normalized.type,
-      department: normalized.department,
-      status: normalized.status,
-      priority: normalized.priority,
-      current_fee: normalized.currentFee,
-      last_activity_at: timestamp,
-      completed_at: normalized.completedAt,
-    });
+    const operationId = createOperationId ?? globalThis.crypto.randomUUID();
+    if (!UUID_PATTERN.test(operationId)) {
+      throw new TransactionEditorConflictError('Transaction create requires a valid operation id');
+    }
+    const replay = await layer.transactions.getById(operationId);
+    if (replay) {
+      if (!replayMatches(replay, normalized)) {
+        throw new TransactionEditorConflictError('Transaction create operation id belongs to a different payload');
+      }
+      saved = replay;
+      createReplayDetected = true;
+    } else {
+      saved = await layer.transactions.create({
+        id: operationId,
+        company_id: normalized.companyId,
+        primary_contact_id: normalized.primaryContactId,
+        type: normalized.type,
+        department: normalized.department,
+        status: normalized.status,
+        priority: normalized.priority,
+        current_fee: normalized.currentFee,
+        last_activity_at: timestamp,
+        completed_at: normalized.completedAt,
+      });
+    }
   } else {
     if (!previous) throw new TransactionEditorNotFoundError();
     const latest = await layer.transactions.getById(previous.id);
@@ -216,6 +281,14 @@ export async function saveTransactionEditorDraft(
   }
 
   const warnings: TransactionEditorWarning[] = [];
+  if (createReplayDetected) {
+    warnings.push(Object.freeze({
+      code: 'create-replay-detected',
+      message: 'تم تأكيد أن محاولة الحفظ السابقة أنشأت نفس المعاملة. تم استكمال السجلات المساندة الناقصة فقط دون إنشاء نسخة ثانية.',
+      outcomeUnknown: false,
+    }));
+  }
+
   const feeChanged = previous && Math.round(previous.current_fee * 100) !== Math.round(saved.current_fee * 100);
   if (feeChanged) {
     try {
@@ -234,36 +307,72 @@ export async function saveTransactionEditorDraft(
 
   if (routeChanged(loaded.source, normalized.stationName, normalized.assignedToText) && normalized.stationName && normalized.stationOccurredAt) {
     try {
-      await layer.transactionRoutes.create({
-        transaction_id: saved.id,
-        station_name: normalized.stationName,
-        assigned_to_text: normalized.assignedToText,
-        occurred_at: normalized.stationOccurredAt,
-        created_by: actorUserId,
-      });
+      if (stableCreateOperationId) {
+        const routeId = deriveOperationChildId(stableCreateOperationId, 1);
+        const existingRoute = await layer.transactionRoutes.getById(routeId);
+        if (existingRoute && !sameRoute(existingRoute, saved.id, normalized.stationName, normalized.assignedToText, normalized.stationOccurredAt)) {
+          throw new TransactionEditorConflictError('Transaction create route operation id belongs to a different payload');
+        }
+        if (!existingRoute) {
+          await layer.transactionRoutes.create({
+            id: routeId,
+            transaction_id: saved.id,
+            station_name: normalized.stationName,
+            assigned_to_text: normalized.assignedToText,
+            occurred_at: normalized.stationOccurredAt,
+            created_by: actorUserId,
+          });
+        }
+      } else {
+        await layer.transactionRoutes.create({
+          transaction_id: saved.id,
+          station_name: normalized.stationName,
+          assigned_to_text: normalized.assignedToText,
+          occurred_at: normalized.stationOccurredAt,
+          created_by: actorUserId,
+        });
+      }
     } catch (error: unknown) {
+      if (error instanceof TransactionEditorConflictError) throw error;
       warnings.push(warningFromFailure('station-history-unconfirmed', 'تم حفظ المعاملة لكن لم يتم تأكيد إضافة محطة العمل الجديدة.', error));
     }
   }
 
   if (normalized.noteBody) {
     try {
-      await layer.transactionNotes.create({
-        transaction_id: saved.id,
-        body: normalized.noteBody,
-        created_by: actorUserId,
-      });
+      if (stableCreateOperationId) {
+        const noteId = deriveOperationChildId(stableCreateOperationId, 2);
+        const existingNote = await layer.transactionNotes.getById(noteId);
+        if (existingNote && !sameNote(existingNote, saved.id, normalized.noteBody)) {
+          throw new TransactionEditorConflictError('Transaction create note operation id belongs to a different payload');
+        }
+        if (!existingNote) {
+          await layer.transactionNotes.create({
+            id: noteId,
+            transaction_id: saved.id,
+            body: normalized.noteBody,
+            created_by: actorUserId,
+          });
+        }
+      } else {
+        await layer.transactionNotes.create({
+          transaction_id: saved.id,
+          body: normalized.noteBody,
+          created_by: actorUserId,
+        });
+      }
     } catch (error: unknown) {
+      if (error instanceof TransactionEditorConflictError) throw error;
       warnings.push(warningFromFailure('note-history-unconfirmed', 'تم حفظ المعاملة لكن لم يتم تأكيد إضافة الملاحظة الجديدة.', error));
     }
   }
 
   try {
-    await layer.transactionActivity.create({
+    const activityValues = {
       transaction_id: saved.id,
       event_type: mode === 'create' ? 'transaction_created' : 'transaction_updated',
       summary: changesSummary(previous, saved),
-      occurred_at: timestamp,
+      occurred_at: mode === 'create' ? saved.created_at : timestamp,
       source_entity_type: 'transaction',
       source_entity_id: saved.id,
       metadata: {
@@ -273,8 +382,19 @@ export async function saveTransactionEditorDraft(
         priority: saved.priority,
       },
       actor_user_id: actorUserId,
-    });
+    } as const;
+    if (stableCreateOperationId) {
+      const activityId = deriveOperationChildId(stableCreateOperationId, 3);
+      const existingActivity = await layer.transactionActivity.getById(activityId);
+      if (existingActivity && !sameCreateActivity(existingActivity, saved.id)) {
+        throw new TransactionEditorConflictError('Transaction create activity operation id belongs to a different payload');
+      }
+      if (!existingActivity) await layer.transactionActivity.create({ id: activityId, ...activityValues });
+    } else {
+      await layer.transactionActivity.create(activityValues);
+    }
   } catch (error: unknown) {
+    if (error instanceof TransactionEditorConflictError) throw error;
     warnings.push(warningFromFailure('activity-history-unconfirmed', 'تم حفظ المعاملة لكن لم يتم تأكيد سجل النشاط الخاص بعملية الحفظ.', error));
   }
 
