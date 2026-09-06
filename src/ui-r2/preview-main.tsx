@@ -9,6 +9,7 @@ import './golden/golden-mobile-hardening.css';
 import './core-work/core-work.css';
 import './records/records.css';
 import './operational-intelligence/operational-intelligence.css';
+import './runtime/accessibility-hardening.css';
 
 const rootElement = document.getElementById('r2-root');
 
