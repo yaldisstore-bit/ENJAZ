@@ -18,7 +18,9 @@
   "writeOperationsAllowed": false,
   "productionJavaScriptBudget": 670000,
   "closureEvidence": "docs/PHASE7_1_FINANCIAL_LEDGER_CLOSURE.md",
+  "postMergeEvidence": "docs/PHASE7_1_POSTMERGE_RECERTIFICATION.md",
   "implementationHead": "0ac2174272d7ac0e5f79020ed78ad3872177af31",
+  "mergeCommit": "3d4043c8e5d6784f327ff8ac9879402b7d933422",
   "preClosure": {
     "workflowCount": 24,
     "successCount": 24,
@@ -48,10 +50,25 @@
       "summary": "The frozen R2.0-7 finance preview now truthfully identifies itself as visual-only and hands off to the authoritative Phase 7.1 live surface."
     }
   ],
-  "phase7_2Allowed": false,
-  "nextPhase": null,
+  "phase7_2Allowed": true,
+  "nextPhase": "7.2",
   "postMergeRecertification": {
     "required": true,
-    "status": "PENDING"
+    "status": "COMPLETE",
+    "mainCommit": "3d4043c8e5d6784f327ff8ac9879402b7d933422",
+    "workflowCount": 9,
+    "successCount": 9,
+    "failureCount": 0,
+    "inProgressCount": 0,
+    "phase71Run": 34047520246,
+    "qualityRun": 34047520176,
+    "governanceRun": 34047520341,
+    "canonicalPromotionRun": 34047520209,
+    "wcagRun": 34047520140,
+    "realBrowserRun": 34047520268,
+    "pagesBuildDeploymentRun": 34047519622,
+    "pagesRun": 34047555458,
+    "liveExternalRun": 34047603734,
+    "completedAt": "2026-09-06T17:08:20Z"
   }
 }
