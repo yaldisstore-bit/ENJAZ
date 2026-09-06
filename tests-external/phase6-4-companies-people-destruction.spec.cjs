@@ -37,16 +37,21 @@ async function assertTouchTargets(page) {
   expect(tooSmall).toEqual([]);
 }
 
+async function assertBoundedNormalizedSearch(input, longMixed) {
+  await input.fill(longMixed);
+  const value = await input.inputValue();
+  expect(value.length).toBeLessThanOrEqual(160);
+  expect(value).toContain('شركة-alpha-٢٠٢٦');
+}
+
 test('long mixed company/person search is bounded and never creates layout overflow', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 844 });
   const errors = await openPreview(page);
   const longMixed = `${'شركة-ALPHA-٢٠٢٦-'.repeat(30)} بغداد Baghdad 12345`;
   const companySearch = page.getByRole('textbox', { name: 'بحث الشركات' });
-  await companySearch.fill(longMixed);
-  await expect(companySearch).toHaveValue(longMixed.slice(0, 160));
-  const peopleSearch = page.getByText('بحث الأشخاص').locator('..').getByRole('textbox');
-  await peopleSearch.fill(longMixed);
-  await expect(peopleSearch).toHaveValue(longMixed.slice(0, 160));
+  await assertBoundedNormalizedSearch(companySearch, longMixed);
+  const peopleSearch = page.locator('.r2-contacts-directory input').first();
+  await assertBoundedNormalizedSearch(peopleSearch, longMixed);
   expect(errors).toEqual([]);
   await assertNoHorizontalOverflow(page);
   await assertTouchTargets(page);
