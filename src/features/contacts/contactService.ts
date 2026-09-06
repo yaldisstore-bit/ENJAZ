@@ -17,8 +17,8 @@ async function collectContacts(layer: EnjazWorkspaceDataLayer) { const rows: Row
 export async function loadContactListSource(factory: EnjazDataLayerFactory, userId: string): Promise<Readonly<{ workspaceId: string; source: ContactListSource }>> { const { workspaceId, layer } = await layerFor(factory, userId); return { workspaceId, source: { contacts: await collectContacts(layer) } }; }
 
 export function isCurrentCompanyRelation(row: RowOf<'company_contacts'>, now = Date.now()) {
-  const from = row.valid_from === null ? null : Date.parse(row.valid_from), to = row.valid_to === null ? null : Date.parse(row.valid_to);
-  return (from === null || Number.isFinite(from) && from <= now) && (to === null || Number.isFinite(to) && to > now);
+  const from = row.valid_from === null ? -Infinity : Date.parse(row.valid_from), to = row.valid_to === null ? Infinity : Date.parse(row.valid_to);
+  return from <= now && to > now;
 }
 
 export interface ContactProfileSource { readonly contact: RowOf<'contacts'>; readonly companyRelations: readonly Readonly<{ relation: RowOf<'company_contacts'>; company: RowOf<'companies'> | null; current: boolean }>[]; readonly transactions: readonly RowOf<'transactions'>[]; readonly truncated: Readonly<{ companyRelations: boolean; transactions: boolean }>; }
