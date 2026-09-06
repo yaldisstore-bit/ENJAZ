@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "stage": "R2.0-10",
+  "stage": "R2.0-11",
   "phase55Locked": true,
-  "runtime": "ui-v2",
+  "runtime": "ui-r2-candidate",
   "goldenExperience": {
     "status": "APPROVED",
     "implemented": true,
@@ -222,7 +222,17 @@
     "eradicated": true
   },
   "promotion": {
-    "requested": false,
-    "allowed": false
+    "status": "ACTIVE_PROMOTION",
+    "requested": true,
+    "allowed": false,
+    "kickoff": "docs/R2_0_11_CANONICAL_PROMOTION_KICKOFF.md",
+    "baseCommit": "609c4d524cffd00da872d3c44e988d33e971ebec",
+    "candidateEntrypoint": "src/main.tsx",
+    "candidateRoot": "src/ui-r2/runtime/UiR2ProductionRoot.tsx",
+    "preconditionsVerified": true,
+    "canonicalMainRecertified": false,
+    "pagesRecertified": false,
+    "liveExternalRecertified": false,
+    "exitGatePassed": false
   }
 }
