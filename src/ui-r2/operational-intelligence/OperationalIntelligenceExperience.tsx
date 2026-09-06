@@ -13,7 +13,7 @@ function Header({ eyebrow, title, description }: { eyebrow: string; title: strin
 function TruthNote() { return <p className="r2-oi-truth" role="note">{DEMO_NOTE}</p>; }
 
 function FinanceHandoff() {
-  return <div className="r2-screen r2-oi-workspace" data-operational-domain="finance"><Header eyebrow="الدفتر" title="المالية" description="انتقلت المالية إلى دفتر Phase 7.1 المعتمد." /></div>;
+  return <div className="r2-screen r2-oi-workspace" data-operational-domain="finance"><Header eyebrow="الدفتر" title="المالية" description="دفتر اليوم انتقل إلى دفتر Phase 7.1 المعتمد." /></div>;
 }
 
 function Operations() {
