@@ -1,3 +1,5 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const { test, expect } = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
 
@@ -18,10 +20,33 @@ async function openSurface(page, destination, width, height = 844) {
   await expect(page.locator('[data-enjaz-ui="v2"]')).toHaveCount(0);
 }
 
+function writeAxeDiagnostics(label, violations) {
+  const safeLabel = label.replace(/[^a-z0-9_-]+/gi, '-').toLowerCase();
+  const outputDir = path.join(process.cwd(), 'test-results', 'wcag-diagnostics');
+  fs.mkdirSync(outputDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(outputDir, `${safeLabel}.json`),
+    JSON.stringify({ label, violationCount: violations.length, violations }, null, 2),
+    'utf8',
+  );
+}
+
 async function assertWcagAA(page, label) {
   const result = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
     .analyze();
+
+  if (result.violations.length > 0) {
+    writeAxeDiagnostics(label, result.violations);
+    console.error(`[R2 WCAG] ${label}: ${result.violations.length} violation group(s)`);
+    for (const violation of result.violations) {
+      console.error(`[R2 WCAG] ${violation.id}: ${violation.help}`);
+      for (const node of violation.nodes) {
+        console.error(`[R2 WCAG] target=${JSON.stringify(node.target)} summary=${node.failureSummary || ''}`);
+      }
+    }
+  }
+
   expect(result.violations, `${label}: WCAG A/AA violations`).toEqual([]);
 }
 
