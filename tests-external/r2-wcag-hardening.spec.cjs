@@ -55,14 +55,33 @@ async function assertFocusRowsAreFullyOpaque(page, label) {
     rows.map((row) => getComputedStyle(row).opacity),
   );
   expect(opacities.length, `${label}: focus rows exist`).toBeGreaterThan(0);
-  expect(opacities, `${label}: actionable focus rows must not lose text contrast through parent opacity`)
+  expect(opacities, `${label}: actionable focus rows must remain fully opaque`)
     .toEqual(opacities.map(() => '1'));
+}
+
+async function assertScreenEntryNeverAnimatesOpacity(page, label) {
+  const contract = await page.locator('.r2-screen').first().evaluate((screen) => {
+    const animations = screen.getAnimations();
+    const keyframes = animations.flatMap((animation) => animation.effect?.getKeyframes?.() ?? []);
+    return {
+      computedOpacity: getComputedStyle(screen).opacity,
+      animationCount: animations.length,
+      opacityKeyframes: keyframes
+        .filter((frame) => Object.prototype.hasOwnProperty.call(frame, 'opacity'))
+        .map((frame) => ({ offset: frame.offset, opacity: frame.opacity })),
+    };
+  });
+
+  expect(contract.computedOpacity, `${label}: screen content must render at full opacity`).toBe('1');
+  expect(contract.animationCount, `${label}: premium entry motion remains present`).toBeGreaterThan(0);
+  expect(contract.opacityKeyframes, `${label}: entry motion must be transform-only; opacity fades create transient WCAG failures`).toEqual([]);
 }
 
 for (const width of [360, 390, 1280]) {
   test(`R2 home is WCAG A/AA clean at ${width}px`, async ({ page }) => {
     await openSurface(page, 'home', width, width >= 960 ? 900 : 844);
     await assertFocusRowsAreFullyOpaque(page, `home:${width}`);
+    await assertScreenEntryNeverAnimatesOpacity(page, `home:${width}`);
     await assertWcagAA(page, `home:${width}`);
   });
 }
@@ -70,6 +89,7 @@ for (const width of [360, 390, 1280]) {
 for (const destination of ['transactions', 'create']) {
   test(`R2 ${destination} core-work surface is WCAG A/AA clean`, async ({ page }) => {
     await openSurface(page, destination, 390);
+    await assertScreenEntryNeverAnimatesOpacity(page, destination);
     await assertWcagAA(page, destination);
   });
 }
@@ -77,5 +97,6 @@ for (const destination of ['transactions', 'create']) {
 test('R2 operations surface is WCAG A/AA clean on mobile', async ({ page }) => {
   await openSurface(page, 'operations', 390);
   await expect(page.locator('[data-operational-domain="operations"]')).toBeVisible();
+  await assertScreenEntryNeverAnimatesOpacity(page, 'operations:390');
   await assertWcagAA(page, 'operations:390');
 });
