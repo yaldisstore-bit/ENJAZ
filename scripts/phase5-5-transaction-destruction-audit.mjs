@@ -18,12 +18,48 @@ const editorHook = read('src/features/transactions/useTransactionEditor.ts');
 const lifecycleHook = read('src/features/transactions/useTransactionLifecycle.ts');
 const browserSpecPath = 'tests-external/phase5-5-transaction-destruction.spec.cjs';
 const browserSpec = exists(browserSpecPath) ? read(browserSpecPath) : '';
+const closurePath = 'docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md';
+const closure = exists(closurePath) ? read(closurePath) : '';
 
 if (phaseState.phase !== '5.5') errors.push('Phase 5.5 state must declare phase=5.5');
 if (!['ACTIVE', 'CLOSED'].includes(phaseState.status)) errors.push('Phase 5.5 state must be ACTIVE or CLOSED');
-if (phaseState.status === 'ACTIVE' && phaseState.exitGatePassed !== false) errors.push('ACTIVE Phase 5.5 must fail closed with exitGatePassed=false');
-if (phaseState.status === 'ACTIVE' && phaseState.phase6Allowed !== false) errors.push('Phase 6 must remain blocked while Phase 5.5 is ACTIVE');
 if (phaseState.baseCommit !== 'defc0bf964b4446f92f6e96931f5643f586d9cfd') errors.push('Phase 5.5 must remain anchored to the recertified R2.0-11 closure base');
+
+if (phaseState.status === 'ACTIVE') {
+  if (phaseState.exitGatePassed !== false) errors.push('ACTIVE Phase 5.5 must fail closed with exitGatePassed=false');
+  if (phaseState.phase6Allowed !== false) errors.push('Phase 6 must remain blocked while Phase 5.5 is ACTIVE');
+  if (exists(closurePath)) errors.push('Phase 5.5 closure record cannot exist while stage state is ACTIVE');
+}
+
+if (phaseState.status === 'CLOSED') {
+  if (phaseState.exitGatePassed !== true) errors.push('CLOSED Phase 5.5 requires exitGatePassed=true');
+  if (phaseState.unresolvedDefectCount !== 0) errors.push('CLOSED Phase 5.5 requires unresolvedDefectCount=0');
+  if (phaseState.closureEvidence !== closurePath) errors.push('CLOSED Phase 5.5 must point to the canonical closure evidence file');
+  if (!exists(closurePath)) errors.push('CLOSED Phase 5.5 requires a closure evidence file');
+  if (phaseState.preClosureHead !== '862d741978111050ace0944aa7957c4bc781ae1b') errors.push('CLOSED Phase 5.5 must preserve the certified pre-closure head');
+  if (phaseState.preClosureCertification?.workflowCount !== 19 || phaseState.preClosureCertification?.successfulWorkflowCount !== 19) errors.push('CLOSED Phase 5.5 requires the 19/19 pre-closure workflow certification');
+  if (phaseState.preClosureCertification?.phase55RunId !== 34020884861) errors.push('CLOSED Phase 5.5 must preserve the dedicated Phase 5.5 run id');
+  if (phaseState.postMergeRecertification?.required !== true) errors.push('CLOSED Phase 5.5 must require post-merge main recertification');
+  if (!['PENDING', 'COMPLETE'].includes(phaseState.postMergeRecertification?.status)) errors.push('postMergeRecertification status must be PENDING or COMPLETE');
+  if (phaseState.postMergeRecertification?.status === 'PENDING' && phaseState.phase6Allowed !== false) errors.push('Phase 6 must remain blocked until post-merge recertification completes');
+  if (phaseState.postMergeRecertification?.status === 'COMPLETE') {
+    if (phaseState.phase6Allowed !== true) errors.push('Phase 6 may be allowed only after COMPLETE post-merge recertification');
+    if (!phaseState.postMergeRecertification?.mainCommit) errors.push('COMPLETE post-merge recertification requires canonical mainCommit evidence');
+    if ((phaseState.postMergeRecertification?.verifiedWorkflowCount ?? 0) < 19) errors.push('COMPLETE post-merge recertification requires at least the cumulative workflow set to be verified');
+  }
+  for (const marker of [
+    'Status: **CLOSED**',
+    '862d741978111050ace0944aa7957c4bc781ae1b',
+    '19/19',
+    '34020884861',
+    '34020884795',
+    '34020884782',
+    '34020884849',
+    'unresolved destructive defects: **0**',
+    'Phase 6 remains locked',
+    'post-merge recertification',
+  ]) if (!closure.includes(marker)) errors.push(`Phase 5.5 closure evidence missing marker: ${marker}`);
+}
 
 if (r2State.stage !== 'R2.0-11') errors.push('R2.0-11 must remain the closed Rebirth stage');
 if (r2State.runtime !== 'ui-r2') errors.push('Canonical runtime must remain ui-r2');
@@ -97,7 +133,7 @@ for (const marker of [
   'outcomeUnknown',
   "setStatus(loaded ? 'ready' : 'error')",
   'setErrors(Object.freeze({ form: message }))',
-  'status === \'saving\' || mutationInFlightRef.current || outcomeUnknown',
+  "status === 'saving' || mutationInFlightRef.current || outcomeUnknown",
   'saveTransactionEditorDraft(factory, userId, loaded, mode, draft, userId, new Date(), createOperationId)',
   'PENDING_CREATE_STORAGE_PREFIX',
   'window.sessionStorage',
@@ -132,12 +168,11 @@ for (const marker of [
   'Real Chromium transaction destruction',
 ]) if (!workflow.includes(marker)) errors.push(`Phase 5.5 workflow missing gate command: ${marker}`);
 
-if (phaseState.status === 'ACTIVE' && exists('docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md')) errors.push('Phase 5.5 closure record cannot exist while stage state is ACTIVE');
-
 if (errors.length) {
   console.error('ENJAZ PHASE 5.5 TRANSACTION DESTRUCTION AUDIT FAIL');
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ PHASE 5.5 TRANSACTION DESTRUCTION AUDIT PASS — ${phaseState.status}; Phase 6 remains ${phaseState.phase6Allowed ? 'allowed' : 'blocked'}.`);
+  const recert = phaseState.status === 'CLOSED' ? phaseState.postMergeRecertification?.status : 'NOT_APPLICABLE';
+  console.log(`ENJAZ PHASE 5.5 TRANSACTION DESTRUCTION AUDIT PASS — ${phaseState.status}; post-merge recertification=${recert}; Phase 6 remains ${phaseState.phase6Allowed ? 'allowed' : 'blocked'}.`);
 }
