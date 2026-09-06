@@ -1,0 +1,40 @@
+name: ENJAZ Major Systems — Zero-Escape Closure Gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  zero-escape-governance:
+    name: Major Systems / Fail-Closed Closure Contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Audit M1-M18 closure contract
+        run: node scripts/major-systems-zero-escape-audit.mjs
+
+      - name: Destructively prove the closure gate fails closed
+        run: node scripts/major-systems-zero-escape-selftest.mjs
+
+      - name: Refuse mock-only closure semantics
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'Real Cloud / Real Auth / Real Data' docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md
+          grep -Fq 'Post-merge deployed recertification' docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md
+          grep -Fq 'no closure based only on mocks/previews' docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md
+          grep -Fq 'ZERO_ESCAPE_V1' docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json
