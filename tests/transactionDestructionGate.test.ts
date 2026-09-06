@@ -217,7 +217,7 @@ test('malformed relation and timestamp remain explicit instead of crashing or in
   assert.equal(snapshot.items[0]?.id, TX_ID);
 });
 
-test('stable create operation id makes repeated create retries idempotent and rejects payload drift', async () => {
+test('stable create operation id recovers unknown outcomes without duplicate core or companion writes', async () => {
   const preview = buildTransactionEditorPreviewSource('create');
   const loaded = Object.freeze({ workspaceId: WORKSPACE_ID, source: preview });
   const operationId = '12121212-1212-4212-8212-121212121212';
@@ -230,15 +230,23 @@ test('stable create operation id makes repeated create retries idempotent and re
     priority: 'normal',
     currentFee: '350000',
     completedAt: '',
-    stationName: '',
-    assignedToText: '',
-    stationOccurredAt: '',
-    noteBody: '',
+    stationName: 'شعبة المتابعة',
+    assignedToText: 'الموظف المناوب',
+    stationOccurredAt: '2026-09-06T09:30:00.000Z',
+    noteBody: 'ملاحظة يجب ألا تضيع عند نتيجة إنشاء غير مؤكدة',
     feeChangeReason: '',
   });
+
   let stored: RowOf<'transactions'> | null = null;
+  const routes = new Map<string, RowOf<'transaction_routes'>>();
+  const notes = new Map<string, RowOf<'transaction_notes'>>();
+  const activities = new Map<string, RowOf<'transaction_activity'>>();
   let transactionCreates = 0;
+  let routeCreates = 0;
+  let noteCreates = 0;
   let activityCreates = 0;
+  let firstCoreOutcomeUnknown = true;
+  let firstActivityOutcomeUnknown = true;
 
   const layer = {
     transactions: {
@@ -266,16 +274,75 @@ test('stable create operation id makes repeated create retries idempotent and re
           legacy_id: null,
           legacy_source: null,
         });
+        if (firstCoreOutcomeUnknown) {
+          firstCoreOutcomeUnknown = false;
+          throw new DataAccessError('core create reached server but response was lost', 'DATA_OUTCOME_UNKNOWN');
+        }
         return stored;
       },
     },
-    transactionRoutes: { async create() { throw new Error('unexpected route write'); } },
-    transactionNotes: { async create() { throw new Error('unexpected note write'); } },
+    transactionRoutes: {
+      async getById(id: string) { return routes.get(id) ?? null; },
+      async create(values: Record<string, unknown>) {
+        routeCreates += 1;
+        const row = Object.freeze({
+          id: String(values.id),
+          workspace_id: WORKSPACE_ID,
+          transaction_id: String(values.transaction_id),
+          station_name: String(values.station_name),
+          assigned_to_text: values.assigned_to_text === null ? null : String(values.assigned_to_text),
+          occurred_at: String(values.occurred_at),
+          created_by: values.created_by === null ? null : String(values.created_by),
+          legacy_id: null,
+          legacy_source: null,
+        });
+        routes.set(row.id, row);
+        return row;
+      },
+    },
+    transactionNotes: {
+      async getById(id: string) { return notes.get(id) ?? null; },
+      async create(values: Record<string, unknown>) {
+        noteCreates += 1;
+        const row = Object.freeze({
+          id: String(values.id),
+          workspace_id: WORKSPACE_ID,
+          transaction_id: String(values.transaction_id),
+          body: String(values.body),
+          created_at: NOW.toISOString(),
+          created_by: values.created_by === null ? null : String(values.created_by),
+          legacy_id: null,
+          legacy_source: null,
+        });
+        notes.set(row.id, row);
+        return row;
+      },
+    },
     feeChanges: { async create() { throw new Error('unexpected fee write'); } },
     transactionActivity: {
-      async create(values: unknown) {
+      async getById(id: string) { return activities.get(id) ?? null; },
+      async create(values: Record<string, unknown>) {
         activityCreates += 1;
-        return Object.freeze({ id: `activity-${activityCreates}`, workspace_id: WORKSPACE_ID, ...(values as object) });
+        const row = Object.freeze({
+          id: String(values.id),
+          workspace_id: WORKSPACE_ID,
+          transaction_id: String(values.transaction_id),
+          event_type: String(values.event_type),
+          summary: String(values.summary),
+          occurred_at: String(values.occurred_at),
+          source_entity_type: values.source_entity_type === null ? null : String(values.source_entity_type),
+          source_entity_id: values.source_entity_id === null ? null : String(values.source_entity_id),
+          metadata: values.metadata as RowOf<'transaction_activity'>['metadata'],
+          actor_user_id: values.actor_user_id === null ? null : String(values.actor_user_id),
+          legacy_id: null,
+          legacy_source: null,
+        });
+        activities.set(row.id, row);
+        if (firstActivityOutcomeUnknown) {
+          firstActivityOutcomeUnknown = false;
+          throw new DataAccessError('activity reached server but response was lost', 'DATA_OUTCOME_UNKNOWN');
+        }
+        return row;
       },
     },
   } as unknown as EnjazWorkspaceDataLayer;
@@ -284,14 +351,34 @@ test('stable create operation id makes repeated create retries idempotent and re
     forWorkspace() { return layer; },
   } as EnjazDataLayerFactory;
 
-  const first = await saveTransactionEditorDraft(factory, USER_ID, loaded, 'create', draft, USER_ID, NOW, operationId);
-  const replay = await saveTransactionEditorDraft(factory, USER_ID, loaded, 'create', draft, USER_ID, new Date('2026-09-06T10:05:00.000Z'), operationId);
-
-  assert.equal(first.transaction.id, operationId);
-  assert.equal(replay.transaction.id, operationId);
+  await assert.rejects(
+    () => saveTransactionEditorDraft(factory, USER_ID, loaded, 'create', draft, USER_ID, NOW, operationId),
+    (error: unknown) => error instanceof DataAccessError && error.dataCode === 'DATA_OUTCOME_UNKNOWN',
+  );
   assert.equal(transactionCreates, 1);
+  assert.equal(routeCreates, 0);
+  assert.equal(noteCreates, 0);
+  assert.equal(activityCreates, 0);
+
+  const recovery = await saveTransactionEditorDraft(factory, USER_ID, loaded, 'create', draft, USER_ID, new Date('2026-09-06T10:05:00.000Z'), operationId);
+  assert.equal(recovery.transaction.id, operationId);
+  assert.equal(transactionCreates, 1);
+  assert.equal(routeCreates, 1);
+  assert.equal(noteCreates, 1);
   assert.equal(activityCreates, 1);
-  assert.deepEqual(replay.warnings.map((warning) => warning.code), ['create-replay-detected']);
+  assert.deepEqual(recovery.warnings.map((warning) => warning.code).sort(), ['activity-history-unconfirmed', 'create-replay-detected'].sort());
+  assert.equal(recovery.warnings.find((warning) => warning.code === 'activity-history-unconfirmed')?.outcomeUnknown, true);
+
+  const confirmedReplay = await saveTransactionEditorDraft(factory, USER_ID, loaded, 'create', draft, USER_ID, new Date('2026-09-06T10:10:00.000Z'), operationId);
+  assert.equal(confirmedReplay.transaction.id, operationId);
+  assert.equal(transactionCreates, 1);
+  assert.equal(routeCreates, 1);
+  assert.equal(noteCreates, 1);
+  assert.equal(activityCreates, 1);
+  assert.deepEqual(confirmedReplay.warnings.map((warning) => warning.code), ['create-replay-detected']);
+  assert.equal(routes.size, 1);
+  assert.equal(notes.size, 1);
+  assert.equal(activities.size, 1);
 
   const driftedDraft = Object.freeze({ ...draft, type: 'طلب مختلف لا يجوز أن يستخدم نفس هوية العملية' });
   await assert.rejects(
@@ -299,5 +386,7 @@ test('stable create operation id makes repeated create retries idempotent and re
     TransactionEditorConflictError,
   );
   assert.equal(transactionCreates, 1);
+  assert.equal(routeCreates, 1);
+  assert.equal(noteCreates, 1);
   assert.equal(activityCreates, 1);
 });
