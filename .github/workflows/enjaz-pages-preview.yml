@@ -1,8 +1,9 @@
 name: ENJAZ Pages Preview
 
-# GitHub Pages is a review surface, not canonical-runtime promotion. R2.0-10 keeps
-# production on UiR2ProductionRoot while Pages publishes the isolated Legacy-Zero
-# preview only after both production and preview bundles pass independent budgets.
+# GitHub Pages keeps the frozen Legacy-Zero review surface at the root while also
+# publishing the real Supabase-backed ENJAZ runtime under /live/. The live build
+# fails closed unless the repository exposes the modern public Supabase runtime
+# variables required by src/core/config/env.ts.
 on:
   push:
     branches:
@@ -32,6 +33,11 @@ jobs:
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
     steps:
       - name: Checkout canonical main source
         uses: actions/checkout@v7
@@ -48,20 +54,60 @@ jobs:
       - name: Configure GitHub Pages
         id: pages
         uses: actions/configure-pages@v5
+      - name: Require real Supabase runtime configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${VITE_SUPABASE_URL:-}" || -z "${VITE_SUPABASE_PUBLISHABLE_KEY:-}" ]]; then
+            echo "Real ENJAZ publish requires repository variables VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."
+            exit 1
+          fi
+          if [[ ! "$VITE_SUPABASE_URL" =~ ^https://[^/]+\.supabase\.co/?$ ]]; then
+            echo "VITE_SUPABASE_URL must be an HTTPS hosted Supabase project URL."
+            exit 1
+          fi
+          if [[ "$VITE_SUPABASE_PUBLISHABLE_KEY" != sb_publishable_* ]]; then
+            echo "VITE_SUPABASE_PUBLISHABLE_KEY must use the modern sb_publishable_ format."
+            exit 1
+          fi
       - name: Build canonical production bridge for verification
         run: npm run build -- --base=/
       - name: Enforce canonical production budget
         run: node scripts/dist-budget-audit.mjs
+      - name: Build real ENJAZ runtime for Pages /live
+        run: npm run build -- --base="${{ steps.pages.outputs.base_path }}/live/" --outDir=dist-live
+      - name: Enforce real Pages runtime JavaScript budget
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+          const root = 'dist-live';
+          let total = 0;
+          const walk = (dir) => {
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+              const target = path.join(dir, entry.name);
+              if (entry.isDirectory()) walk(target);
+              else if (/\.m?js$/i.test(entry.name)) total += fs.statSync(target).size;
+            }
+          };
+          walk(root);
+          const limit = 670000;
+          console.log(`Real Pages JS: ${total}/${limit}`);
+          if (total > limit) process.exit(1);
+          NODE
       - name: Build isolated R2 Legacy-Zero preview
         run: npx vite build --config vite.r2-preview.config.ts --base="${{ steps.pages.outputs.base_path }}/"
       - name: Enforce isolated R2 preview budget
         run: node scripts/ui-rebirth-2-preview-budget-audit.mjs
-      - name: Compose isolated R2 preview after both budgets pass
-        run: cp -R dist-r2-preview/. dist/
-      - name: Publish isolated R2 preview as Pages review entry
-        run: cp dist/r2-preview.html dist/index.html
-      - name: Add SPA fallback for Pages review surface
-        run: cp dist/index.html dist/404.html
+      - name: Compose review root and real live runtime
+        run: |
+          rm -rf dist
+          mkdir -p dist/live
+          cp -R dist-r2-preview/. dist/
+          cp dist/r2-preview.html dist/index.html
+          cp dist/index.html dist/404.html
+          cp -R dist-live/. dist/live/
+          cp dist/live/index.html dist/live/404.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
@@ -108,7 +154,7 @@ jobs:
             echo "Legacy Pages publisher probe $i: $state"
             case "$state" in
               completed:success)
-                echo "Legacy branch-source Pages publisher is finished; verified R2 deploy may proceed last."
+                echo "Legacy branch-source Pages publisher is finished; verified deploy may proceed last."
                 exit 0
                 ;;
               completed:*)
@@ -127,8 +173,8 @@ jobs:
             sleep 5
           done
 
-          echo "Legacy branch-source Pages publisher did not settle before the R2 deploy guard expired."
+          echo "Legacy branch-source Pages publisher did not settle before the deploy guard expired."
           exit 1
-      - name: Deploy verified R2 review surface to GitHub Pages
+      - name: Deploy verified review + real ENJAZ runtime to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
