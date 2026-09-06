@@ -6,10 +6,11 @@ Status: **CLOSED**
 
 - Implementation head: `90f6c3bcc718a49ef8ca55dfa2b9e6abff4dff03`
 - Pull request: #88
+- Canonical merge commit: `bd5d66a4e5e7e9e1a47dfa12a2d710dd0ce4537a`
 - Pre-closure result: **23/23 pull-request workflows SUCCESS, 0 failures**
 - unresolved destructive defects: **0**
 - Production JavaScript budget remains **670000 bytes**; certified build = **669966/670000 bytes**.
-- post-merge recertification: **PENDING**. Phase 7 remains locked until the merged canonical `main` is independently recertified.
+- post-merge recertification: **COMPLETE — 8/8 canonical workflows SUCCESS, 0 failures, 0 in-progress**.
 
 ## Destruction scope certified
 
@@ -79,16 +80,32 @@ Cumulative Real Browser Acceptance run `34042034599` also completed **SUCCESS** 
 
 All **23/23** pull-request workflows associated with implementation head `90f6c3bcc718a49ef8ca55dfa2b9e6abff4dff03` completed SUCCESS.
 
+## Canonical post-merge recertification
+
+PR #88 merged into `main` as `bd5d66a4e5e7e9e1a47dfa12a2d710dd0ce4537a`.
+
+The merged canonical commit then passed **8/8 post-merge workflows SUCCESS, 0 failures, 0 in-progress**. Confirmed evidence includes:
+
+- Quality Gate `34042534890` — SUCCESS;
+- Governance Gates `34042534837` — SUCCESS;
+- Canonical Promotion `34042534842` — SUCCESS;
+- WCAG Hardening `34042534865` — SUCCESS;
+- Pages Preview `34042560785` — SUCCESS;
+- Real Browser Acceptance `34042534843` — SUCCESS through Production Bridge;
+- Live External Gate `34042591087` — SUCCESS against the published application.
+
+Detailed canonical evidence: `docs/PHASE6_4_POSTMERGE_RECERTIFICATION.md`.
+
 ## Transition decision
 
-The implementation exit gate has passed with zero unresolved destructive defects. Phase 6.4 is CLOSED at the implementation level.
+The implementation exit gate and canonical post-merge recertification have both passed with zero unresolved destructive defects. Phase 6.4 is fully CLOSED.
 
-The final unlock is deliberately fail-closed:
+Final transition contract:
 
 - `exitGatePassed=true`
 - `unresolvedDefectCount=0`
-- `postMergeRecertification.status=PENDING`
-- `phase7Allowed=false`
-- `nextPhase=null`
+- `postMergeRecertification.status=COMPLETE`
+- `phase7Allowed=true`
+- `nextPhase=7.1`
 
-Only successful canonical post-merge recertification may authorize **Phase 7.1 — Financial Ledger & Summary**.
+**Phase 7.1 — Financial Ledger & Summary is authorized as the next delivery phase.**
