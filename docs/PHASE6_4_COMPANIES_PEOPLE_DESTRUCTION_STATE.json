@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "phase": "6.4",
+  "name": "Companies & People Destruction Gate",
+  "status": "CLOSED",
+  "baseCommit": "ce47fb2123608371139953496fdb95f4c82f2a63",
+  "priorPhase": "6.3",
+  "priorPhaseRecertified": true,
+  "kickoff": "docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_KICKOFF.md",
+  "closureEvidence": "docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_CLOSURE.md",
+  "implementationHead": "90f6c3bcc718a49ef8ca55dfa2b9e6abff4dff03",
+  "scope": [
+    "missingRelations",
+    "duplicates",
+    "hugeNames",
+    "mixedLanguageData",
+    "largeRelationGraphs",
+    "invalidLegacyMappings",
+    "cumulativePhase6Regression",
+    "realBrowserCompaniesPeopleDestruction"
+  ],
+  "productionJavaScriptBudget": 670000,
+  "preClosure": {
+    "workflowCount": 23,
+    "successCount": 23,
+    "failureCount": 0,
+    "productionJavaScriptBytes": 669966,
+    "phase64Run": 34042034658,
+    "phase63Run": 34042034617,
+    "phase62Run": 34042034655,
+    "phase61Run": 34042034665,
+    "qualityRun": 34042034648,
+    "governanceRun": 34042034671,
+    "wcagRun": 34042034632,
+    "destructionRun": 34042034642,
+    "canonicalPromotionRun": 34042034651,
+    "realBrowserRun": 34042034599
+  },
+  "exitGatePassed": true,
+  "unresolvedDefectCount": 0,
+  "knownDefects": [
+    {
+      "id": "P6-4-RELATION-INVALID-DATE",
+      "status": "CLOSED",
+      "summary": "Invalid non-null relationship dates now fail closed instead of becoming current relationships."
+    }
+  ],
+  "phase7Allowed": false,
+  "nextPhase": null,
+  "postMergeRecertification": {
+    "required": true,
+    "status": "PENDING"
+  },
+  "startedAt": "2026-09-06T14:53:00Z",
+  "closedAt": "2026-09-06T15:22:00Z"
+}
