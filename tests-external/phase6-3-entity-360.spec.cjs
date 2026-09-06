@@ -40,11 +40,13 @@ test('company and lawyer 360 compose the same authoritative relationship graph',
   const errors = await openPreview(page);
   const company = page.locator('[data-entity360-kind="company"]');
   const contact = page.locator('[data-entity360-kind="contact"]');
-  await expect(company.getByRole('heading', { name: 'قمر السلطان' })).toBeVisible();
+  await expect(company.getByText('قمر السلطان', { exact: true }).first()).toBeVisible();
+  await expect(company.getByRole('heading', { name: 'ملف 360° للشركة' })).toBeVisible();
   await expect(company.getByText('تعديل عقد تأسيس', { exact: true })).toBeVisible();
   await expect(company.getByText('نور حسين', { exact: true })).toBeVisible();
   await expect(company.getByText('البيانات القانونية', { exact: true })).toBeVisible();
-  await expect(contact.getByRole('heading', { name: 'نور حسين' })).toBeVisible();
+  await expect(contact.getByText('نور حسين', { exact: true }).first()).toBeVisible();
+  await expect(contact.getByRole('heading', { name: 'ملف 360° للشخص' })).toBeVisible();
   await expect(contact.getByText('قمر السلطان', { exact: true })).toBeVisible();
   await expect(contact.getByText('تعديل عقد تأسيس', { exact: true })).toBeVisible();
   await expect(page.getByText('مصادر الحقيقة محفوظة')).toHaveCount(2);
