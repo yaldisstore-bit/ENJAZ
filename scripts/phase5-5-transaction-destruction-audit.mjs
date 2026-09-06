@@ -92,9 +92,14 @@ for (const [label, source] of [['editor', editorHook], ['lifecycle', lifecycleHo
     if (!source.includes(marker)) errors.push(`Transaction ${label} hook missing single-flight mutation guard: ${marker}`);
   }
 }
-if (!editorHook.includes('createOperationId') || !editorHook.includes('saveTransactionEditorDraft(factory, userId, loaded, mode, draft, userId, new Date(), createOperationId)')) {
-  errors.push('Transaction editor hook must preserve one stable create operation id across retries');
-}
+for (const marker of [
+  'createOperationId',
+  'outcomeUnknown',
+  "setStatus(loaded ? 'ready' : 'error')",
+  'setErrors(Object.freeze({ form: message }))',
+  'status === \'saving\' || mutationInFlightRef.current || outcomeUnknown',
+  'saveTransactionEditorDraft(factory, userId, loaded, mode, draft, userId, new Date(), createOperationId)',
+]) if (!editorHook.includes(marker)) errors.push(`Transaction editor hook missing safe uncertain-outcome retry behavior: ${marker}`);
 
 if (!browserSpec) errors.push('Phase 5.5 requires a dedicated real-browser transaction destruction spec');
 for (const marker of [
