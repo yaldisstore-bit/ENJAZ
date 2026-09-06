@@ -202,10 +202,11 @@ export async function saveTransactionEditorDraft(
 
   let saved: RowOf<'transactions'>;
   if (mode === 'create') {
-    if (!createOperationId || !UUID_PATTERN.test(createOperationId)) {
-      throw new TransactionEditorConflictError('Transaction create requires a stable operation id');
+    const operationId = createOperationId ?? globalThis.crypto.randomUUID();
+    if (!UUID_PATTERN.test(operationId)) {
+      throw new TransactionEditorConflictError('Transaction create requires a valid operation id');
     }
-    const replay = await layer.transactions.getById(createOperationId);
+    const replay = await layer.transactions.getById(operationId);
     if (replay) {
       if (!replayMatches(replay, normalized)) {
         throw new TransactionEditorConflictError('Transaction create operation id belongs to a different payload');
@@ -220,7 +221,7 @@ export async function saveTransactionEditorDraft(
       });
     }
     saved = await layer.transactions.create({
-      id: createOperationId,
+      id: operationId,
       company_id: normalized.companyId,
       primary_contact_id: normalized.primaryContactId,
       type: normalized.type,
