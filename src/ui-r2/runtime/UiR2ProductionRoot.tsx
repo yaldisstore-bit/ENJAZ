@@ -11,6 +11,7 @@ import { SessionChecking } from '../../shared/session/SessionChecking.tsx';
 import { R2AuthScreen } from '../auth/R2AuthScreen.tsx';
 import { R2PasswordUpdateScreen } from '../auth/R2PasswordUpdateScreen.tsx';
 import { LiveCompaniesProductionPortal } from '../records/LiveCompaniesProductionPortal.tsx';
+import { LivePeopleProductionPortal } from '../records/LivePeopleProductionPortal.tsx';
 import { UiR2Root } from './UiR2Root.tsx';
 import './shell-base.css';
 import './shell.css';
@@ -71,6 +72,7 @@ function AuthenticatedR2Runtime({ dataFactory }: Readonly<{ dataFactory: EnjazDa
       <CurrentUserIdProvider userId={auth.user.id}>
         <UiR2Root runtimeMode="live" accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} />
         <LiveCompaniesProductionPortal />
+        <LivePeopleProductionPortal />
       </CurrentUserIdProvider>
     </DataLayerProvider>
   );

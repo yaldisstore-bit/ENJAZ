@@ -15,6 +15,7 @@ const paths = {
   prior: 'docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json',
   closure: 'docs/PHASE6_1_COMPANIES_CLOSURE.md',
   postMerge: 'docs/PHASE6_1_POSTMERGE_RECERTIFICATION.md',
+  phase62State: 'docs/PHASE6_2_LAWYERS_CONTACTS_STATE.json',
   model: 'src/features/companies/companyModel.ts',
   service: 'src/features/companies/companyService.ts',
   hooks: 'src/features/companies/useCompanies.ts',
@@ -29,13 +30,14 @@ const paths = {
   detailTest: 'tests/companyDetailService.test.ts',
 };
 for (const [label, file] of Object.entries(paths)) {
-  if (label === 'postMerge') continue;
+  if (label === 'postMerge' || label === 'phase62State') continue;
   if (!exists(file)) errors.push(`missing Phase 6.1 ${label}: ${file}`);
 }
 if (errors.length) { console.error('ENJAZ PHASE 6.1 COMPANIES AUDIT FAIL'); errors.forEach((e) => console.error(`- ${e}`)); process.exit(1); }
 
 const state = json(paths.state);
 const prior = json(paths.prior);
+const phase62 = exists(paths.phase62State) ? json(paths.phase62State) : null;
 const kickoff = read(paths.kickoff);
 const model = read(paths.model);
 const service = read(paths.service);
@@ -94,7 +96,14 @@ for (const marker of ['data-phase6-1="companies"','data-company-source="workspac
 for (const marker of ['عرض فقط في R2.0-6','لا تنفّذ إنشاءً أو تعديلًا أو رفع ملفات إنتاجية','data-records-domain="people"','data-records-domain="documents"']) requireMarker(records, marker, 'frozen records compatibility');
 for (const marker of ['createPortal','MutationObserver','data-r2-runtime-mode="live"','data-destination','data-records-stage="R2.0-6"','data-records-domain="companies"','<ConnectedCompanies />']) requireMarker(portal, marker, 'production Companies portal');
 for (const marker of ['<LiveCompaniesProductionPortal />','<DataLayerProvider','<CurrentUserIdProvider','<UiR2Root runtimeMode="live"']) requireMarker(production, marker, 'production Companies mount');
-for (const marker of ["companies: MutableRepository<'companies'>","companyContacts: ReadRepository<'company_contacts'>"]) requireMarker(data, marker, 'data layer');
+requireMarker(data, "companies: MutableRepository<'companies'>", 'data layer');
+if (phase62) {
+  if (phase62.phase !== '6.2' || phase62.priorPhase !== '6.1' || phase62.priorPhaseRecertified !== true) errors.push('Phase 6.2 state cannot authorize the mutable companyContacts evolution');
+  requireMarker(data, "companyContacts: MutableRepository<'company_contacts'>", 'Phase 6.2 data layer');
+  requireMarker(data, "companyContacts: createMutableRepository(gateway, scope, 'company_contacts')", 'Phase 6.2 data layer factory');
+} else {
+  requireMarker(data, "companyContacts: ReadRepository<'company_contacts'>", 'Phase 6.1 data layer');
+}
 requireMarker(context, 'useOptionalDataLayerFactory', 'data context');
 
 for (const forbidden of ['ConnectedCompanies', 'LiveCompaniesExperienceContext', 'LiveCompaniesProductionPortal', 'useOptionalDataLayerFactory']) {

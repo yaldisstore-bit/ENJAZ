@@ -34,20 +34,20 @@ import {
 export type CompanyLoadState = 'loading' | 'ready' | 'error';
 
 function companyErrorMessage(error: unknown): string {
-  if (error instanceof CompanyWorkspaceUnavailableError) return 'تعذر العثور على مساحة العمل المرتبطة بحسابك.';
-  if (error instanceof CompanyListCapacityError) return 'عدد الشركات أكبر من حد القراءة الآمن الحالي. لم يتم عرض قائمة جزئية أو مضللة.';
-  if (error instanceof CompanyNotFoundError) return 'تعذر العثور على الشركة داخل مساحة العمل الحالية.';
-  if (error instanceof CompanyEditConflictError) return 'تم تعديل الشركة في مكان آخر بعد فتح المحرر. أعد تحميلها قبل الحفظ.';
-  if (error instanceof CompanyMergedRecordError) return 'هذه الشركة مدمجة في سجل آخر ولا يجوز تعديلها من Phase 6.1.';
-  if (error instanceof CompanyCreateReplayConflictError) return 'تعذر تأكيد محاولة الإنشاء السابقة لأن معرّف العملية مرتبط ببيانات مختلفة.';
+  if (error instanceof CompanyWorkspaceUnavailableError) return 'مساحة العمل غير متاحة.';
+  if (error instanceof CompanyListCapacityError) return 'تجاوزت الشركات حد القراءة.';
+  if (error instanceof CompanyNotFoundError) return 'الشركة غير موجودة.';
+  if (error instanceof CompanyEditConflictError) return 'تغيرت الشركة؛ أعد التحميل.';
+  if (error instanceof CompanyMergedRecordError) return 'السجل المدمج للقراءة فقط.';
+  if (error instanceof CompanyCreateReplayConflictError) return 'معرف الإنشاء مستخدم لبيانات مختلفة.';
   if (error instanceof DataAccessError) {
-    if (error.dataCode === 'DATA_FORBIDDEN') return 'ليس لديك صلاحية للوصول إلى بيانات الشركات في مساحة العمل.';
-    if (error.dataCode === 'DATA_UNAVAILABLE') return 'تعذر الوصول إلى بيانات الشركات الآن. تحقق من الاتصال ثم أعد المحاولة.';
-    if (error.dataCode === 'DATA_OUTCOME_UNKNOWN') return 'تعذر تأكيد نتيجة الحفظ. احتفظنا بنفس العملية حتى لا تتكرر الشركة عند إعادة المحاولة.';
-    if (error.dataCode === 'DATA_CONFLICT' || error.dataCode === 'DATA_REFERENCE_CONFLICT') return 'تعارضت العملية مع سجل مرتبط. أعد تحميل البيانات قبل المحاولة.';
-    if (error.dataCode === 'DATA_VALIDATION_FAILED') return 'رفضت قاعدة البيانات بعض بيانات الشركة. راجع الحقول وحاول مجددًا.';
+    if (error.dataCode === 'DATA_FORBIDDEN') return 'لا توجد صلاحية.';
+    if (error.dataCode === 'DATA_UNAVAILABLE') return 'تعذر تحميل الشركات.';
+    if (error.dataCode === 'DATA_OUTCOME_UNKNOWN') return 'نتيجة الحفظ غير مؤكدة؛ أعد المحاولة.';
+    if (error.dataCode === 'DATA_CONFLICT' || error.dataCode === 'DATA_REFERENCE_CONFLICT') return 'تعارضت البيانات؛ أعد التحميل.';
+    if (error.dataCode === 'DATA_VALIDATION_FAILED') return 'بيانات الشركة مرفوضة.';
   }
-  return 'حدث خطأ غير متوقع في مساحة الشركات. لم يتم إظهار نجاح أو بيانات جزئية زائفة.';
+  return 'تعذر إكمال العملية.';
 }
 
 export interface CompanyDirectoryController {
@@ -78,7 +78,7 @@ export function useCompanyDirectory(): CompanyDirectoryController {
     if (!userId) {
       setSource(null);
       setStatus('error');
-      setErrorMessage('انتهت جلسة المستخدم. سجّل الدخول مرة أخرى.');
+      setErrorMessage('انتهت الجلسة.');
       return () => { active = false; };
     }
     setStatus('loading');
@@ -138,7 +138,7 @@ export function useCompanyDetail(companyId: string | null): CompanyDetailControl
     if (!userId) {
       setSource(null);
       setStatus('error');
-      setErrorMessage('انتهت جلسة المستخدم. سجّل الدخول مرة أخرى.');
+      setErrorMessage('انتهت الجلسة.');
       return () => { active = false; };
     }
     setStatus('loading');
@@ -205,12 +205,12 @@ export function useCompanyEditor(mode: 'create' | 'edit', company: RowOf<'compan
     }
     if (!userId) {
       setState('error');
-      setErrorMessage('انتهت جلسة المستخدم. سجّل الدخول مرة أخرى.');
+      setErrorMessage('انتهت الجلسة.');
       return;
     }
     if (mode === 'edit' && !company) {
       setState('error');
-      setErrorMessage('تعذر فتح سجل صالح للتعديل.');
+      setErrorMessage('سجل التعديل غير متاح.');
       return;
     }
     if (mode === 'create' && !createOperationIdRef.current) createOperationIdRef.current = globalThis.crypto.randomUUID();
