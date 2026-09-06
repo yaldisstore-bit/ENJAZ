@@ -5,7 +5,7 @@ import type { DataPage, ListRequest, RowOf } from '../src/data/contracts/dataTyp
 import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../src/data/createDataLayer.ts';
 import { buildTransactionListSnapshot } from '../src/features/transactions/transactionListModel.ts';
 import { loadTransactionListSource } from '../src/features/transactions/transactionListService.ts';
-import { createTransactionEditDraft } from '../src/features/transactions/transactionEditorModel.ts';
+import { createTransactionEditDraft, type TransactionEditorDraft } from '../src/features/transactions/transactionEditorModel.ts';
 import { buildTransactionEditorPreviewSource } from '../src/features/transactions/transactionEditorPreview.ts';
 import { loadTransactionEditorSource, saveTransactionEditorDraft, TransactionEditorConflictError } from '../src/features/transactions/transactionEditorService.ts';
 import { applyTransactionLifecycleAction, loadTransactionLifecycleContext, TransactionLifecycleConflictError } from '../src/features/transactions/transactionLifecycleService.ts';
@@ -215,4 +215,89 @@ test('malformed relation and timestamp remain explicit instead of crashing or in
   assert.equal(snapshot.items[0]?.companyMissing, true);
   assert.equal(snapshot.items[0]?.companyLabel, 'بيانات الشركة غير متاحة');
   assert.equal(snapshot.items[0]?.id, TX_ID);
+});
+
+test('stable create operation id makes repeated create retries idempotent and rejects payload drift', async () => {
+  const preview = buildTransactionEditorPreviewSource('create');
+  const loaded = Object.freeze({ workspaceId: WORKSPACE_ID, source: preview });
+  const operationId = '12121212-1212-4212-8212-121212121212';
+  const draft: TransactionEditorDraft = Object.freeze({
+    companyId: preview.companies[0]!.id,
+    primaryContactId: '',
+    type: 'تجديد إجازة شركة',
+    department: 'مسجل الشركات',
+    status: 'active',
+    priority: 'normal',
+    currentFee: '350000',
+    completedAt: '',
+    stationName: '',
+    assignedToText: '',
+    stationOccurredAt: '',
+    noteBody: '',
+    feeChangeReason: '',
+  });
+  let stored: RowOf<'transactions'> | null = null;
+  let transactionCreates = 0;
+  let activityCreates = 0;
+
+  const layer = {
+    transactions: {
+      async getById(id: string) { return stored?.id === id ? stored : null; },
+      async create(values: Record<string, unknown>) {
+        transactionCreates += 1;
+        stored = Object.freeze({
+          id: String(values.id),
+          workspace_id: WORKSPACE_ID,
+          company_id: String(values.company_id),
+          primary_contact_id: values.primary_contact_id === null ? null : String(values.primary_contact_id),
+          type: String(values.type),
+          department: values.department === null ? null : String(values.department),
+          status: String(values.status),
+          priority: String(values.priority),
+          current_fee: Number(values.current_fee),
+          created_at: NOW.toISOString(),
+          updated_at: NOW.toISOString(),
+          last_activity_at: String(values.last_activity_at),
+          completed_at: values.completed_at === null ? null : String(values.completed_at),
+          archived_at: null,
+          deleted_at: null,
+          deleted_by: null,
+          deletion_reason: null,
+          legacy_id: null,
+          legacy_source: null,
+        });
+        return stored;
+      },
+    },
+    transactionRoutes: { async create() { throw new Error('unexpected route write'); } },
+    transactionNotes: { async create() { throw new Error('unexpected note write'); } },
+    feeChanges: { async create() { throw new Error('unexpected fee write'); } },
+    transactionActivity: {
+      async create(values: unknown) {
+        activityCreates += 1;
+        return Object.freeze({ id: `activity-${activityCreates}`, workspace_id: WORKSPACE_ID, ...(values as object) });
+      },
+    },
+  } as unknown as EnjazWorkspaceDataLayer;
+  const factory = {
+    async resolveWorkspaceId() { return WORKSPACE_ID; },
+    forWorkspace() { return layer; },
+  } as EnjazDataLayerFactory;
+
+  const first = await saveTransactionEditorDraft(factory, USER_ID, loaded, 'create', draft, USER_ID, NOW, operationId);
+  const replay = await saveTransactionEditorDraft(factory, USER_ID, loaded, 'create', draft, USER_ID, new Date('2026-09-06T10:05:00.000Z'), operationId);
+
+  assert.equal(first.transaction.id, operationId);
+  assert.equal(replay.transaction.id, operationId);
+  assert.equal(transactionCreates, 1);
+  assert.equal(activityCreates, 1);
+  assert.deepEqual(replay.warnings.map((warning) => warning.code), ['create-replay-detected']);
+
+  const driftedDraft = Object.freeze({ ...draft, type: 'طلب مختلف لا يجوز أن يستخدم نفس هوية العملية' });
+  await assert.rejects(
+    () => saveTransactionEditorDraft(factory, USER_ID, loaded, 'create', driftedDraft, USER_ID, NOW, operationId),
+    TransactionEditorConflictError,
+  );
+  assert.equal(transactionCreates, 1);
+  assert.equal(activityCreates, 1);
 });
