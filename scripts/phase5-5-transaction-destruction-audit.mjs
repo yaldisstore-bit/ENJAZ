@@ -13,6 +13,9 @@ const unlock = read('docs/PHASE5_5_UNLOCK_DECISION.md');
 const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 const workflow = read('.github/workflows/phase5-5-transaction-destruction.yml');
 const destructionTest = read('tests/transactionDestructionGate.test.ts');
+const editorService = read('src/features/transactions/transactionEditorService.ts');
+const editorHook = read('src/features/transactions/useTransactionEditor.ts');
+const lifecycleHook = read('src/features/transactions/useTransactionLifecycle.ts');
 const browserSpecPath = 'tests-external/phase5-5-transaction-destruction.spec.cjs';
 const browserSpec = exists(browserSpecPath) ? read(browserSpecPath) : '';
 
@@ -61,7 +64,27 @@ for (const marker of [
   'repeated archive intent',
   'stale editor context',
   'malformed relation',
+  'stable create operation id',
+  'create-replay-detected',
+  'payload drift',
 ]) if (!destructionTest.includes(marker)) errors.push(`Phase 5.5 destruction test missing attack marker: ${marker}`);
+
+for (const marker of [
+  'createOperationId',
+  'globalThis.crypto.randomUUID()',
+  'create-replay-detected',
+  'replayMatches',
+  'layer.transactions.getById(operationId)',
+]) if (!editorService.includes(marker)) errors.push(`Transaction editor service missing duplicate-create defense: ${marker}`);
+
+for (const [label, source] of [['editor', editorHook], ['lifecycle', lifecycleHook]]) {
+  for (const marker of ['useRef', 'mutationInFlightRef.current', 'finally']) {
+    if (!source.includes(marker)) errors.push(`Transaction ${label} hook missing single-flight mutation guard: ${marker}`);
+  }
+}
+if (!editorHook.includes('createOperationId') || !editorHook.includes('saveTransactionEditorDraft(factory, userId, loaded, mode, draft, userId, new Date(), createOperationId)')) {
+  errors.push('Transaction editor hook must preserve one stable create operation id across retries');
+}
 
 if (!browserSpec) errors.push('Phase 5.5 requires a dedicated real-browser transaction destruction spec');
 for (const marker of [
