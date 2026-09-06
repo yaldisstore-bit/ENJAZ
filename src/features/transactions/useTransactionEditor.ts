@@ -36,6 +36,7 @@ export interface TransactionEditorController {
   readonly errorMessage: string | null;
   readonly warnings: readonly TransactionEditorWarning[];
   readonly savedTransactionId: string | null;
+  readonly outcomeUnknown: boolean;
   readonly update: (field: TransactionEditorField, value: string) => void;
   readonly submit: () => Promise<boolean>;
   readonly retry: () => void;
@@ -49,7 +50,7 @@ function toEditorErrorMessage(error: unknown): string {
   if (error instanceof TransactionEditorCapacityError) return 'حجم بيانات الشركات أو جهات الاتصال أكبر من حد المحرر الآمن الحالي. لم يتم عرض قائمة جزئية.';
   if (error instanceof DataAccessError) {
     if (error.dataCode === 'DATA_FORBIDDEN') return 'ليس لديك صلاحية لتنفيذ هذا التعديل في مساحة العمل الحالية.';
-    if (error.dataCode === 'DATA_OUTCOME_UNKNOWN') return 'انتهت مهلة الحفظ قبل تأكيد النتيجة. أعد المحاولة من نفس المحرر فقط؛ هوية العملية ثابتة وستمنع إنشاء نسخة ثانية.';
+    if (error.dataCode === 'DATA_OUTCOME_UNKNOWN') return 'انتهت مهلة الحفظ قبل تأكيد النتيجة. بقيت نفس الحقول وهوية العملية مقفلة؛ أعد الحفظ كما هو لتأكيد النتيجة دون إنشاء نسخة ثانية.';
     if (error.dataCode === 'DATA_UNAVAILABLE') return 'تعذر الوصول إلى بيانات المعاملة الآن. تحقق من الاتصال ثم أعد المحاولة.';
   }
   return 'حدث خطأ غير متوقع أثناء تجهيز أو حفظ المعاملة.';
@@ -66,6 +67,7 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<readonly TransactionEditorWarning[]>([]);
   const [savedTransactionId, setSavedTransactionId] = useState<string | null>(null);
+  const [outcomeUnknown, setOutcomeUnknown] = useState(false);
   const mutationInFlightRef = useRef(false);
   const createOperationId = useMemo(
     () => mode === 'create' ? globalThis.crypto.randomUUID() : null,
@@ -79,6 +81,7 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
     setErrorMessage(null);
     setWarnings([]);
     setSavedTransactionId(null);
+    setOutcomeUnknown(false);
     if (!userId) {
       setLoaded(null);
       setStatus('error');
@@ -115,8 +118,9 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
     errorMessage,
     warnings,
     savedTransactionId,
+    outcomeUnknown,
     update(field: TransactionEditorField, value: string) {
-      if (status === 'saving' || mutationInFlightRef.current) return;
+      if (status === 'saving' || mutationInFlightRef.current || outcomeUnknown) return;
       setDraft((current) => {
         const next: Record<TransactionEditorField, string> = { ...current, [field]: value };
         if (field === 'companyId' && source && current.primaryContactId) {
@@ -151,10 +155,13 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
         const result = await saveTransactionEditorDraft(factory, userId, loaded, mode, draft, userId, new Date(), createOperationId);
         setWarnings(result.warnings);
         setSavedTransactionId(result.transaction.id);
+        setOutcomeUnknown(false);
         setStatus('saved');
         return true;
       } catch (error: unknown) {
-        setStatus('error');
+        const unknownOutcome = error instanceof DataAccessError && error.dataCode === 'DATA_OUTCOME_UNKNOWN';
+        setOutcomeUnknown(unknownOutcome);
+        setStatus(loaded ? 'ready' : 'error');
         setErrorMessage(toEditorErrorMessage(error));
         return false;
       } finally {
@@ -166,7 +173,7 @@ export function useTransactionEditor(mode: TransactionEditorMode, transactionId:
       if (!savedTransactionId) return;
       setAttempt((value) => value + 1);
     },
-  }), [createOperationId, draft, errorMessage, errors, factory, loaded, mode, savedTransactionId, source, status, transactionId, userId, warnings]);
+  }), [createOperationId, draft, errorMessage, errors, factory, loaded, mode, outcomeUnknown, savedTransactionId, source, status, transactionId, userId, warnings]);
 
   return controller;
 }
