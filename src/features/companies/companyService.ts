@@ -33,47 +33,12 @@ export interface CompanyDetailSource {
   }>;
 }
 
-export class CompanyWorkspaceUnavailableError extends Error {
-  constructor() {
-    super('No ENJAZ workspace is available for the authenticated user');
-    this.name = 'CompanyWorkspaceUnavailableError';
-  }
-}
-
-export class CompanyListCapacityError extends Error {
-  constructor() {
-    super(`Company list exceeds the Phase 6.1 safe source limit of ${COMPANY_SOURCE_LIMIT} rows`);
-    this.name = 'CompanyListCapacityError';
-  }
-}
-
-export class CompanyNotFoundError extends Error {
-  constructor() {
-    super('Company was not found in the current workspace');
-    this.name = 'CompanyNotFoundError';
-  }
-}
-
-export class CompanyEditConflictError extends Error {
-  constructor() {
-    super('Company changed after the editor was loaded');
-    this.name = 'CompanyEditConflictError';
-  }
-}
-
-export class CompanyMergedRecordError extends Error {
-  constructor() {
-    super('Merged company records cannot be edited in Phase 6.1');
-    this.name = 'CompanyMergedRecordError';
-  }
-}
-
-export class CompanyCreateReplayConflictError extends Error {
-  constructor() {
-    super('The stable company create operation id already belongs to different data');
-    this.name = 'CompanyCreateReplayConflictError';
-  }
-}
+export class CompanyWorkspaceUnavailableError extends Error { constructor() { super('workspace unavailable'); } }
+export class CompanyListCapacityError extends Error { constructor() { super('company capacity'); } }
+export class CompanyNotFoundError extends Error { constructor() { super('company missing'); } }
+export class CompanyEditConflictError extends Error { constructor() { super('company changed'); } }
+export class CompanyMergedRecordError extends Error { constructor() { super('company merged'); } }
+export class CompanyCreateReplayConflictError extends Error { constructor() { super('create replay conflict'); } }
 
 async function resolveLayer(factory: EnjazDataLayerFactory, userId: string): Promise<Readonly<{ workspaceId: string; layer: EnjazWorkspaceDataLayer }>> {
   const workspaceId = await factory.resolveWorkspaceId(userId);
@@ -94,7 +59,7 @@ async function collectCompanies(layer: EnjazWorkspaceDataLayer): Promise<readonl
     rows.push(...page.items);
     if (rows.length > COMPANY_SOURCE_LIMIT) throw new CompanyListCapacityError();
     if (!page.hasMore) return Object.freeze(rows);
-    if (page.items.length === 0) throw new Error('Non-progressing company source page');
+    if (page.items.length === 0) throw new Error('company page stalled');
     offset += page.items.length;
   }
 }
@@ -213,13 +178,13 @@ export async function saveCompany(
   options: Readonly<{ companyId?: string | null; expectedUpdatedAt?: string | null; createOperationId?: string | null }> = {},
 ): Promise<RowOf<'companies'>> {
   const validation = validateCompanyDraft(draft);
-  if (!validation.value) throw new Error('Company draft failed model validation');
+  if (!validation.value) throw new Error('invalid company draft');
   const value = validation.value;
   const { layer } = await resolveLayer(factory, userId);
 
   if (mode === 'create') {
     const operationId = options.createOperationId?.trim();
-    if (!operationId) throw new Error('Stable company create operation id is required');
+    if (!operationId) throw new Error('create id required');
     const existing = await layer.companies.getById(operationId);
     if (existing) {
       if (sameCreatePayload(existing, value)) return existing;
