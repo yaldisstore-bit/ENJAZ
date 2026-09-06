@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "phase": "6.1",
+  "name": "Companies",
+  "status": "ACTIVE",
+  "baseCommit": "3381dfdb3d85f36836052e6611d5d14e12cfb7f7",
+  "priorPhase": "5.5",
+  "priorPhaseRecertified": true,
+  "kickoff": "docs/PHASE6_1_COMPANIES_KICKOFF.md",
+  "scope": [
+    "companyList",
+    "companySearch",
+    "companyFilters",
+    "companyCreate",
+    "companyEdit",
+    "companyDetails",
+    "relatedTransactions",
+    "relatedDocuments",
+    "financeContext",
+    "contactContext",
+    "companyActivity",
+    "companyRisk"
+  ],
+  "boundaries": {
+    "peopleRelationshipManagement": "6.2",
+    "companyLawyer360": "6.3",
+    "fullFinance": "7",
+    "documentOperations": "10"
+  },
+  "sourceOfTruth": "workspace-scoped EnjazDataLayerFactory",
+  "safeCompanySourceLimit": 5000,
+  "exitGatePassed": false,
+  "unresolvedDefectCount": null,
+  "phase6_2Allowed": false,
+  "startedAt": "2026-09-06T08:50:00Z"
+}
