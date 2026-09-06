@@ -1,0 +1,25 @@
+{
+  "phase": "7.1",
+  "name": "Financial Ledger & Summary",
+  "status": "IN_PROGRESS",
+  "startedFromMain": "41412b2402f705449f6030b8fe414271ffbdb330",
+  "startedAfterPhase": "6.4",
+  "readOnly": true,
+  "authoritativeSources": [
+    "transactions.current_fee",
+    "payments",
+    "payment_reversals",
+    "financial_ledger_entries",
+    "cashbox_accounts",
+    "companies"
+  ],
+  "moneyRepresentation": "bigint-cents",
+  "writeOperationsAllowed": false,
+  "phase7_2Allowed": false,
+  "nextPhase": null,
+  "exitGatePassed": false,
+  "unresolvedDefectCount": 0,
+  "postMergeRecertification": {
+    "status": "NOT_STARTED"
+  }
+}
