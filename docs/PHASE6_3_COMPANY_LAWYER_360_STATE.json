@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "phase": "6.3",
+  "name": "Company / Lawyer 360°",
+  "status": "CLOSED",
+  "baseCommit": "57d7a3614e2d04add7fd47ae683509f69e1ca662",
+  "priorPhase": "6.2",
+  "priorPhaseRecertified": true,
+  "kickoff": "docs/PHASE6_3_COMPANY_LAWYER_360_KICKOFF.md",
+  "closureEvidence": "docs/PHASE6_3_COMPANY_LAWYER_360_CLOSURE.md",
+  "postMergeEvidence": null,
+  "implementationHead": "c3d8d886424c52113b8bf78bdace95528f429c5f",
+  "scope": [
+    "company360",
+    "lawyerContact360",
+    "unifiedContextComposition",
+    "relationshipContext",
+    "transactionContext",
+    "documentContext",
+    "operationalRiskContext",
+    "boundedFinancialContext"
+  ],
+  "boundaries": {
+    "companiesPeopleDestruction": "6.4",
+    "fullFinance": "7",
+    "workflowAutomation": "8",
+    "documentOperations": "10"
+  },
+  "sourceOfTruth": "reuse Phase 6.1/6.2 workspace-scoped authoritative loaders and repositories",
+  "productionJavaScriptBudget": 670000,
+  "preClosure": {
+    "workflowCount": 22,
+    "successCount": 22,
+    "failureCount": 0,
+    "productionJavaScriptBytes": 669997,
+    "phase63Run": 34037876673,
+    "phase62Run": 34037876628,
+    "phase61Run": 34037876709,
+    "qualityRun": 34037876624,
+    "governanceRun": 34037876746,
+    "wcagRun": 34037876654,
+    "destructionRun": 34037876794,
+    "realBrowserRun": 34037876774
+  },
+  "postMergeRecertification": {
+    "required": true,
+    "status": "PENDING"
+  },
+  "exitGatePassed": true,
+  "unresolvedDefectCount": 0,
+  "phase6_4Allowed": false,
+  "phase7Allowed": false,
+  "nextPhase": null,
+  "startedAt": "2026-09-06T13:20:00Z"
+}
