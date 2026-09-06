@@ -39,7 +39,14 @@ const stageIndex = stageOrder.indexOf(state.stage);
 
 if (stageIndex < 7) errors.push(`operational guard requires R2.0-7 or later, found ${state.stage}`);
 if (state.phase55Locked !== true) errors.push('Phase 5.5 must remain locked');
-if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 before R2.0-11');
+if (stageIndex < 11) {
+  if (state.runtime !== 'ui-v2') errors.push('canonical runtime must remain ui-v2 before R2.0-11');
+  if (state.promotion?.requested !== false || state.promotion?.allowed !== false) errors.push('canonical promotion must remain blocked before R2.0-11');
+  if (/ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('src/main.tsx must not boot UiR2Root before R2.0-11');
+} else {
+  if (!['ui-r2-candidate','ui-r2'].includes(state.runtime)) errors.push('R2.0-11 must use ui-r2-candidate or ui-r2 runtime label');
+  if (state.promotion?.requested !== true) errors.push('R2.0-11 must explicitly request canonical promotion');
+}
 if (state.goldenExperience?.status !== 'APPROVED' || state.goldenExperience?.userApproved !== true) errors.push('R2.0-7 requires approved Golden identity');
 if (state.coreWorkMigration?.status !== 'CLOSED' || state.coreWorkMigration?.exitGatePassed !== true) errors.push('R2.0-5 must remain closed');
 if (state.recordsRelationships?.status !== 'CLOSED' || state.recordsRelationships?.exitGatePassed !== true) errors.push('R2.0-6 must remain closed before R2.0-7');
@@ -47,8 +54,6 @@ if (!['ACTIVE', 'CLOSED'].includes(state.operationalIntelligence?.status)) error
 if (stageIndex > 7 && (state.operationalIntelligence?.status !== 'CLOSED' || state.operationalIntelligence?.exitGatePassed !== true)) errors.push(`R2.0-7 must remain CLOSED after advancing to ${state.stage}`);
 if (state.operationalIntelligence?.taskAppropriateComposition !== true) errors.push('R2.0-7 requires task-appropriate composition');
 if (state.operationalIntelligence?.canonicalRuntimeChanged !== false) errors.push('R2.0-7 cannot change canonical runtime');
-if (state.promotion?.requested !== false || state.promotion?.allowed !== false) errors.push('canonical promotion must remain blocked');
-if (/ui-r2\/runtime\/UiR2Root/.test(main)) errors.push('src/main.tsx must not boot UiR2Root before R2.0-11');
 
 const expectedScope = ['finance', 'operations', 'workflow', 'automation', 'command', 'risk', 'copilot'];
 const expectedCapabilities = ['finance.workspace', 'operations.workspace', 'workflow.workspace', 'automation.workspace', 'command.workspace', 'risk.workspace', 'copilot.workspace'];
