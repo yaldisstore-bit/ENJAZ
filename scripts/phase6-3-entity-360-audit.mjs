@@ -27,7 +27,7 @@ if (prior.status !== 'CLOSED' || prior.exitGatePassed !== true || prior.unresolv
 if (state.exitGatePassed !== false || state.phase6_4Allowed !== false || state.phase7Allowed !== false || state.nextPhase != null) errors.push('ACTIVE Phase 6.3 must fail closed and keep Phase 6.4/7 locked');
 if (state.productionJavaScriptBudget !== 670000) errors.push('Phase 6.3 must preserve the 670000-byte production JavaScript budget');
 
-for (const marker of ['Status: **ACTIVE / NOT CLOSED**','Unified contextual 360° view','source-of-truth','Phase 6.4','Phase 7','670000']) requireMarker(kickoff, marker, 'kickoff');
+for (const marker of ['Status: **ACTIVE / NOT CLOSED**','unified contextual 360° view','source-of-truth','Phase 6.4','Phase 7','670000']) requireMarker(kickoff, marker, 'kickoff');
 for (const marker of ['loadCompanyDetailSource','loadContactProfileSource','loadEntity360Source','buildCompany360Source','buildContact360Source','truncatedScopes','openBlockers','safeMoney']) requireMarker(service, marker, '360 service');
 for (const marker of ['Entity360Panel','data-phase6-3="company-lawyer-360"','data-entity360-kind','السياق المالي','مصادر الحقيقة محفوظة','Phase 7']) requireMarker(panel, marker, '360 panel');
 for (const marker of ['company 360','contact 360','fails safe']) requireMarker(testSource, marker, '360 tests');
