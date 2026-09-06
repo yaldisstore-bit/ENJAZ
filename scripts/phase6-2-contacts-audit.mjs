@@ -65,18 +65,21 @@ if (state.status === 'CLOSED') {
   const recert = state.postMergeRecertification;
   if (recert?.required !== true || !['PENDING', 'COMPLETE'].includes(recert?.status)) errors.push('CLOSED Phase 6.2 requires an explicit post-merge recertification state');
   const closure = exists(paths.closure) ? read(paths.closure) : '';
-  for (const marker of ['Status: **CLOSED — post-merge recertification pending**','d11875962963fb0c734fe1695ca4bd9c7de081b1','21/21 pull-request workflows SUCCESS','669889/670000','unresolvedDefectCount=0','phase6_3Allowed=false','Phase 6.3 — Company / Lawyer 360°']) requireMarker(closure, marker, 'Phase 6.2 closure evidence');
+  for (const marker of ['d11875962963fb0c734fe1695ca4bd9c7de081b1','21/21 pull-request workflows SUCCESS','669889/670000','unresolvedDefectCount=0','Phase 6.3 — Company / Lawyer 360°']) requireMarker(closure, marker, 'Phase 6.2 closure evidence');
   if (recert?.status === 'PENDING') {
     if (state.phase6_3Allowed !== false) errors.push('Phase 6.3 must remain locked while Phase 6.2 post-merge recertification is pending');
     if (state.nextPhase != null) errors.push('Phase 6.2 must not publish a next phase before post-merge recertification completes');
+    for (const marker of ['Status: **CLOSED — post-merge recertification pending**','phase6_3Allowed=false']) requireMarker(closure, marker, 'Phase 6.2 pending closure evidence');
   }
   if (recert?.status === 'COMPLETE') {
     if (state.phase6_3Allowed !== true || state.nextPhase !== '6.3') errors.push('Phase 6.3 may be allowed only after Phase 6.2 post-merge recertification completes');
-    if (!/^[0-9a-f]{40}$/.test(recert.mainCommit ?? '')) errors.push('completed Phase 6.2 recertification requires a canonical main commit SHA');
+    if (recert.mainCommit !== 'e35555237d6a631e55a0c248bea0f22d0cbd0c37') errors.push('completed Phase 6.2 recertification must preserve the certified canonical main commit');
     if (recert.workflowCount !== 8 || recert.successCount !== 8 || recert.failureCount !== 0) errors.push('completed Phase 6.2 recertification requires 8/8 workflows SUCCESS with zero failures');
+    if (recert.governanceRun !== 34034618839 || recert.realBrowserRun !== 34034618747 || recert.pagesRun !== 34034638895 || recert.liveExternalRun !== 34034668227) errors.push('Phase 6.2 post-merge key run evidence drifted');
     if (!state.postMergeEvidence || state.postMergeEvidence !== paths.postMerge || !exists(paths.postMerge)) errors.push('completed Phase 6.2 recertification requires a canonical evidence file');
+    for (const marker of ['Status: **CLOSED — canonical post-merge recertification COMPLETE**','e35555237d6a631e55a0c248bea0f22d0cbd0c37','8/8 post-merge workflows SUCCESS','phase6_3Allowed=true','Phase 6.3 — Company / Lawyer 360°']) requireMarker(closure, marker, 'Phase 6.2 complete closure evidence');
     const postMerge = exists(paths.postMerge) ? read(paths.postMerge) : '';
-    for (const marker of ['Status: **COMPLETE**', recert.mainCommit ?? '__missing__', '8/8 post-merge workflows SUCCESS', 'Attack the actual published application', 'phase6_3Allowed=true', 'Phase 6.3 — Company / Lawyer 360°']) requireMarker(postMerge, marker, 'Phase 6.2 post-merge evidence');
+    for (const marker of ['Status: **COMPLETE**','e35555237d6a631e55a0c248bea0f22d0cbd0c37','8/8 post-merge workflows SUCCESS','34034618703','34034618764','34034618747','34034618752','34034618839','34034618000','34034638895','34034668227','Attack the actual published application','phase6_3Allowed=true','Phase 6.3 — Company / Lawyer 360°']) requireMarker(postMerge, marker, 'Phase 6.2 post-merge evidence');
   }
 }
 

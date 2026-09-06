@@ -8,7 +8,7 @@
   "priorPhaseRecertified": true,
   "kickoff": "docs/PHASE6_2_LAWYERS_CONTACTS_KICKOFF.md",
   "closureEvidence": "docs/PHASE6_2_LAWYERS_CONTACTS_CLOSURE.md",
-  "postMergeEvidence": null,
+  "postMergeEvidence": "docs/PHASE6_2_POSTMERGE_RECERTIFICATION.md",
   "implementationHead": "d11875962963fb0c734fe1695ca4bd9c7de081b1",
   "scope": [
     "contactList",
@@ -32,8 +32,8 @@
   "safeContactSourceLimit": 5000,
   "exitGatePassed": true,
   "unresolvedDefectCount": 0,
-  "phase6_3Allowed": false,
-  "nextPhase": null,
+  "phase6_3Allowed": true,
+  "nextPhase": "6.3",
   "preClosure": {
     "workflowCount": 21,
     "successCount": 21,
@@ -48,16 +48,16 @@
   },
   "postMergeRecertification": {
     "required": true,
-    "status": "PENDING",
-    "mainCommit": null,
-    "workflowCount": 0,
-    "successCount": 0,
+    "status": "COMPLETE",
+    "mainCommit": "e35555237d6a631e55a0c248bea0f22d0cbd0c37",
+    "workflowCount": 8,
+    "successCount": 8,
     "failureCount": 0,
-    "governanceRun": null,
-    "realBrowserRun": null,
-    "pagesRun": null,
-    "liveExternalRun": null,
-    "completedAt": null
+    "governanceRun": 34034618839,
+    "realBrowserRun": 34034618747,
+    "pagesRun": 34034638895,
+    "liveExternalRun": 34034668227,
+    "completedAt": "2026-09-06T12:59:14Z"
   },
   "startedAt": "2026-09-06T11:00:00Z",
   "closedAt": "2026-09-06T12:49:00Z"

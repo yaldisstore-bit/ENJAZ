@@ -1,8 +1,8 @@
 # Phase 6.2 — Lawyers / Contacts Closure
 
-Status: **CLOSED — post-merge recertification pending**
+Status: **CLOSED — canonical post-merge recertification COMPLETE**
 
-Phase 6.2 closes the Lawyers / Contacts scope only. Phase 6.3 remains locked until the merged `main` commit independently passes the canonical post-merge recertification gates.
+Phase 6.2 closes the Lawyers / Contacts scope only. Its implementation and closure state were merged into canonical `main`, then independently recertified before Phase 6.3 was authorized.
 
 ## Certified implementation head
 
@@ -82,14 +82,36 @@ All remaining cumulative pull-request workflows on the certified head also compl
 - contact and company-contact mutations remain behind typed repositories and workspace scope
 - frozen R2 records preview remains isolated from live Phase 6.2 implementation
 
+## Canonical post-merge recertification
+
+PR #83 was merged into `main` at:
+
+`e35555237d6a631e55a0c248bea0f22d0cbd0c37`
+
+That merged commit completed **8/8 post-merge workflows SUCCESS, 0 failures**.
+
+Key canonical evidence:
+
+- R2.0-11 Canonical Promotion Gate: run `34034618703` — SUCCESS
+- Quality Gate: run `34034618764` — SUCCESS
+- Real Browser Acceptance: run `34034618747` — SUCCESS through Production Bridge
+- WCAG Hardening Gate: run `34034618752` — SUCCESS
+- Governance Gates: run `34034618839` — SUCCESS
+- Pages build and deployment: run `34034618000` — SUCCESS
+- ENJAZ Pages Preview: run `34034638895` — SUCCESS
+- ENJAZ Live External Gate: run `34034668227` — SUCCESS, including `Attack the actual published application`
+- detailed evidence: `docs/PHASE6_2_POSTMERGE_RECERTIFICATION.md`
+
 ## Transition rule
 
-Pre-merge implementation is now certified with `exitGatePassed=true` and `unresolvedDefectCount=0`, but **Phase 6.3 is not authorized yet**.
+`exitGatePassed=true`, `unresolvedDefectCount=0`, and canonical post-merge recertification `COMPLETE` certify Phase 6.2 fully.
 
-The merge commit on `main` must independently complete canonical post-merge recertification, including cumulative real-browser and external deployment validation. Until that evidence is complete:
+Therefore `phase6_3Allowed=true` and the next authorized stage is **Phase 6.3 — Company / Lawyer 360°**.
 
-- `phase6_3Allowed=false`
-- Phase 6.3 — Company / Lawyer 360° remains locked
-- Phase 7 — full Finance remains locked
-- Phase 8 — Workflow / Automation management remains locked
-- Phase 10 — document operations remains locked
+This closure does not implement Phase 6.3.
+
+Still locked:
+
+- Phase 7 — full Finance
+- Phase 8 — Workflow / Automation management
+- Phase 10 — document operations
