@@ -12,8 +12,10 @@ import {
 const EDITOR_BATCH_SIZE = 100;
 const EDITOR_ENTITY_LIMIT = 2_000;
 const EDITOR_RELATION_LIMIT = 5_000;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type TransactionEditorWarningCode =
+  | 'create-replay-detected'
   | 'fee-history-unconfirmed'
   | 'station-history-unconfirmed'
   | 'note-history-unconfirmed'
@@ -166,6 +168,21 @@ function changesSummary(previous: RowOf<'transactions'> | null, next: RowOf<'tra
   return labels.length ? `تعديل المعاملة: ${labels.join('، ')}` : 'حفظ المعاملة دون تغيير في الحقول الأساسية';
 }
 
+function replayMatches(
+  existing: RowOf<'transactions'>,
+  normalized: ReturnType<typeof normalizeTransactionEditorDraft>,
+): boolean {
+  return existing.deleted_at === null
+    && existing.company_id === normalized.companyId
+    && existing.primary_contact_id === normalized.primaryContactId
+    && existing.type === normalized.type
+    && existing.department === normalized.department
+    && existing.status === normalized.status
+    && existing.priority === normalized.priority
+    && Math.round(existing.current_fee * 100) === Math.round(normalized.currentFee * 100)
+    && existing.completed_at === normalized.completedAt;
+}
+
 export async function saveTransactionEditorDraft(
   factory: EnjazDataLayerFactory,
   userId: string,
@@ -174,6 +191,7 @@ export async function saveTransactionEditorDraft(
   draft: TransactionEditorDraft,
   actorUserId: string | null,
   now = new Date(),
+  createOperationId: string | null = null,
 ): Promise<TransactionEditorSaveResult> {
   const workspaceId = await factory.resolveWorkspaceId(userId);
   if (!workspaceId || workspaceId !== loaded.workspaceId) throw new TransactionEditorWorkspaceUnavailableError();
@@ -184,7 +202,25 @@ export async function saveTransactionEditorDraft(
 
   let saved: RowOf<'transactions'>;
   if (mode === 'create') {
+    if (!createOperationId || !UUID_PATTERN.test(createOperationId)) {
+      throw new TransactionEditorConflictError('Transaction create requires a stable operation id');
+    }
+    const replay = await layer.transactions.getById(createOperationId);
+    if (replay) {
+      if (!replayMatches(replay, normalized)) {
+        throw new TransactionEditorConflictError('Transaction create operation id belongs to a different payload');
+      }
+      return Object.freeze({
+        transaction: replay,
+        warnings: Object.freeze([Object.freeze({
+          code: 'create-replay-detected' as const,
+          message: 'تم العثور على نفس المعاملة من محاولة حفظ سابقة، لذلك لم تُنشأ نسخة ثانية ولم تُكرر السجلات المساندة.',
+          outcomeUnknown: true,
+        })]),
+      });
+    }
     saved = await layer.transactions.create({
+      id: createOperationId,
       company_id: normalized.companyId,
       primary_contact_id: normalized.primaryContactId,
       type: normalized.type,
