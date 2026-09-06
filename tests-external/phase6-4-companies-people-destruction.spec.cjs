@@ -76,9 +76,9 @@ test('relationship end remains historical after destructive interaction', async 
   await page.setViewportSize({ width: 430, height: 900 });
   const errors = await openPreview(page);
   const contact = page.locator('[data-contact-profile]');
-  await expect(contact.getByText(/محامية · حالية/)).toBeVisible();
+  await expect(contact.getByText('محامية · حالية', { exact: true })).toBeVisible();
   await contact.getByRole('button', { name: 'إنهاء العلاقة' }).click();
-  await expect(contact.getByText(/محامية · منتهية/)).toBeVisible();
+  await expect(contact.getByText('محامية · منتهية', { exact: true })).toBeVisible();
   await expect(contact.getByText('قمر السلطان', { exact: true })).toBeVisible();
   expect(errors).toEqual([]);
   await assertNoHorizontalOverflow(page);
