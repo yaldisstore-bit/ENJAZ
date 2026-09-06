@@ -20,6 +20,8 @@ const browserSpecPath = 'tests-external/phase5-5-transaction-destruction.spec.cj
 const browserSpec = exists(browserSpecPath) ? read(browserSpecPath) : '';
 const closurePath = 'docs/PHASE5_5_TRANSACTION_DESTRUCTION_CLOSURE.md';
 const closure = exists(closurePath) ? read(closurePath) : '';
+const postMergePath = 'docs/PHASE5_5_POSTMERGE_RECERTIFICATION.md';
+const postMerge = exists(postMergePath) ? read(postMergePath) : '';
 
 if (phaseState.phase !== '5.5') errors.push('Phase 5.5 state must declare phase=5.5');
 if (!['ACTIVE', 'CLOSED'].includes(phaseState.status)) errors.push('Phase 5.5 state must be ACTIVE or CLOSED');
@@ -42,11 +44,39 @@ if (phaseState.status === 'CLOSED') {
   if (phaseState.postMergeRecertification?.required !== true) errors.push('CLOSED Phase 5.5 must require post-merge main recertification');
   if (!['PENDING', 'COMPLETE'].includes(phaseState.postMergeRecertification?.status)) errors.push('postMergeRecertification status must be PENDING or COMPLETE');
   if (phaseState.postMergeRecertification?.status === 'PENDING' && phaseState.phase6Allowed !== false) errors.push('Phase 6 must remain blocked until post-merge recertification completes');
+
   if (phaseState.postMergeRecertification?.status === 'COMPLETE') {
+    const recert = phaseState.postMergeRecertification;
     if (phaseState.phase6Allowed !== true) errors.push('Phase 6 may be allowed only after COMPLETE post-merge recertification');
-    if (!phaseState.postMergeRecertification?.mainCommit) errors.push('COMPLETE post-merge recertification requires canonical mainCommit evidence');
-    if ((phaseState.postMergeRecertification?.verifiedWorkflowCount ?? 0) < 19) errors.push('COMPLETE post-merge recertification requires at least the cumulative workflow set to be verified');
+    if (phaseState.nextPhase !== '6.1') errors.push('COMPLETE Phase 5.5 recertification must point to nextPhase=6.1');
+    if (phaseState.postMergeEvidence !== postMergePath || !exists(postMergePath)) errors.push('COMPLETE post-merge recertification requires the canonical evidence document');
+    if (recert.mainCommit !== '218a7bb85ff6098d9a3642063c6c406a57917e86') errors.push('COMPLETE post-merge recertification must preserve the certified canonical main commit');
+    if (recert.verifiedWorkflowCount !== 8 || recert.successfulWorkflowCount !== 8 || recert.failedWorkflowCount !== 0) errors.push('COMPLETE post-merge recertification requires the canonical 8/8 SUCCESS, 0-failure gate set');
+    const requiredRuns = {
+      quality: 34021916847,
+      governance: 34021916851,
+      realBrowser: 34021916852,
+      canonicalPromotion: 34021916853,
+      wcag: 34021916855,
+      pagesDeployment: 34021916549,
+      pagesPreview: 34021938343,
+      liveExternal: 34021965559,
+    };
+    for (const [name, runId] of Object.entries(requiredRuns)) {
+      if (recert.runs?.[name] !== runId) errors.push(`post-merge recertification missing canonical ${name} run ${runId}`);
+    }
+    for (const marker of [
+      'Status: **COMPLETE**',
+      '218a7bb85ff6098d9a3642063c6c406a57917e86',
+      '8/8 post-merge workflow runs SUCCESS; 0 failures',
+      '34021916847',
+      '34021916852',
+      '34021965559',
+      'Phase 5 — Transactions Core is CLOSED ✅',
+      'Phase 6.1 — Companies is the next allowed product phase',
+    ]) if (!postMerge.includes(marker)) errors.push(`Phase 5.5 post-merge evidence missing marker: ${marker}`);
   }
+
   for (const marker of [
     'Status: **CLOSED**',
     '862d741978111050ace0944aa7957c4bc781ae1b',
