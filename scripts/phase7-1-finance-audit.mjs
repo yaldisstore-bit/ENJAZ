@@ -4,36 +4,75 @@ const root = new URL('../', import.meta.url);
 const read = (path) => fs.readFileSync(new URL(path, root), 'utf8');
 const exists = (path) => fs.existsSync(new URL(path, root));
 const errors = [];
+const requireMarker = (source, marker, label) => { if (!source.includes(marker)) errors.push(`${label} missing marker: ${marker}`); };
 
-const required = [
-  'src/features/finance/financeModel.ts',
-  'src/features/finance/financeService.ts',
-  'src/features/finance/useFinance.ts',
-  'src/ui-r2/finance/FinanceLedgerExperience.tsx',
-  'src/ui-r2/finance/LiveFinanceProductionPortal.tsx',
-  'src/ui-r2/finance/finance.css',
-  'src/ui-r2/finance/financePreviewSnapshot.ts',
-  'tests/financeModel.test.ts',
-  'tests/financeService.test.ts',
-  'docs/PHASE7_1_FINANCIAL_LEDGER_STATE.json',
-  'docs/PHASE7_1_FINANCIAL_LEDGER_NOTES.md',
-];
-for (const path of required) if (!exists(path)) errors.push(`missing ${path}`);
+const paths = {
+  state: 'docs/PHASE7_1_FINANCIAL_LEDGER_STATE.json',
+  notes: 'docs/PHASE7_1_FINANCIAL_LEDGER_NOTES.md',
+  closure: 'docs/PHASE7_1_FINANCIAL_LEDGER_CLOSURE.md',
+  postMerge: 'docs/PHASE7_1_POSTMERGE_RECERTIFICATION.md',
+  model: 'src/features/finance/financeModel.ts',
+  service: 'src/features/finance/financeService.ts',
+  hooks: 'src/features/finance/useFinance.ts',
+  experience: 'src/ui-r2/finance/FinanceLedgerExperience.tsx',
+  portal: 'src/ui-r2/finance/LiveFinanceProductionPortal.tsx',
+  css: 'src/ui-r2/finance/finance.css',
+  preview: 'src/ui-r2/finance/financePreviewSnapshot.ts',
+};
 
-const state = JSON.parse(read('docs/PHASE7_1_FINANCIAL_LEDGER_STATE.json'));
-const model = read('src/features/finance/financeModel.ts');
-const service = read('src/features/finance/financeService.ts');
+for (const path of [paths.state, paths.notes, paths.model, paths.service, paths.hooks, paths.experience, paths.portal, paths.css, paths.preview, 'tests/financeModel.test.ts', 'tests/financeService.test.ts']) {
+  if (!exists(path)) errors.push(`missing ${path}`);
+}
+if (errors.length) {
+  console.error('PHASE 7.1 FINANCE AUDIT FAIL');
+  errors.forEach((error) => console.error(`- ${error}`));
+  process.exit(1);
+}
+
+const state = JSON.parse(read(paths.state));
+const model = read(paths.model);
+const service = read(paths.service);
 const dataLayer = read('src/data/createDataLayer.ts');
-const portal = read('src/ui-r2/finance/LiveFinanceProductionPortal.tsx');
+const portal = read(paths.portal);
 const productionRoot = read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
 const packageJson = JSON.parse(read('package.json'));
 
 if (state.phase !== '7.1' || state.name !== 'Financial Ledger & Summary') errors.push('Phase 7.1 machine state identity drifted');
-if (state.status !== 'IN_PROGRESS' && state.status !== 'CLOSED') errors.push('Phase 7.1 state must be IN_PROGRESS or CLOSED');
+if (!['IN_PROGRESS', 'CLOSED'].includes(state.status)) errors.push('Phase 7.1 state must be IN_PROGRESS or CLOSED');
 if (state.startedFromMain !== '41412b2402f705449f6030b8fe414271ffbdb330') errors.push('Phase 7.1 must start from final Phase 6.4 canonical main');
 if (state.readOnly !== true || state.writeOperationsAllowed !== false) errors.push('Phase 7.1 must remain read-only');
-if (state.phase7_2Allowed !== false && state.status !== 'CLOSED') errors.push('Phase 7.2 must remain locked while Phase 7.1 is in progress');
-if (state.status === 'IN_PROGRESS' && state.nextPhase !== null) errors.push('in-progress Phase 7.1 must not authorize a next phase');
+if (state.moneyRepresentation !== 'bigint-cents') errors.push('Phase 7.1 money boundary must remain bigint-cents');
+if (state.productionJavaScriptBudget != null && state.productionJavaScriptBudget !== 670000) errors.push('Phase 7.1 must preserve the 670000-byte production JavaScript budget');
+
+if (state.status === 'IN_PROGRESS') {
+  if (state.exitGatePassed !== false || state.phase7_2Allowed !== false || state.nextPhase !== null) errors.push('in-progress Phase 7.1 must fail closed and keep Phase 7.2 locked');
+}
+
+if (state.status === 'CLOSED') {
+  if (state.exitGatePassed !== true || state.unresolvedDefectCount !== 0) errors.push('closed Phase 7.1 requires exitGatePassed and zero unresolved defects');
+  if (state.closureEvidence !== paths.closure || !exists(paths.closure)) errors.push('closed Phase 7.1 requires canonical closure evidence');
+  if (state.implementationHead !== '0ac2174272d7ac0e5f79020ed78ad3872177af31') errors.push('Phase 7.1 closure must preserve the certified implementation head');
+  if (state.preClosure?.workflowCount !== 24 || state.preClosure?.successCount !== 24 || state.preClosure?.failureCount !== 0) errors.push('Phase 7.1 closure requires 24/24 pre-closure workflows with zero failures');
+  if (state.preClosure?.productionJavaScriptBytes !== 628924) errors.push('Phase 7.1 certified production JavaScript size drifted');
+  if (state.preClosure?.phase71Run !== 34046837319 || state.preClosure?.qualityRun !== 34046837354 || state.preClosure?.governanceRun !== 34046837385 || state.preClosure?.canonicalPromotionRun !== 34046837350 || state.preClosure?.wcagRun !== 34046837380 || state.preClosure?.operationalIntelligenceRun !== 34046837347 || state.preClosure?.destructionRun !== 34046837394 || state.preClosure?.phase64Run !== 34046837407 || state.preClosure?.realBrowserRun !== 34046837307) errors.push('Phase 7.1 key pre-closure workflow evidence drifted');
+
+  const closure = read(paths.closure);
+  for (const marker of ['0ac2174272d7ac0e5f79020ed78ad3872177af31','24/24 pull-request workflows SUCCESS','628924/670000','11/11 PASS','164/164 PASS','34046837319','34046837347','34046837307','unresolvedDefectCount=0']) requireMarker(closure, marker, 'Phase 7.1 closure evidence');
+
+  const recert = state.postMergeRecertification;
+  if (recert?.required !== true || !['PENDING', 'COMPLETE'].includes(recert?.status)) errors.push('closed Phase 7.1 requires explicit post-merge recertification state');
+  if (recert?.status === 'PENDING') {
+    if (state.phase7_2Allowed !== false || state.nextPhase !== null) errors.push('Phase 7.2 must remain locked while Phase 7.1 post-merge recertification is pending');
+    for (const marker of ['Status: **CLOSED — post-merge recertification pending**','postMergeRecertification.status=PENDING','phase7_2Allowed=false','Phase 7.2 — Payments & Receipts remains locked']) requireMarker(closure, marker, 'pending Phase 7.1 closure evidence');
+  }
+  if (recert?.status === 'COMPLETE') {
+    if (state.phase7_2Allowed !== true || state.nextPhase !== '7.2') errors.push('Phase 7.2 may be authorized only after Phase 7.1 canonical recertification completes');
+    if (recert.successCount !== recert.workflowCount || recert.failureCount !== 0 || recert.inProgressCount !== 0) errors.push('completed Phase 7.1 recertification requires every recorded canonical workflow to succeed');
+    if (!state.postMergeEvidence || state.postMergeEvidence !== paths.postMerge || !exists(paths.postMerge)) errors.push('completed Phase 7.1 recertification requires canonical post-merge evidence');
+    const postMerge = exists(paths.postMerge) ? read(paths.postMerge) : '';
+    for (const marker of ['Status: **COMPLETE**','Attack the actual published application','phase7_2Allowed=true','Phase 7.2 — Payments & Receipts']) requireMarker(postMerge, marker, 'Phase 7.1 post-merge evidence');
+  }
+}
 
 for (const marker of ["RowOf<'payments'>", "RowOf<'payment_reversals'>", "RowOf<'financial_ledger_entries'>", "RowOf<'cashbox_accounts'>", 'bigint', 'FinanceUnsafeMoneyError', 'paymentIntegrityWarnings', 'estimatedBalanceCents']) {
   if (!model.includes(marker)) errors.push(`finance model marker missing: ${marker}`);
@@ -66,9 +105,10 @@ const forbiddenWrites = ['layer.payments.create(', 'layer.paymentReversals.creat
 for (const marker of forbiddenWrites) if (service.includes(marker)) errors.push(`Phase 7.1 service must not write finance data: ${marker}`);
 
 if (errors.length) {
-  console.error('PHASE 7.1 FINANCE AUDIT FAIL');
+  console.error(`PHASE 7.1 FINANCE AUDIT FAIL (${errors.length})`);
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`PHASE 7.1 FINANCE AUDIT PASS — ${state.status}; authoritative read-only ledger/summary contract active; Phase 7.2 ${state.phase7_2Allowed ? 'authorized' : 'locked'}.`);
+  const recert = state.postMergeRecertification?.status ?? 'N/A';
+  console.log(`PHASE 7.1 FINANCE AUDIT PASS — ${state.status}; recert=${recert}; authoritative read-only ledger/summary contract preserved; Phase 7.2 ${state.phase7_2Allowed ? 'authorized' : 'locked'}.`);
 }
