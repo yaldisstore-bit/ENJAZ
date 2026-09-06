@@ -3,207 +3,115 @@ import type { RowOf } from '../../data/contracts/dataTypes.ts';
 import type { ContactDraft, ContactListSource, ValidatedContactDraft } from './contactModel.ts';
 import { validateContactDraft } from './contactModel.ts';
 
-const CONTACT_BATCH_SIZE = 100;
+const BATCH = 100;
 export const CONTACT_SOURCE_LIMIT = 5_000;
 const PROFILE_LIMIT = 100;
-const FINANCE_LIMIT = 100;
 
-export interface ContactCompanyContext {
-  readonly relation: RowOf<'company_contacts'>;
-  readonly company: RowOf<'companies'> | null;
-  readonly current: boolean;
+export type ContactErrorCode = 'workspace' | 'capacity' | 'missing' | 'conflict' | 'merged' | 'relation';
+export class ContactDomainError extends Error {
+  constructor(readonly code: ContactErrorCode, message: string) { super(message); this.name = 'ContactDomainError'; }
 }
 
-export interface ContactProfileSource {
-  readonly contact: RowOf<'contacts'>;
-  readonly companyRelations: readonly ContactCompanyContext[];
-  readonly transactions: readonly RowOf<'transactions'>[];
-  readonly payments: readonly RowOf<'payments'>[];
-  readonly ledger: readonly RowOf<'financial_ledger_entries'>[];
-  readonly activity: readonly RowOf<'entity_lifecycle_events'>[];
-  readonly truncated: Readonly<{
-    companyRelations: boolean;
-    transactions: boolean;
-    payments: boolean;
-    ledger: boolean;
-    activity: boolean;
-  }>;
-}
-
-export class ContactWorkspaceUnavailableError extends Error {
-  constructor() { super('No ENJAZ workspace is available for the authenticated user'); this.name = 'ContactWorkspaceUnavailableError'; }
-}
-export class ContactListCapacityError extends Error {
-  constructor() { super(`Contact list exceeds the Phase 6.2 safe source limit of ${CONTACT_SOURCE_LIMIT} rows`); this.name = 'ContactListCapacityError'; }
-}
-export class ContactNotFoundError extends Error {
-  constructor() { super('Contact was not found in the current workspace'); this.name = 'ContactNotFoundError'; }
-}
-export class ContactEditConflictError extends Error {
-  constructor() { super('Contact changed after the editor was loaded'); this.name = 'ContactEditConflictError'; }
-}
-export class ContactMergedRecordError extends Error {
-  constructor() { super('Merged contact records cannot be edited in Phase 6.2'); this.name = 'ContactMergedRecordError'; }
-}
-export class ContactCreateReplayConflictError extends Error {
-  constructor() { super('The stable contact create operation id already belongs to different data'); this.name = 'ContactCreateReplayConflictError'; }
-}
-export class ContactRelationshipConflictError extends Error {
-  constructor(message = 'The requested contact relationship conflicts with current workspace data') { super(message); this.name = 'ContactRelationshipConflictError'; }
-}
-export class ContactRelationshipNotFoundError extends Error {
-  constructor() { super('Contact relationship was not found in the current workspace'); this.name = 'ContactRelationshipNotFoundError'; }
-}
-export class TransactionContactConflictError extends Error {
-  constructor(message = 'Transaction changed before the contact relationship could be saved') { super(message); this.name = 'TransactionContactConflictError'; }
-}
-
-async function resolveLayer(factory: EnjazDataLayerFactory, userId: string): Promise<Readonly<{ workspaceId: string; layer: EnjazWorkspaceDataLayer }>> {
+async function layerFor(factory: EnjazDataLayerFactory, userId: string) {
   const workspaceId = await factory.resolveWorkspaceId(userId);
-  if (!workspaceId) throw new ContactWorkspaceUnavailableError();
-  return Object.freeze({ workspaceId, layer: factory.forWorkspace(workspaceId) });
+  if (!workspaceId) throw new ContactDomainError('workspace', 'مساحة العمل غير متاحة.');
+  return { workspaceId, layer: factory.forWorkspace(workspaceId) };
 }
 
-async function collectContacts(layer: EnjazWorkspaceDataLayer): Promise<readonly RowOf<'contacts'>[]> {
+async function collectContacts(layer: EnjazWorkspaceDataLayer) {
   const rows: RowOf<'contacts'>[] = [];
-  let offset = 0;
-  for (;;) {
-    const page = await layer.contacts.list({ filters: [{ column: 'deleted_at', operator: 'is', value: null }], orderBy: [{ column: 'updated_at', ascending: false }], offset, limit: CONTACT_BATCH_SIZE });
+  for (let offset = 0;;) {
+    const page = await layer.contacts.list({ filters: [{ column: 'deleted_at', operator: 'is', value: null }], orderBy: [{ column: 'updated_at', ascending: false }], offset, limit: BATCH });
     rows.push(...page.items);
-    if (rows.length > CONTACT_SOURCE_LIMIT) throw new ContactListCapacityError();
-    if (!page.hasMore) return Object.freeze(rows);
-    if (page.items.length === 0) throw new Error('Non-progressing contact source page');
+    if (rows.length > CONTACT_SOURCE_LIMIT) throw new ContactDomainError('capacity', `Contact source exceeds ${CONTACT_SOURCE_LIMIT}`);
+    if (!page.hasMore) return rows;
+    if (!page.items.length) throw new ContactDomainError('capacity', 'Contact source did not progress');
     offset += page.items.length;
   }
 }
 
 export async function loadContactListSource(factory: EnjazDataLayerFactory, userId: string): Promise<Readonly<{ workspaceId: string; source: ContactListSource }>> {
-  const { workspaceId, layer } = await resolveLayer(factory, userId);
-  return Object.freeze({ workspaceId, source: Object.freeze({ contacts: await collectContacts(layer) }) });
+  const { workspaceId, layer } = await layerFor(factory, userId);
+  return { workspaceId, source: { contacts: await collectContacts(layer) } };
 }
 
-export function isCurrentCompanyRelation(row: RowOf<'company_contacts'>, now = Date.now()): boolean {
-  const from = row.valid_from ? Date.parse(row.valid_from) : Number.NEGATIVE_INFINITY;
-  const to = row.valid_to ? Date.parse(row.valid_to) : Number.POSITIVE_INFINITY;
-  return (Number.isFinite(from) ? from : Number.NEGATIVE_INFINITY) <= now && (Number.isFinite(to) ? to : Number.POSITIVE_INFINITY) > now;
+export function isCurrentCompanyRelation(row: RowOf<'company_contacts'>, now = Date.now()) {
+  const from = row.valid_from ? Date.parse(row.valid_from) : -Infinity;
+  const to = row.valid_to ? Date.parse(row.valid_to) : Infinity;
+  return (!Number.isFinite(from) || from <= now) && (!Number.isFinite(to) || to > now);
 }
 
-async function loadCompaniesForRelations(layer: EnjazWorkspaceDataLayer, relations: readonly RowOf<'company_contacts'>[]): Promise<readonly ContactCompanyContext[]> {
-  const ids = [...new Set(relations.map((row) => row.company_id))];
-  const companies = new Map<string, RowOf<'companies'>>();
-  for (let index = 0; index < ids.length; index += CONTACT_BATCH_SIZE) {
-    const page = await layer.companies.list({ filters: [{ column: 'id', operator: 'in', value: ids.slice(index, index + CONTACT_BATCH_SIZE) }, { column: 'deleted_at', operator: 'is', value: null }], orderBy: [{ column: 'legal_name', ascending: true }], offset: 0, limit: CONTACT_BATCH_SIZE });
-    for (const company of page.items) companies.set(company.id, company);
-  }
-  return Object.freeze(relations.map((relation) => Object.freeze({ relation, company: companies.get(relation.company_id) ?? null, current: isCurrentCompanyRelation(relation) })));
-}
-
-async function loadFinanceByTransactions(layer: EnjazWorkspaceDataLayer, transactionIds: readonly string[]): Promise<Readonly<{ payments: readonly RowOf<'payments'>[]; ledger: readonly RowOf<'financial_ledger_entries'>[]; paymentsTruncated: boolean; ledgerTruncated: boolean }>> {
-  if (!transactionIds.length) return Object.freeze({ payments: Object.freeze([]), ledger: Object.freeze([]), paymentsTruncated: false, ledgerTruncated: false });
-  const ids = transactionIds.slice(0, PROFILE_LIMIT);
-  const [paymentsPage, ledgerPage] = await Promise.all([
-    layer.payments.list({ filters: [{ column: 'transaction_id', operator: 'in', value: ids }], orderBy: [{ column: 'paid_at', ascending: false }], offset: 0, limit: FINANCE_LIMIT }),
-    layer.ledger.list({ filters: [{ column: 'transaction_id', operator: 'in', value: ids }], orderBy: [{ column: 'occurred_at', ascending: false }], offset: 0, limit: FINANCE_LIMIT }),
-  ]);
-  return Object.freeze({ payments: Object.freeze([...paymentsPage.items]), ledger: Object.freeze([...ledgerPage.items]), paymentsTruncated: paymentsPage.hasMore, ledgerTruncated: ledgerPage.hasMore });
+export interface ContactProfileSource {
+  readonly contact: RowOf<'contacts'>;
+  readonly companyRelations: readonly Readonly<{ relation: RowOf<'company_contacts'>; company: RowOf<'companies'> | null; current: boolean }>[];
+  readonly transactions: readonly RowOf<'transactions'>[];
+  readonly payments: readonly RowOf<'payments'>[];
+  readonly truncated: Readonly<{ companyRelations: boolean; transactions: boolean; payments: boolean }>;
 }
 
 export async function loadContactProfileSource(factory: EnjazDataLayerFactory, userId: string, contactId: string): Promise<Readonly<{ workspaceId: string; source: ContactProfileSource }>> {
-  const { workspaceId, layer } = await resolveLayer(factory, userId);
+  const { workspaceId, layer } = await layerFor(factory, userId);
   const contact = await layer.contacts.getById(contactId);
-  if (!contact || contact.deleted_at !== null) throw new ContactNotFoundError();
-
-  const [relationsPage, transactionsPage, activityPage] = await Promise.all([
+  if (!contact || contact.deleted_at !== null) throw new ContactDomainError('missing', 'جهة الاتصال غير موجودة.');
+  const [relations, transactions] = await Promise.all([
     layer.companyContacts.list({ filters: [{ column: 'contact_id', operator: 'eq', value: contactId }], orderBy: [{ column: 'created_at', ascending: false }], offset: 0, limit: PROFILE_LIMIT }),
     layer.transactions.list({ filters: [{ column: 'primary_contact_id', operator: 'eq', value: contactId }, { column: 'deleted_at', operator: 'is', value: null }], orderBy: [{ column: 'last_activity_at', ascending: false }], offset: 0, limit: PROFILE_LIMIT }),
-    layer.lifecycleEvents.list({ filters: [{ column: 'entity_type', operator: 'eq', value: 'contact' }, { column: 'entity_id', operator: 'eq', value: contactId }], orderBy: [{ column: 'effective_at', ascending: false }], offset: 0, limit: PROFILE_LIMIT }),
   ]);
-  const [companyRelations, finance] = await Promise.all([
-    loadCompaniesForRelations(layer, relationsPage.items),
-    loadFinanceByTransactions(layer, transactionsPage.items.map((row) => row.id)),
-  ]);
-
-  return Object.freeze({ workspaceId, source: Object.freeze({
-    contact,
-    companyRelations,
-    transactions: Object.freeze([...transactionsPage.items]),
-    payments: finance.payments,
-    ledger: finance.ledger,
-    activity: Object.freeze([...activityPage.items]),
-    truncated: Object.freeze({ companyRelations: relationsPage.hasMore, transactions: transactionsPage.hasMore, payments: finance.paymentsTruncated, ledger: finance.ledgerTruncated, activity: activityPage.hasMore }),
-  }) });
+  const companyIds = [...new Set(relations.items.map((row) => row.company_id))];
+  const companyPage = companyIds.length ? await layer.companies.list({ filters: [{ column: 'id', operator: 'in', value: companyIds }, { column: 'deleted_at', operator: 'is', value: null }], orderBy: [{ column: 'legal_name', ascending: true }], offset: 0, limit: PROFILE_LIMIT }) : { items: [] as RowOf<'companies'>[], hasMore: false };
+  const companies = new Map(companyPage.items.map((row) => [row.id, row]));
+  const txIds = transactions.items.map((row) => row.id);
+  const payments = txIds.length ? await layer.payments.list({ filters: [{ column: 'transaction_id', operator: 'in', value: txIds }], orderBy: [{ column: 'paid_at', ascending: false }], offset: 0, limit: PROFILE_LIMIT }) : { items: [] as RowOf<'payments'>[], hasMore: false };
+  return { workspaceId, source: { contact, companyRelations: relations.items.map((relation) => ({ relation, company: companies.get(relation.company_id) ?? null, current: isCurrentCompanyRelation(relation) })), transactions: transactions.items, payments: payments.items, truncated: { companyRelations: relations.hasMore || companyPage.hasMore, transactions: transactions.hasMore, payments: payments.hasMore } } };
 }
 
-function sameCreatePayload(existing: RowOf<'contacts'>, value: ValidatedContactDraft): boolean {
-  return existing.deleted_at === null && existing.merged_into_id === null
-    && existing.display_name === value.displayName
-    && existing.contact_type === value.contactType
-    && existing.phone === value.phone
-    && existing.email === value.email
-    && existing.notes === value.notes
-    && existing.status === value.status;
+function sameContact(row: RowOf<'contacts'>, value: ValidatedContactDraft) {
+  return row.deleted_at === null && row.merged_into_id === null && row.display_name === value.displayName && row.contact_type === value.contactType && row.phone === value.phone && row.email === value.email && row.notes === value.notes && row.status === value.status;
 }
 
-export async function saveContact(factory: EnjazDataLayerFactory, userId: string, mode: 'create' | 'edit', draft: ContactDraft, options: Readonly<{ contactId?: string | null; expectedUpdatedAt?: string | null; createOperationId?: string | null }> = {}): Promise<RowOf<'contacts'>> {
+export async function saveContact(factory: EnjazDataLayerFactory, userId: string, mode: 'create' | 'edit', draft: ContactDraft, options: Readonly<{ contactId?: string | null; expectedUpdatedAt?: string | null; createOperationId?: string | null }> = {}) {
   const validation = validateContactDraft(draft);
-  if (!validation.value) throw new Error('Contact draft failed model validation');
-  const value = validation.value;
-  const { layer } = await resolveLayer(factory, userId);
-
+  if (!validation.value) throw new ContactDomainError('conflict', 'بيانات جهة الاتصال غير صالحة.');
+  const value = validation.value, { layer } = await layerFor(factory, userId);
   if (mode === 'create') {
-    const operationId = options.createOperationId?.trim();
-    if (!operationId) throw new Error('Stable contact create operation id is required');
-    const existing = await layer.contacts.getById(operationId);
-    if (existing) {
-      if (sameCreatePayload(existing, value)) return existing;
-      throw new ContactCreateReplayConflictError();
-    }
-    return layer.contacts.create({ id: operationId, display_name: value.displayName, contact_type: value.contactType, phone: value.phone, email: value.email, notes: value.notes, status: value.status, merged_into_id: null, legacy_id: null, legacy_source: null, deleted_at: null });
+    const id = options.createOperationId?.trim();
+    if (!id) throw new ContactDomainError('conflict', 'معرف عملية الإنشاء مطلوب.');
+    const existing = await layer.contacts.getById(id);
+    if (existing) { if (sameContact(existing, value)) return existing; throw new ContactDomainError('conflict', 'معرف الإنشاء مستخدم لبيانات مختلفة.'); }
+    return layer.contacts.create({ id, display_name: value.displayName, contact_type: value.contactType, phone: value.phone, email: value.email, notes: value.notes, status: value.status, merged_into_id: null, legacy_id: null, legacy_source: null, deleted_at: null });
   }
-
-  const contactId = options.contactId?.trim();
-  if (!contactId) throw new ContactNotFoundError();
-  const current = await layer.contacts.getById(contactId);
-  if (!current || current.deleted_at !== null) throw new ContactNotFoundError();
-  if (current.merged_into_id !== null) throw new ContactMergedRecordError();
-  if (options.expectedUpdatedAt && current.updated_at !== options.expectedUpdatedAt) throw new ContactEditConflictError();
-  return layer.contacts.update(contactId, { display_name: value.displayName, contact_type: value.contactType, phone: value.phone, email: value.email, notes: value.notes, status: value.status });
+  const id = options.contactId?.trim();
+  if (!id) throw new ContactDomainError('missing', 'جهة الاتصال غير موجودة.');
+  const current = await layer.contacts.getById(id);
+  if (!current || current.deleted_at !== null) throw new ContactDomainError('missing', 'جهة الاتصال غير موجودة.');
+  if (current.merged_into_id !== null) throw new ContactDomainError('merged', 'السجل المدمج للقراءة فقط.');
+  if (options.expectedUpdatedAt && current.updated_at !== options.expectedUpdatedAt) throw new ContactDomainError('conflict', 'تم تعديل السجل؛ أعد تحميله.');
+  return layer.contacts.update(id, { display_name: value.displayName, contact_type: value.contactType, phone: value.phone, email: value.email, notes: value.notes, status: value.status });
 }
 
-export async function addCompanyContactRelationship(factory: EnjazDataLayerFactory, userId: string, input: Readonly<{ relationOperationId: string; companyId: string; contactId: string; relationType: string; validFrom?: string | null }>): Promise<RowOf<'company_contacts'>> {
-  const { layer } = await resolveLayer(factory, userId);
-  const relationId = input.relationOperationId.trim();
-  const relationType = input.relationType.trim();
-  if (!relationId || !relationType) throw new ContactRelationshipConflictError('Stable relation id and relation type are required');
-  const [company, contact, existing] = await Promise.all([layer.companies.getById(input.companyId), layer.contacts.getById(input.contactId), layer.companyContacts.getById(relationId)]);
-  if (!company || company.deleted_at !== null || company.merged_into_id !== null) throw new ContactRelationshipConflictError('Company is not available for a new relationship');
-  if (!contact || contact.deleted_at !== null || contact.merged_into_id !== null || contact.status.trim().toLowerCase() !== 'active') throw new ContactRelationshipConflictError('Contact is not active and available for a new relationship');
+export async function addCompanyContactRelationship(factory: EnjazDataLayerFactory, userId: string, input: Readonly<{ relationOperationId: string; companyId: string; contactId: string; relationType: string; validFrom?: string | null }>) {
+  const { layer } = await layerFor(factory, userId);
+  const id = input.relationOperationId.trim(), relationType = input.relationType.trim();
+  if (!id || !relationType) throw new ContactDomainError('relation', 'بيانات العلاقة ناقصة.');
+  const [company, contact, replay, relations] = await Promise.all([
+    layer.companies.getById(input.companyId), layer.contacts.getById(input.contactId), layer.companyContacts.getById(id),
+    layer.companyContacts.list({ filters: [{ column: 'company_id', operator: 'eq', value: input.companyId }, { column: 'contact_id', operator: 'eq', value: input.contactId }], orderBy: [{ column: 'created_at', ascending: false }], offset: 0, limit: PROFILE_LIMIT }),
+  ]);
+  if (!company || company.deleted_at !== null || company.merged_into_id !== null) throw new ContactDomainError('relation', 'الشركة غير متاحة للعلاقة.');
+  if (!contact || contact.deleted_at !== null || contact.merged_into_id !== null || contact.status.trim().toLowerCase() !== 'active') throw new ContactDomainError('relation', 'جهة الاتصال غير نشطة.');
   const validFrom = input.validFrom ?? null;
-  if (existing) {
-    if (existing.company_id === input.companyId && existing.contact_id === input.contactId && existing.relation_type === relationType && existing.valid_from === validFrom && existing.valid_to === null) return existing;
-    throw new ContactRelationshipConflictError('Stable relation id already belongs to different relationship data');
-  }
-  return layer.companyContacts.create({ id: relationId, company_id: input.companyId, contact_id: input.contactId, relation_type: relationType, valid_from: validFrom, valid_to: null });
+  if (replay) { if (replay.company_id === input.companyId && replay.contact_id === input.contactId && replay.relation_type === relationType && replay.valid_from === validFrom && replay.valid_to === null) return replay; throw new ContactDomainError('relation', 'معرف العلاقة مستخدم لبيانات مختلفة.'); }
+  const duplicate = relations.items.find((row) => row.relation_type === relationType && isCurrentCompanyRelation(row));
+  if (duplicate) return duplicate;
+  return layer.companyContacts.create({ id, company_id: input.companyId, contact_id: input.contactId, relation_type: relationType, valid_from: validFrom, valid_to: null });
 }
 
-export async function endCompanyContactRelationship(factory: EnjazDataLayerFactory, userId: string, relationId: string, endedAt: string): Promise<RowOf<'company_contacts'>> {
-  const { layer } = await resolveLayer(factory, userId);
+export async function endCompanyContactRelationship(factory: EnjazDataLayerFactory, userId: string, relationId: string, endedAt: string) {
+  const { layer } = await layerFor(factory, userId);
   const current = await layer.companyContacts.getById(relationId);
-  if (!current) throw new ContactRelationshipNotFoundError();
+  if (!current) throw new ContactDomainError('relation', 'العلاقة غير موجودة.');
   if (current.valid_to !== null) return current;
-  const timestamp = Date.parse(endedAt);
-  if (!Number.isFinite(timestamp)) throw new ContactRelationshipConflictError('Relationship end timestamp is invalid');
-  if (current.valid_from && Number.isFinite(Date.parse(current.valid_from)) && timestamp < Date.parse(current.valid_from)) throw new ContactRelationshipConflictError('Relationship cannot end before it starts');
-  return layer.companyContacts.update(relationId, { valid_to: new Date(timestamp).toISOString() });
-}
-
-export async function assignTransactionPrimaryContact(factory: EnjazDataLayerFactory, userId: string, input: Readonly<{ transactionId: string; contactId: string; expectedUpdatedAt?: string | null }>): Promise<RowOf<'transactions'>> {
-  const { layer } = await resolveLayer(factory, userId);
-  const [transaction, contact] = await Promise.all([layer.transactions.getById(input.transactionId), layer.contacts.getById(input.contactId)]);
-  if (!transaction || transaction.deleted_at !== null) throw new TransactionContactConflictError('Transaction is not available');
-  if (!contact || contact.deleted_at !== null || contact.merged_into_id !== null || contact.status.trim().toLowerCase() !== 'active') throw new TransactionContactConflictError('Contact is not active');
-  if (input.expectedUpdatedAt && transaction.updated_at !== input.expectedUpdatedAt) throw new TransactionContactConflictError();
-  const relations = await layer.companyContacts.list({ filters: [{ column: 'company_id', operator: 'eq', value: transaction.company_id }, { column: 'contact_id', operator: 'eq', value: input.contactId }], orderBy: [{ column: 'created_at', ascending: false }], offset: 0, limit: PROFILE_LIMIT });
-  if (!relations.items.some((row) => isCurrentCompanyRelation(row))) throw new TransactionContactConflictError('Contact must have a current relationship with the transaction company');
-  return layer.transactions.update(transaction.id, { primary_contact_id: input.contactId });
+  const time = Date.parse(endedAt), start = current.valid_from ? Date.parse(current.valid_from) : -Infinity;
+  if (!Number.isFinite(time) || Number.isFinite(start) && time < start) throw new ContactDomainError('relation', 'تاريخ إنهاء العلاقة غير صالح.');
+  return layer.companyContacts.update(relationId, { valid_to: new Date(time).toISOString() });
 }
