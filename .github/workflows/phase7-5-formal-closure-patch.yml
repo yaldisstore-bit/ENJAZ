@@ -1,0 +1,56 @@
+name: ENJAZ Phase 7.5 — One-Shot Formal Closure Patcher
+
+on:
+  push:
+    branches:
+      - phase7-5-formal-closure
+    paths:
+      - scripts/phase7-5-formal-closure-patch.mjs
+      - .github/workflows/phase7-5-formal-closure-patch.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: enjaz-phase75-formal-closure-patch
+  cancel-in-progress: false
+
+jobs:
+  patch-and-self-remove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact closure branch
+        uses: actions/checkout@v7
+        with:
+          ref: phase7-5-formal-closure
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Apply guarded Phase 7.5 closure transition
+        run: node scripts/phase7-5-formal-closure-patch.mjs
+      - name: Verify generated governance before commit
+        run: |
+          node scripts/phase7-5-finance-destruction-audit.mjs
+          node scripts/roadmap-audit.mjs
+          npm run typecheck
+          npm run build -- --base=/
+          npm run audit:dist:budget
+      - name: Commit only generated closure state
+        run: |
+          set -euo pipefail
+          test ! -e scripts/phase7-5-formal-closure-patch.mjs
+          test ! -e .github/workflows/phase7-5-formal-closure-patch.yml
+          git status --short
+          git config user.name "yaldisstore-bit"
+          git config user.email "yaldis.store@gmail.com"
+          git add -A
+          git diff --cached --quiet && { echo "No closure transition generated"; exit 1; }
+          git commit -m "Close Phase 7.5 and authorize Phase 8.1"
+          git push origin HEAD:phase7-5-formal-closure
