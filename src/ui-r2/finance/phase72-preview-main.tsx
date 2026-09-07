@@ -1,8 +1,11 @@
-import { StrictMode, useMemo, useState } from 'react';
+import { StrictMode, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { FinanceCommandGateway, FinancePaymentContext, FinanceReceipt } from '../../features/finance/financeCommands.ts';
 import { FINANCE_PREVIEW_SNAPSHOT } from './financePreviewSnapshot.ts';
 import { Phase72FinanceExperience, type FinanceTransactionOption } from './Phase72FinanceExperience.tsx';
+import '../runtime/shell-base.css';
+import '../runtime/shell.css';
+import '../runtime/accessibility-hardening.css';
 import './finance.css';
 import './phase72.css';
 
@@ -21,22 +24,10 @@ const transactions: readonly FinanceTransactionOption[] = Object.freeze([
 
 function initialReceipt(): FinanceReceipt {
   return Object.freeze({
-    paymentId: '33333333-3333-4333-8333-333333333332',
-    receiptRef: 'ENJ-R-2026-00000001',
-    receiptSerial: 1n,
-    receiptToken: '88888888-8888-4888-8888-888888888881',
-    amountCents: 100_000_000n,
-    method: 'cash',
-    paidAt: '2026-09-06T13:20:00.000Z',
-    status: 'posted',
-    transactionId: T2,
-    companyId: C2,
-    cashboxId: CASH,
-    engagementId: null,
-    note: 'دفعة تجريبية لمعاينة 7.2',
-    snapshot: Object.freeze({ companyName: 'روز بغداد', transactionLabel: 'معاملة 1048', version: 1 }),
-    reversal: null,
-    wasDuplicate: false,
+    paymentId: '33333333-3333-4333-8333-333333333332', receiptRef: 'ENJ-R-2026-00000001', receiptSerial: 1n,
+    receiptToken: '88888888-8888-4888-8888-888888888881', amountCents: 100_000_000n, method: 'cash', paidAt: '2026-09-06T13:20:00.000Z',
+    status: 'posted', transactionId: T2, companyId: C2, cashboxId: CASH, engagementId: null, note: 'دفعة تجريبية لمعاينة 7.2',
+    snapshot: Object.freeze({ companyName: 'روز بغداد', transactionLabel: 'معاملة 1048', version: 1 }), reversal: null, wasDuplicate: false,
   });
 }
 
@@ -51,38 +42,34 @@ function initialContext(): FinancePaymentContext {
 
 function PreviewApp() {
   const [context, setContext] = useState<FinancePaymentContext>(() => initialContext());
+  const receiptCache = useRef(new Map<string, FinanceReceipt>(initialContext().recentReceipts.map((item) => [item.paymentId, item])));
 
   const gateway = useMemo<FinanceCommandGateway>(() => Object.freeze({
     async loadContext() { return context; },
     async postPayment(input) {
       const receipt: FinanceReceipt = Object.freeze({
-        paymentId: '33333333-3333-4333-8333-333333333399',
-        receiptRef: 'ENJ-R-2026-00000002',
-        receiptSerial: 2n,
-        receiptToken: '88888888-8888-4888-8888-888888888882',
-        amountCents: input.amountCents,
-        method: input.method,
-        paidAt: input.paidAt,
-        status: 'posted',
-        transactionId: input.transactionId,
-        companyId: transactions.find((item) => item.id === input.transactionId)?.companyId ?? C1,
-        cashboxId: input.cashboxId,
-        engagementId: input.engagementId,
-        note: input.note,
+        paymentId: '33333333-3333-4333-8333-333333333399', receiptRef: 'ENJ-R-2026-00000002', receiptSerial: 2n,
+        receiptToken: '88888888-8888-4888-8888-888888888882', amountCents: input.amountCents, method: input.method, paidAt: input.paidAt,
+        status: 'posted', transactionId: input.transactionId, companyId: transactions.find((item) => item.id === input.transactionId)?.companyId ?? C1,
+        cashboxId: input.cashboxId, engagementId: input.engagementId, note: input.note,
         snapshot: Object.freeze({ companyName: transactions.find((item) => item.id === input.transactionId)?.companyLabel ?? 'شركة', transactionLabel: transactions.find((item) => item.id === input.transactionId)?.title ?? 'معاملة', version: 1 }),
-        reversal: null,
-        wasDuplicate: false,
+        reversal: null, wasDuplicate: false,
       });
+      receiptCache.current.set(receipt.paymentId, receipt);
       setContext((current) => Object.freeze({ ...current, recentReceipts: Object.freeze([receipt, ...current.recentReceipts]), reconciliation: Object.freeze({ ...current.reconciliation, postedTotalCents: current.reconciliation.postedTotalCents + input.amountCents }) }));
       return receipt;
     },
     async reversePayment(input) {
       const reversal = Object.freeze({ reversalId: '99999999-9999-4999-8999-999999999991', reversalRef: 'ENJ-RV-2026-00000001', paymentId: input.paymentId, reason: input.reason, reversedAt: '2026-09-07T01:20:00.000Z', snapshot: Object.freeze({ version: 1, reason: input.reason }), wasDuplicate: false });
-      setContext((current) => Object.freeze({ ...current, recentReceipts: Object.freeze(current.recentReceipts.map((item) => item.paymentId === input.paymentId ? Object.freeze({ ...item, status: 'reversed' as const, reversal }) : item)) }));
+      const currentReceipt = receiptCache.current.get(input.paymentId);
+      if (!currentReceipt) throw new Error('Preview receipt not found');
+      const reversed: FinanceReceipt = Object.freeze({ ...currentReceipt, status: 'reversed', reversal });
+      receiptCache.current.set(input.paymentId, reversed);
+      setContext((current) => Object.freeze({ ...current, recentReceipts: Object.freeze(current.recentReceipts.map((item) => item.paymentId === input.paymentId ? reversed : item)), reconciliation: Object.freeze({ ...current.reconciliation, postedTotalCents: current.reconciliation.postedTotalCents - currentReceipt.amountCents, reversedTotalCents: current.reconciliation.reversedTotalCents + currentReceipt.amountCents }) }));
       return reversal;
     },
     async getReceipt(_workspaceId, paymentId) {
-      const found = context.recentReceipts.find((item) => item.paymentId === paymentId);
+      const found = receiptCache.current.get(paymentId);
       if (!found) throw new Error('Preview receipt not found');
       return found;
     },
@@ -98,7 +85,7 @@ function PreviewApp() {
     },
   }), [context]);
 
-  return <Phase72FinanceExperience snapshot={FINANCE_PREVIEW_SNAPSHOT} context={context} transactions={transactions} commandGateway={gateway} workspaceId={W} onChanged={() => undefined} mode="preview" />;
+  return <div className="r2-shell" data-r2-runtime-mode="preview" data-destination="finance" dir="rtl"><main id="r2-main" className="r2-main"><Phase72FinanceExperience snapshot={FINANCE_PREVIEW_SNAPSHOT} context={context} transactions={transactions} commandGateway={gateway} workspaceId={W} onChanged={() => undefined} mode="preview" /></main></div>;
 }
 
 const root = document.getElementById('phase72-finance-root');
