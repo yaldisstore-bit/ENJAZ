@@ -28,7 +28,7 @@ test('Phase 7.2 exposes payment, cashbox, M16 and reconciliation surfaces withou
   await expect(root.getByRole('heading', { name: 'المالية والتحصيل' })).toBeVisible();
   await expect(root.getByText('المطابقة المالية سليمة', { exact: true })).toBeVisible();
   await expect(root.getByRole('button', { name: /دفعة جديدة/ })).toBeVisible();
-  await expect(root.getByRole('button', { name: 'خزنة' })).toBeVisible();
+  await expect(root.getByRole('button', { name: 'خزنة', exact: true })).toBeVisible();
   await expect(root.getByRole('button', { name: 'عقد / Retainer' })).toBeVisible();
   await expect(root.getByText('M16 · العقود والـRetainers', { exact: true })).toBeVisible();
   await expect(root.getByText('ENJ-R-2026-00000001', { exact: true })).toBeVisible();
@@ -82,7 +82,7 @@ test('M16 commercial engagement can be created without creating a second money s
 
 test('cashbox creation is a controlled command', async ({ page }) => {
   const { root, errors } = await openPreview(page);
-  await root.getByRole('button', { name: 'خزنة' }).first().click();
+  await root.getByRole('button', { name: 'خزنة', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'إنشاء خزنة مالية' });
   await dialog.getByLabel('اسم الخزنة').fill('خزنة فرع المنصور');
   await dialog.getByLabel('الرصيد الافتتاحي').fill('250000.00');
