@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "phase": "8.2",
+  "name": "Automation Engine",
+  "status": "IN_PROGRESS",
+  "baseCommit": "65e2c29bc5b656b5c56daa84a893aeff65c5d662",
+  "scope": [
+    "canonicalAutomationRules",
+    "canonicalAutomationRuns",
+    "humanReadableTriggersConditionsActions",
+    "ruleVersionStaleProtection",
+    "dispatchReceiptIdempotency",
+    "replayConflictProtection",
+    "activationDeactivation",
+    "explicitFailureState",
+    "humanApprovalForSensitiveActions",
+    "workflowRpcOnlySensitiveMutation",
+    "noFinanceWriteAuthority",
+    "immutableAuditEvidence"
+  ],
+  "authoritativeTables": [
+    "automation_rules",
+    "automation_runs",
+    "automation_run_actions",
+    "automation_approval_requests"
+  ],
+  "implementationBranch": "phase8-2-automation-engine",
+  "implementationHead": null,
+  "pullRequest": 109,
+  "realCloudVerification": {
+    "required": true,
+    "status": "PASS",
+    "projectRef": "juzxriirhkuzviwnhkbd",
+    "projectStatus": "ACTIVE_HEALTHY",
+    "evidence": [
+      "phase_8_2_automation_engine",
+      "phase_8_2_rpc_security_hardening",
+      "phase_8_2_live_authenticated_automation_probe",
+      "phase_8_2_fk_index_hardening",
+      "authenticated public RPC mutation succeeded while direct table mutation remained denied",
+      "stale-version protection failed closed",
+      "dispatch receipt replay was idempotent with one follow-up side effect",
+      "sensitive workflow action required human approval",
+      "approval rejection and replay were idempotent",
+      "probe rows cleaned after verification"
+    ]
+  },
+  "realChromium": { "required": true, "status": "PENDING" },
+  "postMergeRecertification": { "required": true, "status": "PENDING" },
+  "exitGatePassed": false,
+  "unresolvedDefectCount": 0,
+  "criticalDefectCount": 0,
+  "highDefectCount": 0,
+  "functionalBlockerCount": 0,
+  "phase8_3Allowed": false,
+  "nextPhase": "8.3",
+  "successorStatus": "LOCKED"
+}
