@@ -3,6 +3,8 @@ import fs from 'node:fs';
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const baseline = read('database/baseline/phase1_2_schema.sql');
 const migration = read('database/migrations/phase_8_2_automation_engine.sql');
+const hardening = read('database/migrations/phase_8_2_rpc_security_hardening.sql');
+const cloudProbe = read('database/migrations/phase_8_2_live_authenticated_automation_probe.sql');
 const commands = read('src/features/automation/automationCommands.ts');
 const tests = read('tests/automationEngine.test.ts');
 const state = JSON.parse(read('docs/PHASE8_2_STATE.json'));
@@ -52,6 +54,52 @@ for (const marker of [
 for (const forbidden of ['security definer', 'public.payments', 'public.financial_ledger_entries', 'public.payment_reversals']) forbidMarker(migration.toLowerCase(), forbidden, 'migration');
 
 for (const marker of [
+  'SECURITY DEFINER',
+  "v_private_name := r.proname || '_impl'",
+  'private.upsert_automation_rule_v1_impl',
+  'private.set_automation_rule_enabled_v1_impl',
+  'private.dispatch_automation_v1_impl',
+  'private.decide_automation_approval_v1_impl',
+  'grant usage on schema private to authenticated',
+  'revoke insert, update, delete on table public.automation_rules from authenticated',
+  'revoke insert, update, delete on table public.automation_runs from authenticated',
+  'revoke insert, update, delete on table public.automation_run_actions from authenticated',
+  'revoke insert, update, delete on table public.automation_approval_requests from authenticated',
+]) requireMarker(hardening, marker, 'RPC hardening');
+
+for (const name of [
+  'upsert_automation_rule_v1',
+  'set_automation_rule_enabled_v1',
+  'dispatch_automation_v1',
+  'decide_automation_approval_v1',
+]) {
+  const start = hardening.indexOf(`create or replace function public.${name}`);
+  const end = start >= 0 ? hardening.indexOf('$$;', start) : -1;
+  const wrapper = start >= 0 && end >= 0 ? hardening.slice(start, end + 3).toLowerCase() : '';
+  if (!wrapper) errors.push(`RPC hardening missing public wrapper: ${name}`);
+  else {
+    requireMarker(wrapper, 'security invoker', `${name} public wrapper`);
+    requireMarker(wrapper, "set search_path = ''", `${name} public wrapper`);
+    forbidMarker(wrapper, 'security definer', `${name} public wrapper`);
+  }
+}
+
+for (const marker of [
+  'set local role authenticated;',
+  'has_table_privilege',
+  'ENJAZ_AUTOMATION_RULE_STALE',
+  "body->>'wasDuplicate'",
+  "body->>'status' = 'awaiting_approval'",
+  "'rejected'",
+  'get_automation_engine_context_v1',
+  'reset role;',
+  'delete from public.automation_approval_requests',
+  'drop function private.enjaz_phase82_probe_assert(boolean,text);',
+]) requireMarker(cloudProbe, marker, 'real-cloud probe');
+
+for (const forbidden of ['service_role', 'public.payments', 'public.financial_ledger_entries', 'public.payment_reversals']) forbidMarker(cloudProbe.toLowerCase(), forbidden, 'real-cloud probe');
+
+for (const marker of [
   "authority: 'automation_rules_and_runs'",
   "workflowWriteAuthority: 'existing_workflow_rpc_only_after_human_approval'",
   "financeWriteAuthority: 'none'",
@@ -80,5 +128,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical baseline rules/runs preserved; replay/stale/failure/approval boundaries enforced; finance authority=none; Phase 8.3 LOCKED.');
+  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical rules/runs preserved; private-definer/public-invoker mutation boundary enforced; authenticated real-cloud replay/stale/approval probe guarded; finance authority=none; Phase 8.3 LOCKED.');
 }
