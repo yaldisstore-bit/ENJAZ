@@ -149,7 +149,7 @@ for (const marker of [
 for (const marker of [
   "import { LiveAutomationExperience }",
   "if (id === 'automation') return <Automation />",
-  'return <LiveAutomationExperience />',
+  '<LiveAutomationExperience />',
 ]) requireMarker(operationalRoot, marker, 'R2 automation destination');
 
 requireMarker(navigation, "{ id: 'automation', label: 'الأتمتة', kind: 'launcher_destination', route: '/app/automation', availability: 'live'", 'navigation');
