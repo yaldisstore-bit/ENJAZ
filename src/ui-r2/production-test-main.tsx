@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import type { AuthGateway, EnjazAuthSession, EnjazAuthUser } from '../core/auth/authGateway.ts';
 import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../data/createDataLayer.ts';
 import type { FinanceCommandGateway } from '../features/finance/financeCommands.ts';
+import type { GovernmentProcedureRuntimeGateway } from '../features/workflow/governmentProcedureRuntime.ts';
 import { UiR2ProductionRoot } from './runtime/UiR2ProductionRoot.tsx';
 
 const params = new URLSearchParams(window.location.search);
@@ -113,11 +114,32 @@ const financeCommands: FinanceCommandGateway = Object.freeze({
   async createEngagement() { throw new Error('R2 production test does not allow finance writes'); },
 });
 
+const workflowCommands: GovernmentProcedureRuntimeGateway = Object.freeze({
+  async loadCatalog() {
+    return Object.freeze({
+      authority: 'workflow_plus_government_catalog' as const,
+      moneyAuthority: 'reference_fees_only_no_finance_write' as const,
+      entities: Object.freeze([]),
+      branches: Object.freeze([]),
+      procedures: Object.freeze([]),
+    });
+  },
+  async loadTransactionContext(_workspaceId: string, transactionId: string) {
+    return Object.freeze({
+      authority: 'canonical_workflow_instance' as const,
+      transactionId,
+      instance: null,
+    });
+  },
+  async startProcedure() { throw new Error('R2 production test does not allow workflow writes'); },
+  async transition() { throw new Error('R2 production test does not allow workflow writes'); },
+});
+
 const rootElement = document.getElementById('r2-production-test-root');
 if (!rootElement) throw new Error('R2 production test root is missing');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands }} />
+    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, workflowCommands }} />
   </StrictMode>,
 );
