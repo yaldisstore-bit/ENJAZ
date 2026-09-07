@@ -1,4 +1,5 @@
 import type { R2DestinationId } from '../architecture/navigation-contract.ts';
+import { LiveAutomationExperience } from '../automation/LiveAutomationExperience.tsx';
 
 type OperationalDestination = Extract<R2DestinationId, 'finance' | 'operations' | 'workflow' | 'automation' | 'command' | 'risk' | 'copilot'>;
 
@@ -38,7 +39,7 @@ function Workflow() {
 }
 
 function Automation() {
-  return <div className="r2-screen r2-oi-workspace r2-oi-automation" data-operational-domain="automation"><Header eyebrow="القواعد" title="الأتمتة" description="المشغّل ← الشرط ← الفعل ← النتيجة؛ السببية مرئية بدل قائمة إعدادات غامضة." /><section className="r2-automation-stack">{[['متابعة متأخرة','عند تجاوز موعد المتابعة','إذا كانت المعاملة فعّالة','أضفها إلى عمل اليوم','جاهزة'],['دفعة قريبة','قبل الاستحقاق بـ 48 ساعة','إذا لم يوجد توثيق','أنشئ تنبيه مراجعة','جاهزة'],['معاملة متوقفة','بعد 2 يوم دون حركة','إذا لم تكن مؤرشفة','ارفع إشارة للمخاطر','مراجعة']].map(([title,trigger,condition,action,state]) => <article className="r2-automation-rule" key={title}><div className="r2-automation-rule__top"><div><p className="r2-eyebrow">{state}</p><h2>{title}</h2></div><span className="r2-automation-health">سجل التنفيذ متاح للقراءة</span></div><div className="r2-automation-flow"><span><small>مشغّل</small><strong>{trigger}</strong></span><i>←</i><span><small>شرط</small><strong>{condition}</strong></span><i>←</i><span><small>فعل</small><strong>{action}</strong></span></div></article>)}</section><TruthNote /></div>;
+  return <LiveAutomationExperience />;
 }
 
 function Command() {
