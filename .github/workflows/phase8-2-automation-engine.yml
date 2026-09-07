@@ -18,9 +18,9 @@ concurrency:
 
 jobs:
   phase8-2-automation:
-    name: Canonical automation / replay / approval gate
+    name: Canonical automation / replay / approval / Real Chromium gate
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v7
         with:
@@ -48,3 +48,39 @@ jobs:
         run: npm run audit:secrets && npm run typecheck
       - name: Production build and hard budget
         run: npm run build -- --base=/ && npm run audit:dist:budget
+
+      - name: Build isolated Phase 8.2 automation preview
+        run: npx vite build --config vite.phase8-2-preview.config.ts --base=/
+      - name: Enforce isolated Phase 8.2 preview size
+        run: |
+          test -f dist-phase8-2-preview/phase8-2-preview.html
+          BYTES=$(du -sb dist-phase8-2-preview | cut -f1)
+          echo "Phase 8.2 preview bytes: $BYTES"
+          test "$BYTES" -le 9437184
+      - name: Install pinned real-browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated Phase 8.2 preview
+        run: |
+          nohup npx vite preview --config vite.phase8-2-preview.config.ts --host 127.0.0.1 --port 4182 > /tmp/enjaz-phase82-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4182/phase8-2-preview.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase82-preview.log
+          exit 1
+      - name: Real Chromium Phase 8.2 acceptance
+        env:
+          PHASE82_BASE_URL: http://127.0.0.1:4182/
+        run: npx playwright test tests-external/phase8-2-automation.spec.cjs --reporter=line --workers=1
+      - name: Upload Phase 8.2 diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-phase8-2-diagnostics-${{ github.sha }}
+          path: |
+            test-results/
+            /tmp/enjaz-phase82-preview.log
+          if-no-files-found: ignore
+          retention-days: 7
