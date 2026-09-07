@@ -13,7 +13,7 @@ export function FinancialIntelligencePanel({intelligence:x}:{readonly intelligen
   <aside className="r2-f73-disclosure">{x.agingDisclosure}</aside>
   <section className="r2-f73-grid r2-f73-grid--primary">
    <article className="r2-f73-card r2-f73-card--aging"><h2>عمر الأرصدة المفتوحة</h2>{x.aging.map(v=><div className="r2-f73-aging-row" data-aging-bucket={v.key} key={v.key}><span>{v.label} · {v.receivableCount}</span><b>{m(v.outstandingCents)}</b></div>)}</article>
-   <article className="r2-f73-card r2-f73-card--trend"><h2>اتجاه التحصيل</h2><div className="r2-f73-chart">{x.trends.map(v=><div className="r2-f73-chart__column" key={v.monthKey}><span>{v.monthLabel}</span><b>{m(v.collectedCents)}</b></div>)}</div><p>Run-rate: {m(x.runRate.projectedNext30AtSameRunRateCents)}؛ ليس توقعاً مضموناً.</p></article>
+   <article className="r2-f73-card r2-f73-card--trend"><h2>اتجاه التحصيل</h2><div className="r2-f73-chart">{x.trends.map(v=><div className="r2-f73-chart__column" key={v.monthKey}><span>{v.monthLabel}</span><b>{m(v.collectedCents)}</b></div>)}</div><p>Run: {m(x.runRate.projectedNext30AtSameRunRateCents)}؛ ليس توقعاً مضموناً.</p></article>
   </section>
   <section className="r2-f73-grid">
    <article className="r2-f73-card"><h2>أولوية التحصيل</h2>{x.attentionQueue.length?x.attentionQueue.slice(0,8).map(v=><div className="r2-f73-attention" key={v.transactionId}><span>{v.companyLabel} · {v.ageDays} يوم</span><b>{m(v.outstandingCents)}</b></div>):<p>لا توجد أرصدة تتجاوز 30 يوماً</p>}</article>
@@ -26,7 +26,7 @@ export function FinancialIntelligencePanel({intelligence:x}:{readonly intelligen
 export function ConnectedPhase73FinancialIntelligenceExperience(){
  const user=useCurrentUserId(),factory=useDataLayerFactory(),[data,setData]=useState<FinanceIntelligenceSnapshot|false>();
  useEffect(()=>{let live=true;(async()=>{try{if(!user)throw 0;const r=await loadFinanceSource(factory,user);if(live)setData(buildFinancialIntelligenceSnapshot(r.source))}catch{if(live)setData(false)}})();return()=>{live=false}},[factory,user]);
- if(data===undefined)return <div className="r2-screen r2-finance-phase73"><h1>الرؤية المالية</h1><p>جارٍ بناء المؤشرات…</p></div>;
- if(data===false)return <div className="r2-screen r2-finance-phase73"><h1>لم تُبنَ الرؤية المالية</h1><p>تعذر بناء الرؤية.</p></div>;
+ if(data===undefined)return <div className="r2-screen r2-finance-phase73"><h1>الرؤية المالية</h1><p>جارٍ…</p></div>;
+ if(data===false)return <div className="r2-screen r2-finance-phase73"><h1>لم تُبنَ الرؤية المالية</h1><p>تعذر.</p></div>;
  return <div className="r2-screen r2-finance-phase73" data-finance-stage="7.3" data-m13-finance-anchor="true"><FinancialIntelligencePanel intelligence={data}/></div>
 }
