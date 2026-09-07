@@ -13,7 +13,9 @@ const css = read('src/ui-r2/finance/phase72.css');
 const portal = read('src/ui-r2/finance/LiveFinanceProductionPortal.tsx');
 
 const failures = [];
+let checks = 0;
 const check = (name, condition, detail = '') => {
+  checks += 1;
   if (!condition) failures.push(`${name}${detail ? `: ${detail}` : ''}`);
 };
 const has = (text, value) => text.includes(value);
@@ -44,13 +46,15 @@ const publicRpcNames = [
   'create_finance_cashbox_v1', 'create_billing_engagement_v1', 'finance_payment_reconciliation_v1',
   'finance_payment_context_v1', 'post_payment_v1', 'reverse_payment_v1', 'get_payment_receipt_v1',
 ];
+check('private_impl_recreation_is_exact', has(hardening, 'pg_get_functiondef(r.oid)') && has(hardening, "v_private_name := r.proname || '_impl'"));
+check('private_schema_not_data_api', has(hardening, 'grant usage on schema private to authenticated'));
+check('private_public_anon_revoked', has(hardening, 'revoke all on all functions in schema private from public, anon'));
 for (const name of publicRpcNames) {
   const wrapper = new RegExp(`create\\s+or\\s+replace\\s+function\\s+public\\.${name}[\\s\\S]*?security\\s+invoker`, 'i');
   check(`public_${name}_final_invoker`, wrapper.test(hardening));
-  const privateImpl = new RegExp(`create\\s+or\\s+replace\\s+function\\s+private\\.[a-z0-9_]*${name.replace(/_v1$/, '')}[a-z0-9_]*[\\s\\S]*?security\\s+definer`, 'i');
-  check(`private_${name}_guarded_impl`, privateImpl.test(hardening), 'privileged implementation must be private');
+  check(`private_${name}_exact_execute`, hardening.includes(`private.${name}_impl(`));
+  check(`public_${name}_anon_revoked`, hardening.includes(`revoke all on function public.${name}(`));
 }
-check('public_definer_revoked_by_hardening', has(hardening, 'security invoker') && has(hardening, 'revoke all on function private.'));
 check('fk_index_cashbox_creator', has(indexes, 'cashbox_accounts_finance_created_by_idx'));
 check('fk_index_payment_cashbox', has(indexes, 'payments_cashbox_fk_idx'));
 check('fk_index_payment_creator', has(indexes, 'payments_created_by_idx'));
@@ -71,11 +75,11 @@ check('ui_has_cashbox', has(ui, 'إنشاء خزنة مالية'));
 check('ui_has_m16', has(ui, 'عقد أو Retainer'));
 check('ui_has_idempotency_explanation', has(ui, 'Idempotency'));
 check('mobile_320_guard', has(css, '@media(max-width:360px)'));
-check('print_receipt_contract', has(css, '@media print') && has(css, '[data-print-receipt="true"]') === false ? has(css, '.r2-f72-receipt-paper') : true);
+check('print_receipt_contract', has(css, '@media print') && has(css, '.r2-f72-receipt-paper'));
 check('reduced_motion', has(css, 'prefers-reduced-motion'));
 
 if (failures.length) {
   console.error('Phase 7.2 audit failed:\n- ' + failures.join('\n- '));
   process.exit(1);
 }
-console.log(`Phase 7.2 audit PASS (${42 + publicRpcNames.length * 2} contract checks)`);
+console.log(`Phase 7.2 audit PASS (${checks} contract checks)`);
