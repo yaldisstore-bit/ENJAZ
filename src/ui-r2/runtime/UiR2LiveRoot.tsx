@@ -9,6 +9,7 @@ import {
 } from '../architecture/navigation-contract.ts';
 import { LiveAutomationExperience } from '../automation/LiveAutomationExperience.tsx';
 import { ConnectedCoreWorkRouter } from '../core-work/CoreWorkConnected.tsx';
+import { LiveFieldOperationsExperience } from '../field-operations/LiveFieldOperationsExperience.tsx';
 import { buildR2FindAnythingResults } from '../find-anything/find-anything-model.ts';
 import { ConnectedR2Home } from '../home/ConnectedHomeExperience.tsx';
 import { OperationalIntelligenceExperience } from '../operational-intelligence/OperationalIntelligenceExperience.tsx';
@@ -153,7 +154,8 @@ export function UiR2LiveRoot({ accountLabel = 'حساب إنجاز', onSignOut }
   else if (destinationId === 'more') content = <More navigate={navigate} />;
   else if (destinationId === 'companies' || destinationId === 'people' || destinationId === 'finance') content = <PortalTarget id={destinationId} />;
   else if (destinationId === 'automation') content = <LiveAutomationExperience />;
-  else if (destinationId === 'operations' || destinationId === 'workflow' || destinationId === 'command' || destinationId === 'risk' || destinationId === 'copilot') content = <OperationalIntelligenceExperience id={destinationId} />;
+  else if (destinationId === 'operations') content = <LiveFieldOperationsExperience />;
+  else if (destinationId === 'workflow' || destinationId === 'command' || destinationId === 'risk' || destinationId === 'copilot') content = <OperationalIntelligenceExperience id={destinationId} />;
   else content = <DeferredDestination id={destinationId} navigate={navigate} />;
 
   const currentDoor = doorFor(destinationId);
