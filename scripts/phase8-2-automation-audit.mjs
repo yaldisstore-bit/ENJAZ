@@ -7,6 +7,13 @@ const hardening = read('database/migrations/phase_8_2_rpc_security_hardening.sql
 const cloudProbe = read('database/migrations/phase_8_2_live_authenticated_automation_probe.sql');
 const fkHardening = read('database/migrations/phase_8_2_fk_index_hardening.sql');
 const commands = read('src/features/automation/automationCommands.ts');
+const commandContext = read('src/features/automation/AutomationCommandContext.tsx');
+const liveUi = read('src/ui-r2/automation/LiveAutomationExperience.tsx');
+const productionRoot = read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
+const operationalRoot = read('src/ui-r2/operational-intelligence/OperationalIntelligenceExperience.tsx');
+const navigation = read('src/ui-r2/architecture/navigation-contract.ts');
+const chromium = read('tests-external/phase8-2-automation.spec.cjs');
+const workflow = read('.github/workflows/phase8-2-automation-engine.yml');
 const tests = read('tests/automationEngine.test.ts');
 const state = JSON.parse(read('docs/PHASE8_2_STATE.json'));
 const kickoff = read('docs/PHASE8_2_KICKOFF.md');
@@ -117,6 +124,54 @@ for (const marker of [
   'get_automation_engine_context_v1',
 ]) requireMarker(commands, marker, 'automation gateway');
 
+for (const marker of ['AutomationCommandProvider', 'useAutomationCommandGateway']) requireMarker(commandContext, marker, 'automation command context');
+
+for (const marker of [
+  'data-automation-stage="8.2"',
+  'data-automation-authority="automation_rules_and_runs"',
+  'data-finance-write-authority="none"',
+  'resolveWorkspaceId',
+  'setRuleEnabled',
+  "gateway.dispatch(resolvedWorkspaceId, rule.id, 'manual'",
+  'decideApproval',
+  "rule.triggerConfig.type !== 'manual'",
+  'await reload(workspaceId)',
+  'لا يوجد تشغيل يدوي مزيف',
+]) requireMarker(liveUi, marker, 'live automation UI');
+
+for (const marker of [
+  'AutomationCommandProvider',
+  'createAutomationCommandGateway(client)',
+  'automationCommands: AutomationCommandGateway',
+  "import '../automation/automation.css'",
+]) requireMarker(productionRoot, marker, 'production root');
+
+for (const marker of [
+  "import { LiveAutomationExperience }",
+  "if (id === 'automation') return <Automation />",
+  'return <LiveAutomationExperience />',
+]) requireMarker(operationalRoot, marker, 'R2 automation destination');
+
+requireMarker(navigation, "{ id: 'automation', label: 'الأتمتة', kind: 'launcher_destination', route: '/app/automation', availability: 'live'", 'navigation');
+
+for (const marker of [
+  'data-automation-stage="8.2"',
+  'data-automation-authority="automation_rules_and_runs"',
+  'data-finance-write-authority="none"',
+  '1280, 430, 390, 360, 320',
+  'activation mutation reloads canonical rule state',
+  'manual dispatch accepts explicit payload',
+  'human rejection clears pending approval',
+]) requireMarker(chromium, marker, 'Real Chromium spec');
+
+for (const marker of [
+  'Build isolated Phase 8.2 automation preview',
+  'npx playwright install --with-deps chromium',
+  'Real Chromium Phase 8.2 acceptance',
+  'tests-external/phase8-2-automation.spec.cjs',
+  'PHASE82_BASE_URL',
+]) requireMarker(workflow, marker, 'Phase 8.2 workflow');
+
 for (const marker of ['receipt key for replay-safe execution','pending human approval evidence','explicit decision idempotency key','outcome-unknown']) requireMarker(tests, marker, 'tests');
 
 if (state.phase !== '8.2' || state.status !== 'IN_PROGRESS' || state.baseCommit !== '65e2c29bc5b656b5c56daa84a893aeff65c5d662') errors.push('Phase 8.2 state identity/base drifted');
@@ -136,5 +191,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical rules/runs preserved; private-definer/public-invoker mutation boundary enforced; authenticated real-cloud replay/stale/approval probe PASS; FK hardening present; finance authority=none; Phase 8.3 LOCKED.');
+  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical rules/runs + live R2 destination preserved; private-definer/public-invoker mutation boundary enforced; authenticated Real Cloud PASS; dedicated Real Chromium contract present; finance authority=none; Phase 8.3 LOCKED.');
 }
