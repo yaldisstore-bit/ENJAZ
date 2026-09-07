@@ -11,7 +11,11 @@ const has = (text, marker) => text.includes(marker);
 
 const state = JSON.parse(read('docs/PHASE8_1_STATE.json'));
 const prior = JSON.parse(read('docs/PHASE7_5_STATE.json'));
+const major = JSON.parse(read('docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json'));
 const kickoff = read('docs/PHASE8_1_KICKOFF.md');
+const closure = read('docs/PHASE8_1_CLOSURE.md');
+const postMerge = read('docs/PHASE8_1_POSTMERGE_RECERTIFICATION.md');
+const realCloud = read('docs/PHASE8_1_REAL_CLOUD_EVIDENCE.md');
 const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 const baseline = read('database/baseline/phase1_2_schema.sql');
 const migrationPath = 'database/migrations/phase_8_1_workflow_government_procedure_os.sql';
@@ -48,12 +52,29 @@ const runtimeTests = exists(runtimeTestPath) ? read(runtimeTestPath) : '';
 const packageJson = JSON.parse(read('package.json'));
 
 check('phase_identity', state.phase === '8.1' && state.name === 'Workflow Engine & Government Procedure OS — M1');
-check('phase_in_progress_fail_closed', state.status === 'IN_PROGRESS' && state.exitGatePassed === false && state.phase8_2Allowed === false && state.nextPhase === null);
+check('phase_closed_zero_escape', state.status === 'CLOSED' && state.exitGatePassed === true && state.unresolvedDefectCount === 0 && state.criticalDefectCount === 0 && state.highDefectCount === 0 && state.functionalBlockerCount === 0);
+check('phase82_authorized_only_after_closure', state.phase8_2Allowed === true && state.nextPhase === '8.2');
 check('exact_phase7_closure_base', state.baseCommit === '7e42e69623db7af32797448f00ae3b58735ad794');
+check('certified_implementation_head', state.implementationHead === 'fe19308c8707dc346a3254b92292c048c8c1bc4a' && state.pullRequest === 107);
+check('canonical_merge_sha', state.mergeCommit === '95f988ac305d9003ee19a5f0f474c499f51d288b');
 check('phase7_5_closed', prior.phase === '7.5' && prior.status === 'CLOSED' && prior.exitGatePassed === true && prior.phase8Allowed === true && prior.nextPhase === '8.1');
-check('m1_not_falsely_closed', state.m1AnchorStatus === 'IN_PROGRESS' && state.m1OverallSystemClosed === false);
-check('phase8_2_locked_doc', has(kickoff, 'Phase 8.2 remains locked') && has(kickoff, 'Phase 8.2 is not authorized'));
+check('m1_anchor_complete_but_overall_open', state.m1AnchorStatus === 'CLOSURE_CANDIDATE' && state.m1OverallSystemClosed === false && state.m1RemainingClosureAuthority === 'Phase 8.7 individual Zero-Escape destruction evidence');
+const m1 = major.systems?.find((system) => system.id === 'M1');
+check('major_registry_m1_fail_closed_candidate', m1?.name === 'Government Procedure Operating System' && m1?.status === 'CLOSURE_CANDIDATE' && m1?.closureEvidence === 'docs/PHASE8_1_CLOSURE.md');
+check('other_major_systems_not_silently_closed', major.systems?.filter((system) => system.id !== 'M1').every((system) => system.status !== 'CLOSED'));
+check('kickoff_historical_lock_preserved', has(kickoff, 'Phase 8.2 remains locked') && has(kickoff, 'Phase 8.2 is not authorized'));
 check('roadmap_81_authority', has(roadmap, '## 8.1 — Workflow Engine & Government Procedure OS — M1'));
+check('roadmap_82_authority', has(roadmap, '**Next: Phase 8.2 — Automation Engine**'));
+
+check('preclosure_exact_head_green', state.preClosure?.workflowCount === 30 && state.preClosure?.successCount === 30 && state.preClosure?.failureCount === 0 && state.preClosure?.inProgressCount === 0 && state.preClosure?.queuedCount === 0 && state.preClosure?.cancelledCount === 0 && state.preClosure?.realChromium === 'PASS' && state.preClosure?.dedicatedGateRunId === 34117435926 && state.preClosure?.realBrowserRunId === 34117435896);
+check('real_cloud_complete', state.realCloudVerification?.status === 'COMPLETE' && state.realCloudVerification?.catalog === 'PASS' && state.realCloudVerification?.prerequisites === 'PASS' && state.realCloudVerification?.branchRequirements === 'PASS' && state.realCloudVerification?.idempotency === 'PASS' && state.realCloudVerification?.requiredItems === 'PASS' && state.realCloudVerification?.staleState === 'PASS' && state.realCloudVerification?.complete === 'PASS' && state.realCloudVerification?.reopen === 'PASS' && state.realCloudVerification?.prerequisiteSuccess === 'PASS');
+check('postmerge_exact_sha_green', state.postMergeRecertification?.status === 'COMPLETE' && state.postMergeRecertification?.mainCommit === '95f988ac305d9003ee19a5f0f474c499f51d288b' && state.postMergeRecertification?.workflowCount === 15 && state.postMergeRecertification?.successCount === 15 && state.postMergeRecertification?.failureCount === 0 && state.postMergeRecertification?.inProgressCount === 0 && state.postMergeRecertification?.queuedCount === 0 && state.postMergeRecertification?.cancelledCount === 0);
+check('postmerge_critical_runs', state.postMergeRecertification?.phaseGateRunId === 34117766941 && state.postMergeRecertification?.pagesPreviewRunId === 34117816460 && state.postMergeRecertification?.pagesDeploymentRunId === 34117766836 && state.postMergeRecertification?.realBrowserRunId === 34117766978 && state.postMergeRecertification?.liveExternalRunId === 34117875655);
+check('postmerge_deployed_live_success', state.postMergeRecertification?.pagesPreview === 'SUCCESS' && state.postMergeRecertification?.pagesBuild === 'SUCCESS' && state.postMergeRecertification?.pagesDeploy === 'SUCCESS' && state.postMergeRecertification?.realBrowser === 'SUCCESS' && state.postMergeRecertification?.liveExternal === 'SUCCESS' && state.postMergeRecertification?.publishedApplicationAttack === 'SUCCESS');
+check('closure_evidence_pointers', state.closureEvidence === 'docs/PHASE8_1_CLOSURE.md' && state.postMergeEvidence === 'docs/PHASE8_1_POSTMERGE_RECERTIFICATION.md' && state.realCloudVerification?.evidence === 'docs/PHASE8_1_REAL_CLOUD_EVIDENCE.md');
+for (const marker of ['Status: CLOSED', 'fe19308c8707dc346a3254b92292c048c8c1bc4a', '95f988ac305d9003ee19a5f0f474c499f51d288b', '30/30 SUCCESS', '15/15 exact-SHA workflow runs SUCCESS', '34117766941', '34117816460', '34117766836', '34117766978', '34117875655', 'Attack the actual published application', 'M1 overall system closure: **OPEN', 'Phase 8.2 — Automation Engine']) check(`closure_${marker}`, has(closure, marker));
+for (const marker of ['Status: COMPLETE', '95f988ac305d9003ee19a5f0f474c499f51d288b', '15/15 workflow runs SUCCESS', '34117766941', '34117816460', '34117766836', '34117766978', '34117875655', 'Attack the actual published application', 'CLOSURE_CANDIDATE']) check(`postmerge_${marker}`, has(postMerge, marker));
+for (const marker of ['authenticated Real Cloud Supabase probe', 'catalog', 'prerequisite', 'idempotent', 'required-item', 'stale-state', 'completion', 'reopen']) check(`realcloud_${marker}`, has(realCloud, marker));
 
 for (const table of ['workflow_templates','workflow_template_stages','workflow_template_items','workflow_instances','workflow_stage_states','workflow_item_states']) {
   check(`baseline_${table}`, has(baseline, `create table public.${table}`));
@@ -149,7 +170,7 @@ for (const marker of [
 check('panel_blocks_required_transition', has(panel, "blockedByItems = instance.pendingRequiredCount > 0") && has(panel, 'disabled={busy || blockedByItems'));
 
 check('workflow_css_exists', Boolean(css));
-check('workflow_css_token_only_colors', !/#[0-9a-f]{3,8}\b/i.test(css) && !/rgba?\s*\(/i.test(css) && !/hsla?\s*\(/i.test(css));
+check('workflow_css_token_only_colors', !/#[0-9a-f]{3,8}\b/i.test(css) && !/rgba?\s*\(/i.test(css) && !/hsla?\s*\(/i.test(css) && !/color-mix\s*\(/i.test(css));
 check('workflow_css_mobile_760', has(css, '@media(max-width:760px)'));
 check('workflow_css_mobile_380', has(css, '@media(max-width:380px)'));
 
@@ -182,4 +203,4 @@ if (failures.length) {
   console.error(`ENJAZ PHASE 8.1 WORKFLOW/GOVERNMENT PROCEDURE AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);
   process.exit(1);
 }
-console.log(`ENJAZ PHASE 8.1 WORKFLOW/GOVERNMENT PROCEDURE AUDIT PASS (${checks} checks) — backend + Transaction 360 UI + Real Chromium contract present; IN_PROGRESS; Phase 8.2 locked.`);
+console.log(`ENJAZ PHASE 8.1 WORKFLOW/GOVERNMENT PROCEDURE AUDIT PASS (${checks} checks) — backend + Transaction 360 UI + Real Chromium contract preserved; Phase 8.1 CLOSED + POST-MERGE RECERTIFIED; M1 remains fail-closed CLOSURE_CANDIDATE; Phase 8.2 authorized.`);

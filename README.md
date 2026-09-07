@@ -2,9 +2,11 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 7.5 — Finance Destruction & Reconciliation Gate ✅ CLOSED + POST-MERGE RECERTIFIED**  
-آخر مرحلة مغلقة: **Phase 7.5 — Finance Destruction & Reconciliation Gate ✅**  
-التالي المسموح: **Phase 8.1 — Workflow Engine & Government Procedure OS — M1**.
+الحالة الرسمية: **Phase 8.1 — Workflow Engine & Government Procedure OS — M1 ✅ CLOSED + POST-MERGE RECERTIFIED**  
+آخر مرحلة مغلقة: **Phase 8.1 — Workflow Engine & Government Procedure OS — M1 ✅**  
+التالي المسموح: **Phase 8.2 — Automation Engine**.
+
+سجل الانتقال التاريخي قبل إغلاق 8.1: الحالة الرسمية: **Phase 7.5 — Finance Destruction & Reconciliation Gate ✅ CLOSED + POST-MERGE RECERTIFIED**، وكان التالي المسموح: **Phase 8.1 — Workflow Engine & Government Procedure OS — M1**.
 
 ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية حديثة وبنية Supabase/Postgres + RLS، من دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -36,6 +38,10 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - [`docs/PHASE7_5_REAL_CLOUD_EVIDENCE.md`](docs/PHASE7_5_REAL_CLOUD_EVIDENCE.md)
 - [`docs/PHASE7_5_CLOSURE.md`](docs/PHASE7_5_CLOSURE.md)
 - [`docs/PHASE7_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE7_5_POSTMERGE_RECERTIFICATION.md)
+- [`docs/PHASE8_1_STATE.json`](docs/PHASE8_1_STATE.json)
+- [`docs/PHASE8_1_REAL_CLOUD_EVIDENCE.md`](docs/PHASE8_1_REAL_CLOUD_EVIDENCE.md)
+- [`docs/PHASE8_1_CLOSURE.md`](docs/PHASE8_1_CLOSURE.md)
+- [`docs/PHASE8_1_POSTMERGE_RECERTIFICATION.md`](docs/PHASE8_1_POSTMERGE_RECERTIFICATION.md)
 
 ## الحالة الكانونية للمراحل
 
@@ -61,7 +67,10 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - **Phase 7.4 — Financial Reports** ✅ complete + post-merge recertified
 - **Phase 7.5 — Finance Destruction & Reconciliation Gate** ✅ complete + post-merge recertified
 - **Phase 7 — Finance** ✅ complete + post-merge recertified
-- **Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**
+- Historical predecessor pointer (satisfied): **Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**
+- **Phase 8.1 — Workflow Engine & Government Procedure OS — M1** ✅ complete + post-merge recertified
+- **M1 — Government Procedure Operating System** 🟠 `CLOSURE_CANDIDATE`; implementation anchor complete, overall closure remains fail-closed until Phase 8.7 individual Zero-Escape destruction evidence
+- **Next: Phase 8.2 — Automation Engine**
 
 ### Phase 7.1 canonical evidence
 
@@ -133,11 +142,26 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - Live External included **Attack the actual published application** — SUCCESS.
 - **Phase 7 exit is satisfied. Phase 8.1 — Workflow Engine & Government Procedure OS — M1 is the sole next authorized implementation stage.**
 
+### Phase 8.1 canonical evidence
+
+- Exact tested implementation head: `fe19308c8707dc346a3254b92292c048c8c1bc4a`; PR #107 passed **30/30 pull-request workflows SUCCESS** with zero failure/queued/in-progress/cancelled.
+- The authoritative workflow tables remain the sole runtime state authority; no second procedure state machine or duplicate transaction state was introduced.
+- Government procedure catalog/entity/branch/prerequisite/transition contracts, immutable snapshots, idempotency, stale-state and required-item protection are enforced at the database/domain boundaries.
+- Government fees remain `reference_fees_only_no_finance_write` and never become shadow finance facts.
+- Transaction 360° exposes the canonical **الإجراء الحكومي** workflow.
+- Real Chromium covered **1280/430/390/360/320** and the start → required item → transition → complete → reopen paths.
+- Authenticated Real Cloud Supabase evidence recorded on PR #107 passed catalog, prerequisites, branch requirements, idempotency, required-items, stale-state, complete, reopen and prerequisite-success behavior.
+- Canonical implementation merge: `95f988ac305d9003ee19a5f0f474c499f51d288b`.
+- Exact merged SHA settled at **15/15 exact-SHA workflow runs SUCCESS** with zero failure/queued/in-progress/cancelled.
+- Phase 8.1 gate `34117766941`, Pages Preview `34117816460`, Pages build/deployment `34117766836`, Real Browser `34117766978`, and Live External `34117875655` all succeeded.
+- Live External included **Attack the actual published application** — SUCCESS.
+- **Phase 8.1 is CLOSED + POST-MERGE RECERTIFIED. M1 is a fail-closed CLOSURE_CANDIDATE pending its remaining Phase 8.7 destruction evidence. Phase 8.2 — Automation Engine is the sole next authorized implementation stage.**
+
 ## Major Product Systems — M1–M18
 
-The following are now **governing product scope**, not optional ideas. They remain `PLANNED`/partially implemented until their own implementation and Zero-Escape closure evidence proves otherwise. A completed anchor slice does not automatically close the whole system.
+The following are governing product scope, not optional ideas. **M1 has completed its Phase 8.1 implementation anchor but remains `CLOSURE_CANDIDATE`** until the remaining individual Zero-Escape destruction evidence is completed; the other systems stay `PLANNED`/partially implemented until their own implementation and closure evidence proves otherwise. A completed anchor slice does not automatically close the whole system.
 
-1. **M1 — Government Procedure Operating System**
+1. **M1 — Government Procedure Operating System** 🟠 CLOSURE_CANDIDATE
 2. **M2 — Corporate Governance & Ownership Engine**
 3. **M3 — Client Portal**
 4. **M4 — Omnichannel Communications Hub**
@@ -195,6 +219,6 @@ If a real defect escapes after a system is closed, it is classified as a **Gate 
 
 ## Current development pointer
 
-**Phase 7.5 is closed and canonically post-merge recertified. Phase 7 is complete. Phase 8.1 — Workflow Engine & Government Procedure OS — M1 is the only next authorized implementation stage.**
+**Phase 8.1 is closed and canonically post-merge recertified. M1 remains a fail-closed `CLOSURE_CANDIDATE`. Phase 8.2 — Automation Engine is the only next authorized implementation stage.**
 
-Phase 8.1 is now authorized because Phase 7 completed Zero-Escape closure. Later Phase-8 stages remain locked behind their predecessors. The completed M13 finance anchor does not declare the whole M13 system complete, the completed M16 finance/commercial/reporting anchors do not declare the whole M16 system complete, and starting M1 in 8.1 does not declare M1 closed.
+Phase 8.2 is authorized only by the completed Phase 8.1 closure evidence. Later Phase-8 stages remain locked behind their predecessors. M1 overall closure still requires its remaining individual Phase 8.7 Zero-Escape destruction evidence. The completed M13 finance anchor does not declare the whole M13 system complete, and the completed M16 finance/commercial/reporting anchors do not declare the whole M16 system complete.
