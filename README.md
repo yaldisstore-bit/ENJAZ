@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 7.4 — Financial Reports ✅ CLOSED + POST-MERGE RECERTIFIED**  
-آخر مرحلة مغلقة: **Phase 7.4 — Financial Reports ✅**  
-التالي المسموح: **Phase 7.5 — Finance Destruction & Reconciliation Gate**.
+الحالة الرسمية: **Phase 7.5 — Finance Destruction & Reconciliation Gate ✅ CLOSED + POST-MERGE RECERTIFIED**  
+آخر مرحلة مغلقة: **Phase 7.5 — Finance Destruction & Reconciliation Gate ✅**  
+التالي المسموح: **Phase 8.1 — Workflow Engine & Government Procedure OS — M1**.
 
 ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية حديثة وبنية Supabase/Postgres + RLS، من دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -32,6 +32,10 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - [`docs/PHASE7_4_STATE.json`](docs/PHASE7_4_STATE.json)
 - [`docs/PHASE7_4_CLOSURE.md`](docs/PHASE7_4_CLOSURE.md)
 - [`docs/PHASE7_4_POSTMERGE_RECERTIFICATION.md`](docs/PHASE7_4_POSTMERGE_RECERTIFICATION.md)
+- [`docs/PHASE7_5_STATE.json`](docs/PHASE7_5_STATE.json)
+- [`docs/PHASE7_5_REAL_CLOUD_EVIDENCE.md`](docs/PHASE7_5_REAL_CLOUD_EVIDENCE.md)
+- [`docs/PHASE7_5_CLOSURE.md`](docs/PHASE7_5_CLOSURE.md)
+- [`docs/PHASE7_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE7_5_POSTMERGE_RECERTIFICATION.md)
 
 ## الحالة الكانونية للمراحل
 
@@ -55,7 +59,9 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - **Phase 7.2 — Payments & Receipts** ✅ complete + post-merge recertified
 - **Phase 7.3 — Financial Intelligence** ✅ complete + post-merge recertified
 - **Phase 7.4 — Financial Reports** ✅ complete + post-merge recertified
-- **Next: Phase 7.5 — Finance Destruction & Reconciliation Gate**
+- **Phase 7.5 — Finance Destruction & Reconciliation Gate** ✅ complete + post-merge recertified
+- **Phase 7 — Finance** ✅ complete + post-merge recertified
+- **Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**
 
 ### Phase 7.1 canonical evidence
 
@@ -112,7 +118,20 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - Phase 7.4 post-merge gate run `34097286172`, Pages Preview/deploy run `34097333825`, and Real Browser Acceptance run `34097286214` all succeeded.
 - Live External run `34097378705` succeeded, including **Attack the actual published application**.
 - The **M16 Phase-7.4 reporting hook is complete without a shadow finance store**, but M16 overall remains open for later assigned slices.
-- `phase7_5Allowed=true`; Phase 7.5 is the sole next authorized implementation stage.
+- Historical transition evidence authorized Phase 7.5 after 7.4 closure.
+
+### Phase 7.5 canonical evidence
+
+- Exact tested implementation head: `c479af8341b9699baf639deabbd61d356ea01c4e`; PR #105 passed **30/30 pull-request workflows SUCCESS**.
+- Real Cloud authenticated finance destruction passed on ENJAZ Supabase, including exact `9999999999999999.99`, safe payment/reversal replay, idempotency conflict, reconciliation and probe cleanup.
+- The database now enforces one reversal per payment with forensic fail-closed migration behavior; no duplicate history was silently deleted.
+- Dedicated destructive finance tests passed **45/45** and full functional regression passed **198/198** on canonical recertification.
+- Real Chromium Phase 7.5 passed **9/9** at **1280/430/390/360/320**; cumulative Phase 7.2 Chromium passed **11/11**.
+- Production JavaScript remained **588688/670000** without raising the hard budget.
+- Canonical implementation merge: `761073812fc0e43f481ac20532ea6c10979d805d`; exact merged SHA passed **11/11 canonical main push workflows SUCCESS** with zero failure/queued/in-progress/cancelled.
+- Phase 7.5 gate `34103686407`, Pages Preview/deploy `34103737386`, Real Browser `34103686363`, and Live External `34103828264` all succeeded.
+- Live External included **Attack the actual published application** — SUCCESS.
+- **Phase 7 exit is satisfied. Phase 8.1 — Workflow Engine & Government Procedure OS — M1 is the sole next authorized implementation stage.**
 
 ## Major Product Systems — M1–M18
 
@@ -176,6 +195,6 @@ If a real defect escapes after a system is closed, it is classified as a **Gate 
 
 ## Current development pointer
 
-**Phase 7.4 is closed and canonically post-merge recertified. Phase 7.5 — Finance Destruction & Reconciliation Gate is the only next authorized implementation stage.**
+**Phase 7.5 is closed and canonically post-merge recertified. Phase 7 is complete. Phase 8.1 — Workflow Engine & Government Procedure OS — M1 is the only next authorized implementation stage.**
 
-Phase 8 remains locked until Phase 7.5 completes its own closure and recertification requirements. The completed M13 finance anchor does not declare the whole M13 system complete, and the completed M16 finance/commercial/reporting anchors do not declare the whole M16 system complete.
+Phase 8.1 is now authorized because Phase 7 completed Zero-Escape closure. Later Phase-8 stages remain locked behind their predecessors. The completed M13 finance anchor does not declare the whole M13 system complete, the completed M16 finance/commercial/reporting anchors do not declare the whole M16 system complete, and starting M1 in 8.1 does not declare M1 closed.

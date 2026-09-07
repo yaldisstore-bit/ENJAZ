@@ -21,22 +21,26 @@ const phase72Migration = read('database/migrations/phase_7_2_payments_receipts_m
 const hardeningPath = 'database/migrations/phase_7_5_payment_reversal_uniqueness.sql';
 const cloudProbePath = 'database/probes/phase_7_5_live_finance_destruction_probe.sql';
 const realCloudEvidencePath = 'docs/PHASE7_5_REAL_CLOUD_EVIDENCE.md';
+const closurePath = 'docs/PHASE7_5_CLOSURE.md';
+const postMergePath = 'docs/PHASE7_5_POSTMERGE_RECERTIFICATION.md';
 const testPath = 'tests/financeDestructionGate.test.ts';
 const browserPath = 'tests-external/phase7-5-finance-destruction.spec.cjs';
 const workflowPath = '.github/workflows/phase7-5-finance-destruction.yml';
 const hardening = exists(hardeningPath) ? read(hardeningPath) : '';
 const cloudProbe = exists(cloudProbePath) ? read(cloudProbePath) : '';
 const realCloudEvidence = exists(realCloudEvidencePath) ? read(realCloudEvidencePath) : '';
+const closure = exists(closurePath) ? read(closurePath) : '';
+const postMerge = exists(postMergePath) ? read(postMergePath) : '';
 const tests = exists(testPath) ? read(testPath) : '';
 const browser = exists(browserPath) ? read(browserPath) : '';
 const workflow = exists(workflowPath) ? read(workflowPath) : '';
 
 check('phase_identity', state.phase === '7.5' && state.name === 'Finance Destruction & Reconciliation Gate');
-check('phase_active_fail_closed', state.status === 'ACTIVE' && state.exitGatePassed === false && state.phase8Allowed === false && state.nextPhase === null);
+check('phase_closed_zero_escape', state.status === 'CLOSED' && state.exitGatePassed === true && state.unresolvedDefectCount === 0 && state.criticalDefectCount === 0 && state.highDefectCount === 0 && state.functionalBlockerCount === 0);
 check('base_is_exact_74_closure', state.baseCommit === '75128eabda1c4a8d1b3b53504596a3d227d69874');
 check('budget_preserved', state.productionJavaScriptBudget === 670000);
 check('phase74_authorizes_75', prior.phase === '7.4' && prior.status === 'CLOSED' && prior.exitGatePassed === true && prior.phase7_5Allowed === true && prior.nextPhase === '7.5');
-check('phase8_still_locked', has(kickoff, 'Phase 8 remains **LOCKED**') && has(roadmap, 'Phase 8 remains locked'));
+check('phase8_transition_is_81_only', state.phase8Allowed === true && state.nextPhase === '8.1' && has(roadmap, 'Phase 8.1 — Workflow Engine & Government Procedure OS — M1'));
 
 for (const item of ['hugeValues','subCentUnsafeInputs','reversals','repeatedSubmit','networkUncertainty','staleState','partialHistory','sourceCapacityPressure','authoritativeReconciliation','realCloudFinanceCriticalPath','realBrowserFinanceCriticalPath','deployedLiveFinanceCriticalPath']) {
   check(`scope_${item}`, state.scope?.includes(item));
@@ -87,8 +91,18 @@ check('extreme_is_cumulative', typeof scripts['verify:extreme'] === 'string' && 
 check('workflow_exists', Boolean(workflow));
 for (const marker of ['phase7-4-financial-reports-audit.mjs', 'financeDestructionGate.test.ts', 'phase_7_5_payment_reversal_uniqueness.sql', 'phase_7_5_live_finance_destruction_probe.sql', 'db:audit', 'audit:roadmap', 'typecheck', 'build -- --base=/', 'audit:dist:budget', 'phase7-2-preview', 'phase7-5-finance-destruction.spec.cjs', 'Real Chromium Phase 7.5 destruction']) check(`workflow_${marker}`, has(workflow, marker));
 
+check('closure_implementation_identity', state.implementationHead === 'c479af8341b9699baf639deabbd61d356ea01c4e' && state.pullRequest === 105);
+check('closure_premerge_30_of_30', state.preClosure?.workflowCount === 30 && state.preClosure?.successCount === 30 && state.preClosure?.failureCount === 0 && state.preClosure?.inProgressCount === 0 && state.preClosure?.queuedCount === 0 && state.preClosure?.cancelledCount === 0);
+check('closure_premerge_browser_budget', state.preClosure?.realChromium === 'PASS' && state.preClosure?.dedicatedGateRunId === 34103255390 && state.preClosure?.realBrowserRunId === 34103255198 && state.preClosure?.productionJavaScriptBytes === 588688 && state.preClosure?.productionJavaScriptBudget === 670000);
+check('closure_merge_identity', state.mergeCommit === '761073812fc0e43f481ac20532ea6c10979d805d');
+check('closure_postmerge_complete', state.postMergeRecertification?.status === 'COMPLETE' && state.postMergeRecertification?.mainCommit === '761073812fc0e43f481ac20532ea6c10979d805d' && state.postMergeRecertification?.workflowCount === 11 && state.postMergeRecertification?.successCount === 11 && state.postMergeRecertification?.failureCount === 0 && state.postMergeRecertification?.inProgressCount === 0 && state.postMergeRecertification?.queuedCount === 0 && state.postMergeRecertification?.cancelledCount === 0);
+check('closure_deployed_evidence', state.postMergeRecertification?.phaseGateRunId === 34103686407 && state.postMergeRecertification?.pagesPreviewRunId === 34103737386 && state.postMergeRecertification?.pagesPreview === 'SUCCESS' && state.postMergeRecertification?.pagesBuild === 'SUCCESS' && state.postMergeRecertification?.pagesDeploy === 'SUCCESS' && state.postMergeRecertification?.realBrowserRunId === 34103686363 && state.postMergeRecertification?.realBrowser === 'SUCCESS' && state.postMergeRecertification?.liveExternalRunId === 34103828264 && state.postMergeRecertification?.liveExternal === 'SUCCESS' && state.postMergeRecertification?.publishedApplicationAttack === 'SUCCESS');
+check('closure_evidence_pointers', state.closureEvidence === closurePath && state.postMergeEvidence === postMergePath && Boolean(closure) && Boolean(postMerge));
+for (const marker of ['Status: CLOSED', '30/30 SUCCESS', '588688 / 670000', '761073812fc0e43f481ac20532ea6c10979d805d', '34103828264', 'Attack the actual published application', 'Phase 8.1 — Workflow Engine & Government Procedure OS — M1']) check(`closure_doc_${marker}`, has(closure, marker));
+for (const marker of ['Status: COMPLETE', '11/11 main push workflows SUCCESS', '34103686407', '34103737386', '34103686363', '34103828264', 'Phase 8.1 — Workflow Engine & Government Procedure OS — M1']) check(`postmerge_doc_${marker}`, has(postMerge, marker));
+
 if (failures.length) {
   console.error('ENJAZ PHASE 7.5 FINANCE DESTRUCTION AUDIT FAIL\n- ' + failures.join('\n- '));
   process.exit(1);
 }
-console.log(`ENJAZ PHASE 7.5 FINANCE DESTRUCTION AUDIT PASS (${checks} checks) — ACTIVE; Real Cloud PASS; Phase 8 locked.`);
+console.log(`ENJAZ PHASE 7.5 FINANCE DESTRUCTION AUDIT PASS (${checks} checks) — CLOSED + POST-MERGE RECERTIFIED; Real Cloud PASS; next=Phase 8.1 only.`);
