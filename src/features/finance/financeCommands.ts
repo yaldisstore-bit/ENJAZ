@@ -157,6 +157,24 @@ function requireInteger(value: unknown, label: string): number {
   return numberValue;
 }
 
+function requireUnsignedBigInt(value: unknown, label: string): bigint {
+  const normalized = typeof value === 'bigint'
+    ? value.toString()
+    : typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
+      ? String(value)
+      : typeof value === 'string' && /^\d+$/.test(value.trim())
+        ? value.trim()
+        : null;
+  if (normalized === null) throw new DataAccessError(`Invalid ${label}`, 'DATA_OPERATION_FAILED');
+  try {
+    const result = BigInt(normalized);
+    if (result < 0n) throw new Error('negative');
+    return result;
+  } catch {
+    throw new DataAccessError(`Invalid ${label}`, 'DATA_OPERATION_FAILED');
+  }
+}
+
 export function parseFinanceDecimalToCents(value: string, label = 'money'): bigint {
   const normalized = value.trim();
   const match = normalized.match(DECIMAL_PATTERN);
@@ -214,7 +232,7 @@ function parseReceipt(value: unknown): FinanceReceipt {
   return Object.freeze({
     paymentId: requireUuid(row.paymentId, 'payment id'),
     receiptRef: requireString(row.receiptRef, 'receipt ref', 120),
-    receiptSerial: BigInt(requireString(String(row.receiptSerial), 'receipt serial', 32)),
+    receiptSerial: requireUnsignedBigInt(row.receiptSerial, 'receipt serial'),
     receiptToken: requireUuid(row.receiptToken, 'receipt token'),
     amountCents: parseFinanceDecimalToCents(requireString(row.amount, 'receipt amount', 32), 'receipt amount'),
     method: parseMethod(row.method),
