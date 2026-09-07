@@ -62,7 +62,7 @@ for (const marker of [
 ]) requireMarker(migration, marker, 'Phase 8.3 migration');
 
 for (const marker of [
-  'p_client_operation_id is also the canonical visit UUID',
+  'client operation UUID is also the canonical visit UUID',
   'insert into public.field_visits(id,workspace_id,assignment_id,transaction_id,assigned_user_id,check_in_location,started_by)',
   'values(p_client_operation_id,p_workspace_id',
   'ENJAZ_FIELD_OPERATION_ID_CONFLICT',
@@ -73,7 +73,28 @@ for (const forbidden of ['service_role', 'public.payments', 'public.financial_le
   forbidMarker(migration.toLowerCase(), forbidden, 'Phase 8.3 migration');
   forbidMarker(offlineHardening.toLowerCase(), forbidden, 'offline visit identity hardening');
 }
-forbidMarker(migration.toLowerCase(), 'security invoker\nset search_path', 'private mutation implementation');
+
+for (const name of ['set_field_location_policy_v1','upsert_field_assignment_v1','reassign_field_assignment_v1','start_field_visit_v1','finish_field_visit_v1','add_field_visit_evidence_v1','handoff_field_assignment_v1']) {
+  const marker = `create or replace function public.${name}`;
+  const start = migration.indexOf(marker);
+  const end = start >= 0 ? migration.indexOf('$$;', start) : -1;
+  const wrapper = start >= 0 && end >= 0 ? migration.slice(start, end + 3).toLowerCase() : '';
+  if (!wrapper) errors.push(`public field wrapper missing: ${name}`);
+  else {
+    requireMarker(wrapper, 'security invoker', `${name} public wrapper`);
+    requireMarker(wrapper, "set search_path=''", `${name} public wrapper`);
+    forbidMarker(wrapper, 'security definer', `${name} public wrapper`);
+  }
+}
+for (const name of ['set_field_location_policy_v1_impl','upsert_field_assignment_v1_impl','reassign_field_assignment_v1_impl','finish_field_visit_v1_impl','add_field_visit_evidence_v1_impl','handoff_field_assignment_v1_impl']) {
+  const marker = `create or replace function private.${name}`;
+  const start = migration.indexOf(marker);
+  const end = start >= 0 ? migration.indexOf('$$;', start) : -1;
+  const body = start >= 0 && end >= 0 ? migration.slice(start, end + 3).toLowerCase() : '';
+  if (!body) errors.push(`private field implementation missing: ${name}`);
+  else requireMarker(body, 'security definer', `${name} private implementation`);
+}
+requireMarker(offlineHardening.toLowerCase(), 'security definer', 'offline check-in private implementation');
 
 for (const marker of [
   "export type FieldLocationPolicy = 'disabled' | 'optional' | 'required'",
@@ -118,7 +139,6 @@ for (const marker of [
   'getCurrentPosition',
   'createFieldOfflineQueue',
   'syncFieldOfflineQueue',
-  'officialFeeEvidenceOnly',
   'رسم رسمي مدفوع — دليل فقط، ليس Payment',
   'لا يوجد background tracking',
   'إعادة تكليف طارئة',
@@ -169,7 +189,7 @@ if (!m5 || m5.name !== 'ENJAZ Field Operations / Runner Mode' || !m5.anchors?.in
 for (const marker of [
   'Status: **IN PROGRESS**',
   '698ba49fe80d8bc297a041afd253b01787dc460b',
-  'official fee captured during a visit is field evidence',
+  'Official fee captured during a visit is field evidence',
   'stable client operation IDs',
   'sync is idempotent using server-side receipts',
   'no background tracking contract is introduced',
