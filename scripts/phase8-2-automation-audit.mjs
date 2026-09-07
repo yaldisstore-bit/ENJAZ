@@ -10,6 +10,7 @@ const commands = read('src/features/automation/automationCommands.ts');
 const commandContext = read('src/features/automation/AutomationCommandContext.tsx');
 const liveUi = read('src/ui-r2/automation/LiveAutomationExperience.tsx');
 const productionRoot = read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
+const liveRoot = read('src/ui-r2/runtime/UiR2LiveRoot.tsx');
 const operationalRoot = read('src/ui-r2/operational-intelligence/OperationalIntelligenceExperience.tsx');
 const navigation = read('src/ui-r2/architecture/navigation-contract.ts');
 const chromium = read('tests-external/phase8-2-automation.spec.cjs');
@@ -147,10 +148,17 @@ for (const marker of [
 ]) requireMarker(productionRoot, marker, 'production root');
 
 for (const marker of [
-  "import { LiveAutomationExperience }",
-  "if (id === 'automation') return <Automation />",
+  "import { LiveAutomationExperience } from '../automation/LiveAutomationExperience.tsx'",
+  "destinationId === 'automation'",
   '<LiveAutomationExperience />',
-]) requireMarker(operationalRoot, marker, 'R2 automation destination');
+]) requireMarker(liveRoot, marker, 'live R2 automation destination');
+
+for (const marker of [
+  "const DEMO_NOTE = 'عينة تفاعلية R2.0-7",
+  'function Automation()',
+  "if (id === 'automation') return <Automation />",
+]) requireMarker(operationalRoot, marker, 'frozen R2.0-7 operational root');
+forbidMarker(operationalRoot, 'LiveAutomationExperience', 'frozen R2.0-7 operational root');
 
 requireMarker(navigation, "{ id: 'automation', label: 'الأتمتة', kind: 'launcher_destination', route: '/app/automation', availability: 'live'", 'navigation');
 
@@ -191,5 +199,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical rules/runs + live R2 destination preserved; private-definer/public-invoker mutation boundary enforced; authenticated Real Cloud PASS; dedicated Real Chromium contract present; finance authority=none; Phase 8.3 LOCKED.');
+  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical rules/runs + live R2 destination preserved outside frozen R2.0-7; private-definer/public-invoker mutation boundary enforced; authenticated Real Cloud PASS; dedicated Real Chromium contract present; finance authority=none; Phase 8.3 LOCKED.');
 }
