@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "8.2",
   "name": "Automation Engine",
-  "status": "IN_PROGRESS",
+  "status": "CLOSED",
   "baseCommit": "65e2c29bc5b656b5c56daa84a893aeff65c5d662",
   "scope": [
     "canonicalAutomationRules",
@@ -25,8 +25,18 @@
     "automation_approval_requests"
   ],
   "implementationBranch": "phase8-2-automation-engine",
-  "implementationHead": null,
+  "implementationHead": "c41a283e87bc73c7b4748428577f99e82ce4aa41",
   "pullRequest": 109,
+  "preClosure": {
+    "headCommit": "c41a283e87bc73c7b4748428577f99e82ce4aa41",
+    "workflowCount": 31,
+    "successCount": 31,
+    "failureCount": 0,
+    "pendingCount": 0,
+    "realChromium": "PASS",
+    "realChromiumAssertionCount": 9,
+    "cumulativeRealBrowser": "PASS"
+  },
   "realCloudVerification": {
     "required": true,
     "status": "PASS",
@@ -45,14 +55,39 @@
       "probe rows cleaned after verification"
     ]
   },
-  "realChromium": { "required": true, "status": "PENDING" },
-  "postMergeRecertification": { "required": true, "status": "PENDING" },
-  "exitGatePassed": false,
+  "realChromium": {
+    "required": true,
+    "status": "PASS",
+    "assertionCount": 9
+  },
+  "mergeCommit": "32f573e520a1c32d398960a120231f6467dd0713",
+  "postMergeRecertification": {
+    "required": true,
+    "status": "COMPLETE",
+    "mainCommit": "32f573e520a1c32d398960a120231f6467dd0713",
+    "workflowCount": 16,
+    "successCount": 16,
+    "failureCount": 0,
+    "inProgressCount": 0,
+    "queuedCount": 0,
+    "cancelledCount": 0,
+    "phase8_2GateRunId": 34148806389,
+    "realBrowserRunId": 34148806467,
+    "pagesPreviewRunId": 34148844199,
+    "liveExternalRunId": 34148888232,
+    "qualityRunId": 34148806396,
+    "majorSystemsZeroEscapeRunId": 34148806419,
+    "publishedApplicationAttack": "PASS"
+  },
+  "exitGatePassed": true,
   "unresolvedDefectCount": 0,
   "criticalDefectCount": 0,
   "highDefectCount": 0,
   "functionalBlockerCount": 0,
-  "phase8_3Allowed": false,
+  "phase8_3Allowed": true,
   "nextPhase": "8.3",
-  "successorStatus": "LOCKED"
+  "successorStatus": "AUTHORIZED",
+  "closureEvidence": "docs/PHASE8_2_CLOSURE.md",
+  "postMergeEvidence": "docs/PHASE8_2_POSTMERGE_RECERTIFICATION.md",
+  "realCloudEvidence": "docs/PHASE8_2_REAL_CLOUD_EVIDENCE.md"
 }
