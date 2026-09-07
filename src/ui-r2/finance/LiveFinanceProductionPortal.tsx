@@ -1,17 +1,32 @@
+import { lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useLiveRecordsPortal } from '../records/LiveCompaniesProductionPortal.tsx';
-import { ConnectedPhase72FinanceExperience } from './Phase72FinanceExperience.tsx';
-import { ConnectedPhase73FinancialIntelligenceExperience } from './Phase73FinancialIntelligenceExperience.tsx';
 import './finance.css';
-import './phase72.css';
 import './phase72-mobile-hardening.css';
-import './phase73.css';
+
+const ConnectedPhase72FinanceExperience = lazy(async () => {
+  const module = await import('./Phase72FinanceExperience.tsx');
+  return { default: module.ConnectedPhase72FinanceExperience };
+});
+const ConnectedPhase73FinancialIntelligenceExperience = lazy(async () => {
+  const module = await import('./Phase73FinancialIntelligenceExperience.tsx');
+  return { default: module.ConnectedPhase73FinancialIntelligenceExperience };
+});
 
 const FINANCE_SHELL = '.r2-shell[data-r2-runtime-mode="live"][data-destination]';
 const FINANCE_PREVIEW = '[data-operational-domain="finance"]';
 
+function FinanceStageLoading() {
+  return <div className="r2-screen r2-finance-workspace" data-finance-lazy-loading="true"><h1>المالية</h1><p>جارٍ تحميل وحدات المالية الموثوقة…</p></div>;
+}
+
 export function LiveFinanceProductionPortal() {
   const { active, target } = useLiveRecordsPortal('finance', FINANCE_SHELL, FINANCE_PREVIEW);
   if (!active || !target) return null;
-  return createPortal(<div className="r2-finance-phase73-stack"><ConnectedPhase73FinancialIntelligenceExperience /><ConnectedPhase72FinanceExperience /></div>, target);
+  return createPortal(
+    <Suspense fallback={<FinanceStageLoading />}>
+      <div className="r2-finance-phase73-stack"><ConnectedPhase73FinancialIntelligenceExperience /><ConnectedPhase72FinanceExperience /></div>
+    </Suspense>,
+    target,
+  );
 }
