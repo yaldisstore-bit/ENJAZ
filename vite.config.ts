@@ -20,6 +20,7 @@ export default defineConfig({
     reportCompressedSize: true,
     rolldownOptions: {
       output: {
+        minify: true,
         strictExecutionOrder: true,
         codeSplitting: {
           groups: [
