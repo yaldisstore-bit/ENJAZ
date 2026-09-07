@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "7.5",
   "name": "Finance Destruction & Reconciliation Gate",
-  "status": "ACTIVE",
+  "status": "CLOSED",
   "baseCommit": "75128eabda1c4a8d1b3b53504596a3d227d69874",
   "productionJavaScriptBudget": 670000,
   "scope": [
@@ -19,6 +19,21 @@
     "realBrowserFinanceCriticalPath",
     "deployedLiveFinanceCriticalPath"
   ],
+  "implementationHead": "c479af8341b9699baf639deabbd61d356ea01c4e",
+  "pullRequest": 105,
+  "preClosure": {
+    "workflowCount": 30,
+    "successCount": 30,
+    "failureCount": 0,
+    "inProgressCount": 0,
+    "queuedCount": 0,
+    "cancelledCount": 0,
+    "realChromium": "PASS",
+    "dedicatedGateRunId": 34103255390,
+    "realBrowserRunId": 34103255198,
+    "productionJavaScriptBytes": 588688,
+    "productionJavaScriptBudget": 670000
+  },
   "realCloudVerification": {
     "status": "COMPLETE",
     "projectRef": "juzxriirhkuzviwnhkbd",
@@ -37,15 +52,35 @@
     "duplicateReversalGroupCount": 0,
     "evidence": "docs/PHASE7_5_REAL_CLOUD_EVIDENCE.md"
   },
-  "exitGatePassed": false,
-  "unresolvedDefectCount": null,
-  "criticalDefectCount": null,
-  "highDefectCount": null,
-  "functionalBlockerCount": null,
-  "phase8Allowed": false,
-  "nextPhase": null,
+  "mergeCommit": "761073812fc0e43f481ac20532ea6c10979d805d",
   "postMergeRecertification": {
     "required": true,
-    "status": "NOT_STARTED"
-  }
+    "status": "COMPLETE",
+    "mainCommit": "761073812fc0e43f481ac20532ea6c10979d805d",
+    "workflowCount": 11,
+    "successCount": 11,
+    "failureCount": 0,
+    "inProgressCount": 0,
+    "queuedCount": 0,
+    "cancelledCount": 0,
+    "phaseGateRunId": 34103686407,
+    "pagesPreviewRunId": 34103737386,
+    "pagesPreview": "SUCCESS",
+    "pagesBuild": "SUCCESS",
+    "pagesDeploy": "SUCCESS",
+    "realBrowserRunId": 34103686363,
+    "realBrowser": "SUCCESS",
+    "liveExternalRunId": 34103828264,
+    "liveExternal": "SUCCESS",
+    "publishedApplicationAttack": "SUCCESS"
+  },
+  "exitGatePassed": true,
+  "unresolvedDefectCount": 0,
+  "criticalDefectCount": 0,
+  "highDefectCount": 0,
+  "functionalBlockerCount": 0,
+  "phase8Allowed": true,
+  "nextPhase": "8.1",
+  "closureEvidence": "docs/PHASE7_5_CLOSURE.md",
+  "postMergeEvidence": "docs/PHASE7_5_POSTMERGE_RECERTIFICATION.md"
 }

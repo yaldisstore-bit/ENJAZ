@@ -165,7 +165,7 @@ Transaction search/list, validated create/edit, authoritative 360°, lifecycle, 
 
 ---
 
-# Phase 7 — Finance
+# Phase 7 — Finance ✅
 
 Phase 7 now owns both the original finance roadmap and the finance/commercial portions of the expanded major systems. No finance write path may bypass authoritative ledger/payment/reversal contracts.
 
@@ -211,12 +211,17 @@ Phase 7 now owns both the original finance roadmap and the finance/commercial po
 - Phase 7.4 post-merge gate `34097286172`, Pages Preview/deploy `34097333825`, Real Browser `34097286214`, and Live External `34097378705` all succeeded; **Attack the actual published application** passed.
 - **Phase 7.4 — Financial Reports ✅ CLOSED + post-merge recertified** under Zero-Escape evidence.
 
-## 7.5 — Finance Destruction & Reconciliation Gate
-- Huge values, sub-cent/unsafe inputs, reversals, repeated submit, network uncertainty, stale state, partial history and source-capacity pressure.
-- Authoritative reconciliation proves no lost/duplicated money event.
-- Real Cloud + Real Browser + deployed-live finance critical path required.
+## 7.5 — Finance Destruction & Reconciliation Gate ✅
+- Huge values, sub-cent/unsafe inputs, reversals, repeated submit, network uncertainty, stale state, partial history and source-capacity pressure were destructively exercised.
+- Authoritative reconciliation proves no lost/duplicated money event; the database enforces one reversal per payment and fails closed on pre-existing duplicate history.
+- Real Cloud authenticated destruction passed on ENJAZ Supabase with exact `9999999999999999.99`, idempotent payment/reversal replay, changed-payload conflict, reconciliation `integrityWarnings=0`, duplicate-reversal rejection and complete probe cleanup.
+- Certified implementation head `c479af8341b9699baf639deabbd61d356ea01c4e`: PR #105 passed 30/30 workflows SUCCESS.
+- Production JavaScript remained `588688/670000`; the hard budget was not raised.
+- Canonical merge `761073812fc0e43f481ac20532ea6c10979d805d`: 11/11 canonical main push workflows SUCCESS with zero failure/queued/in-progress/cancelled.
+- Phase 7.5 gate `34103686407`, Pages Preview/deploy `34103737386`, Real Browser `34103686363`, and Live External `34103828264` all succeeded; **Attack the actual published application** passed.
+- **Phase 7.5 — Finance Destruction & Reconciliation Gate ✅ CLOSED + post-merge recertified** under Zero-Escape evidence.
 
-**Phase 7 exit:** only after 7.5 is green and all anchored finance/commercial capabilities have Zero-Escape evidence. Phase 8 remains locked until then.
+**Phase 7 exit:** satisfied under Zero-Escape. **Phase 8.1 — Workflow Engine & Government Procedure OS — M1** is the sole next authorized implementation stage.
 
 ---
 
@@ -513,12 +518,14 @@ The project is delivered only when:
 - **Phase 7.2 — Payments & Receipts ✅ CLOSED + post-merge recertified**
 - **Phase 7.3 — Financial Intelligence ✅ CLOSED + post-merge recertified**
 - **Phase 7.4 — Financial Reports ✅ CLOSED + post-merge recertified**
+- **Phase 7.5 — Finance Destruction & Reconciliation Gate ✅ CLOSED + post-merge recertified**
+- **Phase 7 — Finance ✅ CLOSED + post-merge recertified**
 - **M13 finance forecasting/BI anchor ✅ COMPLETE; M13 overall remains open for later assigned slices**
 - **M16 finance/commercial anchor ✅ COMPLETE; Phase-7.4 reporting hook ✅ COMPLETE; M16 overall remains open for later assigned slices**
 - **18 major systems M1–M18: GOVERNING SCOPE; overall system closure still requires each system's full Zero-Escape evidence**
-- **Next: Phase 7.5 — Finance Destruction & Reconciliation Gate**
+- **Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**
 
-Phase 7.5 is the only newly authorized implementation stage. Adding the 18 systems expanded delivery scope but did **not** silently reorder phases or retroactively reopen closed phases. Phase 8 remains locked until Phase 7 completes.
+Phase 8.1 is the only newly authorized implementation stage. Adding the 18 systems expanded delivery scope but did **not** silently reorder phases or retroactively reopen closed phases. Later Phase-8 stages remain locked behind their predecessor closures.
 
 ---
 
@@ -553,17 +560,18 @@ The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; 
 
 This file is intentionally difficult to change by accident.
 
-This reconciliation makes seven explicit changes:
+This reconciliation makes eight explicit changes:
 
 1. preserves the already-proven Phase 7.1 canonical post-merge recertification and its historical authorization of 7.2;
 2. preserves Phase 7.2 canonical closure/post-merge recertification and its historical authorization of 7.3;
 3. preserves Phase 7.3 canonical closure/post-merge recertification, including the repaired 147-byte Gate Escape, and its historical authorization of 7.4;
-4. records Phase 7.4 canonical closure/post-merge recertification and advances the only next implementation pointer to 7.5;
-5. incorporates the 18 major product systems M1–M18 into their governing future phases rather than leaving them as detached amendments;
-6. makes Zero-Escape closure mandatory across every major system and future phase exit where that system is anchored;
-7. preserves the prior correction that replaced stale Current Position pointers.
+4. preserves Phase 7.4 canonical closure/post-merge recertification and its historical authorization of 7.5;
+5. records Phase 7.5 canonical closure/post-merge recertification, satisfies the Phase-7 exit and advances the only next implementation pointer to 8.1;
+6. incorporates the 18 major product systems M1–M18 into their governing future phases rather than leaving them as detached amendments;
+7. makes Zero-Escape closure mandatory across every major system and future phase exit where that system is anchored;
+8. preserves the prior correction that replaced stale Current Position pointers.
 
-It does **not** silently reopen Phases 0–6, falsely mark M13 or M16 fully closed from their Phase-7 anchors, mark any other M1–M18 system implemented, or authorize work beyond Phase 7.5.
+It does **not** silently reopen Phases 0–6, falsely mark M13 or M16 fully closed from their Phase-7 anchors, falsely mark M1 complete from authorizing its 8.1 implementation slice, mark any other M1–M18 system implemented, or authorize work beyond Phase 8.1.
 
 Any future roadmap change must state:
 1. what changes;
