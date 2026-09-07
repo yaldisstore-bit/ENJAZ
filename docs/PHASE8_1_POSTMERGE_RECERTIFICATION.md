@@ -33,4 +33,4 @@ This census includes canonical push gates and the downstream Pages/Live workflow
 
 ## Transition
 
-Post-merge recertification is **COMPLETE**. Phase 8.1/M1 exit is satisfied. **Phase 8.2 — Automation Engine** is the sole next authorized implementation stage after the closure-governance PR itself passes and merges.
+Post-merge recertification is **COMPLETE for Phase 8.1**. The M1 implementation anchor is complete, but M1 overall remains a fail-closed `CLOSURE_CANDIDATE` until its remaining individual Zero-Escape destruction evidence is satisfied under Phase 8.7. **Phase 8.2 — Automation Engine** is the sole next authorized implementation stage after the closure-governance PR itself passes and merges.
