@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 7.2 — Payments & Receipts ✅ CLOSED + POST-MERGE RECERTIFIED**  
-آخر مرحلة مغلقة: **Phase 7.2 — Payments & Receipts ✅**  
-التالي المسموح: **Phase 7.3 — Financial Intelligence**.
+الحالة الرسمية: **Phase 7.3 — Financial Intelligence ✅ CLOSED + POST-MERGE RECERTIFIED**  
+آخر مرحلة مغلقة: **Phase 7.3 — Financial Intelligence ✅**  
+التالي المسموح: **Phase 7.4 — Financial Reports**.
 
 ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية حديثة وبنية Supabase/Postgres + RLS، من دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -26,6 +26,9 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - [`docs/PHASE7_2_CLOSURE.md`](docs/PHASE7_2_CLOSURE.md)
 - [`docs/PHASE7_2_POSTMERGE_RECERTIFICATION.md`](docs/PHASE7_2_POSTMERGE_RECERTIFICATION.md)
 - [`docs/PHASE7_2_ZERO_ESCAPE_CHECKLIST.md`](docs/PHASE7_2_ZERO_ESCAPE_CHECKLIST.md)
+- [`docs/PHASE7_3_STATE.json`](docs/PHASE7_3_STATE.json)
+- [`docs/PHASE7_3_CLOSURE.md`](docs/PHASE7_3_CLOSURE.md)
+- [`docs/PHASE7_3_POSTMERGE_RECERTIFICATION.md`](docs/PHASE7_3_POSTMERGE_RECERTIFICATION.md)
 
 ## الحالة الكانونية للمراحل
 
@@ -47,7 +50,8 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
   - **Phase 6.4 — Companies & People Destruction Gate** ✅ complete
 - **Phase 7.1 — Financial Ledger & Summary** ✅ complete + post-merge recertified
 - **Phase 7.2 — Payments & Receipts** ✅ complete + post-merge recertified
-- **Next: Phase 7.3 — Financial Intelligence**
+- **Phase 7.3 — Financial Intelligence** ✅ complete + post-merge recertified
+- **Next: Phase 7.4 — Financial Reports**
 
 ### Phase 7.1 canonical evidence
 
@@ -74,7 +78,21 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - GitHub Pages build/deploy run `34084227883` succeeded for the real `/live/` runtime.
 - Live External run `34084261408` succeeded, including **Attack the actual published application**.
 - The **M16 finance/commercial anchor is complete**, but M16 overall remains open because document, communication and reporting slices are assigned to later phases.
-- `phase7_3Allowed=true`; Phase 7.3 is the sole next authorized implementation stage.
+- Historical transition evidence authorized Phase 7.3 after 7.2 closure.
+
+### Phase 7.3 canonical evidence
+
+- Exact tested implementation head: `b99a39d9b4553604b49528faffdd798104042ffb`.
+- Certified repair/closure head passed **27/27 pull-request workflows SUCCESS** with zero failures/in-progress/queued.
+- Financial intelligence remains a derived read model over authoritative finance facts; no second ledger, shadow money store or fabricated legal due date was introduced.
+- The post-merge Gate Escape was a strict production JavaScript budget regression of **147 bytes** (`670147 > 670000`); the repair kept the `670000` budget unchanged and added a permanent Chromium guard.
+- Real Chromium acceptance passed at **1280/430/390/360/320**, including cumulative and destruction journeys.
+- Canonical recertified merge: `a1c34888732270bea5795ac59603345c190b8fd7`.
+- Exact merged commit passed **12/12 canonical post-merge workflows SUCCESS**, with 0 failure / 0 queued / 0 in-progress / 0 cancelled.
+- Phase 7.3 gate run `34092284324`, Pages Preview run `34092324197`, GitHub Pages deployment run `34092283834` and Real Browser Acceptance run `34092284382` all succeeded.
+- Live External run `34092363985` succeeded, including **Attack the actual published application**.
+- The **M13 finance forecasting/BI anchor is complete**, but M13 overall remains open for later assigned BI/forecasting slices.
+- `phase7_4Allowed=true`; Phase 7.4 is the sole next authorized implementation stage.
 
 ## Major Product Systems — M1–M18
 
@@ -138,6 +156,6 @@ If a real defect escapes after a system is closed, it is classified as a **Gate 
 
 ## Current development pointer
 
-**Phase 7.2 is closed and canonically post-merge recertified. Phase 7.3 — Financial Intelligence is the only next authorized implementation stage.**
+**Phase 7.3 is closed and canonically post-merge recertified. Phase 7.4 — Financial Reports is the only next authorized implementation stage.**
 
-Phase 8 remains locked until Phase 7.3–7.5 complete their own closure and recertification requirements. The completed M16 finance/commercial anchor does not declare the whole M16 system complete.
+Phase 8 remains locked until Phase 7.4–7.5 complete their own closure and recertification requirements. The completed M13 finance anchor does not declare the whole M13 system complete, and the completed M16 finance/commercial anchor does not declare the whole M16 system complete.
