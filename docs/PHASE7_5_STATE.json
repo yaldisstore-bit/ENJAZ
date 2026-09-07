@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "phase": "7.5",
+  "name": "Finance Destruction & Reconciliation Gate",
+  "status": "ACTIVE",
+  "baseCommit": "75128eabda1c4a8d1b3b53504596a3d227d69874",
+  "productionJavaScriptBudget": 670000,
+  "scope": [
+    "hugeValues",
+    "subCentUnsafeInputs",
+    "reversals",
+    "repeatedSubmit",
+    "networkUncertainty",
+    "staleState",
+    "partialHistory",
+    "sourceCapacityPressure",
+    "authoritativeReconciliation",
+    "realCloudFinanceCriticalPath",
+    "realBrowserFinanceCriticalPath",
+    "deployedLiveFinanceCriticalPath"
+  ],
+  "exitGatePassed": false,
+  "unresolvedDefectCount": null,
+  "criticalDefectCount": null,
+  "highDefectCount": null,
+  "functionalBlockerCount": null,
+  "phase8Allowed": false,
+  "nextPhase": null,
+  "postMergeRecertification": {
+    "required": true,
+    "status": "NOT_STARTED"
+  }
+}
