@@ -5,6 +5,7 @@ const baseline = read('database/baseline/phase1_2_schema.sql');
 const migration = read('database/migrations/phase_8_2_automation_engine.sql');
 const hardening = read('database/migrations/phase_8_2_rpc_security_hardening.sql');
 const cloudProbe = read('database/migrations/phase_8_2_live_authenticated_automation_probe.sql');
+const fkHardening = read('database/migrations/phase_8_2_fk_index_hardening.sql');
 const commands = read('src/features/automation/automationCommands.ts');
 const tests = read('tests/automationEngine.test.ts');
 const state = JSON.parse(read('docs/PHASE8_2_STATE.json'));
@@ -67,12 +68,7 @@ for (const marker of [
   'revoke insert, update, delete on table public.automation_approval_requests from authenticated',
 ]) requireMarker(hardening, marker, 'RPC hardening');
 
-for (const name of [
-  'upsert_automation_rule_v1',
-  'set_automation_rule_enabled_v1',
-  'dispatch_automation_v1',
-  'decide_automation_approval_v1',
-]) {
+for (const name of ['upsert_automation_rule_v1','set_automation_rule_enabled_v1','dispatch_automation_v1','decide_automation_approval_v1']) {
   const start = hardening.indexOf(`create or replace function public.${name}`);
   const end = start >= 0 ? hardening.indexOf('$$;', start) : -1;
   const wrapper = start >= 0 && end >= 0 ? hardening.slice(start, end + 3).toLowerCase() : '';
@@ -97,6 +93,16 @@ for (const marker of [
   'drop function private.enjaz_phase82_probe_assert(boolean,text);',
 ]) requireMarker(cloudProbe, marker, 'real-cloud probe');
 
+for (const marker of [
+  'automation_rules_created_by_idx',
+  'automation_rules_updated_by_idx',
+  'automation_runs_requested_by_idx',
+  'automation_approval_requests_run_idx',
+  'automation_approval_requests_rule_idx',
+  'automation_approval_requests_requested_by_idx',
+  'automation_approval_requests_decided_by_idx',
+]) requireMarker(fkHardening, marker, 'FK hardening');
+
 for (const forbidden of ['service_role', 'public.payments', 'public.financial_ledger_entries', 'public.payment_reversals']) forbidMarker(cloudProbe.toLowerCase(), forbidden, 'real-cloud probe');
 
 for (const marker of [
@@ -115,7 +121,9 @@ for (const marker of ['receipt key for replay-safe execution','pending human app
 
 if (state.phase !== '8.2' || state.status !== 'IN_PROGRESS' || state.baseCommit !== '65e2c29bc5b656b5c56daa84a893aeff65c5d662') errors.push('Phase 8.2 state identity/base drifted');
 if (state.phase8_3Allowed !== false || state.nextPhase !== '8.3' || state.successorStatus !== 'LOCKED') errors.push('Phase 8.3 must remain locked while 8.2 is in progress');
-if (state.realCloudVerification?.status !== 'PENDING' || state.realChromium?.status !== 'PENDING' || state.postMergeRecertification?.status !== 'PENDING') errors.push('Phase 8.2 cannot claim closure evidence at kickoff');
+if (state.pullRequest !== 109) errors.push('Phase 8.2 PR evidence must remain bound to PR #109');
+if (state.realCloudVerification?.status !== 'PASS' || state.realCloudVerification?.projectRef !== 'juzxriirhkuzviwnhkbd') errors.push('Phase 8.2 authenticated Real Cloud evidence is required before merge');
+if (state.realChromium?.status !== 'PENDING' || state.postMergeRecertification?.status !== 'PENDING') errors.push('Chromium/post-merge evidence must remain pending until exact-head/merge verification');
 if (phase81.status !== 'CLOSED' || phase81.phase8_2Allowed !== true || phase81.nextPhase !== '8.2') errors.push('Phase 8.1 closure must authorize Phase 8.2');
 requireMarker(kickoff, 'Phase 8.3 — Operations Center + Field Operations — M5 remains LOCKED', 'kickoff');
 requireMarker(roadmap, '## 8.2 — Automation Engine', 'roadmap');
@@ -128,5 +136,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical rules/runs preserved; private-definer/public-invoker mutation boundary enforced; authenticated real-cloud replay/stale/approval probe guarded; finance authority=none; Phase 8.3 LOCKED.');
+  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical rules/runs preserved; private-definer/public-invoker mutation boundary enforced; authenticated real-cloud replay/stale/approval probe PASS; FK hardening present; finance authority=none; Phase 8.3 LOCKED.');
 }
