@@ -18,9 +18,31 @@ async function openPreview(page, width = 430, height = 920) {
 }
 
 async function assertNoHorizontalOverflow(page) {
-  const geometry = await page.evaluate(() => ({ client: document.documentElement.clientWidth, doc: document.documentElement.scrollWidth, body: document.body.scrollWidth }));
-  expect(geometry.doc).toBeLessThanOrEqual(geometry.client + 1);
-  expect(geometry.body).toBeLessThanOrEqual(geometry.client + 1);
+  const geometry = await page.evaluate(() => {
+    const client = document.documentElement.clientWidth;
+    const offenders = [...document.querySelectorAll('body *')]
+      .map((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return {
+          tag: element.tagName.toLowerCase(),
+          className: typeof element.className === 'string' ? element.className : '',
+          left: Math.round(rect.left * 10) / 10,
+          right: Math.round(rect.right * 10) / 10,
+          width: Math.round(rect.width * 10) / 10,
+          position: style.position,
+          overflowX: style.overflowX,
+          boxSizing: style.boxSizing,
+        };
+      })
+      .filter((item) => item.width > 0 && (item.left < -1 || item.right > client + 1))
+      .sort((a, b) => Math.max(Math.abs(b.left), b.right - client) - Math.max(Math.abs(a.left), a.right - client))
+      .slice(0, 12);
+    return { client, doc: document.documentElement.scrollWidth, body: document.body.scrollWidth, offenders };
+  });
+  const detail = JSON.stringify(geometry, null, 2);
+  expect(geometry.doc, detail).toBeLessThanOrEqual(geometry.client + 1);
+  expect(geometry.body, detail).toBeLessThanOrEqual(geometry.client + 1);
 }
 
 test('Phase 7.2 exposes payment, cashbox, M16 and reconciliation surfaces without fake money authority', async ({ page }) => {
