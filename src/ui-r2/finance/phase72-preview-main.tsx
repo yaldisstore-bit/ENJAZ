@@ -1,6 +1,14 @@
 import { StrictMode, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import type { FinanceCommandGateway, FinancePaymentContext, FinanceReceipt } from '../../features/finance/financeCommands.ts';
+import type {
+  CreateCashboxInput,
+  CreateEngagementInput,
+  FinanceCommandGateway,
+  FinancePaymentContext,
+  FinanceReceipt,
+  PostPaymentInput,
+  ReversePaymentInput,
+} from '../../features/finance/financeCommands.ts';
 import { FINANCE_PREVIEW_SNAPSHOT } from './financePreviewSnapshot.ts';
 import { Phase72FinanceExperience, type FinanceTransactionOption } from './Phase72FinanceExperience.tsx';
 import '../runtime/shell-base.css';
@@ -45,8 +53,8 @@ function PreviewApp() {
   const receiptCache = useRef(new Map<string, FinanceReceipt>(initialContext().recentReceipts.map((item) => [item.paymentId, item])));
 
   const gateway = useMemo<FinanceCommandGateway>(() => Object.freeze({
-    async loadContext() { return context; },
-    async postPayment(input) {
+    async loadContext(_workspaceId: string) { return context; },
+    async postPayment(input: PostPaymentInput) {
       const receipt: FinanceReceipt = Object.freeze({
         paymentId: '33333333-3333-4333-8333-333333333399', receiptRef: 'ENJ-R-2026-00000002', receiptSerial: 2n,
         receiptToken: '88888888-8888-4888-8888-888888888882', amountCents: input.amountCents, method: input.method, paidAt: input.paidAt,
@@ -59,7 +67,7 @@ function PreviewApp() {
       setContext((current) => Object.freeze({ ...current, recentReceipts: Object.freeze([receipt, ...current.recentReceipts]), reconciliation: Object.freeze({ ...current.reconciliation, postedTotalCents: current.reconciliation.postedTotalCents + input.amountCents }) }));
       return receipt;
     },
-    async reversePayment(input) {
+    async reversePayment(input: ReversePaymentInput) {
       const reversal = Object.freeze({ reversalId: '99999999-9999-4999-8999-999999999991', reversalRef: 'ENJ-RV-2026-00000001', paymentId: input.paymentId, reason: input.reason, reversedAt: '2026-09-07T01:20:00.000Z', snapshot: Object.freeze({ version: 1, reason: input.reason }), wasDuplicate: false });
       const currentReceipt = receiptCache.current.get(input.paymentId);
       if (!currentReceipt) throw new Error('Preview receipt not found');
@@ -68,17 +76,17 @@ function PreviewApp() {
       setContext((current) => Object.freeze({ ...current, recentReceipts: Object.freeze(current.recentReceipts.map((item) => item.paymentId === input.paymentId ? reversed : item)), reconciliation: Object.freeze({ ...current.reconciliation, postedTotalCents: current.reconciliation.postedTotalCents - currentReceipt.amountCents, reversedTotalCents: current.reconciliation.reversedTotalCents + currentReceipt.amountCents }) }));
       return reversal;
     },
-    async getReceipt(_workspaceId, paymentId) {
+    async getReceipt(_workspaceId: string, paymentId: string) {
       const found = receiptCache.current.get(paymentId);
       if (!found) throw new Error('Preview receipt not found');
       return found;
     },
-    async createCashbox(input) {
+    async createCashbox(input: CreateCashboxInput) {
       const cashbox = Object.freeze({ id: '66666666-6666-4666-8666-666666666699', name: input.name, openingBalanceCents: input.openingBalanceCents, active: true, wasDuplicate: false });
       setContext((current) => Object.freeze({ ...current, cashboxes: Object.freeze([...current.cashboxes, cashbox]) }));
       return cashbox;
     },
-    async createEngagement(input) {
+    async createEngagement(input: CreateEngagementInput) {
       const item = Object.freeze({ id: '77777777-7777-4777-8777-777777777799', companyId: input.companyId, title: input.title, reference: input.reference, type: input.type, billingMode: input.billingMode, status: 'active', transactionIds: Object.freeze([input.transactionId]), wasDuplicate: false });
       setContext((current) => Object.freeze({ ...current, engagements: Object.freeze([...current.engagements, item]) }));
       return item;

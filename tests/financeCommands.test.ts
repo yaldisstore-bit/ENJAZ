@@ -56,8 +56,10 @@ test('postPayment sends one guarded RPC payload and parses immutable receipt fac
   }));
   const result = await gateway.postPayment({ workspaceId: W, transactionId: T, amountCents: 125_000_000n, method: 'cash', paidAt: '2026-09-07T00:30:00.000Z', note: 'دفعة اختبار', idempotencyKey: KEY, cashboxId: CASH, engagementId: ENG });
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].name, 'post_payment_v1');
-  assert.deepEqual(calls[0].args, {
+  const firstCall = calls[0];
+  assert.ok(firstCall);
+  assert.equal(firstCall.name, 'post_payment_v1');
+  assert.deepEqual(firstCall.args, {
     p_workspace_id: W,
     p_transaction_id: T,
     p_amount: '1250000.00',
@@ -97,8 +99,12 @@ test('loadContext rejects shadow-ledger authority drift and parses reconciliatio
     reconciliation: { postedTotal: '1250000.00', reversedTotal: '0.00', statusWithoutReversal: 0, reversalWithoutStatus: 0, shadowLedgerEntries: 0, integrityWarnings: 0, moneyAuthority: 'payments_plus_non_payment_ledger' },
   }, error: null })));
   const context = await goodGateway.loadContext(W);
-  assert.equal(context.cashboxes[0].openingBalanceCents, 10_000n);
-  assert.equal(context.engagements[0].transactionIds[0], T);
+  const firstCashbox = context.cashboxes[0];
+  const firstEngagement = context.engagements[0];
+  assert.ok(firstCashbox);
+  assert.ok(firstEngagement);
+  assert.equal(firstCashbox.openingBalanceCents, 10_000n);
+  assert.equal(firstEngagement.transactionIds[0], T);
   assert.equal(context.reconciliation.integrityWarnings, 0);
 
   const badGateway = createSupabaseFinanceCommandGateway(client(async () => ({ data: { cashboxes: [], engagements: [], recentReceipts: [], reconciliation: { postedTotal: '0.00', reversedTotal: '0.00', statusWithoutReversal: 0, reversalWithoutStatus: 0, shadowLedgerEntries: 1, integrityWarnings: 1, moneyAuthority: 'ledger_is_money_authority' } }, error: null })));

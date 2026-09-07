@@ -178,8 +178,9 @@ function requireUnsignedBigInt(value: unknown, label: string): bigint {
 export function parseFinanceDecimalToCents(value: string, label = 'money'): bigint {
   const normalized = value.trim();
   const match = normalized.match(DECIMAL_PATTERN);
-  if (!match) throw new DataAccessError(`Invalid ${label}`, 'DATA_VALIDATION_FAILED');
-  const whole = BigInt(match[1]);
+  const wholePart = match?.[1];
+  if (!match || wholePart === undefined) throw new DataAccessError(`Invalid ${label}`, 'DATA_VALIDATION_FAILED');
+  const whole = BigInt(wholePart);
   const fraction = BigInt((match[2] ?? '').padEnd(2, '0') || '0');
   return whole * 100n + fraction;
 }
@@ -319,11 +320,11 @@ async function runRpc(client: RpcClientLike, name: string, args: Readonly<Record
 export function createSupabaseFinanceCommandGateway(client: EnjazSupabaseClient, timeoutMs = DEFAULT_RPC_TIMEOUT_MS): FinanceCommandGateway {
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 120_000) throw new Error('Invalid finance RPC timeout');
   const rpcClient = client as unknown as RpcClientLike;
-  return Object.freeze({
-    async loadContext(workspaceId) {
+  const gateway: FinanceCommandGateway = {
+    async loadContext(workspaceId: string) {
       return parseContext(await runRpc(rpcClient, 'finance_payment_context_v1', { p_workspace_id: requireUuid(workspaceId, 'workspace id') }, false, timeoutMs));
     },
-    async postPayment(input) {
+    async postPayment(input: PostPaymentInput) {
       if (input.amountCents <= 0n) throw new DataAccessError('Payment amount must be positive', 'DATA_VALIDATION_FAILED');
       return parseReceipt(await runRpc(rpcClient, 'post_payment_v1', {
         p_workspace_id: requireUuid(input.workspaceId, 'workspace id'),
@@ -337,7 +338,7 @@ export function createSupabaseFinanceCommandGateway(client: EnjazSupabaseClient,
         p_engagement_id: input.engagementId === null ? null : requireUuid(input.engagementId, 'engagement id'),
       }, true, timeoutMs));
     },
-    async reversePayment(input) {
+    async reversePayment(input: ReversePaymentInput) {
       const reason = input.reason.trim();
       if (reason.length < 3 || reason.length > 600) throw new DataAccessError('Invalid reversal reason', 'DATA_VALIDATION_FAILED');
       return parseReversal(await runRpc(rpcClient, 'reverse_payment_v1', {
@@ -347,13 +348,13 @@ export function createSupabaseFinanceCommandGateway(client: EnjazSupabaseClient,
         p_idempotency_key: requireUuid(input.idempotencyKey, 'idempotency key'),
       }, true, timeoutMs));
     },
-    async getReceipt(workspaceId, paymentId) {
+    async getReceipt(workspaceId: string, paymentId: string) {
       return parseReceipt(await runRpc(rpcClient, 'get_payment_receipt_v1', {
         p_workspace_id: requireUuid(workspaceId, 'workspace id'),
         p_payment_id: requireUuid(paymentId, 'payment id'),
       }, false, timeoutMs));
     },
-    async createCashbox(input) {
+    async createCashbox(input: CreateCashboxInput) {
       const row = requireRecord(await runRpc(rpcClient, 'create_finance_cashbox_v1', {
         p_workspace_id: requireUuid(input.workspaceId, 'workspace id'),
         p_name: requireString(input.name, 'cashbox name', 180).trim(),
@@ -368,7 +369,7 @@ export function createSupabaseFinanceCommandGateway(client: EnjazSupabaseClient,
         wasDuplicate: row.wasDuplicate === true,
       });
     },
-    async createEngagement(input) {
+    async createEngagement(input: CreateEngagementInput) {
       const row = requireRecord(await runRpc(rpcClient, 'create_billing_engagement_v1', {
         p_workspace_id: requireUuid(input.workspaceId, 'workspace id'),
         p_company_id: requireUuid(input.companyId, 'company id'),
@@ -393,5 +394,6 @@ export function createSupabaseFinanceCommandGateway(client: EnjazSupabaseClient,
         wasDuplicate: row.wasDuplicate === true,
       });
     },
-  });
+  };
+  return Object.freeze(gateway);
 }
