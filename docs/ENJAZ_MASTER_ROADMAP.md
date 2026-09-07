@@ -237,7 +237,7 @@ Phase 8 expands from workflow UI into the main operational operating system of E
 - Authenticated Real Cloud evidence passed catalog, prerequisites, branch requirements, idempotency, required items, stale state, complete, reopen and prerequisite-success behavior.
 - Canonical merge `95f988ac305d9003ee19a5f0f474c499f51d288b`: 15/15 exact-SHA workflow runs SUCCESS with zero failure/queued/in-progress/cancelled.
 - Phase 8.1 gate `34117766941`, Pages Preview `34117816460`, Pages deployment `34117766836`, Real Browser `34117766978`, and Live External `34117875655` succeeded; the published application attack passed.
-- **Phase 8.1 and M1 ✅ CLOSED + post-merge recertified** under Zero-Escape evidence.
+- **Phase 8.1 ✅ CLOSED + post-merge recertified. M1 implementation anchor is complete, but M1 overall remains `CLOSURE_CANDIDATE` until its individual Phase 8.7 Zero-Escape destruction evidence is satisfied.**
 
 ## 8.2 — Automation Engine
 - Human-readable trigger/condition/action rules.
@@ -529,10 +529,10 @@ The project is delivered only when:
 - **M16 finance/commercial anchor ✅ COMPLETE; Phase-7.4 reporting hook ✅ COMPLETE; M16 overall remains open for later assigned slices**
 - Historical predecessor transition (satisfied): **Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**
 - **Phase 8.1 — Workflow Engine & Government Procedure OS — M1 ✅ CLOSED + post-merge recertified**
-- **M1 — Government Procedure Operating System ✅ CLOSED under Zero-Escape evidence**
+- **M1 — Government Procedure Operating System 🟠 `CLOSURE_CANDIDATE`; 8.1 implementation anchor complete, overall closure remains locked behind Phase 8.7 individual Zero-Escape evidence**
 - **Next: Phase 8.2 — Automation Engine**
 
-Phase 8.2 is the only newly authorized implementation stage. M1/Phase 8.1 closure does **not** close Phase 8 overall; later Phase-8 stages remain locked behind their predecessor closures and their own system evidence.
+Phase 8.2 is the only newly authorized implementation stage. Phase 8.1 closure does **not** close M1 overall or Phase 8 overall; M1 final closure remains locked behind its Phase 8.7 individual Zero-Escape destruction evidence, and later Phase-8 stages remain locked behind their predecessor closures and own system evidence.
 
 ---
 
@@ -574,12 +574,12 @@ This reconciliation makes nine explicit changes:
 3. preserves Phase 7.3 canonical closure/post-merge recertification, including the repaired 147-byte Gate Escape, and its historical authorization of 7.4;
 4. preserves Phase 7.4 canonical closure/post-merge recertification and its historical authorization of 7.5;
 5. preserves Phase 7.5 canonical closure/post-merge recertification, the Phase-7 exit and its historical authorization of 8.1;
-6. records Phase 8.1 canonical closure/post-merge recertification, closes M1 under its Zero-Escape evidence and advances the only next implementation pointer to 8.2;
+6. records Phase 8.1 canonical closure/post-merge recertification and advances the only next implementation pointer to 8.2 while keeping M1 overall at `CLOSURE_CANDIDATE` until Phase 8.7 individual Zero-Escape destruction evidence is complete;
 7. keeps the 18 major product systems M1–M18 embedded in their governing phases rather than detached amendments;
 8. keeps Zero-Escape closure mandatory across every major system and future phase exit where that system is anchored;
 9. preserves historical transition markers as satisfied history while moving the current pointer forward.
 
-It does **not** silently reopen Phases 0–7, falsely mark M13 or M16 fully closed from their Phase-7 anchors, mark M2–M18 implemented without their own evidence, close Phase 8 overall from M1/8.1 closure, or authorize work beyond Phase 8.2.
+It does **not** silently reopen Phases 0–7, falsely mark M13 or M16 fully closed from their Phase-7 anchors, falsely close M1 before Phase 8.7, mark M2–M18 implemented without their own evidence, close Phase 8 overall from 8.1 closure, or authorize work beyond Phase 8.2.
 
 Any future roadmap change must state:
 1. what changes;
