@@ -83,7 +83,7 @@ create table public.government_procedure_prerequisites (
 alter table public.workflow_template_stages
   add column government_entity_id uuid,
   add column government_branch_id uuid,
-  add column official_fee numeric(18,2),
+  add column official_fee numeric,
   add column fee_currency text;
 
 alter table public.workflow_template_stages
@@ -92,7 +92,7 @@ alter table public.workflow_template_stages
   add constraint workflow_template_stages_government_branch_fk foreign key (workspace_id, government_entity_id, government_branch_id)
     references public.government_entity_branches(workspace_id, government_entity_id, id) on delete restrict,
   add constraint workflow_template_stages_branch_requires_entity check (government_branch_id is null or government_entity_id is not null),
-  add constraint workflow_template_stages_official_fee_exact check (official_fee is null or (official_fee >= 0 and official_fee = round(official_fee, 2))),
+  add constraint workflow_template_stages_official_fee_exact check (official_fee is null or (official_fee >= 0 and official_fee <= 9999999999999999.99 and official_fee = trunc(official_fee, 2))),
   add constraint workflow_template_stages_fee_currency check ((official_fee is null and fee_currency is null) or (official_fee is not null and fee_currency ~ '^[A-Z]{3}$'));
 
 create table public.workflow_template_transitions (
@@ -119,7 +119,7 @@ create table public.workflow_template_transitions (
     or (transition_kind = 'advance' and to_stage_position is not null and to_stage_position > from_stage_position)
     or (transition_kind = 'reopen' and to_stage_position is not null and to_stage_position < from_stage_position)
   ),
-  constraint workflow_template_transitions_key_unique unique (workspace_id, workflow_template_id, transition_key)
+  constraint workflow_template_transitions_key_unique unique (workspace_id, workflow_template_id, from_stage_position, transition_key)
 );
 
 alter table public.workflow_instances
@@ -202,6 +202,33 @@ revoke all on function private.guard_government_procedure_prerequisite_cycle() f
 create trigger government_procedure_prerequisites_cycle_guard
 before insert or update on public.government_procedure_prerequisites
 for each row execute function private.guard_government_procedure_prerequisite_cycle();
+
+
+create or replace function private.guard_government_procedure_branch_entity()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+declare
+  v_procedure_entity uuid;
+  v_branch_entity uuid;
+begin
+  select gp.government_entity_id into v_procedure_entity
+  from public.government_procedures gp
+  where gp.workspace_id = new.workspace_id and gp.id = new.procedure_id;
+  select b.government_entity_id into v_branch_entity
+  from public.government_entity_branches b
+  where b.workspace_id = new.workspace_id and b.id = new.branch_id;
+  if v_procedure_entity is not null and v_branch_entity is not null and v_procedure_entity <> v_branch_entity then
+    raise check_violation using message = 'ENJAZ_PROCEDURE_BRANCH_ENTITY_MISMATCH';
+  end if;
+  return new;
+end;
+$$;
+revoke all on function private.guard_government_procedure_branch_entity() from public;
+create trigger government_procedure_branches_entity_guard
+before insert or update on public.government_procedure_branches
+for each row execute function private.guard_government_procedure_branch_entity();
 
 create trigger government_entities_set_updated_at before update on public.government_entities for each row execute function private.set_updated_at();
 create trigger government_entity_branches_set_updated_at before update on public.government_entity_branches for each row execute function private.set_updated_at();
@@ -295,7 +322,7 @@ create or replace function public.start_government_procedure_v1(
 ) returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   v_actor uuid := auth.uid(); v_tx public.transactions%rowtype; v_procedure public.government_procedures%rowtype;
-  v_template public.workflow_templates%rowtype; v_existing public.workflow_instances%rowtype;
+  v_template public.workflow_templates%rowtype; v_existing public.workflow_instances%rowtype; v_start_event public.workflow_transition_events%rowtype;
   v_instance public.workflow_instances%rowtype; v_first_stage integer; v_snapshot jsonb;
 begin
   if v_actor is null then raise insufficient_privilege using message = 'ENJAZ_AUTH_REQUIRED'; end if;
@@ -304,7 +331,12 @@ begin
   select * into v_existing from public.workflow_instances wi where wi.workspace_id=p_workspace_id and wi.operation_key=p_idempotency_key limit 1;
   if found then
     if v_existing.transaction_id=p_transaction_id and v_existing.government_procedure_id=p_procedure_id and v_existing.government_branch_id is not distinct from p_branch_id then
-      return jsonb_build_object('instanceId',v_existing.id,'transactionId',v_existing.transaction_id,'procedureId',v_existing.government_procedure_id,'branchId',v_existing.government_branch_id,'currentStagePosition',v_existing.current_stage_position,'status',v_existing.status,'templateSnapshot',v_existing.template_snapshot,'wasDuplicate',true);
+      select * into v_start_event from public.workflow_transition_events e
+      where e.workspace_id=p_workspace_id and e.idempotency_key=p_idempotency_key and e.event_kind='start' limit 1;
+      if not found or jsonb_typeof(v_start_event.snapshot->'result') <> 'object' then
+        raise data_exception using message='ENJAZ_WORKFLOW_IDEMPOTENCY_EVIDENCE_MISSING';
+      end if;
+      return (v_start_event.snapshot->'result') || jsonb_build_object('wasDuplicate',true);
     end if;
     raise unique_violation using message='ENJAZ_WORKFLOW_IDEMPOTENCY_CONFLICT';
   end if;
@@ -312,8 +344,24 @@ begin
   if not found or v_tx.deleted_at is not null or v_tx.archived_at is not null or v_tx.status='completed' then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_TRANSACTION_UNAVAILABLE'; end if;
   select * into v_procedure from public.government_procedures gp where gp.workspace_id=p_workspace_id and gp.id=p_procedure_id and gp.active;
   if not found then raise invalid_parameter_value using message='ENJAZ_PROCEDURE_UNAVAILABLE'; end if;
+  if exists (
+    select 1
+    from public.government_procedure_prerequisites pp
+    where pp.workspace_id=p_workspace_id and pp.procedure_id=p_procedure_id and pp.required
+      and not exists (
+        select 1 from public.workflow_instances prior
+        where prior.workspace_id=p_workspace_id
+          and prior.transaction_id=p_transaction_id
+          and prior.government_procedure_id=pp.prerequisite_procedure_id
+          and prior.status='completed'
+      )
+  ) then raise check_violation using message='ENJAZ_PROCEDURE_PREREQUISITE_INCOMPLETE'; end if;
   select * into v_template from public.workflow_templates wt where wt.workspace_id=p_workspace_id and wt.id=v_procedure.workflow_template_id and wt.active;
   if not found then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_TEMPLATE_UNAVAILABLE'; end if;
+  if p_branch_id is null and exists (
+    select 1 from public.government_procedure_branches pb
+    where pb.workspace_id=p_workspace_id and pb.procedure_id=p_procedure_id and pb.active
+  ) then raise invalid_parameter_value using message='ENJAZ_PROCEDURE_BRANCH_REQUIRED'; end if;
   if p_branch_id is not null and not exists (
     select 1 from public.government_procedure_branches pb join public.government_entity_branches b on b.workspace_id=pb.workspace_id and b.id=pb.branch_id
     where pb.workspace_id=p_workspace_id and pb.procedure_id=p_procedure_id and pb.branch_id=p_branch_id and pb.active and b.active
@@ -335,7 +383,11 @@ begin
     from public.workflow_template_stages s join public.workflow_template_items i on i.workspace_id=s.workspace_id and i.stage_id=s.id
     where s.workspace_id=p_workspace_id and s.workflow_template_id=v_template.id;
   insert into public.workflow_transition_events(workspace_id,workflow_instance_id,idempotency_key,transition_key,event_kind,from_stage_position,to_stage_position,actor_user_id,snapshot)
-    values(p_workspace_id,v_instance.id,p_idempotency_key,'start','start',null,v_first_stage,v_actor,jsonb_build_object('procedureId',p_procedure_id,'transactionId',p_transaction_id,'branchId',p_branch_id,'workflowTemplateId',v_template.id,'templateVersion',v_template.version));
+    values(p_workspace_id,v_instance.id,p_idempotency_key,'start','start',null,v_first_stage,v_actor,jsonb_build_object(
+      'procedureId',p_procedure_id,'transactionId',p_transaction_id,'branchId',p_branch_id,'workflowTemplateId',v_template.id,'templateVersion',v_template.version,
+      'result',jsonb_build_object('instanceId',v_instance.id,'transactionId',v_instance.transaction_id,'procedureId',v_instance.government_procedure_id,
+        'branchId',v_instance.government_branch_id,'currentStagePosition',v_first_stage,'status','active','templateSnapshot',v_snapshot)
+    ));
   insert into public.audit_events(workspace_id,actor_user_id,action,entity_type,entity_id,summary,details)
     values(p_workspace_id,v_actor,'workflow.procedure.started','workflow_instance',v_instance.id,'Started government procedure workflow',jsonb_build_object('procedureId',p_procedure_id,'transactionId',p_transaction_id,'branchId',p_branch_id,'idempotencyKey',p_idempotency_key));
   return jsonb_build_object('instanceId',v_instance.id,'transactionId',v_instance.transaction_id,'procedureId',v_instance.government_procedure_id,'branchId',v_instance.government_branch_id,'currentStagePosition',v_instance.current_stage_position,'status',v_instance.status,'templateSnapshot',v_instance.template_snapshot,'wasDuplicate',false);
@@ -357,17 +409,23 @@ begin
   if not exists (select 1 from public.workspace_memberships wm where wm.workspace_id=p_workspace_id and wm.user_id=v_actor) then raise insufficient_privilege using message='ENJAZ_WORKSPACE_FORBIDDEN'; end if;
   select * into v_existing_event from public.workflow_transition_events e where e.workspace_id=p_workspace_id and e.idempotency_key=p_idempotency_key limit 1;
   if found then
-    if v_existing_event.workflow_instance_id=p_workflow_instance_id and v_existing_event.transition_key=p_transition_key then
+    if v_existing_event.workflow_instance_id=p_workflow_instance_id and v_existing_event.transition_key=p_transition_key and v_existing_event.from_stage_position=p_expected_stage_position and v_existing_event.reason is not distinct from v_reason then
       select * into v_instance from public.workflow_instances wi where wi.workspace_id=p_workspace_id and wi.id=p_workflow_instance_id;
-      return jsonb_build_object('instanceId',v_instance.id,'transitionEventId',v_existing_event.id,'transitionKey',v_existing_event.transition_key,'eventKind',v_existing_event.event_kind,'fromStagePosition',v_existing_event.from_stage_position,'toStagePosition',v_existing_event.to_stage_position,'currentStagePosition',v_instance.current_stage_position,'status',v_instance.status,'wasDuplicate',true);
+      return jsonb_build_object('instanceId',v_instance.id,'transitionEventId',v_existing_event.id,'transitionKey',v_existing_event.transition_key,'eventKind',v_existing_event.event_kind,'fromStagePosition',v_existing_event.from_stage_position,'toStagePosition',v_existing_event.to_stage_position,'currentStagePosition',(v_existing_event.snapshot->>'resultStagePosition')::integer,'status',v_existing_event.snapshot->>'resultStatus','wasDuplicate',true);
     end if;
     raise unique_violation using message='ENJAZ_WORKFLOW_TRANSITION_IDEMPOTENCY_CONFLICT';
   end if;
   select * into v_instance from public.workflow_instances wi where wi.workspace_id=p_workspace_id and wi.id=p_workflow_instance_id for update;
-  if not found or v_instance.status<>'active' then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_INSTANCE_NOT_ACTIVE'; end if;
+  if not found or v_instance.status not in ('active','completed') then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_INSTANCE_NOT_TRANSITIONABLE'; end if;
   if v_instance.current_stage_position<>p_expected_stage_position then raise serialization_failure using message='ENJAZ_WORKFLOW_STALE_STAGE'; end if;
   select * into v_transition from public.workflow_template_transitions t where t.workspace_id=p_workspace_id and t.workflow_template_id=v_instance.workflow_template_id and t.from_stage_position=v_instance.current_stage_position and t.transition_key=p_transition_key and t.active;
   if not found then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_TRANSITION_NOT_ALLOWED'; end if;
+  if v_instance.status='completed' and v_transition.transition_kind<>'reopen' then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_COMPLETED_REOPEN_ONLY'; end if;
+  if v_transition.transition_kind='reopen' and exists (
+    select 1 from public.workflow_instances other
+    where other.workspace_id=p_workspace_id and other.transaction_id=v_instance.transaction_id
+      and other.status='active' and other.id<>v_instance.id
+  ) then raise unique_violation using message='ENJAZ_WORKFLOW_REOPEN_ACTIVE_CONFLICT'; end if;
   if v_transition.requires_reason and v_reason is null then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_TRANSITION_REASON_REQUIRED'; end if;
   if v_transition.transition_kind in ('advance','complete') then
     select count(*) into v_pending_required from public.workflow_item_states i where i.workspace_id=p_workspace_id and i.workflow_instance_id=v_instance.id and i.stage_position=v_instance.current_stage_position and i.required is true and i.status='pending';

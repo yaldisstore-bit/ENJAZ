@@ -46,12 +46,17 @@ for (const marker of [
   'create table public.government_procedure_prerequisites',
   'create table public.workflow_template_transitions',
   'create table public.workflow_transition_events',
-  'official_fee numeric(18,2)',
+  'official_fee numeric,',
   'workflow_template_stages_government_branch_fk',
   'workflow_instances_government_procedure_fk',
   'workflow_instances_operation_key_unique_idx',
   'workflow_item_states_stage_idx',
   'ENJAZ_PROCEDURE_PREREQUISITE_CYCLE',
+  'ENJAZ_PROCEDURE_PREREQUISITE_INCOMPLETE',
+  'ENJAZ_PROCEDURE_BRANCH_ENTITY_MISMATCH',
+  'ENJAZ_PROCEDURE_BRANCH_REQUIRED',
+  'ENJAZ_WORKFLOW_REOPEN_ACTIVE_CONFLICT',
+  'trunc(official_fee, 2)',
   'revoke insert, update, delete on table public.workflow_instances from anon, authenticated',
   'revoke insert, update, delete on table public.workflow_stage_states from anon, authenticated',
   'reference_fees_only_no_finance_write',
@@ -62,7 +67,7 @@ for (const marker of [
   'ENJAZ_WORKFLOW_ACTIVE_INSTANCE_EXISTS',
   'workflow_transition_events_idempotency_unique',
   "'workflow.procedure.started'",
-  "'workflow.transition.' || v_transition.transition_kind",
+  "'workflow.transition.'||v_transition.transition_kind",
 ]) check(`migration_${marker}`, has(migration, marker));
 
 check('no_transaction_state_write', !/update\s+public\.transactions\s+set/i.test(migration));
@@ -92,7 +97,7 @@ for (const marker of [
   'stale-state protection',
   'before any RPC can mutate workflow state',
   'DATA_OUTCOME_UNKNOWN',
-  'without rounding a government fee silently',
+  'instead of rounding a government fee silently',
 ]) check(`tests_${marker}`, has(tests, marker));
 
 const scripts = packageJson.scripts ?? {};
