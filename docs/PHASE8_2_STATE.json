@@ -26,8 +26,25 @@
   ],
   "implementationBranch": "phase8-2-automation-engine",
   "implementationHead": null,
-  "pullRequest": null,
-  "realCloudVerification": { "required": true, "status": "PENDING" },
+  "pullRequest": 109,
+  "realCloudVerification": {
+    "required": true,
+    "status": "PASS",
+    "projectRef": "juzxriirhkuzviwnhkbd",
+    "projectStatus": "ACTIVE_HEALTHY",
+    "evidence": [
+      "phase_8_2_automation_engine",
+      "phase_8_2_rpc_security_hardening",
+      "phase_8_2_live_authenticated_automation_probe",
+      "phase_8_2_fk_index_hardening",
+      "authenticated public RPC mutation succeeded while direct table mutation remained denied",
+      "stale-version protection failed closed",
+      "dispatch receipt replay was idempotent with one follow-up side effect",
+      "sensitive workflow action required human approval",
+      "approval rejection and replay were idempotent",
+      "probe rows cleaned after verification"
+    ]
+  },
   "realChromium": { "required": true, "status": "PENDING" },
   "postMergeRecertification": { "required": true, "status": "PENDING" },
   "exitGatePassed": false,
