@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 7.1 — Financial Ledger & Summary ✅ CLOSED + POST-MERGE RECERTIFIED**  
-آخر مرحلة مغلقة: **Phase 7.1 — Financial Ledger & Summary ✅**  
-التالي المسموح: **Phase 7.2 — Payments & Receipts**.
+الحالة الرسمية: **Phase 7.2 — Payments & Receipts ✅ CLOSED + POST-MERGE RECERTIFIED**  
+آخر مرحلة مغلقة: **Phase 7.2 — Payments & Receipts ✅**  
+التالي المسموح: **Phase 7.3 — Financial Intelligence**.
 
 ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية حديثة وبنية Supabase/Postgres + RLS، من دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -22,6 +22,10 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - [`docs/PHASE7_1_FINANCIAL_LEDGER_STATE.json`](docs/PHASE7_1_FINANCIAL_LEDGER_STATE.json)
 - [`docs/PHASE7_1_FINANCIAL_LEDGER_CLOSURE.md`](docs/PHASE7_1_FINANCIAL_LEDGER_CLOSURE.md)
 - [`docs/PHASE7_1_POSTMERGE_RECERTIFICATION.md`](docs/PHASE7_1_POSTMERGE_RECERTIFICATION.md)
+- [`docs/PHASE7_2_STATE.json`](docs/PHASE7_2_STATE.json)
+- [`docs/PHASE7_2_CLOSURE.md`](docs/PHASE7_2_CLOSURE.md)
+- [`docs/PHASE7_2_POSTMERGE_RECERTIFICATION.md`](docs/PHASE7_2_POSTMERGE_RECERTIFICATION.md)
+- [`docs/PHASE7_2_ZERO_ESCAPE_CHECKLIST.md`](docs/PHASE7_2_ZERO_ESCAPE_CHECKLIST.md)
 
 ## الحالة الكانونية للمراحل
 
@@ -42,7 +46,8 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
   - **Phase 6.3 — Company / Lawyer 360°** ✅ complete
   - **Phase 6.4 — Companies & People Destruction Gate** ✅ complete
 - **Phase 7.1 — Financial Ledger & Summary** ✅ complete + post-merge recertified
-- **Next: Phase 7.2 — Payments & Receipts**
+- **Phase 7.2 — Payments & Receipts** ✅ complete + post-merge recertified
+- **Next: Phase 7.3 — Financial Intelligence**
 
 ### Phase 7.1 canonical evidence
 
@@ -54,11 +59,26 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - Exact merged commit passed **9/9 canonical post-merge workflows SUCCESS، 0 failures**.
 - Pages deployment and Live External validation succeeded.
 - Published verification included **Attack the actual published application**.
-- `phase7_2Allowed=true`; Phase 7.2 is authorized but not yet implemented.
+- Historical transition evidence authorized Phase 7.2 after 7.1 closure.
+
+### Phase 7.2 canonical evidence
+
+- Exact tested implementation head: `da4800ddf4df2ecca49b01d1b40db0546fd70a13`.
+- Certified pre-closure implementation passed **26/26 pull-request workflows SUCCESS** with zero failures/in-progress/queued.
+- Phase 7.1 preservation, Phase 7.2 contract audit, command tests, full functional regression, destructive DB self-test, TypeScript, production build and asset budget all stayed green.
+- Dedicated Real Chromium finance journey passed payment → immutable receipt → reversal, controlled cashbox, M16 commercial anchor and reconciliation.
+- Responsive reality passed at **1280/430/390/360/320** without horizontal escape.
+- Real authenticated ENJAZ Supabase finance probe passed and cleaned probe records.
+- Canonical merge: `192711cfcc36bf041ab0e576f8ab3899dc63b7a6`.
+- Exact merged commit passed **11/11 canonical post-merge workflows SUCCESS**, with 0 failure / 0 queued / 0 in-progress / 0 cancelled.
+- GitHub Pages build/deploy run `34084227883` succeeded for the real `/live/` runtime.
+- Live External run `34084261408` succeeded, including **Attack the actual published application**.
+- The **M16 finance/commercial anchor is complete**, but M16 overall remains open because document, communication and reporting slices are assigned to later phases.
+- `phase7_3Allowed=true`; Phase 7.3 is the sole next authorized implementation stage.
 
 ## Major Product Systems — M1–M18
 
-The following are now **governing product scope**, not optional ideas. They remain `PLANNED` until implementation and Zero-Escape closure evidence proves otherwise:
+The following are now **governing product scope**, not optional ideas. They remain `PLANNED`/partially implemented until their own implementation and Zero-Escape closure evidence proves otherwise. A completed anchor slice does not automatically close the whole system.
 
 1. **M1 — Government Procedure Operating System**
 2. **M2 — Corporate Governance & Ownership Engine**
@@ -118,6 +138,6 @@ If a real defect escapes after a system is closed, it is classified as a **Gate 
 
 ## Current development pointer
 
-**Phase 7.1 is closed and canonically recertified. Phase 7.2 — Payments & Receipts is the only next authorized implementation stage.**
+**Phase 7.2 is closed and canonically post-merge recertified. Phase 7.3 — Financial Intelligence is the only next authorized implementation stage.**
 
-The 18 major systems are already part of the governing roadmap, but none is considered implemented merely because its scope document exists.
+Phase 8 remains locked until Phase 7.3–7.5 complete their own closure and recertification requirements. The completed M16 finance/commercial anchor does not declare the whole M16 system complete.
