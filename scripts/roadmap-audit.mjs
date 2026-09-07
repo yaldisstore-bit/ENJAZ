@@ -13,6 +13,7 @@ const phase64 = JSON.parse(read('docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_STAT
 const phase71 = JSON.parse(read('docs/PHASE7_1_FINANCIAL_LEDGER_STATE.json'));
 const phase72 = JSON.parse(read('docs/PHASE7_2_STATE.json'));
 const phase73 = JSON.parse(read('docs/PHASE7_3_STATE.json'));
+const phase74 = JSON.parse(read('docs/PHASE7_4_STATE.json'));
 const errors = [];
 
 const requireMarker = (source, marker, label) => {
@@ -90,10 +91,11 @@ for (const marker of [
   'Zero-Escape closure law for M1–M18',
   'Current position — canonical reconciled state',
   'Major-system anchor matrix',
-  '**Next: Phase 7.4 — Financial Reports**',
+  '**Next: Phase 7.5 — Finance Destruction & Reconciliation Gate**',
   'Phase 7.1 — Financial Ledger & Summary ✅ CLOSED + post-merge recertified',
   'Phase 7.2 — Payments & Receipts ✅ CLOSED + post-merge recertified',
   'Phase 7.3 — Financial Intelligence ✅ CLOSED + post-merge recertified',
+  'Phase 7.4 — Financial Reports ✅ CLOSED + post-merge recertified',
   'docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json',
   'docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md',
   'Gate Escape',
@@ -104,6 +106,7 @@ for (const stale of [
   '**Next: Phase 7.1 — Financial Ledger & Summary**',
   '**Next: Phase 7.2 — Payments & Receipts**',
   '**Next: Phase 7.3 — Financial Intelligence**',
+  '**Next: Phase 7.4 — Financial Reports**',
 ]) forbidMarker(roadmap, stale, 'roadmap');
 
 if (major.schemaVersion !== 2 || major.status !== 'GOVERNING_AMENDMENT') errors.push('major-system registry must remain governing amendment schema v2');
@@ -151,6 +154,7 @@ assertClosed('Phase 6.4', phase64);
 assertClosed('Phase 7.1', phase71);
 assertClosed('Phase 7.2', phase72);
 assertClosed('Phase 7.3', phase73);
+assertClosed('Phase 7.4', phase74);
 
 if (phase55.postMergeRecertification?.status !== 'COMPLETE') errors.push('Phase 5.5 recertification drifted');
 if (phase61.postMergeRecertification?.status !== 'COMPLETE') errors.push('Phase 6.1 recertification drifted');
@@ -195,35 +199,56 @@ if (phase73.postMergeRecertification?.pagesDeploymentRunId !== 34092283834 || ph
 if (phase73.postMergeRecertification?.realBrowserRunId !== 34092284382 || phase73.postMergeRecertification?.realBrowser !== 'SUCCESS') errors.push('Phase 7.3 Real Browser evidence drifted');
 if (phase73.postMergeRecertification?.liveExternalRunId !== 34092363985 || phase73.postMergeRecertification?.liveExternal !== 'SUCCESS' || phase73.postMergeRecertification?.publishedApplicationAttack !== 'SUCCESS') errors.push('Phase 7.3 deployed-live evidence drifted');
 if (phase73.m13FinanceAnchor !== 'COMPLETE' || phase73.m13OverallSystemClosed !== false) errors.push('Phase 7.3 must close only the M13 finance anchor, not the entire M13 system');
-if (phase73.phase7_4Allowed !== true || phase73.nextPhase !== '7.4') errors.push('Phase 7.4 must be the only next stage authorized by Phase 7.3');
+if (phase73.phase7_4Allowed !== true || phase73.nextPhase !== '7.4') errors.push('Phase 7.3 historical transition evidence must authorize 7.4');
 if (phase73.closureEvidence !== 'docs/PHASE7_3_CLOSURE.md' || phase73.postMergeEvidence !== 'docs/PHASE7_3_POSTMERGE_RECERTIFICATION.md') errors.push('Phase 7.3 closure evidence pointers drifted');
 if (phase73.criticalDefectCount !== 0 || phase73.highDefectCount !== 0 || phase73.functionalBlockerCount !== 0) errors.push('Phase 7.3 defect gate must remain zero');
 
+if (phase74.phase !== '7.4') errors.push('Phase 7.4 state identity drifted');
+if (phase74.implementationHead !== '7dba0c48e5782df5093deae57c6f10677b32fbce' || phase74.pullRequest !== 103) errors.push('Phase 7.4 certified implementation/PR evidence drifted');
+if (phase74.preClosure?.workflowCount !== 28 || phase74.preClosure?.successCount !== 28 || phase74.preClosure?.failureCount !== 0 || phase74.preClosure?.inProgressCount !== 0 || phase74.preClosure?.queuedCount !== 0 || phase74.preClosure?.realChromium !== 'PASS') errors.push('Phase 7.4 must preserve 28/28 pre-closure evidence and Real Chromium PASS');
+if (phase74.preClosure?.dedicatedGateRunId !== 34096775256) errors.push('Phase 7.4 dedicated pre-merge gate evidence drifted');
+if (phase74.preClosure?.productionJavaScriptBytes !== 588519 || phase74.preClosure?.productionJavaScriptBudget !== 670000) errors.push('Phase 7.4 production budget evidence drifted');
+if (phase74.mergeCommit !== 'd4ad3844dc7ae7a1895e2fddfdb06b2ee0a01858') errors.push('Phase 7.4 canonical merge commit drifted');
+if (phase74.postMergeRecertification?.status !== 'COMPLETE' || phase74.postMergeRecertification?.mainCommit !== 'd4ad3844dc7ae7a1895e2fddfdb06b2ee0a01858') errors.push('Phase 7.4 post-merge recertification must remain COMPLETE on the exact canonical SHA');
+if (phase74.postMergeRecertification?.workflowCount !== 10 || phase74.postMergeRecertification?.successCount !== 10 || phase74.postMergeRecertification?.failureCount !== 0 || phase74.postMergeRecertification?.inProgressCount !== 0 || phase74.postMergeRecertification?.queuedCount !== 0 || phase74.postMergeRecertification?.cancelledCount !== 0) errors.push('Phase 7.4 must preserve 10/10 canonical main push recertification evidence');
+if (phase74.postMergeRecertification?.phaseGateRunId !== 34097286172) errors.push('Phase 7.4 post-merge phase gate evidence drifted');
+if (phase74.postMergeRecertification?.pagesPreviewRunId !== 34097333825 || phase74.postMergeRecertification?.pagesPreview !== 'SUCCESS' || phase74.postMergeRecertification?.pagesBuild !== 'SUCCESS' || phase74.postMergeRecertification?.pagesDeploy !== 'SUCCESS') errors.push('Phase 7.4 Pages evidence drifted');
+if (phase74.postMergeRecertification?.realBrowserRunId !== 34097286214 || phase74.postMergeRecertification?.realBrowser !== 'SUCCESS') errors.push('Phase 7.4 Real Browser evidence drifted');
+if (phase74.postMergeRecertification?.liveExternalRunId !== 34097378705 || phase74.postMergeRecertification?.liveExternal !== 'SUCCESS' || phase74.postMergeRecertification?.publishedApplicationAttack !== 'SUCCESS') errors.push('Phase 7.4 deployed-live evidence drifted');
+if (phase74.m16ReportingHook !== 'COMPLETE' || phase74.m16OverallSystemClosed !== false) errors.push('Phase 7.4 must close only the M16 reporting hook, not the entire M16 system');
+if (phase74.phase7_5Allowed !== true || phase74.nextPhase !== '7.5') errors.push('Phase 7.5 must be the only next stage authorized by Phase 7.4');
+if (phase74.closureEvidence !== 'docs/PHASE7_4_CLOSURE.md' || phase74.postMergeEvidence !== 'docs/PHASE7_4_POSTMERGE_RECERTIFICATION.md') errors.push('Phase 7.4 closure evidence pointers drifted');
+if (phase74.criticalDefectCount !== 0 || phase74.highDefectCount !== 0 || phase74.functionalBlockerCount !== 0) errors.push('Phase 7.4 defect gate must remain zero');
+
 for (const marker of [
-  'الحالة الرسمية: **Phase 7.3 — Financial Intelligence ✅ CLOSED + POST-MERGE RECERTIFIED**',
-  'التالي المسموح: **Phase 7.4 — Financial Reports**',
-  '**Phase 7.3 — Financial Intelligence** ✅ complete + post-merge recertified',
-  '**Next: Phase 7.4 — Financial Reports**',
-  '27/27 pull-request workflows SUCCESS',
-  '12/12 canonical post-merge workflows SUCCESS',
-  'a1c34888732270bea5795ac59603345c190b8fd7',
-  '34092363985',
+  'الحالة الرسمية: **Phase 7.4 — Financial Reports ✅ CLOSED + POST-MERGE RECERTIFIED**',
+  'التالي المسموح: **Phase 7.5 — Finance Destruction & Reconciliation Gate**',
+  '**Phase 7.4 — Financial Reports** ✅ complete + post-merge recertified',
+  '**Next: Phase 7.5 — Finance Destruction & Reconciliation Gate**',
+  '28/28 pull-request workflows SUCCESS',
+  '10/10 canonical main push workflows SUCCESS',
+  '7dba0c48e5782df5093deae57c6f10677b32fbce',
+  'd4ad3844dc7ae7a1895e2fddfdb06b2ee0a01858',
+  '34097378705',
   'Attack the actual published application',
   'Zero-Escape rule',
   'Gate Escape',
   'docs/ENJAZ_MASTER_ROADMAP.md',
   'docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json',
   'docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md',
-  'docs/PHASE7_3_POSTMERGE_RECERTIFICATION.md',
+  'docs/PHASE7_4_STATE.json',
+  'docs/PHASE7_4_POSTMERGE_RECERTIFICATION.md',
 ]) requireMarker(readme, marker, 'README');
 
 for (const stale of [
   'التالي المسموح: **Phase 7.1 — Financial Ledger & Summary**',
   'التالي المسموح: **Phase 7.2 — Payments & Receipts**',
   'التالي المسموح: **Phase 7.3 — Financial Intelligence**',
+  'التالي المسموح: **Phase 7.4 — Financial Reports**',
   '**Next: Phase 7.1 — Financial Ledger & Summary**',
   '**Next: Phase 7.2 — Payments & Receipts**',
   '**Next: Phase 7.3 — Financial Intelligence**',
+  '**Next: Phase 7.4 — Financial Reports**',
   '**Next: Phase 6.1 — Companies**',
 ]) forbidMarker(readme, stale, 'README');
 
@@ -232,5 +257,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 7.3 CLOSED + 12/12 canonical recertified; M13 finance anchor complete without closing M13 overall; next=Phase 7.4 only.');
+  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 7.4 CLOSED + 10/10 canonical main push recertified; M13 finance and M16 finance/reporting anchors preserved without falsely closing those overall systems; next=Phase 7.5 only.');
 }
