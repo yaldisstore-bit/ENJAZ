@@ -15,6 +15,7 @@ const kickoff = read('docs/PHASE8_1_KICKOFF.md');
 const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 const baseline = read('database/baseline/phase1_2_schema.sql');
 const migrationPath = 'database/migrations/phase_8_1_workflow_government_procedure_os.sql';
+const contextMigrationPath = 'database/migrations/phase_8_1_transaction_workflow_context.sql';
 const commandPath = 'src/features/workflow/governmentProcedureCommands.ts';
 const runtimePath = 'src/features/workflow/governmentProcedureRuntime.ts';
 const hookPath = 'src/features/workflow/useGovernmentProcedureWorkflow.ts';
@@ -28,7 +29,10 @@ const previewHtmlPath = 'phase8-1-preview.html';
 const previewConfigPath = 'vite.phase8-1-preview.config.ts';
 const browserSpecPath = 'tests-external/phase8-1-workflow-government-procedure.spec.cjs';
 const testPath = 'tests/workflowGovernmentProcedure.test.ts';
-const migration = exists(migrationPath) ? read(migrationPath) : '';
+const runtimeTestPath = 'tests/workflowGovernmentProcedureRuntime.test.ts';
+const coreMigration = exists(migrationPath) ? read(migrationPath) : '';
+const contextMigration = exists(contextMigrationPath) ? read(contextMigrationPath) : '';
+const migration = `${coreMigration}\n${contextMigration}`;
 const commands = exists(commandPath) ? read(commandPath) : '';
 const runtime = exists(runtimePath) ? read(runtimePath) : '';
 const hook = exists(hookPath) ? read(hookPath) : '';
@@ -40,6 +44,7 @@ const coreWork = exists(coreWorkPath) ? read(coreWorkPath) : '';
 const preview = exists(previewPath) ? read(previewPath) : '';
 const browserSpec = exists(browserSpecPath) ? read(browserSpecPath) : '';
 const tests = exists(testPath) ? read(testPath) : '';
+const runtimeTests = exists(runtimeTestPath) ? read(runtimeTestPath) : '';
 const packageJson = JSON.parse(read('package.json'));
 
 check('phase_identity', state.phase === '8.1' && state.name === 'Workflow Engine & Government Procedure OS — M1');
@@ -57,7 +62,8 @@ for (const table of ['workflow_templates','workflow_template_stages','workflow_t
 check('single_active_workflow_index_preserved', has(baseline, 'workflow_one_active_per_transaction_idx'));
 check('transaction_attached_existing_runtime', has(baseline, 'transaction_id uuid not null') && has(baseline, 'workflow_instances_transaction_fk'));
 
-check('migration_exists', Boolean(migration));
+check('core_migration_exists', Boolean(coreMigration));
+check('context_migration_exists', Boolean(contextMigration));
 for (const marker of [
   'create table public.government_entities',
   'create table public.government_entity_branches',
@@ -96,6 +102,8 @@ check('no_finance_write', !/insert\s+into\s+public\.(payments|financial_ledger_e
 check('no_browser_delete_grant', !/grant\s+[^;]*delete[^;]*to\s+authenticated/i.test(migration));
 check('rpc_public_execute_revoked', has(migration, 'revoke execute on function public.start_government_procedure_v1') && has(migration, 'from public, anon'));
 check('rpc_authenticated_only', has(migration, 'grant execute on function public.start_government_procedure_v1') && has(migration, 'to authenticated'));
+check('context_rpc_public_execute_revoked', has(contextMigration, 'revoke execute on function public.get_transaction_workflow_context_v1') && has(contextMigration, 'from public, anon'));
+check('context_rpc_authenticated_only', has(contextMigration, 'grant execute on function public.get_transaction_workflow_context_v1') && has(contextMigration, 'to authenticated'));
 
 check('commands_exist', Boolean(commands));
 for (const marker of [
@@ -151,7 +159,7 @@ check('browser_spec_exists', Boolean(browserSpec));
 for (const width of ['1280', '430', '390', '360', '320']) check(`browser_width_${width}`, has(browserSpec, width));
 for (const marker of ['required items block transition', 'complete, and reopen', 'empty transaction can start', 'reference_fees_only_no_finance_write', 'assertNoHorizontalEscape']) check(`browser_${marker}`, has(browserSpec, marker));
 
-check('tests_exist', Boolean(tests));
+check('command_tests_exist', Boolean(tests));
 for (const marker of [
   'exact reference fee without finance authority',
   'shadow_finance_store',
@@ -161,6 +169,8 @@ for (const marker of [
   'DATA_OUTCOME_UNKNOWN',
   'instead of rounding a government fee silently',
 ]) check(`tests_${marker}`, has(tests, marker));
+check('runtime_tests_exist', Boolean(runtimeTests));
+for (const marker of ['canonical transaction workflow context', 'context authority drift', 'transaction drift', 'explicit empty canonical context']) check(`runtime_tests_${marker}`, has(runtimeTests, marker));
 
 const scripts = packageJson.scripts ?? {};
 check('package_test_81', typeof scripts['test:phase8-1'] === 'string' && has(scripts['test:phase8-1'], 'workflowGovernmentProcedure.test.ts'));
