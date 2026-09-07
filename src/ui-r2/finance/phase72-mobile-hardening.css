@@ -1,0 +1,87 @@
+.r2-f72-sheet,
+.r2-f72-sheet *,
+.r2-f72-receipt-paper,
+.r2-f72-receipt-paper * {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.r2-f72-sheet {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.r2-f72-sheet__bar {
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  max-width: 100%;
+}
+
+.r2-f72-sheet__bar > div,
+.r2-f72-sheet__bar strong,
+.r2-f72-sheet__bar small,
+.r2-f72-form,
+.r2-f72-form label,
+.r2-f72-form__guard,
+.r2-f72-reverse-summary {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.r2-f72-form input,
+.r2-f72-form select,
+.r2-f72-form textarea,
+.r2-f72-submit {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.r2-f72-receipt-paper {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.r2-f72-receipt-paper > header {
+  flex-wrap: wrap;
+}
+
+.r2-f72-receipt-paper > header > div {
+  flex: 1 1 180px;
+  max-width: 100%;
+}
+
+.r2-f72-receipt-paper > header b,
+.r2-f72-receipt-paper > header span,
+.r2-f72-receipt-paper dd,
+.r2-f72-receipt-paper dt,
+.r2-f72-receipt-paper footer,
+.r2-f72-receipt-paper aside,
+.r2-f72-verification,
+.r2-f72-verification code {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.r2-f72-receipt-paper dl > div {
+  grid-template-columns: 110px minmax(0, 1fr);
+}
+
+@media (max-width: 760px) {
+  .r2-f72-sheet,
+  .r2-f72-sheet--receipt {
+    inset: 0;
+    width: 100vw;
+    max-width: 100vw;
+  }
+}
+
+@media (max-width: 360px) {
+  .r2-f72-sheet__bar {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .r2-f72-receipt-paper dl > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
