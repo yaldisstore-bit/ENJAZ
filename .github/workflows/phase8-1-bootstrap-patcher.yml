@@ -1,0 +1,291 @@
+name: ENJAZ Phase 8.1 — Bootstrap hardening patcher
+
+on:
+  push:
+    branches:
+      - phase8-1-workflow-government-procedure-os
+    paths:
+      - '.github/workflows/phase8-1-bootstrap-patcher.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: enjaz-phase81-bootstrap-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  harden-and-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout Phase 8.1 branch
+        uses: actions/checkout@v7
+        with:
+          ref: phase8-1-workflow-government-procedure-os
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Harden Phase 8.1 source atomically
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text: str, old: str, new: str, label: str) -> str:
+              if old not in text:
+                  raise SystemExit(f'bootstrap marker missing: {label}')
+              return text.replace(old, new, 1)
+
+          migration_path = Path('database/migrations/phase_8_1_workflow_government_procedure_os.sql')
+          sql = migration_path.read_text()
+
+          sql = replace_once(sql, 'official_fee numeric(18,2),', 'official_fee numeric,', 'exact fee column')
+          sql = replace_once(
+              sql,
+              "add constraint workflow_template_stages_official_fee_exact check (official_fee is null or (official_fee >= 0 and official_fee = round(official_fee, 2))),",
+              "add constraint workflow_template_stages_official_fee_exact check (official_fee is null or (official_fee >= 0 and official_fee <= 9999999999999999.99 and official_fee = trunc(official_fee, 2))),",
+              'exact fee rejection',
+          )
+          sql = replace_once(
+              sql,
+              'constraint workflow_template_transitions_key_unique unique (workspace_id, workflow_template_id, transition_key)',
+              'constraint workflow_template_transitions_key_unique unique (workspace_id, workflow_template_id, from_stage_position, transition_key)',
+              'stage-scoped transition key',
+          )
+
+          branch_anchor = """create trigger government_procedure_prerequisites_cycle_guard
+          before insert or update on public.government_procedure_prerequisites
+          for each row execute function private.guard_government_procedure_prerequisite_cycle();
+
+          create trigger government_entities_set_updated_at"""
+          branch_guard = """create trigger government_procedure_prerequisites_cycle_guard
+          before insert or update on public.government_procedure_prerequisites
+          for each row execute function private.guard_government_procedure_prerequisite_cycle();
+
+          create or replace function private.guard_government_procedure_branch_entity()
+          returns trigger
+          language plpgsql
+          set search_path = ''
+          as $$
+          declare
+            v_procedure_entity uuid;
+            v_branch_entity uuid;
+          begin
+            select gp.government_entity_id into v_procedure_entity
+            from public.government_procedures gp
+            where gp.workspace_id = new.workspace_id and gp.id = new.procedure_id;
+            select b.government_entity_id into v_branch_entity
+            from public.government_entity_branches b
+            where b.workspace_id = new.workspace_id and b.id = new.branch_id;
+            if v_procedure_entity is not null and v_branch_entity is not null and v_procedure_entity <> v_branch_entity then
+              raise check_violation using message = 'ENJAZ_PROCEDURE_BRANCH_ENTITY_MISMATCH';
+            end if;
+            return new;
+          end;
+          $$;
+          revoke all on function private.guard_government_procedure_branch_entity() from public;
+          create trigger government_procedure_branches_entity_guard
+          before insert or update on public.government_procedure_branches
+          for each row execute function private.guard_government_procedure_branch_entity();
+
+          create trigger government_entities_set_updated_at"""
+          sql = replace_once(sql, branch_anchor, branch_guard, 'branch/entity integrity guard')
+
+          branch_required_old = """if p_branch_id is not null and not exists (
+            select 1 from public.government_procedure_branches pb join public.government_entity_branches b on b.workspace_id=pb.workspace_id and b.id=pb.branch_id
+            where pb.workspace_id=p_workspace_id and pb.procedure_id=p_procedure_id and pb.branch_id=p_branch_id and pb.active and b.active
+          ) then raise invalid_parameter_value using message='ENJAZ_PROCEDURE_BRANCH_UNAVAILABLE'; end if;"""
+          branch_required_new = """if p_branch_id is null and exists (
+            select 1 from public.government_procedure_branches pb
+            where pb.workspace_id=p_workspace_id and pb.procedure_id=p_procedure_id and pb.active
+          ) then raise invalid_parameter_value using message='ENJAZ_PROCEDURE_BRANCH_REQUIRED'; end if;
+          if p_branch_id is not null and not exists (
+            select 1 from public.government_procedure_branches pb join public.government_entity_branches b on b.workspace_id=pb.workspace_id and b.id=pb.branch_id
+            where pb.workspace_id=p_workspace_id and pb.procedure_id=p_procedure_id and pb.branch_id=p_branch_id and pb.active and b.active
+          ) then raise invalid_parameter_value using message='ENJAZ_PROCEDURE_BRANCH_UNAVAILABLE'; end if;"""
+          sql = replace_once(sql, branch_required_old, branch_required_new, 'branch required when catalog maps branches')
+
+          prereq_old = """if not found then raise invalid_parameter_value using message='ENJAZ_PROCEDURE_UNAVAILABLE'; end if;
+            select * into v_template from public.workflow_templates wt where wt.workspace_id=p_workspace_id and wt.id=v_procedure.workflow_template_id and wt.active;"""
+          prereq_new = """if not found then raise invalid_parameter_value using message='ENJAZ_PROCEDURE_UNAVAILABLE'; end if;
+            if exists (
+              select 1
+              from public.government_procedure_prerequisites pp
+              where pp.workspace_id=p_workspace_id and pp.procedure_id=p_procedure_id and pp.required
+                and not exists (
+                  select 1 from public.workflow_instances prior
+                  where prior.workspace_id=p_workspace_id
+                    and prior.transaction_id=p_transaction_id
+                    and prior.government_procedure_id=pp.prerequisite_procedure_id
+                    and prior.status='completed'
+                )
+            ) then raise check_violation using message='ENJAZ_PROCEDURE_PREREQUISITE_INCOMPLETE'; end if;
+            select * into v_template from public.workflow_templates wt where wt.workspace_id=p_workspace_id and wt.id=v_procedure.workflow_template_id and wt.active;"""
+          sql = replace_once(sql, prereq_old, prereq_new, 'prerequisite enforcement')
+
+          sql = replace_once(
+              sql,
+              "v_template public.workflow_templates%rowtype; v_existing public.workflow_instances%rowtype;\n  v_instance public.workflow_instances%rowtype; v_first_stage integer; v_snapshot jsonb;",
+              "v_template public.workflow_templates%rowtype; v_existing public.workflow_instances%rowtype; v_start_event public.workflow_transition_events%rowtype;\n  v_instance public.workflow_instances%rowtype; v_first_stage integer; v_snapshot jsonb;",
+              'start event declaration',
+          )
+          start_replay_old = """if found then
+              if v_existing.transaction_id=p_transaction_id and v_existing.government_procedure_id=p_procedure_id and v_existing.government_branch_id is not distinct from p_branch_id then
+                return jsonb_build_object('instanceId',v_existing.id,'transactionId',v_existing.transaction_id,'procedureId',v_existing.government_procedure_id,'branchId',v_existing.government_branch_id,'currentStagePosition',v_existing.current_stage_position,'status',v_existing.status,'templateSnapshot',v_existing.template_snapshot,'wasDuplicate',true);
+              end if;
+              raise unique_violation using message='ENJAZ_WORKFLOW_IDEMPOTENCY_CONFLICT';
+            end if;"""
+          start_replay_new = """if found then
+              if v_existing.transaction_id=p_transaction_id and v_existing.government_procedure_id=p_procedure_id and v_existing.government_branch_id is not distinct from p_branch_id then
+                select * into v_start_event from public.workflow_transition_events e
+                where e.workspace_id=p_workspace_id and e.idempotency_key=p_idempotency_key and e.event_kind='start' limit 1;
+                if not found or jsonb_typeof(v_start_event.snapshot->'result') <> 'object' then
+                  raise data_exception using message='ENJAZ_WORKFLOW_IDEMPOTENCY_EVIDENCE_MISSING';
+                end if;
+                return (v_start_event.snapshot->'result') || jsonb_build_object('wasDuplicate',true);
+              end if;
+              raise unique_violation using message='ENJAZ_WORKFLOW_IDEMPOTENCY_CONFLICT';
+            end if;"""
+          sql = replace_once(sql, start_replay_old, start_replay_new, 'stable start replay result')
+
+          start_event_old = """values(p_workspace_id,v_instance.id,p_idempotency_key,'start','start',null,v_first_stage,v_actor,jsonb_build_object('procedureId',p_procedure_id,'transactionId',p_transaction_id,'branchId',p_branch_id,'workflowTemplateId',v_template.id,'templateVersion',v_template.version));"""
+          start_event_new = """values(p_workspace_id,v_instance.id,p_idempotency_key,'start','start',null,v_first_stage,v_actor,jsonb_build_object(
+              'procedureId',p_procedure_id,'transactionId',p_transaction_id,'branchId',p_branch_id,'workflowTemplateId',v_template.id,'templateVersion',v_template.version,
+              'result',jsonb_build_object('instanceId',v_instance.id,'transactionId',v_instance.transaction_id,'procedureId',v_instance.government_procedure_id,
+                'branchId',v_instance.government_branch_id,'currentStagePosition',v_first_stage,'status','active','templateSnapshot',v_snapshot)
+            ));"""
+          sql = replace_once(sql, start_event_old, start_event_new, 'start idempotency result evidence')
+
+          transition_replay_condition_old = "if v_existing_event.workflow_instance_id=p_workflow_instance_id and v_existing_event.transition_key=p_transition_key then"
+          transition_replay_condition_new = "if v_existing_event.workflow_instance_id=p_workflow_instance_id and v_existing_event.transition_key=p_transition_key and v_existing_event.from_stage_position=p_expected_stage_position and v_existing_event.reason is not distinct from v_reason then"
+          sql = replace_once(sql, transition_replay_condition_old, transition_replay_condition_new, 'transition payload drift guard')
+          transition_replay_result_old = """return jsonb_build_object('instanceId',v_instance.id,'transitionEventId',v_existing_event.id,'transitionKey',v_existing_event.transition_key,'eventKind',v_existing_event.event_kind,'fromStagePosition',v_existing_event.from_stage_position,'toStagePosition',v_existing_event.to_stage_position,'currentStagePosition',v_instance.current_stage_position,'status',v_instance.status,'wasDuplicate',true);"""
+          transition_replay_result_new = """return jsonb_build_object('instanceId',v_instance.id,'transitionEventId',v_existing_event.id,'transitionKey',v_existing_event.transition_key,'eventKind',v_existing_event.event_kind,'fromStagePosition',v_existing_event.from_stage_position,'toStagePosition',v_existing_event.to_stage_position,'currentStagePosition',(v_existing_event.snapshot->>'resultStagePosition')::integer,'status',v_existing_event.snapshot->>'resultStatus','wasDuplicate',true);"""
+          sql = replace_once(sql, transition_replay_result_old, transition_replay_result_new, 'stable transition replay result')
+
+          sql = replace_once(
+              sql,
+              "if not found or v_instance.status<>'active' then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_INSTANCE_NOT_ACTIVE'; end if;",
+              "if not found or v_instance.status not in ('active','completed') then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_INSTANCE_NOT_TRANSITIONABLE'; end if;",
+              'completed instance reopen eligibility',
+          )
+          transition_state_anchor = """if not found then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_TRANSITION_NOT_ALLOWED'; end if;
+            if v_transition.requires_reason and v_reason is null then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_TRANSITION_REASON_REQUIRED'; end if;"""
+          transition_state_new = """if not found then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_TRANSITION_NOT_ALLOWED'; end if;
+            if v_instance.status='completed' and v_transition.transition_kind<>'reopen' then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_COMPLETED_REOPEN_ONLY'; end if;
+            if v_transition.transition_kind='reopen' and exists (
+              select 1 from public.workflow_instances other
+              where other.workspace_id=p_workspace_id and other.transaction_id=v_instance.transaction_id
+                and other.status='active' and other.id<>v_instance.id
+            ) then raise unique_violation using message='ENJAZ_WORKFLOW_REOPEN_ACTIVE_CONFLICT'; end if;
+            if v_transition.requires_reason and v_reason is null then raise invalid_parameter_value using message='ENJAZ_WORKFLOW_TRANSITION_REASON_REQUIRED'; end if;"""
+          sql = replace_once(sql, transition_state_anchor, transition_state_new, 'reopen safety')
+
+          migration_path.write_text(sql)
+
+          audit_path = Path('scripts/phase8-1-workflow-government-procedure-audit.mjs')
+          audit = audit_path.read_text()
+          marker = "  'ENJAZ_PROCEDURE_PREREQUISITE_CYCLE',\n"
+          audit = replace_once(audit, marker, marker + "  'ENJAZ_PROCEDURE_PREREQUISITE_INCOMPLETE',\n  'ENJAZ_PROCEDURE_BRANCH_ENTITY_MISMATCH',\n  'ENJAZ_PROCEDURE_BRANCH_REQUIRED',\n  'ENJAZ_WORKFLOW_REOPEN_ACTIVE_CONFLICT',\n  'trunc(official_fee, 2)',\n", 'audit hardening markers')
+          audit_path.write_text(audit)
+
+          package_path = Path('package.json')
+          package = package_path.read_text()
+          package = replace_once(package, 'tests/financeDestructionGate.test.ts tests/unhandled.test.ts', 'tests/financeDestructionGate.test.ts tests/workflowGovernmentProcedure.test.ts tests/unhandled.test.ts', 'functional phase81')
+          package = replace_once(package, '    "test:phase7-5": "node --experimental-strip-types --test tests/financeCommands.test.ts tests/financeService.test.ts tests/financeModel.test.ts tests/financeIntelligence.test.ts tests/financeReports.test.ts tests/financeDestructionGate.test.ts",', '    "test:phase7-5": "node --experimental-strip-types --test tests/financeCommands.test.ts tests/financeService.test.ts tests/financeModel.test.ts tests/financeIntelligence.test.ts tests/financeReports.test.ts tests/financeDestructionGate.test.ts",\n    "test:phase8-1": "node --experimental-strip-types --test tests/workflowGovernmentProcedure.test.ts",', 'test phase81 script')
+          package = replace_once(package, '    "audit:phase7-5:finance-destruction": "node scripts/phase7-5-finance-destruction-audit.mjs",', '    "audit:phase7-5:finance-destruction": "node scripts/phase7-5-finance-destruction-audit.mjs",\n    "audit:phase8-1:workflow-government-procedure": "node scripts/phase8-1-workflow-government-procedure-audit.mjs",', 'audit phase81 script')
+          package = replace_once(package, 'npm run audit:phase7-5:finance-destruction && npm run test:phase5-2', 'npm run audit:phase7-5:finance-destruction && npm run audit:phase8-1:workflow-government-procedure && npm run test:phase5-2', 'extreme phase81 audit')
+          package = replace_once(package, 'npm run test:phase7-5 && npm run test:functional', 'npm run test:phase7-5 && npm run test:phase8-1 && npm run test:functional', 'extreme phase81 test')
+          package_path.write_text(package)
+
+          workflow = Path('.github/workflows/phase8-1-workflow-government-procedure.yml')
+          workflow.write_text("""name: ENJAZ Phase 8.1 — Workflow Engine & Government Procedure OS — M1
+
+          on:
+            push:
+              branches:
+                - main
+                - 'phase8-1-*'
+            pull_request:
+              branches: [main]
+            workflow_dispatch:
+
+          permissions:
+            contents: read
+
+          concurrency:
+            group: enjaz-phase81-${{ github.ref }}
+            cancel-in-progress: true
+
+          jobs:
+            phase8-1-workflow-government-procedure:
+              name: Canonical workflow / M1 government procedure gate
+              runs-on: ubuntu-latest
+              timeout-minutes: 35
+              steps:
+                - name: Checkout repository
+                  uses: actions/checkout@v7
+                  with:
+                    fetch-depth: 0
+                - name: Setup Node.js
+                  uses: actions/setup-node@v7
+                  with:
+                    node-version: '24'
+                    cache: npm
+                    cache-dependency-path: package-lock.json
+                - name: Setup Python
+                  uses: actions/setup-python@v7
+                  with:
+                    python-version: '3.12'
+                - name: Install locked dependencies
+                  run: npm ci --no-audit --no-fund
+                - name: Preserve Phase 7 finance closure
+                  run: |
+                    npm run audit:phase7-5:finance-destruction
+                    npm run test:phase7-5
+                - name: Enforce Phase 8.1 canonical workflow contract
+                  run: npm run audit:phase8-1:workflow-government-procedure
+                - name: Phase 8.1 command and parsing tests
+                  run: npm run test:phase8-1
+                - name: Full functional regression
+                  run: npm run test:functional
+                - name: Secrets audit
+                  run: npm run audit:secrets
+                - name: Database baseline integrity and destructive selftest
+                  run: npm run db:audit && npm run db:audit:selftest
+                - name: Roadmap integrity
+                  run: npm run audit:roadmap
+                - name: TypeScript
+                  run: npm run typecheck
+                - name: Production candidate build
+                  run: npm run build -- --base=/
+                - name: Preserve production asset budget
+                  run: npm run audit:dist:budget
+          """.replace('\n          ', '\n').lstrip())
+
+          Path('.github/workflows/phase8-1-bootstrap-patcher.yml').unlink()
+          PY
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate hardened Phase 8.1 before commit
+        run: |
+          npm run audit:phase8-1:workflow-government-procedure
+          npm run test:phase8-1
+          npm run test:functional
+          npm run db:audit
+          npm run audit:roadmap
+          npm run typecheck
+          npm run build -- --base=/
+          npm run audit:dist:budget
+      - name: Commit only validated Phase 8.1 bootstrap
+        run: |
+          git config user.name 'ENJAZ Phase 8.1 Patcher'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'Harden Phase 8.1 canonical workflow engine'
+          git push origin HEAD:phase8-1-workflow-government-procedure-os
