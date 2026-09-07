@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "phase": "8.1",
+  "name": "Workflow Engine & Government Procedure OS — M1",
+  "status": "IN_PROGRESS",
+  "baseCommit": "7e42e69623db7af32797448f00ae3b58735ad794",
+  "scope": [
+    "canonicalWorkflowEngine",
+    "governmentEntityCatalog",
+    "governmentBranchCatalog",
+    "governmentProcedureCatalog",
+    "requiredDocumentsAndRequirements",
+    "referenceOfficialFees",
+    "procedurePrerequisites",
+    "stageSla",
+    "allowedTransitions",
+    "immutableTransitionHistory",
+    "transactionAttachedInstances",
+    "idempotentStart",
+    "staleStateProtection",
+    "noDuplicatedTransactionState"
+  ],
+  "authoritativeWorkflowTables": [
+    "workflow_templates",
+    "workflow_template_stages",
+    "workflow_template_items",
+    "workflow_instances",
+    "workflow_stage_states",
+    "workflow_item_states"
+  ],
+  "m1AnchorStatus": "IN_PROGRESS",
+  "m1OverallSystemClosed": false,
+  "exitGatePassed": false,
+  "unresolvedDefectCount": null,
+  "criticalDefectCount": null,
+  "highDefectCount": null,
+  "functionalBlockerCount": null,
+  "phase8_2Allowed": false,
+  "nextPhase": null,
+  "postMergeRecertification": {
+    "required": true,
+    "status": "NOT_STARTED"
+  }
+}

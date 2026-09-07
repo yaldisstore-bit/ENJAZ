@@ -8,6 +8,8 @@ import { DataLayerProvider } from '../../data/react/DataLayerContext.tsx';
 import { AuthProvider, useAuth } from '../../features/auth/state/AuthContext.tsx';
 import { FinanceCommandProvider } from '../../features/finance/FinanceCommandContext.tsx';
 import { createSupabaseFinanceCommandGateway, type FinanceCommandGateway } from '../../features/finance/financeCommands.ts';
+import { GovernmentProcedureCommandProvider } from '../../features/workflow/GovernmentProcedureCommandContext.tsx';
+import { createGovernmentProcedureRuntimeGateway, type GovernmentProcedureRuntimeGateway } from '../../features/workflow/governmentProcedureRuntime.ts';
 import { CurrentUserIdProvider } from '../../shared/session/CurrentUserIdContext.tsx';
 import { SessionChecking } from '../../shared/session/SessionChecking.tsx';
 import { R2AuthScreen } from '../auth/R2AuthScreen.tsx';
@@ -26,12 +28,14 @@ import '../records/records.css';
 import '../operational-intelligence/operational-intelligence.css';
 import '../home/home-connected.css';
 import '../auth/auth.css';
+import '../workflow/workflow.css';
 import './accessibility-hardening.css';
 
 export type UiR2ProductionResources = Readonly<{
   authGateway: AuthGateway;
   dataFactory: EnjazDataLayerFactory;
   financeCommands: FinanceCommandGateway;
+  workflowCommands: GovernmentProcedureRuntimeGateway;
 }>;
 
 function createProductionResources(): UiR2ProductionResources {
@@ -41,6 +45,7 @@ function createProductionResources(): UiR2ProductionResources {
     authGateway: createSupabaseAuthGateway(client),
     dataFactory: createEnjazDataLayerFactory(client),
     financeCommands: createSupabaseFinanceCommandGateway(client),
+    workflowCommands: createGovernmentProcedureRuntimeGateway(client),
   });
 }
 
@@ -54,7 +59,7 @@ function leaveRecoveryMode() {
   window.location.replace(url.toString());
 }
 
-function AuthenticatedR2Runtime({ dataFactory, financeCommands }: Readonly<{ dataFactory: EnjazDataLayerFactory; financeCommands: FinanceCommandGateway }>) {
+function AuthenticatedR2Runtime({ dataFactory, financeCommands, workflowCommands }: Readonly<{ dataFactory: EnjazDataLayerFactory; financeCommands: FinanceCommandGateway; workflowCommands: GovernmentProcedureRuntimeGateway }>) {
   const auth = useAuth();
   if (auth.status === 'checking') return <SessionChecking />;
   if (auth.status === 'anonymous' || !auth.user) return <R2AuthScreen service={auth.service} />;
@@ -62,12 +67,12 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands }: Readonly<{ dat
   if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode} />;
   const signOut = async () => { await auth.service.signOut(); };
 
-  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><CurrentUserIdProvider userId={auth.user.id}>
+  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><CurrentUserIdProvider userId={auth.user.id}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} />
     <LiveCompaniesProductionPortal />
     <LivePeopleProductionPortal />
     <LiveFinanceProductionPortal />
-  </CurrentUserIdProvider></FinanceCommandProvider></DataLayerProvider>;
+  </CurrentUserIdProvider></GovernmentProcedureCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
 export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2ProductionResources | undefined }> = {}) {
@@ -77,5 +82,5 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     catch { return Object.freeze({ resources: null, error: 'إعدادات الاتصال بإنجاز غير مكتملة. لم يتم تشغيل قناة بيانات بديلة أو وضع وهمي.' }); }
   });
   if (!runtime.resources) return <RuntimeFailure message={runtime.error ?? 'إعدادات التشغيل غير صالحة.'} />;
-  return <AuthProvider gateway={runtime.resources.authGateway}><AuthenticatedR2Runtime dataFactory={runtime.resources.dataFactory} financeCommands={runtime.resources.financeCommands} /></AuthProvider>;
+  return <AuthProvider gateway={runtime.resources.authGateway}><AuthenticatedR2Runtime dataFactory={runtime.resources.dataFactory} financeCommands={runtime.resources.financeCommands} workflowCommands={runtime.resources.workflowCommands} /></AuthProvider>;
 }
