@@ -229,10 +229,15 @@ Phase 7 now owns both the original finance roadmap and the finance/commercial po
 
 Phase 8 expands from workflow UI into the main operational operating system of ENJAZ.
 
-## 8.1 — Workflow Engine & Government Procedure OS — M1
+## 8.1 — Workflow Engine & Government Procedure OS — M1 ✅
 - Visual/stateful workflow templates, instances, stages, requirements and allowed transitions.
 - **M1 Government Procedure Operating System:** authoritative procedure catalog, government entities/branches, required documents, fees, prerequisites, stage SLA and state history.
 - Procedure instances attach to real transactions; no duplicated transaction state.
+- Certified implementation head `fe19308c8707dc346a3254b92292c048c8c1bc4a`: PR #107 passed 30/30 pull-request workflows SUCCESS and Real Chromium at 1280/430/390/360/320.
+- Authenticated Real Cloud evidence passed catalog, prerequisites, branch requirements, idempotency, required items, stale state, complete, reopen and prerequisite-success behavior.
+- Canonical merge `95f988ac305d9003ee19a5f0f474c499f51d288b`: 15/15 exact-SHA workflow runs SUCCESS with zero failure/queued/in-progress/cancelled.
+- Phase 8.1 gate `34117766941`, Pages Preview `34117816460`, Pages deployment `34117766836`, Real Browser `34117766978`, and Live External `34117875655` succeeded; the published application attack passed.
+- **Phase 8.1 and M1 ✅ CLOSED + post-merge recertified** under Zero-Escape evidence.
 
 ## 8.2 — Automation Engine
 - Human-readable trigger/condition/action rules.
@@ -522,10 +527,12 @@ The project is delivered only when:
 - **Phase 7 — Finance ✅ CLOSED + post-merge recertified**
 - **M13 finance forecasting/BI anchor ✅ COMPLETE; M13 overall remains open for later assigned slices**
 - **M16 finance/commercial anchor ✅ COMPLETE; Phase-7.4 reporting hook ✅ COMPLETE; M16 overall remains open for later assigned slices**
-- **18 major systems M1–M18: GOVERNING SCOPE; overall system closure still requires each system's full Zero-Escape evidence**
-- **Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**
+- Historical predecessor transition (satisfied): **Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**
+- **Phase 8.1 — Workflow Engine & Government Procedure OS — M1 ✅ CLOSED + post-merge recertified**
+- **M1 — Government Procedure Operating System ✅ CLOSED under Zero-Escape evidence**
+- **Next: Phase 8.2 — Automation Engine**
 
-Phase 8.1 is the only newly authorized implementation stage. Adding the 18 systems expanded delivery scope but did **not** silently reorder phases or retroactively reopen closed phases. Later Phase-8 stages remain locked behind their predecessor closures.
+Phase 8.2 is the only newly authorized implementation stage. M1/Phase 8.1 closure does **not** close Phase 8 overall; later Phase-8 stages remain locked behind their predecessor closures and their own system evidence.
 
 ---
 
@@ -560,18 +567,19 @@ The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; 
 
 This file is intentionally difficult to change by accident.
 
-This reconciliation makes eight explicit changes:
+This reconciliation makes nine explicit changes:
 
 1. preserves the already-proven Phase 7.1 canonical post-merge recertification and its historical authorization of 7.2;
 2. preserves Phase 7.2 canonical closure/post-merge recertification and its historical authorization of 7.3;
 3. preserves Phase 7.3 canonical closure/post-merge recertification, including the repaired 147-byte Gate Escape, and its historical authorization of 7.4;
 4. preserves Phase 7.4 canonical closure/post-merge recertification and its historical authorization of 7.5;
-5. records Phase 7.5 canonical closure/post-merge recertification, satisfies the Phase-7 exit and advances the only next implementation pointer to 8.1;
-6. incorporates the 18 major product systems M1–M18 into their governing future phases rather than leaving them as detached amendments;
-7. makes Zero-Escape closure mandatory across every major system and future phase exit where that system is anchored;
-8. preserves the prior correction that replaced stale Current Position pointers.
+5. preserves Phase 7.5 canonical closure/post-merge recertification, the Phase-7 exit and its historical authorization of 8.1;
+6. records Phase 8.1 canonical closure/post-merge recertification, closes M1 under its Zero-Escape evidence and advances the only next implementation pointer to 8.2;
+7. keeps the 18 major product systems M1–M18 embedded in their governing phases rather than detached amendments;
+8. keeps Zero-Escape closure mandatory across every major system and future phase exit where that system is anchored;
+9. preserves historical transition markers as satisfied history while moving the current pointer forward.
 
-It does **not** silently reopen Phases 0–6, falsely mark M13 or M16 fully closed from their Phase-7 anchors, falsely mark M1 complete from authorizing its 8.1 implementation slice, mark any other M1–M18 system implemented, or authorize work beyond Phase 8.1.
+It does **not** silently reopen Phases 0–7, falsely mark M13 or M16 fully closed from their Phase-7 anchors, mark M2–M18 implemented without their own evidence, close Phase 8 overall from M1/8.1 closure, or authorize work beyond Phase 8.2.
 
 Any future roadmap change must state:
 1. what changes;
