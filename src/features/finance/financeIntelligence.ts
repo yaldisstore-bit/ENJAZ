@@ -218,9 +218,11 @@ function buildCompanyHealth(source: FinanceSource, asOfMs: number): readonly Com
   }).sort((a, b) => a.healthScore - b.healthScore || (a.outstandingCents === b.outstandingCents ? a.companyId.localeCompare(b.companyId) : a.outstandingCents > b.outstandingCents ? -1 : 1)));
 }
 
+type TrendAccumulator = { date: Date; collected: bigint; ledgerIn: bigint; ledgerOut: bigint };
+
 function buildTrends(source: FinanceSource, asOf: Date): readonly FinanceTrendPeriod[] {
   const months = lastSixMonths(asOf);
-  const monthMap = new Map(months.map((date) => [monthKey(date), { date, collected: 0n, ledgerIn: 0n, ledgerOut: 0n }] as const));
+  const monthMap = new Map<string, TrendAccumulator>(months.map((date): [string, TrendAccumulator] => [monthKey(date), { date, collected: 0n, ledgerIn: 0n, ledgerOut: 0n }]));
   for (const payment of source.payments) {
     if (isReversedPayment(source, payment.id, payment.status)) continue;
     const date = new Date(timestamp(payment.paid_at, 'payment', payment.id));
