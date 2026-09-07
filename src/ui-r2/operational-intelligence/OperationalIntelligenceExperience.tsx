@@ -39,7 +39,7 @@ function Workflow() {
 }
 
 function Automation() {
-  return <LiveAutomationExperience />;
+  return <div data-operational-domain="automation" data-operational-contract="مشغّل ← شرط ← فعل"><LiveAutomationExperience /></div>;
 }
 
 function Command() {
