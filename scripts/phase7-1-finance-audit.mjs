@@ -17,6 +17,7 @@ const paths = {
   experience: 'src/ui-r2/finance/FinanceLedgerExperience.tsx',
   portal: 'src/ui-r2/finance/LiveFinanceProductionPortal.tsx',
   phase72: 'src/ui-r2/finance/Phase72FinanceExperience.tsx',
+  phase73: 'src/ui-r2/finance/Phase73FinancialIntelligenceExperience.tsx',
   css: 'src/ui-r2/finance/finance.css',
   preview: 'src/ui-r2/finance/financePreviewSnapshot.ts',
 };
@@ -36,6 +37,7 @@ const service = read(paths.service);
 const dataLayer = read('src/data/createDataLayer.ts');
 const portal = read(paths.portal);
 const phase72 = exists(paths.phase72) ? read(paths.phase72) : '';
+const phase73 = exists(paths.phase73) ? read(paths.phase73) : '';
 const productionRoot = read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
 const packageJson = JSON.parse(read('package.json'));
 
@@ -95,13 +97,17 @@ for (const marker of [
 ]) if (!dataLayer.includes(marker)) errors.push(`data layer finance marker missing: ${marker}`);
 
 if (!portal.includes("useLiveRecordsPortal('finance'")) errors.push('live finance portal must activate only for finance destination');
-const direct71Portal = portal.includes('ConnectedFinanceLedgerExperience');
-const forward72Preserves71 = portal.includes('ConnectedPhase72FinanceExperience')
-  && phase72.includes("import { FinanceLedgerExperience } from './FinanceLedgerExperience.tsx';")
+const phase72Preserves71 = phase72.includes("import { FinanceLedgerExperience } from './FinanceLedgerExperience.tsx';")
   && phase72.includes('const loaded = await loadFinanceSource(factory, userId);')
   && phase72.includes('const snapshot = buildFinanceLedgerSnapshot(loaded.source);')
   && phase72.includes('<FinanceLedgerExperience snapshot={snapshot} mode={mode} />');
-if (!direct71Portal && !forward72Preserves71) errors.push('live finance portal must preserve the connected 7.1 ledger contract either directly or through verified Phase 7.2 composition');
+const direct71Portal = portal.includes('ConnectedFinanceLedgerExperience');
+const forward72Preserves71 = portal.includes('ConnectedPhase72FinanceExperience') && phase72Preserves71;
+const forward73Preserves71 = portal.includes('ConnectedPhase73FinancialIntelligenceExperience')
+  && phase73.includes("import { Phase72FinanceExperience")
+  && phase73.includes('<Phase72FinanceExperience')
+  && phase72Preserves71;
+if (!direct71Portal && !forward72Preserves71 && !forward73Preserves71) errors.push('live finance portal must preserve the connected 7.1 ledger contract directly or through a verified later-phase composition chain');
 if (!productionRoot.includes('<LiveFinanceProductionPortal />')) errors.push('production runtime must mount the live finance portal');
 
 if (!packageJson.scripts?.['test:phase7-1']?.includes('financeModel.test.ts') || !packageJson.scripts?.['test:phase7-1']?.includes('financeService.test.ts')) errors.push('package test:phase7-1 is incomplete');
@@ -118,5 +124,5 @@ if (errors.length) {
   process.exitCode = 1;
 } else {
   const recert = state.postMergeRecertification?.status ?? 'N/A';
-  console.log(`PHASE 7.1 FINANCE AUDIT PASS — ${state.status}; recert=${recert}; authoritative read-only ledger/summary contract preserved; Phase 7.2 ${state.phase7_2Allowed ? 'authorized' : 'locked'}.`);
+  console.log(`PHASE 7.1 FINANCE AUDIT PASS — ${state.status}; recert=${recert}; authoritative read-only ledger/summary contract preserved through current finance composition; Phase 7.2 ${state.phase7_2Allowed ? 'authorized' : 'locked'}.`);
 }
