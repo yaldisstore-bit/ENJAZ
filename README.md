@@ -69,7 +69,7 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - **Phase 7 — Finance** ✅ complete + post-merge recertified
 - Historical predecessor pointer (satisfied): **Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**
 - **Phase 8.1 — Workflow Engine & Government Procedure OS — M1** ✅ complete + post-merge recertified
-- **M1 — Government Procedure Operating System** ✅ CLOSED under Zero-Escape evidence
+- **M1 — Government Procedure Operating System** 🟠 `CLOSURE_CANDIDATE`; implementation anchor complete, overall closure remains fail-closed until Phase 8.7 individual Zero-Escape destruction evidence
 - **Next: Phase 8.2 — Automation Engine**
 
 ### Phase 7.1 canonical evidence
@@ -155,13 +155,13 @@ ENJAZ مشروع مستقل مبني من الصفر، بواجهة وهوية �
 - Exact merged SHA settled at **15/15 exact-SHA workflow runs SUCCESS** with zero failure/queued/in-progress/cancelled.
 - Phase 8.1 gate `34117766941`, Pages Preview `34117816460`, Pages build/deployment `34117766836`, Real Browser `34117766978`, and Live External `34117875655` all succeeded.
 - Live External included **Attack the actual published application** — SUCCESS.
-- **Phase 8.1 and M1 are CLOSED + POST-MERGE RECERTIFIED. Phase 8.2 — Automation Engine is the sole next authorized implementation stage.**
+- **Phase 8.1 is CLOSED + POST-MERGE RECERTIFIED. M1 is a fail-closed CLOSURE_CANDIDATE pending its remaining Phase 8.7 destruction evidence. Phase 8.2 — Automation Engine is the sole next authorized implementation stage.**
 
 ## Major Product Systems — M1–M18
 
-The following are governing product scope, not optional ideas. **M1 is now CLOSED under its Phase 8.1 Zero-Escape evidence**; the remaining systems stay `PLANNED`/partially implemented until their own implementation and closure evidence proves otherwise. A completed anchor slice does not automatically close another system.
+The following are governing product scope, not optional ideas. **M1 has completed its Phase 8.1 implementation anchor but remains `CLOSURE_CANDIDATE`** until the remaining individual Zero-Escape destruction evidence is completed; the other systems stay `PLANNED`/partially implemented until their own implementation and closure evidence proves otherwise. A completed anchor slice does not automatically close the whole system.
 
-1. **M1 — Government Procedure Operating System** ✅ CLOSED
+1. **M1 — Government Procedure Operating System** 🟠 CLOSURE_CANDIDATE
 2. **M2 — Corporate Governance & Ownership Engine**
 3. **M3 — Client Portal**
 4. **M4 — Omnichannel Communications Hub**
@@ -219,6 +219,6 @@ If a real defect escapes after a system is closed, it is classified as a **Gate 
 
 ## Current development pointer
 
-**Phase 8.1 and M1 are closed and canonically post-merge recertified. Phase 8.2 — Automation Engine is the only next authorized implementation stage.**
+**Phase 8.1 is closed and canonically post-merge recertified. M1 remains a fail-closed `CLOSURE_CANDIDATE`. Phase 8.2 — Automation Engine is the only next authorized implementation stage.**
 
-Phase 8.2 is authorized only by the completed Phase 8.1 closure evidence. Later Phase-8 stages remain locked behind their predecessors. The completed M13 finance anchor does not declare the whole M13 system complete, and the completed M16 finance/commercial/reporting anchors do not declare the whole M16 system complete.
+Phase 8.2 is authorized only by the completed Phase 8.1 closure evidence. Later Phase-8 stages remain locked behind their predecessors. M1 overall closure still requires its remaining individual Phase 8.7 Zero-Escape destruction evidence. The completed M13 finance anchor does not declare the whole M13 system complete, and the completed M16 finance/commercial/reporting anchors do not declare the whole M16 system complete.
