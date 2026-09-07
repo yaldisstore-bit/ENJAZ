@@ -79,5 +79,5 @@ test('approval decision uses explicit decision idempotency key', async () => {
 test('write timeout is outcome-unknown instead of a false failure/retry signal', async () => {
   const client = { rpc() { return new Promise(() => undefined); } } as never;
   const gateway = createAutomationCommandGateway(client, 5);
-  await assert.rejects(() => gateway.dispatch(WORKSPACE, RULE, 'manual', {}, 'receipt-timeout-001'), (error: unknown) => error instanceof DataAccessError && error.code === 'DATA_OUTCOME_UNKNOWN');
+  await assert.rejects(() => gateway.dispatch(WORKSPACE, RULE, 'manual', {}, 'receipt-timeout-001'), (error: unknown) => error instanceof DataAccessError && error.dataCode === 'DATA_OUTCOME_UNKNOWN');
 });
