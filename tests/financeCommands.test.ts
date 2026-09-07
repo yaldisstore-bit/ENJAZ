@@ -81,6 +81,14 @@ test('postPayment preserves duplicate response instead of fabricating a second p
   assert.equal(result.paymentId, P);
 });
 
+test('malformed receipt serial fails closed as typed data failure', async () => {
+  const gateway = createSupabaseFinanceCommandGateway(client(async () => ({ data: receipt({ receiptSerial: 'not-a-number' }), error: null })));
+  await assert.rejects(
+    () => gateway.postPayment({ workspaceId: W, transactionId: T, amountCents: 125_000_000n, method: 'cash', paidAt: '2026-09-07T00:30:00.000Z', note: null, idempotencyKey: KEY, cashboxId: CASH, engagementId: null }),
+    (error: unknown) => error instanceof DataAccessError && error.dataCode === 'DATA_OPERATION_FAILED',
+  );
+});
+
 test('loadContext rejects shadow-ledger authority drift and parses reconciliation counters', async () => {
   const goodGateway = createSupabaseFinanceCommandGateway(client(async () => ({ data: {
     cashboxes: [{ id: CASH, name: 'الخزنة', openingBalance: '100.00', active: true }],
