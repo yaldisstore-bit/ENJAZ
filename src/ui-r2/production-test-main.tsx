@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { AuthGateway, EnjazAuthSession, EnjazAuthUser } from '../core/auth/authGateway.ts';
 import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../data/createDataLayer.ts';
+import type { FinanceCommandGateway } from '../features/finance/financeCommands.ts';
 import { UiR2ProductionRoot } from './runtime/UiR2ProductionRoot.tsx';
 
 const params = new URLSearchParams(window.location.search);
@@ -18,9 +19,7 @@ const testState = {
 };
 
 declare global {
-  interface Window {
-    __ENJAZ_R2_PRODUCTION_TEST__?: typeof testState;
-  }
+  interface Window { __ENJAZ_R2_PRODUCTION_TEST__?: typeof testState; }
 }
 window.__ENJAZ_R2_PRODUCTION_TEST__ = testState;
 
@@ -28,36 +27,27 @@ let authCallback: Parameters<AuthGateway['onAuthStateChange']>[0] | null = null;
 let currentUser: EnjazAuthUser | null = initiallyAuthenticated ? testUser : null;
 
 const authGateway: AuthGateway = Object.freeze({
-  async getUser() {
-    return { data: { user: currentUser }, error: null };
-  },
+  async getUser() { return { data: { user: currentUser }, error: null }; },
   async signInWithPassword() {
     currentUser = testUser;
     authCallback?.('SIGNED_IN', testSession);
     return { data: { user: testUser, session: testSession }, error: null };
   },
-  async signUp() {
-    return { data: { user: testUser, session: null }, error: null };
-  },
+  async signUp() { return { data: { user: testUser, session: null }, error: null }; },
   async requestPasswordReset(email: string, redirectTo: string) {
     testState.passwordResetRequests += 1;
     testState.lastResetEmail = email;
     testState.lastResetRedirect = redirectTo;
     return null;
   },
-  async updatePassword() {
-    testState.passwordUpdates += 1;
-    return null;
-  },
+  async updatePassword() { testState.passwordUpdates += 1; return null; },
   async signOut() {
     testState.signOuts += 1;
     currentUser = null;
     authCallback?.('SIGNED_OUT', null);
     return null;
   },
-  async bootstrapWorkspace() {
-    return { data: '00000000-0000-4000-8000-000000000001', error: null };
-  },
+  async bootstrapWorkspace() { return { data: '00000000-0000-4000-8000-000000000001', error: null }; },
   onAuthStateChange(callback: Parameters<AuthGateway['onAuthStateChange']>[0]) {
     authCallback = callback;
     return { unsubscribe() { if (authCallback === callback) authCallback = null; } };
@@ -65,20 +55,14 @@ const authGateway: AuthGateway = Object.freeze({
 });
 
 const emptyPage = Object.freeze({ items: Object.freeze([]), hasMore: false });
-const readRepository = Object.freeze({
-  async list() { return emptyPage; },
-  async getById() { return null; },
-});
+const readRepository = Object.freeze({ async list() { return emptyPage; }, async getById() { return null; } });
 const mutableRepository = Object.freeze({
   ...readRepository,
   async insert() { throw new Error('R2 production test does not allow writes'); },
   async update() { throw new Error('R2 production test does not allow writes'); },
   async softDelete() { throw new Error('R2 production test does not allow writes'); },
 });
-const appendOnlyRepository = Object.freeze({
-  ...readRepository,
-  async append() { throw new Error('R2 production test does not allow writes'); },
-});
+const appendOnlyRepository = Object.freeze({ ...readRepository, async append() { throw new Error('R2 production test does not allow writes'); } });
 
 const emptyLayer = Object.freeze({
   scope: Object.freeze({ workspaceId: '00000000-0000-4000-8000-000000000001' }),
@@ -113,11 +97,27 @@ const dataFactory: EnjazDataLayerFactory = Object.freeze({
   forWorkspace() { return emptyLayer; },
 });
 
+const financeCommands: FinanceCommandGateway = Object.freeze({
+  async loadContext() {
+    return Object.freeze({
+      cashboxes: Object.freeze([]),
+      engagements: Object.freeze([]),
+      recentReceipts: Object.freeze([]),
+      reconciliation: Object.freeze({ postedTotalCents: 0n, reversedTotalCents: 0n, statusWithoutReversal: 0, reversalWithoutStatus: 0, shadowLedgerEntries: 0, integrityWarnings: 0, moneyAuthority: 'payments_plus_non_payment_ledger' as const }),
+    });
+  },
+  async postPayment() { throw new Error('R2 production test does not allow finance writes'); },
+  async reversePayment() { throw new Error('R2 production test does not allow finance writes'); },
+  async getReceipt() { throw new Error('No receipt in production bridge harness'); },
+  async createCashbox() { throw new Error('R2 production test does not allow finance writes'); },
+  async createEngagement() { throw new Error('R2 production test does not allow finance writes'); },
+});
+
 const rootElement = document.getElementById('r2-production-test-root');
 if (!rootElement) throw new Error('R2 production test root is missing');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot resources={{ authGateway, dataFactory }} />
+    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands }} />
   </StrictMode>,
 );
