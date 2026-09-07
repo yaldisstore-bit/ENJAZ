@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
+const exists = (p) => fs.existsSync(path.join(root, p));
 const base = read('database/migrations/phase_7_2_payments_receipts_m16.sql');
 const hardening = read('database/migrations/phase_7_2_rpc_security_hardening.sql');
 const indexes = read('database/migrations/phase_7_2_fk_index_hardening.sql');
@@ -10,6 +11,7 @@ const liveProbe = read('database/migrations/phase_7_2_live_authenticated_finance
 const commands = read('src/features/finance/financeCommands.ts');
 const runtime = read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
 const ui = read('src/ui-r2/finance/Phase72FinanceExperience.tsx');
+const phase73 = exists('src/ui-r2/finance/Phase73FinancialIntelligenceExperience.tsx') ? read('src/ui-r2/finance/Phase73FinancialIntelligenceExperience.tsx') : '';
 const css = read('src/ui-r2/finance/phase72.css');
 const portal = read('src/ui-r2/finance/LiveFinanceProductionPortal.tsx');
 
@@ -81,7 +83,14 @@ check('write_timeout_is_unknown', has(commands, "'DATA_OUTCOME_UNKNOWN'"));
 check('exact_bigint_boundary', has(commands, 'amountCents: bigint') && has(commands, 'financeCentsToDecimal'));
 check('receipt_serial_fail_closed', has(commands, 'requireUnsignedBigInt') && !has(commands, 'BigInt(requireString(String(row.receiptSerial)'));
 check('runtime_finance_provider', has(runtime, 'FinanceCommandProvider') && has(runtime, 'createSupabaseFinanceCommandGateway'));
-check('live_portal_uses_72', has(portal, 'ConnectedPhase72FinanceExperience'));
+const direct72Portal = has(portal, 'ConnectedPhase72FinanceExperience');
+const forward73Preserves72 = has(portal, 'ConnectedPhase73FinancialIntelligenceExperience')
+  && has(phase73, "import { Phase72FinanceExperience")
+  && has(phase73, '<Phase72FinanceExperience')
+  && has(phase73, 'commandGateway={commandGateway}')
+  && has(phase73, 'workspaceId={state.workspaceId}')
+  && has(phase73, 'onChanged={reload}');
+check('live_portal_preserves_72', direct72Portal || forward73Preserves72);
 check('ui_stage_marker', has(ui, 'data-finance-stage="7.2"') && has(ui, 'data-m16-finance="true"'));
 check('ui_has_payment', has(ui, 'ترحيل الدفعة وإصدار الإيصال'));
 check('ui_has_reversal', has(ui, 'تأكيد عكس الدفعة'));

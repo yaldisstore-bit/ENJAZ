@@ -78,7 +78,7 @@ export class FinanceUnsafeMoneyError extends Error {
   }
 }
 
-function moneyToCents(value: number, recordType: string, recordId: string): bigint {
+export function financeMoneyToCents(value: number, recordType: string, recordId: string): bigint {
   if (!Number.isFinite(value)) throw new FinanceUnsafeMoneyError(recordType, recordId, value);
   const scaled = value * 100;
   const rounded = Math.round(scaled);
@@ -138,7 +138,7 @@ export function buildFinanceLedgerSnapshot(source: FinanceSource): FinanceLedger
     const hasReversal = reversalPaymentIds.has(payment.id);
     const reversed = statusReversed || hasReversal;
     if (statusReversed !== hasReversal) paymentIntegrityWarnings += 1;
-    const amountCents = moneyToCents(payment.amount, 'payment', payment.id);
+    const amountCents = financeMoneyToCents(payment.amount, 'payment', payment.id);
     if (reversed) reversedPayments += 1;
     else {
       postedPayments += 1;
@@ -154,7 +154,7 @@ export function buildFinanceLedgerSnapshot(source: FinanceSource): FinanceLedger
 
   let ledgerInCents = 0n, ledgerOutCents = 0n;
   const ledgerEntries: FinanceLedgerItem[] = source.ledger.map((entry) => {
-    const amountCents = moneyToCents(entry.amount, 'ledger', entry.id);
+    const amountCents = financeMoneyToCents(entry.amount, 'ledger', entry.id);
     const status = entry.status.trim().toLowerCase() === 'reversed' ? 'reversed' as const : 'posted' as const;
     const direction = normalizedDirection(entry.direction);
     if (status === 'posted') direction === 'in' ? ledgerInCents += amountCents : ledgerOutCents += amountCents;
@@ -169,7 +169,7 @@ export function buildFinanceLedgerSnapshot(source: FinanceSource): FinanceLedger
   const receivables: FinanceReceivableItem[] = [];
   for (const transaction of source.transactions) {
     if (transaction.deleted_at !== null) continue;
-    const feeCents = moneyToCents(transaction.current_fee, 'transaction_fee', transaction.id);
+    const feeCents = financeMoneyToCents(transaction.current_fee, 'transaction_fee', transaction.id);
     const transactionCollected = paidByTransaction.get(transaction.id) ?? 0n;
     totalFeesCents += feeCents;
     const outstanding = feeCents > transactionCollected ? feeCents - transactionCollected : 0n;
@@ -181,7 +181,7 @@ export function buildFinanceLedgerSnapshot(source: FinanceSource): FinanceLedger
   receivables.sort((a, b) => a.outstandingCents === b.outstandingCents ? a.transactionId.localeCompare(b.transactionId) : a.outstandingCents > b.outstandingCents ? -1 : 1);
 
   let openingBalanceCents = 0n;
-  for (const cashbox of source.cashboxes) openingBalanceCents += moneyToCents(cashbox.opening_balance, 'cashbox_opening_balance', cashbox.id);
+  for (const cashbox of source.cashboxes) openingBalanceCents += financeMoneyToCents(cashbox.opening_balance, 'cashbox_opening_balance', cashbox.id);
   const netMovementCents = collectedCents + ledgerInCents - ledgerOutCents;
   const entries = [...paymentEntries, ...ledgerEntries].sort((a, b) => safeTimestamp(b.occurredAt) - safeTimestamp(a.occurredAt) || a.id.localeCompare(b.id)).slice(0, FINANCE_RECENT_LEDGER_LIMIT);
 
