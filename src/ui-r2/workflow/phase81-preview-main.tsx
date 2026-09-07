@@ -29,7 +29,7 @@ const transitionReopen: GovernmentProcedureTransition = Object.freeze({ key: 're
 const catalog: GovernmentProcedureCatalog = Object.freeze({
   authority: 'workflow_plus_government_catalog',
   moneyAuthority: 'reference_fees_only_no_finance_write',
-  entities: Object.freeze([{ id: E, name: 'هيئة الاختبار الحكومية', shortName: 'هيئة الاختبار', entityType: 'commission', active: true }]),
+  entities: Object.freeze([{ id: E, name: 'هيئة الاختبار الحكومية', shortName: 'هيئة الاختبار', entityType: 'commission' as const, active: true }]),
   branches: Object.freeze([{ id: B, entityId: E, name: 'فرع بغداد المركزي', address: 'بغداد', jurisdiction: 'بغداد', active: true }]),
   procedures: Object.freeze([{
     id: P,
@@ -42,7 +42,7 @@ const catalog: GovernmentProcedureCatalog = Object.freeze({
     branchIds: Object.freeze([B]),
     prerequisiteProcedureIds: Object.freeze([]),
     stages: Object.freeze([
-      { position: 1, name: 'تقديم الطلب', description: 'تثبيت الطلب الأولي', dueOffsetDays: 2, governmentEntityId: E, governmentBranchId: B, officialFeeCents: 250000n, feeCurrency: 'IQD', items: Object.freeze([{ key: 'application_form', position: 1, itemType: 'document', title: 'استمارة الطلب الأصلية', required: true, config: Object.freeze({}) }, { key: 'contact_copy', position: 2, itemType: 'document', title: 'نسخة جهة الاتصال', required: false, config: Object.freeze({}) }]) },
+      { position: 1, name: 'تقديم الطلب', description: 'تثبيت الطلب الأولي', dueOffsetDays: 2, governmentEntityId: E, governmentBranchId: B, officialFeeCents: 250000n, feeCurrency: 'IQD', items: Object.freeze([{ key: 'application_form', position: 1, itemType: 'document' as const, title: 'استمارة الطلب الأصلية', required: true, config: Object.freeze({}) }, { key: 'contact_copy', position: 2, itemType: 'document' as const, title: 'نسخة جهة الاتصال', required: false, config: Object.freeze({}) }]) },
       { position: 2, name: 'التدقيق', description: 'تدقيق البيانات', dueOffsetDays: 3, governmentEntityId: E, governmentBranchId: B, officialFeeCents: null, feeCurrency: null, items: Object.freeze([]) },
       { position: 3, name: 'المصادقة', description: 'المصادقة النهائية', dueOffsetDays: 1, governmentEntityId: E, governmentBranchId: B, officialFeeCents: 100000n, feeCurrency: 'IQD', items: Object.freeze([]) },
     ]),
