@@ -1,0 +1,114 @@
+.r2-finance-phase74,
+.r2-finance-phase74 *,
+.r2-finance-phase74 *::before,
+.r2-finance-phase74 *::after {
+  box-sizing: border-box;
+}
+
+.r2-finance-phase74 {
+  --f74-ink: var(--ez-r2-structure);
+  --f74-muted: var(--ez-r2-interactive);
+  --f74-line: var(--ez-r2-surface-warm);
+  --f74-surface: var(--ez-r2-canvas);
+  --f74-soft: var(--ez-r2-surface-warm);
+  --f74-accent: var(--ez-r2-accent);
+  --f74-action: var(--ez-r2-interactive);
+  --f74-depth: var(--ez-r2-structure);
+  min-inline-size: 0;
+  inline-size: 100%;
+  display: grid;
+  gap: 20px;
+  padding-bottom: 124px;
+  color: var(--f74-ink);
+}
+
+.r2-f74-reports { display: grid; gap: 18px; min-inline-size: 0; }
+.r2-f74-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  min-inline-size: 0;
+  padding: 26px;
+  border: 1px solid var(--f74-line);
+  border-radius: 30px;
+  background: var(--ez-r2-gradient-warm);
+  box-shadow: 0 26px 48px -36px var(--f74-depth);
+}
+.r2-f74-hero p { margin: 0; color: var(--f74-muted); line-height: 1.7; }
+.r2-f74-hero h1 { margin: 5px 0 0; font-size: clamp(30px, 4vw, 46px); letter-spacing: -.045em; }
+.r2-f74-fingerprint { max-width: 240px; overflow-wrap: anywhere; padding: 10px 12px; border: 1px solid var(--f74-line); border-radius: 14px; background: var(--f74-surface); font-size: 11px; }
+
+.r2-f74-controls { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; min-inline-size: 0; padding: 16px; border: 1px solid var(--f74-line); border-radius: 22px; background: var(--f74-surface); box-shadow: 0 18px 34px -30px var(--f74-depth); }
+.r2-f74-controls label { display: grid; gap: 7px; min-inline-size: 0; color: var(--f74-muted); font-size: 12px; font-weight: 800; }
+.r2-f74-controls select, .r2-f74-controls input { min-width: 0; width: 100%; max-width: 100%; padding: 12px; border: 1px solid var(--f74-line); border-radius: 14px; background: var(--f74-soft); color: var(--f74-ink); font: inherit; }
+.r2-f74-controls select:focus-visible, .r2-f74-controls input:focus-visible, .r2-f74-actions button:focus-visible { outline: 3px solid var(--f74-accent); outline-offset: 2px; }
+
+.r2-f74-report-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-inline-size: 0; padding: 2px 2px 0; }
+.r2-f74-report-head h2 { margin: 0 0 5px; font-size: 24px; }
+.r2-f74-report-head p { margin: 0; color: var(--f74-muted); }
+.r2-f74-actions { display: flex; flex-wrap: wrap; gap: 8px; min-inline-size: 0; }
+.r2-f74-actions button { border: 1px solid var(--f74-line); border-radius: 14px; padding: 10px 14px; background: var(--f74-surface); color: var(--f74-ink); font: inherit; font-weight: 800; cursor: pointer; }
+.r2-f74-actions button:first-child { background: var(--f74-action); color: var(--ez-r2-text-on-dark); border-color: var(--f74-action); }
+
+.r2-f74-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; min-inline-size: 0; }
+.r2-f74-kpis article { display: grid; gap: 7px; min-width: 0; min-height: 112px; padding: 17px; border: 1px solid var(--f74-line); border-radius: 21px; background: var(--f74-surface); box-shadow: 0 18px 32px -29px var(--f74-depth); }
+.r2-f74-kpis span { color: var(--f74-muted); font-size: 12px; }
+.r2-f74-kpis b { align-self: end; font-size: clamp(19px, 2.5vw, 28px); letter-spacing: -.025em; overflow-wrap: anywhere; }
+
+.r2-f74-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; min-inline-size: 0; }
+.r2-f74-card { min-width: 0; padding: 19px; border: 1px solid var(--f74-line); border-radius: 24px; background: var(--f74-surface); box-shadow: 0 20px 38px -34px var(--f74-depth); }
+.r2-f74-card > header { display: flex; justify-content: space-between; gap: 14px; align-items: center; min-inline-size: 0; margin-bottom: 14px; }
+.r2-f74-card h3 { margin: 0; font-size: 19px; }
+.r2-f74-card header span { color: var(--f74-muted); font-size: 12px; }
+.r2-f74-table-wrap { max-inline-size: 100%; overflow-x: auto; border: 1px solid var(--f74-line); border-radius: 17px; }
+.r2-f74-card table { width: 100%; border-collapse: collapse; min-width: 620px; }
+.r2-f74-card th, .r2-f74-card td { padding: 11px 12px; text-align: right; border-bottom: 1px solid var(--f74-line); vertical-align: top; }
+.r2-f74-card th { color: var(--f74-muted); background: var(--f74-soft); font-size: 11px; }
+.r2-f74-card td { font-size: 12px; }
+.r2-f74-card tbody tr:last-child td { border-bottom: 0; }
+.r2-f74-card tr[data-report-source="payment"] td:nth-child(2) { font-weight: 900; }
+.r2-f74-provenance { display: grid; gap: 8px; }
+.r2-f74-provenance p { margin: 0; color: var(--f74-muted); line-height: 1.7; overflow-wrap: anywhere; }
+.r2-f74-provenance b { color: var(--f74-ink); }
+.r2-f74-error { min-inline-size: 0; padding: 20px; border: 1px solid var(--f74-accent); border-radius: 20px; background: var(--f74-soft); }
+.r2-f74-error h2 { margin: 0 0 6px; }
+.r2-f74-error p { margin: 0; color: var(--f74-muted); }
+
+@media (max-width: 1000px) {
+  .r2-f74-controls { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .r2-f74-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .r2-f74-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .r2-finance-phase74 { gap: 16px; }
+  .r2-f74-hero, .r2-f74-report-head { display: grid; }
+  .r2-f74-hero { padding: 20px; border-radius: 24px; }
+  .r2-f74-fingerprint { max-width: none; }
+  .r2-f74-controls { grid-template-columns: 1fr 1fr; padding: 13px; }
+  .r2-f74-kpis { gap: 9px; }
+  .r2-f74-kpis article { min-height: 98px; padding: 14px; border-radius: 18px; }
+  .r2-f74-card { padding: 14px; border-radius: 20px; }
+  .r2-f74-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .r2-f74-actions button { min-width: 0; padding: 10px 8px; overflow-wrap: anywhere; }
+}
+
+@media (max-width: 360px) {
+  .r2-f74-controls, .r2-f74-kpis, .r2-f74-actions { grid-template-columns: 1fr; }
+  .r2-f74-card > header { display: grid; }
+}
+
+@media print {
+  .r2-finance-phase74 { padding: 0; }
+  [data-no-print="true"] { display: none !important; }
+  .r2-f74-hero, .r2-f74-controls, .r2-f74-card, .r2-f74-kpis article { box-shadow: none; }
+  .r2-f74-controls { display: none; }
+  .r2-f74-grid { grid-template-columns: 1fr; }
+  .r2-f74-table-wrap { overflow: visible; }
+  .r2-f74-card table { min-width: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .r2-f74-actions button { scroll-behavior: auto; }
+}

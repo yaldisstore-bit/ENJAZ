@@ -1,4 +1,4 @@
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import type { AuthChangeEvent, Session } from '@supabase/auth-js';
 import type { EnjazSupabaseClient } from '../supabase/client.ts';
 import type { AuthFailureLike, AuthGateway, EnjazAuthSession } from './authGateway.ts';
 
