@@ -1,1 +1,128 @@
-placeholder
+name: ENJAZ Phase 7.4 — Financial Reports Gate
+
+on:
+  push:
+    branches:
+      - main
+      - 'phase7-4-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase74-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase7-4-financial-reports:
+    name: Reports / Provenance / Export / Print-PDF / Real Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Preserve canonical R2 and Legacy-Zero
+        run: |
+          node scripts/ui-rebirth-2-freeze-audit.mjs
+          node scripts/ui-rebirth-2-legacy-eradication-audit.mjs
+
+      - name: Preserve closed Phase 7.1
+        run: |
+          npm run audit:phase7-1:finance
+          npm run test:phase7-1
+
+      - name: Preserve closed Phase 7.2 payment authority
+        run: |
+          node scripts/phase7-2-payments-audit.mjs
+          node --experimental-strip-types --test tests/financeCommands.test.ts
+
+      - name: Preserve closed Phase 7.3 financial intelligence
+        run: |
+          npm run audit:phase7-3:finance-intelligence
+          npm run test:phase7-3
+
+      - name: Enforce Phase 7.4 financial report contract
+        run: npm run audit:phase7-4:financial-reports
+
+      - name: Phase 7.4 report model tests
+        run: npm run test:phase7-4
+
+      - name: Full functional regression
+        run: npm run test:functional
+
+      - name: Secrets audit
+        run: npm run audit:secrets
+
+      - name: Database baseline integrity and destructive selftest
+        run: npm run db:audit && npm run db:audit:selftest
+
+      - name: Roadmap integrity
+        run: npm run audit:roadmap
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Production candidate build
+        run: npm run build -- --base=/
+
+      - name: Preserve production asset budget
+        run: npm run audit:dist:budget
+
+      - name: Build isolated Phase 7.4 reports preview
+        run: npx vite build --config vite.phase7-4-preview.config.ts --base=/
+
+      - name: Enforce isolated Phase 7.4 preview size
+        run: |
+          test -f dist-phase7-4-preview/phase7-4-preview.html
+          BYTES=$(du -sb dist-phase7-4-preview | cut -f1)
+          echo "Phase 7.4 preview bytes: $BYTES"
+          test "$BYTES" -le 9437184
+
+      - name: Install pinned real-browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start isolated Phase 7.4 preview
+        run: |
+          nohup npx vite preview --config vite.phase7-4-preview.config.ts --host 127.0.0.1 --port 4184 > /tmp/enjaz-phase74-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4184/phase7-4-preview.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase74-preview.log
+          exit 1
+
+      - name: Real Chromium Phase 7.4 acceptance
+        env:
+          PHASE74_BASE_URL: http://127.0.0.1:4184/
+        run: npx playwright test tests-external/phase7-4-financial-reports.spec.cjs --reporter=line --workers=1
+
+      - name: Upload Phase 7.4 diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-phase7-4-diagnostics-${{ github.sha }}
+          path: |
+            test-results/
+            /tmp/enjaz-phase74-preview.log
+          if-no-files-found: ignore
+          retention-days: 7
