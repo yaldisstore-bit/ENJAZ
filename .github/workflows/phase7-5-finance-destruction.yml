@@ -1,0 +1,155 @@
+name: ENJAZ Phase 7.5 — Finance Destruction & Reconciliation Gate
+
+on:
+  push:
+    branches:
+      - main
+      - 'phase7-5-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase75-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase7-5-finance-destruction:
+    name: Destruction / Reconciliation / Real Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Preserve canonical R2 and Legacy-Zero
+        run: |
+          node scripts/ui-rebirth-2-freeze-audit.mjs
+          node scripts/ui-rebirth-2-legacy-eradication-audit.mjs
+
+      - name: Preserve closed Phase 7.1
+        run: |
+          npm run audit:phase7-1:finance
+          npm run test:phase7-1
+
+      - name: Preserve closed Phase 7.2 payment authority
+        run: |
+          node scripts/phase7-2-payments-audit.mjs
+          node --experimental-strip-types --test tests/financeCommands.test.ts
+
+      - name: Preserve closed Phase 7.3 financial intelligence
+        run: |
+          npm run audit:phase7-3:finance-intelligence
+          npm run test:phase7-3
+
+      - name: Preserve closed Phase 7.4 financial reports
+        run: |
+          node scripts/phase7-4-financial-reports-audit.mjs
+          npm run test:phase7-4
+
+      - name: Enforce Phase 7.5 destruction contract
+        run: node scripts/phase7-5-finance-destruction-audit.mjs
+
+      - name: Require database-level one-reversal invariant
+        run: |
+          test -f database/migrations/phase_7_5_payment_reversal_uniqueness.sql
+          grep -F "having count(*) > 1" database/migrations/phase_7_5_payment_reversal_uniqueness.sql
+          grep -F "payment_reversals(workspace_id, payment_id)" database/migrations/phase_7_5_payment_reversal_uniqueness.sql
+          grep -F "forensic reconciliation" database/migrations/phase_7_5_payment_reversal_uniqueness.sql
+
+      - name: Require Real Cloud destructive probe source
+        run: |
+          test -f database/probes/phase_7_5_live_finance_destruction_probe.sql
+          grep -F "set local role authenticated" database/probes/phase_7_5_live_finance_destruction_probe.sql
+          grep -F "9999999999999999.99" database/probes/phase_7_5_live_finance_destruction_probe.sql
+          grep -F "ENJAZ_PHASE75_DUPLICATE_REVERSAL_WAS_ACCEPTED" database/probes/phase_7_5_live_finance_destruction_probe.sql
+          grep -F "finance_payment_reconciliation_v1" database/probes/phase_7_5_live_finance_destruction_probe.sql
+
+      - name: Phase 7.5 destructive model and command tests
+        run: node --experimental-strip-types --test tests/financeDestructionGate.test.ts tests/financeCommands.test.ts tests/financeService.test.ts tests/financeModel.test.ts tests/financeIntelligence.test.ts tests/financeReports.test.ts
+
+      - name: Full functional regression
+        run: npm run test:functional
+
+      - name: Secrets audit
+        run: npm run audit:secrets
+
+      - name: Database baseline integrity and destructive selftest
+        run: npm run db:audit && npm run db:audit:selftest
+
+      - name: Roadmap integrity
+        run: npm run audit:roadmap
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Production candidate build
+        run: npm run build -- --base=/
+
+      - name: Preserve production asset budget
+        run: npm run audit:dist:budget
+
+      - name: Build isolated Phase 7.2 authoritative command preview
+        run: npx vite build --config vite.phase7-2-preview.config.ts --base=/
+
+      - name: Enforce isolated finance preview size
+        run: |
+          test -f dist-phase7-2-preview/phase7-2-preview.html
+          BYTES=$(du -sb dist-phase7-2-preview | cut -f1)
+          echo "Phase 7.5 finance destruction preview bytes: $BYTES"
+          test "$BYTES" -le 9437184
+
+      - name: Install pinned real-browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start isolated finance destruction preview
+        run: |
+          nohup npx vite preview --config vite.phase7-2-preview.config.ts --host 127.0.0.1 --port 4185 > /tmp/enjaz-phase75-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4185/phase7-2-preview.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase75-preview.log
+          exit 1
+
+      - name: Real Chromium Phase 7.5 destruction
+        env:
+          PHASE75_BASE_URL: http://127.0.0.1:4185/
+        run: npx playwright test tests-external/phase7-5-finance-destruction.spec.cjs --reporter=line --workers=1
+
+      - name: Cumulative Phase 7.2 Chromium regression
+        env:
+          PHASE72_BASE_URL: http://127.0.0.1:4185/
+          PHASE72_ARTIFACT_DIR: artifacts/phase7-5-cumulative-72
+        run: npx playwright test tests-external/phase7-2-finance.spec.cjs --reporter=line --workers=1
+
+      - name: Upload Phase 7.5 diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-phase7-5-diagnostics-${{ github.sha }}
+          path: |
+            test-results/
+            artifacts/phase7-5-cumulative-72/
+            /tmp/enjaz-phase75-preview.log
+          if-no-files-found: ignore
+          retention-days: 7
