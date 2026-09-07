@@ -84,12 +84,12 @@ export function FinancialReportsPanel({ source }: { readonly source: FinanceSour
     </header>
 
     <section className="r2-f74-controls" aria-label="مرشحات التقرير">
-      <label>نوع التقرير<select value={kind} onChange={(event) => setKind(event.target.value as FinancialReportKind)}><option value="period">الفترة</option><option value="company">الشركة</option><option value="transaction">المعاملة</option><option value="cashbox">الصندوق</option></select></label>
-      <label>من<input type="date" value={from} onChange={(event) => setFrom(event.target.value)} /></label>
-      <label>إلى<input type="date" value={to} onChange={(event) => setTo(event.target.value)} /></label>
-      {kind === 'company' ? <label>الشركة<select value={companyId} onChange={(event) => setCompanyId(event.target.value)}>{source.companies.map((item) => <option key={item.id} value={item.id}>{item.display_name?.trim() || item.legal_name}</option>)}</select></label> : null}
-      {kind === 'transaction' ? <label>المعاملة<select value={transactionId} onChange={(event) => setTransactionId(event.target.value)}>{source.transactions.map((item) => <option key={item.id} value={item.id}>{item.legacy_id?.trim() ? `معاملة ${item.legacy_id.trim()}` : item.type}</option>)}</select></label> : null}
-      {kind === 'cashbox' ? <label>الصندوق<select value={cashboxId} onChange={(event) => setCashboxId(event.target.value)}>{source.cashboxes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label> : null}
+      <label>نوع التقرير<select aria-label="نوع التقرير" value={kind} onChange={(event) => setKind(event.target.value as FinancialReportKind)}><option value="period">الفترة</option><option value="company">الشركة</option><option value="transaction">المعاملة</option><option value="cashbox">الصندوق</option></select></label>
+      <label>من<input aria-label="من" type="date" value={from} onChange={(event) => setFrom(event.target.value)} /></label>
+      <label>إلى<input aria-label="إلى" type="date" value={to} onChange={(event) => setTo(event.target.value)} /></label>
+      {kind === 'company' ? <label>الشركة<select aria-label="الشركة" value={companyId} onChange={(event) => setCompanyId(event.target.value)}>{source.companies.map((item) => <option key={item.id} value={item.id}>{item.display_name?.trim() || item.legal_name}</option>)}</select></label> : null}
+      {kind === 'transaction' ? <label>المعاملة<select aria-label="المعاملة" value={transactionId} onChange={(event) => setTransactionId(event.target.value)}>{source.transactions.map((item) => <option key={item.id} value={item.id}>{item.legacy_id?.trim() ? `معاملة ${item.legacy_id.trim()}` : item.type}</option>)}</select></label> : null}
+      {kind === 'cashbox' ? <label>الصندوق<select aria-label="الصندوق" value={cashboxId} onChange={(event) => setCashboxId(event.target.value)}>{source.cashboxes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label> : null}
     </section>
 
     {!report ? <section className="r2-f74-error" role="alert"><h2>تعذر بناء التقرير</h2><p>{result.error}</p></section> : <>
