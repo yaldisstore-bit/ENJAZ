@@ -78,8 +78,9 @@
     "liveExternal": "SUCCESS",
     "publishedApplicationAttack": "SUCCESS"
   },
-  "m1AnchorStatus": "CLOSED",
-  "m1OverallSystemClosed": true,
+  "m1AnchorStatus": "CLOSURE_CANDIDATE",
+  "m1OverallSystemClosed": false,
+  "m1RemainingClosureAuthority": "Phase 8.7 individual Zero-Escape destruction evidence",
   "exitGatePassed": true,
   "unresolvedDefectCount": 0,
   "criticalDefectCount": 0,
