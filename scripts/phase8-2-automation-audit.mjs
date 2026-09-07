@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+const baseline = read('database/baseline/phase1_2_schema.sql');
 const migration = read('database/migrations/phase_8_2_automation_engine.sql');
 const commands = read('src/features/automation/automationCommands.ts');
 const tests = read('tests/automationEngine.test.ts');
@@ -14,11 +15,21 @@ const requireMarker = (source, marker, label) => { if (!source.includes(marker))
 const forbidMarker = (source, marker, label) => { if (source.includes(marker)) errors.push(`${label} forbidden marker: ${marker}`); };
 
 for (const marker of [
+  'create table public.automation_rules',
+  'create table public.automation_runs',
+  'conditions jsonb',
+  'actions jsonb',
+  'receipt_key text',
+  'automation_runs_receipt_unique_idx',
+  'alter table public.automation_rules enable row level security',
+  'alter table public.automation_runs enable row level security',
+]) requireMarker(baseline, marker, 'canonical baseline');
+
+for (const marker of [
   'alter table public.automation_rules',
   'alter table public.automation_runs',
   'create table public.automation_run_actions',
   'create table public.automation_approval_requests',
-  'automation_runs_receipt_unique_idx',
   'ENJAZ_AUTOMATION_IDEMPOTENCY_CONFLICT',
   'ENJAZ_AUTOMATION_RULE_STALE',
   "status in ('started','awaiting_approval','succeeded','skipped','failed')",
@@ -69,5 +80,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical rules/runs preserved; replay/stale/failure/approval boundaries enforced; finance authority=none; Phase 8.3 LOCKED.');
+  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical baseline rules/runs preserved; replay/stale/failure/approval boundaries enforced; finance authority=none; Phase 8.3 LOCKED.');
 }
