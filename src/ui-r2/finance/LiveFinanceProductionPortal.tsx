@@ -1,5 +1,6 @@
 import { createPortal } from 'react-dom';
 import { useLiveRecordsPortal } from '../records/LiveCompaniesProductionPortal.tsx';
+import { ConnectedPhase72FinanceExperience } from './Phase72FinanceExperience.tsx';
 import { ConnectedPhase73FinancialIntelligenceExperience } from './Phase73FinancialIntelligenceExperience.tsx';
 import './finance.css';
 import './phase72.css';
@@ -12,5 +13,5 @@ const FINANCE_PREVIEW = '[data-operational-domain="finance"]';
 export function LiveFinanceProductionPortal() {
   const { active, target } = useLiveRecordsPortal('finance', FINANCE_SHELL, FINANCE_PREVIEW);
   if (!active || !target) return null;
-  return createPortal(<ConnectedPhase73FinancialIntelligenceExperience />, target);
+  return createPortal(<div className="r2-finance-phase73-stack"><ConnectedPhase73FinancialIntelligenceExperience /><ConnectedPhase72FinanceExperience /></div>, target);
 }
