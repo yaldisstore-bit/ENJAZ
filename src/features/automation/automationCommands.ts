@@ -225,8 +225,8 @@ export function createAutomationCommandGateway(client: EnjazSupabaseClient, time
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 120_000) throw new Error('Invalid automation RPC timeout');
   const rpcClient = client as unknown as RpcClientLike;
   return Object.freeze({
-    async loadContext(workspaceId) { return parseContext(await runRpc(rpcClient, 'get_automation_engine_context_v1', { p_workspace_id: requireUuid(workspaceId, 'workspace id') }, false, timeoutMs)); },
-    async upsertRule(input) {
+    async loadContext(workspaceId: string) { return parseContext(await runRpc(rpcClient, 'get_automation_engine_context_v1', { p_workspace_id: requireUuid(workspaceId, 'workspace id') }, false, timeoutMs)); },
+    async upsertRule(input: UpsertAutomationRuleInput) {
       validateRuleInput(input);
       return parseRule(await runRpc(rpcClient, 'upsert_automation_rule_v1', {
         p_workspace_id: requireUuid(input.workspaceId, 'workspace id'), p_rule_id: input.ruleId === null ? null : requireUuid(input.ruleId, 'automation rule id'), p_expected_version: input.expectedVersion,
@@ -234,18 +234,18 @@ export function createAutomationCommandGateway(client: EnjazSupabaseClient, time
         p_conditions: input.conditions, p_actions: input.actions, p_throttle_policy: input.throttlePolicy, p_enabled: input.enabled,
       }, true, timeoutMs));
     },
-    async setRuleEnabled(workspaceId, ruleId, expectedVersion, enabled) {
+    async setRuleEnabled(workspaceId: string, ruleId: string, expectedVersion: number, enabled: boolean) {
       if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1) throw new DataAccessError('Invalid automation rule version', 'DATA_VALIDATION_FAILED');
       const row = requireRecord(await runRpc(rpcClient, 'set_automation_rule_enabled_v1', { p_workspace_id: requireUuid(workspaceId, 'workspace id'), p_rule_id: requireUuid(ruleId, 'automation rule id'), p_expected_version: expectedVersion, p_enabled: enabled }, true, timeoutMs), 'automation enabled result');
       return Object.freeze({ id: requireUuid(row.id, 'automation rule id'), enabled: row.enabled === true, version: requireInteger(row.version, 'automation rule version', 1) });
     },
-    async dispatch(workspaceId, ruleId, eventKey, payload, receiptKey) {
+    async dispatch(workspaceId: string, ruleId: string, eventKey: string, payload: Readonly<Record<string, unknown>>, receiptKey: string) {
       const cleanEvent = eventKey.trim(); const cleanReceipt = receiptKey.trim();
       if (!EVENT_KEY_PATTERN.test(cleanEvent)) throw new DataAccessError('Invalid automation event key', 'DATA_VALIDATION_FAILED');
       if (cleanReceipt.length < 8 || cleanReceipt.length > 200) throw new DataAccessError('Invalid automation receipt key', 'DATA_VALIDATION_FAILED');
       return parseDispatch(await runRpc(rpcClient, 'dispatch_automation_v1', { p_workspace_id: requireUuid(workspaceId, 'workspace id'), p_rule_id: requireUuid(ruleId, 'automation rule id'), p_event_key: cleanEvent, p_event_payload: payload, p_receipt_key: cleanReceipt }, true, timeoutMs));
     },
-    async decideApproval(workspaceId, approvalId, decision, note, decisionKey) {
+    async decideApproval(workspaceId: string, approvalId: string, decision: AutomationApprovalDecision, note: string | null, decisionKey: string) {
       if (decision !== 'approved' && decision !== 'rejected') throw new DataAccessError('Invalid automation approval decision', 'DATA_VALIDATION_FAILED');
       const cleanNote = note === null ? null : note.trim();
       if (cleanNote !== null && (cleanNote.length < 3 || cleanNote.length > 600)) throw new DataAccessError('Invalid automation approval note', 'DATA_VALIDATION_FAILED');

@@ -31,12 +31,12 @@ test('parses canonical context and rejects finance authority drift', async () =>
 });
 
 test('upsert rule uses expected-version boundary and human-readable rule contract', async () => {
-  let captured: Readonly<Record<string, unknown>> | null = null;
-  const gateway = createAutomationCommandGateway(clientWith((name, args) => { assert.equal(name, 'upsert_automation_rule_v1'); captured = args; return baseRule; }));
+  let captured: Record<string, unknown> = {};
+  const gateway = createAutomationCommandGateway(clientWith((name, args) => { assert.equal(name, 'upsert_automation_rule_v1'); captured = { ...args }; return baseRule; }));
   const rule = await gateway.upsertRule({ workspaceId: WORKSPACE, ruleId: null, expectedVersion: null, ruleKey: 'follow_up_active', name: 'متابعة المعاملة النشطة', description: null, triggerConfig: { type: 'domain_event', event: 'transaction.updated' }, conditions: [{ field: 'status', operator: 'eq', value: 'active' }], actions: [{ type: 'create_followup', title: 'مراجعة المعاملة', dueInDays: 2 }], throttlePolicy: {}, enabled: true });
   assert.equal(rule.version, 1);
-  assert.equal(captured?.p_rule_key, 'follow_up_active');
-  assert.equal(captured?.p_expected_version, null);
+  assert.equal(captured['p_rule_key'], 'follow_up_active');
+  assert.equal(captured['p_expected_version'], null);
 });
 
 test('rejects stale/upsert shape before network for invalid version boundary', async () => {
@@ -54,11 +54,11 @@ test('workflow transition action remains a sensitive typed action', async () => 
 });
 
 test('dispatch preserves receipt key for replay-safe execution', async () => {
-  let captured: Readonly<Record<string, unknown>> | null = null;
-  const gateway = createAutomationCommandGateway(clientWith((name, args) => { assert.equal(name, 'dispatch_automation_v1'); captured = args; return { runId: RUN, status: 'succeeded', result: { approvalRequired: false }, wasDuplicate: false }; }));
+  let captured: Record<string, unknown> = {};
+  const gateway = createAutomationCommandGateway(clientWith((name, args) => { assert.equal(name, 'dispatch_automation_v1'); captured = { ...args }; return { runId: RUN, status: 'succeeded', result: { approvalRequired: false }, wasDuplicate: false }; }));
   const result = await gateway.dispatch(WORKSPACE, RULE, 'transaction.updated', { transactionId: RULE, status: 'active' }, 'receipt-transaction-001');
   assert.equal(result.status, 'succeeded');
-  assert.equal(captured?.p_receipt_key, 'receipt-transaction-001');
+  assert.equal(captured['p_receipt_key'], 'receipt-transaction-001');
 });
 
 test('parses awaiting approval and exposes pending human approval evidence', async () => {
@@ -69,11 +69,11 @@ test('parses awaiting approval and exposes pending human approval evidence', asy
 });
 
 test('approval decision uses explicit decision idempotency key', async () => {
-  let captured: Readonly<Record<string, unknown>> | null = null;
-  const gateway = createAutomationCommandGateway(clientWith((name, args) => { assert.equal(name, 'decide_automation_approval_v1'); captured = args; return { approvalId: APPROVAL, decision: 'approved', runId: RUN, runStatus: 'succeeded', wasDuplicate: false }; }));
+  let captured: Record<string, unknown> = {};
+  const gateway = createAutomationCommandGateway(clientWith((name, args) => { assert.equal(name, 'decide_automation_approval_v1'); captured = { ...args }; return { approvalId: APPROVAL, decision: 'approved', runId: RUN, runStatus: 'succeeded', wasDuplicate: false }; }));
   const result = await gateway.decideApproval(WORKSPACE, APPROVAL, 'approved', 'موافقة بشرية صريحة', DECISION);
   assert.equal(result.runStatus, 'succeeded');
-  assert.equal(captured?.p_decision_key, DECISION);
+  assert.equal(captured['p_decision_key'], DECISION);
 });
 
 test('write timeout is outcome-unknown instead of a false failure/retry signal', async () => {
