@@ -18,6 +18,9 @@ const workflow = read('.github/workflows/phase8-2-automation-engine.yml');
 const tests = read('tests/automationEngine.test.ts');
 const state = JSON.parse(read('docs/PHASE8_2_STATE.json'));
 const kickoff = read('docs/PHASE8_2_KICKOFF.md');
+const closure = read('docs/PHASE8_2_CLOSURE.md');
+const postMerge = read('docs/PHASE8_2_POSTMERGE_RECERTIFICATION.md');
+const realCloudEvidence = read('docs/PHASE8_2_REAL_CLOUD_EVIDENCE.md');
 const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 const phase81 = JSON.parse(read('docs/PHASE8_1_STATE.json'));
 const errors = [];
@@ -182,13 +185,49 @@ for (const marker of [
 
 for (const marker of ['receipt key for replay-safe execution','pending human approval evidence','explicit decision idempotency key','outcome-unknown']) requireMarker(tests, marker, 'tests');
 
-if (state.phase !== '8.2' || state.status !== 'IN_PROGRESS' || state.baseCommit !== '65e2c29bc5b656b5c56daa84a893aeff65c5d662') errors.push('Phase 8.2 state identity/base drifted');
-if (state.phase8_3Allowed !== false || state.nextPhase !== '8.3' || state.successorStatus !== 'LOCKED') errors.push('Phase 8.3 must remain locked while 8.2 is in progress');
+if (state.phase !== '8.2' || state.status !== 'CLOSED' || state.baseCommit !== '65e2c29bc5b656b5c56daa84a893aeff65c5d662') errors.push('Phase 8.2 closed state identity/base drifted');
+if (state.implementationHead !== 'c41a283e87bc73c7b4748428577f99e82ce4aa41') errors.push('Phase 8.2 certified implementation head drifted');
 if (state.pullRequest !== 109) errors.push('Phase 8.2 PR evidence must remain bound to PR #109');
-if (state.realCloudVerification?.status !== 'PASS' || state.realCloudVerification?.projectRef !== 'juzxriirhkuzviwnhkbd') errors.push('Phase 8.2 authenticated Real Cloud evidence is required before merge');
-if (state.realChromium?.status !== 'PENDING' || state.postMergeRecertification?.status !== 'PENDING') errors.push('Chromium/post-merge evidence must remain pending until exact-head/merge verification');
-if (phase81.status !== 'CLOSED' || phase81.phase8_2Allowed !== true || phase81.nextPhase !== '8.2') errors.push('Phase 8.1 closure must authorize Phase 8.2');
-requireMarker(kickoff, 'Phase 8.3 — Operations Center + Field Operations — M5 remains LOCKED', 'kickoff');
+if (state.preClosure?.headCommit !== 'c41a283e87bc73c7b4748428577f99e82ce4aa41' || state.preClosure?.workflowCount !== 31 || state.preClosure?.successCount !== 31 || state.preClosure?.failureCount !== 0 || state.preClosure?.pendingCount !== 0) errors.push('Phase 8.2 must preserve 31/31 exact-head pre-closure workflow evidence');
+if (state.preClosure?.realChromium !== 'PASS' || state.preClosure?.realChromiumAssertionCount !== 9 || state.preClosure?.cumulativeRealBrowser !== 'PASS') errors.push('Phase 8.2 Real Chromium / cumulative browser evidence drifted');
+if (state.realCloudVerification?.status !== 'PASS' || state.realCloudVerification?.projectRef !== 'juzxriirhkuzviwnhkbd') errors.push('Phase 8.2 authenticated Real Cloud evidence drifted');
+if (state.realChromium?.status !== 'PASS' || state.realChromium?.assertionCount !== 9) errors.push('Phase 8.2 Real Chromium closure evidence drifted');
+if (state.mergeCommit !== '32f573e520a1c32d398960a120231f6467dd0713') errors.push('Phase 8.2 canonical merge commit drifted');
+if (state.postMergeRecertification?.status !== 'COMPLETE' || state.postMergeRecertification?.mainCommit !== '32f573e520a1c32d398960a120231f6467dd0713') errors.push('Phase 8.2 post-merge recertification identity drifted');
+if (state.postMergeRecertification?.workflowCount !== 16 || state.postMergeRecertification?.successCount !== 16 || state.postMergeRecertification?.failureCount !== 0 || state.postMergeRecertification?.inProgressCount !== 0 || state.postMergeRecertification?.queuedCount !== 0 || state.postMergeRecertification?.cancelledCount !== 0) errors.push('Phase 8.2 must preserve 16/16 exact-main-SHA post-merge workflow evidence');
+if (state.postMergeRecertification?.phase8_2GateRunId !== 34148806389 || state.postMergeRecertification?.realBrowserRunId !== 34148806467 || state.postMergeRecertification?.pagesPreviewRunId !== 34148844199 || state.postMergeRecertification?.liveExternalRunId !== 34148888232 || state.postMergeRecertification?.qualityRunId !== 34148806396 || state.postMergeRecertification?.majorSystemsZeroEscapeRunId !== 34148806419 || state.postMergeRecertification?.publishedApplicationAttack !== 'PASS') errors.push('Phase 8.2 critical post-merge evidence drifted');
+if (state.exitGatePassed !== true || state.unresolvedDefectCount !== 0 || state.criticalDefectCount !== 0 || state.highDefectCount !== 0 || state.functionalBlockerCount !== 0) errors.push('Phase 8.2 closure requires zero unresolved/high/critical/blocker defects');
+if (state.phase8_3Allowed !== true || state.nextPhase !== '8.3' || state.successorStatus !== 'AUTHORIZED') errors.push('Phase 8.3 must be the sole authorized successor after Phase 8.2 closure');
+if (state.closureEvidence !== 'docs/PHASE8_2_CLOSURE.md' || state.postMergeEvidence !== 'docs/PHASE8_2_POSTMERGE_RECERTIFICATION.md' || state.realCloudEvidence !== 'docs/PHASE8_2_REAL_CLOUD_EVIDENCE.md') errors.push('Phase 8.2 evidence pointers drifted');
+if (phase81.status !== 'CLOSED' || phase81.phase8_2Allowed !== true || phase81.nextPhase !== '8.2') errors.push('Phase 8.1 closure must preserve historical authorization of Phase 8.2');
+
+requireMarker(kickoff, 'Phase 8.3 — Operations Center + Field Operations — M5 remains LOCKED', 'historical kickoff');
+for (const marker of [
+  'Status: **CLOSED**',
+  'Exit gate: **PASS**',
+  'Successor: **Phase 8.3 AUTHORIZED**',
+  'c41a283e87bc73c7b4748428577f99e82ce4aa41',
+  '32f573e520a1c32d398960a120231f6467dd0713',
+  '31/31 successful',
+  '16/16 successful workflow runs',
+]) requireMarker(closure, marker, 'closure evidence');
+for (const marker of [
+  'Status: **COMPLETE**',
+  '32f573e520a1c32d398960a120231f6467dd0713',
+  'workflow runs: **16**',
+  'successful: **16**',
+  '34148806389',
+  '34148806467',
+  '34148844199',
+  '34148888232',
+]) requireMarker(postMerge, marker, 'post-merge evidence');
+for (const marker of [
+  'Status: **PASS**',
+  'juzxriirhkuzviwnhkbd',
+  'direct mutation of automation tables remained denied',
+  'stale rule-version execution failed closed',
+  'finance write authority remains `none`',
+]) requireMarker(realCloudEvidence, marker, 'real-cloud evidence');
 requireMarker(roadmap, '## 8.2 — Automation Engine', 'roadmap');
 requireMarker(roadmap, '- Human-readable trigger/condition/action rules.', 'roadmap');
 requireMarker(roadmap, '- Idempotency, replay protection, activation/deactivation and explicit failure state.', 'roadmap');
@@ -199,5 +238,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical rules/runs + live R2 destination preserved outside frozen R2.0-7; private-definer/public-invoker mutation boundary enforced; authenticated Real Cloud PASS; dedicated Real Chromium contract present; finance authority=none; Phase 8.3 LOCKED.');
+  console.log('ENJAZ PHASE 8.2 AUTOMATION AUDIT PASS — canonical automation authority preserved; authenticated Real Cloud PASS; exact-head 31/31 + Real Chromium 9/9; exact-merge-SHA 16/16 post-merge recertification; finance authority=none; Phase 8.2 CLOSED and Phase 8.3 AUTHORIZED.');
 }
