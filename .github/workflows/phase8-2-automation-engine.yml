@@ -1,0 +1,50 @@
+name: ENJAZ Phase 8.2 — Automation Engine Gate
+
+on:
+  push:
+    branches:
+      - main
+      - 'phase8-2-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase82-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase8-2-automation:
+    name: Canonical automation / replay / approval gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: npm ci --no-audit --no-fund
+      - name: Preserve closed Phase 8.1
+        run: npm run audit:phase8-1:workflow-government-procedure && npm run test:phase8-1
+      - name: Enforce Phase 8.2 automation contract
+        run: node scripts/phase8-2-automation-audit.mjs
+      - name: Phase 8.2 command tests
+        run: node --experimental-strip-types --test tests/automationEngine.test.ts
+      - name: Full functional regression
+        run: npm run test:functional
+      - name: Database and roadmap integrity
+        run: npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap
+      - name: Secrets and TypeScript
+        run: npm run audit:secrets && npm run typecheck
+      - name: Production build and hard budget
+        run: npm run build -- --base=/ && npm run audit:dist:budget
