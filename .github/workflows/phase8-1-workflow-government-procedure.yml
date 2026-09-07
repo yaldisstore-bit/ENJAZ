@@ -12,11 +12,15 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: enjaz-phase81-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   phase8-1-workflow-government-procedure:
-    name: Canonical workflow / M1 government procedure gate
+    name: Canonical workflow / M1 government procedure / Real Chromium
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 55
     steps:
       - uses: actions/checkout@v7
         with:
@@ -44,3 +48,38 @@ jobs:
         run: npm run audit:secrets && npm run typecheck
       - name: Production build and hard budget
         run: npm run build -- --base=/ && npm run audit:dist:budget
+      - name: Build isolated Phase 8.1 workflow preview
+        run: npx vite build --config vite.phase8-1-preview.config.ts --base=/
+      - name: Enforce isolated workflow preview size
+        run: |
+          test -f dist-phase8-1-preview/phase8-1-preview.html
+          BYTES=$(du -sb dist-phase8-1-preview | cut -f1)
+          echo "Phase 8.1 workflow preview bytes: $BYTES"
+          test "$BYTES" -le 9437184
+      - name: Install pinned real-browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated Phase 8.1 workflow preview
+        run: |
+          nohup npx vite preview --config vite.phase8-1-preview.config.ts --host 127.0.0.1 --port 4188 > /tmp/enjaz-phase81-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4188/phase8-1-preview.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase81-preview.log
+          exit 1
+      - name: Real Chromium Phase 8.1 government workflow
+        env:
+          PHASE81_BASE_URL: http://127.0.0.1:4188/
+        run: npx playwright test tests-external/phase8-1-workflow-government-procedure.spec.cjs --reporter=line --workers=1
+      - name: Upload Phase 8.1 diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-phase8-1-diagnostics-${{ github.sha }}
+          path: |
+            test-results/
+            /tmp/enjaz-phase81-preview.log
+          if-no-files-found: ignore
+          retention-days: 7
