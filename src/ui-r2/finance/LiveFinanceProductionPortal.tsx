@@ -3,6 +3,7 @@ import { useLiveRecordsPortal } from '../records/LiveCompaniesProductionPortal.t
 import { ConnectedPhase72FinanceExperience } from './Phase72FinanceExperience.tsx';
 import './finance.css';
 import './phase72.css';
+import './phase72-mobile-hardening.css';
 
 const FINANCE_SHELL = '.r2-shell[data-r2-runtime-mode="live"][data-destination]';
 const FINANCE_PREVIEW = '[data-operational-domain="finance"]';
