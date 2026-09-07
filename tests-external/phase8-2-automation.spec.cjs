@@ -26,7 +26,7 @@ test('Phase 8.2 exposes canonical rules, runs and human approvals without financ
   await expect(root.getByRole('heading', { name: 'الموافقات البشرية' })).toBeVisible();
   await expect(root.getByRole('heading', { name: 'التشغيلات الأخيرة' })).toBeVisible();
   await expect(root.getByRole('heading', { name: 'متابعة المعاملة المتأخرة', exact: true })).toBeVisible();
-  await expect(root.getByText(/workflow\.stage\.changed/)).toBeVisible();
+  await expect(root.getByLabel('قواعد الأتمتة').getByText('workflow.stage.changed', { exact: true })).toBeVisible();
   await expect(root.getByRole('button', { name: 'موافقة وتنفيذ' })).toBeVisible();
   expect(await root.innerText()).not.toMatch(/\b(?:NaN|undefined|Infinity)\b/);
   expect(errors).toEqual([]);
