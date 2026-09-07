@@ -58,9 +58,10 @@ check('exact_phase7_closure_base', state.baseCommit === '7e42e69623db7af32797448
 check('certified_implementation_head', state.implementationHead === 'fe19308c8707dc346a3254b92292c048c8c1bc4a' && state.pullRequest === 107);
 check('canonical_merge_sha', state.mergeCommit === '95f988ac305d9003ee19a5f0f474c499f51d288b');
 check('phase7_5_closed', prior.phase === '7.5' && prior.status === 'CLOSED' && prior.exitGatePassed === true && prior.phase8Allowed === true && prior.nextPhase === '8.1');
-check('m1_closed_with_evidence', state.m1AnchorStatus === 'CLOSED' && state.m1OverallSystemClosed === true);
+check('m1_anchor_complete_but_overall_open', state.m1AnchorStatus === 'CLOSURE_CANDIDATE' && state.m1OverallSystemClosed === false && state.m1RemainingClosureAuthority === 'Phase 8.7 individual Zero-Escape destruction evidence');
 const m1 = major.systems?.find((system) => system.id === 'M1');
-check('major_registry_m1_closed', m1?.name === 'Government Procedure Operating System' && m1?.status === 'CLOSED' && m1?.closureEvidence === 'docs/PHASE8_1_CLOSURE.md');
+check('major_registry_m1_fail_closed_candidate', m1?.name === 'Government Procedure Operating System' && m1?.status === 'CLOSURE_CANDIDATE' && m1?.closureEvidence === 'docs/PHASE8_1_CLOSURE.md');
+check('other_major_systems_not_silently_closed', major.systems?.filter((system) => system.id !== 'M1').every((system) => system.status !== 'CLOSED'));
 check('kickoff_historical_lock_preserved', has(kickoff, 'Phase 8.2 remains locked') && has(kickoff, 'Phase 8.2 is not authorized'));
 check('roadmap_81_authority', has(roadmap, '## 8.1 — Workflow Engine & Government Procedure OS — M1'));
 check('roadmap_82_authority', has(roadmap, '**Next: Phase 8.2 — Automation Engine**'));
@@ -71,8 +72,8 @@ check('postmerge_exact_sha_green', state.postMergeRecertification?.status === 'C
 check('postmerge_critical_runs', state.postMergeRecertification?.phaseGateRunId === 34117766941 && state.postMergeRecertification?.pagesPreviewRunId === 34117816460 && state.postMergeRecertification?.pagesDeploymentRunId === 34117766836 && state.postMergeRecertification?.realBrowserRunId === 34117766978 && state.postMergeRecertification?.liveExternalRunId === 34117875655);
 check('postmerge_deployed_live_success', state.postMergeRecertification?.pagesPreview === 'SUCCESS' && state.postMergeRecertification?.pagesBuild === 'SUCCESS' && state.postMergeRecertification?.pagesDeploy === 'SUCCESS' && state.postMergeRecertification?.realBrowser === 'SUCCESS' && state.postMergeRecertification?.liveExternal === 'SUCCESS' && state.postMergeRecertification?.publishedApplicationAttack === 'SUCCESS');
 check('closure_evidence_pointers', state.closureEvidence === 'docs/PHASE8_1_CLOSURE.md' && state.postMergeEvidence === 'docs/PHASE8_1_POSTMERGE_RECERTIFICATION.md' && state.realCloudVerification?.evidence === 'docs/PHASE8_1_REAL_CLOUD_EVIDENCE.md');
-for (const marker of ['Status: CLOSED', 'fe19308c8707dc346a3254b92292c048c8c1bc4a', '95f988ac305d9003ee19a5f0f474c499f51d288b', '30/30 SUCCESS', '15/15 exact-SHA workflow runs SUCCESS', '34117766941', '34117816460', '34117766836', '34117766978', '34117875655', 'Attack the actual published application', 'Phase 8.2 — Automation Engine']) check(`closure_${marker}`, has(closure, marker));
-for (const marker of ['Status: COMPLETE', '95f988ac305d9003ee19a5f0f474c499f51d288b', '15/15 workflow runs SUCCESS', '34117766941', '34117816460', '34117766836', '34117766978', '34117875655', 'Attack the actual published application']) check(`postmerge_${marker}`, has(postMerge, marker));
+for (const marker of ['Status: CLOSED', 'fe19308c8707dc346a3254b92292c048c8c1bc4a', '95f988ac305d9003ee19a5f0f474c499f51d288b', '30/30 SUCCESS', '15/15 exact-SHA workflow runs SUCCESS', '34117766941', '34117816460', '34117766836', '34117766978', '34117875655', 'Attack the actual published application', 'M1 overall system closure: **OPEN', 'Phase 8.2 — Automation Engine']) check(`closure_${marker}`, has(closure, marker));
+for (const marker of ['Status: COMPLETE', '95f988ac305d9003ee19a5f0f474c499f51d288b', '15/15 workflow runs SUCCESS', '34117766941', '34117816460', '34117766836', '34117766978', '34117875655', 'Attack the actual published application', 'CLOSURE_CANDIDATE']) check(`postmerge_${marker}`, has(postMerge, marker));
 for (const marker of ['authenticated Real Cloud Supabase probe', 'catalog', 'prerequisite', 'idempotent', 'required-item', 'stale-state', 'completion', 'reopen']) check(`realcloud_${marker}`, has(realCloud, marker));
 
 for (const table of ['workflow_templates','workflow_template_stages','workflow_template_items','workflow_instances','workflow_stage_states','workflow_item_states']) {
@@ -202,4 +203,4 @@ if (failures.length) {
   console.error(`ENJAZ PHASE 8.1 WORKFLOW/GOVERNMENT PROCEDURE AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);
   process.exit(1);
 }
-console.log(`ENJAZ PHASE 8.1 WORKFLOW/GOVERNMENT PROCEDURE AUDIT PASS (${checks} checks) — backend + Transaction 360 UI + Real Chromium contract preserved; CLOSED + POST-MERGE RECERTIFIED; M1 CLOSED; Phase 8.2 authorized.`);
+console.log(`ENJAZ PHASE 8.1 WORKFLOW/GOVERNMENT PROCEDURE AUDIT PASS (${checks} checks) — backend + Transaction 360 UI + Real Chromium contract preserved; Phase 8.1 CLOSED + POST-MERGE RECERTIFIED; M1 remains fail-closed CLOSURE_CANDIDATE; Phase 8.2 authorized.`);
