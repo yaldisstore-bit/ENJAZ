@@ -15,6 +15,7 @@ const phase72 = JSON.parse(read('docs/PHASE7_2_STATE.json'));
 const phase73 = JSON.parse(read('docs/PHASE7_3_STATE.json'));
 const phase74 = JSON.parse(read('docs/PHASE7_4_STATE.json'));
 const phase75 = JSON.parse(read('docs/PHASE7_5_STATE.json'));
+const phase81 = JSON.parse(read('docs/PHASE8_1_STATE.json'));
 const errors = [];
 
 const requireMarker = (source, marker, label) => {
@@ -86,13 +87,25 @@ checkOrder([
   '## 7.4 — Financial Reports',
   '## 7.5 — Finance Destruction & Reconciliation Gate',
 ], 'Phase 7 sequence');
+checkOrder([
+  '## 8.1 — Workflow Engine & Government Procedure OS — M1',
+  '## 8.2 — Automation Engine',
+  '## 8.3 — Operations Center + Field Operations — M5',
+  '## 8.4 — CRM, Service Catalog & Smart Intake — M6 + M17',
+  '## 8.5 — Multi-Branch / Departments / Teams — M15 foundation',
+  '## 8.6 — Global Command Center',
+  '## 8.7 — Operations Zero-Escape Destruction Gate',
+], 'Phase 8 sequence');
 
 for (const marker of [
   'ENJAZ 1.0 — Delivered',
   'Zero-Escape closure law for M1–M18',
   'Current position — canonical reconciled state',
   'Major-system anchor matrix',
-  '**Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**',
+  'Historical predecessor transition (satisfied): **Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**',
+  '**Phase 8.1 — Workflow Engine & Government Procedure OS — M1 ✅ CLOSED + post-merge recertified**',
+  '**M1 — Government Procedure Operating System 🟠 `CLOSURE_CANDIDATE`; 8.1 implementation anchor complete, overall closure remains locked behind Phase 8.7 individual Zero-Escape evidence**',
+  '**Next: Phase 8.2 — Automation Engine**',
   'Phase 7.1 — Financial Ledger & Summary ✅ CLOSED + post-merge recertified',
   'Phase 7.2 — Payments & Receipts ✅ CLOSED + post-merge recertified',
   'Phase 7.3 — Financial Intelligence ✅ CLOSED + post-merge recertified',
@@ -109,6 +122,8 @@ for (const stale of [
   '**Next: Phase 7.3 — Financial Intelligence**',
   '**Next: Phase 7.4 — Financial Reports**',
   '**Next: Phase 7.5 — Finance Destruction & Reconciliation Gate**',
+  '**M1 — Government Procedure Operating System ✅ CLOSED under Zero-Escape evidence**',
+  '**Phase 8.1 and M1 ✅ CLOSED + post-merge recertified**',
 ]) forbidMarker(roadmap, stale, 'roadmap');
 
 if (major.schemaVersion !== 2 || major.status !== 'GOVERNING_AMENDMENT') errors.push('major-system registry must remain governing amendment schema v2');
@@ -143,6 +158,11 @@ for (const [id, name] of expectedSystems) {
   requireMarker(readme, `**${id} — ${name}**`, 'README major systems');
 }
 
+const m1 = major.systems.find((system) => system.id === 'M1');
+if (m1?.status !== 'CLOSURE_CANDIDATE' || m1?.closureEvidence !== 'docs/PHASE8_1_CLOSURE.md') {
+  errors.push('M1 must remain CLOSURE_CANDIDATE with Phase 8.1 anchor evidence until Phase 8.7 destruction closure');
+}
+
 const assertClosed = (label, state) => {
   if (state.status !== 'CLOSED' || state.exitGatePassed !== true || state.unresolvedDefectCount !== 0) {
     errors.push(`${label} must remain CLOSED with exitGatePassed and zero unresolved defects`);
@@ -158,6 +178,7 @@ assertClosed('Phase 7.2', phase72);
 assertClosed('Phase 7.3', phase73);
 assertClosed('Phase 7.4', phase74);
 assertClosed('Phase 7.5', phase75);
+assertClosed('Phase 8.1', phase81);
 
 if (phase55.postMergeRecertification?.status !== 'COMPLETE') errors.push('Phase 5.5 recertification drifted');
 if (phase61.postMergeRecertification?.status !== 'COMPLETE') errors.push('Phase 6.1 recertification drifted');
@@ -233,28 +254,39 @@ if (phase75.mergeCommit !== '761073812fc0e43f481ac20532ea6c10979d805d') errors.p
 if (phase75.postMergeRecertification?.status !== 'COMPLETE' || phase75.postMergeRecertification?.mainCommit !== '761073812fc0e43f481ac20532ea6c10979d805d') errors.push('Phase 7.5 post-merge recertification must remain COMPLETE on the exact canonical SHA');
 if (phase75.postMergeRecertification?.workflowCount !== 11 || phase75.postMergeRecertification?.successCount !== 11 || phase75.postMergeRecertification?.failureCount !== 0 || phase75.postMergeRecertification?.inProgressCount !== 0 || phase75.postMergeRecertification?.queuedCount !== 0 || phase75.postMergeRecertification?.cancelledCount !== 0) errors.push('Phase 7.5 must preserve 11/11 canonical main push recertification evidence');
 if (phase75.postMergeRecertification?.phaseGateRunId !== 34103686407 || phase75.postMergeRecertification?.pagesPreviewRunId !== 34103737386 || phase75.postMergeRecertification?.pagesBuild !== 'SUCCESS' || phase75.postMergeRecertification?.pagesDeploy !== 'SUCCESS' || phase75.postMergeRecertification?.realBrowserRunId !== 34103686363 || phase75.postMergeRecertification?.realBrowser !== 'SUCCESS' || phase75.postMergeRecertification?.liveExternalRunId !== 34103828264 || phase75.postMergeRecertification?.liveExternal !== 'SUCCESS' || phase75.postMergeRecertification?.publishedApplicationAttack !== 'SUCCESS') errors.push('Phase 7.5 deployed post-merge evidence drifted');
-if (phase75.phase8Allowed !== true || phase75.nextPhase !== '8.1') errors.push('Phase 8.1 must be the only next stage authorized by Phase 7.5');
+if (phase75.phase8Allowed !== true || phase75.nextPhase !== '8.1') errors.push('Phase 7.5 historical transition evidence must authorize 8.1');
 if (phase75.closureEvidence !== 'docs/PHASE7_5_CLOSURE.md' || phase75.postMergeEvidence !== 'docs/PHASE7_5_POSTMERGE_RECERTIFICATION.md') errors.push('Phase 7.5 closure evidence pointers drifted');
 
+if (phase81.phase !== '8.1' || phase81.implementationHead !== 'fe19308c8707dc346a3254b92292c048c8c1bc4a' || phase81.pullRequest !== 107) errors.push('Phase 8.1 certified implementation/PR evidence drifted');
+if (phase81.preClosure?.workflowCount !== 30 || phase81.preClosure?.successCount !== 30 || phase81.preClosure?.failureCount !== 0 || phase81.preClosure?.inProgressCount !== 0 || phase81.preClosure?.queuedCount !== 0 || phase81.preClosure?.cancelledCount !== 0 || phase81.preClosure?.realChromium !== 'PASS') errors.push('Phase 8.1 must preserve 30/30 pre-closure evidence and Real Chromium PASS');
+if (phase81.realCloudVerification?.status !== 'COMPLETE' || phase81.realCloudVerification?.catalog !== 'PASS' || phase81.realCloudVerification?.prerequisites !== 'PASS' || phase81.realCloudVerification?.idempotency !== 'PASS' || phase81.realCloudVerification?.staleState !== 'PASS' || phase81.realCloudVerification?.complete !== 'PASS' || phase81.realCloudVerification?.reopen !== 'PASS') errors.push('Phase 8.1 Real Cloud evidence drifted');
+if (phase81.mergeCommit !== '95f988ac305d9003ee19a5f0f474c499f51d288b') errors.push('Phase 8.1 implementation merge commit drifted');
+if (phase81.postMergeRecertification?.status !== 'COMPLETE' || phase81.postMergeRecertification?.mainCommit !== '95f988ac305d9003ee19a5f0f474c499f51d288b') errors.push('Phase 8.1 implementation post-merge recertification must remain COMPLETE on the exact canonical SHA');
+if (phase81.postMergeRecertification?.workflowCount !== 15 || phase81.postMergeRecertification?.successCount !== 15 || phase81.postMergeRecertification?.failureCount !== 0 || phase81.postMergeRecertification?.inProgressCount !== 0 || phase81.postMergeRecertification?.queuedCount !== 0 || phase81.postMergeRecertification?.cancelledCount !== 0) errors.push('Phase 8.1 must preserve 15/15 exact-SHA recertification evidence');
+if (phase81.postMergeRecertification?.phaseGateRunId !== 34117766941 || phase81.postMergeRecertification?.pagesPreviewRunId !== 34117816460 || phase81.postMergeRecertification?.pagesDeploymentRunId !== 34117766836 || phase81.postMergeRecertification?.realBrowserRunId !== 34117766978 || phase81.postMergeRecertification?.liveExternalRunId !== 34117875655 || phase81.postMergeRecertification?.publishedApplicationAttack !== 'SUCCESS') errors.push('Phase 8.1 deployed post-merge evidence drifted');
+if (phase81.m1AnchorStatus !== 'CLOSURE_CANDIDATE' || phase81.m1OverallSystemClosed !== false || phase81.m1RemainingClosureAuthority !== 'Phase 8.7 individual Zero-Escape destruction evidence') errors.push('Phase 8.1 must keep M1 fail-closed until Phase 8.7');
+if (phase81.phase8_2Allowed !== true || phase81.nextPhase !== '8.2') errors.push('Phase 8.2 must be the sole next stage authorized by closed Phase 8.1');
+if (phase81.closureEvidence !== 'docs/PHASE8_1_CLOSURE.md' || phase81.postMergeEvidence !== 'docs/PHASE8_1_POSTMERGE_RECERTIFICATION.md') errors.push('Phase 8.1 closure evidence pointers drifted');
+if (phase81.criticalDefectCount !== 0 || phase81.highDefectCount !== 0 || phase81.functionalBlockerCount !== 0) errors.push('Phase 8.1 defect gate must remain zero');
 
 for (const marker of [
-  'الحالة الرسمية: **Phase 7.5 — Finance Destruction & Reconciliation Gate ✅ CLOSED + POST-MERGE RECERTIFIED**',
-  'التالي المسموح: **Phase 8.1 — Workflow Engine & Government Procedure OS — M1**',
-  '**Phase 7.4 — Financial Reports** ✅ complete + post-merge recertified',
-  '**Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**',
-  '28/28 pull-request workflows SUCCESS',
-  '10/10 canonical main push workflows SUCCESS',
-  '7dba0c48e5782df5093deae57c6f10677b32fbce',
-  'd4ad3844dc7ae7a1895e2fddfdb06b2ee0a01858',
-  '34097378705',
+  'الحالة الرسمية: **Phase 8.1 — Workflow Engine & Government Procedure OS — M1 ✅ CLOSED + POST-MERGE RECERTIFIED**',
+  'التالي المسموح: **Phase 8.2 — Automation Engine**',
+  '**Phase 8.1 — Workflow Engine & Government Procedure OS — M1** ✅ complete + post-merge recertified',
+  '**M1 — Government Procedure Operating System** 🟠 `CLOSURE_CANDIDATE`',
+  '**Next: Phase 8.2 — Automation Engine**',
+  'fe19308c8707dc346a3254b92292c048c8c1bc4a',
+  '95f988ac305d9003ee19a5f0f474c499f51d288b',
+  '34117875655',
+  'Phase 8.7',
   'Attack the actual published application',
   'Zero-Escape rule',
   'Gate Escape',
   'docs/ENJAZ_MASTER_ROADMAP.md',
   'docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json',
   'docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md',
-  'docs/PHASE7_4_STATE.json',
-  'docs/PHASE7_4_POSTMERGE_RECERTIFICATION.md',
+  'docs/PHASE8_1_STATE.json',
+  'docs/PHASE8_1_POSTMERGE_RECERTIFICATION.md',
 ]) requireMarker(readme, marker, 'README');
 
 for (const stale of [
@@ -268,14 +300,16 @@ for (const stale of [
   '**Next: Phase 7.4 — Financial Reports**',
   '**Next: Phase 7.5 — Finance Destruction & Reconciliation Gate**',
   '**Next: Phase 6.1 — Companies**',
+  '**M1 — Government Procedure Operating System** ✅ CLOSED',
+  'Phase 8.1 and M1 are CLOSED + POST-MERGE RECERTIFIED',
 ]) forbidMarker(readme, stale, 'README');
 
-for (const marker of ['**Phase 7.5 — Finance Destruction & Reconciliation Gate** ✅ complete + post-merge recertified','**Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**','30/30 pull-request workflows SUCCESS','11/11 canonical main push workflows SUCCESS','c479af8341b9699baf639deabbd61d356ea01c4e','761073812fc0e43f481ac20532ea6c10979d805d','34103828264','Phase 7 exit is satisfied']) requireMarker(readme, marker, 'README Phase 7.5');
+for (const marker of ['**Phase 7.5 — Finance Destruction & Reconciliation Gate** ✅ complete + post-merge recertified','30/30 pull-request workflows SUCCESS','11/11 canonical main push workflows SUCCESS','c479af8341b9699baf639deabbd61d356ea01c4e','761073812fc0e43f481ac20532ea6c10979d805d','34103828264','Phase 7 exit is satisfied']) requireMarker(readme, marker, 'README Phase 7.5 historical evidence');
 
 if (errors.length) {
   console.error(`ENJAZ ROADMAP AUDIT FAIL (${errors.length})`);
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 7.5 CLOSED + 11/11 canonical main push recertified; Phase 7 exit complete; M13/M16 overall remain correctly open; next=Phase 8.1 only.');
+  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 8.1 CLOSED + exact deployed recertification preserved; M1=CLOSURE_CANDIDATE until Phase 8.7; next=Phase 8.2 only.');
 }
