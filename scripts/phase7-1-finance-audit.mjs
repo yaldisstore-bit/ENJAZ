@@ -16,6 +16,7 @@ const paths = {
   hooks: 'src/features/finance/useFinance.ts',
   experience: 'src/ui-r2/finance/FinanceLedgerExperience.tsx',
   portal: 'src/ui-r2/finance/LiveFinanceProductionPortal.tsx',
+  phase72: 'src/ui-r2/finance/Phase72FinanceExperience.tsx',
   css: 'src/ui-r2/finance/finance.css',
   preview: 'src/ui-r2/finance/financePreviewSnapshot.ts',
 };
@@ -34,6 +35,7 @@ const model = read(paths.model);
 const service = read(paths.service);
 const dataLayer = read('src/data/createDataLayer.ts');
 const portal = read(paths.portal);
+const phase72 = exists(paths.phase72) ? read(paths.phase72) : '';
 const productionRoot = read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
 const packageJson = JSON.parse(read('package.json'));
 
@@ -93,7 +95,13 @@ for (const marker of [
 ]) if (!dataLayer.includes(marker)) errors.push(`data layer finance marker missing: ${marker}`);
 
 if (!portal.includes("useLiveRecordsPortal('finance'")) errors.push('live finance portal must activate only for finance destination');
-if (!portal.includes('ConnectedFinanceLedgerExperience')) errors.push('live finance portal must render connected 7.1 experience');
+const direct71Portal = portal.includes('ConnectedFinanceLedgerExperience');
+const forward72Preserves71 = portal.includes('ConnectedPhase72FinanceExperience')
+  && phase72.includes("import { FinanceLedgerExperience } from './FinanceLedgerExperience.tsx';")
+  && phase72.includes('const loaded = await loadFinanceSource(factory, userId);')
+  && phase72.includes('const snapshot = buildFinanceLedgerSnapshot(loaded.source);')
+  && phase72.includes('<FinanceLedgerExperience snapshot={snapshot} mode={mode} />');
+if (!direct71Portal && !forward72Preserves71) errors.push('live finance portal must preserve the connected 7.1 ledger contract either directly or through verified Phase 7.2 composition');
 if (!productionRoot.includes('<LiveFinanceProductionPortal />')) errors.push('production runtime must mount the live finance portal');
 
 if (!packageJson.scripts?.['test:phase7-1']?.includes('financeModel.test.ts') || !packageJson.scripts?.['test:phase7-1']?.includes('financeService.test.ts')) errors.push('package test:phase7-1 is incomplete');
