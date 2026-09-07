@@ -1,8 +1,10 @@
 # ENJAZ Phase 8.1 — Workflow Engine & Government Procedure OS — M1 Closure
 
-**Status: CLOSED — Zero-Escape exit gate passed.**
+**Status: CLOSED — Phase 8.1 exit gate passed.**
 
-Phase 8.1 closes the canonical workflow/government-procedure operating-system scope after authoritative schema/runtime implementation, authenticated Real Cloud evidence, Transaction 360° integration, exact-head PR-wide gates, Real Chromium, canonical merge, deployed-live verification and post-merge recertification all completed without introducing a second workflow state machine or finance shadow writes.
+Phase 8.1 closes its canonical workflow/government-procedure implementation scope after authoritative schema/runtime implementation, authenticated Real Cloud evidence, Transaction 360° integration, exact-head PR-wide gates, Real Chromium, canonical merge, deployed-live verification and post-merge recertification all completed without introducing a second workflow state machine or finance shadow writes.
+
+This phase closure completes the **M1 implementation anchor**, but it does **not** falsely close the overall M1 major system. M1 remains a `CLOSURE_CANDIDATE` until its remaining individual Zero-Escape destruction evidence is satisfied under Phase 8.7.
 
 ## Certified implementation
 
@@ -47,8 +49,9 @@ The authenticated pre-merge Supabase probe recorded on PR #107 passed catalog, p
 - High defects: **0**
 - functional blockers: **0**
 - Phase 8.1 exit: **SATISFIED**
-- M1 Government Procedure Operating System: **CLOSED under this Phase 8.1 Zero-Escape evidence**
+- M1 implementation anchor: **COMPLETE / CLOSURE_CANDIDATE**
+- M1 overall system closure: **OPEN until Phase 8.7 individual Zero-Escape destruction evidence**
 
 **Phase 8.1 is CLOSED + POST-MERGE RECERTIFIED.**
 
-The sole next authorized implementation stage is **Phase 8.2 — Automation Engine**. This does not close Phase 8 overall; later Phase-8 systems and the final Phase 8 destruction gate remain independently required.
+The sole next authorized implementation stage is **Phase 8.2 — Automation Engine**. This does not close M1 or Phase 8 overall; later Phase-8 stages and the final Phase 8 destruction gate remain independently required.
