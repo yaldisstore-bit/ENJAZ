@@ -38,8 +38,8 @@ jobs:
         run: npm run audit:phase7-5:finance-destruction && npm run test:phase7-5
       - name: Enforce Phase 8.1 contract
         run: npm run audit:phase8-1:workflow-government-procedure
-      - name: Phase 8.1 command tests
-        run: npm run test:phase8-1
+      - name: Phase 8.1 command and runtime tests
+        run: node --experimental-strip-types --test tests/workflowGovernmentProcedure.test.ts tests/workflowGovernmentProcedureRuntime.test.ts
       - name: Full functional regression
         run: npm run test:functional
       - name: Database and roadmap integrity
