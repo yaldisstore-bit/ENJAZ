@@ -62,8 +62,8 @@ for (const name of publicRpcNames) {
   check(`private_${name}_exact_execute`, hardening.includes(`private.${name}_impl(`));
   check(`public_${name}_anon_revoked`, hardening.includes(`revoke all on function public.${name}(`));
 }
-check('fk_index_cashbox_creator', has(indexes, 'cashbox_accounts_finance_created_by_idx'));
-check('fk_index_payment_cashbox', has(indexes, 'payments_cashbox_fk_idx'));
+check('fk_index_cashbox_creator', has(indexes, 'cashbox_finance_created_by_idx'));
+check('fk_index_payment_cashbox', has(indexes, 'payments_workspace_cashbox_idx'));
 check('fk_index_payment_creator', has(indexes, 'payments_created_by_idx'));
 check('fk_index_engagement_creator', has(indexes, 'commercial_engagements_created_by_idx'));
 check('fk_index_engagement_tx_creator', has(indexes, 'commercial_engagement_transactions_created_by_idx'));
