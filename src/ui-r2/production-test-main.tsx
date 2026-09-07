@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { AuthGateway, EnjazAuthSession, EnjazAuthUser } from '../core/auth/authGateway.ts';
 import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../data/createDataLayer.ts';
+import type { AutomationCommandGateway } from '../features/automation/automationCommands.ts';
 import type { FinanceCommandGateway } from '../features/finance/financeCommands.ts';
 import type { GovernmentProcedureRuntimeGateway } from '../features/workflow/governmentProcedureRuntime.ts';
 import { UiR2ProductionRoot } from './runtime/UiR2ProductionRoot.tsx';
@@ -135,11 +136,28 @@ const workflowCommands: GovernmentProcedureRuntimeGateway = Object.freeze({
   async transition() { throw new Error('R2 production test does not allow workflow writes'); },
 });
 
+const automationCommands: AutomationCommandGateway = Object.freeze({
+  async loadContext() {
+    return Object.freeze({
+      authority: 'automation_rules_and_runs' as const,
+      workflowWriteAuthority: 'existing_workflow_rpc_only_after_human_approval' as const,
+      financeWriteAuthority: 'none' as const,
+      rules: Object.freeze([]),
+      recentRuns: Object.freeze([]),
+      pendingApprovals: Object.freeze([]),
+    });
+  },
+  async upsertRule() { throw new Error('R2 production test does not allow automation writes'); },
+  async setRuleEnabled() { throw new Error('R2 production test does not allow automation writes'); },
+  async dispatch() { throw new Error('R2 production test does not allow automation writes'); },
+  async decideApproval() { throw new Error('R2 production test does not allow automation writes'); },
+});
+
 const rootElement = document.getElementById('r2-production-test-root');
 if (!rootElement) throw new Error('R2 production test root is missing');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, workflowCommands }} />
+    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, workflowCommands, automationCommands }} />
   </StrictMode>,
 );
