@@ -31,7 +31,7 @@ check('signals_explainable', has(model, 'FinanceIntelligenceSignal') && has(mode
 check('unsafe_date_fail_closed', has(model, 'FinanceIntelligenceDateError'));
 check('reversed_payments_excluded', has(model, 'isReversedPayment'));
 check('live_portal_promotes_73', has(portal, 'ConnectedPhase73FinancialIntelligenceExperience'));
-check('phase72_preserved_inside_73', has(ui, 'Phase72FinanceExperience') && has(ui, 'Phase 7.2 preserved'));
+check('phase72_preserved_as_live_sibling', has(portal, 'ConnectedPhase72FinanceExperience') && has(portal, '<ConnectedPhase72FinanceExperience />'));
 check('stage_marker', has(ui, 'data-finance-stage="7.3"') && has(ui, 'data-m13-finance-anchor="true"'));
 check('m13_not_falsely_closed', !has(ui, 'M13 CLOSED') && has(ui, 'M13 finance anchor'));
 check('ui_has_aging', has(ui, 'عمر الأرصدة المفتوحة'));
