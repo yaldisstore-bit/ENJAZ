@@ -25,7 +25,7 @@ test('Phase 8.2 exposes canonical rules, runs and human approvals without financ
   await expect(root.getByRole('heading', { name: 'قواعد الأتمتة' })).toBeVisible();
   await expect(root.getByRole('heading', { name: 'الموافقات البشرية' })).toBeVisible();
   await expect(root.getByRole('heading', { name: 'التشغيلات الأخيرة' })).toBeVisible();
-  await expect(root.getByText('متابعة المعاملة المتأخرة')).toBeVisible();
+  await expect(root.getByRole('heading', { name: 'متابعة المعاملة المتأخرة', exact: true })).toBeVisible();
   await expect(root.getByText(/workflow\.stage\.changed/)).toBeVisible();
   await expect(root.getByRole('button', { name: 'موافقة وتنفيذ' })).toBeVisible();
   expect(await root.innerText()).not.toMatch(/\b(?:NaN|undefined|Infinity)\b/);
@@ -49,7 +49,7 @@ test('activation mutation reloads canonical rule state', async ({ page }) => {
   await expect(manualRule).toHaveAttribute('data-rule-enabled', 'true');
   await manualRule.getByRole('button', { name: 'تعطيل قاعدة متابعة المعاملة المتأخرة' }).click();
   await expect(manualRule).toHaveAttribute('data-rule-enabled', 'false');
-  await expect(manualRule.getByText('متوقفة')).toBeVisible();
+  await expect(manualRule.getByText('متوقفة', { exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
