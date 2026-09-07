@@ -20,11 +20,13 @@ const service = read('src/features/finance/financeService.ts');
 const phase72Migration = read('database/migrations/phase_7_2_payments_receipts_m16.sql');
 const hardeningPath = 'database/migrations/phase_7_5_payment_reversal_uniqueness.sql';
 const cloudProbePath = 'database/probes/phase_7_5_live_finance_destruction_probe.sql';
+const realCloudEvidencePath = 'docs/PHASE7_5_REAL_CLOUD_EVIDENCE.md';
 const testPath = 'tests/financeDestructionGate.test.ts';
 const browserPath = 'tests-external/phase7-5-finance-destruction.spec.cjs';
 const workflowPath = '.github/workflows/phase7-5-finance-destruction.yml';
 const hardening = exists(hardeningPath) ? read(hardeningPath) : '';
 const cloudProbe = exists(cloudProbePath) ? read(cloudProbePath) : '';
+const realCloudEvidence = exists(realCloudEvidencePath) ? read(realCloudEvidencePath) : '';
 const tests = exists(testPath) ? read(testPath) : '';
 const browser = exists(browserPath) ? read(browserPath) : '';
 const workflow = exists(workflowPath) ? read(workflowPath) : '';
@@ -60,6 +62,16 @@ check('one_reversal_per_payment_db_invariant', has(hardening, 'unique index') &&
 check('cloud_probe_exists', Boolean(cloudProbe));
 for (const marker of ['set local role authenticated', '9999999999999999.99', 'wasDuplicate', 'ENJAZ_PHASE75_EXPECTED_IDEMPOTENCY_CONFLICT_MISSING', 'reverse_payment_v1', 'finance_payment_reconciliation_v1', 'ENJAZ_PHASE75_DUPLICATE_REVERSAL_WAS_ACCEPTED', 'probe payment cleanup failed']) check(`cloud_probe_${marker}`, has(cloudProbe, marker));
 
+const realCloud = state.realCloudVerification;
+check('real_cloud_state_complete', realCloud?.status === 'COMPLETE' && realCloud?.projectRef === 'juzxriirhkuzviwnhkbd');
+check('real_cloud_authenticated_role', realCloud?.authenticatedRoleSwitch === 'PASS');
+check('real_cloud_exact_huge_value', realCloud?.exactHugeValue === '9999999999999999.99');
+check('real_cloud_idempotency', realCloud?.idempotentPaymentReplay === 'PASS' && realCloud?.idempotencyConflict === 'PASS' && realCloud?.idempotentReversalReplay === 'PASS');
+check('real_cloud_reconciliation', realCloud?.authoritativeReconciliation === 'PASS' && realCloud?.duplicateReversalDatabaseGuard === 'PASS');
+check('real_cloud_cleanup_counts', realCloud?.postProbeCompanyCount === 0 && realCloud?.postProbeTransactionCount === 0 && realCloud?.postProbeHelperCount === 0 && realCloud?.duplicateReversalGroupCount === 0);
+check('real_cloud_evidence_bound', realCloud?.evidence === realCloudEvidencePath && Boolean(realCloudEvidence));
+for (const marker of ['Status: **PASS**', 'SET LOCAL ROLE authenticated', '9999999999999999.99', 'wasDuplicate=true', 'integrityWarnings', 'probe_companies = 0', 'probe_transactions = 0', 'probe_helpers = 0', 'duplicate_reversal_groups = 0', 'payment_reversals_workspace_payment_unique_idx', 'does **not** close Phase 7.5']) check(`real_cloud_evidence_${marker}`, has(realCloudEvidence, marker));
+
 check('destruction_tests_exist', Boolean(tests));
 for (const marker of ['huge values remain exact', 'sub-cent and unsafe money shapes', 'network uncertainty recovers', 'partial reversal history', 'source-capacity pressure', 'stalled source pagination']) check(`test_${marker}`, has(tests, marker));
 
@@ -79,4 +91,4 @@ if (failures.length) {
   console.error('ENJAZ PHASE 7.5 FINANCE DESTRUCTION AUDIT FAIL\n- ' + failures.join('\n- '));
   process.exit(1);
 }
-console.log(`ENJAZ PHASE 7.5 FINANCE DESTRUCTION AUDIT PASS (${checks} checks) — ACTIVE; Phase 8 locked.`);
+console.log(`ENJAZ PHASE 7.5 FINANCE DESTRUCTION AUDIT PASS (${checks} checks) — ACTIVE; Real Cloud PASS; Phase 8 locked.`);
