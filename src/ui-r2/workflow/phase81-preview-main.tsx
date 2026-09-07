@@ -9,7 +9,7 @@ import '../runtime/shell.css';
 import '../runtime/accessibility-hardening.css';
 import '../golden/golden.css';
 import '../core-work/core-work.css';
-import './government-procedure.css';
+import './workflow.css';
 
 const W = '11111111-1111-4111-8111-111111111111';
 const T = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1';
