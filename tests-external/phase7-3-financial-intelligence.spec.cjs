@@ -25,6 +25,7 @@ async function assertNoHorizontalOverflow(page) {
 
 test('Phase 7.3 exposes explainable financial intelligence without pretending due dates exist', async ({ page }) => {
   const { root, errors } = await openPreview(page);
+  await expect(root.getByText('M13 finance anchor', { exact: true })).toBeVisible();
   await expect(root.getByRole('heading', { name: 'الرؤية المالية' })).toBeVisible();
   await expect(root.getByRole('heading', { name: 'عمر الأرصدة المفتوحة' })).toBeVisible();
   await expect(root.getByRole('heading', { name: 'اتجاه التحصيل' })).toBeVisible();
