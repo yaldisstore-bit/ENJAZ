@@ -13,6 +13,7 @@ const state = JSON.parse(read('docs/PHASE7_5_STATE.json'));
 const prior = JSON.parse(read('docs/PHASE7_4_STATE.json'));
 const kickoff = read('docs/PHASE7_5_KICKOFF.md');
 const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
+const packageJson = JSON.parse(read('package.json'));
 const commands = read('src/features/finance/financeCommands.ts');
 const model = read('src/features/finance/financeModel.ts');
 const service = read('src/features/finance/financeService.ts');
@@ -64,6 +65,12 @@ for (const marker of ['huge values remain exact', 'sub-cent and unsafe money sha
 
 check('browser_exists', Boolean(browser));
 for (const marker of ['sub-cent input fails closed', 'numeric(18,2) overflow fails closed', 'cannot be repeated from stale UI state', 'idempotency recovery guidance', '1280', '430', '390', '360', '320', 'assertNoHorizontalOverflow']) check(`browser_${marker}`, has(browser, marker));
+
+const scripts = packageJson.scripts ?? {};
+check('package_test_75', typeof scripts['test:phase7-5'] === 'string' && has(scripts['test:phase7-5'], 'financeDestructionGate.test.ts') && has(scripts['test:phase7-5'], 'financeCommands.test.ts'));
+check('package_audit_75', scripts['audit:phase7-5:finance-destruction'] === 'node scripts/phase7-5-finance-destruction-audit.mjs');
+check('functional_is_cumulative', typeof scripts['test:functional'] === 'string' && has(scripts['test:functional'], 'financeCommands.test.ts') && has(scripts['test:functional'], 'financeDestructionGate.test.ts'));
+check('extreme_is_cumulative', typeof scripts['verify:extreme'] === 'string' && has(scripts['verify:extreme'], 'audit:phase7-5:finance-destruction') && has(scripts['verify:extreme'], 'test:phase7-5'));
 
 check('workflow_exists', Boolean(workflow));
 for (const marker of ['phase7-4-financial-reports-audit.mjs', 'financeDestructionGate.test.ts', 'phase_7_5_payment_reversal_uniqueness.sql', 'phase_7_5_live_finance_destruction_probe.sql', 'db:audit', 'audit:roadmap', 'typecheck', 'build -- --base=/', 'audit:dist:budget', 'phase7-2-preview', 'phase7-5-finance-destruction.spec.cjs', 'Real Chromium Phase 7.5 destruction']) check(`workflow_${marker}`, has(workflow, marker));
