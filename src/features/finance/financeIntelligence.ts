@@ -26,7 +26,7 @@ const txLabel=(t:{legacy_id:string|null;type:string;id:string})=>t.legacy_id?.tr
 export function buildFinancialIntelligenceSnapshot(s:FinanceSource,asOfInput:Date|string=new Date()):FinanceIntelligenceSnapshot{
  const d=asOfInput instanceof Date?new Date(asOfInput):new Date(asOfInput);if(!Number.isFinite(d.getTime()))throw new FinanceIntelligenceDateError('as_of','snapshot',String(asOfInput));
  const now=d.getTime(),base=buildFinanceLedgerSnapshot(s),tx=new Map(s.transactions.map(v=>[v.id,v])),total=base.summary.outstandingCents;
- const a=KEYS.map((k,i)=>({key:k,label:LABELS[i],minDays:[0,31,61,91][i]!,maxDays:[30,60,90,null][i] as number|null,receivableCount:0,outstandingCents:0n}));
+ const a=KEYS.map((k,i)=>({key:k,label:LABELS[i]!,minDays:[0,31,61,91][i]!,maxDays:[30,60,90,null][i] as number|null,receivableCount:0,outstandingCents:0n}));
  const attention:FinanceAttentionItem[]=[],companies=new Map<string,{total:bigint;paid:bigint;open:bigint;credit:bigint;stale:bigint}>();
  for(const r of base.receivables){const t=tx.get(r.transactionId);if(!t)continue;const n=age(t.created_at,now,t.id),i=n<=30?0:n<=60?1:n<=90?2:3;a[i]!.receivableCount++;a[i]!.outstandingCents+=r.outstandingCents;
   const c=companies.get(r.companyId)??{total:0n,paid:0n,open:0n,credit:0n,stale:0n};c.total+=r.feeCents;c.paid+=r.collectedCents;c.open+=r.outstandingCents;c.credit+=r.creditCents;if(n>90)c.stale+=r.outstandingCents;companies.set(r.companyId,c);
