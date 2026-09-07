@@ -199,17 +199,24 @@ Phase 7 now owns both the original finance roadmap and the finance/commercial po
 - The discovered 147-byte post-merge budget Gate Escape was repaired without raising the `670000`-byte JavaScript budget and received a permanent Chromium guard.
 - **Phase 7.3 — Financial Intelligence ✅ CLOSED + post-merge recertified** under Zero-Escape evidence. The M13 finance anchor is complete; M13 overall remains open for later assigned slices.
 
-## 7.4 — Financial Reports
-- Period/company/transaction/cashbox financial reports.
-- Deterministic export/print/PDF totals and drill-down provenance.
-- Contract/retainer reporting hooks for M16.
+## 7.4 — Financial Reports ✅
+- Period/company/transaction/cashbox financial reports over authoritative finance facts.
+- Deterministic export/print/PDF totals and direct drill-down provenance from the same report snapshot.
+- Reversed movements remain visible but contribute zero effective movement; unsafe money/date shapes fail closed.
+- Company/transaction scopes exclude unattributable workspace cashbox opening balances; cashbox reports refuse to fabricate movement attribution where the schema has no authoritative link.
+- **M16 — Engagements, Contracts & Retainers:** Phase-7.4 reporting hook completed as `reserved-no-shadow-store`; M16 overall remains open for later document/communication/contract slices.
+- Certified implementation head `7dba0c48e5782df5093deae57c6f10677b32fbce`: PR #103 passed 28/28 pull-request workflows SUCCESS, including Real Chromium at 1280/430/390/360/320.
+- Production JavaScript is `588519/670000`; the hard budget was not raised. Unused Supabase Storage/Functions/Realtime runtime surfaces were removed while Auth + PostgREST contracts remained fully verified.
+- Canonical merge `d4ad3844dc7ae7a1895e2fddfdb06b2ee0a01858`: 10/10 canonical `main` push workflows SUCCESS with zero failure/queued/in-progress.
+- Phase 7.4 post-merge gate `34097286172`, Pages Preview/deploy `34097333825`, Real Browser `34097286214`, and Live External `34097378705` all succeeded; **Attack the actual published application** passed.
+- **Phase 7.4 — Financial Reports ✅ CLOSED + post-merge recertified** under Zero-Escape evidence.
 
 ## 7.5 — Finance Destruction & Reconciliation Gate
 - Huge values, sub-cent/unsafe inputs, reversals, repeated submit, network uncertainty, stale state, partial history and source-capacity pressure.
 - Authoritative reconciliation proves no lost/duplicated money event.
 - Real Cloud + Real Browser + deployed-live finance critical path required.
 
-**Phase 7 exit:** only after 7.4–7.5 are green and all anchored finance/commercial capabilities have Zero-Escape evidence. Phase 8 remains locked until then.
+**Phase 7 exit:** only after 7.5 is green and all anchored finance/commercial capabilities have Zero-Escape evidence. Phase 8 remains locked until then.
 
 ---
 
@@ -505,12 +512,13 @@ The project is delivered only when:
 - **Phase 7.1 — Financial Ledger & Summary ✅ CLOSED + post-merge recertified**
 - **Phase 7.2 — Payments & Receipts ✅ CLOSED + post-merge recertified**
 - **Phase 7.3 — Financial Intelligence ✅ CLOSED + post-merge recertified**
+- **Phase 7.4 — Financial Reports ✅ CLOSED + post-merge recertified**
 - **M13 finance forecasting/BI anchor ✅ COMPLETE; M13 overall remains open for later assigned slices**
-- **M16 finance/commercial anchor ✅ COMPLETE; M16 overall remains open for later assigned slices**
+- **M16 finance/commercial anchor ✅ COMPLETE; Phase-7.4 reporting hook ✅ COMPLETE; M16 overall remains open for later assigned slices**
 - **18 major systems M1–M18: GOVERNING SCOPE; overall system closure still requires each system's full Zero-Escape evidence**
-- **Next: Phase 7.4 — Financial Reports**
+- **Next: Phase 7.5 — Finance Destruction & Reconciliation Gate**
 
-Phase 7.4 is the only newly authorized implementation stage. Adding the 18 systems expanded delivery scope but did **not** silently reorder phases or retroactively reopen closed phases. Phase 8 remains locked until Phase 7 completes.
+Phase 7.5 is the only newly authorized implementation stage. Adding the 18 systems expanded delivery scope but did **not** silently reorder phases or retroactively reopen closed phases. Phase 8 remains locked until Phase 7 completes.
 
 ---
 
@@ -545,16 +553,17 @@ The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; 
 
 This file is intentionally difficult to change by accident.
 
-This reconciliation makes six explicit changes:
+This reconciliation makes seven explicit changes:
 
 1. preserves the already-proven Phase 7.1 canonical post-merge recertification and its historical authorization of 7.2;
 2. preserves Phase 7.2 canonical closure/post-merge recertification and its historical authorization of 7.3;
-3. records Phase 7.3 canonical closure/post-merge recertification, including the repaired 147-byte Gate Escape, and advances the next pointer to 7.4;
-4. incorporates the 18 major product systems M1–M18 into their governing future phases rather than leaving them as detached amendments;
-5. makes Zero-Escape closure mandatory across every major system and future phase exit where that system is anchored;
-6. preserves the prior correction that replaced stale Current Position pointers.
+3. preserves Phase 7.3 canonical closure/post-merge recertification, including the repaired 147-byte Gate Escape, and its historical authorization of 7.4;
+4. records Phase 7.4 canonical closure/post-merge recertification and advances the only next implementation pointer to 7.5;
+5. incorporates the 18 major product systems M1–M18 into their governing future phases rather than leaving them as detached amendments;
+6. makes Zero-Escape closure mandatory across every major system and future phase exit where that system is anchored;
+7. preserves the prior correction that replaced stale Current Position pointers.
 
-It does **not** silently reopen Phases 0–6, falsely mark M13 or M16 fully closed from their Phase-7 anchors, mark any other M1–M18 system implemented, or authorize work beyond Phase 7.4.
+It does **not** silently reopen Phases 0–6, falsely mark M13 or M16 fully closed from their Phase-7 anchors, mark any other M1–M18 system implemented, or authorize work beyond Phase 7.5.
 
 Any future roadmap change must state:
 1. what changes;
