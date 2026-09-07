@@ -52,7 +52,7 @@ test('company and transaction report filters preserve scoped provenance', async 
   await expect(root.getByRole('heading', { name: /تقرير مالي —/ })).toBeVisible();
   await kind.selectOption('transaction');
   await expect(root.getByLabel('المعاملة')).toBeVisible();
-  await expect(root.getByText(/payments:/).first()).toBeVisible();
+  await expect(root.locator('td[title^="payments:"]').first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
