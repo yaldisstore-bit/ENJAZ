@@ -46,20 +46,20 @@ for (const width of [1280, 430, 390, 360, 320]) {
 
 test('company and transaction report filters preserve scoped provenance', async ({ page }) => {
   const { root, errors } = await openPreview(page);
-  const kind = root.getByLabel('نوع التقرير');
+  const kind = root.getByRole('combobox', { name: 'نوع التقرير', exact: true });
   await kind.selectOption('company');
-  await expect(root.getByLabel('الشركة')).toBeVisible();
+  await expect(root.getByRole('combobox', { name: 'الشركة', exact: true })).toBeVisible();
   await expect(root.getByRole('heading', { name: /تقرير مالي —/ })).toBeVisible();
   await kind.selectOption('transaction');
-  await expect(root.getByLabel('المعاملة')).toBeVisible();
+  await expect(root.getByRole('combobox', { name: 'المعاملة', exact: true })).toBeVisible();
   await expect(root.locator('td[title^="payments:"]').first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
 test('cashbox report exposes schema limitation instead of fabricating movement', async ({ page }) => {
   const { root, errors } = await openPreview(page, 360, 844);
-  await root.getByLabel('نوع التقرير').selectOption('cashbox');
-  await expect(root.getByLabel('الصندوق')).toBeVisible();
+  await root.getByRole('combobox', { name: 'نوع التقرير', exact: true }).selectOption('cashbox');
+  await expect(root.getByRole('combobox', { name: 'الصندوق', exact: true })).toBeVisible();
   await expect(root.getByText(/لا يربط الدفعات أو القيود المالية بصندوق محدد/)).toBeVisible();
   await expect(root.getByText('لا توجد حركة مثبتة ضمن هذا النطاق.')).toBeVisible();
   expect(errors).toEqual([]);
