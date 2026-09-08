@@ -45,15 +45,15 @@ test('Runner performs check-in, explicit visit outcome and office handoff withou
   await page.getByLabel('ملخص الزيارة').fill('تمت مراجعة المعاملة لدى الجهة');
   await page.getByLabel('رسم رسمي مدفوع — دليل فقط، ليس Payment').fill('12500.00');
   await page.getByRole('button', { name: 'إنهاء الزيارة' }).click();
-  await expect(page.getByText('تسليم للمكتب')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'تسليم للمكتب' })).toBeVisible();
   await page.getByLabel('تسليم للمكتب').fill('تمت الزيارة والرسم المذكور دليل ميداني فقط.');
   await page.getByRole('button', { name: 'تسليم للمكتب' }).click();
   await expect(page.getByText('لا توجد زيارة مكلّف بها حالياً.')).toBeVisible();
 });
 
 test('offline check-in and checkout survive reconnect with replay-safe identities', async ({ page, context }) => {
-  await context.setOffline(true);
   await openPreview(page);
+  await context.setOffline(true);
   await page.getByRole('tab', { name: 'Runner Mode' }).click();
   await page.getByRole('button', { name: 'تسجيل الوصول' }).click();
   await expect(page.getByText('محلي غير مزامن')).toBeVisible();
