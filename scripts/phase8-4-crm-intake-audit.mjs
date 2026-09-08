@@ -15,4 +15,9 @@ for(const m of ['data-public-authority={view.publicAuthority}','data-authoritati
 for(const m of ['overflow-safe','pending_approval','لم يصبح سجلًا سلطويًا','data-pending-uploads="1"','localStorage.length'])must(browser,m,'real browser contract');
 const critical=["grant execute on function public.get_public_intake_v1(text) to anon","ENJAZ_INTAKE_RATE_LIMITED","ENJAZ_CRM_DUPLICATE_COMPANY_REVIEW_REQUIRED","financeLedgerWritten',false"];
 for(const marker of critical){const mutated=sql.replace(marker,'__REMOVED__');if(mutated.includes(marker))throw new Error(`audit selftest ineffective for ${marker}`)}
+
+must(sql,"constraint crm_leads_lost_stage_consistency check",'production SQL guard');
+must(sql,"constraint intake_submission_files_ack_check check",'production SQL guard');
+if(sql.includes("constraint crm_leads_lost_reason_check check"))throw new Error('PostgreSQL duplicate constraint-name regression detected');
+if(sql.includes("constraint intake_submission_files_ack_check (("))throw new Error('Missing CHECK keyword regression detected');
 console.log('Phase 8.4 CRM/Smart Intake audit: PASS');

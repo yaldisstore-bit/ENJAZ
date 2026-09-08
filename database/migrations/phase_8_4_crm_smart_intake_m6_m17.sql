@@ -44,7 +44,7 @@ create table public.crm_leads (
   constraint crm_leads_converted_company_fk foreign key(workspace_id,converted_company_id) references public.companies(workspace_id,id) on delete restrict,
   constraint crm_leads_converted_contact_fk foreign key(workspace_id,converted_contact_id) references public.contacts(workspace_id,id) on delete restrict,
   constraint crm_leads_converted_transaction_fk foreign key(workspace_id,converted_transaction_id) references public.transactions(workspace_id,id) on delete restrict,
-  constraint crm_leads_lost_reason_check check ((stage='lost' and lost_reason is not null) or (stage<>'lost' and lost_reason is null)),
+  constraint crm_leads_lost_stage_consistency check ((stage='lost' and lost_reason is not null) or (stage<>'lost' and lost_reason is null)),
   constraint crm_leads_conversion_consistency check ((stage='converted' and converted_company_id is not null and converted_transaction_id is not null) or (stage<>'converted' and converted_transaction_id is null))
 );
 
@@ -199,7 +199,7 @@ create table public.intake_submission_files (
   created_at timestamptz not null default now(),
   constraint intake_submission_files_workspace_id_id_key unique(workspace_id,id),
   constraint intake_submission_files_submission_fk foreign key(workspace_id,submission_id) references public.intake_submissions(workspace_id,id) on delete cascade,
-  constraint intake_submission_files_ack_check ((upload_status='acknowledged' and storage_path is not null and acknowledged_at is not null) or (upload_status<>'acknowledged' and acknowledged_at is null))
+  constraint intake_submission_files_ack_check check ((upload_status='acknowledged' and storage_path is not null and acknowledged_at is not null) or (upload_status<>'acknowledged' and acknowledged_at is null))
 );
 
 create table public.crm_conversion_audits (
