@@ -6,6 +6,7 @@ import type { FieldAssignmentSummary, FieldEvidenceType, FieldFailureReason, Fie
 import { createFieldOfflineQueue, syncFieldOfflineQueue, type FieldOfflineOperation, type FieldOfflineQueueItem } from '../../features/field-operations/fieldOperationsOfflineQueue.ts';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
 
+// Audit invariant: officialFeeEvidenceOnly is evidence metadata, never a finance mutation authority.
 type LoadState='loading'|'ready'|'error';
 type ViewMode='operations'|'runner';
 type TransactionOption=Readonly<{id:string;label:string}>;
