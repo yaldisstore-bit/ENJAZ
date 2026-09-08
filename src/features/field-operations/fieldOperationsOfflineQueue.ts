@@ -24,7 +24,7 @@ export function createFieldOfflineQueue(storage?:StorageLike):FieldOfflineQueue{
     enqueue(op){
       if(!valid(op))throw new Error('Invalid offline operation');
       // Offline queue never stores file bytes; canonical document id is required first.
-      if(op.kind==='evidence'&&op.documentId===null&&op.evidenceType!=='other')throw new Error('Document id required');
+      if(op.kind==='evidence'&&op.documentId===null&&op.evidenceType!=='other')throw new Error('canonical document id is required');
       const a=read(s,op.workspaceId),old=a.find(x=>x.operation.operationId===op.operationId);
       if(old){if(JSON.stringify(old.operation)!==JSON.stringify(op))throw new Error('Field offline operation id conflict');return}
       write(s,op.workspaceId,[...a,{operation:op,state:'pending',attempts:0,lastError:null}]);
