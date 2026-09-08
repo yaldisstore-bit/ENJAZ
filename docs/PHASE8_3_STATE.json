@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "phase": "8.3",
+  "name": "Operations Center + Field Operations — M5",
+  "status": "IN_PROGRESS",
+  "baseCommit": "698ba49fe80d8bc297a041afd253b01787dc460b",
+  "implementationBranch": "phase8-3-operations-field",
+  "implementationHead": null,
+  "pullRequest": null,
+  "scope": [
+    "canonicalOperationsCenter",
+    "fieldAssignmentAuthority",
+    "dailyVisitQueue",
+    "visitCheckInOut",
+    "optionalLocationEvidenceByWorkspacePolicy",
+    "fieldEvidenceCapture",
+    "officialFeeAndReferenceCapture",
+    "couldNotCompleteTaxonomy",
+    "offlineDraftQueue",
+    "guardedIdempotentSync",
+    "officeFieldHandoff",
+    "nextRequiredAction",
+    "emergencyReassignment",
+    "operationalHealthAndBlockedQueues",
+    "privacyBoundedProductivityMetrics",
+    "immutableFieldAuditEvidence"
+  ],
+  "authoritativeTables": [
+    "field_assignments",
+    "field_visits",
+    "field_visit_evidence",
+    "field_sync_receipts"
+  ],
+  "predecessor": {
+    "phase": "8.2",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase8_3Allowed=true"
+  },
+  "m5": {
+    "system": "M5",
+    "name": "ENJAZ Field Operations / Runner Mode",
+    "status": "IN_PROGRESS",
+    "overallClosureAllowed": false,
+    "finalClosureGate": "Phase 8.7 individual Zero-Escape evidence"
+  },
+  "realCloudVerification": { "required": true, "status": "PENDING" },
+  "realChromium": { "required": true, "status": "PENDING" },
+  "offlineConflictRecovery": { "required": true, "status": "PENDING" },
+  "postMergeRecertification": { "required": true, "status": "PENDING" },
+  "exitGatePassed": false,
+  "unresolvedDefectCount": 0,
+  "criticalDefectCount": 0,
+  "highDefectCount": 0,
+  "functionalBlockerCount": 0,
+  "phase8_4Allowed": false,
+  "nextPhase": "8.4",
+  "successorStatus": "LOCKED"
+}
