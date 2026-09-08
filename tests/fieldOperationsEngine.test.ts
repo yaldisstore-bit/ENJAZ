@@ -12,6 +12,8 @@ const VISIT = '55555555-5555-4555-8555-555555555555';
 const OPERATION = '66666666-6666-4666-8666-666666666666';
 const OPERATION_2 = '77777777-7777-4777-8777-777777777777';
 
+type FieldOfflineCheckIn = Extract<FieldOfflineOperation, { kind: 'check_in' }>;
+
 function clientWith(handler: (name: string, args: Readonly<Record<string, unknown>>) => unknown) {
   return { rpc(name: string, args: Readonly<Record<string, unknown>>) { return Promise.resolve({ data: handler(name, args), error: null }); } } as never;
 }
@@ -62,7 +64,7 @@ class MemoryStorage {
   removeItem(key: string) { this.rows.delete(key); }
 }
 
-function queuedCheckIn(operationId = OPERATION): FieldOfflineOperation {
+function queuedCheckIn(operationId = OPERATION): FieldOfflineCheckIn {
   return { kind: 'check_in', operationId, workspaceId: WORKSPACE, assignmentId: ASSIGNMENT, expectedAssignmentVersion: 2, location: null, queuedAt: '2026-09-07T10:00:00Z' };
 }
 
@@ -81,8 +83,9 @@ test('offline check-in UUID can be referenced as the future canonical visit ID b
   const checkOut: FieldOfflineOperation = { kind: 'check_out', operationId: OPERATION_2, workspaceId: WORKSPACE, visitId: checkIn.operationId, expectedVisitVersion: 1, outcome: 'completed', failureReason: null, outcomeNote: 'تمت الزيارة', counterDepartment: null, officialReference: null, officialFeePaid: null, location: null, queuedAt: '2026-09-07T11:00:00Z' };
   queue.enqueue(checkIn);
   queue.enqueue(checkOut);
-  assert.equal(queue.list(WORKSPACE)[1]?.operation.kind, 'check_out');
-  if (queue.list(WORKSPACE)[1]?.operation.kind === 'check_out') assert.equal(queue.list(WORKSPACE)[1]?.operation.visitId, OPERATION);
+  const queuedCheckOut = queue.list(WORKSPACE)[1]?.operation;
+  assert.equal(queuedCheckOut?.kind, 'check_out');
+  if (queuedCheckOut?.kind === 'check_out') assert.equal(queuedCheckOut.visitId, OPERATION);
 });
 
 test('offline queue never stores new file bytes and requires canonical document identity for file evidence', () => {
