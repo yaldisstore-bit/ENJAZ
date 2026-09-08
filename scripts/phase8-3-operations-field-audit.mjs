@@ -14,6 +14,9 @@ const frozenOperational = read('src/ui-r2/operational-intelligence/OperationalIn
 const tests = read('tests/fieldOperationsEngine.test.ts');
 const state = JSON.parse(read('docs/PHASE8_3_STATE.json'));
 const kickoff = read('docs/PHASE8_3_KICKOFF.md');
+const closure = read('docs/PHASE8_3_CLOSURE.md');
+const postMerge = read('docs/PHASE8_3_POSTMERGE_RECERTIFICATION.md');
+const realCloudEvidence = read('docs/PHASE8_3_REAL_CLOUD_EVIDENCE.md');
 const phase82 = JSON.parse(read('docs/PHASE8_2_STATE.json'));
 const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 const expansion = read('docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS_EXPANSION.md');
@@ -174,15 +177,30 @@ for (const marker of [
   'never stores new file bytes',
   'outcome-unknown replay remains pending',
   'blocks later offline operations',
+  'lean offline validation still rejects array-shaped malformed queue rows',
+  'removing the final offline operation leaves the queue empty without a separate clear path',
 ]) requireMarker(tests, marker, 'field tests');
 
-if (state.phase !== '8.3' || state.name !== 'Operations Center + Field Operations — M5' || state.status !== 'IN_PROGRESS') errors.push('Phase 8.3 state identity/status drifted');
+if (state.phase !== '8.3' || state.name !== 'Operations Center + Field Operations — M5' || state.status !== 'CLOSED') errors.push('Phase 8.3 closed state identity/status drifted');
 if (state.baseCommit !== '698ba49fe80d8bc297a041afd253b01787dc460b' || state.implementationBranch !== 'phase8-3-operations-field') errors.push('Phase 8.3 base/branch drifted');
+if (state.implementationHead !== 'a80ecf5aeb3b282f36c57bdb6a6ec670f7a699fd' || state.pullRequest !== 111 || state.implementationMergeCommit !== '0d7fa6a28eaec496f9cf92e98d45f334c5505e75') errors.push('Phase 8.3 implementation certification chain drifted');
 if (state.authoritativeTables?.join(',') !== 'field_assignments,field_visits,field_visit_evidence,field_sync_receipts') errors.push('Phase 8.3 authoritative tables drifted');
-if (state.realCloudVerification?.status !== 'PENDING' || state.realChromium?.status !== 'PENDING' || state.offlineConflictRecovery?.status !== 'PENDING' || state.postMergeRecertification?.status !== 'PENDING') errors.push('Phase 8.3 evidence must remain PENDING before certified closure');
-if (state.exitGatePassed !== false || state.phase8_4Allowed !== false || state.nextPhase !== '8.4' || state.successorStatus !== 'LOCKED') errors.push('Phase 8.4 must remain locked while Phase 8.3 is open');
-if (state.m5?.status !== 'IN_PROGRESS' || state.m5?.overallClosureAllowed !== false) errors.push('M5 must remain IN_PROGRESS and not globally closed during Phase 8.3 implementation');
-if (phase82.status !== 'CLOSED' || phase82.exitGatePassed !== true || phase82.phase8_3Allowed !== true || phase82.nextPhase !== '8.3') errors.push('Phase 8.2 certified closure must authorize Phase 8.3');
+if (state.preClosure?.finalCertifiedHead !== '1e974bbeeec1ee1fece3fe263ec1bee2f6438a32' || state.preClosure?.finalPullRequest !== 113 || state.preClosure?.workflowCount !== 32 || state.preClosure?.successCount !== 32 || state.preClosure?.failureCount !== 0) errors.push('Phase 8.3 final PR evidence must remain 32/32 on PR #113 head');
+if (state.preClosure?.fieldOfflineTestCount !== 10 || state.preClosure?.functionalTestCount !== 217 || state.preClosure?.realChromium !== 'PASS' || state.preClosure?.realChromiumAssertionCount !== 9) errors.push('Phase 8.3 final regression evidence drifted');
+if (state.preClosure?.productionJsBytes !== 669685 || state.preClosure?.javascriptBudgetBytes !== 670000 || state.preClosure?.previewBytes !== 269847) errors.push('Phase 8.3 final PR size evidence drifted');
+if (!Array.isArray(state.budgetRepairHistory) || state.budgetRepairHistory.length !== 2 || state.budgetRepairHistory[0]?.pullRequest !== 112 || state.budgetRepairHistory[0]?.mergeCommit !== '98194c47a0170951d4c458745c559c3eca3b3104' || state.budgetRepairHistory[1]?.pullRequest !== 113 || state.budgetRepairHistory[1]?.mergeCommit !== 'efd1d92caf2d3e4575b5cd65a4198702db71eacb') errors.push('Phase 8.3 post-merge budget repair history drifted');
+if (state.realCloudVerification?.status !== 'PASS' || state.realCloudVerification?.projectRef !== 'juzxriirhkuzviwnhkbd' || state.realCloudVerification?.projectStatus !== 'ACTIVE_HEALTHY') errors.push('Phase 8.3 authenticated Real Cloud evidence drifted');
+if (state.realChromium?.status !== 'PASS' || state.realChromium?.assertionCount !== 9) errors.push('Phase 8.3 Real Chromium closure evidence drifted');
+if (state.offlineConflictRecovery?.status !== 'PASS' || state.offlineConflictRecovery?.unitTestCount !== 10) errors.push('Phase 8.3 offline conflict recovery evidence drifted');
+const pm = state.postMergeRecertification;
+if (pm?.status !== 'COMPLETE' || pm?.mainCommit !== 'efd1d92caf2d3e4575b5cd65a4198702db71eacb') errors.push('Phase 8.3 post-merge target drifted');
+if (pm?.workflowCount !== 17 || pm?.successCount !== 17 || pm?.failureCount !== 0 || pm?.queuedCount !== 0 || pm?.inProgressCount !== 0 || pm?.skippedCount !== 0) errors.push('Phase 8.3 exact-main workflow census must remain 17/17 success with zero non-success outcomes');
+if (pm?.pagesPreviewRunId !== 34252189997 || pm?.liveExternalRunId !== 34252257878 || pm?.canonicalPagesJsBytes !== 669877 || pm?.realPagesLiveJsBytes !== 669888 || pm?.javascriptBudgetBytes !== 670000 || pm?.publishedApplicationAttack !== 'PASS') errors.push('Phase 8.3 Pages/Live exact-SHA evidence drifted');
+if (state.exitGatePassed !== true || state.unresolvedDefectCount !== 0 || state.criticalDefectCount !== 0 || state.highDefectCount !== 0 || state.functionalBlockerCount !== 0) errors.push('Phase 8.3 closure requires a passed exit gate and zero unresolved/high/critical/blocker defects');
+if (state.phase8_4Allowed !== true || state.nextPhase !== '8.4' || state.successorStatus !== 'AUTHORIZED') errors.push('Phase 8.4 must be the sole authorized successor after Phase 8.3 closure');
+if (state.m5?.status !== 'IN_PROGRESS' || state.m5?.phase8_3Delivery !== 'CLOSED' || state.m5?.overallClosureAllowed !== false || state.m5?.finalClosureGate !== 'Phase 8.7 individual Zero-Escape evidence') errors.push('M5 must remain globally IN_PROGRESS and gated by Phase 8.7 despite Phase 8.3 closure');
+if (state.closureEvidence !== 'docs/PHASE8_3_CLOSURE.md' || state.postMergeEvidence !== 'docs/PHASE8_3_POSTMERGE_RECERTIFICATION.md' || state.realCloudEvidence !== 'docs/PHASE8_3_REAL_CLOUD_EVIDENCE.md') errors.push('Phase 8.3 evidence pointers drifted');
+if (phase82.status !== 'CLOSED' || phase82.exitGatePassed !== true || phase82.phase8_3Allowed !== true || phase82.nextPhase !== '8.3') errors.push('Phase 8.2 certified closure must preserve historical authorization of Phase 8.3');
 const m5 = major.systems?.find((system) => system.id === 'M5');
 if (!m5 || m5.name !== 'ENJAZ Field Operations / Runner Mode' || !m5.anchors?.includes('8')) errors.push('M5 registry identity/anchor drifted');
 
@@ -194,7 +212,32 @@ for (const marker of [
   'sync is idempotent using server-side receipts',
   'no background tracking contract is introduced',
   'Phase 8.4 — CRM, Service Catalog & Smart Intake — M6 + M17 remains LOCKED',
-]) requireMarker(kickoff, marker, 'Phase 8.3 kickoff');
+]) requireMarker(kickoff, marker, 'historical Phase 8.3 kickoff');
+for (const marker of [
+  'Status: **CLOSED**',
+  'Exit gate: **PASS**',
+  'Successor: **Phase 8.4 AUTHORIZED**',
+  '32/32 pull-request workflows successful',
+  '670139 > 670000',
+  '670001 > 670000',
+  'efd1d92caf2d3e4575b5cd65a4198702db71eacb',
+  '17/17 SUCCESS',
+  '669877 / 670000 bytes',
+  '669888 / 670000 bytes',
+  'does **not** declare M5 globally closed',
+]) requireMarker(closure, marker, 'Phase 8.3 closure evidence');
+for (const marker of [
+  'Status: **COMPLETE**',
+  'efd1d92caf2d3e4575b5cd65a4198702db71eacb',
+  'workflow runs: **17**',
+  'successful: **17**',
+  '34252189997',
+  '34252257878',
+  '669877 / 670000 bytes',
+  '669888 / 670000 bytes',
+  'Published application attack: **PASS**',
+]) requireMarker(postMerge, marker, 'Phase 8.3 post-merge evidence');
+for (const marker of ['Status: **PASS**', 'juzxriirhkuzviwnhkbd', 'created **zero** rows in `payments`', 'all remaining findings belong to pre-existing Phase 8.1/government-workflow tables']) requireMarker(realCloudEvidence, marker, 'Phase 8.3 Real Cloud evidence');
 for (const marker of ['## 8.3 — Operations Center + Field Operations — M5', 'Queues, workloads, blocked items, workflow/automation actions and operational health.', 'field assignments, visits, check-in/out evidence, captured receipts/documents, offline-safe work and handoff to office staff.']) requireMarker(roadmap, marker, 'roadmap');
 for (const marker of ['## M5 — ENJAZ Field Operations / Runner Mode', 'Daily visit route/queue.', 'Check-in/check-out at a visit with optional location evidence under explicit workspace policy.', 'Offline draft queue for notes/evidence with guarded synchronization.', 'Emergency re-assignment of visits.', 'intermittent mobile connectivity']) requireMarker(expansion, marker, 'M5 expansion');
 
@@ -203,5 +246,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 8.3 OPERATIONS/FIELD AUDIT PASS — canonical field authority + live operations route + visit-scoped location + replay-safe offline UUID + no finance/workflow shadow writes; Phase 8.4 LOCKED.');
+  console.log('ENJAZ PHASE 8.3 OPERATIONS/FIELD AUDIT PASS — Phase 8.3 CLOSED after Real Cloud, Real Chromium, 32/32 final PR, exact-main 17/17, Pages 669877/670000, /live 669888/670000 and published-app attack PASS; Phase 8.4 AUTHORIZED; M5 overall remains gated by Phase 8.7.');
 }
