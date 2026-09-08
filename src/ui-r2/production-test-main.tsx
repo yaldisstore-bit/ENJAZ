@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import type { AuthGateway, EnjazAuthSession, EnjazAuthUser } from '../core/auth/authGateway.ts';
 import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../data/createDataLayer.ts';
 import type { AutomationCommandGateway } from '../features/automation/automationCommands.ts';
+import type { FieldOperationsCommandGateway } from '../features/field-operations/fieldOperationsCommands.ts';
 import type { FinanceCommandGateway } from '../features/finance/financeCommands.ts';
 import type { GovernmentProcedureRuntimeGateway } from '../features/workflow/governmentProcedureRuntime.ts';
 import { UiR2ProductionRoot } from './runtime/UiR2ProductionRoot.tsx';
@@ -153,11 +154,35 @@ const automationCommands: AutomationCommandGateway = Object.freeze({
   async decideApproval() { throw new Error('R2 production test does not allow automation writes'); },
 });
 
+const fieldOperationsCommands: FieldOperationsCommandGateway = Object.freeze({
+  async loadContext() {
+    return Object.freeze({
+      authority: 'field_assignments_visits_evidence_receipts' as const,
+      transactionWriteAuthority: 'none' as const,
+      workflowWriteAuthority: 'existing_workflow_rpc_only' as const,
+      automationWriteAuthority: 'existing_automation_rpc_only' as const,
+      financeWriteAuthority: 'none' as const,
+      locationPolicy: 'disabled' as const,
+      metrics: Object.freeze({ activeTransactions: 0, stalledTransactions: 0, highCriticalBlockers: 0, pendingAutomationApprovals: 0, queuedAssignments: 0, activeVisits: 0 }),
+      members: Object.freeze([]),
+      assignments: Object.freeze([]),
+      visits: Object.freeze([]),
+    });
+  },
+  async setLocationPolicy() { throw new Error('R2 production test does not allow field writes'); },
+  async upsertAssignment() { throw new Error('R2 production test does not allow field writes'); },
+  async reassign() { throw new Error('R2 production test does not allow field writes'); },
+  async checkIn() { throw new Error('R2 production test does not allow field writes'); },
+  async checkOut() { throw new Error('R2 production test does not allow field writes'); },
+  async addEvidence() { throw new Error('R2 production test does not allow field writes'); },
+  async handoff() { throw new Error('R2 production test does not allow field writes'); },
+});
+
 const rootElement = document.getElementById('r2-production-test-root');
 if (!rootElement) throw new Error('R2 production test root is missing');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, workflowCommands, automationCommands }} />
+    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands }} />
   </StrictMode>,
 );
