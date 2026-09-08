@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 const read=p=>fs.readFileSync(new URL(`../${p}`,import.meta.url),'utf8');
-const kickoff=read('docs/PHASE8_4_KICKOFF.md'),state=JSON.parse(read('docs/PHASE8_4_STATE.json')),sql=read('database/migrations/phase_8_4_crm_smart_intake_m6_m17.sql'),service=read('src/features/crm-intake/crmIntakeCommands.ts'),tests=read('tests/crmIntakeEngine.test.ts');
+const kickoff=read('docs/PHASE8_4_KICKOFF.md'),state=JSON.parse(read('docs/PHASE8_4_STATE.json')),sql=read('database/migrations/phase_8_4_crm_smart_intake_m6_m17.sql'),service=read('src/features/crm-intake/crmIntakeCommands.ts'),tests=read('tests/crmIntakeEngine.test.ts'),internalUi=read('src/ui-r2/crm-intake/LiveCrmIntakeExperience.tsx'),publicUi=read('src/ui-r2/crm-intake/PublicIntakeExperience.tsx'),browser=read('tests-external/phase8-4-crm-intake.spec.cjs');
 const must=(text,marker,label)=>{if(!text.includes(marker))throw new Error(`${label}: missing ${marker}`)};
 for(const m of ['Status: **IN PROGRESS**','Base: `010aff999e66ff31b8a813026cddbc69db30b550`','External intake is intentionally non-authoritative','stores only a SHA-256 token hash','external submissions enter a review queue','duplicate company/client signals must be resolved','No permissive anonymous storage-table policy','670000-byte cap','Phase 8.5 — Multi-Branch / Departments / Teams — M15 foundation remains LOCKED'])must(kickoff,m,'kickoff');
 if(state.phase!=='8.4'||state.status!=='IN_PROGRESS'||state.baseCommit!=='010aff999e66ff31b8a813026cddbc69db30b550'||state.predecessor?.requiredStatus!=='CLOSED'||state.securityContracts?.rawTokenPersistence!=='FORBIDDEN'||state.securityContracts?.tokenHash!=='SHA-256'||state.securityContracts?.anonymousDirectTableWrites!=='FORBIDDEN'||state.securityContracts?.externalSubmissionAuthoritativeConversion!=='INTERNAL_REVIEW_REQUIRED'||state.javascriptBudgetBytes!==670000||state.budgetIncreaseAllowed!==false||state.phase8_5Allowed!==false||state.successorStatus!=='LOCKED')throw new Error('Phase 8.4 state contract drift');
@@ -10,8 +10,9 @@ if(/grant\s+(insert|update|delete|all)\s+on\s+table[^;]+\s+to\s+anon/i.test(sql)
 if(/token\s+text\s+not\s+null/i.test(sql)&&!sql.includes('p_token text'))throw new Error('Potential raw token column detected');
 for(const m of ["externalSubmissionAuthority:'non_authoritative'","financeLedgerWriteAuthority:'none'","guarded_conversion_rpc_only","if(r.authoritative!==false)bad()","p_reuse_company_id","p_token:token(rawToken)"])must(service,m,'service');
 for(const m of ['rejects any drift that gives CRM direct finance','public intake parser refuses any response claiming authoritative','validates file size before network','approval requires explicit field mapping','single guarded RPC'])must(tests,m,'tests');
-
-// Fail-closed self proof: each critical marker must actually break the audit predicate when removed.
+for(const m of ['data-crm-authority="pre_transaction"','data-external-authority={ctx.externalSubmissionAuthority}','data-finance-write-authority={ctx.financeLedgerWriteAuthority}','موافقة وإنشاء Lead','تحويل إلى Core','الخصم فوق 10%'])must(internalUi,m,'internal UI');
+for(const m of ['data-public-authority={view.publicAuthority}','data-authoritative="false"','pending_upload','بانتظار رفع فعلي واعتراف التخزين','لا نخزن التوكن في localStorage'])must(publicUi,m,'public UI');
+for(const m of ['overflow-safe','pending_approval','لم يصبح سجلًا سلطويًا','data-pending-uploads="1"','localStorage.length'])must(browser,m,'real browser contract');
 const critical=["grant execute on function public.get_public_intake_v1(text) to anon","ENJAZ_INTAKE_RATE_LIMITED","ENJAZ_CRM_DUPLICATE_COMPANY_REVIEW_REQUIRED","financeLedgerWritten',false"];
 for(const marker of critical){const mutated=sql.replace(marker,'__REMOVED__');if(mutated.includes(marker))throw new Error(`audit selftest ineffective for ${marker}`)}
 console.log('Phase 8.4 CRM/Smart Intake audit: PASS');
