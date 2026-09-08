@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 const read=p=>fs.readFileSync(new URL(`../${p}`,import.meta.url),'utf8');
-const kickoff=read('docs/PHASE8_4_KICKOFF.md'),state=JSON.parse(read('docs/PHASE8_4_STATE.json')),sql=read('database/migrations/phase_8_4_crm_smart_intake_m6_m17.sql'),service=read('src/features/crm-intake/crmIntakeCommands.ts'),tests=read('tests/crmIntakeEngine.test.ts'),internalUi=read('src/ui-r2/crm-intake/LiveCrmIntakeExperience.tsx'),publicUi=read('src/ui-r2/crm-intake/PublicIntakeExperience.tsx'),browser=read('tests-external/phase8-4-crm-intake.spec.cjs');
+const kickoff=read('docs/PHASE8_4_KICKOFF.md'),state=JSON.parse(read('docs/PHASE8_4_STATE.json')),sql=read('database/migrations/phase_8_4_crm_smart_intake_m6_m17.sql'),hardening=read('database/migrations/phase_8_4_rpc_security_hardening.sql'),service=read('src/features/crm-intake/crmIntakeCommands.ts'),tests=read('tests/crmIntakeEngine.test.ts'),internalUi=read('src/ui-r2/crm-intake/LiveCrmIntakeExperience.tsx'),publicUi=read('src/ui-r2/crm-intake/PublicIntakeExperience.tsx'),browser=read('tests-external/phase8-4-crm-intake.spec.cjs');
 const must=(text,marker,label)=>{if(!text.includes(marker))throw new Error(`${label}: missing ${marker}`)};
 for(const m of ['Status: **IN PROGRESS**','Base: `010aff999e66ff31b8a813026cddbc69db30b550`','External intake is intentionally non-authoritative','stores only a SHA-256 token hash','external submissions enter a review queue','duplicate company/client signals must be resolved','No permissive anonymous storage-table policy','670000-byte cap','Phase 8.5 — Multi-Branch / Departments / Teams — M15 foundation remains LOCKED'])must(kickoff,m,'kickoff');
 if(state.phase!=='8.4'||state.status!=='IN_PROGRESS'||state.baseCommit!=='010aff999e66ff31b8a813026cddbc69db30b550'||state.predecessor?.requiredStatus!=='CLOSED'||state.securityContracts?.rawTokenPersistence!=='FORBIDDEN'||state.securityContracts?.tokenHash!=='SHA-256'||state.securityContracts?.anonymousDirectTableWrites!=='FORBIDDEN'||state.securityContracts?.externalSubmissionAuthoritativeConversion!=='INTERNAL_REVIEW_REQUIRED'||state.javascriptBudgetBytes!==670000||state.budgetIncreaseAllowed!==false||state.phase8_5Allowed!==false||state.successorStatus!=='LOCKED')throw new Error('Phase 8.4 state contract drift');
@@ -20,4 +20,24 @@ must(sql,"constraint crm_leads_lost_stage_consistency check",'production SQL gua
 must(sql,"constraint intake_submission_files_ack_check check",'production SQL guard');
 if(sql.includes("constraint crm_leads_lost_reason_check check"))throw new Error('PostgreSQL duplicate constraint-name regression detected');
 if(sql.includes("constraint intake_submission_files_ack_check (("))throw new Error('Missing CHECK keyword regression detected');
+
+const mutatingRpcSignatures=[
+  'save_service_catalog_item_v1(uuid,uuid,text,text,text,numeric,integer,jsonb,jsonb,boolean)',
+  'create_crm_lead_v1(uuid,text,text,text,text,text,uuid)',
+  'advance_crm_lead_v1(uuid,uuid,integer,text,text)',
+  'create_crm_service_request_v1(uuid,uuid,uuid,text)',
+  'create_crm_quotation_v1(uuid,uuid,uuid,text,numeric,date,jsonb)',
+  'approve_crm_quotation_v1(uuid,uuid,integer)',
+  'accept_crm_quotation_v1(uuid,uuid,integer)',
+  'save_intake_form_v1(uuid,uuid,text,text,text,boolean,jsonb)',
+  'issue_intake_link_v1(uuid,uuid,uuid,integer)',
+  'revoke_intake_link_v1(uuid,uuid)',
+  'review_intake_submission_v1(uuid,uuid,integer,text,jsonb,text)',
+  'convert_crm_lead_v1(uuid,uuid,uuid,text,text)'
+];
+for(const sig of mutatingRpcSignatures){
+  must(hardening,`alter function public.${sig} security definer`,'RPC hardening');
+  must(hardening,`grant execute on function public.${sig} to authenticated`,'RPC hardening');
+}
+if(/grant\s+(insert|update|delete|all)\s+on\s+table/i.test(hardening))throw new Error('RPC hardening must not grant direct table mutation');
 console.log('Phase 8.4 CRM/Smart Intake audit: PASS');
