@@ -427,7 +427,7 @@ reset role;
 delete from public.audit_events
 where workspace_id=current_setting('enjaz.probe_workspace_id')::uuid
   and actor_user_id=current_setting('enjaz.probe_user_id')::uuid
-  and created_at>=current_setting('enjaz.probe_started_at')::timestamptz
+  and occurred_at>=current_setting('enjaz.probe_started_at')::timestamptz
   and (
     entity_id in (
       current_setting('enjaz.probe_assignment_id')::uuid,
