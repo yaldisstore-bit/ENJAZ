@@ -45,7 +45,7 @@ See `docs/PHASE8_3_POSTMERGE_RECERTIFICATION.md`.
 
 ## Real Cloud and authority closure
 
-Authenticated Real Cloud verification remains **PASS** against Supabase project `juzxriirhkuzviwnhkbd`. It proved direct field-table mutation denial, stale-state fail-closed behavior, stable offline visit UUID identity, replay idempotency and payload-drift conflict protection, visit-scoped location evidence, evidence/checkout/handoff behavior, zero finance `payments` side effects from official-fee field evidence, and complete probe cleanup/restoration.
+Authenticated Real Cloud verification remains **PASS** against Supabase project `juzxriirhkuzviwnhkbd`. It proved direct field-table mutation denial, stale-state fail-closed behavior, stable offline visit UUID identity, replay idempotency and payload-drift conflict protection, visit-scoped location evidence, evidence/checkout/handoff behavior, and complete probe cleanup/restoration. The checkout probe recorded the official fee as field evidence only and created **zero** rows in `payments`.
 
 See `docs/PHASE8_3_REAL_CLOUD_EVIDENCE.md`.
 
