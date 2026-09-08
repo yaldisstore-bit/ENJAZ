@@ -23,11 +23,11 @@ export interface FieldVisitSummary {
 }
 export interface FieldOperationsMetrics { readonly activeTransactions:number; readonly stalledTransactions:number; readonly highCriticalBlockers:number; readonly pendingAutomationApprovals:number; readonly queuedAssignments:number; readonly activeVisits:number }
 export interface FieldOperationsContext {
-  readonly authority:'field_assignments_visits_evidence_receipts';
-  readonly transactionWriteAuthority:'none';
-  readonly workflowWriteAuthority:'existing_workflow_rpc_only';
-  readonly automationWriteAuthority:'existing_automation_rpc_only';
-  readonly financeWriteAuthority:'none';
+  readonly authority: 'field_assignments_visits_evidence_receipts';
+  readonly transactionWriteAuthority: 'none';
+  readonly workflowWriteAuthority: 'existing_workflow_rpc_only';
+  readonly automationWriteAuthority: 'existing_automation_rpc_only';
+  readonly financeWriteAuthority: 'none';
   readonly locationPolicy:FieldLocationPolicy; readonly metrics:FieldOperationsMetrics; readonly members:readonly FieldMemberSummary[]; readonly assignments:readonly FieldAssignmentSummary[]; readonly visits:readonly FieldVisitSummary[];
 }
 export interface UpsertFieldAssignmentInput { readonly workspaceId:string; readonly assignmentId:string|null; readonly expectedVersion:number|null; readonly transactionId:string; readonly assignedUserId:string; readonly scheduledFor:string; readonly destinationLabel:string; readonly department:string|null; readonly priority:FieldPriority }
