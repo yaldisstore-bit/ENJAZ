@@ -57,27 +57,34 @@ function writeItems(storage: StorageLike, workspaceId: string, items: readonly F
   if (items.length === 0) storage.removeItem(key(workspaceId));
   else storage.setItem(key(workspaceId), JSON.stringify(items));
 }
+function resolveDefaultStorage(): StorageLike {
+  const storage = (globalThis as typeof globalThis & { localStorage?: StorageLike }).localStorage;
+  if (!storage) throw new Error('Field offline storage is unavailable in this runtime');
+  return storage;
+}
 
-export function createFieldOfflineQueue(storage: StorageLike = window.localStorage): FieldOfflineQueue {
-  return Object.freeze({
-    list(workspaceId) { return Object.freeze(readItems(storage, workspaceId)); },
+export function createFieldOfflineQueue(storage?: StorageLike): FieldOfflineQueue {
+  const resolvedStorage = storage ?? resolveDefaultStorage();
+  const queue: FieldOfflineQueue = {
+    list(workspaceId) { return Object.freeze(readItems(resolvedStorage, workspaceId)); },
     enqueue(operation) {
       if (!validOperation(operation)) throw new Error('Invalid field offline operation');
       if (operation.kind === 'evidence' && operation.documentId === null && operation.evidenceType !== 'other') throw new Error('Offline queue never stores file bytes; canonical document id is required first');
-      const items = readItems(storage, operation.workspaceId);
+      const items = readItems(resolvedStorage, operation.workspaceId);
       const existing = items.find((item) => item.operation.operationId === operation.operationId);
       if (existing) {
         if (JSON.stringify(existing.operation) !== JSON.stringify(operation)) throw new Error('Field offline operation id conflict');
         return;
       }
-      writeItems(storage, operation.workspaceId, [...items, { operation, state: 'pending', attempts: 0, lastError: null }]);
+      writeItems(resolvedStorage, operation.workspaceId, [...items, { operation, state: 'pending', attempts: 0, lastError: null }]);
     },
-    remove(workspaceId, operationId) { writeItems(storage, workspaceId, readItems(storage, workspaceId).filter((item) => item.operation.operationId !== operationId)); },
+    remove(workspaceId, operationId) { writeItems(resolvedStorage, workspaceId, readItems(resolvedStorage, workspaceId).filter((item) => item.operation.operationId !== operationId)); },
     markFailure(workspaceId, operationId, error, blocked) {
-      writeItems(storage, workspaceId, readItems(storage, workspaceId).map((item) => item.operation.operationId === operationId ? { ...item, state: blocked ? 'blocked' : 'pending', attempts: item.attempts + 1, lastError: error.slice(0, 600) } : item));
+      writeItems(resolvedStorage, workspaceId, readItems(resolvedStorage, workspaceId).map((item) => item.operation.operationId === operationId ? { ...item, state: blocked ? 'blocked' : 'pending', attempts: item.attempts + 1, lastError: error.slice(0, 600) } : item));
     },
-    clear(workspaceId) { storage.removeItem(key(workspaceId)); },
-  });
+    clear(workspaceId) { resolvedStorage.removeItem(key(workspaceId)); },
+  };
+  return Object.freeze(queue);
 }
 
 async function replay(gateway: FieldOperationsCommandGateway, operation: FieldOfflineOperation) {
