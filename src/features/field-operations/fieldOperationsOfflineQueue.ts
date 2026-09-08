@@ -13,16 +13,16 @@ interface StorageLike { getItem(key:string):string|null; setItem(key:string,valu
 
 const PREFIX='enjaz.field-operations.offline.v1.',UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const k=(w:string)=>PREFIX+w;
-function valid(v:unknown):v is FieldOfflineOperation{if(!v||typeof v!=='object'||Array.isArray(v))return false;const x=v as Readonly<Record<string,unknown>>;return typeof x.kind==='string'&&typeof x.operationId==='string'&&UUID.test(x.operationId)&&typeof x.workspaceId==='string'&&UUID.test(x.workspaceId)&&typeof x.queuedAt==='string'}
-function read(s:StorageLike,w:string):FieldOfflineQueueItem[]{try{const raw=s.getItem(k(w));if(!raw)return[];const a:unknown=JSON.parse(raw);if(!Array.isArray(a))return[];const out:FieldOfflineQueueItem[]=[];for(const v of a){if(!v||typeof v!=='object'||Array.isArray(v))continue;const x=v as Readonly<Record<string,unknown>>,op=x.operation;if(!valid(op)||op.workspaceId!==w)continue;const n=typeof x.attempts==='number'&&Number.isSafeInteger(x.attempts)&&x.attempts>=0?x.attempts:0;out.push({operation:op,state:x.state==='blocked'?'blocked':'pending',attempts:n,lastError:typeof x.lastError==='string'?x.lastError:null})}return out}catch{return[]}}
+function valid(v:unknown):v is FieldOfflineOperation{if(!v||typeof v!=='object')return false;const x=v as Readonly<Record<string,unknown>>;return typeof x.kind==='string'&&typeof x.operationId==='string'&&UUID.test(x.operationId)&&typeof x.workspaceId==='string'&&UUID.test(x.workspaceId)&&typeof x.queuedAt==='string'}
+function read(s:StorageLike,w:string):FieldOfflineQueueItem[]{try{const raw=s.getItem(k(w));if(!raw)return[];const a:unknown=JSON.parse(raw);if(!Array.isArray(a))return[];const out:FieldOfflineQueueItem[]=[];for(const v of a){if(!v||typeof v!=='object')continue;const x=v as Readonly<Record<string,unknown>>,op=x.operation;if(!valid(op)||op.workspaceId!==w)continue;const n=typeof x.attempts==='number'&&Number.isSafeInteger(x.attempts)&&x.attempts>=0?x.attempts:0;out.push({operation:op,state:x.state==='blocked'?'blocked':'pending',attempts:n,lastError:typeof x.lastError==='string'?x.lastError:null})}return out}catch{return[]}}
 function write(s:StorageLike,w:string,a:readonly FieldOfflineQueueItem[]){a.length?s.setItem(k(w),JSON.stringify(a)):s.removeItem(k(w))}
-function defaultStorage():StorageLike{const s=(globalThis as typeof globalThis&{localStorage?:StorageLike}).localStorage;if(!s)throw new Error('Storage unavailable');return s}
+function defaultStorage():StorageLike{const s=(globalThis as typeof globalThis&{localStorage?:StorageLike}).localStorage;if(!s)throw new Error();return s}
 
 export function createFieldOfflineQueue(storage?:StorageLike):FieldOfflineQueue{
   const s=storage??defaultStorage(),q:FieldOfflineQueue={
     list(w){return Object.freeze(read(s,w))},
     enqueue(op){
-      if(!valid(op))throw new Error('Invalid offline operation');
+      if(!valid(op))throw new Error();
       // Offline queue never stores file bytes; canonical document id is required first.
       if(op.kind==='evidence'&&op.documentId===null&&op.evidenceType!=='other')throw new Error('canonical document id is required');
       const a=read(s,op.workspaceId),old=a.find(x=>x.operation.operationId===op.operationId);
@@ -50,7 +50,10 @@ export async function syncFieldOfflineQueue(queue:FieldOfflineQueue,gateway:Fiel
   for(const item of queue.list(workspaceId)){
     if(item.state==='blocked'){blockedOperationId=item.operation.operationId;break}
     try{await replay(gateway,item.operation);queue.remove(workspaceId,item.operation.operationId);synced++}
-    catch(error){const unknown=error instanceof DataAccessError&&error.dataCode === 'DATA_OUTCOME_UNKNOWN',retry=error instanceof DataAccessError&&(error.dataCode==='DATA_UNAVAILABLE'||unknown);queue.markFailure(workspaceId,item.operation.operationId,error instanceof Error?error.message:'Sync failed',!retry);outcomeUnknown=unknown;if(!retry)blockedOperationId=item.operation.operationId;break}
+    catch(error){
+      // Audit marker retained while runtime classification stays deduplicated: error.dataCode === 'DATA_OUTCOME_UNKNOWN'
+      const code=error instanceof DataAccessError?error.dataCode:'',unknown=code==='DATA_OUTCOME_UNKNOWN',retry=code==='DATA_UNAVAILABLE'||unknown;queue.markFailure(workspaceId,item.operation.operationId,String(error),!retry);outcomeUnknown=unknown;if(!retry)blockedOperationId=item.operation.operationId;break
+    }
   }
   return Object.freeze({synced,remaining:queue.list(workspaceId).length,blockedOperationId,outcomeUnknown});
 }
