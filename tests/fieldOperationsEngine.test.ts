@@ -68,6 +68,13 @@ function queuedCheckIn(operationId = OPERATION): FieldOfflineCheckIn {
   return { kind: 'check_in', operationId, workspaceId: WORKSPACE, assignmentId: ASSIGNMENT, expectedAssignmentVersion: 2, location: null, queuedAt: '2026-09-07T10:00:00Z' };
 }
 
+test('lean offline validation still rejects array-shaped malformed queue rows', () => {
+  const storage = new MemoryStorage();
+  storage.setItem(`enjaz.field-operations.offline.v1.${WORKSPACE}`, JSON.stringify([[]]));
+  const queue = createFieldOfflineQueue(storage);
+  assert.equal(queue.list(WORKSPACE).length, 0);
+});
+
 test('offline queue is idempotent by operation UUID and rejects payload drift', () => {
   const queue = createFieldOfflineQueue(new MemoryStorage());
   const operation = queuedCheckIn();
