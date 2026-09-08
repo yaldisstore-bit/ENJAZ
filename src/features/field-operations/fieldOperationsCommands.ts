@@ -247,7 +247,7 @@ async function runRpc(client: RpcClientLike, name: string, args: Readonly<Record
 export function createFieldOperationsCommandGateway(client: EnjazSupabaseClient, timeoutMs = DEFAULT_TIMEOUT_MS): FieldOperationsCommandGateway {
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 120_000) throw new Error('Invalid field operations RPC timeout');
   const rpcClient = client as unknown as RpcClientLike;
-  return Object.freeze({
+  const gateway: FieldOperationsCommandGateway = {
     async loadContext(workspaceId) { return parseContext(await runRpc(rpcClient, 'get_field_operations_context_v1', { p_workspace_id: uuid(workspaceId, 'workspace id') }, false, timeoutMs)); },
     async setLocationPolicy(workspaceId, nextPolicy) {
       const parsedPolicy = policy(nextPolicy);
@@ -287,5 +287,6 @@ export function createFieldOperationsCommandGateway(client: EnjazSupabaseClient,
       if (note.trim().length < 3 || note.length > 1200) throw new DataAccessError('Invalid field handoff note', 'DATA_VALIDATION_FAILED');
       return parseMutation(await runRpc(rpcClient, 'handoff_field_assignment_v1', { p_workspace_id: uuid(workspaceId, 'workspace id'), p_assignment_id: uuid(assignmentId, 'assignment id'), p_expected_version: validateVersion(expectedVersion, 'assignment version'), p_note: note.trim(), p_client_operation_id: validateOperationId(clientOperationId) }, true, timeoutMs));
     },
-  });
+  };
+  return Object.freeze(gateway);
 }
