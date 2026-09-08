@@ -56,7 +56,7 @@ async function settle<T>(p:PromiseLike<T>,write:boolean,t:number):Promise<T>{let
 
 export function createCrmIntakeGateway(client:EnjazSupabaseClient,timeoutMs=TIMEOUT):CrmIntakeGateway{
   if(!Number.isSafeInteger(timeoutMs)||timeoutMs<1||timeoutMs>120000)throw new Error('Invalid CRM/intake timeout');const c=client as unknown as RpcLike;
-  return Object.freeze({
+  const gateway:CrmIntakeGateway={
     async loadContext(workspaceId){return parseContext(await rpc(c,'get_crm_intake_context_v1',{p_workspace_id:id(workspaceId)},false,timeoutMs))},
     async saveService(x){if(!Number.isFinite(x.basePrice)||x.basePrice<0||x.expectedDurationDays!==null&&(!Number.isSafeInteger(x.expectedDurationDays)||x.expectedDurationDays<0||x.expectedDurationDays>3650))bad(true);return recordPayload(rec(await rpc(c,'save_service_catalog_item_v1',{p_workspace_id:id(x.workspaceId),p_service_id:x.serviceId? id(x.serviceId):null,p_code:text(x.code,80),p_name:text(x.name,240),p_description:x.description?.trim()||null,p_base_price:x.basePrice,p_expected_duration_days:x.expectedDurationDays,p_required_inputs:x.requiredInputs,p_rules:x.rules,p_active:x.active},true,timeoutMs)))},
     async createLead(x){return recordPayload(rec(await rpc(c,'create_crm_lead_v1',{p_workspace_id:id(x.workspaceId),p_display_name:text(x.displayName,240),p_organization_name:x.organizationName?.trim()||null,p_phone:x.phone?.trim()||null,p_email:x.email?.trim().toLowerCase()||null,p_source:x.source?.trim()||null,p_assigned_user_id:x.assignedUserId?id(x.assignedUserId):null},true,timeoutMs)))},
@@ -72,5 +72,6 @@ export function createCrmIntakeGateway(client:EnjazSupabaseClient,timeoutMs=TIME
     async savePublicIntake(rawToken,answers,files,finalize){for(const [k,v] of Object.entries(answers)){if(!/^[A-Za-z0-9_.-]{1,80}$/.test(k)||typeof v!=='string'||v.length>4000)bad(true)}const r=rec(await rpc(c,'save_public_intake_v1',{p_token:token(rawToken),p_answers:answers,p_files:validateFiles(files),p_finalize:finalize},true,timeoutMs));if(r.authoritative!==false)bad();return Object.freeze({submissionId:id(r.submissionId),status:one(r.status,SS),version:count(r.version),authoritative:false,pendingUploadCount:count(r.pendingUploadCount)})},
     async reviewSubmission(x){if(x.decision==='approve'&&!Object.keys(x.mapping).length)bad(true);return recordPayload(rec(await rpc(c,'review_intake_submission_v1',{p_workspace_id:id(x.workspaceId),p_submission_id:id(x.submissionId),p_expected_version:version(x.expectedVersion),p_decision:x.decision,p_mapping:x.mapping,p_note:x.note?.trim()||null},true,timeoutMs)))},
     async convertLead(x){return recordPayload(rec(await rpc(c,'convert_crm_lead_v1',{p_workspace_id:id(x.workspaceId),p_lead_id:id(x.leadId),p_reuse_company_id:x.reuseCompanyId?id(x.reuseCompanyId):null,p_transaction_type:text(x.transactionType,180),p_department:text(x.department,240)},true,timeoutMs)))}
-  });
+  };
+  return Object.freeze(gateway);
 }
