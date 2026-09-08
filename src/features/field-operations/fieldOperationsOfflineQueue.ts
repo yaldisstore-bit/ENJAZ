@@ -2,12 +2,12 @@ import { DataAccessError } from '../../data/contracts/DataAccessError.ts';
 import type { FieldEvidenceType, FieldFailureReason, FieldLocationEvidence, FieldOperationsCommandGateway, FieldVisitOutcome } from './fieldOperationsCommands.ts';
 
 export type FieldOfflineOperation =
-  | Readonly<{kind:'check_in';operationId:string;workspaceId:string;assignmentId:string;expectedAssignmentVersion:number;location:FieldLocationEvidence|null;queuedAt:string}>
-  | Readonly<{kind:'check_out';operationId:string;workspaceId:string;visitId:string;expectedVisitVersion:number;outcome:FieldVisitOutcome;failureReason:FieldFailureReason|null;outcomeNote:string|null;counterDepartment:string|null;officialReference:string|null;officialFeePaid:string|null;location:FieldLocationEvidence|null;queuedAt:string}>
-  | Readonly<{kind:'evidence';operationId:string;workspaceId:string;visitId:string;expectedVisitVersion:number;evidenceType:FieldEvidenceType;documentId:string|null;note:string|null;queuedAt:string}>
-  | Readonly<{kind:'handoff';operationId:string;workspaceId:string;assignmentId:string;expectedVersion:number;note:string;queuedAt:string}>
-  | Readonly<{kind:'reassign';operationId:string;workspaceId:string;assignmentId:string;expectedVersion:number;assignedUserId:string;reason:string;queuedAt:string}>;
-export interface FieldOfflineQueueItem { readonly operation:FieldOfflineOperation; readonly state:'pending'|'blocked'; readonly attempts:number; readonly lastError:string|null }
+  | Readonly<{ kind: 'check_in'; operationId:string; workspaceId:string; assignmentId:string; expectedAssignmentVersion:number; location:FieldLocationEvidence|null; queuedAt:string }>
+  | Readonly<{ kind: 'check_out'; operationId:string; workspaceId:string; visitId:string; expectedVisitVersion:number; outcome:FieldVisitOutcome; failureReason:FieldFailureReason|null; outcomeNote:string|null; counterDepartment:string|null; officialReference:string|null; officialFeePaid:string|null; location:FieldLocationEvidence|null; queuedAt:string }>
+  | Readonly<{ kind: 'evidence'; operationId:string; workspaceId:string; visitId:string; expectedVisitVersion:number; evidenceType:FieldEvidenceType; documentId:string|null; note:string|null; queuedAt:string }>
+  | Readonly<{ kind: 'handoff'; operationId:string; workspaceId:string; assignmentId:string; expectedVersion:number; note:string; queuedAt:string }>
+  | Readonly<{ kind: 'reassign'; operationId:string; workspaceId:string; assignmentId:string; expectedVersion:number; assignedUserId:string; reason:string; queuedAt:string }>;
+export interface FieldOfflineQueueItem { readonly operation:FieldOfflineOperation; readonly state: 'pending' | 'blocked'; readonly attempts:number; readonly lastError:string|null }
 export interface FieldOfflineQueue { list(workspaceId:string):readonly FieldOfflineQueueItem[]; enqueue(operation:FieldOfflineOperation):void; remove(workspaceId:string,operationId:string):void; markFailure(workspaceId:string,operationId:string,error:string,blocked:boolean):void; clear(workspaceId:string):void }
 interface StorageLike { getItem(key:string):string|null; setItem(key:string,value:string):void; removeItem(key:string):void }
 
