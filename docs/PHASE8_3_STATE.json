@@ -2,11 +2,12 @@
   "schemaVersion": 1,
   "phase": "8.3",
   "name": "Operations Center + Field Operations — M5",
-  "status": "IN_PROGRESS",
+  "status": "CLOSED",
   "baseCommit": "698ba49fe80d8bc297a041afd253b01787dc460b",
   "implementationBranch": "phase8-3-operations-field",
-  "implementationHead": null,
-  "pullRequest": null,
+  "implementationHead": "a80ecf5aeb3b282f36c57bdb6a6ec670f7a699fd",
+  "pullRequest": 111,
+  "implementationMergeCommit": "0d7fa6a28eaec496f9cf92e98d45f334c5505e75",
   "scope": [
     "canonicalOperationsCenter",
     "fieldAssignmentAuthority",
@@ -40,19 +41,81 @@
     "system": "M5",
     "name": "ENJAZ Field Operations / Runner Mode",
     "status": "IN_PROGRESS",
+    "phase8_3Delivery": "CLOSED",
     "overallClosureAllowed": false,
     "finalClosureGate": "Phase 8.7 individual Zero-Escape evidence"
   },
-  "realCloudVerification": { "required": true, "status": "PENDING" },
-  "realChromium": { "required": true, "status": "PENDING" },
-  "offlineConflictRecovery": { "required": true, "status": "PENDING" },
-  "postMergeRecertification": { "required": true, "status": "PENDING" },
-  "exitGatePassed": false,
+  "preClosure": {
+    "finalCertifiedHead": "1e974bbeeec1ee1fece3fe263ec1bee2f6438a32",
+    "finalPullRequest": 113,
+    "workflowCount": 32,
+    "successCount": 32,
+    "failureCount": 0,
+    "fieldOfflineTestCount": 10,
+    "functionalTestCount": 217,
+    "realChromium": "PASS",
+    "realChromiumAssertionCount": 9,
+    "productionJsBytes": 669685,
+    "javascriptBudgetBytes": 670000,
+    "previewBytes": 269847
+  },
+  "budgetRepairHistory": [
+    {
+      "pullRequest": 112,
+      "headCommit": "50f234b8781a4c3e4bd7c292fb93673c4c280405",
+      "mergeCommit": "98194c47a0170951d4c458745c559c3eca3b3104",
+      "reason": "first post-merge Pages build exceeded the hard JavaScript budget by 139 bytes"
+    },
+    {
+      "pullRequest": 113,
+      "headCommit": "1e974bbeeec1ee1fece3fe263ec1bee2f6438a32",
+      "mergeCommit": "efd1d92caf2d3e4575b5cd65a4198702db71eacb",
+      "reason": "second exact-main Pages build remained one byte above the hard limit; final headroom repair preserved the 670000-byte cap"
+    }
+  ],
+  "realCloudVerification": {
+    "required": true,
+    "status": "PASS",
+    "projectRef": "juzxriirhkuzviwnhkbd",
+    "projectStatus": "ACTIVE_HEALTHY",
+    "evidence": "docs/PHASE8_3_REAL_CLOUD_EVIDENCE.md"
+  },
+  "realChromium": {
+    "required": true,
+    "status": "PASS",
+    "assertionCount": 9
+  },
+  "offlineConflictRecovery": {
+    "required": true,
+    "status": "PASS",
+    "unitTestCount": 10
+  },
+  "postMergeRecertification": {
+    "required": true,
+    "status": "COMPLETE",
+    "mainCommit": "efd1d92caf2d3e4575b5cd65a4198702db71eacb",
+    "workflowCount": 17,
+    "successCount": 17,
+    "failureCount": 0,
+    "queuedCount": 0,
+    "inProgressCount": 0,
+    "skippedCount": 0,
+    "pagesPreviewRunId": 34252189997,
+    "liveExternalRunId": 34252257878,
+    "canonicalPagesJsBytes": 669877,
+    "realPagesLiveJsBytes": 669888,
+    "javascriptBudgetBytes": 670000,
+    "publishedApplicationAttack": "PASS"
+  },
+  "exitGatePassed": true,
   "unresolvedDefectCount": 0,
   "criticalDefectCount": 0,
   "highDefectCount": 0,
   "functionalBlockerCount": 0,
-  "phase8_4Allowed": false,
+  "phase8_4Allowed": true,
   "nextPhase": "8.4",
-  "successorStatus": "LOCKED"
+  "successorStatus": "AUTHORIZED",
+  "closureEvidence": "docs/PHASE8_3_CLOSURE.md",
+  "postMergeEvidence": "docs/PHASE8_3_POSTMERGE_RECERTIFICATION.md",
+  "realCloudEvidence": "docs/PHASE8_3_REAL_CLOUD_EVIDENCE.md"
 }
