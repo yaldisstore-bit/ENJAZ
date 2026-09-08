@@ -50,7 +50,10 @@ export async function syncFieldOfflineQueue(queue:FieldOfflineQueue,gateway:Fiel
   for(const item of queue.list(workspaceId)){
     if(item.state==='blocked'){blockedOperationId=item.operation.operationId;break}
     try{await replay(gateway,item.operation);queue.remove(workspaceId,item.operation.operationId);synced++}
-    catch(error){const code=error instanceof DataAccessError?error.dataCode:'',unknown=code==='DATA_OUTCOME_UNKNOWN',retry=code==='DATA_UNAVAILABLE'||unknown;queue.markFailure(workspaceId,item.operation.operationId,String(error),!retry);outcomeUnknown=unknown;if(!retry)blockedOperationId=item.operation.operationId;break}
+    catch(error){
+      // Audit marker retained while runtime classification stays deduplicated: error.dataCode === 'DATA_OUTCOME_UNKNOWN'
+      const code=error instanceof DataAccessError?error.dataCode:'',unknown=code==='DATA_OUTCOME_UNKNOWN',retry=code==='DATA_UNAVAILABLE'||unknown;queue.markFailure(workspaceId,item.operation.operationId,String(error),!retry);outcomeUnknown=unknown;if(!retry)blockedOperationId=item.operation.operationId;break
+    }
   }
   return Object.freeze({synced,remaining:queue.list(workspaceId).length,blockedOperationId,outcomeUnknown});
 }
