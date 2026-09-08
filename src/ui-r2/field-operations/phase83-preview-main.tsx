@@ -54,7 +54,7 @@ function replaceVisit(id: string, update: (visit: FieldVisitSummary) => FieldVis
   visits = Object.freeze(visits.map((item) => item.id === id ? Object.freeze(update(item)) : item));
 }
 
-const gateway: FieldOperationsCommandGateway = Object.freeze({
+const previewGateway: FieldOperationsCommandGateway = {
   async loadContext(workspaceId) { if (workspaceId !== W) throw new Error('preview workspace mismatch'); return currentContext(); },
   async setLocationPolicy(workspaceId, policy) { if (workspaceId !== W) throw new Error('preview workspace mismatch'); locationPolicy = policy; return Object.freeze({ locationEvidence: policy }); },
   async upsertAssignment(input: UpsertFieldAssignmentInput) {
@@ -93,7 +93,8 @@ const gateway: FieldOperationsCommandGateway = Object.freeze({
     replaceAssignment(assignmentId, (item) => ({ ...item, status: 'handoff_complete', version: item.version + 1 }));
     return Object.freeze({ assignmentId, status: 'handoff_complete', wasDuplicate: false });
   },
-});
+};
+const gateway = Object.freeze(previewGateway);
 
 const txRows = [
   { id: TX1, company_id: COMPANY1, type: 'تأسيس شركة', status: 'active', deleted_at: null, archived_at: null },
