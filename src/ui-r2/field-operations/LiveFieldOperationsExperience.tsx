@@ -1,350 +1,92 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DataAccessError } from '../../data/contracts/DataAccessError.ts';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
 import { useFieldOperationsCommandGateway } from '../../features/field-operations/FieldOperationsCommandContext.tsx';
-import {
-  type FieldAssignmentSummary,
-  type FieldEvidenceType,
-  type FieldFailureReason,
-  type FieldLocationEvidence,
-  type FieldLocationPolicy,
-  type FieldOperationsContext,
-  type FieldPriority,
-  type FieldVisitOutcome,
-  type FieldVisitSummary,
-} from '../../features/field-operations/fieldOperationsCommands.ts';
-import {
-  createFieldOfflineQueue,
-  syncFieldOfflineQueue,
-  type FieldOfflineOperation,
-  type FieldOfflineQueueItem,
-} from '../../features/field-operations/fieldOperationsOfflineQueue.ts';
+import type { FieldAssignmentSummary, FieldEvidenceType, FieldFailureReason, FieldLocationEvidence, FieldLocationPolicy, FieldOperationsContext, FieldPriority, FieldVisitOutcome, FieldVisitSummary } from '../../features/field-operations/fieldOperationsCommands.ts';
+import { createFieldOfflineQueue, syncFieldOfflineQueue, type FieldOfflineOperation, type FieldOfflineQueueItem } from '../../features/field-operations/fieldOperationsOfflineQueue.ts';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
 
-type LoadState = 'loading' | 'ready' | 'error';
-type ViewMode = 'operations' | 'runner';
-type TransactionOption = Readonly<{ id: string; label: string }>;
-type AssignmentDraft = Readonly<{ transactionId: string; assignedUserId: string; scheduledFor: string; destinationLabel: string; department: string; priority: FieldPriority }>;
-type VisitDraft = Readonly<{ outcome: FieldVisitOutcome; failureReason: FieldFailureReason | ''; outcomeNote: string; counterDepartment: string; officialReference: string; officialFeePaid: string }>;
-type EvidenceDraft = Readonly<{ evidenceType: FieldEvidenceType; documentId: string; note: string }>;
+type LoadState='loading'|'ready'|'error';
+type ViewMode='operations'|'runner';
+type TransactionOption=Readonly<{id:string;label:string}>;
+type AssignmentDraft=Readonly<{transactionId:string;assignedUserId:string;scheduledFor:string;destinationLabel:string;department:string;priority:FieldPriority}>;
+type VisitDraft=Readonly<{outcome:FieldVisitOutcome;failureReason:FieldFailureReason|'';outcomeNote:string;counterDepartment:string;officialReference:string;officialFeePaid:string}>;
+type EvidenceDraft=Readonly<{evidenceType:FieldEvidenceType;documentId:string;note:string}>;
+type ReassignDraft=Readonly<{user:string;reason:string}>;
 
-const OFFLINE_QUEUE = createFieldOfflineQueue();
-const EMPTY_VISIT_DRAFT: VisitDraft = Object.freeze({ outcome: 'completed', failureReason: '', outcomeNote: '', counterDepartment: '', officialReference: '', officialFeePaid: '' });
-const EMPTY_EVIDENCE_DRAFT: EvidenceDraft = Object.freeze({ evidenceType: 'other', documentId: '', note: '' });
-const PRIORITY_LABELS: Readonly<Record<FieldPriority, string>> = Object.freeze({ low: 'منخفضة', normal: 'عادية', high: 'عالية', urgent: 'عاجلة' });
-const ASSIGNMENT_STATUS_LABELS: Readonly<Record<FieldAssignmentSummary['status'], string>> = Object.freeze({ queued: 'بالانتظار', in_progress: 'في الميدان', visit_complete: 'بانتظار التسليم', handoff_complete: 'مسلّمة للمكتب', cancelled: 'ملغاة' });
-const VISIT_STATUS_LABELS: Readonly<Record<FieldVisitSummary['status'], string>> = Object.freeze({ checked_in: 'داخل الزيارة', completed: 'مكتملة', could_not_complete: 'تعذر الإكمال' });
-const FAILURE_LABELS: Readonly<Record<FieldFailureReason, string>> = Object.freeze({ office_closed: 'الدائرة مغلقة', missing_requirement: 'متطلب ناقص', payment_issue: 'مشكلة دفع', authority_delay: 'تأخير لدى الجهة', rejected: 'رفضت الجهة الإجراء', technical_issue: 'عطل تقني', other: 'سبب آخر' });
-
-function localDateInput() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = `${now.getMonth() + 1}`.padStart(2, '0');
-  const day = `${now.getDate()}`.padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-function safeDate(value: string | null): string {
-  if (!value) return '—';
-  const parsed = Date.parse(value);
-  if (!Number.isFinite(parsed)) return 'وقت غير صالح';
-  return new Intl.DateTimeFormat('ar-IQ', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(parsed));
-}
-function messageFor(error: unknown): string {
-  if (error instanceof DataAccessError) {
-    if (error.dataCode === 'DATA_OUTCOME_UNKNOWN') return 'تعذر تأكيد النتيجة. احتفظ إنجاز بالعملية محلياً وسيعيد إرسالها بنفس الهوية عند الاتصال دون تكرار.';
-    if (error.dataCode === 'DATA_UNAVAILABLE') return 'الاتصال غير متاح. حُفظت العملية محلياً بانتظار المزامنة.';
-    if (error.dataCode === 'DATA_CONFLICT') return 'تعارضت العملية مع حالة أحدث. لم تتم الكتابة فوق الحالة الموجودة.';
-    if (error.dataCode === 'DATA_FORBIDDEN') return 'لا تملك صلاحية تنفيذ هذه العملية أو لم تعد أنت الموظف المكلّف.';
-    if (error.dataCode === 'DATA_VALIDATION_FAILED') return 'رفض المصدر الموثوق البيانات. راجع الحقول المطلوبة.';
+const Q=createFieldOfflineQueue();
+const V0:VisitDraft=Object.freeze({outcome:'completed',failureReason:'',outcomeNote:'',counterDepartment:'',officialReference:'',officialFeePaid:''});
+const E0:EvidenceDraft=Object.freeze({evidenceType:'other',documentId:'',note:''});
+const R0:ReassignDraft=Object.freeze({user:'',reason:''});
+const P:Readonly<Record<FieldPriority,string>>=Object.freeze({low:'منخفضة',normal:'عادية',high:'عالية',urgent:'عاجلة'});
+const A:Readonly<Record<FieldAssignmentSummary['status'],string>>=Object.freeze({queued:'بالانتظار',in_progress:'في الميدان',visit_complete:'بانتظار التسليم',handoff_complete:'مسلّمة للمكتب',cancelled:'ملغاة'});
+const F:Readonly<Record<FieldFailureReason,string>>=Object.freeze({office_closed:'الدائرة مغلقة',missing_requirement:'متطلب ناقص',payment_issue:'مشكلة دفع',authority_delay:'تأخير الجهة',rejected:'رفض الإجراء',technical_issue:'عطل تقني',other:'سبب آخر'});
+const today=()=>{const d=new Date(),m=`${d.getMonth()+1}`.padStart(2,'0'),n=`${d.getDate()}`.padStart(2,'0');return `${d.getFullYear()}-${m}-${n}`};
+const stamp=()=>new Date().toISOString();
+const fmt=(v:string|null)=>{if(!v)return '—';const n=Date.parse(v);return Number.isFinite(n)?new Intl.DateTimeFormat('ar-IQ',{dateStyle:'medium',timeStyle:'short'}).format(new Date(n)):'وقت غير صالح'};
+function msg(e:unknown){
+  if(e instanceof DataAccessError){
+    if(e.dataCode==='DATA_OUTCOME_UNKNOWN')return 'النتيجة غير مؤكدة؛ حُفظت العملية بنفس الهوية للمزامنة.';
+    if(e.dataCode==='DATA_UNAVAILABLE')return 'الاتصال غير متاح؛ حُفظت العملية للمزامنة.';
+    if(e.dataCode==='DATA_CONFLICT')return 'تعارض مع حالة أحدث؛ لم تُستبدل بيانات الخادم.';
+    if(e.dataCode==='DATA_FORBIDDEN')return 'لا تملك صلاحية هذه العملية.';
+    if(e.dataCode==='DATA_VALIDATION_FAILED')return 'راجع البيانات المطلوبة.';
   }
-  return 'تعذر إكمال العملية. لم ينشئ إنجاز نتيجة بديلة أو مزيفة.';
+  return 'تعذر إكمال العملية دون إنشاء نتيجة بديلة.';
 }
-function isQueueable(error: unknown) {
-  return error instanceof DataAccessError && (error.dataCode === 'DATA_UNAVAILABLE' || error.dataCode === 'DATA_OUTCOME_UNKNOWN');
+const queueable=(e:unknown)=>e instanceof DataAccessError&&(e.dataCode==='DATA_UNAVAILABLE'||e.dataCode==='DATA_OUTCOME_UNKNOWN');
+function getOneShotLocation(p:FieldLocationPolicy):Promise<FieldLocationEvidence|null>{
+  if(p==='disabled')return Promise.resolve(null);
+  if(!('geolocation'in navigator))return p==='required'?Promise.reject(new Error('LOC')):Promise.resolve(null);
+  return new Promise((ok,no)=>navigator.geolocation.getCurrentPosition(x=>ok({lat:x.coords.latitude,lng:x.coords.longitude,accuracyMeters:x.coords.accuracy}),()=>p==='required'?no(new Error('LOC')):ok(null),{maximumAge:60000,timeout:8000}));
 }
-function getOneShotLocation(policy: FieldLocationPolicy): Promise<FieldLocationEvidence | null> {
-  if (policy === 'disabled') return Promise.resolve(null);
-  if (!('geolocation' in navigator)) {
-    return policy === 'required' ? Promise.reject(new Error('LOCATION_REQUIRED_UNAVAILABLE')) : Promise.resolve(null);
-  }
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => resolve({ lat: position.coords.latitude, lng: position.coords.longitude, accuracyMeters: position.coords.accuracy }),
-      () => policy === 'required' ? reject(new Error('LOCATION_REQUIRED_DENIED')) : resolve(null),
-      { enableHighAccuracy: false, maximumAge: 60_000, timeout: 8_000 },
-    );
-  });
-}
-function locationError(error: unknown) {
-  if (error instanceof Error && (error.message === 'LOCATION_REQUIRED_UNAVAILABLE' || error.message === 'LOCATION_REQUIRED_DENIED')) return 'سياسة مساحة العمل تتطلب دليل موقع لهذه الزيارة، ولم يتمكن المتصفح من توفيره.';
-  return messageFor(error);
-}
+const locMsg=(e:unknown)=>e instanceof Error&&e.message==='LOC'?'سياسة المساحة تتطلب دليل موقع ولم يتوفر.':msg(e);
 
-export function LiveFieldOperationsExperience() {
-  const userId = useCurrentUserId();
-  const dataFactory = useDataLayerFactory();
-  const gateway = useFieldOperationsCommandGateway();
-  const [loadState, setLoadState] = useState<LoadState>('loading');
-  const [view, setView] = useState<ViewMode>('operations');
-  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
-  const [context, setContext] = useState<FieldOperationsContext | null>(null);
-  const [transactions, setTransactions] = useState<readonly TransactionOption[]>([]);
-  const [queueItems, setQueueItems] = useState<readonly FieldOfflineQueueItem[]>([]);
-  const [online, setOnline] = useState(() => navigator.onLine);
-  const [busyKey, setBusyKey] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-  const [assignmentDraft, setAssignmentDraft] = useState<AssignmentDraft>(() => ({ transactionId: '', assignedUserId: '', scheduledFor: localDateInput(), destinationLabel: '', department: '', priority: 'normal' }));
-  const [visitDrafts, setVisitDrafts] = useState<Readonly<Record<string, VisitDraft>>>({});
-  const [evidenceDrafts, setEvidenceDrafts] = useState<Readonly<Record<string, EvidenceDraft>>>({});
-  const [handoffNotes, setHandoffNotes] = useState<Readonly<Record<string, string>>>({});
-  const [reassignUsers, setReassignUsers] = useState<Readonly<Record<string, string>>>({});
-  const [reassignReasons, setReassignReasons] = useState<Readonly<Record<string, string>>>({});
+export function LiveFieldOperationsExperience(){
+  const userId=useCurrentUserId(),dataFactory=useDataLayerFactory(),gateway=useFieldOperationsCommandGateway();
+  const [loadState,setLoadState]=useState<LoadState>('loading'),[view,setView]=useState<ViewMode>('operations'),[workspaceId,setWorkspaceId]=useState<string|null>(null),[context,setContext]=useState<FieldOperationsContext|null>(null),[transactions,setTransactions]=useState<readonly TransactionOption[]>([]),[queueItems,setQueueItems]=useState<readonly FieldOfflineQueueItem[]>([]),[online,setOnline]=useState(()=>navigator.onLine),[busyKey,setBusyKey]=useState<string|null>(null),[notice,setNotice]=useState<string|null>(null);
+  const [assignmentDraft,setAssignmentDraft]=useState<AssignmentDraft>(()=>({transactionId:'',assignedUserId:'',scheduledFor:today(),destinationLabel:'',department:'',priority:'normal'}));
+  const [visitDrafts,setVisitDrafts]=useState<Readonly<Record<string,VisitDraft>>>({}),[evidenceDrafts,setEvidenceDrafts]=useState<Readonly<Record<string,EvidenceDraft>>>({}),[handoffNotes,setHandoffNotes]=useState<Readonly<Record<string,string>>>({}),[reassignDrafts,setReassignDrafts]=useState<Readonly<Record<string,ReassignDraft>>>({});
+  const refreshQueue=useCallback((w:string)=>setQueueItems(Q.list(w)),[]);
+  const reload=useCallback(async(w:string)=>{const c=await gateway.loadContext(w);setContext(c);const d=dataFactory.forWorkspace(w),[t,co]=await Promise.all([d.transactions.list({limit:100}),d.companies.list({limit:100})]),names=new Map(co.items.map(x=>[x.id,x.display_name||x.legal_name] as const));setTransactions(Object.freeze(t.items.filter(x=>!x.deleted_at&&!x.archived_at&&x.status!=='completed').map(x=>Object.freeze({id:x.id,label:`${x.type} · ${names.get(x.company_id)??'شركة'} · ${x.id.slice(0,8)}`}))));refreshQueue(w);setLoadState('ready');return c},[dataFactory,gateway,refreshQueue]);
+  useEffect(()=>{let live=true;void(async()=>{try{if(!userId)throw 0;const w=await dataFactory.resolveWorkspaceId(userId);if(!w)throw 0;if(live){setWorkspaceId(w);await reload(w)}}catch(e){if(live){setLoadState('error');setNotice(msg(e))}}})();return()=>{live=false}},[dataFactory,reload,userId]);
+  useEffect(()=>{const f=()=>setOnline(navigator.onLine);addEventListener('online',f);addEventListener('offline',f);return()=>{removeEventListener('online',f);removeEventListener('offline',f)}},[]);
 
-  const refreshQueue = useCallback((resolvedWorkspaceId: string) => setQueueItems(OFFLINE_QUEUE.list(resolvedWorkspaceId)), []);
-  const reload = useCallback(async (resolvedWorkspaceId: string) => {
-    const next = await gateway.loadContext(resolvedWorkspaceId);
-    setContext(next);
-    const layer = dataFactory.forWorkspace(resolvedWorkspaceId);
-    const [txPage, companyPage] = await Promise.all([layer.transactions.list({ limit: 100 }), layer.companies.list({ limit: 100 })]);
-    const names = new Map(companyPage.items.map((company) => [company.id, company.display_name || company.legal_name] as const));
-    setTransactions(Object.freeze(txPage.items.filter((tx) => !tx.deleted_at && !tx.archived_at && tx.status !== 'completed').map((tx) => Object.freeze({ id: tx.id, label: `${tx.type} · ${names.get(tx.company_id) ?? 'شركة'} · ${tx.id.slice(0, 8)}` }))));
-    refreshQueue(resolvedWorkspaceId);
-    setLoadState('ready');
-    return next;
-  }, [dataFactory, gateway, refreshQueue]);
+  const syncOffline=useCallback(async()=>{if(!workspaceId||!online||busyKey)return;setBusyKey('sync');setNotice(null);try{const r=await syncFieldOfflineQueue(Q,gateway,workspaceId);refreshQueue(workspaceId);setNotice(r.blockedOperationId?'توقفت المزامنة عند تعارض يحتاج مراجعة.':r.remaining?'بعض العمليات بانتظار اتصال موثوق.':r.synced?`تمت مزامنة ${r.synced} عملية ميدانية دون تكرار.`:'لا توجد عمليات محلية معلقة.');await reload(workspaceId)}catch(e){setNotice(msg(e))}finally{setBusyKey(null)}},[busyKey,gateway,online,refreshQueue,reload,workspaceId]);
+  useEffect(()=>{if(online&&workspaceId&&queueItems.some(x=>x.state==='pending'))void syncOffline()},[online,queueItems.length,syncOffline,workspaceId]);
+  const queueOrRun=useCallback(async(key:string,op:FieldOfflineOperation,run:()=>Promise<unknown>)=>{if(!workspaceId||busyKey)return;setBusyKey(key);setNotice(null);try{if(!navigator.onLine){Q.enqueue(op);refreshQueue(workspaceId);setNotice('حُفظت العملية محلياً بنفس الهوية.');return}try{await run();await reload(workspaceId)}catch(e){if(!queueable(e))throw e;Q.enqueue(op);refreshQueue(workspaceId);setNotice(msg(e))}}catch(e){setNotice(locMsg(e))}finally{setBusyKey(null)}},[busyKey,refreshQueue,reload,workspaceId]);
+  const patchA=(p:Partial<AssignmentDraft>)=>setAssignmentDraft(x=>({...x,...p}));
+  const patchV=(id:string,p:Partial<VisitDraft>)=>setVisitDrafts(x=>({...x,[id]:{...(x[id]??V0),...p}}));
+  const patchE=(id:string,p:Partial<EvidenceDraft>)=>setEvidenceDrafts(x=>({...x,[id]:{...(x[id]??E0),...p}}));
+  const patchR=(id:string,p:Partial<ReassignDraft>)=>setReassignDrafts(x=>({...x,[id]:{...(x[id]??R0),...p}}));
 
-  useEffect(() => {
-    let active = true;
-    void (async () => {
-      try {
-        if (!userId) throw new Error('AUTH_REQUIRED');
-        const resolved = await dataFactory.resolveWorkspaceId(userId);
-        if (!resolved) throw new Error('WORKSPACE_REQUIRED');
-        if (!active) return;
-        setWorkspaceId(resolved);
-        await reload(resolved);
-      } catch (error) {
-        if (!active) return;
-        setLoadState('error');
-        setNotice(messageFor(error));
-      }
-    })();
-    return () => { active = false; };
-  }, [dataFactory, reload, userId]);
+  const createAssignment=async()=>{if(!workspaceId||busyKey)return;if(!assignmentDraft.transactionId||!assignmentDraft.assignedUserId||!assignmentDraft.destinationLabel.trim()){setNotice('اختر المعاملة والموظف والوجهة.');return}setBusyKey('assignment:create');setNotice(null);try{await gateway.upsertAssignment({workspaceId,assignmentId:null,expectedVersion:null,...assignmentDraft,department:assignmentDraft.department||null});setAssignmentDraft({transactionId:'',assignedUserId:'',scheduledFor:today(),destinationLabel:'',department:'',priority:'normal'});await reload(workspaceId)}catch(e){setNotice(msg(e))}finally{setBusyKey(null)}};
+  const changeLocationPolicy=async(p:FieldLocationPolicy)=>{if(!workspaceId||busyKey||!online)return;setBusyKey('policy');try{await gateway.setLocationPolicy(workspaceId,p);await reload(workspaceId)}catch(e){setNotice(msg(e))}finally{setBusyKey(null)}};
+  const checkIn=async(a:FieldAssignmentSummary)=>{if(!workspaceId||!context)return;try{const location=await getOneShotLocation(context.locationPolicy),operationId=crypto.randomUUID(),op:FieldOfflineOperation={kind:'check_in',operationId,workspaceId,assignmentId:a.id,expectedAssignmentVersion:a.version,location,queuedAt:stamp()};await queueOrRun(`checkin:${a.id}`,op,()=>gateway.checkIn(workspaceId,a.id,a.version,location,operationId))}catch(e){setNotice(locMsg(e))}};
+  const checkOut=async(v:FieldVisitSummary|Readonly<{id:string;version:number}>)=>{if(!workspaceId||!context)return;const d=visitDrafts[v.id]??V0;if(d.outcome==='could_not_complete'&&!d.failureReason){setNotice('اختر سبب تعذر الزيارة.');return}try{const location=await getOneShotLocation(context.locationPolicy),operationId=crypto.randomUUID(),failureReason=d.outcome==='could_not_complete'?d.failureReason as FieldFailureReason:null,base={workspaceId,visitId:v.id,expectedVisitVersion:v.version,outcome:d.outcome,failureReason,outcomeNote:d.outcomeNote||null,counterDepartment:d.counterDepartment||null,officialReference:d.officialReference||null,officialFeePaid:d.officialFeePaid||null,location},op:FieldOfflineOperation={kind:'check_out',operationId,...base,queuedAt:stamp()};await queueOrRun(`checkout:${v.id}`,op,()=>gateway.checkOut({...base,clientOperationId:operationId}))}catch(e){setNotice(locMsg(e))}};
+  const addEvidence=async(v:FieldVisitSummary)=>{if(!workspaceId)return;const d=evidenceDrafts[v.id]??E0,documentId=d.documentId.trim()||null,note=d.note.trim()||null;if(d.evidenceType!=='other'&&!documentId){setNotice('أدخل معرّف مستند إنجاز.');return}if(d.evidenceType==='other'&&!note){setNotice('أضف ملاحظة للدليل.');return}const operationId=crypto.randomUUID(),op:FieldOfflineOperation={kind:'evidence',operationId,workspaceId,visitId:v.id,expectedVisitVersion:v.version,evidenceType:d.evidenceType,documentId,note,queuedAt:stamp()};await queueOrRun(`evidence:${v.id}`,op,()=>gateway.addEvidence(workspaceId,v.id,v.version,d.evidenceType,documentId,note,operationId))};
+  const handoff=async(a:FieldAssignmentSummary)=>{if(!workspaceId)return;const note=(handoffNotes[a.id]??'').trim();if(note.length<3){setNotice('اكتب ملخص التسليم للمكتب.');return}const operationId=crypto.randomUUID(),op:FieldOfflineOperation={kind:'handoff',operationId,workspaceId,assignmentId:a.id,expectedVersion:a.version,note,queuedAt:stamp()};await queueOrRun(`handoff:${a.id}`,op,()=>gateway.handoff(workspaceId,a.id,a.version,note,operationId))};
+  const reassign=async(a:FieldAssignmentSummary)=>{if(!workspaceId)return;const d=reassignDrafts[a.id]??R0,reason=d.reason.trim();if(!d.user||reason.length<3){setNotice('اختر الموظف واكتب السبب.');return}const operationId=crypto.randomUUID(),op:FieldOfflineOperation={kind:'reassign',operationId,workspaceId,assignmentId:a.id,expectedVersion:a.version,assignedUserId:d.user,reason,queuedAt:stamp()};await queueOrRun(`reassign:${a.id}`,op,()=>gateway.reassign(workspaceId,a.id,a.version,d.user,reason,operationId))};
 
-  useEffect(() => {
-    const setConnected = () => setOnline(true);
-    const setDisconnected = () => setOnline(false);
-    window.addEventListener('online', setConnected);
-    window.addEventListener('offline', setDisconnected);
-    return () => { window.removeEventListener('online', setConnected); window.removeEventListener('offline', setDisconnected); };
-  }, []);
-
-  const syncOffline = useCallback(async () => {
-    if (!workspaceId || !online || busyKey) return;
-    setBusyKey('sync');
-    setNotice(null);
-    try {
-      const result = await syncFieldOfflineQueue(OFFLINE_QUEUE, gateway, workspaceId);
-      refreshQueue(workspaceId);
-      if (result.blockedOperationId) setNotice('توقفت المزامنة عند عملية متعارضة. لم يتجاوز إنجاز التعارض تلقائياً؛ راجع الحالة قبل المتابعة.');
-      else if (result.remaining === 0) setNotice(result.synced > 0 ? `تمت مزامنة ${result.synced} عملية ميدانية دون تكرار.` : 'لا توجد عمليات محلية معلقة.');
-      else setNotice('لا تزال بعض العمليات محلية بانتظار اتصال موثوق.');
-      await reload(workspaceId);
-    } catch (error) { setNotice(messageFor(error)); }
-    finally { setBusyKey(null); }
-  }, [busyKey, gateway, online, refreshQueue, reload, workspaceId]);
-
-  useEffect(() => { if (online && workspaceId && queueItems.some((item) => item.state === 'pending')) void syncOffline(); }, [online, queueItems.length, syncOffline, workspaceId]);
-
-  const queueOrRun = useCallback(async (key: string, operation: FieldOfflineOperation, run: () => Promise<unknown>) => {
-    if (!workspaceId || busyKey) return;
-    setBusyKey(key);
-    setNotice(null);
-    try {
-      if (!navigator.onLine) {
-        OFFLINE_QUEUE.enqueue(operation);
-        refreshQueue(workspaceId);
-        setNotice('لا يوجد اتصال. حُفظت العملية محلياً وستُرسل بنفس الهوية عند عودة الشبكة.');
-        return;
-      }
-      try {
-        await run();
-        await reload(workspaceId);
-      } catch (error) {
-        if (!isQueueable(error)) throw error;
-        OFFLINE_QUEUE.enqueue(operation);
-        refreshQueue(workspaceId);
-        setNotice(messageFor(error));
-      }
-    } catch (error) { setNotice(locationError(error)); }
-    finally { setBusyKey(null); }
-  }, [busyKey, refreshQueue, reload, workspaceId]);
-
-  const createAssignment = async () => {
-    if (!workspaceId || busyKey) return;
-    if (!assignmentDraft.transactionId || !assignmentDraft.assignedUserId || !assignmentDraft.destinationLabel.trim()) { setNotice('اختر المعاملة والموظف واكتب وجهة الزيارة.'); return; }
-    setBusyKey('assignment:create'); setNotice(null);
-    try {
-      await gateway.upsertAssignment({ workspaceId, assignmentId: null, expectedVersion: null, transactionId: assignmentDraft.transactionId, assignedUserId: assignmentDraft.assignedUserId, scheduledFor: assignmentDraft.scheduledFor, destinationLabel: assignmentDraft.destinationLabel, department: assignmentDraft.department || null, priority: assignmentDraft.priority });
-      setAssignmentDraft({ transactionId: '', assignedUserId: '', scheduledFor: localDateInput(), destinationLabel: '', department: '', priority: 'normal' });
-      await reload(workspaceId);
-    } catch (error) { setNotice(messageFor(error)); }
-    finally { setBusyKey(null); }
-  };
-
-  const changeLocationPolicy = async (policy: FieldLocationPolicy) => {
-    if (!workspaceId || busyKey || !online) return;
-    setBusyKey('policy'); setNotice(null);
-    try { await gateway.setLocationPolicy(workspaceId, policy); await reload(workspaceId); }
-    catch (error) { setNotice(messageFor(error)); }
-    finally { setBusyKey(null); }
-  };
-
-  const checkIn = async (assignment: FieldAssignmentSummary) => {
-    if (!workspaceId || !context) return;
-    try {
-      const location = await getOneShotLocation(context.locationPolicy);
-      const operationId = crypto.randomUUID();
-      const operation: FieldOfflineOperation = { kind: 'check_in', operationId, workspaceId, assignmentId: assignment.id, expectedAssignmentVersion: assignment.version, location, queuedAt: new Date().toISOString() };
-      await queueOrRun(`checkin:${assignment.id}`, operation, () => gateway.checkIn(workspaceId, assignment.id, assignment.version, location, operationId));
-    } catch (error) { setNotice(locationError(error)); }
-  };
-
-  const checkOut = async (visit: FieldVisitSummary | { readonly id: string; readonly version: number }) => {
-    if (!workspaceId || !context) return;
-    const draft = visitDrafts[visit.id] ?? EMPTY_VISIT_DRAFT;
-    if (draft.outcome === 'could_not_complete' && !draft.failureReason) { setNotice('اختر سبب تعذر إكمال الزيارة.'); return; }
-    try {
-      const location = await getOneShotLocation(context.locationPolicy);
-      const operationId = crypto.randomUUID();
-      const operation: FieldOfflineOperation = { kind: 'check_out', operationId, workspaceId, visitId: visit.id, expectedVisitVersion: visit.version, outcome: draft.outcome, failureReason: draft.outcome === 'could_not_complete' ? draft.failureReason as FieldFailureReason : null, outcomeNote: draft.outcomeNote || null, counterDepartment: draft.counterDepartment || null, officialReference: draft.officialReference || null, officialFeePaid: draft.officialFeePaid || null, location, queuedAt: new Date().toISOString() };
-      await queueOrRun(`checkout:${visit.id}`, operation, () => gateway.checkOut({ workspaceId, visitId: visit.id, expectedVisitVersion: visit.version, outcome: draft.outcome, failureReason: draft.outcome === 'could_not_complete' ? draft.failureReason as FieldFailureReason : null, outcomeNote: draft.outcomeNote || null, counterDepartment: draft.counterDepartment || null, officialReference: draft.officialReference || null, officialFeePaid: draft.officialFeePaid || null, location, clientOperationId: operationId }));
-    } catch (error) { setNotice(locationError(error)); }
-  };
-
-  const addEvidence = async (visit: FieldVisitSummary) => {
-    if (!workspaceId) return;
-    const draft = evidenceDrafts[visit.id] ?? EMPTY_EVIDENCE_DRAFT;
-    if (draft.evidenceType !== 'other' && !draft.documentId.trim()) { setNotice('أدخل معرّف مستند إنجاز الموثوق للملف. لا يخزّن Runner ملفات وهمية أو bytes داخل Offline Queue.'); return; }
-    if (draft.evidenceType === 'other' && !draft.note.trim()) { setNotice('أضف ملاحظة للدليل النصي.'); return; }
-    const operationId = crypto.randomUUID();
-    const operation: FieldOfflineOperation = { kind: 'evidence', operationId, workspaceId, visitId: visit.id, expectedVisitVersion: visit.version, evidenceType: draft.evidenceType, documentId: draft.documentId.trim() || null, note: draft.note.trim() || null, queuedAt: new Date().toISOString() };
-    await queueOrRun(`evidence:${visit.id}`, operation, () => gateway.addEvidence(workspaceId, visit.id, visit.version, draft.evidenceType, draft.documentId.trim() || null, draft.note.trim() || null, operationId));
-  };
-
-  const handoff = async (assignment: FieldAssignmentSummary) => {
-    if (!workspaceId) return;
-    const note = (handoffNotes[assignment.id] ?? '').trim();
-    if (note.length < 3) { setNotice('اكتب ملخص التسليم للمكتب.'); return; }
-    const operationId = crypto.randomUUID();
-    const operation: FieldOfflineOperation = { kind: 'handoff', operationId, workspaceId, assignmentId: assignment.id, expectedVersion: assignment.version, note, queuedAt: new Date().toISOString() };
-    await queueOrRun(`handoff:${assignment.id}`, operation, () => gateway.handoff(workspaceId, assignment.id, assignment.version, note, operationId));
-  };
-
-  const reassign = async (assignment: FieldAssignmentSummary) => {
-    if (!workspaceId) return;
-    const nextUser = reassignUsers[assignment.id] ?? '';
-    const reason = (reassignReasons[assignment.id] ?? '').trim();
-    if (!nextUser || reason.length < 3) { setNotice('اختر الموظف الجديد واكتب سبب إعادة التكليف.'); return; }
-    const operationId = crypto.randomUUID();
-    const operation: FieldOfflineOperation = { kind: 'reassign', operationId, workspaceId, assignmentId: assignment.id, expectedVersion: assignment.version, assignedUserId: nextUser, reason, queuedAt: new Date().toISOString() };
-    await queueOrRun(`reassign:${assignment.id}`, operation, () => gateway.reassign(workspaceId, assignment.id, assignment.version, nextUser, reason, operationId));
-  };
-
-  const runnerAssignments = useMemo(() => context?.assignments.filter((assignment) => assignment.assignedUserId === userId && assignment.status !== 'handoff_complete' && assignment.status !== 'cancelled') ?? [], [context, userId]);
-  const serverVisitByAssignment = useMemo(() => new Map((context?.visits ?? []).filter((visit) => visit.status === 'checked_in').map((visit) => [visit.assignmentId, visit] as const)), [context]);
-  const localCheckInByAssignment = useMemo(() => new Map(queueItems.filter((item) => item.operation.kind === 'check_in').map((item) => [item.operation.kind === 'check_in' ? item.operation.assignmentId : '', item] as const)), [queueItems]);
-  const blockedCount = queueItems.filter((item) => item.state === 'blocked').length;
+  const runnerAssignments=context?.assignments.filter(x=>x.assignedUserId===userId&&x.status!=='handoff_complete'&&x.status!=='cancelled')??[],serverVisits=new Map((context?.visits??[]).filter(x=>x.status==='checked_in').map(x=>[x.assignmentId,x] as const)),localVisits=new Map(queueItems.filter(x=>x.operation.kind==='check_in').map(x=>[x.operation.kind==='check_in'?x.operation.assignmentId:'',x] as const)),blocked=queueItems.filter(x=>x.state==='blocked').length,busy=Boolean(busyKey);
 
   return <div className="r2-screen r2-field-live" data-field-stage="8.3" data-field-authority="field_assignments_visits_evidence_receipts" data-finance-write-authority="none" data-shadow-workflow="false" data-location-tracking="visit_scoped_only">
-    <header className="r2-field-hero">
-      <div><p className="r2-eyebrow">Phase 8.3 · Operations + M5</p><h1>مركز العمليات</h1><p className="r2-supporting">تشغيل مكتبي وميداني من مصدر واحد: لا Workflow ظلّي، لا دفع مالي من Runner، ولا تتبع موقع بالخلفية.</p></div>
-      <div className="r2-field-hero__status"><span className={`r2-field-network ${online ? 'is-online' : 'is-offline'}`}>{online ? 'متصل' : 'Offline'}</span><span className="r2-chip">{queueItems.length} معلّقة</span></div>
-    </header>
+    <header className="r2-field-hero"><div><p className="r2-eyebrow">Phase 8.3 · Operations + M5</p><h1>مركز العمليات</h1><p className="r2-supporting">المكتب والميدان من مصدر واحد؛ لا كتابة مالية ولا Workflow ظلّي.</p></div><div className="r2-field-hero__status"><span className={`r2-field-network ${online?'is-online':'is-offline'}`}>{online?'متصل':'Offline'}</span><span className="r2-chip">{queueItems.length} معلّقة</span></div></header>
+    <div className="r2-field-tabs" role="tablist" aria-label="وضع التشغيل"><button type="button" role="tab" aria-selected={view==='operations'} onClick={()=>setView('operations')}>مركز العمليات</button><button type="button" role="tab" aria-selected={view==='runner'} onClick={()=>setView('runner')}>Runner Mode</button></div>
+    {notice&&<div className="r2-field-alert" role="alert">{notice}</div>}
+    {!!queueItems.length&&<section className="r2-field-syncbar" data-offline-pending={queueItems.length} data-offline-blocked={blocked}><div><strong>{queueItems.length} عملية محلية</strong><span>{blocked?`${blocked} متعارضة`:'تُعاد بنفس UUID دون تكرار.'}</span></div><button type="button" className="r2-action r2-action--secondary" disabled={!online||busy} onClick={()=>void syncOffline()}>{busyKey==='sync'?'جارٍ التحقق…':'مزامنة الآن'}</button></section>}
+    {loadState==='loading'&&<section className="r2-intel-card r2-field-state"><strong>جارٍ تحميل التشغيل…</strong></section>}
+    {loadState==='error'&&<section className="r2-intel-card r2-field-state"><strong>تعذر تحميل مركز العمليات.</strong><p>لا توجد بيانات بديلة.</p></section>}
 
-    <div className="r2-field-tabs" role="tablist" aria-label="وضع التشغيل">
-      <button type="button" role="tab" aria-selected={view === 'operations'} onClick={() => setView('operations')}>مركز العمليات</button>
-      <button type="button" role="tab" aria-selected={view === 'runner'} onClick={() => setView('runner')}>Runner Mode</button>
-    </div>
-
-    {notice && <div className="r2-field-alert" role="alert">{notice}</div>}
-    {queueItems.length > 0 && <section className="r2-field-syncbar" data-offline-pending={queueItems.length} data-offline-blocked={blockedCount}><div><strong>{queueItems.length} عملية محلية</strong><span>{blockedCount ? `${blockedCount} متعارضة وتحتاج مراجعة` : 'ستُرسل بنفس UUID؛ إعادة المحاولة لا تنشئ نسخة ثانية.'}</span></div><button type="button" className="r2-action r2-action--secondary" disabled={!online || Boolean(busyKey)} onClick={() => void syncOffline()}>{busyKey === 'sync' ? 'جارٍ التحقق…' : 'مزامنة الآن'}</button></section>}
-
-    {loadState === 'loading' && <section className="r2-intel-card r2-field-state"><strong>جارٍ تحميل التشغيل الموثوق…</strong></section>}
-    {loadState === 'error' && <section className="r2-intel-card r2-field-state"><strong>تعذر تحميل مركز العمليات.</strong><p>لم يتم إنشاء لوحة بديلة أو بيانات تجريبية.</p></section>}
-
-    {loadState === 'ready' && context && view === 'operations' && <>
-      <section className="r2-field-kpis" aria-label="الصحة التشغيلية">
-        <article><span>معاملات نشطة</span><strong>{context.metrics.activeTransactions}</strong></article>
-        <article><span>متلكئة</span><strong>{context.metrics.stalledTransactions}</strong></article>
-        <article className={context.metrics.highCriticalBlockers ? 'is-risk' : ''}><span>مانعات High/Critical</span><strong>{context.metrics.highCriticalBlockers}</strong></article>
-        <article><span>موافقات أتمتة</span><strong>{context.metrics.pendingAutomationApprovals}</strong></article>
-        <article><span>زيارات بالطابور</span><strong>{context.metrics.queuedAssignments}</strong></article>
-        <article><span>زيارات جارية</span><strong>{context.metrics.activeVisits}</strong></article>
-      </section>
-
+    {loadState==='ready'&&context&&view==='operations'&&<>
+      <section className="r2-field-kpis" aria-label="الصحة التشغيلية"><article><span>معاملات نشطة</span><strong>{context.metrics.activeTransactions}</strong></article><article><span>متلكئة</span><strong>{context.metrics.stalledTransactions}</strong></article><article className={context.metrics.highCriticalBlockers?'is-risk':''}><span>مانعات High/Critical</span><strong>{context.metrics.highCriticalBlockers}</strong></article><article><span>موافقات أتمتة</span><strong>{context.metrics.pendingAutomationApprovals}</strong></article><article><span>زيارات بالطابور</span><strong>{context.metrics.queuedAssignments}</strong></article><article><span>زيارات جارية</span><strong>{context.metrics.activeVisits}</strong></article></section>
       <section className="r2-field-grid">
-        <article className="r2-intel-card r2-field-panel">
-          <div className="r2-field-panel__head"><div><p className="r2-eyebrow">Workspace Policy</p><h2>دليل الموقع</h2></div><span className="r2-chip">{context.locationPolicy}</span></div>
-          <p>موقع الزيارة لحظي فقط عند Check-in/Check-out. لا يوجد background tracking.</p>
-          <div className="r2-field-segmented">
-            {(['disabled','optional','required'] as const).map((item) => <button key={item} type="button" aria-pressed={context.locationPolicy === item} disabled={!online || Boolean(busyKey)} onClick={() => void changeLocationPolicy(item)}>{item === 'disabled' ? 'معطل' : item === 'optional' ? 'اختياري' : 'إلزامي'}</button>)}
-          </div>
-        </article>
-
-        <article className="r2-intel-card r2-field-panel r2-field-assignment-form">
-          <div className="r2-field-panel__head"><div><p className="r2-eyebrow">Office → Field</p><h2>تكليف زيارة</h2></div></div>
-          <label>المعاملة<select value={assignmentDraft.transactionId} onChange={(event) => setAssignmentDraft((current) => ({ ...current, transactionId: event.target.value }))}><option value="">اختر معاملة نشطة</option>{transactions.map((tx) => <option key={tx.id} value={tx.id}>{tx.label}</option>)}</select></label>
-          <label>الموظف<select value={assignmentDraft.assignedUserId} onChange={(event) => setAssignmentDraft((current) => ({ ...current, assignedUserId: event.target.value }))}><option value="">اختر موظفاً</option>{context.members.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}</select></label>
-          <div className="r2-field-form-row"><label>التاريخ<input type="date" value={assignmentDraft.scheduledFor} onChange={(event) => setAssignmentDraft((current) => ({ ...current, scheduledFor: event.target.value }))} /></label><label>الأولوية<select value={assignmentDraft.priority} onChange={(event) => setAssignmentDraft((current) => ({ ...current, priority: event.target.value as FieldPriority }))}>{Object.entries(PRIORITY_LABELS).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label></div>
-          <label>الجهة / الوجهة<input maxLength={320} value={assignmentDraft.destinationLabel} onChange={(event) => setAssignmentDraft((current) => ({ ...current, destinationLabel: event.target.value }))} placeholder="مثال: دائرة تسجيل الشركات" /></label>
-          <label>القسم / الشباك المتوقع<input maxLength={240} value={assignmentDraft.department} onChange={(event) => setAssignmentDraft((current) => ({ ...current, department: event.target.value }))} placeholder="اختياري" /></label>
-          <button type="button" className="r2-action r2-action--primary" disabled={!online || Boolean(busyKey)} onClick={() => void createAssignment()}>{busyKey === 'assignment:create' ? 'جارٍ الحفظ…' : 'إنشاء التكليف'}</button>
-          {!online && <small>إنشاء التكليف إجراء مكتبي موثوق ويحتاج اتصالاً؛ Runner فقط يحتفظ بعمليات الزيارة المحلية.</small>}
-        </article>
+        <article className="r2-intel-card r2-field-panel"><div className="r2-field-panel__head"><div><p className="r2-eyebrow">Workspace Policy</p><h2>دليل الموقع</h2></div><span className="r2-chip">{context.locationPolicy}</span></div><p>الموقع لحظي عند الزيارة فقط. لا يوجد background tracking.</p><div className="r2-field-segmented">{(['disabled','optional','required'] as const).map(x=><button key={x} type="button" aria-pressed={context.locationPolicy===x} disabled={!online||busy} onClick={()=>void changeLocationPolicy(x)}>{x==='disabled'?'معطل':x==='optional'?'اختياري':'إلزامي'}</button>)}</div></article>
+        <article className="r2-intel-card r2-field-panel r2-field-assignment-form"><div className="r2-field-panel__head"><div><p className="r2-eyebrow">Office → Field</p><h2>تكليف زيارة</h2></div></div><label>المعاملة<select value={assignmentDraft.transactionId} onChange={e=>patchA({transactionId:e.target.value})}><option value="">اختر معاملة نشطة</option>{transactions.map(x=><option key={x.id} value={x.id}>{x.label}</option>)}</select></label><label>الموظف<select value={assignmentDraft.assignedUserId} onChange={e=>patchA({assignedUserId:e.target.value})}><option value="">اختر موظفاً</option>{context.members.map(x=><option key={x.userId} value={x.userId}>{x.displayName}</option>)}</select></label><div className="r2-field-form-row"><label>التاريخ<input type="date" value={assignmentDraft.scheduledFor} onChange={e=>patchA({scheduledFor:e.target.value})}/></label><label>الأولوية<select value={assignmentDraft.priority} onChange={e=>patchA({priority:e.target.value as FieldPriority})}>{Object.entries(P).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label></div><label>الجهة / الوجهة<input maxLength={320} value={assignmentDraft.destinationLabel} onChange={e=>patchA({destinationLabel:e.target.value})}/></label><label>القسم<input maxLength={240} value={assignmentDraft.department} onChange={e=>patchA({department:e.target.value})}/></label><button type="button" className="r2-action r2-action--primary" disabled={!online||busy} onClick={()=>void createAssignment()}>{busyKey==='assignment:create'?'جارٍ الحفظ…':'إنشاء التكليف'}</button>{!online&&<small>التكليف المكتبي يحتاج اتصالاً.</small>}</article>
       </section>
-
-      <section className="r2-field-section" aria-labelledby="operations-queue-title">
-        <div className="r2-field-section__head"><div><p className="r2-eyebrow">Operational Queue</p><h2 id="operations-queue-title">طابور الزيارات</h2></div><span className="r2-chip">{context.assignments.length}</span></div>
-        {context.assignments.length === 0 ? <div className="r2-intel-card r2-field-empty">لا توجد تكليفات ميدانية. لا يعرض إنجاز مهاماً مختلقة.</div> : <div className="r2-field-cards">{context.assignments.map((assignment) => <article className="r2-intel-card r2-field-assignment" key={assignment.id} data-assignment-status={assignment.status}>
-          <div className="r2-field-assignment__top"><div><p className="r2-eyebrow">{assignment.companyName}</p><h3>{assignment.destinationLabel}</h3><p>{assignment.transactionType} · {assignment.department ?? 'قسم غير محدد'}</p></div><span className={`r2-field-priority is-${assignment.priority}`}>{PRIORITY_LABELS[assignment.priority]}</span></div>
-          <div className="r2-field-meta"><span><b>الموظف</b>{assignment.assignedUserName}</span><span><b>الموعد</b>{assignment.scheduledFor}</span><span><b>الحالة</b>{ASSIGNMENT_STATUS_LABELS[assignment.status]}</span><span><b>المانعات</b>{assignment.openBlockers}</span></div>
-          <div className="r2-field-next"><small>الخطوة المطلوبة</small><strong>{assignment.nextRequiredAction}</strong></div>
-          {assignment.status !== 'handoff_complete' && assignment.status !== 'cancelled' && <details className="r2-field-reassign"><summary>إعادة تكليف طارئة</summary><div><select value={reassignUsers[assignment.id] ?? ''} onChange={(event) => setReassignUsers((current) => ({ ...current, [assignment.id]: event.target.value }))}><option value="">الموظف الجديد</option>{context.members.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}</select><input maxLength={1200} value={reassignReasons[assignment.id] ?? ''} onChange={(event) => setReassignReasons((current) => ({ ...current, [assignment.id]: event.target.value }))} placeholder="سبب إعادة التكليف" /><button type="button" className="r2-action r2-action--secondary" disabled={Boolean(busyKey)} onClick={() => void reassign(assignment)}>إعادة التكليف</button></div></details>}
-        </article>)}</div>}
-      </section>
+      <section className="r2-field-section" aria-labelledby="operations-queue-title"><div className="r2-field-section__head"><div><p className="r2-eyebrow">Operational Queue</p><h2 id="operations-queue-title">طابور الزيارات</h2></div><span className="r2-chip">{context.assignments.length}</span></div>{!context.assignments.length?<div className="r2-intel-card r2-field-empty">لا توجد تكليفات ميدانية.</div>:<div className="r2-field-cards">{context.assignments.map(a=>{const r=reassignDrafts[a.id]??R0;return <article className="r2-intel-card r2-field-assignment" key={a.id} data-assignment-status={a.status}><div className="r2-field-assignment__top"><div><p className="r2-eyebrow">{a.companyName}</p><h3>{a.destinationLabel}</h3><p>{a.transactionType} · {a.department??'قسم غير محدد'}</p></div><span className={`r2-field-priority is-${a.priority}`}>{P[a.priority]}</span></div><div className="r2-field-meta"><span><b>الموظف</b>{a.assignedUserName}</span><span><b>الموعد</b>{a.scheduledFor}</span><span><b>الحالة</b>{A[a.status]}</span><span><b>المانعات</b>{a.openBlockers}</span></div><div className="r2-field-next"><small>الخطوة المطلوبة</small><strong>{a.nextRequiredAction}</strong></div>{a.status!=='handoff_complete'&&a.status!=='cancelled'&&<details className="r2-field-reassign"><summary>إعادة تكليف طارئة</summary><div><select value={r.user} onChange={e=>patchR(a.id,{user:e.target.value})}><option value="">الموظف الجديد</option>{context.members.map(x=><option key={x.userId} value={x.userId}>{x.displayName}</option>)}</select><input maxLength={1200} value={r.reason} onChange={e=>patchR(a.id,{reason:e.target.value})} placeholder="سبب إعادة التكليف"/><button type="button" className="r2-action r2-action--secondary" disabled={busy} onClick={()=>void reassign(a)}>إعادة التكليف</button></div></details>}</article>})}</div>}</section>
     </>}
 
-    {loadState === 'ready' && context && view === 'runner' && <section className="r2-field-runner" aria-labelledby="runner-title">
-      <div className="r2-field-section__head"><div><p className="r2-eyebrow">M5 · Mobile-first</p><h2 id="runner-title">Runner Mode</h2><p>زياراتك فقط. دليل الموقع حسب السياسة، والمصاريف المسجلة هنا دليل ميداني وليست دفعة مالية.</p></div><span className="r2-chip">{runnerAssignments.length}</span></div>
-      {runnerAssignments.length === 0 ? <div className="r2-intel-card r2-field-empty">لا توجد زيارة مكلّف بها حالياً.</div> : <div className="r2-field-runner-list">{runnerAssignments.map((assignment) => {
-        const serverVisit = serverVisitByAssignment.get(assignment.id);
-        const localCheckIn = localCheckInByAssignment.get(assignment.id);
-        const localVisitId = localCheckIn?.operation.kind === 'check_in' ? localCheckIn.operation.operationId : null;
-        const activeVisit = serverVisit ?? (localVisitId ? { id: localVisitId, version: 1 } : null);
-        const draft = activeVisit ? (visitDrafts[activeVisit.id] ?? EMPTY_VISIT_DRAFT) : EMPTY_VISIT_DRAFT;
-        return <article className="r2-field-runner-card" key={assignment.id} data-runner-assignment={assignment.id}>
-          <header><div><p className="r2-eyebrow">{assignment.scheduledFor} · {PRIORITY_LABELS[assignment.priority]}</p><h3>{assignment.destinationLabel}</h3><p>{assignment.companyName} · {assignment.transactionType}</p></div><span className="r2-chip">{localVisitId && !serverVisit ? 'محلي غير مزامن' : ASSIGNMENT_STATUS_LABELS[assignment.status]}</span></header>
-          <div className="r2-field-next"><small>التالي</small><strong>{assignment.nextRequiredAction}</strong></div>
-
-          {!activeVisit && assignment.status === 'queued' && <button type="button" className="r2-action r2-action--primary r2-field-big-action" disabled={Boolean(busyKey)} onClick={() => void checkIn(assignment)}>{busyKey === `checkin:${assignment.id}` ? 'جارٍ بدء الزيارة…' : 'تسجيل الوصول'}</button>}
-
-          {activeVisit && <div className="r2-field-checkout" data-local-visit={serverVisit ? 'false' : 'true'}>
-            <div className="r2-field-checkout__banner"><strong>الزيارة جارية</strong><span>{serverVisit ? `بدأت ${safeDate(serverVisit.checkInAt)}` : 'محفوظة محلياً ولم تصل الخادم بعد'}</span></div>
-            <div className="r2-field-segmented"><button type="button" aria-pressed={draft.outcome === 'completed'} onClick={() => setVisitDrafts((current) => ({ ...current, [activeVisit.id]: { ...draft, outcome: 'completed', failureReason: '' } }))}>تم الإنجاز</button><button type="button" aria-pressed={draft.outcome === 'could_not_complete'} onClick={() => setVisitDrafts((current) => ({ ...current, [activeVisit.id]: { ...draft, outcome: 'could_not_complete' } }))}>تعذر الإكمال</button></div>
-            {draft.outcome === 'could_not_complete' && <label>السبب<select value={draft.failureReason} onChange={(event) => setVisitDrafts((current) => ({ ...current, [activeVisit.id]: { ...draft, failureReason: event.target.value as FieldFailureReason | '' } }))}><option value="">اختر السبب</option>{Object.entries(FAILURE_LABELS).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>}
-            <label>ملخص الزيارة<textarea maxLength={1600} value={draft.outcomeNote} onChange={(event) => setVisitDrafts((current) => ({ ...current, [activeVisit.id]: { ...draft, outcomeNote: event.target.value } }))} placeholder="ماذا حدث؟" /></label>
-            <div className="r2-field-form-row"><label>القسم/الشباك<input maxLength={320} value={draft.counterDepartment} onChange={(event) => setVisitDrafts((current) => ({ ...current, [activeVisit.id]: { ...draft, counterDepartment: event.target.value } }))} /></label><label>الرقم الرسمي<input maxLength={320} value={draft.officialReference} onChange={(event) => setVisitDrafts((current) => ({ ...current, [activeVisit.id]: { ...draft, officialReference: event.target.value } }))} /></label></div>
-            <label>رسم رسمي مدفوع — دليل فقط، ليس Payment<input inputMode="decimal" value={draft.officialFeePaid} onChange={(event) => setVisitDrafts((current) => ({ ...current, [activeVisit.id]: { ...draft, officialFeePaid: event.target.value.replace(/[^0-9.]/g,'') } }))} placeholder="0.00" /></label>
-            <button type="button" className="r2-action r2-action--primary r2-field-big-action" disabled={Boolean(busyKey)} onClick={() => void checkOut(activeVisit)}>{busyKey === `checkout:${activeVisit.id}` ? 'جارٍ تثبيت النتيجة…' : 'إنهاء الزيارة'}</button>
-          </div>}
-
-          {serverVisit && <details className="r2-field-evidence"><summary>إضافة دليل للزيارة</summary>{(() => { const evidence = evidenceDrafts[serverVisit.id] ?? EMPTY_EVIDENCE_DRAFT; return <div><select value={evidence.evidenceType} onChange={(event) => setEvidenceDrafts((current) => ({ ...current, [serverVisit.id]: { ...evidence, evidenceType: event.target.value as FieldEvidenceType } }))}><option value="other">ملاحظة ميدانية</option><option value="photo">صورة موجودة في مستندات إنجاز</option><option value="document">مستند إنجاز</option><option value="receipt">وصل موجود في إنجاز</option></select>{evidence.evidenceType !== 'other' && <input value={evidence.documentId} onChange={(event) => setEvidenceDrafts((current) => ({ ...current, [serverVisit.id]: { ...evidence, documentId: event.target.value } }))} placeholder="Document UUID" dir="ltr" />}<textarea maxLength={1200} value={evidence.note} onChange={(event) => setEvidenceDrafts((current) => ({ ...current, [serverVisit.id]: { ...evidence, note: event.target.value } }))} placeholder="ملاحظة الدليل" /><button type="button" className="r2-action r2-action--secondary" disabled={Boolean(busyKey)} onClick={() => void addEvidence(serverVisit)}>ربط الدليل</button><small>رفع bytes جديد غير مزيف: حتى تُربط قناة Storage موثوقة، Runner يربط مستنداً موجوداً أو يسجل ملاحظة نصية فقط.</small></div>; })()}</details>}
-
-          {assignment.status === 'visit_complete' && <div className="r2-field-handoff"><label>تسليم للمكتب<textarea maxLength={1200} value={handoffNotes[assignment.id] ?? ''} onChange={(event) => setHandoffNotes((current) => ({ ...current, [assignment.id]: event.target.value }))} placeholder="ما الذي يجب أن يعرفه المكتب؟" /></label><button type="button" className="r2-action r2-action--primary" disabled={Boolean(busyKey)} onClick={() => void handoff(assignment)}>تسليم للمكتب</button></div>}
-        </article>;
-      })}</div>}
-    </section>}
+    {loadState==='ready'&&context&&view==='runner'&&<section className="r2-field-runner" aria-labelledby="runner-title"><div className="r2-field-section__head"><div><p className="r2-eyebrow">M5 · Mobile-first</p><h2 id="runner-title">Runner Mode</h2><p>زياراتك؛ الرسوم هنا دليل ميداني وليست دفعة مالية.</p></div><span className="r2-chip">{runnerAssignments.length}</span></div>{!runnerAssignments.length?<div className="r2-intel-card r2-field-empty">لا توجد زيارة مكلّف بها حالياً.</div>:<div className="r2-field-runner-list">{runnerAssignments.map(a=>{const serverVisit=serverVisits.get(a.id),local=localVisits.get(a.id),localId=local?.operation.kind==='check_in'?local.operation.operationId:null,active=serverVisit??(localId?{id:localId,version:1}:null),d=active?(visitDrafts[active.id]??V0):V0;return <article className="r2-field-runner-card" key={a.id} data-runner-assignment={a.id}><header><div><p className="r2-eyebrow">{a.scheduledFor} · {P[a.priority]}</p><h3>{a.destinationLabel}</h3><p>{a.companyName} · {a.transactionType}</p></div><span className="r2-chip">{localId&&!serverVisit?'محلي غير مزامن':A[a.status]}</span></header><div className="r2-field-next"><small>التالي</small><strong>{a.nextRequiredAction}</strong></div>{!active&&a.status==='queued'&&<button type="button" className="r2-action r2-action--primary r2-field-big-action" disabled={busy} onClick={()=>void checkIn(a)}>{busyKey===`checkin:${a.id}`?'جارٍ بدء الزيارة…':'تسجيل الوصول'}</button>}{active&&<div className="r2-field-checkout" data-local-visit={serverVisit?'false':'true'}><div className="r2-field-checkout__banner"><strong>الزيارة جارية</strong><span>{serverVisit?`بدأت ${fmt(serverVisit.checkInAt)}`:'محفوظة محلياً'}</span></div><div className="r2-field-segmented"><button type="button" aria-pressed={d.outcome==='completed'} onClick={()=>patchV(active.id,{outcome:'completed',failureReason:''})}>تم الإنجاز</button><button type="button" aria-pressed={d.outcome==='could_not_complete'} onClick={()=>patchV(active.id,{outcome:'could_not_complete'})}>تعذر الإكمال</button></div>{d.outcome==='could_not_complete'&&<label>السبب<select value={d.failureReason} onChange={e=>patchV(active.id,{failureReason:e.target.value as FieldFailureReason|''})}><option value="">اختر السبب</option>{Object.entries(F).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label>}<label>ملخص الزيارة<textarea maxLength={1600} value={d.outcomeNote} onChange={e=>patchV(active.id,{outcomeNote:e.target.value})}/></label><div className="r2-field-form-row"><label>القسم/الشباك<input maxLength={320} value={d.counterDepartment} onChange={e=>patchV(active.id,{counterDepartment:e.target.value})}/></label><label>الرقم الرسمي<input maxLength={320} value={d.officialReference} onChange={e=>patchV(active.id,{officialReference:e.target.value})}/></label></div><label>رسم رسمي مدفوع — دليل فقط، ليس Payment<input inputMode="decimal" value={d.officialFeePaid} onChange={e=>patchV(active.id,{officialFeePaid:e.target.value.replace(/[^0-9.]/g,'')})} placeholder="0.00"/></label><button type="button" className="r2-action r2-action--primary r2-field-big-action" disabled={busy} onClick={()=>void checkOut(active)}>{busyKey===`checkout:${active.id}`?'جارٍ التثبيت…':'إنهاء الزيارة'}</button></div>}{serverVisit&&<details className="r2-field-evidence"><summary>إضافة دليل للزيارة</summary>{(()=>{const e=evidenceDrafts[serverVisit.id]??E0;return <div><select value={e.evidenceType} onChange={x=>patchE(serverVisit.id,{evidenceType:x.target.value as FieldEvidenceType})}><option value="other">ملاحظة ميدانية</option><option value="photo">صورة في مستندات إنجاز</option><option value="document">مستند إنجاز</option><option value="receipt">وصل في إنجاز</option></select>{e.evidenceType!=='other'&&<input value={e.documentId} onChange={x=>patchE(serverVisit.id,{documentId:x.target.value})} placeholder="Document UUID" dir="ltr"/>}<textarea maxLength={1200} value={e.note} onChange={x=>patchE(serverVisit.id,{note:x.target.value})}/><button type="button" className="r2-action r2-action--secondary" disabled={busy} onClick={()=>void addEvidence(serverVisit)}>ربط الدليل</button><small>Runner يربط مستنداً موجوداً أو ملاحظة؛ لا يخزن bytes محلية.</small></div>})()}</details>}{a.status==='visit_complete'&&<div className="r2-field-handoff"><label>تسليم للمكتب<textarea maxLength={1200} value={handoffNotes[a.id]??''} onChange={e=>setHandoffNotes(x=>({...x,[a.id]:e.target.value}))}/></label><button type="button" className="r2-action r2-action--primary" disabled={busy} onClick={()=>void handoff(a)}>تسليم للمكتب</button></div>}</article>})}</div>}</section>}
   </div>;
 }
