@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "phase": "8.4",
+  "name": "CRM, Service Catalog & Smart Intake — M6 + M17",
+  "status": "IN_PROGRESS",
+  "baseCommit": "010aff999e66ff31b8a813026cddbc69db30b550",
+  "implementationBranch": "phase8-4-crm-smart-intake",
+  "predecessor": {
+    "phase": "8.3",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase8_4Allowed=true"
+  },
+  "systems": {
+    "M6": {
+      "name": "Service Catalog, CRM & Commercial Intake",
+      "status": "IN_PROGRESS",
+      "authority": "pre_transaction_commercial_facts_only"
+    },
+    "M17": {
+      "name": "Smart Intake Forms & Secure Submission Links",
+      "status": "IN_PROGRESS",
+      "authority": "external_non_authoritative_submission_only"
+    }
+  },
+  "securityContracts": {
+    "rawTokenPersistence": "FORBIDDEN",
+    "tokenHash": "SHA-256",
+    "anonymousDirectTableWrites": "FORBIDDEN",
+    "externalSubmissionAuthoritativeConversion": "INTERNAL_REVIEW_REQUIRED",
+    "duplicateResolutionBeforeCoreConversion": "REQUIRED",
+    "publicUploadClaimWithoutStorageAcknowledgement": "FORBIDDEN"
+  },
+  "authoritativeCoreWriteBoundaries": {
+    "companies": "guarded_conversion_rpc_only",
+    "contacts": "guarded_conversion_rpc_only",
+    "transactions": "guarded_conversion_rpc_only",
+    "workflow": "existing_workflow_authority_only",
+    "financeLedger": "none"
+  },
+  "javascriptBudgetBytes": 670000,
+  "budgetIncreaseAllowed": false,
+  "exitGatePassed": false,
+  "phase8_5Allowed": false,
+  "nextPhase": "8.5",
+  "successorStatus": "LOCKED",
+  "kickoffEvidence": "docs/PHASE8_4_KICKOFF.md"
+}
