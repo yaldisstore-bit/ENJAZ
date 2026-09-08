@@ -36,8 +36,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Preserve closed Phase 8.2
         run: node scripts/phase8-2-automation-audit.mjs && node --experimental-strip-types --test tests/automationEngine.test.ts
-      - name: Enforce Phase 8.3 operations and field contract
-        run: node scripts/phase8-3-operations-field-audit.mjs
+      - name: Enforce Phase 8.3 operations, field and cloud evidence contracts
+        run: node scripts/phase8-3-operations-field-audit.mjs && node scripts/phase8-3-cloud-evidence-audit.mjs
       - name: Phase 8.3 command and offline tests
         run: node --experimental-strip-types --test tests/fieldOperationsEngine.test.ts
       - name: Full functional regression
