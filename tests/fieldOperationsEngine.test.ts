@@ -75,6 +75,13 @@ test('lean offline validation still rejects array-shaped malformed queue rows', 
   assert.equal(queue.list(WORKSPACE).length, 0);
 });
 
+test('removing the final offline operation leaves the queue empty without a separate clear path', () => {
+  const queue = createFieldOfflineQueue(new MemoryStorage());
+  queue.enqueue(queuedCheckIn());
+  queue.remove(WORKSPACE, OPERATION);
+  assert.equal(queue.list(WORKSPACE).length, 0);
+});
+
 test('offline queue is idempotent by operation UUID and rejects payload drift', () => {
   const queue = createFieldOfflineQueue(new MemoryStorage());
   const operation = queuedCheckIn();
