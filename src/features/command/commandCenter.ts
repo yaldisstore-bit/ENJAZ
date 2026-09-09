@@ -141,7 +141,7 @@ export function createCommandCenterOrchestrator(dependencies: CommandCenterDepen
       });
     },
 
-    decideAutomationApproval(input) {
+    decideAutomationApproval(input: DecideAutomationApprovalInput) {
       return automation.decideApproval(
         requiredText(input.workspaceId, 'workspace_id', 1, 64),
         requiredText(input.approvalId, 'approval_id', 1, 64),
@@ -151,7 +151,7 @@ export function createCommandCenterOrchestrator(dependencies: CommandCenterDepen
       );
     },
 
-    transitionWorkflow(input) {
+    transitionWorkflow(input: TransitionCommandWorkflowInput) {
       if (!Number.isSafeInteger(input.expectedStagePosition) || input.expectedStagePosition < 1) throw new Error('INVALID_EXPECTED_STAGE');
       return workflow.transition({
         workspaceId: requiredText(input.workspaceId, 'workspace_id', 1, 64),
@@ -163,7 +163,7 @@ export function createCommandCenterOrchestrator(dependencies: CommandCenterDepen
       });
     },
 
-    reassignField(input) {
+    reassignField(input: ReassignCommandFieldInput) {
       if (!Number.isSafeInteger(input.expectedVersion) || input.expectedVersion < 1) throw new Error('INVALID_ASSIGNMENT_VERSION');
       return field.reassign(
         requiredText(input.workspaceId, 'workspace_id', 1, 64),
