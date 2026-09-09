@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "phase": "8.7",
+  "name": "Operations Zero-Escape Destruction Gate",
+  "status": "IN_PROGRESS",
+  "baseCommit": "cb6449428e0ed9490af2758beac12692631b8f8b",
+  "implementationBranch": "phase8-7-operations-zero-escape",
+  "predecessor": {
+    "phase": "8.6",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase8_7Allowed=true"
+  },
+  "mode": "DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY",
+  "newFeatureAuthorityAllowed": false,
+  "newDatabaseTablesAllowed": false,
+  "newWriteRpcAuthorityAllowed": false,
+  "javascriptBudgetBytes": 670000,
+  "budgetIncreaseAllowed": false,
+  "systemsUnderGate": [
+    "M1",
+    "M5",
+    "M6",
+    "M17",
+    "M15_PHASE8_PORTION"
+  ],
+  "destructionDimensions": [
+    "repeated_triggers",
+    "stale_transitions",
+    "conflicting_actors",
+    "large_histories",
+    "field_offline_recovery",
+    "intake_abuse",
+    "branch_team_permission_boundaries",
+    "automation_failure_isolation"
+  ],
+  "zeroEscapeLaw": {
+    "individualSystemEvidenceRequired": true,
+    "branchCiAloneCanCloseSystem": false,
+    "realCloudRequiredWherePersistentAuthorityIsExercised": true,
+    "realBrowserRequired": true,
+    "deployedLiveRequired": true,
+    "zeroCriticalHighFunctionalBlockersRequired": true,
+    "exactMergedShaRequired": true,
+    "postMergeRecertificationRequired": true
+  },
+  "gateEvidence": "PENDING",
+  "realCloudVerification": "PENDING",
+  "realBrowserVerification": "PENDING",
+  "deployedLiveVerification": "PENDING",
+  "postMergeRecertification": "PENDING",
+  "exitGatePassed": false,
+  "phase9_1Allowed": false,
+  "nextPhase": "9.1",
+  "successorStatus": "LOCKED",
+  "kickoffEvidence": "docs/PHASE8_7_KICKOFF.md"
+}
