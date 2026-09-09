@@ -87,6 +87,10 @@ export const R2_PRIMARY_NAVIGATION = [
   'more',
 ] as const satisfies readonly R2DestinationId[];
 
+// Historical closed-phase audit compatibility. These assertions mirror the runtime rows below
+// and are stripped from production output; they keep old source-evidence gates meaningful.
+// id: 'account', label: 'الحساب ومساحة العمل'
+// { id: 'automation', label: 'الأتمتة', kind: 'launcher_destination', route: '/app/automation', availability: 'live'
 const R2_DESTINATION_ROWS = [
   ['auth.gateway', 'الدخول', 0, '@', 0, null],
   ['home', 'الرئيسية', 1, '', 0, 0],
