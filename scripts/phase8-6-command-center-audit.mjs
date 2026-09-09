@@ -26,7 +26,8 @@ for(const marker of ['Command-owned database tables','Command-owned write RPCs',
 for(const marker of ['createCommandCenterOrchestrator','delegated_existing_domain_gateways_only','commandWriteAuthority:\'none\'','financeWriteAuthority:\'none\'','automation.decideApproval','workflow.transition','field.reassign','Promise.all'])must(compactService,marker.replace(/\s+/g,''),'command service');
 for(const forbidden of ['EnjazSupabaseClient','.rpc(','postPayment(','reversePayment(','createCashbox(','createEngagement('])if(service.includes(forbidden))throw new Error(`command service owns forbidden authority: ${forbidden}`);
 for(const marker of ['data-command-stage="8.6"','data-command-authority="delegated_existing_domain_gateways_only"','data-command-write-authority="none"','data-finance-write-authority="none"','decideApproval','transitionWorkflow','reassignField','لم يعرض مركز القيادة صورة جزئية'])must(ui,marker,'command UI');
-for(const marker of ['LiveCommandCenterExperience','destinationId === \'command\'','<LiveCommandCenterExperience navigate={navigate} />'])must(root,marker,'live runtime');
+for(const marker of ['LiveCommandCenterExperience','destinationId === \'command\'','<LiveCommandCenterExperience navigate={navigate} />','data-live-deferred="true"'])must(root,marker,'live runtime');
+if(root.includes('OperationalIntelligenceExperience'))throw new Error('historical R2.0-7 seven-domain demo must not ship in the canonical live bundle');
 if(root.includes("destinationId === 'workflow' || destinationId === 'command' || destinationId === 'risk'"))throw new Error('live runtime still routes Command through the R2.0-7 demo');
 must(production,"../command/command-center.css",'production CSS');
 for(const marker of ['delegated_existing_domain_gateways_only','automation approval is delegated','workflow transition preserves expected-stage','field reassignment preserves version','fails closed'])must(tests,marker,'command tests');
