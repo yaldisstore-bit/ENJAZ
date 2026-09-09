@@ -2,9 +2,12 @@
   "schemaVersion": 1,
   "phase": "8.4",
   "name": "CRM, Service Catalog & Smart Intake — M6 + M17",
-  "status": "IN_PROGRESS",
+  "status": "CLOSED",
   "baseCommit": "010aff999e66ff31b8a813026cddbc69db30b550",
   "implementationBranch": "phase8-4-crm-smart-intake",
+  "implementationHead": "ce9c0ea27af0289593e27467841014922943b171",
+  "pullRequest": 115,
+  "implementationMergeCommit": "b1f2e3b72ea9e15bb418660c14a4c8b663e37477",
   "predecessor": {
     "phase": "8.3",
     "requiredStatus": "CLOSED",
@@ -14,12 +17,18 @@
     "M6": {
       "name": "Service Catalog, CRM & Commercial Intake",
       "status": "IN_PROGRESS",
-      "authority": "pre_transaction_commercial_facts_only"
+      "phase8_4Delivery": "CLOSED",
+      "overallClosureAllowed": false,
+      "authority": "pre_transaction_commercial_facts_only",
+      "finalClosureGate": "M1-M18 Zero-Escape governing closure evidence"
     },
     "M17": {
       "name": "Smart Intake Forms & Secure Submission Links",
       "status": "IN_PROGRESS",
-      "authority": "external_non_authoritative_submission_only"
+      "phase8_4Delivery": "CLOSED",
+      "overallClosureAllowed": false,
+      "authority": "external_non_authoritative_submission_only",
+      "finalClosureGate": "later assigned integration and M1-M18 Zero-Escape governing closure evidence"
     }
   },
   "securityContracts": {
@@ -37,15 +46,63 @@
     "workflow": "existing_workflow_authority_only",
     "financeLedger": "none"
   },
+  "preClosure": {
+    "finalCertifiedHead": "ce9c0ea27af0289593e27467841014922943b171",
+    "finalPullRequest": 115,
+    "workflowCount": 33,
+    "successCount": 33,
+    "failureCount": 0,
+    "crmIntakeTestCount": 7,
+    "functionalTestCount": 217,
+    "realChromium": "PASS",
+    "realChromiumAssertionCount": 9,
+    "productionJsBytes": 669685,
+    "javascriptBudgetBytes": 670000,
+    "previewBytes": 250601
+  },
+  "realCloudVerification": {
+    "required": true,
+    "status": "PASS_ZERO_RESIDUE",
+    "projectRef": "juzxriirhkuzviwnhkbd",
+    "authenticatedProbe": "PASS",
+    "storageAcknowledgement": "PASS",
+    "zeroResidue": true,
+    "cleanupStorageMigration": "20260909033707 phase_8_4_storage_probe_cleanup_via_api",
+    "cleanupFixtureMigration": "20260909033915 phase_8_4_storage_probe_fixture_cleanup"
+  },
+  "postMergeRecertification": {
+    "required": true,
+    "status": "COMPLETE",
+    "mainCommit": "b1f2e3b72ea9e15bb418660c14a4c8b663e37477",
+    "workflowCount": 18,
+    "successCount": 18,
+    "failureCount": 0,
+    "queuedCount": 0,
+    "inProgressCount": 0,
+    "skippedCount": 0,
+    "pagesPreviewRunId": 34307859669,
+    "liveExternalRunId": 34307899140,
+    "realBrowserRunId": 34307826442,
+    "canonicalPagesJsBytes": 669877,
+    "realPagesLiveJsBytes": 669888,
+    "javascriptBudgetBytes": 670000,
+    "publishedApplicationAttack": "PASS"
+  },
   "javascriptBudgetBytes": 670000,
   "budgetIncreaseAllowed": false,
   "realCloudEvidence": "docs/PHASE8_4_REAL_CLOUD_EVIDENCE.md",
+  "closureEvidence": "docs/PHASE8_4_CLOSURE.md",
+  "postMergeEvidence": "docs/PHASE8_4_POSTMERGE_RECERTIFICATION.md",
   "realCloudAuthenticatedProbe": "PASS",
   "realStorageAcknowledgementProbe": "PASS_ZERO_RESIDUE",
   "knownBlockers": [],
-  "exitGatePassed": false,
-  "phase8_5Allowed": false,
+  "exitGatePassed": true,
+  "unresolvedDefectCount": 0,
+  "criticalDefectCount": 0,
+  "highDefectCount": 0,
+  "functionalBlockerCount": 0,
+  "phase8_5Allowed": true,
   "nextPhase": "8.5",
-  "successorStatus": "LOCKED",
+  "successorStatus": "AUTHORIZED",
   "kickoffEvidence": "docs/PHASE8_4_KICKOFF.md"
 }

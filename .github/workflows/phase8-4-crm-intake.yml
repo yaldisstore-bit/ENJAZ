@@ -36,8 +36,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Preserve formally closed Phase 8.3
         run: node scripts/phase8-3-operations-field-audit.mjs && node scripts/phase8-3-cloud-evidence-audit.mjs && node --experimental-strip-types --test tests/fieldOperationsEngine.test.ts
-      - name: Enforce Phase 8.4 CRM and Smart Intake contracts
-        run: node scripts/phase8-4-crm-intake-audit.mjs
+      - name: Enforce Phase 8.4 CRM, Smart Intake and cloud closure contracts
+        run: node scripts/phase8-4-crm-intake-audit.mjs && node scripts/phase8-4-cloud-evidence-audit.mjs
       - name: Phase 8.4 command and authority tests
         run: node --experimental-strip-types --test tests/crmIntakeEngine.test.ts
       - name: Full functional regression
