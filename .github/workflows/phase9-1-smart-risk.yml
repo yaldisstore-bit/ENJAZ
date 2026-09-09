@@ -39,7 +39,7 @@ jobs:
           node scripts/phase8-7-closure-audit.mjs
           node scripts/phase9-1-smart-risk-audit.mjs
       - name: Smart Risk deterministic destruction tests
-        run: node --experimental-strip-types --test tests/smartRiskEngine.test.ts
+        run: node --experimental-strip-types --test tests/smartRiskEngine.test.ts tests/riskService.test.ts
       - name: Full functional regression
         run: npm run test:functional
       - name: Database and roadmap integrity
