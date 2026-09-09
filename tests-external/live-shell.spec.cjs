@@ -161,6 +161,8 @@ test('published Phase 9.1 Smart Risk route is real and read-only', async ({ page
   await expect(risk).toBeVisible();
   await expect(risk).toHaveAttribute('data-risk-authority', 'read_only_derived_intelligence');
   await expect(risk).toHaveAttribute('data-risk-write-authority', 'none');
+  await expect(risk).toHaveAttribute('data-risk-engine', 'smart-risk-v1');
+  await expect(risk).toHaveAttribute('data-risk-signal-count', /^\d+$/);
   await expect(page.locator('[data-live-deferred="true"]')).toHaveCount(0);
   await expect(risk).toContainText('المخاطر والرؤى');
   await expect(risk).toContainText('لا توجد write authority داخل Smart Risk');
