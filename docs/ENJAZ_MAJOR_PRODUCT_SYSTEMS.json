@@ -17,8 +17,8 @@
     {"id":"M2","name":"Corporate Governance & Ownership Engine","anchors":["9"],"kind":"corporate-registry","status":"PLANNED","closureEvidence":null},
     {"id":"M3","name":"Client Portal","anchors":["11"],"kind":"external-portal","status":"PLANNED","closureEvidence":null},
     {"id":"M4","name":"Omnichannel Communications Hub","anchors":["11"],"kind":"communications","status":"PLANNED","closureEvidence":null},
-    {"id":"M5","name":"ENJAZ Field Operations / Runner Mode","anchors":["8"],"kind":"field-operations","status":"PLANNED","closureEvidence":null},
-    {"id":"M6","name":"Service Catalog, CRM & Commercial Intake","anchors":["8"],"kind":"crm-intake","status":"PLANNED","closureEvidence":null},
+    {"id":"M5","name":"ENJAZ Field Operations / Runner Mode","anchors":["8"],"kind":"field-operations","status":"CLOSURE_CANDIDATE","closureEvidence":"docs/PHASE8_7_CLOSURE.md"},
+    {"id":"M6","name":"Service Catalog, CRM & Commercial Intake","anchors":["8"],"kind":"crm-intake","status":"CLOSURE_CANDIDATE","closureEvidence":"docs/PHASE8_7_CLOSURE.md"},
     {"id":"M7","name":"Document Factory & Official Form Engine","anchors":["10"],"kind":"document-generation","status":"PLANNED","closureEvidence":null},
     {"id":"M8","name":"Regulatory / Knowledge Base Engine","anchors":["9","12"],"kind":"knowledge-system","status":"PLANNED","closureEvidence":null},
     {"id":"M9","name":"Agentic ENJAZ Copilot","anchors":["12"],"kind":"agentic-ai","status":"PLANNED","closureEvidence":null},
@@ -27,9 +27,9 @@
     {"id":"M12","name":"Compliance, Audit & Evidence Center","anchors":["15"],"kind":"compliance","status":"PLANNED","closureEvidence":null},
     {"id":"M13","name":"Business Intelligence & Forecasting Center","anchors":["9","15"],"kind":"business-intelligence","status":"PLANNED","closureEvidence":null},
     {"id":"M14","name":"Backup, Restore & Workspace Portability","anchors":["15","18"],"kind":"resilience-portability","status":"PLANNED","closureEvidence":null},
-    {"id":"M15","name":"Multi-Branch, Departments & Team Operating Model","anchors":["8","15"],"kind":"organization-operations","status":"PLANNED","closureEvidence":null},
+    {"id":"M15","name":"Multi-Branch, Departments & Team Operating Model","anchors":["8","15"],"kind":"organization-operations","status":"ACTIVE","closureEvidence":null},
     {"id":"M16","name":"Engagements, Contracts & Retainers","anchors":["7","10","11"],"kind":"commercial-contracts","status":"PLANNED","closureEvidence":null},
-    {"id":"M17","name":"Smart Intake Forms & Secure Submission Links","anchors":["8","11"],"kind":"external-intake","status":"PLANNED","closureEvidence":null},
+    {"id":"M17","name":"Smart Intake Forms & Secure Submission Links","anchors":["8","11"],"kind":"external-intake","status":"ACTIVE","closureEvidence":null},
     {"id":"M18","name":"Process Mining & Predictive Operations","anchors":["9","15"],"kind":"process-intelligence","status":"PLANNED","closureEvidence":null}
   ],
   "releaseRequirements": [
