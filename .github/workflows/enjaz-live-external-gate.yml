@@ -23,6 +23,7 @@ jobs:
     timeout-minutes: 25
     env:
       LIVE_URL: https://yaldisstore-bit.github.io/ENJAZ/
+      LIVE_APP_URL: https://yaldisstore-bit.github.io/ENJAZ/live/
     steps:
       - name: Checkout deployed source
         uses: actions/checkout@v7
@@ -52,14 +53,24 @@ jobs:
           case "$final_url" in https://*) ;; *) echo "Non-HTTPS final URL: $final_url"; exit 1;; esac
           content_type=$(curl --location --silent --head "$LIVE_URL" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{print tolower($2)}' | tail -1)
           echo "$content_type" | grep -q 'text/html' || { echo "Unexpected content-type: $content_type"; exit 1; }
+          live_code=$(curl --location --silent --show-error --output /tmp/enjaz-live-app.html --write-out "%{http_code}" "$LIVE_APP_URL" || true)
+          [ "$live_code" = "200" ] || { echo "Real /live application returned HTTP $live_code"; exit 1; }
       - name: Install pinned external browser and WCAG tooling
         run: |
           npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2
           npx playwright install --with-deps chromium
-      - name: Attack the actual published application
+      - name: Attack frozen review root
         env:
           BASE_URL: https://yaldisstore-bit.github.io/ENJAZ/
-        run: npx playwright test tests-external/live-shell.spec.cjs --reporter=line --workers=1
+        run: >-
+          npx playwright test tests-external/live-shell.spec.cjs
+          --grep-invert "published Phase 9.1 Smart Risk route is real and read-only"
+          --reporter=line --workers=1
+      - name: Attack real /live application and Smart Risk deployment contract
+        env:
+          BASE_URL: https://yaldisstore-bit.github.io/ENJAZ/
+          LIVE_APP_URL: https://yaldisstore-bit.github.io/ENJAZ/live/
+        run: npx playwright test tests-external/live-app-phase9.spec.cjs --reporter=line --workers=1
       - name: Save public-response evidence on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -67,6 +78,7 @@ jobs:
           name: enjaz-live-external-diagnostics-${{ github.event.workflow_run.head_sha || github.sha }}
           path: |
             /tmp/enjaz-live.html
+            /tmp/enjaz-live-app.html
             test-results/
           if-no-files-found: ignore
           retention-days: 7
