@@ -14,13 +14,13 @@ const LOADING_STATE: HomeDashboardLoadState = Object.freeze({ status: 'loading',
 
 function toHomeErrorMessage(error: unknown): string {
   if (error instanceof HomeWorkspaceUnavailableError) {
-    return 'لا توجد مساحة عمل مرتبطة بحسابك. سجّل الدخول مجددًا أو تحقق من إعداد المساحة.';
+    return 'لا توجد مساحة عمل مرتبطة. سجّل الدخول مجددًا أو تحقق من إعدادها.';
   }
   if (error instanceof DataAccessError) {
     if (error.dataCode === 'DATA_FORBIDDEN') return 'لا تملك صلاحية قراءة لوحة العمل.';
     if (error.dataCode === 'DATA_UNAVAILABLE') return 'تعذر تحميل بيانات إنجاز. تحقق من الاتصال وأعد المحاولة.';
   }
-  return 'تعذر تجهيز لوحة العمل بأمان. لم تُعرض بيانات جزئية.';
+  return 'تعذر تجهيز لوحة العمل بأمان.';
 }
 
 export function useHomeDashboard(): Readonly<HomeDashboardLoadState & { retry(): void }> {
