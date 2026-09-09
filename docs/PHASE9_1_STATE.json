@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "phase": "9.1",
+  "name": "Smart Risk Engine",
+  "status": "IN_PROGRESS",
+  "baseCommit": "3e877ec957bedb647ef86287affe84b97ede3356",
+  "implementationBranch": "phase9-1-smart-risk-engine",
+  "predecessor": {
+    "phase": "8.7",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase9_1Allowed=true"
+  },
+  "authority": {
+    "mode": "READ_ONLY_DERIVED_INTELLIGENCE",
+    "riskOwnedTables": "NONE",
+    "riskOwnedWriteRpc": "NONE",
+    "transactionWriteAuthority": "none",
+    "workflowWriteAuthority": "none",
+    "financeWriteAuthority": "none",
+    "companyWriteAuthority": "none",
+    "automationWriteAuthority": "none",
+    "shadowRiskTruthStoreAllowed": false,
+    "opaqueUnexplainedScoreAllowed": false
+  },
+  "explainability": {
+    "stableSignalCodeRequired": true,
+    "severityRequired": true,
+    "urgencyRequired": true,
+    "entityReferenceRequired": true,
+    "componentsRequired": true,
+    "evidenceRequired": true,
+    "evaluatedAtRequired": true,
+    "nonMutatingRecommendationRequired": true
+  },
+  "initialSignalFamilies": [
+    "transaction_stalled",
+    "transaction_inactive",
+    "open_critical_blocker",
+    "deadline_overdue",
+    "deadline_near",
+    "workflow_sla_pressure",
+    "finance_anomaly",
+    "workload_concentration",
+    "company_compliance_due"
+  ],
+  "missingEvidenceBehavior": "NO_SIGNAL_FAIL_CLOSED",
+  "historicalRiskDemo": {
+    "status": "FROZEN_HISTORICAL_EVIDENCE_ONLY",
+    "canonicalProductionAuthority": false
+  },
+  "javascriptBudgetBytes": 670000,
+  "budgetIncreaseAllowed": false,
+  "realCloudRequired": false,
+  "realCloudReason": "initial engine is read-only and must reuse existing authoritative RLS-scoped reads; no new persistent authority is introduced",
+  "realBrowserVerification": "PENDING",
+  "pullRequestGate": "PENDING",
+  "postMergeRecertification": "PENDING",
+  "exitGatePassed": false,
+  "phase9_2Allowed": false,
+  "nextPhase": "9.2",
+  "successorStatus": "LOCKED",
+  "kickoffEvidence": "docs/PHASE9_1_KICKOFF.md"
+}
