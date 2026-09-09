@@ -1,4 +1,6 @@
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 const read=(p)=>fs.readFileSync(new URL(`../${p}`,import.meta.url),'utf8');
@@ -10,11 +12,43 @@ const intakeRateRepair=read('database/migrations/phase_8_7_intake_rate_limit_ser
 const fail=(m)=>{throw new Error(`Phase 8.7 Zero-Escape audit: ${m}`)};
 const must=(text,marker,label)=>{if(!text.includes(marker))fail(`${label} missing ${marker}`)};
 
-execFileSync(process.execPath,['scripts/phase8-6-closure-audit.mjs'],{stdio:'inherit'});
+// Preserve the historical Phase 8.6 closure exactly as certified. Do not weaken or rewrite the
+// 8.6 guard merely because Phase 8.7 legitimately carries its own repair migration.
+const phase86ClosedSha='cb6449428e0ed9490af2758beac12692631b8f8b';
+const phase86ProtectedPaths=[
+  'docs/PHASE8_6_STATE.json',
+  'docs/PHASE8_6_KICKOFF.md',
+  'docs/PHASE8_6_IMPLEMENTATION_EVIDENCE.md',
+  'docs/PHASE8_6_POSTMERGE_RECERTIFICATION.md',
+  'docs/PHASE8_6_CLOSURE.md',
+  'src/features/command/commandCenter.ts',
+  'src/ui-r2/command/LiveCommandCenterExperience.tsx',
+  'src/ui-r2/command/command-center.css',
+  'src/ui-r2/runtime/UiR2LiveRoot.tsx',
+  'src/ui-r2/runtime/UiR2ProductionRoot.tsx',
+  'tests/commandCenter.test.ts',
+  'tests-external/phase8-6-command-center.spec.cjs',
+  'scripts/phase8-6-command-center-audit.mjs',
+  'scripts/phase8-6-closure-audit.mjs'
+];
+try{
+  execFileSync('git',['diff','--quiet',phase86ClosedSha,'--',...phase86ProtectedPaths],{stdio:'inherit'});
+}catch{
+  fail('Phase 8.6 protected closure/runtime files changed after certified close');
+}
+const phase86TmpParent=fs.mkdtempSync(path.join(os.tmpdir(),'enjaz-phase86-'));
+const phase86Worktree=path.join(phase86TmpParent,'closed');
+try{
+  execFileSync('git',['worktree','add','--detach',phase86Worktree,phase86ClosedSha],{stdio:'ignore'});
+  execFileSync(process.execPath,['scripts/phase8-6-closure-audit.mjs'],{cwd:phase86Worktree,stdio:'inherit'});
+}finally{
+  try{execFileSync('git',['worktree','remove','--force',phase86Worktree],{stdio:'ignore'});}catch{}
+  fs.rmSync(phase86TmpParent,{recursive:true,force:true});
+}
 
 if(state.phase!=='8.7'||state.name!=='Operations Zero-Escape Destruction Gate')fail('identity drift');
 if(state.status!=='IN_PROGRESS')fail('Phase 8.7 must remain IN_PROGRESS before full closure evidence');
-if(state.baseCommit!=='cb6449428e0ed9490af2758beac12692631b8f8b')fail('base commit drift');
+if(state.baseCommit!==phase86ClosedSha)fail('base commit drift');
 if(state.implementationBranch!=='phase8-7-operations-zero-escape')fail('implementation branch drift');
 if(state.predecessor?.phase!=='8.6'||state.predecessor?.requiredStatus!=='CLOSED'||state.predecessor?.requiredAuthorization!=='phase8_7Allowed=true')fail('predecessor contract drift');
 if(state.mode!=='DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY')fail('mode drift');
@@ -78,5 +112,8 @@ for(const marker of [
   'insert into public.intake_public_events(link_id,event_type)',
   'revoke all on function private.enforce_public_intake_rate_v1(uuid,text) from public,anon'
 ])must(intakeRateRepair,marker,'M17 concurrent abuse repair');
+if(/create\s+table\b/i.test(intakeRateRepair))fail('M17 repair may not create a new table');
+if(/create\s+or\s+replace\s+function\s+public\./i.test(intakeRateRepair))fail('M17 repair may not create/replace a public RPC');
+if(/grant\s+execute/i.test(intakeRateRepair))fail('M17 repair may not grant new execute authority');
 
-console.log('ENJAZ PHASE 8.7 ZERO-ESCAPE AUDIT PASS — Phase 8.6 closure preserved; Phase 9.1 locked; M1/M5/M6/M17/M15 destruction scope frozen; wave-1 regression, M5 unknown-kind fail-closed repair and M17 serialized rate decision repair present; 670000-byte budget unchanged.');
+console.log('ENJAZ PHASE 8.7 ZERO-ESCAPE AUDIT PASS — Phase 8.6 exact closed SHA independently recertified and protected files unchanged; Phase 9.1 locked; M1/M5/M6/M17/M15 destruction scope frozen; wave-1 regression, M5 unknown-kind fail-closed repair and M17 serialized rate decision repair present; 670000-byte budget unchanged.');
