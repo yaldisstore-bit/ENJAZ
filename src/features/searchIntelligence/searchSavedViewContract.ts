@@ -2,6 +2,7 @@ import {
   TRANSACTION_SAVED_VIEW_SCHEMA,
   createTransactionSavedViewDefinition,
   parseTransactionSavedViewDefinition,
+  type TransactionListSort,
   type TransactionSavedViewDefinition,
 } from '../transactions/transactionListModel.ts';
 
@@ -42,6 +43,7 @@ export interface GlobalSearchResultReference {
 
 const DOMAINS: readonly SavedViewDomain[] = ['transactions', 'companies', 'people', 'procedures', 'documents'];
 const VISIBILITIES: readonly SavedViewVisibility[] = ['personal', 'team', 'workspace'];
+const TRANSACTION_SORTS: readonly TransactionListSort[] = ['activity-desc', 'created-desc', 'fee-desc', 'fee-asc'];
 const FILTER_VALUE_TYPES = new Set(['string', 'number', 'boolean']);
 
 function normalizeText(value: string, max: number): string {
@@ -82,6 +84,7 @@ export function createEnjazSavedViewDefinition(input: {
   pageSize?: number | null;
   sourceSchema?: string | null;
 }): EnjazSavedViewDefinition {
+  if (!DOMAINS.includes(input.domain)) throw new TypeError('Invalid saved-view domain');
   const filters = normalizeFilters(input.filters ?? {});
   if (!filters) throw new TypeError('Invalid saved-view filters');
   const from = normalizeIsoDate(input.dateRange?.from ?? null);
@@ -159,10 +162,11 @@ export function toTransactionSavedView(value: EnjazSavedViewDefinition): Transac
   if (!canonical || canonical.domain !== 'transactions' || canonical.sourceSchema !== TRANSACTION_SAVED_VIEW_SCHEMA) return null;
   const view = canonical.filters.view;
   if (view !== 'current' && view !== 'stalled' && view !== 'archived') return null;
+  if (!canonical.sort || !TRANSACTION_SORTS.includes(canonical.sort as TransactionListSort)) return null;
   return parseTransactionSavedViewDefinition(createTransactionSavedViewDefinition({
     view,
     search: canonical.query,
-    sort: canonical.sort as TransactionSavedViewDefinition['sort'],
+    sort: canonical.sort as TransactionListSort,
     pageSize: canonical.pageSize ?? undefined,
   }));
 }
