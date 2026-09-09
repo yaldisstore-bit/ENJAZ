@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "phase": "8.5",
   "name": "Multi-Branch / Departments / Teams — M15 foundation",
   "status": "IN_PROGRESS",
@@ -15,6 +15,12 @@
     "name": "Multi-Branch, Departments & Team Operating Model",
     "phaseSliceStatus": "IN_PROGRESS",
     "globalSystemStatus": "OPEN"
+  },
+  "delivery": {
+    "phaseSliceJourney": "isolated_live_preview_real_chromium",
+    "canonicalRuntimePromotion": "DEFERRED_UNTIL_SEPARATE_BUDGETED_PROMOTION",
+    "canonicalRuntimeMustRemainAtPredecessorBudgetContract": true,
+    "duplicateNavigationDestinationAllowed": false
   },
   "rootAuthority": {
     "workspaceTrustTable": "workspace_memberships",
@@ -58,6 +64,7 @@
     "rlsVerifiableInheritance"
   ],
   "deferredCapabilities": [
+    "canonicalRuntimePromotion",
     "branchCashboxes",
     "advancedServiceRouting",
     "automatedWorkloadBalancing",
