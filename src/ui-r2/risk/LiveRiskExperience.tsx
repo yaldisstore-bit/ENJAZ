@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
 import { useFieldOperationsCommandGateway } from '../../features/field-operations/FieldOperationsCommandContext.tsx';
 import type { RiskRecommendation, RiskSeverity, RiskSignal } from '../../features/risk/riskEngine.ts';
@@ -9,20 +9,20 @@ import type { R2DestinationId } from '../architecture/navigation-contract.ts';
 type LoadState = 'loading' | 'ready' | 'error';
 type Props = Readonly<{ navigate: (id: R2DestinationId) => void }>;
 
-const DESTINATION: Readonly<Record<RiskRecommendation['destination'], R2DestinationId>> = Object.freeze({
+const DESTINATION: Readonly<Record<RiskRecommendation['destination'], R2DestinationId>> = {
   '/app/transactions': 'transactions',
   '/app/workflow': 'workflow',
   '/app/finance': 'finance',
   '/app/operations': 'operations',
   '/app/companies': 'companies',
-});
+};
 
-const SEVERITY_LABEL: Readonly<Record<RiskSeverity, string>> = Object.freeze({
+const SEVERITY_LABEL: Readonly<Record<RiskSeverity, string>> = {
   critical: 'حرج',
   high: 'مرتفع',
   medium: 'متوسط',
   low: 'مراقبة',
-});
+};
 
 function entityLabel(signal: RiskSignal): string {
   return signal.entity.label?.trim() || `${signal.entity.type} · ${signal.entity.id.slice(0, 8)}`;
@@ -58,14 +58,14 @@ export function LiveRiskExperience({ navigate }: Props) {
     return () => { live = false; };
   }, [dataFactory, fieldOperations, userId]);
 
-  const summary = useMemo(() => {
-    const signals = result?.signals ?? [];
-    return Object.freeze({
-      critical: signals.filter((signal) => signal.severity === 'critical').length,
-      high: signals.filter((signal) => signal.severity === 'high').length,
-      now: signals.filter((signal) => signal.urgency === 'now').length,
-    });
-  }, [result]);
+  let critical = 0;
+  let high = 0;
+  let now = 0;
+  for (const signal of result?.signals ?? []) {
+    if (signal.severity === 'critical') critical += 1;
+    else if (signal.severity === 'high') high += 1;
+    if (signal.urgency === 'now') now += 1;
+  }
 
   const primary = result?.signals[0] ?? null;
 
@@ -80,9 +80,9 @@ export function LiveRiskExperience({ navigate }: Props) {
 
     {loadState === 'ready' && result && <>
       <section className="r2-operations-pulse" aria-label="ملخص المخاطر">
-        <div><span>حرجة</span><strong>{summary.critical}</strong><small>أعلى أثر مثبت</small></div>
-        <div><span>مرتفعة</span><strong>{summary.high}</strong><small>تحتاج مراجعة قريبة</small></div>
-        <div><span>الآن</span><strong>{summary.now}</strong><small>إشارات ذات urgency=now</small></div>
+        <div><span>حرجة</span><strong>{critical}</strong><small>أعلى أثر مثبت</small></div>
+        <div><span>مرتفعة</span><strong>{high}</strong><small>تحتاج مراجعة قريبة</small></div>
+        <div><span>الآن</span><strong>{now}</strong><small>إشارات ذات urgency=now</small></div>
       </section>
 
       {primary && <section className="r2-command-focus" aria-label="أولوية المخاطر">
