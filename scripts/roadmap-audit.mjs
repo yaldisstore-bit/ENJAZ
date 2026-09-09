@@ -106,6 +106,9 @@ for (const marker of [
   '**Phase 8.1 — Workflow Engine & Government Procedure OS — M1 ✅ CLOSED + post-merge recertified**',
   '**M1 — Government Procedure Operating System 🟠 `CLOSURE_CANDIDATE`; 8.1 implementation anchor complete, overall closure remains locked behind Phase 8.7 individual Zero-Escape evidence**',
   '**Next: Phase 8.2 — Automation Engine**',
+  '**Phase 8.7 — Operations Zero-Escape Destruction Gate ✅ CLOSED + post-merge recertified**',
+  '**Phase 8 — Workflow, Automation & Operations ✅ CLOSED + post-merge recertified**',
+  '**Next: Phase 9.1 — Smart Risk Engine**',
   'Phase 7.1 — Financial Ledger & Summary ✅ CLOSED + post-merge recertified',
   'Phase 7.2 — Payments & Receipts ✅ CLOSED + post-merge recertified',
   'Phase 7.3 — Financial Intelligence ✅ CLOSED + post-merge recertified',
@@ -124,6 +127,7 @@ for (const stale of [
   '**Next: Phase 7.5 — Finance Destruction & Reconciliation Gate**',
   '**M1 — Government Procedure Operating System ✅ CLOSED under Zero-Escape evidence**',
   '**Phase 8.1 and M1 ✅ CLOSED + post-merge recertified**',
+  'Phase 8.2 is the only newly authorized implementation stage.',
 ]) forbidMarker(roadmap, stale, 'roadmap');
 
 if (major.schemaVersion !== 2 || major.status !== 'GOVERNING_AMENDMENT') errors.push('major-system registry must remain governing amendment schema v2');
