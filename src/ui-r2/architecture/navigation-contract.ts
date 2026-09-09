@@ -58,12 +58,23 @@ export interface R2Destination {
   readonly routeVariants?: Readonly<Record<string, string>>;
 }
 
+const DESTINATION_KINDS = [
+  'system_boundary', 'primary', 'primary_action', 'global_utility',
+  'contextual_view', 'entity', 'entity_action', 'launcher_destination',
+] as const satisfies readonly R2DestinationKind[];
+const DESTINATION_AVAILABILITY = [
+  'live', 'live_shell', 'mixed', 'must_rebuild',
+  'presentation_until_phase6', 'presentation_until_phase7', 'presentation_until_phase8',
+  'presentation_until_phase9', 'presentation_until_phase10', 'presentation_until_phase11',
+  'presentation_until_phase12',
+] as const satisfies readonly R2Availability[];
+
 type DestinationRow = readonly [
   R2DestinationId,
   string,
-  R2DestinationKind,
+  number,
   string,
-  R2Availability,
+  number,
   number | null,
   Readonly<Record<string, string>>?,
 ];
@@ -77,33 +88,40 @@ export const R2_PRIMARY_NAVIGATION = [
 ] as const satisfies readonly R2DestinationId[];
 
 const R2_DESTINATION_ROWS = [
-  ['auth.gateway', 'الدخول', 'system_boundary', '/auth', 'live', null],
-  ['home', 'الرئيسية', 'primary', '/app', 'live', 0],
-  ['transactions', 'المعاملات', 'primary', '/app/transactions', 'live', 1],
-  ['create', 'جديد', 'primary_action', '/app/new', 'mixed', 1],
-  ['today', 'اليوم', 'primary', '/app/today', 'live', 1],
-  ['more', 'المزيد', 'primary', '/app/more', 'live', 1],
-  ['search', 'ابحث عن أي شيء', 'global_utility', '/app/search', 'must_rebuild', 1],
-  ['account', 'الحساب ومساحة العمل', 'global_utility', '/app/account', 'live_shell', 1],
-  ['today.notifications', 'الإشعارات', 'contextual_view', '/app/today?view=notifications', 'presentation_until_phase11', 2],
-  ['transactions.detail', 'تفاصيل المعاملة / 360°', 'entity', '/app/transactions/:transactionId', 'live', 2],
-  ['transactions.editor', 'محرر المعاملة', 'entity_action', '/app/transactions/editor', 'live', 2, { create: '/app/transactions/new', edit: '/app/transactions/:transactionId/edit' }],
-  ['transactions.lifecycle', 'دورة حياة المعاملة', 'entity_action', '/app/transactions/:transactionId/lifecycle', 'live', 3],
-  ['companies', 'الشركات', 'launcher_destination', '/app/companies', 'presentation_until_phase6', 2],
-  ['people', 'الأشخاص والمحامون', 'launcher_destination', '/app/people', 'presentation_until_phase6', 2],
-  ['documents', 'الوثائق والتقارير', 'launcher_destination', '/app/documents', 'presentation_until_phase10', 2],
-  ['operations', 'مركز العمليات', 'launcher_destination', '/app/operations', 'presentation_until_phase8', 2],
-  ['workflow', 'سير العمل', 'launcher_destination', '/app/workflow', 'presentation_until_phase8', 2],
-  ['automation', 'الأتمتة', 'launcher_destination', '/app/automation', 'live', 2],
-  ['followups', 'المتابعات والإشعارات', 'launcher_destination', '/app/followups', 'presentation_until_phase11', 2],
-  ['finance', 'المالية', 'launcher_destination', '/app/finance', 'presentation_until_phase7', 2],
-  ['command', 'مركز القيادة', 'launcher_destination', '/app/command', 'presentation_until_phase8', 2],
-  ['risk', 'المخاطر والرؤى', 'launcher_destination', '/app/risk', 'presentation_until_phase9', 2],
-  ['copilot', 'مساعد إنجاز', 'launcher_destination', '/app/copilot', 'presentation_until_phase12', 2],
+  ['auth.gateway', 'الدخول', 0, '@', 0, null],
+  ['home', 'الرئيسية', 1, '', 0, 0],
+  ['transactions', 'المعاملات', 1, 'transactions', 0, 1],
+  ['create', 'جديد', 2, 'new', 2, 1],
+  ['today', 'اليوم', 1, 'today', 0, 1],
+  ['more', 'المزيد', 1, 'more', 0, 1],
+  ['search', 'ابحث عن أي شيء', 3, 'search', 3, 1],
+  ['account', 'الحساب ومساحة العمل', 3, 'account', 1, 1],
+  ['today.notifications', 'الإشعارات', 4, 'today?view=notifications', 9, 2],
+  ['transactions.detail', 'تفاصيل المعاملة / 360°', 5, 'transactions/:transactionId', 0, 2],
+  ['transactions.editor', 'محرر المعاملة', 6, 'transactions/editor', 0, 2, { create: '/app/transactions/new', edit: '/app/transactions/:transactionId/edit' }],
+  ['transactions.lifecycle', 'دورة حياة المعاملة', 6, 'transactions/:transactionId/lifecycle', 0, 3],
+  ['companies', 'الشركات', 7, 'companies', 4, 2],
+  ['people', 'الأشخاص والمحامون', 7, 'people', 4, 2],
+  ['documents', 'الوثائق والتقارير', 7, 'documents', 8, 2],
+  ['operations', 'مركز العمليات', 7, 'operations', 6, 2],
+  ['workflow', 'سير العمل', 7, 'workflow', 6, 2],
+  ['automation', 'الأتمتة', 7, 'automation', 0, 2],
+  ['followups', 'المتابعات والإشعارات', 7, 'followups', 9, 2],
+  ['finance', 'المالية', 7, 'finance', 5, 2],
+  ['command', 'مركز القيادة', 7, 'command', 6, 2],
+  ['risk', 'المخاطر والرؤى', 7, 'risk', 7, 2],
+  ['copilot', 'مساعد إنجاز', 7, 'copilot', 10, 2],
 ] as const satisfies readonly DestinationRow[];
 
+function destinationRoute(suffix: string): string {
+  return suffix === '@' ? '/auth' : suffix ? `/app/${suffix}` : '/app';
+}
+
 export const R2_DESTINATIONS: readonly R2Destination[] = R2_DESTINATION_ROWS.map((row) => {
-  const [id, label, kind, route, availability, maxActionsFromHome, routeVariants] = row;
+  const [id, label, kindIndex, routeSuffix, availabilityIndex, maxActionsFromHome, routeVariants] = row;
+  const kind = DESTINATION_KINDS[kindIndex]!;
+  const availability = DESTINATION_AVAILABILITY[availabilityIndex]!;
+  const route = destinationRoute(routeSuffix);
   return routeVariants
     ? { id, label, kind, route, availability, maxActionsFromHome, routeVariants }
     : { id, label, kind, route, availability, maxActionsFromHome };
