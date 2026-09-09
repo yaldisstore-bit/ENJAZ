@@ -18,6 +18,12 @@ Non-owner workforce authorization is therefore modeled in a dedicated `organizat
 
 A workforce member may receive explicit membership at one or more organizational scopes. Any inherited access must be derived from a concrete recorded scope membership and must be explainable by query/RLS evidence.
 
+## Delivery boundary
+
+Phase 8.5 is an **isolated live-slice delivery**: schema, service/command layer, complete organizational UI journey and Real Chromium are implemented and certified through the dedicated Phase 8.5 preview. Canonical runtime promotion is intentionally deferred to a separate budgeted promotion step because the existing production JavaScript contract remains capped at **670000 bytes** and may not be raised or bypassed.
+
+This follows the Phase 8.4 delivery pattern: the phase slice may prove its full journey without silently inflating the canonical production bundle. The frozen R2 information architecture remains unchanged, no duplicate organization destination is created, and M15 must not be imported into `UiR2ProductionRoot` or `UiR2LiveRoot` during this foundation slice.
+
 ## Foundation scope
 
 - canonical organization members referencing `auth.users`, controlled by the workspace owner;
@@ -47,10 +53,11 @@ A workforce member may receive explicit membership at one or more organizational
 11. Finance ledger write authority remains `none` for Phase 8.5.
 12. Direct anonymous organizational writes are forbidden.
 13. Client code may not infer hidden cross-branch access; the database/RPC contract is authoritative.
+14. The canonical JavaScript cap stays 670000 bytes; Phase 8.5 may not raise it or conceal phase assets inside the production bundle.
 
 ## Deferred M15 capabilities
 
-This foundation intentionally does not claim completion of all M15. Branch-specific cashboxes, service routing, automated workload balancing, temporary leave delegation, advanced branch dashboards and full assignment-rule orchestration remain later M15 work and require their own gates.
+This foundation intentionally does not claim completion of all M15. Canonical runtime promotion, branch-specific cashboxes, service routing, automated workload balancing, temporary leave delegation, advanced branch dashboards and full assignment-rule orchestration remain later M15 work and require their own gates.
 
 ## Exit requirements
 
@@ -60,9 +67,10 @@ Phase 8.5 cannot close until it has:
 - proof that organization members do not unlock legacy workspace-wide access or legacy privileged RPCs;
 - explicit inheritance proofs and denial proofs;
 - command/service boundary;
-- organizational UI/live journey;
+- complete isolated organizational UI/live journey;
 - transaction operational ownership + transfer audit journey;
 - Real Chromium mobile/desktop acceptance;
+- unchanged canonical production JavaScript budget;
 - authenticated Real Cloud verification with zero probe residue;
 - zero Critical/High/functional blocker defects;
 - exact-merge-SHA post-merge recertification.
