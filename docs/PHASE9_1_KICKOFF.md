@@ -1,6 +1,6 @@
 # Phase 9.1 — Smart Risk Engine Kickoff
 
-**Status: IN PROGRESS**
+**Status: CLOSED — POST-MERGE RECERTIFIED**
 
 Canonical base: `main` @ `3e877ec957bedb647ef86287affe84b97ede3356`, the formally closed and deployed Phase 8 successor authorization.
 
@@ -78,25 +78,31 @@ Families with unavailable authoritative facts remain absent rather than simulate
 
 `src/ui-r2/operational-intelligence/OperationalIntelligenceExperience.tsx` contains a historical R2.0-7 risk sample explicitly labelled as demo/non-production data.
 
-Phase 9.1 may preserve it as frozen historical evidence, but canonical `/app/risk` must not claim those fixture values as live risk. Production promotion requires the new risk engine and a live data adapter.
+Phase 9.1 preserves it as frozen historical evidence. Canonical production Risk uses authoritative operational evidence only; unavailable broader evidence remains fail-closed.
 
-## Required gates before closure
+## Closure certification
 
-- predecessor Phase 8 closure audit remains PASS;
-- deterministic risk-engine unit/destruction tests;
-- no write-authority regression;
-- full functional regression;
-- database/roadmap/secrets/TypeScript gates;
-- unchanged production JavaScript hard ceiling: **670000 bytes**;
-- Real Chromium at 1280 / 430 / 390 / 360 / 320 for the production risk surface;
-- exact-head PR matrix;
-- merge to `main`;
-- exact merged-SHA recertification;
-- Pages/deployed-live and Live External critical path;
-- zero Critical/High/functional blockers.
+The required gates were completed without raising the JavaScript hard ceiling of **670000 bytes** and without adding Risk-owned database/write authority.
 
-## Successor lock
+- implementation PR #124 final head `0932a33d8b28b15509bfe3da456d09c51ce344fa`: **37/37 SUCCESS**;
+- implementation Real Chromium run `34379210721`: **SUCCESS**;
+- final published-contract repair PR #127 head `549ea2205fbe9cba91a9d71631f22433afff4eaf`: **39/39 SUCCESS**;
+- repair Real Browser run `34411043254`: **SUCCESS**;
+- canonical runtime `main` SHA `9b116d39ad3cebc62e6c4f15d4fb72fef1b25fde`:
+  - **19/19 exact-main push workflows SUCCESS**;
+  - **22/22 cumulative exact-SHA workflow runs SUCCESS**;
+  - Phase 9.1 gate `34411497055`: SUCCESS;
+  - Real Browser `34411497023`: SUCCESS;
+  - Pages build/deployment `34411495854`: SUCCESS;
+  - Pages Preview `34411566669`: SUCCESS;
+  - Live External `34411616353`: SUCCESS, including the actual published `/live` Smart Risk deployment contract.
 
-**Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence remains LOCKED.**
+The production projection intentionally splits the static risk contract into `template#enjaz-risk-template` and the live read-only bridge into `LiveFinanceProductionPortal.tsx`; this is a budget-safe deployment architecture, not a claim that the full risk service is directly mounted as one component.
 
-Phase 9.2 is not authorized until Phase 9.1 is formally closed under the same exact-head / exact-main / deployed-live discipline.
+See `docs/PHASE9_1_CLOSURE.md` and `docs/PHASE9_1_POSTMERGE_RECERTIFICATION.md`.
+
+## Successor authorization
+
+**Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence is AUTHORIZED.**
+
+This authorization is limited to Phase 9.2. It does not pre-authorize Phase 9.3 or weaken the persistence/RLS/permission requirements that 9.2 must establish for saved views and cross-domain search.
