@@ -71,12 +71,12 @@ export function LiveRiskExperience({ navigate }: Props) {
 
   return <div className="r2-screen r2-oi-workspace r2-oi-risk" data-operational-domain="risk" data-risk-stage="9.1" data-risk-authority="read_only_derived_intelligence" data-risk-write-authority="none" data-risk-signal-count={result?.signals.length ?? 0}>
     <header className="r2-oi-header">
-      <div><p className="r2-eyebrow">Phase 9.1 · ذكاء قابل للتفسير</p><h1>المخاطر والرؤى</h1><p>الإشارة لا تظهر إلا إذا كان لها سبب ودليل ومصدر معتمد. هذه الشاشة لا تغيّر المعاملات أو المالية أو سير العمل.</p></div>
+      <div><p className="r2-eyebrow">Phase 9.1 · ذكاء قابل للتفسير</p><h1>المخاطر والرؤى</h1><p>تظهر الإشارة فقط بدليل ومصدر معتمد. الشاشة للقراءة فقط ولا تغيّر أي سجل.</p></div>
       <span className="r2-oi-stage">Smart Risk · Read Only</span>
     </header>
 
     {loadState === 'loading' && <section className="r2-oi-panel" aria-live="polite"><strong>جارٍ بناء صورة المخاطر من المصادر المعتمدة…</strong></section>}
-    {loadState === 'error' && <section className="r2-oi-panel" role="alert"><strong>تعذر تحميل صورة المخاطر بأمان.</strong><p>لم يعرض إنجاز نتيجة جزئية أو مخاطر مفبركة. أعد المحاولة بعد استقرار الاتصال.</p></section>}
+    {loadState === 'error' && <section className="r2-oi-panel" role="alert"><strong>تعذر تحميل صورة المخاطر بأمان.</strong><p>لا يعرض إنجاز مخاطر جزئية أو مفبركة. أعد المحاولة.</p></section>}
 
     {loadState === 'ready' && result && <>
       <section className="r2-operations-pulse" aria-label="ملخص المخاطر">
@@ -92,7 +92,7 @@ export function LiveRiskExperience({ navigate }: Props) {
 
       <section className="r2-oi-panel">
         <div className="r2-oi-section-head"><div><p className="r2-eyebrow">Explainable signals</p><h2>لماذا ظهرت؟</h2></div><span>{result.signals.length} إشارة</span></div>
-        {result.signals.length === 0 ? <div className="r2-risk-signals"><div><strong>لا توجد إشارة تحتاج تصعيدًا الآن</strong><p>المحرك لم يجد دليلاً يبرر إنشاء risk signal ضمن المصادر المتصلة حاليًا.</p></div></div> : <div className="r2-risk-signals">
+        {result.signals.length === 0 ? <div className="r2-risk-signals"><div><strong>لا توجد إشارة تحتاج تصعيدًا الآن</strong><p>لا يوجد دليل يبرر إنشاء إشارة مخاطر حاليًا.</p></div></div> : <div className="r2-risk-signals">
           {result.signals.map((signal) => <div key={`${signal.code}:${signal.entity.type}:${signal.entity.id}:${signal.evidence[0]?.sourceObjectId ?? ''}`} data-risk-code={signal.code} data-risk-severity={signal.severity} data-risk-urgency={signal.urgency}>
             <div className="r2-oi-section-head"><div><p className="r2-eyebrow">{SEVERITY_LABEL[signal.severity]} · {signal.urgency === 'now' ? 'الآن' : signal.urgency === 'soon' ? 'قريبًا' : 'مراقبة'}</p><strong>{entityLabel(signal)}</strong></div><span>{signal.code}</span></div>
             <p>{signal.explanation}</p>
@@ -103,7 +103,7 @@ export function LiveRiskExperience({ navigate }: Props) {
         </div>}
       </section>
 
-      <p className="r2-oi-truth" role="note">المصدر الحالي: {result.sourceCounts.transactions} معاملات · {result.sourceCounts.blockers} حواجز مفتوحة · {result.sourceCounts.financeAnomalies} إشارات مالية مشتقة من Finance 7.3 · {result.sourceCounts.workloadOwners} مالكي عبء عمل. لا توجد write authority داخل Smart Risk.</p>
+      <p className="r2-oi-truth" role="note">المصادر: {result.sourceCounts.transactions} معاملات · {result.sourceCounts.blockers} حواجز · {result.sourceCounts.financeAnomalies} مالية · {result.sourceCounts.workloadOwners} عبء عمل. لا توجد write authority داخل Smart Risk.</p>
     </>}
   </div>;
 }
