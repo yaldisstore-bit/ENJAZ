@@ -8,11 +8,11 @@ import {
   type R2DestinationId,
 } from '../architecture/navigation-contract.ts';
 import { LiveAutomationExperience } from '../automation/LiveAutomationExperience.tsx';
+import { LiveCommandCenterExperience } from '../command/LiveCommandCenterExperience.tsx';
 import { ConnectedCoreWorkRouter } from '../core-work/CoreWorkConnected.tsx';
 import { LiveFieldOperationsExperience } from '../field-operations/LiveFieldOperationsExperience.tsx';
 import { buildR2FindAnythingResults } from '../find-anything/find-anything-model.ts';
 import { ConnectedR2Home } from '../home/ConnectedHomeExperience.tsx';
-import { OperationalIntelligenceExperience } from '../operational-intelligence/OperationalIntelligenceExperience.tsx';
 import { useR2OverlayFocusGuard } from './useR2OverlayFocusGuard.ts';
 
 type OverlayId = 'search' | 'account' | null;
@@ -95,7 +95,7 @@ function PortalTarget({ id }: { id: 'companies' | 'people' | 'finance' }) {
 
 function DeferredDestination({ id, navigate }: { id: R2DestinationId; navigate: (id: R2DestinationId) => void }) {
   const destination = getR2Destination(id);
-  return <div className="r2-screen r2-destination-placeholder" data-screen="launcher-destination" {...(id === 'documents' ? { 'data-records-stage': 'R2.0-6', 'data-records-domain': 'documents', 'data-entity-first': 'true' } : {})}><div className="r2-destination-mark"><Icon name="module" /></div><p className="r2-eyebrow">وجهة مثبتة في بنية إنجاز</p><h1>{destination.label}</h1><p>المحتوى الإنتاجي لهذه الوجهة يبقى مقفلاً حتى مرحلته بدل عرض بيانات تجريبية داخل runtime الحي.</p><div className="r2-placeholder-actions"><button type="button" className="r2-action r2-action--primary" onClick={() => navigate('more')}>العودة إلى المزيد</button><button type="button" className="r2-action r2-action--secondary" onClick={() => navigate('home')}>الرئيسية</button></div></div>;
+  return <div className="r2-screen r2-destination-placeholder" data-screen="launcher-destination" data-live-deferred="true" {...(id === 'documents' ? { 'data-records-stage': 'R2.0-6', 'data-records-domain': 'documents', 'data-entity-first': 'true' } : {})}><div className="r2-destination-mark"><Icon name="module" /></div><p className="r2-eyebrow">وجهة مثبتة في بنية إنجاز</p><h1>{destination.label}</h1><p>المحتوى الإنتاجي لهذه الوجهة يبقى مقفلاً حتى مرحلته بدل عرض بيانات تجريبية داخل runtime الحي.</p><div className="r2-placeholder-actions"><button type="button" className="r2-action r2-action--primary" onClick={() => navigate('more')}>العودة إلى المزيد</button><button type="button" className="r2-action r2-action--secondary" onClick={() => navigate('home')}>الرئيسية</button></div></div>;
 }
 
 function SearchOverlay({ query, setQuery, close, navigate, openTransaction }: { query: string; setQuery: (value: string) => void; close: () => void; navigate: (id: R2DestinationId) => void; openTransaction: (id: string) => void }) {
@@ -155,7 +155,7 @@ export function UiR2LiveRoot({ accountLabel = 'حساب إنجاز', onSignOut }
   else if (destinationId === 'companies' || destinationId === 'people' || destinationId === 'finance') content = <PortalTarget id={destinationId} />;
   else if (destinationId === 'automation') content = <LiveAutomationExperience />;
   else if (destinationId === 'operations') content = <LiveFieldOperationsExperience />;
-  else if (destinationId === 'workflow' || destinationId === 'command' || destinationId === 'risk' || destinationId === 'copilot') content = <OperationalIntelligenceExperience id={destinationId} />;
+  else if (destinationId === 'command') content = <LiveCommandCenterExperience navigate={navigate} />;
   else content = <DeferredDestination id={destinationId} navigate={navigate} />;
 
   const currentDoor = doorFor(destinationId);

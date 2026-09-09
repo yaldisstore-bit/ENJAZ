@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 2,
+  "phase": "8.6",
+  "name": "Global Command Center",
+  "status": "IN_PROGRESS",
+  "baseCommit": "80fd1eda9c1c67ef43ec801ba4677dc32ab40c93",
+  "implementationBranch": "phase8-6-global-command-center",
+  "predecessor": {
+    "phase": "8.5",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase8_6Allowed=true"
+  },
+  "authority": {
+    "commandOwnedTables": "NONE",
+    "commandOwnedRpc": "NONE",
+    "commandWriteAuthority": "none",
+    "financeWriteAuthority": "none",
+    "executionModel": "delegate_to_existing_domain_gateways_only",
+    "partialExecutiveSnapshotAllowed": false
+  },
+  "authoritativeDomains": [
+    "home_dashboard_data_layer",
+    "finance_command_gateway",
+    "government_procedure_runtime_gateway",
+    "automation_command_gateway",
+    "field_operations_command_gateway"
+  ],
+  "commandActions": [
+    "automation_human_approval_decision",
+    "workflow_allowed_transition",
+    "field_assignment_reassignment"
+  ],
+  "preservedGuards": [
+    "workspace_scope",
+    "rls",
+    "expected_version",
+    "expected_stage",
+    "idempotency_key",
+    "client_operation_id",
+    "human_approval",
+    "domain_owned_write_authority",
+    "finance_reconciliation_truth"
+  ],
+  "ui": {
+    "canonicalDestination": "command",
+    "liveRuntimePromotion": true,
+    "legacyDemoCommandReplacement": true,
+    "historicalSevenDomainDemoInCanonicalBundle": false,
+    "fakeProductionDataAllowed": false,
+    "lockedPaletteOnly": true,
+    "responsiveWidths": [1280, 430, 390, 360, 320]
+  },
+  "javascriptBudgetBytes": 670000,
+  "budgetIncreaseAllowed": false,
+  "implementationGate": {
+    "status": "PASS_IMPLEMENTATION_HEAD",
+    "certifiedSha": "995d8c412a415ba02a240d1aedc293ef322bbf6a",
+    "workflowRun": 34327250983,
+    "authorityTests": "5/5",
+    "functionalRegression": "217/217",
+    "databaseSelfTests": "25/25",
+    "javascriptBytes": 669726,
+    "previewBytes": 248986,
+    "realChromium": "9/9"
+  },
+  "realChromium": "PASS_IMPLEMENTATION_HEAD",
+  "pullRequestGate": "PENDING",
+  "postMergeRecertification": "PENDING",
+  "exitGatePassed": false,
+  "phase8_7Allowed": false,
+  "nextPhase": "8.7",
+  "successorStatus": "LOCKED",
+  "kickoffEvidence": "docs/PHASE8_6_KICKOFF.md",
+  "implementationEvidence": "docs/PHASE8_6_IMPLEMENTATION_EVIDENCE.md"
+}

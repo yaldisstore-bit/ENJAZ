@@ -32,6 +32,7 @@ import '../records/records.css';
 import '../operational-intelligence/operational-intelligence.css';
 import '../automation/automation.css';
 import '../field-operations/field-operations.css';
+import '../command/command-center.css';
 import '../home/home-connected.css';
 import '../auth/auth.css';
 import '../workflow/workflow.css';
