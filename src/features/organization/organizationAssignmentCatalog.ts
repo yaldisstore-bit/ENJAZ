@@ -35,5 +35,8 @@ async function settle<T>(p:PromiseLike<T>,timeoutMs:number):Promise<T>{let timer
 export function createOrganizationAssignmentCatalog(client:EnjazSupabaseClient,timeoutMs=15000):OrganizationAssignmentCatalog{
   if(!Number.isSafeInteger(timeoutMs)||timeoutMs<1||timeoutMs>120000)throw new Error('Invalid organization catalog timeout');
   const c=client as unknown as RpcLike;
-  return Object.freeze({async list(workspaceId){if(!UUID.test(workspaceId))bad(true);const response=await settle(c.rpc('list_organization_assignable_transactions_v1',{p_workspace_id:workspaceId}),timeoutMs);if(response.error)throw normalizeDataFailure(response.error);if(!Array.isArray(response.data))bad();return Object.freeze(response.data.map(parse));}});
+  const catalog:OrganizationAssignmentCatalog={
+    async list(workspaceId){if(!UUID.test(workspaceId))bad(true);const response=await settle(c.rpc('list_organization_assignable_transactions_v1',{p_workspace_id:workspaceId}),timeoutMs);if(response.error)throw normalizeDataFailure(response.error);if(!Array.isArray(response.data))bad();return Object.freeze(response.data.map(parse));}
+  };
+  return Object.freeze(catalog);
 }
