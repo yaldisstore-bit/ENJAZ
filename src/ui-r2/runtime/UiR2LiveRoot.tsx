@@ -13,6 +13,7 @@ import { LiveFieldOperationsExperience } from '../field-operations/LiveFieldOper
 import { buildR2FindAnythingResults } from '../find-anything/find-anything-model.ts';
 import { ConnectedR2Home } from '../home/ConnectedHomeExperience.tsx';
 import { OperationalIntelligenceExperience } from '../operational-intelligence/OperationalIntelligenceExperience.tsx';
+import { LiveOrganizationExperience } from '../organization/LiveOrganizationExperience.tsx';
 import { useR2OverlayFocusGuard } from './useR2OverlayFocusGuard.ts';
 
 type OverlayId = 'search' | 'account' | null;
@@ -103,9 +104,9 @@ function SearchOverlay({ query, setQuery, close, navigate, openTransaction }: { 
   return <div className="r2-overlay" role="dialog" aria-modal="true" data-overlay="search" data-zero-lost-search="R2.0-8" aria-labelledby="r2-search-title"><button type="button" className="r2-overlay__backdrop" aria-label="إغلاق البحث" onClick={close} /><section className="r2-search-panel"><div className="r2-search-panel__head"><div><p className="r2-eyebrow">Find Anything · Zero-Lost</p><h2 id="r2-search-title">ابحث عن أي شيء</h2></div><button type="button" className="r2-close-button" onClick={close} aria-label="إغلاق">×</button></div><label className="r2-search-input-wrap"><Icon name="search" /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="مثال: 1042، خزنة، أتمتة، شركة، مالية…" /></label><div className="r2-search-results" aria-live="polite">{results.length ? results.map((item) => <button type="button" key={item.key} className="r2-search-result" data-find-kind={item.kind} data-find-source={item.source} onClick={() => item.kind === 'transaction' && item.transactionId ? openTransaction(item.transactionId) : navigate(item.destinationId)}><span className="r2-search-result__icon"><Icon name={item.kind === 'transaction' ? 'transactions' : 'module'} /></span><span><strong>{item.label}</strong><small>{item.secondary}</small></span><Icon name="arrow" /></button>) : <p className="r2-search-empty">لا توجد نتيجة مطابقة. لا يختلق إنجاز سجلات غير موجودة.</p>}</div><p className="r2-search-footnote" data-alias-count={SEARCH_ALIAS_COUNT}>البحث يحافظ على عقد Zero-Lost الحالي؛ ربط سجلات الإنتاج الأوسع يمر عبر Data Layer فقط.</p></section></div>;
 }
 
-function AccountOverlay({ close, accountLabel, onSignOut }: { close: () => void; accountLabel: string; onSignOut?: (() => Promise<void> | void) | undefined }) {
+function AccountOverlay({ close, accountLabel, onSignOut, openWorkspace }: { close: () => void; accountLabel: string; onSignOut?: (() => Promise<void> | void) | undefined; openWorkspace: () => void }) {
   const signOut = () => { close(); if (onSignOut) void onSignOut(); };
-  return <div className="r2-overlay" role="dialog" aria-modal="true" data-overlay="account" aria-labelledby="r2-account-title"><button type="button" className="r2-overlay__backdrop" aria-label="إغلاق الحساب" onClick={close} /><section className="r2-account-sheet"><div className="r2-account-sheet__handle" aria-hidden="true" /><div className="r2-account-sheet__profile"><span className="r2-avatar"><Icon name="user" /></span><div><p className="r2-eyebrow">مساحة العمل</p><h2 id="r2-account-title">حساب إنجاز</h2><small>{accountLabel}</small></div></div><div className="r2-account-row" data-account-session="protected"><span>جلسة مساحة العمل محمية عبر Auth الحالي</span></div>{onSignOut && <button type="button" className="r2-account-row" onClick={signOut}><span>تسجيل الخروج</span><Icon name="arrow" /></button>}<button type="button" className="r2-action r2-action--secondary r2-account-close" onClick={close}>إغلاق</button></section></div>;
+  return <div className="r2-overlay" role="dialog" aria-modal="true" data-overlay="account" aria-labelledby="r2-account-title"><button type="button" className="r2-overlay__backdrop" aria-label="إغلاق الحساب" onClick={close} /><section className="r2-account-sheet"><div className="r2-account-sheet__handle" aria-hidden="true" /><div className="r2-account-sheet__profile"><span className="r2-avatar"><Icon name="user" /></span><div><p className="r2-eyebrow">مساحة العمل</p><h2 id="r2-account-title">حساب إنجاز</h2><small>{accountLabel}</small></div></div><div className="r2-account-row" data-account-session="protected"><span>جلسة مساحة العمل محمية عبر Auth الحالي</span></div><button type="button" className="r2-account-row" data-account-workspace-home="8.5" onClick={openWorkspace}><span>مساحة العمل والهيكل التنظيمي</span><Icon name="arrow" /></button>{onSignOut && <button type="button" className="r2-account-row" onClick={signOut}><span>تسجيل الخروج</span><Icon name="arrow" /></button>}<button type="button" className="r2-action r2-action--secondary r2-account-close" onClick={close}>إغلاق</button></section></div>;
 }
 
 export function UiR2LiveRoot({ accountLabel = 'حساب إنجاز', onSignOut }: Props = {}) {
@@ -146,6 +147,12 @@ export function UiR2LiveRoot({ accountLabel = 'حساب إنجاز', onSignOut }
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
   const openOverlay = (id: Exclude<OverlayId, null>) => { writeUrlState(destinationId, id, transactionId); setOverlay(id); ownedOverlay.current = true; };
+  const openWorkspace = () => {
+    ownedOverlay.current = false;
+    writeUrlState('account', null, null, 'replace');
+    setDestinationId('account'); setTransactionId(null); setOverlay(null);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
 
   const connectedCore = ConnectedCoreWorkRouter({ destinationId: destinationId === 'today.notifications' ? 'today' : destinationId, transactionId, navigate, openTransaction });
   let content: ReactNode;
@@ -155,6 +162,7 @@ export function UiR2LiveRoot({ accountLabel = 'حساب إنجاز', onSignOut }
   else if (destinationId === 'companies' || destinationId === 'people' || destinationId === 'finance') content = <PortalTarget id={destinationId} />;
   else if (destinationId === 'automation') content = <LiveAutomationExperience />;
   else if (destinationId === 'operations') content = <LiveFieldOperationsExperience />;
+  else if (destinationId === 'account') content = <LiveOrganizationExperience />;
   else if (destinationId === 'workflow' || destinationId === 'command' || destinationId === 'risk' || destinationId === 'copilot') content = <OperationalIntelligenceExperience id={destinationId} />;
   else content = <DeferredDestination id={destinationId} navigate={navigate} />;
 
@@ -164,6 +172,6 @@ export function UiR2LiveRoot({ accountLabel = 'حساب إنجاز', onSignOut }
     <aside className="r2-shell__rail" aria-label="التنقل الرئيسي"><button type="button" className="r2-brand" onClick={() => navigate('home')} aria-label="إنجاز — الرئيسية"><span className="r2-brand__mark">إ</span><span><strong>إنجاز</strong><small>Workspace</small></span></button><nav className="r2-rail-nav">{R2_PRIMARY_NAVIGATION.map((id) => <Door key={id} id={id} active={currentDoor === id} mode="rail" navigate={navigate} />)}</nav><div className="r2-rail-foot"><button type="button" onClick={() => openOverlay('search')}><Icon name="search" /><span>ابحث عن أي شيء</span></button><span className="r2-stage-pill">R2.0-8 Find Anything</span></div></aside>
     <div className="r2-shell__workspace"><header className="r2-topbar"><div className="r2-mobile-brand"><span className="r2-brand__mark">إ</span><strong>إنجاز</strong></div><div className="r2-location" aria-label="الموقع الحالي">{trail.map((item, index) => <span key={`${item}-${index}`}>{index > 0 && <b>←</b>}{item}</span>)}</div><div className="r2-topbar__actions"><button type="button" className="r2-icon-button" onClick={() => openOverlay('search')} aria-label="ابحث عن أي شيء"><Icon name="search" /></button><button type="button" className="r2-icon-button r2-icon-button--account" onClick={() => openOverlay('account')} aria-label="الحساب ومساحة العمل"><Icon name="user" /></button></div></header><main className="r2-shell__main" id="r2-main" aria-label={getR2Destination(destinationId).label}>{content}</main><nav className="r2-shell__mobile-nav" aria-label="التنقل الرئيسي للهاتف">{R2_PRIMARY_NAVIGATION.map((id) => <Door key={id} id={id} active={currentDoor === id} mode="dock" navigate={navigate} />)}</nav></div>
     {overlay === 'search' && <SearchOverlay query={searchQuery} setQuery={setSearchQuery} close={closeOverlay} navigate={navigate} openTransaction={openTransaction} />}
-    {overlay === 'account' && <AccountOverlay close={closeOverlay} accountLabel={accountLabel} onSignOut={onSignOut} />}
+    {overlay === 'account' && <AccountOverlay close={closeOverlay} accountLabel={accountLabel} onSignOut={onSignOut} openWorkspace={openWorkspace} />}
   </div>;
 }
