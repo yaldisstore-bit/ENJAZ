@@ -24,7 +24,6 @@ export default defineConfig({
       experimental: { onDemandWrapping: true },
       output: {
         strictExecutionOrder: true,
-        topLevelVar: true,
         codeSplitting: {
           groups: [
             {
