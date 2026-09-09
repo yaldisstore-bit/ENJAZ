@@ -2,6 +2,8 @@
 
 This branch is intentionally not eligible for merge yet.
 
-The authenticated CRM/intake Real Cloud probe and the real Storage acknowledgement sequence passed, but one inert 14-byte object from the Storage probe remains in the private `enjaz-intake-private` bucket because the available management connector does not expose an approved object-delete action. Its intake link is revoked, its form is inactive, temporary delete policy count is zero, and the temporary HTTP extension has been removed.
+The authenticated CRM/intake Real Cloud probe passed. The real Storage acknowledgement sequence also passed, including the negative acknowledgement-before-upload guard and the positive acknowledgement-after-real-object check.
 
-Phase 8.4 remains `IN_PROGRESS`; Phase 8.5 remains locked until supported Storage deletion and a zero-residue census pass.
+The 14-byte Storage probe object has now been removed through the Supabase Storage API. Its relational fixture was then removed, the temporary cleanup branch was removed by restoring the production Edge Function, and the final census is zero across probe object/file/submission/link/form/fields/audits/temp policies/http extension. The bucket remains private.
+
+Phase 8.4 remains `IN_PROGRESS`; Phase 8.5 remains locked only until the exact PR head passes the complete required GitHub gate matrix and formal closure is performed.
