@@ -34,8 +34,14 @@ jobs:
         with:
           python-version: '3.12'
       - run: npm ci --no-audit --no-fund
-      - name: Preserve formally closed Phase 8.6 and freeze Phase 8.7 contract
-        run: node scripts/phase8-7-zero-escape-audit.mjs
+      - name: Preserve Phase 8.6 and enforce Phase 8.7 implementation-or-closure contract
+        run: |
+          STATUS=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('docs/PHASE8_7_STATE.json','utf8')).status)")
+          if [ "$STATUS" = "CLOSED" ]; then
+            node scripts/phase8-7-closure-audit.mjs
+          else
+            node scripts/phase8-7-zero-escape-audit.mjs
+          fi
       - name: Operations Zero-Escape destruction wave 1
         run: node --experimental-strip-types --test tests/phase8-7-operations-zero-escape.test.ts
       - name: Re-run authoritative Phase 8 subsystem tests
@@ -55,8 +61,18 @@ jobs:
         run: npm run audit:secrets && npm run typecheck
       - name: Production build and frozen hard budget
         run: npm run build -- --base=/ && npm run audit:dist:budget
-      - name: Assert Phase 8.7 cannot raise 670000-byte budget or unlock Phase 9.1
-        run: node -e "const j=JSON.parse(require('fs').readFileSync('docs/PHASE8_7_STATE.json','utf8'));if(j.javascriptBudgetBytes!==670000||j.budgetIncreaseAllowed!==false||j.phase9_1Allowed!==false||j.exitGatePassed!==false)process.exit(1)"
+      - name: Assert frozen 670000-byte budget and valid Phase 9.1 transition state
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const j=JSON.parse(fs.readFileSync('docs/PHASE8_7_STATE.json','utf8'));
+          if(j.javascriptBudgetBytes!==670000||j.budgetIncreaseAllowed!==false)process.exit(1);
+          if(j.status==='CLOSED'){
+            if(j.phase9_1Allowed!==true||j.exitGatePassed!==true||j.successorStatus!=='AUTHORIZED')process.exit(1);
+          }else if(j.status==='IN_PROGRESS'){
+            if(j.phase9_1Allowed!==false||j.exitGatePassed!==false||j.successorStatus!=='LOCKED')process.exit(1);
+          }else process.exit(1);
+          NODE
       - name: Build cumulative Phase 8.1 through 8.6 isolated previews
         run: |
           npx vite build --config vite.phase8-1-preview.config.ts --base=/
