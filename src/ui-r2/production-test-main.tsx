@@ -5,9 +5,6 @@ import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../data/cre
 import type { AutomationCommandGateway } from '../features/automation/automationCommands.ts';
 import type { FieldOperationsCommandGateway } from '../features/field-operations/fieldOperationsCommands.ts';
 import type { FinanceCommandGateway } from '../features/finance/financeCommands.ts';
-import type { OrganizationAssignmentCatalog } from '../features/organization/organizationAssignmentCatalog.ts';
-import type { OrganizationGateway } from '../features/organization/organizationCommands.ts';
-import type { OrganizationWorkspaceResolver } from '../features/organization/organizationWorkspaceResolver.ts';
 import type { GovernmentProcedureRuntimeGateway } from '../features/workflow/governmentProcedureRuntime.ts';
 import { UiR2ProductionRoot } from './runtime/UiR2ProductionRoot.tsx';
 
@@ -181,26 +178,11 @@ const fieldOperationsCommands: FieldOperationsCommandGateway = Object.freeze({
   async handoff() { throw new Error('R2 production test does not allow field writes'); },
 });
 
-const organizationCommands: OrganizationGateway = Object.freeze({
-  async loadContext() { return Object.freeze({ authority:'organization_structure_scoped_ownership' as const, workspaceTrustAuthority:'legacy_owner_only_unchanged' as const, workforceAuthority:'organization_members_and_scope_memberships' as const, legacyWorkspaceWideAccessForWorkforce:'forbidden' as const, transactionLifecycleWriteAuthority:'none' as const, financeLedgerWriteAuthority:'none' as const, actor:Object.freeze({ userId:testUser.id, actorType:'owner' as const, organizationMemberId:null }), members:Object.freeze([]), branches:Object.freeze([]), departments:Object.freeze([]), teams:Object.freeze([]), scopeMemberships:Object.freeze([]), transactions:Object.freeze([]), ownershipEvents:Object.freeze([]) }); },
-  async setMember() { throw new Error('R2 production test does not allow organization writes'); },
-  async saveBranch() { throw new Error('R2 production test does not allow organization writes'); },
-  async saveDepartment() { throw new Error('R2 production test does not allow organization writes'); },
-  async saveTeam() { throw new Error('R2 production test does not allow organization writes'); },
-  async setScopeMembership() { throw new Error('R2 production test does not allow organization writes'); },
-  async assignTransaction() { throw new Error('R2 production test does not allow organization writes'); },
-  async explainAccess() { return Object.freeze({ allowed:true, actorType:'owner' as const, source:'workspace_owner', sourceMembershipId:null }); },
-});
-const organizationWorkspaceResolver: OrganizationWorkspaceResolver = Object.freeze({
-  async listWorkspaces() { return Object.freeze([{ workspaceId:'00000000-0000-4000-8000-000000000001', workspaceName:'مساحة اختبار إنجاز', actorType:'owner' as const, organizationMemberId:null }]); },
-});
-const organizationAssignmentCatalog: OrganizationAssignmentCatalog = Object.freeze({ async list() { return Object.freeze([]); } });
-
 const rootElement = document.getElementById('r2-production-test-root');
 if (!rootElement) throw new Error('R2 production test root is missing');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands, organizationCommands, organizationWorkspaceResolver, organizationAssignmentCatalog }} />
+    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands }} />
   </StrictMode>,
 );
