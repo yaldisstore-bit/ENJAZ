@@ -23,6 +23,10 @@ export default defineConfig({
       // whose predicted chunk execution can actually violate that order.
       experimental: { onDemandWrapping: true },
       output: {
+        // Request Rolldown/Oxc full output minification explicitly. The hard
+        // production budget remains unchanged; this only removes shipped
+        // syntax/metadata that has no runtime value.
+        minify: true,
         strictExecutionOrder: true,
         codeSplitting: {
           groups: [
