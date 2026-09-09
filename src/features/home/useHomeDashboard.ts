@@ -14,13 +14,13 @@ const LOADING_STATE: HomeDashboardLoadState = Object.freeze({ status: 'loading',
 
 function toHomeErrorMessage(error: unknown): string {
   if (error instanceof HomeWorkspaceUnavailableError) {
-    return 'تعذر العثور على مساحة العمل المرتبطة بحسابك. أعد تسجيل الدخول، وإذا استمرت المشكلة فتحقق من إعداد مساحة العمل.';
+    return 'لا توجد مساحة عمل مرتبطة بحسابك. سجّل الدخول مجددًا أو تحقق من إعداد المساحة.';
   }
   if (error instanceof DataAccessError) {
-    if (error.dataCode === 'DATA_FORBIDDEN') return 'ليس لديك صلاحية لقراءة بيانات لوحة العمل الحالية.';
-    if (error.dataCode === 'DATA_UNAVAILABLE') return 'تعذر الوصول إلى بيانات إنجاز الآن. تحقق من الاتصال ثم أعد المحاولة.';
+    if (error.dataCode === 'DATA_FORBIDDEN') return 'لا تملك صلاحية قراءة لوحة العمل.';
+    if (error.dataCode === 'DATA_UNAVAILABLE') return 'تعذر تحميل بيانات إنجاز. تحقق من الاتصال وأعد المحاولة.';
   }
-  return 'حدث خطأ غير متوقع أثناء تجهيز لوحة العمل. لم يتم عرض أرقام جزئية أو تخمينية.';
+  return 'تعذر تجهيز لوحة العمل بأمان. لم تُعرض بيانات جزئية.';
 }
 
 export function useHomeDashboard(): Readonly<HomeDashboardLoadState & { retry(): void }> {
@@ -32,7 +32,7 @@ export function useHomeDashboard(): Readonly<HomeDashboardLoadState & { retry():
   useEffect(() => {
     let active = true;
     if (!userId) {
-      setState(Object.freeze({ status: 'error', snapshot: null, errorMessage: 'انتهت جلسة المستخدم. سجّل الدخول مرة أخرى.' }));
+      setState(Object.freeze({ status: 'error', snapshot: null, errorMessage: 'انتهت الجلسة. سجّل الدخول مجددًا.' }));
       return () => { active = false; };
     }
 
