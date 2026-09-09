@@ -12,6 +12,10 @@ import { FieldOperationsCommandProvider } from '../../features/field-operations/
 import { createFieldOperationsCommandGateway, type FieldOperationsCommandGateway } from '../../features/field-operations/fieldOperationsCommands.ts';
 import { FinanceCommandProvider } from '../../features/finance/FinanceCommandContext.tsx';
 import { createSupabaseFinanceCommandGateway, type FinanceCommandGateway } from '../../features/finance/financeCommands.ts';
+import { OrganizationCommandProvider } from '../../features/organization/OrganizationCommandContext.tsx';
+import { OrganizationWorkspaceResolverProvider } from '../../features/organization/OrganizationWorkspaceResolverContext.tsx';
+import { createOrganizationGateway, type OrganizationGateway } from '../../features/organization/organizationCommands.ts';
+import { createOrganizationWorkspaceResolver, type OrganizationWorkspaceResolver } from '../../features/organization/organizationWorkspaceResolver.ts';
 import { GovernmentProcedureCommandProvider } from '../../features/workflow/GovernmentProcedureCommandContext.tsx';
 import { createGovernmentProcedureRuntimeGateway, type GovernmentProcedureRuntimeGateway } from '../../features/workflow/governmentProcedureRuntime.ts';
 import { CurrentUserIdProvider } from '../../shared/session/CurrentUserIdContext.tsx';
@@ -32,6 +36,7 @@ import '../records/records.css';
 import '../operational-intelligence/operational-intelligence.css';
 import '../automation/automation.css';
 import '../field-operations/field-operations.css';
+import '../organization/organization.css';
 import '../home/home-connected.css';
 import '../auth/auth.css';
 import '../workflow/workflow.css';
@@ -44,6 +49,8 @@ export type UiR2ProductionResources = Readonly<{
   workflowCommands: GovernmentProcedureRuntimeGateway;
   automationCommands: AutomationCommandGateway;
   fieldOperationsCommands: FieldOperationsCommandGateway;
+  organizationCommands: OrganizationGateway;
+  organizationWorkspaceResolver: OrganizationWorkspaceResolver;
 }>;
 
 function createProductionResources(): UiR2ProductionResources {
@@ -56,6 +63,8 @@ function createProductionResources(): UiR2ProductionResources {
     workflowCommands: createGovernmentProcedureRuntimeGateway(client),
     automationCommands: createAutomationCommandGateway(client),
     fieldOperationsCommands: createFieldOperationsCommandGateway(client),
+    organizationCommands: createOrganizationGateway(client),
+    organizationWorkspaceResolver: createOrganizationWorkspaceResolver(client),
   });
 }
 
@@ -69,12 +78,14 @@ function leaveRecoveryMode() {
   window.location.replace(url.toString());
 }
 
-function AuthenticatedR2Runtime({ dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands }: Readonly<{
+function AuthenticatedR2Runtime({ dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands, organizationCommands, organizationWorkspaceResolver }: Readonly<{
   dataFactory: EnjazDataLayerFactory;
   financeCommands: FinanceCommandGateway;
   workflowCommands: GovernmentProcedureRuntimeGateway;
   automationCommands: AutomationCommandGateway;
   fieldOperationsCommands: FieldOperationsCommandGateway;
+  organizationCommands: OrganizationGateway;
+  organizationWorkspaceResolver: OrganizationWorkspaceResolver;
 }>) {
   const auth = useAuth();
   if (auth.status === 'checking') return <SessionChecking />;
@@ -83,12 +94,12 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, workflowCommands
   if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode} />;
   const signOut = async () => { await auth.service.signOut(); };
 
-  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}>
+  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><OrganizationWorkspaceResolverProvider resolver={organizationWorkspaceResolver}><OrganizationCommandProvider gateway={organizationCommands}><CurrentUserIdProvider userId={auth.user.id}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} />
     <LiveCompaniesProductionPortal />
     <LivePeopleProductionPortal />
     <LiveFinanceProductionPortal />
-  </CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></FinanceCommandProvider></DataLayerProvider>;
+  </CurrentUserIdProvider></OrganizationCommandProvider></OrganizationWorkspaceResolverProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
 export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2ProductionResources | undefined }> = {}) {
@@ -104,5 +115,7 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     workflowCommands={runtime.resources.workflowCommands}
     automationCommands={runtime.resources.automationCommands}
     fieldOperationsCommands={runtime.resources.fieldOperationsCommands}
+    organizationCommands={runtime.resources.organizationCommands}
+    organizationWorkspaceResolver={runtime.resources.organizationWorkspaceResolver}
   /></AuthProvider>;
 }
