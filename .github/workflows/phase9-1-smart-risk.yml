@@ -52,7 +52,9 @@ jobs:
         run: npm run build -- --base=/ && npm run audit:dist:budget
       - name: Real Pages /live build and unchanged hard budget
         run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
-      - name: Assert read-only authority, frozen budget and Phase 9.2 lock
+      - name: Assert read-only authority, frozen budget and lifecycle-correct successor
         run: >-
           node -e "const j=JSON.parse(require('fs').readFileSync('docs/PHASE9_1_STATE.json','utf8'));
-          if(j.authority?.mode!=='READ_ONLY_DERIVED_INTELLIGENCE'||j.authority?.riskOwnedTables!=='NONE'||j.authority?.riskOwnedWriteRpc!=='NONE'||j.javascriptBudgetBytes!==670000||j.budgetIncreaseAllowed!==false||j.phase9_2Allowed!==false||j.exitGatePassed!==false)process.exit(1)"
+          const base=j.authority?.mode==='READ_ONLY_DERIVED_INTELLIGENCE'&&j.authority?.riskOwnedTables==='NONE'&&j.authority?.riskOwnedWriteRpc==='NONE'&&j.javascriptBudgetBytes===670000&&j.budgetIncreaseAllowed===false;
+          const lifecycle=j.status==='IN_PROGRESS'?(j.phase9_2Allowed===false&&j.exitGatePassed===false&&j.successorStatus==='LOCKED'):(j.status==='CLOSED'&&j.phase9_2Allowed===true&&j.exitGatePassed===true&&j.nextPhase==='9.2'&&j.successorStatus==='AUTHORIZED');
+          if(!base||!lifecycle)process.exit(1)"
