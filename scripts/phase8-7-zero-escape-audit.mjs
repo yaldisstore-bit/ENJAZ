@@ -13,8 +13,8 @@ const realCloud=read('docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md');
 const fail=(m)=>{throw new Error(`Phase 8.7 Zero-Escape audit: ${m}`)};
 const must=(text,marker,label)=>{if(!text.includes(marker))fail(`${label} missing ${marker}`)};
 
-// Preserve the historical Phase 8.6 closure exactly as certified. Do not weaken or rewrite the
-// 8.6 guard merely because Phase 8.7 legitimately carries its own repair migration.
+// Preserve Phase 8.6 exactly as it was certified. Phase 8.7 may add its own destruction repair,
+// but it may not weaken, rewrite or retroactively widen the predecessor's authority contract.
 const phase86ClosedSha='cb6449428e0ed9490af2758beac12692631b8f8b';
 const phase86ProtectedPaths=[
   'docs/PHASE8_6_STATE.json',
@@ -48,7 +48,7 @@ try{
 }
 
 if(state.phase!=='8.7'||state.name!=='Operations Zero-Escape Destruction Gate')fail('identity drift');
-if(state.status!=='IN_PROGRESS')fail('Phase 8.7 must remain IN_PROGRESS before full closure evidence');
+if(state.status!=='IN_PROGRESS')fail('Phase 8.7 must remain IN_PROGRESS before PR/merge/post-merge closure evidence');
 if(state.baseCommit!==phase86ClosedSha)fail('base commit drift');
 if(state.implementationBranch!=='phase8-7-operations-zero-escape')fail('implementation branch drift');
 if(state.predecessor?.phase!=='8.6'||state.predecessor?.requiredStatus!=='CLOSED'||state.predecessor?.requiredAuthorization!=='phase8_7Allowed=true')fail('predecessor contract drift');
@@ -56,86 +56,56 @@ if(state.mode!=='DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY')fail('mode drift');
 if(state.newFeatureAuthorityAllowed!==false||state.newDatabaseTablesAllowed!==false||state.newWriteRpcAuthorityAllowed!==false)fail('Phase 8.7 cannot create new authority');
 if(state.javascriptBudgetBytes!==670000||state.budgetIncreaseAllowed!==false)fail('JavaScript budget drift');
 if(state.phase9_1Allowed!==false||state.nextPhase!=='9.1'||state.successorStatus!=='LOCKED')fail('Phase 9.1 must remain locked');
-if(state.exitGatePassed!==false||state.postMergeRecertification!=='PENDING')fail('premature Phase 8.7 closure');
+if(state.exitGatePassed!==false||state.postMergeRecertification!=='PENDING'||state.pullRequestGate!=='PENDING')fail('premature Phase 8.7 closure');
 
 const expectedSystems=['M1','M5','M6','M17','M15_PHASE8_PORTION'];
 if(JSON.stringify(state.systemsUnderGate)!==JSON.stringify(expectedSystems))fail('systems-under-gate drift');
 const expectedDimensions=['repeated_triggers','stale_transitions','conflicting_actors','large_histories','field_offline_recovery','intake_abuse','branch_team_permission_boundaries','automation_failure_isolation'];
 if(JSON.stringify(state.destructionDimensions)!==JSON.stringify(expectedDimensions))fail('destruction dimensions drift');
 
-if(state.gateEvidence!=='WAVE1_PASS_M17_REAL_CLOUD_PASS')fail('gate evidence must retain Wave 1 + M17 cloud result');
-if(state.realCloudVerification!=='PARTIAL_PASS_M17_ZERO_RESIDUE')fail('Phase 8.7 Real Cloud must remain explicitly partial until M1/M5/M6/M15 destruction passes');
+if(state.gateEvidence!=='WAVE1_PASS_REAL_CLOUD_PASS_ZERO_RESIDUE')fail('gate evidence must retain Wave 1 + complete Real Cloud result');
+if(state.realCloudVerification!=='PASS_ZERO_RESIDUE')fail('complete Phase 8.7 Real Cloud evidence must be PASS_ZERO_RESIDUE');
 if(state.realCloudEvidence!=='docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md')fail('Real Cloud evidence pointer drift');
-if(state.systemEvidence?.M17?.realCloud!=='PASS_ZERO_RESIDUE'||state.systemEvidence?.M17?.evidence!==state.realCloudEvidence||state.systemEvidence?.M17?.verifiedProperty!=='concurrent_public_intake_rate_limit_serialization')fail('M17 Real Cloud evidence contract drift');
-for(const system of ['M1','M5','M6','M15_PHASE8_PORTION'])if(state.systemEvidence?.[system]?.realCloud!=='PENDING_PHASE8_7_DESTRUCTION')fail(`${system} may not be promoted before Phase 8.7 cloud destruction`);
+const systemProperties={
+  M1:'workflow_replay_stale_and_idempotency_conflict',
+  M5:'offline_identity_replay_stale_and_finance_isolation',
+  M6:'guarded_conversion_replay_and_finance_isolation',
+  M17:'concurrent_public_intake_rate_limit_serialization',
+  M15_PHASE8_PORTION:'permission_inheritance_stale_ownership_and_sibling_isolation'
+};
+for(const [system,verifiedProperty] of Object.entries(systemProperties)){
+  const evidence=state.systemEvidence?.[system];
+  if(evidence?.realCloud!=='PASS_ZERO_RESIDUE'||evidence?.evidence!==state.realCloudEvidence||evidence?.verifiedProperty!==verifiedProperty)fail(`${system} Real Cloud evidence contract drift`);
+}
+const automation=state.dimensionEvidence?.automation_failure_isolation;
+if(automation?.realCloud!=='PASS_ZERO_RESIDUE'||automation?.evidence!==state.realCloudEvidence||automation?.verifiedProperty!=='stale_rule_replay_human_approval_rejection_and_finance_isolation')fail('automation failure-isolation cloud evidence drift');
 
 for(const marker of [
-  '**Status: IN PROGRESS**',
-  'not a feature-delivery phase',
-  'repeated triggers',
-  'stale transitions',
-  'conflicting actors',
-  'large histories',
-  'field offline recovery',
-  'intake abuse',
-  'branch/team permission boundaries',
-  'automation failure isolation',
-  'M1 — Government Procedure Operating System',
-  'M5 — Field Operations / Runner Mode',
-  'M6 — Service Catalog, CRM & Commercial Intake',
-  'M17 — Smart Intake Forms & Secure Submission Links',
-  'M15 — Phase-8 organizational portion',
-  'Phase 9.1 — Smart Risk Engine remains LOCKED'
+  '**Status: IN PROGRESS**','not a feature-delivery phase','repeated triggers','stale transitions','conflicting actors','large histories','field offline recovery','intake abuse','branch/team permission boundaries','automation failure isolation',
+  'M1 — Government Procedure Operating System','M5 — Field Operations / Runner Mode','M6 — Service Catalog, CRM & Commercial Intake','M17 — Smart Intake Forms & Secure Submission Links','M15 — Phase-8 organizational portion','Phase 9.1 — Smart Risk Engine remains LOCKED'
 ])must(kickoff,marker,'kickoff');
 
 for(const marker of [
-  'M5 corruption guard',
-  'unknown offline operation kind is never replayed or silently deleted',
-  'M1 repeated transition',
-  'M1 stale transition',
-  'M1 large history',
-  'automation failure isolation',
-  'M17 abuse boundary',
-  'M6 replayed conversion',
-  'M15 source-less inherited workforce permission',
-  'M15 stale ownership transfer'
+  'M5 corruption guard','unknown offline operation kind is never replayed or silently deleted','M1 repeated transition','M1 stale transition','M1 large history','automation failure isolation','M17 abuse boundary','M6 replayed conversion','M15 source-less inherited workforce permission','M15 stale ownership transfer'
 ])must(tests,marker,'destruction wave 1');
 
-for(const marker of [
-  "x.kind==='check_in'",
-  "x.kind==='check_out'",
-  "x.kind==='evidence'",
-  "x.kind==='handoff'",
-  "x.kind==='reassign'",
-  'return knownKind&&'
-])must(offline,marker,'M5 offline corruption repair');
+for(const marker of ["x.kind==='check_in'","x.kind==='check_out'","x.kind==='evidence'","x.kind==='handoff'","x.kind==='reassign'",'return knownKind&&'])must(offline,marker,'M5 offline corruption repair');
 
 for(const marker of [
-  'create or replace function private.enforce_public_intake_rate_v1',
-  'from public.intake_links l where l.id=p_link_id for update',
-  "v_hour>=120",
-  "v_recent>=4",
-  "ENJAZ_INTAKE_RATE_LIMITED",
-  'insert into public.intake_public_events(link_id,event_type)',
-  'revoke all on function private.enforce_public_intake_rate_v1(uuid,text) from public,anon'
+  'create or replace function private.enforce_public_intake_rate_v1','from public.intake_links l where l.id=p_link_id for update',"v_hour>=120","v_recent>=4",'ENJAZ_INTAKE_RATE_LIMITED','insert into public.intake_public_events(link_id,event_type)','revoke all on function private.enforce_public_intake_rate_v1(uuid,text) from public,anon'
 ])must(intakeRateRepair,marker,'M17 concurrent abuse repair');
 if(/create\s+table\b/i.test(intakeRateRepair))fail('M17 repair may not create a new table');
 if(/create\s+or\s+replace\s+function\s+public\./i.test(intakeRateRepair))fail('M17 repair may not create/replace a public RPC');
 if(/grant\s+execute/i.test(intakeRateRepair))fail('M17 repair may not grant new execute authority');
 
 for(const marker of [
-  'Status: **PASS — ZERO RESIDUE**',
-  'juzxriirhkuzviwnhkbd',
-  '20260909094008 phase_8_7_intake_rate_limit_serialization',
-  '4 × HTTP 200',
-  '1 × HTTP 500 / SQLSTATE 54000 / `ENJAZ_INTAKE_RATE_LIMITED`',
-  '4 save_draft events, 0 submit events, 1 submission, version 4, status draft',
-  'probe links: **0**',
-  'probe forms: **0**',
-  'probe form fields: **0**',
-  'probe submissions: **0**',
-  'probe intake events: **0**',
-  '**M17 concurrent abuse destruction: PASS — ZERO RESIDUE.**'
-])must(realCloud,marker,'M17 Real Cloud evidence');
+  'Status: **PASS — ZERO RESIDUE**','juzxriirhkuzviwnhkbd','20260909094008 phase_8_7_intake_rate_limit_serialization','4 × HTTP 200','1 × HTTP 500 / SQLSTATE 54000 / `ENJAZ_INTAKE_RATE_LIMITED`','**M17 concurrent abuse destruction: PASS — ZERO RESIDUE.**',
+  '20260909095155 phase_8_7_live_m1_zero_escape_probe_v3','**M1 Phase-8 Zero-Escape cloud destruction: PASS — ZERO RESIDUE.**',
+  '20260909095410 phase_8_7_live_m5_offline_zero_escape_probe_v2','**M5 Phase-8 Zero-Escape cloud destruction: PASS — ZERO RESIDUE.**',
+  '20260909095550 phase_8_7_live_m6_conversion_zero_escape_probe_v2','**M6 Phase-8 Zero-Escape cloud destruction: PASS — ZERO RESIDUE.**',
+  '20260909095745 phase_8_7_live_m15_permission_zero_escape_probe','**M15 Phase-8 Zero-Escape cloud destruction: PASS — ZERO RESIDUE.**',
+  '20260909095841 phase_8_7_live_automation_failure_isolation_probe','**Automation failure-isolation Real Cloud destruction: PASS — ZERO RESIDUE.**',
+  '**Phase 8.7 Real Cloud Verification: PASS — ZERO RESIDUE.**'
+])must(realCloud,marker,'complete Real Cloud evidence');
 
-console.log('ENJAZ PHASE 8.7 ZERO-ESCAPE AUDIT PASS — Phase 8.6 exact closed SHA independently recertified and protected files unchanged; Phase 9.1 locked; Wave 1 remains green; M5 unknown-kind fail-closed repair is frozen; M17 concurrent abuse is Real-Cloud PASS ZERO RESIDUE; remaining M1/M5/M6/M15 Phase-8 cloud destruction stays pending; 670000-byte budget unchanged.');
+console.log('ENJAZ PHASE 8.7 ZERO-ESCAPE AUDIT PASS — Phase 8.6 exact closed SHA independently recertified and protected files unchanged; Phase 9.1 locked; Wave 1 is green; M5 unknown-kind fail-closed repair is frozen; M1/M5/M6/M17/M15 Phase-8 and automation failure isolation are Real-Cloud PASS ZERO RESIDUE; Real Browser/deployed-live/PR/merge/post-merge closure remain pending; 670000-byte budget unchanged.');
