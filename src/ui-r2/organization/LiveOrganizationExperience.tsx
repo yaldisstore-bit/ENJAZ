@@ -40,7 +40,7 @@ function dateTimeInputToIso(value:string){return value?new Date(value).toISOStri
 function target(scopeType:OrganizationScopeType,targetId:string):OrganizationScopeTarget{
   return {scopeType,branchId:scopeType==='branch'?targetId:null,departmentId:scopeType==='department'?targetId:null,teamId:scopeType==='team'?targetId:null};
 }
-function targetIdOf(row:Readonly<{scopeType:OrganizationScopeType;branchId:string|null;departmentId:string|null;teamId:string|null}>){return row.scopeType==='branch'?row.branchId:row.scopeType==='department'?row.departmentId:row.teamId}
+function targetIdOf(row:Readonly<{scopeType:OrganizationScopeType|null;branchId:string|null;departmentId:string|null;teamId:string|null}>){return row.scopeType==='branch'?row.branchId:row.scopeType==='department'?row.departmentId:row.scopeType==='team'?row.teamId:null}
 
 function ScopeTargetSelect({context,value,onChange,disabled=false}:Readonly<{context:OrganizationContext;value:TargetDraft;onChange:(value:TargetDraft)=>void;disabled?:boolean}>){
   const rows=value.scopeType==='branch'?context.branches:value.scopeType==='department'?context.departments:context.teams;
