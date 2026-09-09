@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "phase": "8.5",
   "name": "Multi-Branch / Departments / Teams — M15 foundation",
   "status": "IN_PROGRESS",
@@ -17,11 +17,12 @@
     "globalSystemStatus": "OPEN"
   },
   "rootAuthority": {
-    "table": "workspace_memberships",
-    "roleConstraintChangeAllowed": true,
-    "roles": ["owner", "member"],
-    "memberWriteAuthority": "owner_only_rpc",
-    "legacyBroadPolicyProtection": "member_rows_hidden_from_legacy_workspace_membership_select",
+    "workspaceTrustTable": "workspace_memberships",
+    "workspaceTrustRoleConstraint": "owner_only_unchanged",
+    "workforceAuthorizationTable": "organization_members",
+    "workforceIdentitySource": "auth.users",
+    "workforceWriteAuthority": "workspace_owner_only_rpc",
+    "legacyBroadPolicyProtection": "non_owner_workforce_never_inserted_into_workspace_memberships",
     "organizationalAuthority": "derived_from_same_workspace_explicit_scope_membership"
   },
   "hierarchy": ["workspace", "branch", "department", "team"],
@@ -38,14 +39,15 @@
   "authorityBoundaries": {
     "crossWorkspace": "FORBIDDEN",
     "anonymousOrgWrites": "FORBIDDEN",
-    "legacyWorkspaceWideAccessForMember": "FORBIDDEN",
+    "legacyWorkspaceWideAccessForWorkforce": "FORBIDDEN",
+    "legacyRpcMembershipEscalation": "FORBIDDEN_BY_SEPARATE_AUTHORIZATION_TABLE",
     "companyIdentityDuplication": "FORBIDDEN",
     "contactIdentityDuplication": "FORBIDDEN",
     "transactionLifecycleWriteAuthority": "existing_transaction_workflow_boundaries_only",
     "financeLedgerWriteAuthority": "none"
   },
   "foundationCapabilities": [
-    "workspaceRootMembers",
+    "organizationMembers",
     "branches",
     "departments",
     "teams",
