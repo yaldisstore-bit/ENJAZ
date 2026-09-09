@@ -55,7 +55,14 @@ must(sql,'grant select on table public.organization_members,public.organization_
 if(/grant\s+(insert|update|delete|all)\s+on\s+table/i.test(sql))throw new Error('Direct organizational table mutation grant detected');
 
 for(const m of ["s.department_id=p_department_id or (v_branch_id is not null and s.branch_id=v_branch_id)","s.team_id=p_team_id or s.department_id=v_department_id or (v_branch_id is not null and s.branch_id=v_branch_id)","order by case when s.team_id=p_team_id then 1 when s.department_id=v_department_id then 2 else 3 end","and (not p_management or s.scope_role='manager')"])must(sql,m,'downward inheritance');
-if(sql.includes('teamToParent')||/s\.team_id\s*=.*p_department/i.test(sql))throw new Error('Potential upward team inheritance detected');
+const scopeSource=sql.match(/create\s+or\s+replace\s+function\s+private\.organization_scope_source_v1[\s\S]*?\$\$;/i)?.[0]??'';
+if(!scopeSource)throw new Error('organization_scope_source_v1 extraction failed');
+const branchScope=scopeSource.match(/if\s+p_scope_type='branch'\s+then([\s\S]*?)elsif\s+p_scope_type='department'/i)?.[1]??'';
+const departmentScope=scopeSource.match(/elsif\s+p_scope_type='department'\s+then([\s\S]*?)elsif\s+p_scope_type='team'/i)?.[1]??'';
+if(!branchScope||!departmentScope)throw new Error('organization scope inheritance branch extraction failed');
+if(/s\.department_id|s\.team_id/i.test(branchScope))throw new Error('Branch access must not be derived from descendant membership');
+if(/s\.team_id/i.test(departmentScope))throw new Error('Department access must not be derived from team membership');
+if(scopeSource.includes('teamToParent'))throw new Error('Potential upward team inheritance marker detected');
 for(const m of ['ENJAZ_ORG_DEPARTMENT_REPARENT_BLOCKED','ENJAZ_ORG_TEAM_REPARENT_BLOCKED','ENJAZ_ORG_SCOPE_MEMBERSHIP_STALE','ENJAZ_ORG_OWNERSHIP_STALE','ENJAZ_ORG_TRANSFER_MANAGE_BOTH_REQUIRED',"'transactionLifecycleMutated',false","'financeLedgerMutated',false"])must(sql,m,'destructive safety');
 
 const forbiddenWrites=[/update\s+public\.transactions\b/i,/insert\s+into\s+public\.transactions\b/i,/delete\s+from\s+public\.transactions\b/i,/\bpayments\b/i,/financial_ledger_entries/i,/cashbox_accounts/i,/payment_reversals/i];
