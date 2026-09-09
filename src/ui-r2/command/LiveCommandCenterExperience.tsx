@@ -11,7 +11,7 @@ import type { R2DestinationId } from '../architecture/navigation-contract.ts';
 type Props=Readonly<{navigate:(id:R2DestinationId)=>void}>;
 const FAIL='تعذر تأكيد الحالة من جميع السلطات الموثوقة. لم يعرض مركز القيادة صورة جزئية قد تكون مضللة.';
 const OK='تم تأكيد القرار من السلطة المالكة وإعادة مزامنة مركز القيادة.';
-const BAD='تعذر تأكيد القرار. لم يفترض مركز القيادة نجاحه.';
+const BAD='تعذر تأكيد القرار.';
 const priority=(level:CommandWorkflowDecision['level'])=>level==='critical'?'حرج':level==='high'?'مرتفع':'متوسط';
 const action=(snapshot:Readonly<Record<string,unknown>>)=>snapshot.type==='workflow_transition'?'انتقال سير عمل حساس':snapshot.type==='create_followup'?'إنشاء متابعة':'إجراء أتمتة يحتاج قرارًا';
 
@@ -24,12 +24,12 @@ export function LiveCommandCenterExperience({navigate}:Props){
   const run=async(key:string,op:(current:CommandCenterSnapshot)=>Promise<unknown>)=>{if(!snapshot||busy)return;setBusy(key);setMessage('');try{await op(snapshot);await load();setMessage(OK)}catch{setMessage(BAD);try{await load()}catch{setSnapshot(null);setMessage(FAIL)}}finally{setBusy('')}};
   const decideApproval=(approvalId:string,decision:'approved'|'rejected',form:HTMLFormElement|null)=>void run(`approval:${approvalId}`,x=>center.decideAutomationApproval({workspaceId:x.workspaceId,approvalId,decision,note:String(new FormData(form??undefined).get('note')??'').trim()||null,decisionKey:crypto.randomUUID()}));
   const transitionWorkflow=(decision:CommandWorkflowDecision,transitionKey:string,form:HTMLFormElement)=>{const transition=decision.allowedTransitions.find(x=>x.key===transitionKey);if(!transition)return;const reason=String(new FormData(form).get('reason')??'').trim()||null;if(transition.requiresReason&&!reason){setMessage('هذا الانتقال يتطلب سببًا موثقًا قبل التنفيذ.');return}void run(`workflow:${decision.instanceId}:${transitionKey}`,x=>center.transitionWorkflow({workspaceId:x.workspaceId,instanceId:decision.instanceId,transitionKey,expectedStagePosition:decision.currentStagePosition,reason,idempotencyKey:crypto.randomUUID()}))};
-  const reassignField=(assignmentId:string,version:number,form:HTMLFormElement)=>{const values=new FormData(form),assignedUserId=String(values.get('member')??''),reason=String(values.get('reason')??'').trim();if(!assignedUserId||reason.length<3){setMessage('إعادة الإسناد تحتاج عضوًا جديدًا وسببًا موثقًا من 3 أحرف على الأقل.');return}void run(`field:${assignmentId}`,x=>center.reassignField({workspaceId:x.workspaceId,assignmentId,expectedVersion:version,assignedUserId,reason,clientOperationId:crypto.randomUUID()}))};
+  const reassignField=(assignmentId:string,version:number,form:HTMLFormElement)=>{const values=new FormData(form),assignedUserId=String(values.get('member')??''),reason=String(values.get('reason')??'').trim();if(!assignedUserId||reason.length<3){setMessage('إعادة الإسناد تحتاج عضوًا وسببًا موثقًا.');return}void run(`field:${assignmentId}`,x=>center.reassignField({workspaceId:x.workspaceId,assignmentId,expectedVersion:version,assignedUserId,reason,clientOperationId:crypto.randomUUID()}))};
   const fields=snapshot?.field.assignments.filter(x=>x.status==='queued'||x.status==='in_progress').slice(0,4)??[];
   const signals=snapshot?snapshot.home.criticalBlockers+snapshot.home.overdueFollowups+snapshot.automation.pendingApprovals.length+snapshot.finance.reconciliation.integrityWarnings+snapshot.field.metrics.highCriticalBlockers:0;
 
   return <div className="r2-screen r2-command-live" data-command-stage="8.6" data-command-authority="delegated_existing_domain_gateways_only" data-command-write-authority="none" data-finance-write-authority="none">
-    <header className="r2-command-hero"><div><p className="r2-eyebrow">Phase 8.6 · Global Command Center</p><h1>مركز القيادة</h1><p className="r2-supporting">صورة تنفيذية موحدة فوق السلطات الحقيقية؛ التنفيذ يمر فقط عبر البوابة المالكة لكل مجال.</p></div><span className="r2-command-hero__status">Live · Delegated Authority</span></header>
+    <header className="r2-command-hero"><div><p className="r2-eyebrow">Phase 8.6 · Global Command Center</p><h1>مركز القيادة</h1></div></header>
     {message&&<div className="r2-command-alert" role="status">{message}</div>}
     {!snapshot?<section className="r2-command-state"><strong>{message===FAIL?'صورة القيادة غير متاحة':'جارٍ تكوين صورة القيادة…'}</strong>{message===FAIL&&<button type="button" className="r2-action r2-action--secondary" onClick={()=>void load().catch(()=>setMessage(FAIL))}>إعادة المحاولة</button>}</section>:<>
       <section className="r2-command-overview" aria-label="نبض القيادة">
