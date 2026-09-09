@@ -17,9 +17,9 @@ concurrency:
 
 jobs:
   phase8-7-zero-escape:
-    name: M1 M5 M6 M17 M15 / replay stale conflict offline abuse destruction
+    name: M1 M5 M6 M17 M15 / replay stale conflict offline abuse / cumulative Real Chromium
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@v7
         with:
@@ -56,3 +56,81 @@ jobs:
         run: npm run build -- --base=/ && npm run audit:dist:budget
       - name: Assert Phase 8.7 cannot raise 670000-byte budget or unlock Phase 9.1
         run: node -e "const j=JSON.parse(require('fs').readFileSync('docs/PHASE8_7_STATE.json','utf8'));if(j.javascriptBudgetBytes!==670000||j.budgetIncreaseAllowed!==false||j.phase9_1Allowed!==false||j.exitGatePassed!==false)process.exit(1)"
+      - name: Build cumulative Phase 8.1 through 8.6 isolated previews
+        run: |
+          npx vite build --config vite.phase8-1-preview.config.ts --base=/
+          npx vite build --config vite.phase8-2-preview.config.ts --base=/
+          npx vite build --config vite.phase8-3-preview.config.ts --base=/
+          npx vite build --config vite.phase8-4-preview.config.ts --base=/
+          npx vite build --config vite.phase8-5-preview.config.ts --base=/
+          npx vite build --config vite.phase8-6-preview.config.ts --base=/
+      - name: Enforce original preview budgets across cumulative Phase 8
+        run: |
+          test -f dist-phase8-1-preview/phase8-1-preview.html
+          test -f dist-phase8-2-preview/phase8-2-preview.html
+          test -f dist-phase8-3-preview/phase8-3-preview.html
+          test -f dist-phase8-4-preview/phase8-4-preview.html
+          test -f dist-phase8-5-preview/phase8-5-preview.html
+          test -f dist-phase8-6-preview/phase8-6-preview.html
+          test "$(du -sb dist-phase8-1-preview | cut -f1)" -le 9437184
+          test "$(du -sb dist-phase8-2-preview | cut -f1)" -le 9437184
+          test "$(du -sb dist-phase8-3-preview | cut -f1)" -le 10485760
+          test "$(du -sb dist-phase8-4-preview | cut -f1)" -le 10485760
+          test "$(du -sb dist-phase8-5-preview | cut -f1)" -le 10485760
+          test "$(du -sb dist-phase8-6-preview | cut -f1)" -le 10485760
+      - name: Install pinned real-browser tooling once for cumulative destruction
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start all isolated Phase 8 operational previews
+        run: |
+          nohup npx vite preview --config vite.phase8-1-preview.config.ts --host 127.0.0.1 --port 4188 > /tmp/enjaz-phase81-preview.log 2>&1 &
+          nohup npx vite preview --config vite.phase8-2-preview.config.ts --host 127.0.0.1 --port 4182 > /tmp/enjaz-phase82-preview.log 2>&1 &
+          nohup npx vite preview --config vite.phase8-3-preview.config.ts --host 127.0.0.1 --port 4183 > /tmp/enjaz-phase83-preview.log 2>&1 &
+          nohup npx vite preview --config vite.phase8-4-preview.config.ts --host 127.0.0.1 --port 4184 > /tmp/enjaz-phase84-preview.log 2>&1 &
+          nohup npx vite preview --config vite.phase8-5-preview.config.ts --host 127.0.0.1 --port 4185 > /tmp/enjaz-phase85-preview.log 2>&1 &
+          nohup npx vite preview --config vite.phase8-6-preview.config.ts --host 127.0.0.1 --port 4186 > /tmp/enjaz-phase86-preview.log 2>&1 &
+          for target in \
+            '4188/phase8-1-preview.html' \
+            '4182/phase8-2-preview.html' \
+            '4183/phase8-3-preview.html' \
+            '4184/phase8-4-preview.html' \
+            '4185/phase8-5-preview.html' \
+            '4186/phase8-6-preview.html'; do
+            ok=0
+            for i in {1..30}; do
+              if curl --fail --silent "http://127.0.0.1:${target}" >/dev/null; then ok=1; break; fi
+              sleep 1
+            done
+            test "$ok" -eq 1
+          done
+      - name: Cumulative Real Chromium — Workflow / Automation / Field / CRM+Intake / Organization / Command
+        env:
+          PHASE81_BASE_URL: http://127.0.0.1:4188/
+          PHASE82_BASE_URL: http://127.0.0.1:4182/
+          PHASE83_BASE_URL: http://127.0.0.1:4183/
+          PHASE84_BASE_URL: http://127.0.0.1:4184/
+          PHASE85_BASE_URL: http://127.0.0.1:4185/
+          PHASE86_BASE_URL: http://127.0.0.1:4186/
+        run: |
+          npx playwright test tests-external/phase8-1-workflow-government-procedure.spec.cjs --reporter=line --workers=1
+          npx playwright test tests-external/phase8-2-automation.spec.cjs --reporter=line --workers=1
+          npx playwright test tests-external/phase8-3-operations-field.spec.cjs --reporter=line --workers=1
+          npx playwright test tests-external/phase8-4-crm-intake.spec.cjs --reporter=line --workers=1
+          npx playwright test tests-external/phase8-5-organization.spec.cjs --reporter=line --workers=1
+          npx playwright test tests-external/phase8-6-command-center.spec.cjs --reporter=line --workers=1
+      - name: Upload Phase 8.7 cumulative browser diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-phase8-7-diagnostics-${{ github.sha }}
+          path: |
+            test-results/
+            /tmp/enjaz-phase81-preview.log
+            /tmp/enjaz-phase82-preview.log
+            /tmp/enjaz-phase83-preview.log
+            /tmp/enjaz-phase84-preview.log
+            /tmp/enjaz-phase85-preview.log
+            /tmp/enjaz-phase86-preview.log
+          if-no-files-found: ignore
+          retention-days: 7
