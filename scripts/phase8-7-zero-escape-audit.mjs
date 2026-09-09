@@ -6,6 +6,7 @@ const state=JSON.parse(read('docs/PHASE8_7_STATE.json'));
 const kickoff=read('docs/PHASE8_7_KICKOFF.md');
 const tests=read('tests/phase8-7-operations-zero-escape.test.ts');
 const offline=read('src/features/field-operations/fieldOperationsOfflineQueue.ts');
+const intakeRateRepair=read('database/migrations/phase_8_7_intake_rate_limit_serialization.sql');
 const fail=(m)=>{throw new Error(`Phase 8.7 Zero-Escape audit: ${m}`)};
 const must=(text,marker,label)=>{if(!text.includes(marker))fail(`${label} missing ${marker}`)};
 
@@ -68,4 +69,14 @@ for(const marker of [
   'return knownKind&&'
 ])must(offline,marker,'M5 offline corruption repair');
 
-console.log('ENJAZ PHASE 8.7 ZERO-ESCAPE AUDIT PASS — Phase 8.6 closure preserved; Phase 9.1 locked; M1/M5/M6/M17/M15 destruction scope frozen; wave-1 regression and M5 unknown-kind fail-closed repair present; 670000-byte budget unchanged.');
+for(const marker of [
+  'create or replace function private.enforce_public_intake_rate_v1',
+  'from public.intake_links l where l.id=p_link_id for update',
+  "v_hour>=120",
+  "v_recent>=4",
+  "ENJAZ_INTAKE_RATE_LIMITED",
+  'insert into public.intake_public_events(link_id,event_type)',
+  'revoke all on function private.enforce_public_intake_rate_v1(uuid,text) from public,anon'
+])must(intakeRateRepair,marker,'M17 concurrent abuse repair');
+
+console.log('ENJAZ PHASE 8.7 ZERO-ESCAPE AUDIT PASS — Phase 8.6 closure preserved; Phase 9.1 locked; M1/M5/M6/M17/M15 destruction scope frozen; wave-1 regression, M5 unknown-kind fail-closed repair and M17 serialized rate decision repair present; 670000-byte budget unchanged.');
