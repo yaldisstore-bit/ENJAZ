@@ -4,258 +4,48 @@ import type { ReadRepository } from '../../data/repositories/createEntityReposit
 import type { FieldOperationsCommandGateway, FieldOperationsContext } from '../field-operations/fieldOperationsCommands.ts';
 import { buildFinancialIntelligenceSnapshot, type FinanceIntelligenceSnapshot } from '../finance/financeIntelligence.ts';
 import { loadFinanceSource } from '../finance/financeService.ts';
-import {
-  evaluateRiskSnapshot,
-  type RiskFinanceAnomalyFact,
-  type RiskSignal,
-  type RiskTransactionFact,
-  type RiskWorkloadFact,
-} from './riskEngine.ts';
+import { evaluateOperationalRiskSnapshot } from './riskOperationalEngine.ts';
+import type { RiskFinanceAnomalyFact, RiskTransactionFact, RiskWorkloadFact, RiskSignal } from './riskEngine.ts';
 
-const RISK_PAGE_SIZE = 100;
-export const RISK_SOURCE_LIMIT = 10_000;
+const PAGE=100;
+export const RISK_SOURCE_LIMIT=10_000;
+export class RiskWorkspaceUnavailableError extends Error{constructor(){super('No ENJAZ workspace is available for Smart Risk');this.name='RiskWorkspaceUnavailableError'}}
+export class RiskSourceCapacityError extends Error{readonly sourceName:string;constructor(sourceName:string){super(`Smart Risk source capacity exceeded: ${sourceName}`);this.name='RiskSourceCapacityError';this.sourceName=sourceName}}
+export class RiskSourcePageStalledError extends Error{readonly sourceName:string;constructor(sourceName:string){super(`Smart Risk source page stalled: ${sourceName}`);this.name='RiskSourcePageStalledError';this.sourceName=sourceName}}
+export class RiskAuthorityDriftError extends Error{constructor(message:string){super(message);this.name='RiskAuthorityDriftError'}}
 
-export class RiskWorkspaceUnavailableError extends Error {
-  constructor() {
-    super('No ENJAZ workspace is available for Smart Risk');
-    this.name = 'RiskWorkspaceUnavailableError';
-  }
+type FinanceRiskSnapshot=Pick<FinanceIntelligenceSnapshot,'asOf'|'signals'>;
+export type FinanceRiskLoader=(factory:EnjazDataLayerFactory,userId:string,now:Date)=>Promise<Readonly<{workspaceId:string;snapshot:FinanceRiskSnapshot}>>;
+export interface SmartRiskDependencies{readonly dataFactory:EnjazDataLayerFactory;readonly fieldOperations:Pick<FieldOperationsCommandGateway,'loadContext'>;readonly financeRiskLoader?:FinanceRiskLoader}
+export interface SmartRiskLiveResult{readonly workspaceId:string;readonly evaluatedAt:string;readonly authority:'read_only_derived_intelligence';readonly signals:readonly RiskSignal[];readonly sourceCounts:Readonly<{transactions:number;blockers:number;financeAnomalies:number;workloadOwners:number}>}
+
+async function all<T extends IdWorkspaceTableName>(name:string,repo:ReadRepository<T>,request:Omit<ListRequest<T>,'offset'|'limit'>={}):Promise<readonly RowOf<T>[]>{
+  const rows:RowOf<T>[]=[];let offset=0;
+  for(;;){const p=await repo.list({...request,offset,limit:PAGE});rows.push(...p.items);if(rows.length>RISK_SOURCE_LIMIT)throw new RiskSourceCapacityError(name);if(!p.hasMore)return Object.freeze(rows);if(!p.items.length)throw new RiskSourcePageStalledError(name);offset+=p.items.length}
 }
+async function finance(factory:EnjazDataLayerFactory,userId:string,now:Date){const x=await loadFinanceSource(factory,userId);return Object.freeze({workspaceId:x.workspaceId,snapshot:buildFinancialIntelligenceSnapshot(x.source,now)})}
+function fieldOk(x:FieldOperationsContext){if(x.authority!=='field_assignments_visits_evidence_receipts'||x.transactionWriteAuthority!=='none'||x.workflowWriteAuthority!=='existing_workflow_rpc_only'||x.automationWriteAuthority!=='existing_automation_rpc_only'||x.financeWriteAuthority!=='none')throw new RiskAuthorityDriftError('Smart Risk refused Field Operations authority drift')}
+const active=(x:RowOf<'transactions'>)=>x.deleted_at===null&&x.archived_at===null&&x.status!=='completed';
 
-export class RiskSourceCapacityError extends Error {
-  readonly sourceName: string;
-  constructor(sourceName: string) {
-    super(`Smart Risk source capacity exceeded: ${sourceName}`);
-    this.name = 'RiskSourceCapacityError';
-    this.sourceName = sourceName;
-  }
-}
-
-export class RiskSourcePageStalledError extends Error {
-  readonly sourceName: string;
-  constructor(sourceName: string) {
-    super(`Smart Risk source page stalled: ${sourceName}`);
-    this.name = 'RiskSourcePageStalledError';
-    this.sourceName = sourceName;
-  }
-}
-
-export class RiskAuthorityDriftError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'RiskAuthorityDriftError';
-  }
-}
-
-type FinanceRiskSnapshot = Pick<FinanceIntelligenceSnapshot, 'asOf' | 'signals'>;
-export type FinanceRiskLoader = (
-  factory: EnjazDataLayerFactory,
-  userId: string,
-  now: Date,
-) => Promise<Readonly<{ workspaceId: string; snapshot: FinanceRiskSnapshot }>>;
-
-export interface SmartRiskDependencies {
-  readonly dataFactory: EnjazDataLayerFactory;
-  readonly fieldOperations: Pick<FieldOperationsCommandGateway, 'loadContext'>;
-  readonly financeRiskLoader?: FinanceRiskLoader;
-}
-
-export interface SmartRiskLiveResult {
-  readonly workspaceId: string;
-  readonly evaluatedAt: string;
-  readonly authority: 'read_only_derived_intelligence';
-  readonly signals: readonly RiskSignal[];
-  readonly sourceCounts: Readonly<{
-    transactions: number;
-    blockers: number;
-    financeAnomalies: number;
-    workloadOwners: number;
-  }>;
-}
-
-async function collectAll<T extends IdWorkspaceTableName>(
-  sourceName: string,
-  repository: ReadRepository<T>,
-  request: Omit<ListRequest<T>, 'offset' | 'limit'> = {},
-): Promise<readonly RowOf<T>[]> {
-  const rows: RowOf<T>[] = [];
-  let offset = 0;
-  for (;;) {
-    const page = await repository.list({ ...request, offset, limit: RISK_PAGE_SIZE });
-    rows.push(...page.items);
-    if (rows.length > RISK_SOURCE_LIMIT) throw new RiskSourceCapacityError(sourceName);
-    if (!page.hasMore) return Object.freeze(rows);
-    if (page.items.length === 0) throw new RiskSourcePageStalledError(sourceName);
-    offset += page.items.length;
-  }
-}
-
-async function defaultFinanceRiskLoader(
-  factory: EnjazDataLayerFactory,
-  userId: string,
-  now: Date,
-): Promise<Readonly<{ workspaceId: string; snapshot: FinanceRiskSnapshot }>> {
-  const loaded = await loadFinanceSource(factory, userId);
-  return Object.freeze({
-    workspaceId: loaded.workspaceId,
-    snapshot: buildFinancialIntelligenceSnapshot(loaded.source, now),
-  });
-}
-
-function activeTransaction(row: RowOf<'transactions'>): boolean {
-  return row.deleted_at === null && row.archived_at === null && row.status !== 'completed';
-}
-
-function transactionLabel(row: RowOf<'transactions'>): string {
-  const legacy = row.legacy_id?.trim();
-  return legacy ? `معاملة ${legacy}` : row.type.trim() || `معاملة ${row.id.slice(0, 8)}`;
-}
-
-function companyLabel(row: RowOf<'companies'> | undefined): string | undefined {
-  if (!row) return undefined;
-  return row.display_name?.trim() || row.legal_name.trim() || undefined;
-}
-
-function assertFieldReadAuthority(context: FieldOperationsContext): void {
-  if (
-    context.authority !== 'field_assignments_visits_evidence_receipts'
-    || context.transactionWriteAuthority !== 'none'
-    || context.workflowWriteAuthority !== 'existing_workflow_rpc_only'
-    || context.automationWriteAuthority !== 'existing_automation_rpc_only'
-    || context.financeWriteAuthority !== 'none'
-  ) throw new RiskAuthorityDriftError('Smart Risk refused Field Operations authority drift');
-}
-
-function mapFinanceAnomalies(snapshot: FinanceRiskSnapshot): readonly RiskFinanceAnomalyFact[] {
-  return Object.freeze(snapshot.signals.flatMap((signal): RiskFinanceAnomalyFact[] => {
-    if (signal.severity === 'info') return [];
-    return [{
-      id: signal.id,
-      label: signal.title,
-      kind: `finance_7_3:${signal.id}`,
-      severity: signal.severity === 'high' ? 'high' : 'medium',
-      explanation: signal.explanation,
-      observedAt: snapshot.asOf,
-    }];
-  }));
-}
-
-function mapWorkloads(context: FieldOperationsContext, evaluatedAt: string): readonly RiskWorkloadFact[] {
-  assertFieldReadAuthority(context);
-  const grouped = new Map<string, { ownerLabel: string; activeCount: number; urgentCount: number }>();
-  for (const assignment of context.assignments) {
-    if (assignment.status !== 'queued' && assignment.status !== 'in_progress') continue;
-    const current = grouped.get(assignment.assignedUserId) ?? {
-      ownerLabel: assignment.assignedUserName,
-      activeCount: 0,
-      urgentCount: 0,
-    };
-    current.activeCount += 1;
-    if (assignment.priority === 'urgent') current.urgentCount += 1;
-    grouped.set(assignment.assignedUserId, current);
-  }
-  return Object.freeze([...grouped].map(([ownerId, value]) => Object.freeze({
-    ownerId,
-    ownerLabel: value.ownerLabel,
-    activeCount: value.activeCount,
-    urgentCount: value.urgentCount,
-    observedAt: evaluatedAt,
-  })));
-}
-
-function mapTransactions(
-  transactions: readonly RowOf<'transactions'>[],
-  blockers: readonly RowOf<'transaction_blockers'>[],
-  companies: readonly RowOf<'companies'>[],
-): readonly RiskTransactionFact[] {
-  const companyById = new Map(companies
-    .filter((row) => row.deleted_at === null)
-    .map((row) => [row.id, row]));
-  const blockerByTransaction = new Map<string, RowOf<'transaction_blockers'>[]>();
-  for (const blocker of blockers) {
-    if (blocker.status !== 'open') continue;
-    const bucket = blockerByTransaction.get(blocker.transaction_id) ?? [];
-    bucket.push(blocker);
-    blockerByTransaction.set(blocker.transaction_id, bucket);
-  }
-
-  return Object.freeze(transactions.filter(activeTransaction).map((row): RiskTransactionFact => {
-    const labelParts = [companyLabel(companyById.get(row.company_id)), transactionLabel(row)].filter(Boolean);
-    const label = labelParts.join(' · ');
-    return Object.freeze({
-      id: row.id,
-      ...(label ? { label } : {}),
-      status: row.status,
-      ...(row.priority === null ? {} : { priority: row.priority }),
-      ...(row.last_activity_at === null ? {} : { lastActivityAt: row.last_activity_at }),
-      blockers: Object.freeze((blockerByTransaction.get(row.id) ?? []).map((blocker) => Object.freeze({
-        id: blocker.id,
-        severity: blocker.severity,
-        status: blocker.status,
-        ...(blocker.opened_at ? { openedAt: blocker.opened_at } : {}),
-      }))),
-    });
-  }));
-}
-
-export async function loadSmartRisk(
-  dependencies: SmartRiskDependencies,
-  userId: string,
-  now: Date = new Date(),
-): Promise<SmartRiskLiveResult> {
-  if (!Number.isFinite(now.getTime())) throw new Error('Smart Risk requires a valid evaluation time');
-  const workspaceId = await dependencies.dataFactory.resolveWorkspaceId(userId);
-  if (!workspaceId) throw new RiskWorkspaceUnavailableError();
-  const layer: EnjazWorkspaceDataLayer = dependencies.dataFactory.forWorkspace(workspaceId);
-  const financeLoader = dependencies.financeRiskLoader ?? defaultFinanceRiskLoader;
-
-  const [transactions, companies, blockers, finance, fieldContext] = await Promise.all([
-    collectAll('transactions', layer.transactions, {
-      filters: [
-        { column: 'archived_at', operator: 'is', value: null },
-        { column: 'deleted_at', operator: 'is', value: null },
-        { column: 'status', operator: 'neq', value: 'completed' },
-      ],
-      orderBy: [{ column: 'last_activity_at', ascending: false }],
-    }),
-    collectAll('companies', layer.companies, {
-      filters: [{ column: 'deleted_at', operator: 'is', value: null }],
-      orderBy: [{ column: 'updated_at', ascending: false }],
-    }),
-    collectAll('transaction_blockers', layer.blockers, {
-      filters: [{ column: 'status', operator: 'eq', value: 'open' }],
-      orderBy: [{ column: 'opened_at', ascending: false }],
-    }),
-    financeLoader(dependencies.dataFactory, userId, now),
-    dependencies.fieldOperations.loadContext(workspaceId),
+export async function loadSmartRisk(d:SmartRiskDependencies,userId:string,now:Date=new Date()):Promise<SmartRiskLiveResult>{
+  if(!Number.isFinite(now.getTime()))throw new Error('Smart Risk requires a valid evaluation time');
+  const workspaceId=await d.dataFactory.resolveWorkspaceId(userId);if(!workspaceId)throw new RiskWorkspaceUnavailableError();
+  const l:EnjazWorkspaceDataLayer=d.dataFactory.forWorkspace(workspaceId),financeLoader=d.financeRiskLoader??finance;
+  const [transactions,companies,blockers,f,field]=await Promise.all([
+    all('transactions',l.transactions,{filters:[{column:'archived_at',operator:'is',value:null},{column:'deleted_at',operator:'is',value:null},{column:'status',operator:'neq',value:'completed'}],orderBy:[{column:'last_activity_at',ascending:false}]}),
+    all('companies',l.companies,{filters:[{column:'deleted_at',operator:'is',value:null}],orderBy:[{column:'updated_at',ascending:false}]}),
+    all('transaction_blockers',l.blockers,{filters:[{column:'status',operator:'eq',value:'open'}],orderBy:[{column:'opened_at',ascending:false}]}),
+    financeLoader(d.dataFactory,userId,now),d.fieldOperations.loadContext(workspaceId)
   ]);
-
-  if (finance.workspaceId !== workspaceId) {
-    throw new RiskAuthorityDriftError('Smart Risk refused cross-workspace finance composition');
-  }
-  assertFieldReadAuthority(fieldContext);
-
-  const evaluatedAt = now.toISOString();
-  const transactionFacts = mapTransactions(transactions, blockers, companies);
-  const financeAnomalies = mapFinanceAnomalies(finance.snapshot);
-  const workloads = mapWorkloads(fieldContext, evaluatedAt);
-  const signals = evaluateRiskSnapshot(Object.freeze({
-    evaluatedAt,
-    transactions: transactionFacts,
-    financeAnomalies,
-    workloads,
-  }));
-
-  return Object.freeze({
-    workspaceId,
-    evaluatedAt,
-    authority: 'read_only_derived_intelligence',
-    signals,
-    sourceCounts: Object.freeze({
-      transactions: transactionFacts.length,
-      blockers: blockers.filter((row) => row.status === 'open').length,
-      financeAnomalies: financeAnomalies.length,
-      workloadOwners: workloads.length,
-    }),
-  });
+  if(f.workspaceId!==workspaceId)throw new RiskAuthorityDriftError('Smart Risk refused cross-workspace finance composition');fieldOk(field);
+  const evaluatedAt=now.toISOString(),companyById=new Map(companies.filter(x=>x.deleted_at===null).map(x=>[x.id,x]));
+  const openBlockers=blockers.filter(x=>x.status==='open'),byTx=new Map<string,RowOf<'transaction_blockers'>[]>();
+  for(const b of openBlockers){const a=byTx.get(b.transaction_id)??[];a.push(b);byTx.set(b.transaction_id,a)}
+  const tx:RiskTransactionFact[]=transactions.filter(active).map(x=>{const c=companyById.get(x.company_id),company=c&&(c.display_name?.trim()||c.legal_name.trim()),legacy=x.legacy_id?.trim(),own=legacy?`معاملة ${legacy}`:x.type.trim()||`معاملة ${x.id.slice(0,8)}`,label=[company,own].filter(Boolean).join(' · ');return Object.freeze({id:x.id,...(label?{label}:{}),status:x.status,...(x.priority===null?{}:{priority:x.priority}),...(x.last_activity_at===null?{}:{lastActivityAt:x.last_activity_at}),blockers:Object.freeze((byTx.get(x.id)??[]).map(b=>Object.freeze({id:b.id,severity:b.severity,status:b.status,...(b.opened_at?{openedAt:b.opened_at}:{})})))})});
+  const financeAnomalies:RiskFinanceAnomalyFact[]=f.snapshot.signals.flatMap(x=>x.severity==='info'?[]:[{id:x.id,label:x.title,kind:`finance_7_3:${x.id}`,severity:x.severity==='high'?'high':'medium',explanation:x.explanation,observedAt:f.snapshot.asOf}]);
+  const grouped=new Map<string,{ownerLabel:string;activeCount:number;urgentCount:number}>();
+  for(const a of field.assignments){if(a.status!=='queued'&&a.status!=='in_progress')continue;const x=grouped.get(a.assignedUserId)??{ownerLabel:a.assignedUserName,activeCount:0,urgentCount:0};x.activeCount++;if(a.priority==='urgent')x.urgentCount++;grouped.set(a.assignedUserId,x)}
+  const workloads:RiskWorkloadFact[]=[...grouped].map(([ownerId,x])=>Object.freeze({ownerId,...x,observedAt:evaluatedAt}));
+  const signals=evaluateOperationalRiskSnapshot(Object.freeze({evaluatedAt,transactions:Object.freeze(tx),financeAnomalies:Object.freeze(financeAnomalies),workloads:Object.freeze(workloads)}));
+  return Object.freeze({workspaceId,evaluatedAt,authority:'read_only_derived_intelligence',signals,sourceCounts:Object.freeze({transactions:tx.length,blockers:openBlockers.length,financeAnomalies:financeAnomalies.length,workloadOwners:workloads.length})});
 }

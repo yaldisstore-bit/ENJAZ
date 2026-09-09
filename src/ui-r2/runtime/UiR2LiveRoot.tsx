@@ -13,7 +13,6 @@ import { ConnectedCoreWorkRouter } from '../core-work/CoreWorkConnected.tsx';
 import { LiveFieldOperationsExperience } from '../field-operations/LiveFieldOperationsExperience.tsx';
 import { buildR2FindAnythingResults } from '../find-anything/find-anything-model.ts';
 import { ConnectedR2Home } from '../home/ConnectedHomeExperience.tsx';
-import { LiveRiskExperience } from '../risk/LiveRiskExperience.tsx';
 import { useR2OverlayFocusGuard } from './useR2OverlayFocusGuard.ts';
 
 type OverlayId = 'search' | 'account' | null;
@@ -157,7 +156,6 @@ export function UiR2LiveRoot({ accountLabel = 'حساب إنجاز', onSignOut }
   else if (destinationId === 'automation') content = <LiveAutomationExperience />;
   else if (destinationId === 'operations') content = <LiveFieldOperationsExperience />;
   else if (destinationId === 'command') content = <LiveCommandCenterExperience navigate={navigate} />;
-  else if (destinationId === 'risk') content = <LiveRiskExperience navigate={navigate} />;
   else content = <DeferredDestination id={destinationId} navigate={navigate} />;
 
   const currentDoor = doorFor(destinationId);
