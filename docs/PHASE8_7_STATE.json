@@ -43,8 +43,28 @@
     "exactMergedShaRequired": true,
     "postMergeRecertificationRequired": true
   },
-  "gateEvidence": "PENDING",
-  "realCloudVerification": "PENDING",
+  "systemEvidence": {
+    "M1": {
+      "realCloud": "PENDING_PHASE8_7_DESTRUCTION"
+    },
+    "M5": {
+      "realCloud": "PENDING_PHASE8_7_DESTRUCTION"
+    },
+    "M6": {
+      "realCloud": "PENDING_PHASE8_7_DESTRUCTION"
+    },
+    "M17": {
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "concurrent_public_intake_rate_limit_serialization"
+    },
+    "M15_PHASE8_PORTION": {
+      "realCloud": "PENDING_PHASE8_7_DESTRUCTION"
+    }
+  },
+  "gateEvidence": "WAVE1_PASS_M17_REAL_CLOUD_PASS",
+  "realCloudVerification": "PARTIAL_PASS_M17_ZERO_RESIDUE",
+  "realCloudEvidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
   "realBrowserVerification": "PENDING",
   "deployedLiveVerification": "PENDING",
   "postMergeRecertification": "PENDING",
