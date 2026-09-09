@@ -45,13 +45,19 @@
   },
   "systemEvidence": {
     "M1": {
-      "realCloud": "PENDING_PHASE8_7_DESTRUCTION"
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "workflow_replay_stale_and_idempotency_conflict"
     },
     "M5": {
-      "realCloud": "PENDING_PHASE8_7_DESTRUCTION"
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "offline_identity_replay_stale_and_finance_isolation"
     },
     "M6": {
-      "realCloud": "PENDING_PHASE8_7_DESTRUCTION"
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "guarded_conversion_replay_and_finance_isolation"
     },
     "M17": {
       "realCloud": "PASS_ZERO_RESIDUE",
@@ -59,14 +65,24 @@
       "verifiedProperty": "concurrent_public_intake_rate_limit_serialization"
     },
     "M15_PHASE8_PORTION": {
-      "realCloud": "PENDING_PHASE8_7_DESTRUCTION"
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "permission_inheritance_stale_ownership_and_sibling_isolation"
     }
   },
-  "gateEvidence": "WAVE1_PASS_M17_REAL_CLOUD_PASS",
-  "realCloudVerification": "PARTIAL_PASS_M17_ZERO_RESIDUE",
+  "dimensionEvidence": {
+    "automation_failure_isolation": {
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "stale_rule_replay_human_approval_rejection_and_finance_isolation"
+    }
+  },
+  "gateEvidence": "WAVE1_PASS_REAL_CLOUD_PASS_ZERO_RESIDUE",
+  "realCloudVerification": "PASS_ZERO_RESIDUE",
   "realCloudEvidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
   "realBrowserVerification": "PENDING",
   "deployedLiveVerification": "PENDING",
+  "pullRequestGate": "PENDING",
   "postMergeRecertification": "PENDING",
   "exitGatePassed": false,
   "phase9_1Allowed": false,
