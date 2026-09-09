@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 4,
+  "phase": "8.5",
+  "name": "Multi-Branch / Departments / Teams — M15 foundation",
+  "status": "IN_PROGRESS",
+  "baseCommit": "4fff1f6b25687d8ca305edac3d5a033e77e224c9",
+  "implementationBranch": "phase8-5-multi-branch-teams",
+  "predecessor": {
+    "phase": "8.4",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase8_5Allowed=true"
+  },
+  "system": {
+    "id": "M15",
+    "name": "Multi-Branch, Departments & Team Operating Model",
+    "phaseSliceStatus": "IN_PROGRESS",
+    "globalSystemStatus": "OPEN"
+  },
+  "delivery": {
+    "phaseSliceJourney": "isolated_live_preview_real_chromium",
+    "canonicalRuntimePromotion": "DEFERRED_UNTIL_SEPARATE_BUDGETED_PROMOTION",
+    "canonicalRuntimeMustRemainAtPredecessorBudgetContract": true,
+    "duplicateNavigationDestinationAllowed": false
+  },
+  "rootAuthority": {
+    "workspaceTrustTable": "workspace_memberships",
+    "workspaceTrustRoleConstraint": "owner_only_unchanged",
+    "workforceAuthorizationTable": "organization_members",
+    "workforceIdentitySource": "auth.users",
+    "workforceWriteAuthority": "workspace_owner_only_rpc",
+    "legacyBroadPolicyProtection": "non_owner_workforce_never_inserted_into_workspace_memberships",
+    "organizationalAuthority": "derived_from_same_workspace_explicit_scope_membership"
+  },
+  "hierarchy": ["workspace", "branch", "department", "team"],
+  "scopeRoles": ["member", "lead", "manager"],
+  "inheritance": {
+    "direction": "downward_only",
+    "branchToDepartment": true,
+    "branchToTeam": true,
+    "departmentToTeam": true,
+    "teamToParent": false,
+    "siblingAccess": false,
+    "explicitSourceRequired": true
+  },
+  "authorityBoundaries": {
+    "crossWorkspace": "FORBIDDEN",
+    "anonymousOrgWrites": "FORBIDDEN",
+    "legacyWorkspaceWideAccessForWorkforce": "FORBIDDEN",
+    "legacyRpcMembershipEscalation": "FORBIDDEN_BY_SEPARATE_AUTHORIZATION_TABLE",
+    "companyIdentityDuplication": "FORBIDDEN",
+    "contactIdentityDuplication": "FORBIDDEN",
+    "transactionLifecycleWriteAuthority": "existing_transaction_workflow_boundaries_only",
+    "financeLedgerWriteAuthority": "none"
+  },
+  "foundationCapabilities": [
+    "organizationMembers",
+    "branches",
+    "departments",
+    "teams",
+    "scopeMemberships",
+    "operationalOwnership",
+    "ownershipTransferAudit",
+    "ownerConsolidatedView",
+    "rlsVerifiableInheritance"
+  ],
+  "deferredCapabilities": [
+    "canonicalRuntimePromotion",
+    "branchCashboxes",
+    "advancedServiceRouting",
+    "automatedWorkloadBalancing",
+    "temporaryLeaveDelegation",
+    "advancedBranchDashboards",
+    "fullAssignmentRuleOrchestration"
+  ],
+  "javascriptBudgetBytes": 670000,
+  "budgetIncreaseAllowed": false,
+  "realCloudVerification": "PENDING",
+  "realChromium": "PENDING",
+  "postMergeRecertification": "PENDING",
+  "exitGatePassed": false,
+  "phase8_6Allowed": false,
+  "nextPhase": "8.6",
+  "successorStatus": "LOCKED",
+  "kickoffEvidence": "docs/PHASE8_5_KICKOFF.md"
+}

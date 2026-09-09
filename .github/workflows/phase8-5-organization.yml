@@ -1,0 +1,87 @@
+name: ENJAZ Phase 8.5 — Multi-Branch / Departments / Teams M15 Gate
+
+on:
+  push:
+    branches:
+      - main
+      - 'phase8-5-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase85-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase8-5-organization:
+    name: Organization / scoped workforce / ownership transfer / Real Chromium gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: npm ci --no-audit --no-fund
+      - name: Preserve formally closed Phase 8.4
+        run: node scripts/phase8-4-crm-intake-audit.mjs && node scripts/phase8-4-cloud-evidence-audit.mjs && node --experimental-strip-types --test tests/crmIntakeEngine.test.ts
+      - name: Enforce Phase 8.5 M15 organization contracts
+        run: node scripts/phase8-5-organization-audit.mjs
+      - name: Phase 8.5 organization command and authority tests
+        run: node --experimental-strip-types --test tests/organizationEngine.test.ts
+      - name: Full functional regression
+        run: npm run test:functional
+      - name: Database and roadmap integrity
+        run: npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap
+      - name: Secrets and TypeScript
+        run: npm run audit:secrets && npm run typecheck
+      - name: Production build and unchanged hard budget
+        run: npm run build -- --base=/ && npm run audit:dist:budget
+      - name: Assert 670000-byte budget was not raised
+        run: node -e "const j=JSON.parse(require('fs').readFileSync('docs/PHASE8_5_STATE.json','utf8'));if(j.javascriptBudgetBytes!==670000||j.budgetIncreaseAllowed!==false)process.exit(1)"
+      - name: Build isolated Phase 8.5 organization preview
+        run: npx vite build --config vite.phase8-5-preview.config.ts --base=/
+      - name: Enforce isolated Phase 8.5 preview size
+        run: |
+          test -f dist-phase8-5-preview/phase8-5-preview.html
+          BYTES=$(du -sb dist-phase8-5-preview | cut -f1)
+          echo "Phase 8.5 preview bytes: $BYTES"
+          test "$BYTES" -le 10485760
+      - name: Install pinned real-browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated Phase 8.5 preview
+        run: |
+          nohup npx vite preview --config vite.phase8-5-preview.config.ts --host 127.0.0.1 --port 4185 > /tmp/enjaz-phase85-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4185/phase8-5-preview.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase85-preview.log
+          exit 1
+      - name: Real Chromium Phase 8.5 organization acceptance
+        env:
+          PHASE85_BASE_URL: http://127.0.0.1:4185/
+        run: npx playwright test tests-external/phase8-5-organization.spec.cjs --reporter=line --workers=1
+      - name: Upload Phase 8.5 diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-phase8-5-diagnostics-${{ github.sha }}
+          path: |
+            test-results/
+            /tmp/enjaz-phase85-preview.log
+          if-no-files-found: ignore
+          retention-days: 7
