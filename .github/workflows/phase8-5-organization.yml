@@ -36,8 +36,14 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Preserve formally closed Phase 8.4
         run: node scripts/phase8-4-crm-intake-audit.mjs && node scripts/phase8-4-cloud-evidence-audit.mjs && node --experimental-strip-types --test tests/crmIntakeEngine.test.ts
-      - name: Enforce Phase 8.5 M15 organization contracts
-        run: node scripts/phase8-5-organization-audit.mjs
+      - name: Enforce Phase 8.5 M15 organization and closure contracts
+        run: |
+          STATUS=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('docs/PHASE8_5_STATE.json','utf8')).status)")
+          if [ "$STATUS" = "CLOSED" ]; then
+            node scripts/phase8-5-closure-audit.mjs
+          else
+            node scripts/phase8-5-organization-audit.mjs
+          fi
       - name: Phase 8.5 organization command and authority tests
         run: node --experimental-strip-types --test tests/organizationEngine.test.ts
       - name: Full functional regression
