@@ -30,7 +30,7 @@ if(JSON.stringify(state.destructionDimensions)!==JSON.stringify(expectedDimensio
 for(const marker of [
   '**Status: IN PROGRESS**',
   'not a feature-delivery phase',
-  'Repeated triggers',
+  'repeated triggers',
   'stale transitions',
   'conflicting actors',
   'large histories',
