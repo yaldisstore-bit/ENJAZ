@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
@@ -27,6 +28,14 @@ const state = readJson(statePath);
 const parity = readJson(parityPath);
 const ia = readJson(iaPath);
 const registrySource = readText(registryPath);
+let registryRuntime = { destinations: [], aliases: {} };
+try {
+  const registryUrl = pathToFileURL(path.join(root, registryPath)).href;
+  const probe = `const m=await import(${JSON.stringify(registryUrl)});process.stdout.write(JSON.stringify({destinations:m.R2_DESTINATIONS,aliases:m.R2_SEARCH_ALIASES}));`;
+  registryRuntime = JSON.parse(execFileSync(process.execPath, ['--experimental-strip-types', '--input-type=module', '--eval', probe], { encoding: 'utf8' }));
+} catch (error) {
+  errors.push(`source registry runtime evaluation failed: ${error instanceof Error ? error.message : String(error)}`);
+}
 const stageOrder = ['R2.0-0','R2.0-1','R2.0-2','R2.0-3','R2.0-4','R2.0-5','R2.0-6','R2.0-7','R2.0-8','R2.0-9','R2.0-10','R2.0-11'];
 const stageIndex = stageOrder.indexOf(state.stage);
 
@@ -123,7 +132,7 @@ if (ia.searchContract?.staticDemoResultsForbidden !== true) errors.push('static 
 if (ia.searchContract?.resultClickMustNavigate !== true) errors.push('global search result click must navigate');
 for (const [alias, target] of Object.entries(ia.searchContract?.aliases ?? {})) {
   if (!byId.has(target)) errors.push(`search alias target does not resolve: ${target}`);
-  if (!registrySource.includes(`${alias}: '${target}'`)) errors.push(`source registry missing search alias: ${alias} -> ${target}`);
+  if (registryRuntime.aliases?.[alias] !== target) errors.push(`source registry missing search alias: ${alias} -> ${target}`);
 }
 
 if (!Array.isArray(ia.backModel) || ia.backModel.length < 5) errors.push('back model must cover overlays, nested entities, deep links, search and create');
@@ -143,10 +152,21 @@ if (ia.sourceRegistry !== registryPath) errors.push(`IA sourceRegistry must be $
 if (state.informationArchitecture?.sourceRegistry !== registryPath) errors.push(`state sourceRegistry must be ${registryPath}`);
 if (/from\s+['"][^'"]*(?:ui-v2|ui-rebirth)/.test(registrySource)) errors.push('R2 navigation registry may not import old presentation layers');
 if (/ez-domain-rail|onBrandAction/.test(registrySource)) errors.push('R2 navigation registry contains legacy maze DNA');
+const runtimeById = new Map((registryRuntime.destinations ?? []).map((destination) => [destination.id, destination]));
 for (const destination of destinations) {
-  if (!registrySource.includes(`id: '${destination.id}'`)) errors.push(`source registry missing destination id: ${destination.id}`);
-  if (!registrySource.includes(`route: '${destination.route}'`)) errors.push(`source registry route drift for ${destination.id}: ${destination.route}`);
+  const actual = runtimeById.get(destination.id);
+  if (!actual) {
+    errors.push(`source registry missing destination id: ${destination.id}`);
+    continue;
+  }
+  for (const key of ['label', 'kind', 'route', 'availability', 'maxActionsFromHome']) {
+    if (actual[key] !== destination[key]) errors.push(`source registry ${key} drift for ${destination.id}: ${String(actual[key])} != ${String(destination[key])}`);
+  }
+  if (JSON.stringify(actual.routeVariants ?? null) !== JSON.stringify(destination.routeVariants ?? null)) {
+    errors.push(`source registry routeVariants drift for ${destination.id}`);
+  }
 }
+if (runtimeById.size !== byId.size) errors.push(`source registry destination count drift: runtime=${runtimeById.size}, IA=${byId.size}`);
 if (!registrySource.includes("export const R2_PRIMARY_NAVIGATION")) errors.push('source registry must export R2_PRIMARY_NAVIGATION');
 if (!registrySource.includes("export const R2_DESTINATIONS")) errors.push('source registry must export R2_DESTINATIONS');
 if (!registrySource.includes("export const R2_LAUNCHER_GROUPS")) errors.push('source registry must export R2_LAUNCHER_GROUPS');
@@ -179,5 +199,5 @@ if (errors.length) {
   errors.forEach((e) => console.error(`- ${e}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ R2.0 INFORMATION ARCHITECTURE AUDIT PASS — ${parity.capabilities.length} capabilities, five doors, zero hidden primary navigation, canonical homes resolved, source registry synchronized.`);
+  console.log(`ENJAZ R2.0 INFORMATION ARCHITECTURE AUDIT PASS — ${parity.capabilities.length} capabilities, five doors, zero hidden primary navigation, canonical homes resolved, runtime source registry synchronized semantically.`);
 }
