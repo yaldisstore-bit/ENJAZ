@@ -1,0 +1,58 @@
+name: ENJAZ Phase 8.7 — Operations Zero-Escape Destruction Gate
+
+on:
+  push:
+    branches:
+      - 'phase8-7-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase87-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase8-7-zero-escape:
+    name: M1 M5 M6 M17 M15 / replay stale conflict offline abuse destruction
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: npm ci --no-audit --no-fund
+      - name: Preserve formally closed Phase 8.6 and freeze Phase 8.7 contract
+        run: node scripts/phase8-7-zero-escape-audit.mjs
+      - name: Operations Zero-Escape destruction wave 1
+        run: node --experimental-strip-types --test tests/phase8-7-operations-zero-escape.test.ts
+      - name: Re-run authoritative Phase 8 subsystem tests
+        run: >-
+          node --experimental-strip-types --test
+          tests/workflowGovernmentProcedure.test.ts
+          tests/workflowGovernmentProcedureRuntime.test.ts
+          tests/automationEngine.test.ts
+          tests/fieldOperationsEngine.test.ts
+          tests/crmIntakeEngine.test.ts
+          tests/organizationEngine.test.ts
+      - name: Full functional regression
+        run: npm run test:functional
+      - name: Database and roadmap integrity
+        run: npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap
+      - name: Secrets and TypeScript
+        run: npm run audit:secrets && npm run typecheck
+      - name: Production build and frozen hard budget
+        run: npm run build -- --base=/ && npm run audit:dist:budget
+      - name: Assert Phase 8.7 cannot raise 670000-byte budget or unlock Phase 9.1
+        run: node -e "const j=JSON.parse(require('fs').readFileSync('docs/PHASE8_7_STATE.json','utf8'));if(j.javascriptBudgetBytes!==670000||j.budgetIncreaseAllowed!==false||j.phase9_1Allowed!==false||j.exitGatePassed!==false)process.exit(1)"
