@@ -136,6 +136,10 @@ function hoursBetween(later: number, earlier: number): number {
   return (later - earlier) / 3_600_000;
 }
 
+function entityRef(type: RiskEntityType, id: string, label: string | undefined): RiskEntityRef {
+  return label === undefined ? { type, id } : { type, id, label };
+}
+
 function freezeSignal(signal: RiskSignal): RiskSignal {
   return Object.freeze({
     ...signal,
@@ -212,7 +216,7 @@ export function evaluateRiskSnapshot(
 
   for (const transaction of snapshot.transactions ?? []) {
     if (!transaction.id.trim()) continue;
-    const entity: RiskEntityRef = { type: 'transaction', id: transaction.id, label: transaction.label };
+    const entity = entityRef('transaction', transaction.id, transaction.label);
     const status = transaction.status.toLowerCase();
     if (status === 'stalled') {
       const urgent = transaction.priority?.toLowerCase() === 'urgent';
@@ -301,7 +305,7 @@ export function evaluateRiskSnapshot(
       code: 'workflow_sla_pressure',
       severity: overdue ? 'critical' : remainingHours <= 24 ? 'high' : 'medium',
       urgency: overdue || remainingHours <= 24 ? 'now' : 'soon',
-      entity: { type: 'workflow', id: workflow.instanceId, label: workflow.label },
+      entity: entityRef('workflow', workflow.instanceId, workflow.label),
       components: [{ code: overdue ? 'sla_overdue' : 'sla_near', explanation: overdue ? 'تجاوز المسار حد SLA المعتمد.' : 'المسار يقترب من حد SLA المعتمد.' }],
       evidence: [{ sourceDomain: 'workflow', sourceObjectId: workflow.instanceId, field: 'sla_due_at', observedValue: workflow.slaDueAt!, observedAt: snapshot.evaluatedAt }],
       explanation: overdue ? 'مسار العمل تجاوز موعد SLA.' : 'مسار العمل قريب من موعد SLA.',
@@ -316,7 +320,7 @@ export function evaluateRiskSnapshot(
       code: 'finance_anomaly',
       severity: anomaly.severity,
       urgency: severityRank[anomaly.severity] >= severityRank.high ? 'now' : 'soon',
-      entity: { type: 'finance', id: anomaly.id, label: anomaly.label },
+      entity: entityRef('finance', anomaly.id, anomaly.label),
       components: [{ code: anomaly.kind, explanation: anomaly.explanation }],
       evidence: [{ sourceDomain: 'finance', sourceObjectId: anomaly.id, field: 'anomaly_kind', observedValue: anomaly.kind, observedAt: anomaly.observedAt ?? snapshot.evaluatedAt }],
       explanation: anomaly.explanation,
@@ -333,7 +337,7 @@ export function evaluateRiskSnapshot(
       code: 'workload_concentration',
       severity: urgentPressure ? 'high' : 'medium',
       urgency: urgentPressure ? 'now' : 'soon',
-      entity: { type: 'workload', id: workload.ownerId, label: workload.ownerLabel },
+      entity: entityRef('workload', workload.ownerId, workload.ownerLabel),
       components: [
         { code: 'active_count', explanation: `${workload.activeCount} عنصرًا فعّالًا لدى المالك.` },
         { code: 'urgent_count', explanation: `${workload.urgentCount} عنصرًا عاجلًا لدى المالك.` },
@@ -356,7 +360,7 @@ export function evaluateRiskSnapshot(
         code: 'company_compliance_due',
         severity: 'critical',
         urgency: 'now',
-        entity: { type: 'company', id: company.id, label: company.label },
+        entity: entityRef('company', company.id, company.label),
         components: [{ code: 'compliance_status_overdue', explanation: `حالة الامتثال المعتمدة هي ${company.complianceStatus}.` }],
         evidence: [{ sourceDomain: 'companies', sourceObjectId: company.id, field: 'compliance_status', observedValue: company.complianceStatus!, observedAt: snapshot.evaluatedAt }],
         explanation: 'حالة امتثال/تجديد الشركة متأخرة وفق المصدر المعتمد.',
@@ -366,7 +370,7 @@ export function evaluateRiskSnapshot(
       continue;
     }
     addDeadlineSignal(out, {
-      entity: { type: 'company', id: company.id, label: company.label },
+      entity: entityRef('company', company.id, company.label),
       sourceDomain: 'companies',
       sourceObjectId: company.id,
       dueAt: company.complianceDueAt,
