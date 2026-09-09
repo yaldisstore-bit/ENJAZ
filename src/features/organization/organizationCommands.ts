@@ -90,7 +90,7 @@ function bounded(v:string,max:number,required=true){const x=v.trim();if((require
 export function createOrganizationGateway(client:EnjazSupabaseClient,timeoutMs=TIMEOUT):OrganizationGateway{
   if(!Number.isSafeInteger(timeoutMs)||timeoutMs<1||timeoutMs>120000)throw new Error('Invalid organization timeout');
   const c=client as unknown as RpcLike;
-  return Object.freeze({
+  const gateway:OrganizationGateway={
     async loadContext(workspaceId){return parseContext(await rpc(c,'get_organization_context_v1',{p_workspace_id:id(workspaceId)},false,timeoutMs))},
     async setMember(x){return payload(await rpc(c,'set_organization_member_v1',{p_workspace_id:id(x.workspaceId),p_user_id:id(x.userId),p_status:status(x.status),p_valid_until:iso(x.validUntil,true)},true,timeoutMs))},
     async saveBranch(x){return payload(await rpc(c,'save_organization_branch_v1',{p_workspace_id:id(x.workspaceId),p_branch_id:optionalId(x.branchId),p_expected_version:version(x.expectedVersion,true),p_name:bounded(x.name,180),p_code:nullableCode(x.code),p_address:x.address===null?null:bounded(x.address,800,false),p_status:status(x.status)},true,timeoutMs))},
@@ -99,5 +99,6 @@ export function createOrganizationGateway(client:EnjazSupabaseClient,timeoutMs=T
     async setScopeMembership(x){const t=target(x.target),from=iso(x.validFrom,true),until=iso(x.validUntil,true);if(from&&until&&Date.parse(until)<=Date.parse(from))fail(true);return payload(await rpc(c,'set_organization_scope_membership_v1',{p_workspace_id:id(x.workspaceId),p_membership_id:optionalId(x.membershipId),p_expected_version:version(x.expectedVersion,true),p_user_id:id(x.userId),p_scope_type:t.scopeType,p_branch_id:t.branchId,p_department_id:t.departmentId,p_team_id:t.teamId,p_scope_role:role(x.scopeRole),p_status:status(x.status),p_valid_from:from,p_valid_until:until},true,timeoutMs))},
     async assignTransaction(x){const t=target(x.target);return payload(await rpc(c,'assign_transaction_organization_v1',{p_workspace_id:id(x.workspaceId),p_transaction_id:id(x.transactionId),p_expected_version:version(x.expectedVersion,true),p_scope_type:t.scopeType,p_branch_id:t.branchId,p_department_id:t.departmentId,p_team_id:t.teamId,p_reason:bounded(x.reason,1200)},true,timeoutMs))},
     async explainAccess(workspaceId,targetInput){const t=target(targetInput);return parseExplanation(await rpc(c,'explain_organization_access_v1',{p_workspace_id:id(workspaceId),p_scope_type:t.scopeType,p_branch_id:t.branchId,p_department_id:t.departmentId,p_team_id:t.teamId},false,timeoutMs))}
-  });
+  };
+  return Object.freeze(gateway);
 }
