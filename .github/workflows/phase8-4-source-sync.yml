@@ -1,0 +1,63 @@
+name: Phase 8.4 source/cloud SQL sync
+
+on:
+  push:
+    branches:
+      - phase8-4-crm-smart-intake
+    paths:
+      - .github/workflows/phase8-4-source-sync.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: phase8-4-crm-smart-intake
+          fetch-depth: 0
+      - name: Synchronize production-discovered SQL fixes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          migration = Path('database/migrations/phase_8_4_crm_smart_intake_m6_m17.sql')
+          text = migration.read_text()
+          old1 = 'constraint crm_leads_lost_reason_check check ('
+          new1 = 'constraint crm_leads_lost_stage_consistency check ('
+          old2 = 'constraint intake_submission_files_ack_check (('
+          new2 = 'constraint intake_submission_files_ack_check check (('
+          if old1 in text:
+              text = text.replace(old1, new1, 1)
+          if old2 in text:
+              text = text.replace(old2, new2, 1)
+          assert old1 not in text, 'duplicate PostgreSQL constraint-name defect still present'
+          assert old2 not in text, 'missing CHECK keyword defect still present'
+          assert new1 in text and new2 in text, 'production-discovered SQL fixes missing'
+          migration.write_text(text)
+
+          audit = Path('scripts/phase8-4-crm-intake-audit.mjs')
+          a = audit.read_text()
+          guard = """\nmust(sql,\"constraint crm_leads_lost_stage_consistency check\",'production SQL guard');\nmust(sql,\"constraint intake_submission_files_ack_check check\",'production SQL guard');\nif(sql.includes(\"constraint crm_leads_lost_reason_check check\"))throw new Error('PostgreSQL duplicate constraint-name regression detected');\nif(sql.includes(\"constraint intake_submission_files_ack_check ((\"))throw new Error('Missing CHECK keyword regression detected');\n"""
+          marker = "console.log('Phase 8.4 CRM/Smart Intake audit: PASS');"
+          if 'production SQL guard' not in a:
+              assert marker in a
+              a = a.replace(marker, guard + marker)
+              audit.write_text(a)
+          PY
+      - name: Prove the Phase 8.4 audit rejects SQL drift
+        run: node scripts/phase8-4-crm-intake-audit.mjs
+      - name: Commit synchronized source
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "Source already synchronized"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add database/migrations/phase_8_4_crm_smart_intake_m6_m17.sql scripts/phase8-4-crm-intake-audit.mjs
+          git commit -m "fix: synchronize Phase 8.4 SQL with Real Cloud"
+          git push origin HEAD:phase8-4-crm-smart-intake
