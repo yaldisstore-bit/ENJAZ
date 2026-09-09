@@ -36,8 +36,14 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Preserve formally closed Phase 8.5
         run: node scripts/phase8-5-closure-audit.mjs && node --experimental-strip-types --test tests/organizationEngine.test.ts
-      - name: Enforce Phase 8.6 delegated-authority contract
-        run: node scripts/phase8-6-command-center-audit.mjs
+      - name: Enforce Phase 8.6 delegated-authority and closure contract
+        run: |
+          STATUS=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('docs/PHASE8_6_STATE.json','utf8')).status)")
+          if [ "$STATUS" = "CLOSED" ]; then
+            node scripts/phase8-6-closure-audit.mjs
+          else
+            node scripts/phase8-6-command-center-audit.mjs
+          fi
       - name: Phase 8.6 command authority tests
         run: node --experimental-strip-types --test tests/commandCenter.test.ts
       - name: Full functional regression
