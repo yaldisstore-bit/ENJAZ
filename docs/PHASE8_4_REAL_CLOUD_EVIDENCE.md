@@ -1,6 +1,6 @@
 # ENJAZ Phase 8.4 — Real Cloud Evidence
 
-Status: **IN PROGRESS — CLOUD CLEAN; PR GATES PENDING**
+Status: **PASS — ZERO RESIDUE**
 
 Base main SHA: `010aff999e66ff31b8a813026cddbc69db30b550`
 Implementation branch: `phase8-4-crm-smart-intake`
@@ -31,7 +31,7 @@ Real Cloud rejected defects that synthetic gates had not exposed. The repairs ar
 1. missing `CHECK` in `intake_submission_files_ack_check`;
 2. duplicate PostgreSQL constraint name around the lead lost-stage rule;
 3. authenticated mutation RPCs originally used invoker authority while direct table writes were intentionally denied;
-4. CRM conversion now requires an accepted positive quotation and binds its accepted total to `transactions.current_fee` without creating finance-ledger rows;
+4. CRM conversion now requires an accepted positive quotation and binds its total into `transactions.current_fee` without creating finance-ledger rows;
 5. intake validation parameter/field shadowing was removed.
 
 No direct CRM/intake table mutation grant was introduced to solve these defects.
@@ -63,9 +63,14 @@ Cleanup sequence:
 2. that branch called `admin.storage.from('enjaz-intake-private').remove([probePath])` using the server-side secret already owned by the broker;
 3. the cleanup request was dispatched internally through the existing `pg_net` transport;
 4. the authoritative Storage census then returned `residual_probe_objects = 0`;
-5. the upload broker was immediately restored to the production implementation; the restored Edge Function hash matches the production source and contains no cleanup action;
+5. the upload broker was immediately restored to the production implementation and contains no cleanup action;
 6. the relational fixture was removed only after the Storage object was confirmed absent;
 7. the final census returned zero probe objects, files, submissions, links, forms, fields, audit events, temporary Storage delete policies, and temporary `http` extension.
+
+Cleanup is traceable in production migration history:
+
+- `20260909033707 phase_8_4_storage_probe_cleanup_via_api`
+- `20260909033915 phase_8_4_storage_probe_fixture_cleanup`
 
 Final zero-residue census:
 
@@ -81,8 +86,8 @@ Final zero-residue census:
 
 The private bucket remains `public=false`.
 
-## Remaining closure condition
+## Closure result
 
-There is no remaining Real Cloud or Storage cleanup blocker. Phase 8.4 remains `IN_PROGRESS` only until the exact PR head passes the complete required GitHub gate matrix. `exitGatePassed` remains false and Phase 8.5 remains locked until that CI evidence is complete and formal closure is performed.
+There is no remaining Real Cloud or Storage cleanup blocker. The exact implementation PR head passed **33/33** workflows, the implementation was merged to `main`, and the exact merged main SHA passed **18/18** post-merge workflows including Pages deployment, cumulative Real Browser and Live External attack of the published application.
 
-No skipped, pending, cancelled, inferred, or stale-head result may be used to close the phase.
+This Real Cloud evidence is therefore complete and is bound by `docs/PHASE8_4_CLOSURE.md` and `docs/PHASE8_4_POSTMERGE_RECERTIFICATION.md`.
