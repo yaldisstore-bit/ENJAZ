@@ -164,6 +164,7 @@ test('published Phase 9.1 Smart Risk route is real and read-only', async ({ page
   await expect(page.locator('[data-live-deferred="true"]')).toHaveCount(0);
   await expect(risk).toContainText('المخاطر والرؤى');
   await expect(risk).toContainText('لا توجد write authority داخل Smart Risk');
+  await expect(risk).not.toContainText(/تعذر تحميل (?:صورة )?المخاطر/i);
   await assertNoHorizontalOverflow(page, 'published Smart Risk');
   expect(errors.console, 'Smart Risk: no console errors').toEqual([]);
   expect(errors.page, 'Smart Risk: no page errors').toEqual([]);
