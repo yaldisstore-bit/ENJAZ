@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "phase": "8.5",
   "name": "Multi-Branch / Departments / Teams — M15 foundation",
   "status": "IN_PROGRESS",
@@ -18,7 +18,10 @@
   },
   "rootAuthority": {
     "table": "workspace_memberships",
-    "roleConstraintChangeAllowed": false,
+    "roleConstraintChangeAllowed": true,
+    "roles": ["owner", "member"],
+    "memberWriteAuthority": "owner_only_rpc",
+    "legacyBroadPolicyProtection": "member_rows_hidden_from_legacy_workspace_membership_select",
     "organizationalAuthority": "derived_from_same_workspace_explicit_scope_membership"
   },
   "hierarchy": ["workspace", "branch", "department", "team"],
@@ -35,12 +38,14 @@
   "authorityBoundaries": {
     "crossWorkspace": "FORBIDDEN",
     "anonymousOrgWrites": "FORBIDDEN",
+    "legacyWorkspaceWideAccessForMember": "FORBIDDEN",
     "companyIdentityDuplication": "FORBIDDEN",
     "contactIdentityDuplication": "FORBIDDEN",
     "transactionLifecycleWriteAuthority": "existing_transaction_workflow_boundaries_only",
     "financeLedgerWriteAuthority": "none"
   },
   "foundationCapabilities": [
+    "workspaceRootMembers",
     "branches",
     "departments",
     "teams",
@@ -60,6 +65,9 @@
   ],
   "javascriptBudgetBytes": 670000,
   "budgetIncreaseAllowed": false,
+  "realCloudVerification": "PENDING",
+  "realChromium": "PENDING",
+  "postMergeRecertification": "PENDING",
   "exitGatePassed": false,
   "phase8_6Allowed": false,
   "nextPhase": "8.6",
