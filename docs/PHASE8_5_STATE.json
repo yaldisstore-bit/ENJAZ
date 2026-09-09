@@ -2,7 +2,7 @@
   "schemaVersion": 4,
   "phase": "8.5",
   "name": "Multi-Branch / Departments / Teams — M15 foundation",
-  "status": "IN_PROGRESS",
+  "status": "CLOSED",
   "baseCommit": "4fff1f6b25687d8ca305edac3d5a033e77e224c9",
   "implementationBranch": "phase8-5-multi-branch-teams",
   "predecessor": {
@@ -13,7 +13,7 @@
   "system": {
     "id": "M15",
     "name": "Multi-Branch, Departments & Team Operating Model",
-    "phaseSliceStatus": "IN_PROGRESS",
+    "phaseSliceStatus": "CLOSED",
     "globalSystemStatus": "OPEN"
   },
   "delivery": {
@@ -74,12 +74,30 @@
   ],
   "javascriptBudgetBytes": 670000,
   "budgetIncreaseAllowed": false,
-  "realCloudVerification": "PENDING",
-  "realChromium": "PENDING",
-  "postMergeRecertification": "PENDING",
-  "exitGatePassed": false,
-  "phase8_6Allowed": false,
+  "realCloudVerification": "PASS_ZERO_RESIDUE",
+  "realChromium": "PASS",
+  "postMergeRecertification": "COMPLETE",
+  "exitGatePassed": true,
+  "phase8_6Allowed": true,
   "nextPhase": "8.6",
-  "successorStatus": "LOCKED",
-  "kickoffEvidence": "docs/PHASE8_5_KICKOFF.md"
+  "successorStatus": "AUTHORIZED",
+  "kickoffEvidence": "docs/PHASE8_5_KICKOFF.md",
+  "closureEvidence": {
+    "implementationPR": 117,
+    "finalImplementationHead": "9afe0a6dd3bc8f060c8f12f3e7d8ab21d5349398",
+    "canonicalMerge": "4ec57a7c691d7a97af533d719f0e0d9653a93173",
+    "pullRequestWorkflowSuccess": 34,
+    "exactMainWorkflowSuccess": 19,
+    "pagesPreviewRun": 34319169055,
+    "liveExternalRun": 34319223039,
+    "realBrowserRun": 34319111823,
+    "unresolvedDefectCount": 0,
+    "criticalDefectCount": 0,
+    "highDefectCount": 0,
+    "functionalBlockerCount": 0,
+    "cloudCleanupBlockerCount": 0,
+    "realCloudEvidence": "docs/PHASE8_5_REAL_CLOUD_EVIDENCE.md",
+    "postMergeEvidence": "docs/PHASE8_5_POSTMERGE_RECERTIFICATION.md",
+    "formalClosureEvidence": "docs/PHASE8_5_CLOSURE.md"
+  }
 }
