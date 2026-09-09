@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "phase": "8.6",
   "name": "Global Command Center",
   "status": "IN_PROGRESS",
@@ -45,16 +45,31 @@
     "canonicalDestination": "command",
     "liveRuntimePromotion": true,
     "legacyDemoCommandReplacement": true,
+    "historicalSevenDomainDemoInCanonicalBundle": false,
     "fakeProductionDataAllowed": false,
     "lockedPaletteOnly": true,
     "responsiveWidths": [1280, 430, 390, 360, 320]
   },
   "javascriptBudgetBytes": 670000,
   "budgetIncreaseAllowed": false,
-  "realChromium": "REQUIRED",
+  "implementationGate": {
+    "status": "PASS_IMPLEMENTATION_HEAD",
+    "certifiedSha": "995d8c412a415ba02a240d1aedc293ef322bbf6a",
+    "workflowRun": 34327250983,
+    "authorityTests": "5/5",
+    "functionalRegression": "217/217",
+    "databaseSelfTests": "25/25",
+    "javascriptBytes": 669726,
+    "previewBytes": 248986,
+    "realChromium": "9/9"
+  },
+  "realChromium": "PASS_IMPLEMENTATION_HEAD",
+  "pullRequestGate": "PENDING",
+  "postMergeRecertification": "PENDING",
   "exitGatePassed": false,
   "phase8_7Allowed": false,
   "nextPhase": "8.7",
   "successorStatus": "LOCKED",
-  "kickoffEvidence": "docs/PHASE8_6_KICKOFF.md"
+  "kickoffEvidence": "docs/PHASE8_6_KICKOFF.md",
+  "implementationEvidence": "docs/PHASE8_6_IMPLEMENTATION_EVIDENCE.md"
 }
