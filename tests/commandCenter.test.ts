@@ -80,6 +80,6 @@ test('command center fails closed when one authoritative domain cannot be read',
 
 test('command orchestrator rejects invalid executive mutation inputs before delegation',async()=>{
   const center=createCommandCenterOrchestrator(dependencies());
-  await assert.rejects(()=>center.transitionWorkflow({workspaceId:W,instanceId:I,transitionKey:'advance_review',expectedStagePosition:0,reason:null,idempotencyKey:'x'}),/INVALID_EXPECTED_STAGE/);
+  assert.throws(()=>center.transitionWorkflow({workspaceId:W,instanceId:I,transitionKey:'advance_review',expectedStagePosition:0,reason:null,idempotencyKey:'x'}),/INVALID_EXPECTED_STAGE/);
   assert.throws(()=>center.reassignField({workspaceId:W,assignmentId:F,expectedVersion:2,assignedUserId:M2,reason:'x',clientOperationId:'z'}),/INVALID_REASSIGNMENT_REASON/);
 });
