@@ -34,8 +34,6 @@ jobs:
         with:
           python-version: '3.12'
       - run: npm ci --no-audit --no-fund
-      - name: Temporary compression measurement dependency
-        run: npm install --no-save --no-package-lock terser@5.51.2
       - name: Preserve formal Phase 8 closure and enforce Phase 9.1 authority contract
         run: |
           node scripts/phase8-7-closure-audit.mjs
@@ -50,10 +48,10 @@ jobs:
         run: node scripts/major-systems-zero-escape-audit.mjs
       - name: Secrets and TypeScript
         run: npm run audit:secrets && npm run typecheck
-      - name: Production build / Terser measurement / unchanged hard budget
-        run: npm run build -- --minify=terser --base=/ && npm run audit:dist:budget
-      - name: Real Pages /live build / Terser measurement / unchanged hard budget
-        run: npm run build -- --minify=terser --base=/ENJAZ/live/ && npm run audit:dist:budget
+      - name: Production build and unchanged hard budget
+        run: npm run build -- --base=/ && npm run audit:dist:budget
+      - name: Real Pages /live build and unchanged hard budget
+        run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
       - name: Assert read-only authority, frozen budget and Phase 9.2 lock
         run: >-
           node -e "const j=JSON.parse(require('fs').readFileSync('docs/PHASE9_1_STATE.json','utf8'));
