@@ -68,6 +68,22 @@ function queuedCheckIn(operationId = OPERATION): FieldOfflineCheckIn {
   return { kind: 'check_in', operationId, workspaceId: WORKSPACE, assignmentId: ASSIGNMENT, expectedAssignmentVersion: 2, location: null, queuedAt: '2026-09-07T10:00:00Z' };
 }
 
+test('default offline queue storage remains global localStorage after runtime compaction', () => {
+  const storage = new MemoryStorage();
+  const g = globalThis as unknown as { localStorage?: MemoryStorage };
+  const previous = g.localStorage;
+  g.localStorage = storage;
+  try {
+    const queue = createFieldOfflineQueue();
+    queue.enqueue(queuedCheckIn());
+    assert.equal(queue.list(WORKSPACE).length, 1);
+    assert.notEqual(storage.getItem(`enjaz.field-operations.offline.v1.${WORKSPACE}`), null);
+  } finally {
+    if (previous) g.localStorage = previous;
+    else delete g.localStorage;
+  }
+});
+
 test('lean offline validation still rejects array-shaped malformed queue rows', () => {
   const storage = new MemoryStorage();
   storage.setItem(`enjaz.field-operations.offline.v1.${WORKSPACE}`, JSON.stringify([[]]));
