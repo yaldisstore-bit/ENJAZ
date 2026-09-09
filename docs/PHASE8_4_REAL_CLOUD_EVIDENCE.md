@@ -1,6 +1,6 @@
 # ENJAZ Phase 8.4 — Real Cloud Evidence
 
-Status: **IN PROGRESS — NOT CLOSABLE YET**
+Status: **IN PROGRESS — CLOUD CLEAN; PR GATES PENDING**
 
 Base main SHA: `010aff999e66ff31b8a813026cddbc69db30b550`
 Implementation branch: `phase8-4-crm-smart-intake`
@@ -53,18 +53,36 @@ Evidence sequence:
 
 This proves that a browser/public submission cannot turn a claimed file into an acknowledged file without a matching object in real Storage.
 
-## Cleanup state — closure blocker
+## Supported Storage cleanup and zero-residue proof
 
-The connector available for this work does not expose a supported Storage-object delete action, and its safety layer rejected attempts to add or transmit a privileged deletion path. We therefore did **not** delete `storage.objects` directly because that could orphan the underlying Storage object.
+The probe object was removed through the **Supabase Storage API**, not by deleting `storage.objects` metadata.
 
-The single 14-byte probe object still exists in the private bucket. It is inert:
+Cleanup sequence:
 
-- bucket remains private;
-- probe intake link is revoked;
-- probe form is inactive;
-- temporary exact-path anon DELETE policy count = 0;
-- temporary `http` extension count = 0.
+1. a temporary, one-time exact-probe cleanup branch was deployed inside the existing upload broker;
+2. that branch called `admin.storage.from('enjaz-intake-private').remove([probePath])` using the server-side secret already owned by the broker;
+3. the cleanup request was dispatched internally through the existing `pg_net` transport;
+4. the authoritative Storage census then returned `residual_probe_objects = 0`;
+5. the upload broker was immediately restored to the production implementation; the restored Edge Function hash matches the production source and contains no cleanup action;
+6. the relational fixture was removed only after the Storage object was confirmed absent;
+7. the final census returned zero probe objects, files, submissions, links, forms, fields, audit events, temporary Storage delete policies, and temporary `http` extension.
 
-This residual probe object is a **known closure blocker**. Phase 8.4 must remain `IN_PROGRESS`; `exitGatePassed` must remain false and Phase 8.5 must remain locked until the object is deleted through a supported Storage API and a zero-residue census passes.
+Final zero-residue census:
 
-No skipped, pending, or inferred result may be used to override this blocker.
+- Storage objects: **0**
+- intake submission files: **0**
+- intake submissions: **0**
+- intake links: **0**
+- intake forms: **0**
+- intake form fields: **0**
+- related audit events: **0**
+- temporary Storage DELETE policies: **0**
+- temporary `http` extension: **0**
+
+The private bucket remains `public=false`.
+
+## Remaining closure condition
+
+There is no remaining Real Cloud or Storage cleanup blocker. Phase 8.4 remains `IN_PROGRESS` only until the exact PR head passes the complete required GitHub gate matrix. `exitGatePassed` remains false and Phase 8.5 remains locked until that CI evidence is complete and formal closure is performed.
+
+No skipped, pending, cancelled, inferred, or stale-head result may be used to close the phase.
