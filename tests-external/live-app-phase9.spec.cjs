@@ -19,6 +19,26 @@ test('published /live app keeps Smart Risk 9.1 deployed behind the auth boundary
   await expect(page.locator('[data-r2-auth="true"]')).toBeVisible();
   await expect(page.locator('[data-operational-domain="risk"]')).toHaveCount(0);
 
+  const riskTemplate = page.locator('template#enjaz-risk-template');
+  await expect(riskTemplate, 'live app exposes the static Smart Risk contract').toHaveCount(1);
+  const staticRiskContract = await riskTemplate.evaluate((template) => {
+    const risk = template.content.querySelector('[data-operational-domain="risk"]');
+    return {
+      domain: risk?.getAttribute('data-operational-domain') || null,
+      stage: risk?.getAttribute('data-risk-stage') || null,
+      authority: risk?.getAttribute('data-risk-authority') || null,
+      writeAuthority: risk?.getAttribute('data-risk-write-authority') || null,
+      heading: risk?.querySelector('h1')?.textContent?.trim() || null,
+      copy: risk?.textContent?.replace(/\s+/g, ' ').trim() || null,
+    };
+  });
+  expect(staticRiskContract.domain, 'static risk contract domain').toBe('risk');
+  expect(staticRiskContract.stage, 'static risk contract stage').toBe('9.1');
+  expect(staticRiskContract.authority, 'static risk contract authority').toBe('read_only_derived_intelligence');
+  expect(staticRiskContract.writeAuthority, 'static risk contract has no write authority').toBe('none');
+  expect(staticRiskContract.heading, 'static risk contract title').toBe('المخاطر والرؤى');
+  expect(staticRiskContract.copy, 'static risk contract explains no-write authority').toContain('لا توجد write authority داخل Smart Risk');
+
   const deployedAssets = await page.locator('script[src], link[rel="modulepreload"][href]').evaluateAll((nodes) => Array.from(new Set(nodes.map((node) => node.src || node.href).filter(Boolean))));
   expect(deployedAssets.length, 'live app exposes deployed JavaScript assets').toBeGreaterThan(0);
 
@@ -29,9 +49,7 @@ test('published /live app keeps Smart Risk 9.1 deployed behind the auth boundary
     javascript.push(await asset.text());
   }
   const deployedJs = javascript.join('\n');
-  expect(deployedJs, 'deployed /live bundle contains Phase 9.1 stage contract').toContain('data-risk-stage');
-  expect(deployedJs, 'deployed /live bundle contains read-only risk authority').toContain('read_only_derived_intelligence');
-  expect(deployedJs, 'deployed /live bundle contains no-write authority marker').toContain('data-risk-write-authority');
+  expect(deployedJs, 'deployed /live bundle binds the static Smart Risk template').toContain('enjaz-risk-template');
   expect(deployedJs, 'deployed /live bundle contains Smart Risk engine identity').toContain('smart-risk-v1');
 
   expect(consoleErrors, 'live auth boundary has no console errors').toEqual([]);
