@@ -10,7 +10,7 @@ Phase 8.4 is formally closed and post-closure recertified. Phase 8.5 is the sole
 
 Build the first authoritative M15 organizational operating model without creating a parallel authentication system or weakening the existing workspace trust boundary.
 
-The existing `workspace_memberships` table remains the **owner-only workspace trust root** and its role constraint stays unchanged. Phase 8.5 does **not** insert non-owner employees into that legacy table because many pre-M15 RLS policies and privileged RPCs intentionally treat a workspace-membership row as workspace-wide authority.
+The existing `workspace_memberships` table remains the **owner-only workspace trust root** and its role constraint stays unchanged. In canonical audit language: workspace_memberships table remains the **owner-only workspace trust root**. Phase 8.5 does **not** insert non-owner employees into that legacy table because many pre-M15 RLS policies and privileged RPCs intentionally treat a workspace-membership row as workspace-wide authority.
 
 Non-owner workforce authorization is therefore modeled in a dedicated `organization_members` table. These rows still reference the same canonical `auth.users` identities, are created/disabled only by the workspace owner through guarded RPCs, and never satisfy legacy workspace-wide membership checks.
 
