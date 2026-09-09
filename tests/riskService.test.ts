@@ -94,7 +94,7 @@ test('archived/completed work and closed blockers cannot leak through a permissi
 test('missing authenticated workspace fails closed before any domain source is read',async()=>{
   let touched=false;
   const noWorkspace:EnjazDataLayerFactory={async resolveWorkspaceId(){return null},forWorkspace(){touched=true;throw new Error('must not read a workspace')}};
-  await assert.rejects(()=>loadSmartRisk({dataFactory:noWorkspace,fieldOperations:{loadContext:async()=>{touched=true;return fieldContext()}},financeRiskLoader:async()=>{touched=true;return financeLoader()}},U,NOW),RiskWorkspaceUnavailableError);
+  await assert.rejects(()=>loadSmartRisk({dataFactory:noWorkspace,fieldOperations:{loadContext:async()=>{touched=true;return fieldContext()}},financeRiskLoader:async()=>{touched=true;return {workspaceId:W,snapshot:{asOf:NOW.toISOString(),signals:[]}}}},U,NOW),RiskWorkspaceUnavailableError);
   assert.equal(touched,false);
 });
 
