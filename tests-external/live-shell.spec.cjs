@@ -16,8 +16,9 @@ function collectErrors(page) {
   return errors;
 }
 
-async function loadPublishedR2(page, errors) {
-  const response = await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 30_000 });
+async function loadPublishedR2(page, errors, query = '') {
+  const target = query ? new URL(query, BASE_URL).toString() : BASE_URL;
+  const response = await page.goto(target, { waitUntil: 'networkidle', timeout: 30_000 });
   expect(response, 'navigation response').not.toBeNull();
   expect(response.status(), 'page HTTP status').toBeLessThan(400);
 
@@ -149,6 +150,23 @@ test('published R2 global overlays and operational destinations remain usable on
   expect(errors.responses, 'overlays/destinations: no failed network resources').toEqual([]);
   expect(errors.console, 'overlays/destinations: no console errors').toEqual([]);
   expect(errors.page, 'overlays/destinations: no page errors').toEqual([]);
+});
+
+test('published Phase 9.1 Smart Risk route is real and read-only', async ({ page }) => {
+  const errors = collectErrors(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await loadPublishedR2(page, errors, '?dest=risk');
+
+  const risk = page.locator('[data-operational-domain="risk"][data-risk-stage="9.1"]');
+  await expect(risk).toBeVisible();
+  await expect(risk).toHaveAttribute('data-risk-authority', 'read_only_derived_intelligence');
+  await expect(risk).toHaveAttribute('data-risk-write-authority', 'none');
+  await expect(page.locator('[data-live-deferred="true"]')).toHaveCount(0);
+  await expect(risk).toContainText('المخاطر والرؤى');
+  await expect(risk).toContainText('لا توجد write authority داخل Smart Risk');
+  await assertNoHorizontalOverflow(page, 'published Smart Risk');
+  expect(errors.console, 'Smart Risk: no console errors').toEqual([]);
+  expect(errors.page, 'Smart Risk: no page errors').toEqual([]);
 });
 
 test('published R2 reduced motion and resource budgets remain bounded', async ({ page }) => {
