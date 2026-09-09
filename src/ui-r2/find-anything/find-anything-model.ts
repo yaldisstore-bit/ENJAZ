@@ -29,6 +29,8 @@ export type SearchableRecord = {
   terms: readonly string[];
 };
 
+type SearchGlobal = typeof globalThis & { __ENJAZ_R2_PREVIEW_SEARCH_RECORDS__?: readonly SearchableRecord[] };
+
 const ARABIC_DIACRITICS = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g;
 const TATWEEL = /\u0640/g;
 const SPACE = /\s+/g;
@@ -136,7 +138,8 @@ export function buildR2FindAnythingResults(
     });
   }
 
-  return [...buildRecordResults(query, options.records ?? []), ...buildFeatureResults(query)]
+  const records = options.records ?? (globalThis as SearchGlobal).__ENJAZ_R2_PREVIEW_SEARCH_RECORDS__ ?? [];
+  return [...buildRecordResults(query, records), ...buildFeatureResults(query)]
     .sort((a, b) => b.score - a.score || a.label.localeCompare(b.label, 'ar'))
     .slice(0, limit);
 }
