@@ -268,11 +268,21 @@ Phase 8 expands from workflow UI into the main operational operating system of E
 
 # Phase 9 — Risk, Governance & Intelligence
 
-## 9.1 — Smart Risk Engine
+## 9.1 — Smart Risk Engine ✅
 - Explainable risk signals, urgency, anomaly and prioritization.
+- **Phase 9.1 — Smart Risk Engine ✅ CLOSED + post-merge recertified** under a read-only derived-intelligence authority boundary.
+- Implementation PR #124 final head `0932a33d8b28b15509bfe3da456d09c51ce344fa`: **37/37 SUCCESS**; final published-contract repair PR #127 head `549ea2205fbe9cba91a9d71631f22433afff4eaf`: **39/39 SUCCESS**.
+- Canonical runtime SHA `9b116d39ad3cebc62e6c4f15d4fb72fef1b25fde`: **19/19 exact-main push workflows SUCCESS** and **22/22 cumulative exact-SHA workflow runs SUCCESS**.
+- Phase 9.1 gate `34411497055`, Real Browser `34411497023`, Pages build/deployment `34411495854`, Pages Preview `34411566669`, and Live External `34411616353` all succeeded, including the actual published `/live` Smart Risk deployment-contract attack.
+- Risk-owned tables/write RPCs remain **NONE**; no transaction/workflow/finance/company/automation write authority was introduced.
+- Missing evidence remains fail-closed. The production shell/bridge split preserves the unchanged **670000-byte** JavaScript ceiling; certified Phase 9.1 build: **669992/670000 PASS**.
+- Formal evidence: `docs/PHASE9_1_STATE.json`, `docs/PHASE9_1_CLOSURE.md`, `docs/PHASE9_1_POSTMERGE_RECERTIFICATION.md`.
 
 ## 9.2 — Smart Saved Views & Cross-domain Search Intelligence
 - Stable reusable query definitions and high-value cross-domain discovery.
+- **AUTHORIZED successor after formal Phase 9.1 closure; implementation is not yet closed.**
+- Saved views must persist under explicit RLS/permission authority; global search must group authoritative results by domain and never leak unauthorized entities.
+- Existing filters/finders must be reused rather than duplicated, and deep links must return to the exact authoritative destination/entity.
 
 ## 9.3 — Corporate Governance & Ownership Engine — M2
 - Shareholders/partners, ownership percentages, directors/authorized persons, beneficial-owner context, ownership transfers and historical control timeline.
@@ -551,9 +561,13 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - The repaired live Pages JavaScript remains within the unchanged hard ceiling: **669984 / 670000 bytes PASS**.
 - **M1 / M5 / M6:** remain `CLOSURE_CANDIDATE` under the independent M1–M18 `ZERO_ESCAPE_V1` law; Phase 8 closure does not fabricate their global system closure.
 - **M15 / M17:** remain `ACTIVE` because their governing anchors continue in later phases (15 and 11 respectively).
-- **Next: Phase 9.1 — Smart Risk Engine**
+- Historical satisfied marker: **Next: Phase 9.1 — Smart Risk Engine**
+- **Phase 9.1 — Smart Risk Engine ✅ CLOSED + post-merge recertified**
+- Phase 9.1 canonical runtime certification is bound to main SHA `9b116d39ad3cebc62e6c4f15d4fb72fef1b25fde`: **19/19 exact-main push workflows SUCCESS**, **22/22 cumulative exact-SHA workflow runs SUCCESS**, Phase 9.1 gate SUCCESS, Real Browser SUCCESS, Pages build/deploy + Preview SUCCESS, and Live External SUCCESS.
+- Phase 9.1 remains strictly `READ_ONLY_DERIVED_INTELLIGENCE`; Risk-owned tables and write RPCs are **NONE** and the hard JavaScript ceiling remains **670000 bytes** with certified build **669992/670000 PASS**.
+- **Next: Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence**
 
-Phase 9.1 is the sole newly authorized implementation stage after the formal Phase 8.7 closure. No later Phase 9 stage is pre-authorized by this transition.
+Phase 9.2 is the sole newly authorized implementation stage after formal Phase 9.1 closure. No Phase 9.3+ stage is pre-authorized by this transition.
 
 ---
 
@@ -588,20 +602,21 @@ The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; 
 
 This file is intentionally difficult to change by accident.
 
-This reconciliation originally made nine explicit changes and now records a tenth canonical transition:
+This reconciliation originally made nine explicit changes and now records an eleventh canonical transition:
 
 1. preserves the already-proven Phase 7.1 canonical post-merge recertification and its historical authorization of 7.2;
 2. preserves Phase 7.2 canonical closure/post-merge recertification and its historical authorization of 7.3;
 3. preserves Phase 7.3 canonical closure/post-merge recertification, including the repaired 147-byte Gate Escape, and its historical authorization of 7.4;
 4. preserves Phase 7.4 canonical closure/post-merge recertification and its historical authorization of 7.5;
 5. preserves Phase 7.5 canonical closure/post-merge recertification, the Phase-7 exit and its historical authorization of 8.1;
-6. records Phase 8.1 canonical closure/post-merge recertification and advances the only next implementation pointer to 8.2 while keeping M1 overall at `CLOSURE_CANDIDATE` until Phase 8.7 individual Zero-Escape destruction evidence is complete;
+6. records Phase 8.1 canonical closure/post-merge recertification and advances the historical implementation pointer to 8.2 while keeping M1 overall at `CLOSURE_CANDIDATE` until its individual Zero-Escape destruction evidence is complete;
 7. keeps the 18 major product systems M1–M18 embedded in their governing phases rather than detached amendments;
 8. keeps Zero-Escape closure mandatory across every major system and future phase exit where that system is anchored;
 9. preserves historical transition markers as satisfied history while moving the current pointer forward;
-10. records formal Phase 8.7 / Phase 8 closure after exact-main, Pages, Real Browser and Live External recertification, and advances the sole current implementation pointer to Phase 9.1 without prematurely closing M1/M5/M6/M15/M17 globally.
+10. records formal Phase 8.7 / Phase 8 closure after exact-main, Pages, Real Browser and Live External recertification, and advances the sole historical implementation pointer to Phase 9.1 without prematurely closing M1/M5/M6/M15/M17 globally;
+11. records formal Phase 9.1 closure after the implementation and verifier-repair matrices, exact-main, Real Browser, Pages and Live External recertification, preserves the read-only/no-write Risk authority boundary and advances the sole current pointer to Phase 9.2.
 
-It does **not** silently reopen Phases 0–7, falsely mark M13 or M16 fully closed from their Phase-7 anchors, falsely close any major M-system without `ZERO_ESCAPE_V1` evidence, mark M2–M18 implemented without their own evidence, or authorize work beyond the currently certified successor.
+It does **not** silently reopen Phases 0–8, falsely mark M13 or M16 fully closed from their Phase-7 anchors, falsely close any major M-system without `ZERO_ESCAPE_V1` evidence, mark M2–M18 implemented without their own evidence, or authorize work beyond Phase 9.2.
 
 Any future roadmap change must state:
 1. what changes;

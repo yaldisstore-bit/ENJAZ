@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
-const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+const root = new URL('../', import.meta.url);
+const read = (path) => fs.readFileSync(new URL(path, root), 'utf8');
+const exists = (path) => fs.existsSync(new URL(path, root));
 const state = JSON.parse(read('docs/PHASE9_1_STATE.json'));
 const predecessor = JSON.parse(read('docs/PHASE8_7_STATE.json'));
 const kickoff = read('docs/PHASE9_1_KICKOFF.md');
@@ -15,16 +17,15 @@ const must = (text, marker, label) => { if (!text.includes(marker)) fail(`${labe
 const forbid = (text, marker, label) => { if (text.includes(marker)) fail(`${label} contains forbidden ${marker}`); };
 
 if (predecessor.phase !== '8.7' || predecessor.status !== 'CLOSED' || predecessor.exitGatePassed !== true || predecessor.phase9_1Allowed !== true || predecessor.nextPhase !== '9.1' || predecessor.successorStatus !== 'AUTHORIZED') {
-  fail('Phase 8.7 must remain formally CLOSED and authorize only Phase 9.1');
+  fail('Phase 8.7 must remain formally CLOSED and preserve its Phase 9.1 authorization evidence');
 }
 
-if (state.phase !== '9.1' || state.name !== 'Smart Risk Engine' || state.status !== 'IN_PROGRESS') fail('identity/status drift');
+if (state.phase !== '9.1' || state.name !== 'Smart Risk Engine') fail('identity drift');
+if (!['IN_PROGRESS', 'CLOSED'].includes(state.status)) fail('unsupported lifecycle status');
 if (state.baseCommit !== '3e877ec957bedb647ef86287affe84b97ede3356') fail('base commit drift');
 if (state.implementationBranch !== 'phase9-1-smart-risk-engine') fail('implementation branch drift');
 if (state.predecessor?.phase !== '8.7' || state.predecessor?.requiredStatus !== 'CLOSED' || state.predecessor?.requiredAuthorization !== 'phase9_1Allowed=true') fail('predecessor contract drift');
 if (state.javascriptBudgetBytes !== 670000 || state.budgetIncreaseAllowed !== false) fail('JavaScript budget drift');
-if (state.phase9_2Allowed !== false || state.nextPhase !== '9.2' || state.successorStatus !== 'LOCKED' || state.exitGatePassed !== false) fail('Phase 9.2 must remain locked');
-if (state.pullRequestGate !== 'PENDING' || state.postMergeRecertification !== 'PENDING' || state.realBrowserVerification !== 'PENDING') fail('premature Phase 9.1 closure evidence');
 
 const authority = state.authority ?? {};
 if (authority.mode !== 'READ_ONLY_DERIVED_INTELLIGENCE') fail('risk authority mode drift');
@@ -56,16 +57,40 @@ if (JSON.stringify(state.initialSignalFamilies) !== JSON.stringify(expectedFamil
 if (state.missingEvidenceBehavior !== 'NO_SIGNAL_FAIL_CLOSED') fail('missing-evidence behavior drift');
 if (state.historicalRiskDemo?.status !== 'FROZEN_HISTORICAL_EVIDENCE_ONLY' || state.historicalRiskDemo?.canonicalProductionAuthority !== false) fail('historical R2 risk demo authority drift');
 
+if (state.status === 'IN_PROGRESS') {
+  if (state.phase9_2Allowed !== false || state.nextPhase !== '9.2' || state.successorStatus !== 'LOCKED' || state.exitGatePassed !== false) fail('Phase 9.2 must remain locked while 9.1 is in progress');
+} else {
+  if (state.exitGatePassed !== true || state.phase9_2Allowed !== true || state.nextPhase !== '9.2' || state.successorStatus !== 'AUTHORIZED') fail('closed Phase 9.1 must authorize only Phase 9.2');
+  if (state.pullRequestGate !== 'PASS_39_OF_39_FINAL_REPAIR_HEAD') fail('final repair PR gate evidence drift');
+  if (state.realBrowserVerification !== 'PASS_FINAL_CANONICAL_MAIN_AND_LIVE_EXTERNAL') fail('Real Browser closure evidence drift');
+  const post = state.postMergeRecertification ?? {};
+  if (post.status !== 'COMPLETE' || post.mainCommit !== '9b116d39ad3cebc62e6c4f15d4fb72fef1b25fde') fail('post-merge canonical SHA drift');
+  if (post.pushWorkflowCount !== 19 || post.pushWorkflowSuccess !== 19 || post.failureCount !== 0 || post.queuedCount !== 0 || post.inProgressCount !== 0 || post.cancelledCount !== 0) fail('19/19 exact-main push evidence drift');
+  if (post.exactShaWorkflowRunCount !== 22 || post.exactShaWorkflowRunSuccess !== 22) fail('22/22 exact-SHA cumulative workflow evidence drift');
+  if (post.phase9GateRunId !== 34411497055 || post.realBrowserRunId !== 34411497023 || post.pagesBuildRunId !== 34411495854 || post.pagesPreviewRunId !== 34411566669 || post.liveExternalRunId !== 34411616353) fail('deployed closure run IDs drift');
+  if (post.pagesBuild !== 'SUCCESS' || post.pagesPreview !== 'SUCCESS' || post.realBrowser !== 'SUCCESS' || post.liveExternal !== 'SUCCESS' || post.publishedApplicationAttack !== 'SUCCESS') fail('deployed closure result drift');
+  if (!exists('docs/PHASE9_1_CLOSURE.md') || !exists('docs/PHASE9_1_POSTMERGE_RECERTIFICATION.md')) fail('formal closure evidence files missing');
+  const closure = read('docs/PHASE9_1_CLOSURE.md');
+  const recert = read('docs/PHASE9_1_POSTMERGE_RECERTIFICATION.md');
+  for (const marker of ['Status: **CLOSED**', 'Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence AUTHORIZED', '9b116d39ad3cebc62e6c4f15d4fb72fef1b25fde', '34411616353']) must(closure, marker, 'closure');
+  for (const marker of ['19/19', '22/22', '34411497023', '34411566669', '34411616353']) must(recert, marker, 'post-merge recertification');
+}
+
 for (const marker of [
-  '**Status: IN PROGRESS**',
   'read-only intelligence',
   'risk-owned database tables: **NONE**',
   'risk-owned write RPCs: **NONE**',
   'Missing evidence must produce **no fabricated signal**',
   'stable signal code',
   'deterministic component list',
-  'Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence remains LOCKED',
 ]) must(kickoff, marker, 'kickoff');
+if (state.status === 'CLOSED') {
+  must(kickoff, '**Status: CLOSED — POST-MERGE RECERTIFIED**', 'kickoff');
+  must(kickoff, 'Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence is AUTHORIZED', 'kickoff');
+} else {
+  must(kickoff, '**Status: IN PROGRESS**', 'kickoff');
+  must(kickoff, 'Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence remains LOCKED', 'kickoff');
+}
 
 for (const marker of [
   'export function evaluateRiskSnapshot',
@@ -83,7 +108,6 @@ for (const marker of [
   'mutates: false',
   'return Object.freeze(out)',
 ]) must(engine, marker, 'risk engine');
-
 for (const forbidden of ['supabase', 'dataClient.', '.insert(', '.update(', '.delete(', '.upsert(', '.rpc(', 'fetch(']) forbid(engine, forbidden, 'risk engine');
 
 for (const marker of [
@@ -107,6 +131,6 @@ try {
   fail(`cannot inspect phase diff: ${error.message}`);
 }
 const databaseChanges = changed.filter((path) => path.startsWith('database/'));
-if (databaseChanges.length) fail(`read-only risk foundation may not change database authority: ${databaseChanges.join(', ')}`);
+if (databaseChanges.length) fail(`read-only risk phase may not change database authority: ${databaseChanges.join(', ')}`);
 
-console.log('ENJAZ PHASE 9.1 SMART RISK AUDIT PASS — Phase 8 remains formally closed; risk foundation is deterministic/read-only with explainable evidence and no new DB/write authority; historical R2 risk remains demo-only; Phase 9.2 locked.');
+console.log(`ENJAZ PHASE 9.1 SMART RISK AUDIT PASS — status=${state.status}; read-only explainable authority preserved; hard JS budget preserved; successor=${state.successorStatus === 'AUTHORIZED' ? '9.2 AUTHORIZED' : '9.2 LOCKED'}.`);
