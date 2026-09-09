@@ -13,7 +13,12 @@ interface StorageLike { getItem(key:string):string|null; setItem(key:string,valu
 
 const PREFIX='enjaz.field-operations.offline.v1.',UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const k=(w:string)=>PREFIX+w,oid=(x:FieldOfflineQueueItem)=>x.operation.operationId;
-function valid(v:unknown):v is FieldOfflineOperation{if(!v||typeof v!=='object')return false;const x=v as Readonly<Record<string,unknown>>;return typeof x.kind==='string'&&typeof x.operationId==='string'&&UUID.test(x.operationId)&&typeof x.workspaceId==='string'&&UUID.test(x.workspaceId)&&typeof x.queuedAt==='string'}
+function valid(v:unknown):v is FieldOfflineOperation{
+  if(!v||typeof v!=='object')return false;
+  const x=v as Readonly<Record<string,unknown>>;
+  const knownKind=x.kind==='check_in'||x.kind==='check_out'||x.kind==='evidence'||x.kind==='handoff'||x.kind==='reassign';
+  return knownKind&&typeof x.operationId==='string'&&UUID.test(x.operationId)&&typeof x.workspaceId==='string'&&UUID.test(x.workspaceId)&&typeof x.queuedAt==='string';
+}
 function read(s:StorageLike,w:string):FieldOfflineQueueItem[]{try{const raw=s.getItem(k(w));if(!raw)return[];const a:unknown=JSON.parse(raw);if(!Array.isArray(a))return[];const out:FieldOfflineQueueItem[]=[];for(const v of a){if(!v||typeof v!=='object')continue;const x=v as Readonly<Record<string,unknown>>,op=x.operation;if(!valid(op)||op.workspaceId!==w)continue;const n=typeof x.attempts==='number'&&Number.isSafeInteger(x.attempts)&&x.attempts>=0?x.attempts:0;out.push({operation:op,state:x.state==='blocked'?'blocked':'pending',attempts:n,lastError:typeof x.lastError==='string'?x.lastError:null})}return out}catch{return[]}}
 function write(s:StorageLike,w:string,a:readonly FieldOfflineQueueItem[]){a.length?s.setItem(k(w),JSON.stringify(a)):s.removeItem(k(w))}
 function defaultStorage():StorageLike{return localStorage}

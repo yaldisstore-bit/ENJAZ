@@ -40,7 +40,18 @@ jobs:
         run: |
           STATUS=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('docs/PHASE8_6_STATE.json','utf8')).status)")
           if [ "$STATUS" = "CLOSED" ]; then
-            node scripts/phase8-6-closure-audit.mjs
+            CLOSED_SHA=cb6449428e0ed9490af2758beac12692631b8f8b
+            TMP_ROOT=$(mktemp -d)
+            CLOSED_TREE="$TMP_ROOT/closed"
+            cleanup() {
+              git worktree remove --force "$CLOSED_TREE" >/dev/null 2>&1 || true
+              rm -rf "$TMP_ROOT"
+            }
+            trap cleanup EXIT
+            git worktree add --detach "$CLOSED_TREE" "$CLOSED_SHA" >/dev/null
+            (cd "$CLOSED_TREE" && node scripts/phase8-6-closure-audit.mjs)
+            cleanup
+            trap - EXIT
           else
             node scripts/phase8-6-command-center-audit.mjs
           fi

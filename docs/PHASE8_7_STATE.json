@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "phase": "8.7",
+  "name": "Operations Zero-Escape Destruction Gate",
+  "status": "IN_PROGRESS",
+  "baseCommit": "cb6449428e0ed9490af2758beac12692631b8f8b",
+  "implementationBranch": "phase8-7-operations-zero-escape",
+  "predecessor": {
+    "phase": "8.6",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase8_7Allowed=true"
+  },
+  "mode": "DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY",
+  "newFeatureAuthorityAllowed": false,
+  "newDatabaseTablesAllowed": false,
+  "newWriteRpcAuthorityAllowed": false,
+  "javascriptBudgetBytes": 670000,
+  "budgetIncreaseAllowed": false,
+  "systemsUnderGate": [
+    "M1",
+    "M5",
+    "M6",
+    "M17",
+    "M15_PHASE8_PORTION"
+  ],
+  "destructionDimensions": [
+    "repeated_triggers",
+    "stale_transitions",
+    "conflicting_actors",
+    "large_histories",
+    "field_offline_recovery",
+    "intake_abuse",
+    "branch_team_permission_boundaries",
+    "automation_failure_isolation"
+  ],
+  "zeroEscapeLaw": {
+    "individualSystemEvidenceRequired": true,
+    "branchCiAloneCanCloseSystem": false,
+    "realCloudRequiredWherePersistentAuthorityIsExercised": true,
+    "realBrowserRequired": true,
+    "deployedLiveRequired": true,
+    "zeroCriticalHighFunctionalBlockersRequired": true,
+    "exactMergedShaRequired": true,
+    "postMergeRecertificationRequired": true
+  },
+  "systemEvidence": {
+    "M1": {
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "workflow_replay_stale_and_idempotency_conflict"
+    },
+    "M5": {
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "offline_identity_replay_stale_and_finance_isolation"
+    },
+    "M6": {
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "guarded_conversion_replay_and_finance_isolation"
+    },
+    "M17": {
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "concurrent_public_intake_rate_limit_serialization"
+    },
+    "M15_PHASE8_PORTION": {
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "permission_inheritance_stale_ownership_and_sibling_isolation"
+    }
+  },
+  "dimensionEvidence": {
+    "automation_failure_isolation": {
+      "realCloud": "PASS_ZERO_RESIDUE",
+      "evidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+      "verifiedProperty": "stale_rule_replay_human_approval_rejection_and_finance_isolation"
+    }
+  },
+  "branchImplementationGate": {
+    "status": "PASS_CERTIFIED_HEAD",
+    "certifiedSha": "8f09a784a473e2ffd8f99b5ab8703ed35f2f56c1",
+    "workflowRun": 34339431797,
+    "destructionWave": "9/9",
+    "subsystemTests": "45/45",
+    "functionalRegression": "217/217",
+    "databaseSelfTests": "25/25",
+    "javascriptBytes": 669807,
+    "realChromium": "53/53",
+    "chromiumByPhase": {
+      "8.1": "8/8",
+      "8.2": "9/9",
+      "8.3": "9/9",
+      "8.4": "9/9",
+      "8.5": "9/9",
+      "8.6": "9/9"
+    },
+    "evidence": "docs/PHASE8_7_IMPLEMENTATION_EVIDENCE.md"
+  },
+  "gateEvidence": "WAVE1_PASS_REAL_CLOUD_PASS_ZERO_RESIDUE_REAL_CHROMIUM_PASS",
+  "realCloudVerification": "PASS_ZERO_RESIDUE",
+  "realCloudEvidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
+  "realBrowserVerification": "PASS_CUMULATIVE_PHASE8_BRANCH_HEAD_53_OF_53",
+  "realBrowserEvidence": "docs/PHASE8_7_IMPLEMENTATION_EVIDENCE.md",
+  "deployedLiveVerification": "PENDING",
+  "pullRequestGate": "PENDING",
+  "postMergeRecertification": "PENDING",
+  "exitGatePassed": false,
+  "phase9_1Allowed": false,
+  "nextPhase": "9.1",
+  "successorStatus": "LOCKED",
+  "kickoffEvidence": "docs/PHASE8_7_KICKOFF.md"
+}
