@@ -105,7 +105,7 @@ const R2_DESTINATION_ROWS = [
   ['documents', 'الوثائق والتقارير', 7, 'documents', 8, 2],
   ['operations', 'مركز العمليات', 7, 'operations', 6, 2],
   ['workflow', 'سير العمل', 7, 'workflow', 6, 2],
-  ['automation', 'الأتمتة', 7, 'automation', 0, 2],
+  ['automation', 'الأتمتة', 7, 'automation', 6, 2],
   ['followups', 'المتابعات والإشعارات', 7, 'followups', 9, 2],
   ['finance', 'المالية', 7, 'finance', 5, 2],
   ['command', 'مركز القيادة', 7, 'command', 6, 2],
