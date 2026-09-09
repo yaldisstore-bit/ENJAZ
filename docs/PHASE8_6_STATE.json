@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "phase": "8.6",
   "name": "Global Command Center",
-  "status": "IN_PROGRESS",
+  "status": "CLOSED",
   "baseCommit": "80fd1eda9c1c67ef43ec801ba4677dc32ab40c93",
   "implementationBranch": "phase8-6-global-command-center",
   "predecessor": {
@@ -63,13 +63,32 @@
     "previewBytes": 248986,
     "realChromium": "9/9"
   },
-  "realChromium": "PASS_IMPLEMENTATION_HEAD",
-  "pullRequestGate": "PENDING",
-  "postMergeRecertification": "PENDING",
-  "exitGatePassed": false,
-  "phase8_7Allowed": false,
+  "realChromium": "PASS",
+  "pullRequestGate": "PASS_35_OF_35",
+  "postMergeRecertification": "COMPLETE",
+  "exitGatePassed": true,
+  "phase8_7Allowed": true,
   "nextPhase": "8.7",
-  "successorStatus": "LOCKED",
+  "successorStatus": "AUTHORIZED",
   "kickoffEvidence": "docs/PHASE8_6_KICKOFF.md",
-  "implementationEvidence": "docs/PHASE8_6_IMPLEMENTATION_EVIDENCE.md"
+  "implementationEvidence": "docs/PHASE8_6_IMPLEMENTATION_EVIDENCE.md",
+  "closureEvidence": {
+    "implementationPR": 119,
+    "implementationGateHead": "995d8c412a415ba02a240d1aedc293ef322bbf6a",
+    "finalImplementationHead": "896ef01201ef3ec2b534ea3483644a6a7c5ca836",
+    "canonicalMerge": "b6ca28b95e6f1044a09c989aa0c0e686c2355bde",
+    "pullRequestWorkflowSuccess": 35,
+    "exactMainWorkflowSuccess": 17,
+    "exactMainPhase86Run": 34328080171,
+    "pagesPreviewRun": 34328147022,
+    "liveExternalRun": 34328196578,
+    "realBrowserRun": 34328080528,
+    "unresolvedDefectCount": 0,
+    "criticalDefectCount": 0,
+    "highDefectCount": 0,
+    "functionalBlockerCount": 0,
+    "implementationEvidence": "docs/PHASE8_6_IMPLEMENTATION_EVIDENCE.md",
+    "postMergeEvidence": "docs/PHASE8_6_POSTMERGE_RECERTIFICATION.md",
+    "formalClosureEvidence": "docs/PHASE8_6_CLOSURE.md"
+  }
 }
