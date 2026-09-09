@@ -21,10 +21,9 @@ function valid(v:unknown):v is FieldOfflineOperation{
 }
 function read(s:StorageLike,w:string):FieldOfflineQueueItem[]{try{const raw=s.getItem(k(w));if(!raw)return[];const a:unknown=JSON.parse(raw);if(!Array.isArray(a))return[];const out:FieldOfflineQueueItem[]=[];for(const v of a){if(!v||typeof v!=='object')continue;const x=v as Readonly<Record<string,unknown>>,op=x.operation;if(!valid(op)||op.workspaceId!==w)continue;const n=typeof x.attempts==='number'&&Number.isSafeInteger(x.attempts)&&x.attempts>=0?x.attempts:0;out.push({operation:op,state:x.state==='blocked'?'blocked':'pending',attempts:n,lastError:typeof x.lastError==='string'?x.lastError:null})}return out}catch{return[]}}
 function write(s:StorageLike,w:string,a:readonly FieldOfflineQueueItem[]){a.length?s.setItem(k(w),JSON.stringify(a)):s.removeItem(k(w))}
-function defaultStorage():StorageLike{return localStorage}
 
 export function createFieldOfflineQueue(storage?:StorageLike):FieldOfflineQueue{
-  const s=storage??defaultStorage(),q:FieldOfflineQueue={
+  const s=storage??localStorage,q:FieldOfflineQueue={
     list(w){return Object.freeze(read(s,w))},
     enqueue(op){
       if(!valid(op))throw new Error();
