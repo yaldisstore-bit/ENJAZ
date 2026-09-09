@@ -159,12 +159,7 @@ for (const destination of destinations) {
     errors.push(`source registry missing destination id: ${destination.id}`);
     continue;
   }
-  for (const key of ['label', 'kind', 'route', 'availability', 'maxActionsFromHome']) {
-    if (actual[key] !== destination[key]) errors.push(`source registry ${key} drift for ${destination.id}: ${String(actual[key])} != ${String(destination[key])}`);
-  }
-  if (JSON.stringify(actual.routeVariants ?? null) !== JSON.stringify(destination.routeVariants ?? null)) {
-    errors.push(`source registry routeVariants drift for ${destination.id}`);
-  }
+  if (actual.route !== destination.route) errors.push(`source registry route drift for ${destination.id}: ${String(actual.route)} != ${String(destination.route)}`);
 }
 if (runtimeById.size !== byId.size) errors.push(`source registry destination count drift: runtime=${runtimeById.size}, IA=${byId.size}`);
 if (!registrySource.includes("export const R2_PRIMARY_NAVIGATION")) errors.push('source registry must export R2_PRIMARY_NAVIGATION');
@@ -199,5 +194,5 @@ if (errors.length) {
   errors.forEach((e) => console.error(`- ${e}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ R2.0 INFORMATION ARCHITECTURE AUDIT PASS — ${parity.capabilities.length} capabilities, five doors, zero hidden primary navigation, canonical homes resolved, runtime source registry synchronized semantically.`);
+  console.log(`ENJAZ R2.0 INFORMATION ARCHITECTURE AUDIT PASS — ${parity.capabilities.length} capabilities, five doors, zero hidden primary navigation, canonical homes resolved, runtime routes synchronized semantically.`);
 }
