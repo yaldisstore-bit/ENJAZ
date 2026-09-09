@@ -15,6 +15,8 @@ const paths = {
   parity: 'docs/UI_UX_REBIRTH_2_0_FEATURE_PARITY.json',
   navigation: 'src/ui-r2/architecture/navigation-contract.ts',
   model: 'src/ui-r2/find-anything/find-anything-model.ts',
+  previewModel: 'src/ui-r2/find-anything/find-anything-preview.ts',
+  previewMain: 'src/ui-r2/preview-main.tsx',
   connected: 'src/ui-r2/find-anything/FindAnythingConnected.ts',
   connectedModel: 'src/ui-r2/find-anything/find-anything-connected-model.ts',
   root: 'src/ui-r2/runtime/UiR2Root.tsx',
@@ -35,6 +37,8 @@ const evidence = json(paths.evidence);
 const parity = json(paths.parity);
 const navigation = read(paths.navigation);
 const model = read(paths.model);
+const previewModel = read(paths.previewModel);
+const previewMain = read(paths.previewMain);
 const connected = read(paths.connected);
 const connectedModel = read(paths.connectedModel);
 const uiRoot = read(paths.root);
@@ -92,14 +96,24 @@ for (const marker of [
 for (const marker of [
   'normalizeR2Search',
   'buildR2FindAnythingResults',
-  'buildR2PreviewSearchRecords',
-  'buildTransactionListPreviewSource',
   "source: 'preview-record'",
   "destinationId: 'transactions.detail'",
-  'slice(0, 80)',
+  '__ENJAZ_R2_PREVIEW_SEARCH_RECORDS__',
 ]) if (!model.includes(marker)) errors.push(`Find Anything model missing required marker: ${marker}`);
-if (/\b(?:fetch|localStorage|sessionStorage)\s*\(/.test(model)) errors.push('Find Anything model may not create ad-hoc fetch or browser persistence channels');
-for (const forbidden of ['ui-v2', 'ui-rebirth']) if (model.includes(forbidden)) errors.push(`Find Anything model references legacy presentation marker: ${forbidden}`);
+if (model.includes('buildTransactionListPreviewSource')) errors.push('canonical Find Anything model must not import preview transaction fixtures');
+for (const marker of [
+  'buildR2PreviewSearchRecords',
+  'buildTransactionListPreviewSource',
+  'slice(0, 80)',
+  'عينة Preview',
+]) if (!previewModel.includes(marker)) errors.push(`Preview Find Anything provider missing required marker: ${marker}`);
+for (const marker of [
+  "from './find-anything/find-anything-preview.ts'",
+  '__ENJAZ_R2_PREVIEW_SEARCH_RECORDS__',
+  'buildR2PreviewSearchRecords()',
+]) if (!previewMain.includes(marker)) errors.push(`preview entry missing explicit fixture registration: ${marker}`);
+if (/\b(?:fetch|localStorage|sessionStorage)\s*\(/.test(model) || /\b(?:fetch|localStorage|sessionStorage)\s*\(/.test(previewModel)) errors.push('Find Anything modules may not create ad-hoc fetch or browser persistence channels');
+for (const forbidden of ['ui-v2', 'ui-rebirth']) if (model.includes(forbidden) || previewModel.includes(forbidden)) errors.push(`Find Anything modules reference legacy presentation marker: ${forbidden}`);
 
 if (!connected.includes("from './find-anything-connected-model.ts'")) errors.push('FindAnythingConnected.ts must expose the authoritative Node-verifiable adapter');
 for (const marker of [
@@ -167,5 +181,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`ENJAZ R2.0-8+ ZERO-LOST AUDIT PASS — preserved at ${state.stage}; authoritative discovery and 16-scenario No-Maze closure remain fail-closed.`);
+  console.log(`ENJAZ R2.0-8+ ZERO-LOST AUDIT PASS — preserved at ${state.stage}; authoritative discovery, preview isolation and 16-scenario No-Maze closure remain fail-closed.`);
 }

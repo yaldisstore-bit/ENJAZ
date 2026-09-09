@@ -4,7 +4,6 @@ import {
   getR2Destination,
   type R2DestinationId,
 } from '../architecture/navigation-contract.ts';
-import { buildTransactionListPreviewSource } from '../../features/transactions/transactionListPreview.ts';
 
 export type R2FindAnythingKind = 'feature' | 'transaction';
 export type R2FindAnythingSource = 'navigation' | 'preview-record';
@@ -20,7 +19,7 @@ export type R2FindAnythingResult = {
   score: number;
 };
 
-type SearchableRecord = {
+export type SearchableRecord = {
   key: string;
   kind: 'transaction';
   label: string;
@@ -29,6 +28,8 @@ type SearchableRecord = {
   transactionId: string;
   terms: readonly string[];
 };
+
+type SearchGlobal = typeof globalThis & { __ENJAZ_R2_PREVIEW_SEARCH_RECORDS__?: readonly SearchableRecord[] };
 
 const ARABIC_DIACRITICS = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g;
 const TATWEEL = /\u0640/g;
@@ -90,28 +91,6 @@ function buildFeatureResults(query: string): R2FindAnythingResult[] {
     .filter((item) => item.score > 0);
 }
 
-export function buildR2PreviewSearchRecords(): readonly SearchableRecord[] {
-  const source = buildTransactionListPreviewSource();
-  const companies = new Map(source.companies.map((company) => [company.id, company]));
-  return source.transactions
-    .filter((transaction) => !transaction.deleted_at)
-    .slice(0, 80)
-    .map((transaction) => {
-      const company = companies.get(transaction.company_id);
-      const companyLabel = company?.display_name || company?.legal_name || 'شركة غير متاحة';
-      const shortId = transaction.legacy_id || transaction.id.slice(0, 8);
-      return {
-        key: `transaction:${transaction.id}`,
-        kind: 'transaction' as const,
-        label: `#${shortId} · ${transaction.type}`,
-        secondary: `${companyLabel} · ${transaction.department || 'جهة غير محددة'} · عينة Preview`,
-        destinationId: 'transactions.detail' as const,
-        transactionId: transaction.id,
-        terms: [shortId, transaction.id, transaction.type, transaction.department || '', companyLabel],
-      };
-    });
-}
-
 function buildRecordResults(query: string, records: readonly SearchableRecord[]): R2FindAnythingResult[] {
   return records
     .map((record) => ({
@@ -159,7 +138,7 @@ export function buildR2FindAnythingResults(
     });
   }
 
-  const records = options.records ?? buildR2PreviewSearchRecords();
+  const records = options.records ?? (globalThis as SearchGlobal).__ENJAZ_R2_PREVIEW_SEARCH_RECORDS__ ?? [];
   return [...buildRecordResults(query, records), ...buildFeatureResults(query)]
     .sort((a, b) => b.score - a.score || a.label.localeCompare(b.label, 'ar'))
     .slice(0, limit);

@@ -76,6 +76,7 @@ const emptyLayer = Object.freeze({
   followups: mutableRepository,
   blockers: mutableRepository,
   documents: mutableRepository,
+  cashboxes: mutableRepository,
   calendar: mutableRepository,
   renewals: mutableRepository,
   workflowItemStates: mutableRepository,

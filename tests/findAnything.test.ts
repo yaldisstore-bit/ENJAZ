@@ -2,9 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   buildR2FindAnythingResults,
-  buildR2PreviewSearchRecords,
   normalizeR2Search,
 } from '../src/ui-r2/find-anything/find-anything-model.ts';
+import { buildR2PreviewSearchRecords } from '../src/ui-r2/find-anything/find-anything-preview.ts';
+
+const PREVIEW_RECORDS = buildR2PreviewSearchRecords();
 
 test('R2.0-8 normalizes Arabic forms without losing Latin/numeric search', () => {
   assert.equal(normalizeR2Search('  أتمتــة  '), 'اتمتة');
@@ -25,24 +27,29 @@ test('R2.0-8 resolves canonical feature aliases to exactly one destination', () 
 });
 
 test('R2.0-8 discovers preview transactions by legacy id, type and company', () => {
-  const byId = buildR2FindAnythingResults('1042');
+  const byId = buildR2FindAnythingResults('1042', { records: PREVIEW_RECORDS });
   assert.equal(byId[0]?.kind, 'transaction');
   assert.equal(byId[0]?.destinationId, 'transactions.detail');
   assert.equal(byId[0]?.transactionId, 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1');
 
-  const byType = buildR2FindAnythingResults('تعديل عقد تأسيس');
+  const byType = buildR2FindAnythingResults('تعديل عقد تأسيس', { records: PREVIEW_RECORDS });
   assert.ok(byType.some((result) => result.transactionId === 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1'));
 
-  const byCompany = buildR2FindAnythingResults('روز بغداد');
+  const byCompany = buildR2FindAnythingResults('روز بغداد', { records: PREVIEW_RECORDS });
   assert.ok(byCompany.some((result) => result.kind === 'transaction'));
 });
 
 test('R2.0-8 record provider stays bounded and labels preview truthfully', () => {
-  const records = buildR2PreviewSearchRecords();
+  const records = PREVIEW_RECORDS;
   assert.ok(records.length > 0);
   assert.ok(records.length <= 80);
   assert.ok(records.every((record) => record.secondary.includes('عينة Preview')));
   assert.ok(records.every((record) => record.destinationId === 'transactions.detail'));
+});
+
+test('R2.0-8 live search has no fabricated record fallback when no records are injected', () => {
+  const results = buildR2FindAnythingResults('1042', { records: [] });
+  assert.equal(results.some((result) => result.kind === 'transaction'), false);
 });
 
 test('R2.0-8 empty query returns bounded canonical shortcuts', () => {

@@ -7,6 +7,7 @@ import {
   loadSmartRisk,
   RiskAuthorityDriftError,
   RiskSourcePageStalledError,
+  RiskWorkspaceUnavailableError,
   type FinanceRiskLoader,
 } from '../src/features/risk/riskService.ts';
 
@@ -88,6 +89,13 @@ test('archived/completed work and closed blockers cannot leak through a permissi
   assert.deepEqual(result.signals,[]);
   assert.equal(result.sourceCounts.transactions,0);
   assert.equal(result.sourceCounts.blockers,0);
+});
+
+test('missing authenticated workspace fails closed before any domain source is read',async()=>{
+  let touched=false;
+  const noWorkspace:EnjazDataLayerFactory={async resolveWorkspaceId(){return null},forWorkspace(){touched=true;throw new Error('must not read a workspace')}};
+  await assert.rejects(()=>loadSmartRisk({dataFactory:noWorkspace,fieldOperations:{loadContext:async()=>{touched=true;return fieldContext()}},financeRiskLoader:async()=>{touched=true;return {workspaceId:W,snapshot:{asOf:NOW.toISOString(),signals:[]}}}},U,NOW),RiskWorkspaceUnavailableError);
+  assert.equal(touched,false);
 });
 
 test('cross-workspace finance composition fails closed',async()=>{
