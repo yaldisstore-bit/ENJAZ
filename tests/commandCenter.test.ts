@@ -12,7 +12,7 @@ const W='11111111-1111-4111-8111-111111111111',U='22222222-2222-4222-8222-222222
 
 const transaction=():RowOf<'transactions'>=>({id:T,workspace_id:W,company_id:C,primary_contact_id:null,type:'تسجيل شركة',department:'الشركات',status:'stalled',priority:'urgent',current_fee:1000,created_at:'2026-09-01T08:00:00.000Z',updated_at:'2026-09-09T08:00:00.000Z',last_activity_at:'2026-09-09T08:00:00.000Z',completed_at:null,archived_at:null,deleted_at:null,deleted_by:null,deletion_reason:null,legacy_id:null,legacy_source:null});
 const blocker=():RowOf<'transaction_blockers'>=>({id:B,workspace_id:W,transaction_id:T,title:'تعطل لدى الجهة',severity:'critical',note:'تحتاج تصعيدًا',status:'open',opened_at:'2026-09-09T08:00:00.000Z',resolved_at:null});
-const company=():RowOf<'companies'>=>({id:C,workspace_id:W,legal_name:'شركة الاختبار',display_name:'شركة الاختبار',capital:null,address:null,activities:null,registration_number:null,legal_status:null,primary_contact_id:null,status:'active',merged_into_id:null,legacy_id:null,legacy_source:null,created_at:'2026-09-01T08:00:00.000Z',updated_at:'2026-09-09T08:00:00.000Z',archived_at:null,deleted_at:null,deleted_by:null,deletion_reason:null});
+const company=():RowOf<'companies'>=>({id:C,workspace_id:W,legal_name:'شركة الاختبار',display_name:'شركة الاختبار',capital:null,address:null,activities:null,registration_number:null,legal_status:null,primary_contact_id:null,status:'active',merged_into_id:null,legacy_id:null,legacy_source:null,created_at:'2026-09-01T08:00:00.000Z',updated_at:'2026-09-09T08:00:00.000Z',deleted_at:null,deleted_by:null,deletion_reason:null});
 
 function page<T>(items:readonly T[]){return Promise.resolve({items,hasMore:false,total:items.length});}
 function factory():EnjazDataLayerFactory{
