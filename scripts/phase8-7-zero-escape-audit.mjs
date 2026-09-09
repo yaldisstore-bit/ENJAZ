@@ -10,6 +10,7 @@ const tests=read('tests/phase8-7-operations-zero-escape.test.ts');
 const offline=read('src/features/field-operations/fieldOperationsOfflineQueue.ts');
 const intakeRateRepair=read('database/migrations/phase_8_7_intake_rate_limit_serialization.sql');
 const realCloud=read('docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md');
+const implementation=read('docs/PHASE8_7_IMPLEMENTATION_EVIDENCE.md');
 const fail=(m)=>{throw new Error(`Phase 8.7 Zero-Escape audit: ${m}`)};
 const must=(text,marker,label)=>{if(!text.includes(marker))fail(`${label} missing ${marker}`)};
 
@@ -56,14 +57,14 @@ if(state.mode!=='DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY')fail('mode drift');
 if(state.newFeatureAuthorityAllowed!==false||state.newDatabaseTablesAllowed!==false||state.newWriteRpcAuthorityAllowed!==false)fail('Phase 8.7 cannot create new authority');
 if(state.javascriptBudgetBytes!==670000||state.budgetIncreaseAllowed!==false)fail('JavaScript budget drift');
 if(state.phase9_1Allowed!==false||state.nextPhase!=='9.1'||state.successorStatus!=='LOCKED')fail('Phase 9.1 must remain locked');
-if(state.exitGatePassed!==false||state.postMergeRecertification!=='PENDING'||state.pullRequestGate!=='PENDING')fail('premature Phase 8.7 closure');
+if(state.exitGatePassed!==false||state.postMergeRecertification!=='PENDING'||state.pullRequestGate!=='PENDING'||state.deployedLiveVerification!=='PENDING')fail('premature Phase 8.7 closure');
 
 const expectedSystems=['M1','M5','M6','M17','M15_PHASE8_PORTION'];
 if(JSON.stringify(state.systemsUnderGate)!==JSON.stringify(expectedSystems))fail('systems-under-gate drift');
 const expectedDimensions=['repeated_triggers','stale_transitions','conflicting_actors','large_histories','field_offline_recovery','intake_abuse','branch_team_permission_boundaries','automation_failure_isolation'];
 if(JSON.stringify(state.destructionDimensions)!==JSON.stringify(expectedDimensions))fail('destruction dimensions drift');
 
-if(state.gateEvidence!=='WAVE1_PASS_REAL_CLOUD_PASS_ZERO_RESIDUE')fail('gate evidence must retain Wave 1 + complete Real Cloud result');
+if(state.gateEvidence!=='WAVE1_PASS_REAL_CLOUD_PASS_ZERO_RESIDUE_REAL_CHROMIUM_PASS')fail('gate evidence must retain Wave 1 + complete Real Cloud + cumulative Chromium result');
 if(state.realCloudVerification!=='PASS_ZERO_RESIDUE')fail('complete Phase 8.7 Real Cloud evidence must be PASS_ZERO_RESIDUE');
 if(state.realCloudEvidence!=='docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md')fail('Real Cloud evidence pointer drift');
 const systemProperties={
@@ -79,6 +80,18 @@ for(const [system,verifiedProperty] of Object.entries(systemProperties)){
 }
 const automation=state.dimensionEvidence?.automation_failure_isolation;
 if(automation?.realCloud!=='PASS_ZERO_RESIDUE'||automation?.evidence!==state.realCloudEvidence||automation?.verifiedProperty!=='stale_rule_replay_human_approval_rejection_and_finance_isolation')fail('automation failure-isolation cloud evidence drift');
+
+const branch=state.branchImplementationGate??{};
+if(branch.status!=='PASS_CERTIFIED_HEAD')fail('branch implementation gate status drift');
+if(branch.certifiedSha!=='8f09a784a473e2ffd8f99b5ab8703ed35f2f56c1')fail('certified branch SHA drift');
+if(branch.workflowRun!==34339431797)fail('certified Phase 8.7 workflow run drift');
+if(branch.destructionWave!=='9/9'||branch.subsystemTests!=='45/45'||branch.functionalRegression!=='217/217'||branch.databaseSelfTests!=='25/25')fail('branch test-count evidence drift');
+if(branch.javascriptBytes!==669807||branch.javascriptBytes>state.javascriptBudgetBytes)fail('certified JavaScript budget evidence drift');
+if(branch.realChromium!=='53/53')fail('cumulative Chromium total drift');
+const expectedChromium={'8.1':'8/8','8.2':'9/9','8.3':'9/9','8.4':'9/9','8.5':'9/9','8.6':'9/9'};
+if(JSON.stringify(branch.chromiumByPhase)!==JSON.stringify(expectedChromium))fail('cumulative Chromium phase counts drift');
+if(branch.evidence!=='docs/PHASE8_7_IMPLEMENTATION_EVIDENCE.md')fail('implementation evidence pointer drift');
+if(state.realBrowserVerification!=='PASS_CUMULATIVE_PHASE8_BRANCH_HEAD_53_OF_53'||state.realBrowserEvidence!==branch.evidence)fail('branch Real Browser evidence drift');
 
 for(const marker of [
   '**Status: IN PROGRESS**','not a feature-delivery phase','repeated triggers','stale transitions','conflicting actors','large histories','field offline recovery','intake abuse','branch/team permission boundaries','automation failure isolation',
@@ -108,4 +121,8 @@ for(const marker of [
   '**Phase 8.7 Real Cloud Verification: PASS — ZERO RESIDUE.**'
 ])must(realCloud,marker,'complete Real Cloud evidence');
 
-console.log('ENJAZ PHASE 8.7 ZERO-ESCAPE AUDIT PASS — Phase 8.6 exact closed SHA independently recertified and protected files unchanged; Phase 9.1 locked; Wave 1 is green; M5 unknown-kind fail-closed repair is frozen; M1/M5/M6/M17/M15 Phase-8 and automation failure isolation are Real-Cloud PASS ZERO RESIDUE; Real Browser/deployed-live/PR/merge/post-merge closure remain pending; 670000-byte budget unchanged.');
+for(const marker of [
+  'Status: **BRANCH IMPLEMENTATION GATE PASS — NOT FORMALLY CLOSED**','8f09a784a473e2ffd8f99b5ab8703ed35f2f56c1','34339431797','9/9 PASS','45/45 PASS','217/217 PASS','25/25 PASS','669,807 / 670,000 bytes PASS','Phase 8.1 Workflow / Government Procedure OS: **8/8 PASS**','Phase 8.2 Automation Engine: **9/9 PASS**','Phase 8.3 Operations + Field M5: **9/9 PASS**','Phase 8.4 CRM + Smart Intake M6/M17: **9/9 PASS**','Phase 8.5 Organization / M15 foundation: **9/9 PASS**','Phase 8.6 Global Command Center: **9/9 PASS**','Total cumulative Phase-8 Real Chromium: **53/53 PASS**','Phase 9.1 — Smart Risk Engine remains **LOCKED**'
+])must(implementation,marker,'branch implementation evidence');
+
+console.log('ENJAZ PHASE 8.7 ZERO-ESCAPE AUDIT PASS — exact Phase 8.6 closure independently recertified; Wave 1 9/9, subsystem 45/45, functional 217/217 and DB selftest 25/25 are certified; M1/M5/M6/M17/M15 plus automation failure isolation are Real-Cloud PASS ZERO RESIDUE; cumulative Phase 8.1–8.6 Chromium is 53/53 on certified branch head; JS=669807/670000; deployed-live/PR/merge/post-merge closure remain pending; Phase 9.1 locked.');
