@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "8.7",
   "name": "Operations Zero-Escape Destruction Gate",
-  "status": "IN_PROGRESS",
+  "status": "CLOSED",
   "baseCommit": "cb6449428e0ed9490af2758beac12692631b8f8b",
   "implementationBranch": "phase8-7-operations-zero-escape",
   "predecessor": {
@@ -97,17 +97,68 @@
     },
     "evidence": "docs/PHASE8_7_IMPLEMENTATION_EVIDENCE.md"
   },
-  "gateEvidence": "WAVE1_PASS_REAL_CLOUD_PASS_ZERO_RESIDUE_REAL_CHROMIUM_PASS",
+  "gateEvidence": "COMPLETE_REAL_CLOUD_ZERO_RESIDUE_EXACT_MAIN_REAL_BROWSER_PAGES_LIVE_EXTERNAL",
   "realCloudVerification": "PASS_ZERO_RESIDUE",
   "realCloudEvidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md",
-  "realBrowserVerification": "PASS_CUMULATIVE_PHASE8_BRANCH_HEAD_53_OF_53",
-  "realBrowserEvidence": "docs/PHASE8_7_IMPLEMENTATION_EVIDENCE.md",
-  "deployedLiveVerification": "PENDING",
-  "pullRequestGate": "PENDING",
-  "postMergeRecertification": "PENDING",
-  "exitGatePassed": false,
-  "phase9_1Allowed": false,
+  "realBrowserVerification": "PASS_FINAL_CANONICAL_MAIN_AND_LIVE_EXTERNAL",
+  "realBrowserEvidence": "docs/PHASE8_7_POSTMERGE_RECERTIFICATION.md",
+  "deployedLiveVerification": "PASS_PAGES_AND_LIVE_EXTERNAL",
+  "pullRequestGate": "PASS_36_OF_36_FINAL_REPAIR_HEAD",
+  "postMergeRecertification": "COMPLETE",
+  "exitGatePassed": true,
+  "phase9_1Allowed": true,
   "nextPhase": "9.1",
-  "successorStatus": "LOCKED",
+  "successorStatus": "AUTHORIZED",
+  "majorSystemDisposition": {
+    "M1": {
+      "phase8ZeroEscape": "COMPLETE",
+      "globalStatus": "CLOSURE_CANDIDATE",
+      "globalClosureAuthority": "ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY"
+    },
+    "M5": {
+      "phase8ZeroEscape": "COMPLETE",
+      "globalStatus": "CLOSURE_CANDIDATE",
+      "globalClosureAuthority": "ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY"
+    },
+    "M6": {
+      "phase8ZeroEscape": "COMPLETE",
+      "globalStatus": "CLOSURE_CANDIDATE",
+      "globalClosureAuthority": "ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY"
+    },
+    "M17": {
+      "phase8Portion": "CLOSED",
+      "globalStatus": "ACTIVE",
+      "remainingAnchor": "11"
+    },
+    "M15": {
+      "phase8Portion": "CLOSED",
+      "globalStatus": "ACTIVE",
+      "remainingAnchor": "15"
+    }
+  },
+  "closureEvidence": {
+    "implementationPR": 121,
+    "implementationFinalHead": "277ceab165fe8e90c2ae6a324b5ff8f5f32b0165",
+    "implementationMerge": "ff4d86800101fbc076cd092ff07ebbd6e5b4b5e8",
+    "repairPR": 122,
+    "repairFinalHead": "9cc21db60f3e237de71efb66aaf84c797a2685a6",
+    "canonicalMerge": "4334d8ab8e9db6310a07fa23fb9d11fc0665ed16",
+    "implementationPullRequestWorkflowSuccess": 36,
+    "repairPullRequestWorkflowSuccess": 36,
+    "exactMainWorkflowSuccess": 18,
+    "exactMainPhase87Run": 34342365886,
+    "pagesPreviewRun": 34342413393,
+    "liveExternalRun": 34342462822,
+    "realBrowserRun": 34342365719,
+    "pagesJavascriptBytes": 669984,
+    "unresolvedDefectCount": 0,
+    "criticalDefectCount": 0,
+    "highDefectCount": 0,
+    "functionalBlockerCount": 0,
+    "postMergeEvidence": "docs/PHASE8_7_POSTMERGE_RECERTIFICATION.md",
+    "formalClosureEvidence": "docs/PHASE8_7_CLOSURE.md",
+    "implementationEvidence": "docs/PHASE8_7_IMPLEMENTATION_EVIDENCE.md",
+    "realCloudEvidence": "docs/PHASE8_7_REAL_CLOUD_EVIDENCE.md"
+  },
   "kickoffEvidence": "docs/PHASE8_7_KICKOFF.md"
 }
