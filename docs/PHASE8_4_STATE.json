@@ -39,6 +39,12 @@
   },
   "javascriptBudgetBytes": 670000,
   "budgetIncreaseAllowed": false,
+  "realCloudEvidence": "docs/PHASE8_4_REAL_CLOUD_EVIDENCE.md",
+  "realCloudAuthenticatedProbe": "PASS",
+  "realStorageAcknowledgementProbe": "PASS_WITH_CLEANUP_BLOCKER",
+  "knownBlockers": [
+    "One inert 14-byte private Storage probe object remains and must be removed through a supported Storage API before closure."
+  ],
   "exitGatePassed": false,
   "phase8_5Allowed": false,
   "nextPhase": "8.5",
