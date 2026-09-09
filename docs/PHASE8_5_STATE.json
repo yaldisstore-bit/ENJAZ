@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "phase": "8.5",
+  "name": "Multi-Branch / Departments / Teams — M15 foundation",
+  "status": "IN_PROGRESS",
+  "baseCommit": "4fff1f6b25687d8ca305edac3d5a033e77e224c9",
+  "implementationBranch": "phase8-5-multi-branch-teams",
+  "predecessor": {
+    "phase": "8.4",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase8_5Allowed=true"
+  },
+  "system": {
+    "id": "M15",
+    "name": "Multi-Branch, Departments & Team Operating Model",
+    "phaseSliceStatus": "IN_PROGRESS",
+    "globalSystemStatus": "OPEN"
+  },
+  "rootAuthority": {
+    "table": "workspace_memberships",
+    "roleConstraintChangeAllowed": false,
+    "organizationalAuthority": "derived_from_same_workspace_explicit_scope_membership"
+  },
+  "hierarchy": ["workspace", "branch", "department", "team"],
+  "scopeRoles": ["member", "lead", "manager"],
+  "inheritance": {
+    "direction": "downward_only",
+    "branchToDepartment": true,
+    "branchToTeam": true,
+    "departmentToTeam": true,
+    "teamToParent": false,
+    "siblingAccess": false,
+    "explicitSourceRequired": true
+  },
+  "authorityBoundaries": {
+    "crossWorkspace": "FORBIDDEN",
+    "anonymousOrgWrites": "FORBIDDEN",
+    "companyIdentityDuplication": "FORBIDDEN",
+    "contactIdentityDuplication": "FORBIDDEN",
+    "transactionLifecycleWriteAuthority": "existing_transaction_workflow_boundaries_only",
+    "financeLedgerWriteAuthority": "none"
+  },
+  "foundationCapabilities": [
+    "branches",
+    "departments",
+    "teams",
+    "scopeMemberships",
+    "operationalOwnership",
+    "ownershipTransferAudit",
+    "ownerConsolidatedView",
+    "rlsVerifiableInheritance"
+  ],
+  "deferredCapabilities": [
+    "branchCashboxes",
+    "advancedServiceRouting",
+    "automatedWorkloadBalancing",
+    "temporaryLeaveDelegation",
+    "advancedBranchDashboards",
+    "fullAssignmentRuleOrchestration"
+  ],
+  "javascriptBudgetBytes": 670000,
+  "budgetIncreaseAllowed": false,
+  "exitGatePassed": false,
+  "phase8_6Allowed": false,
+  "nextPhase": "8.6",
+  "successorStatus": "LOCKED",
+  "kickoffEvidence": "docs/PHASE8_5_KICKOFF.md"
+}
