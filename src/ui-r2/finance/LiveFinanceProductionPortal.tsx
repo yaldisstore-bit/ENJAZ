@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
-import { loadHomeDashboard, type HomeDashboardSnapshot } from '../../features/home/homeDashboardService.ts';
+import type { HomeDashboardSnapshot } from '../../features/home/homeDashboardModel.ts';
+import { loadHomeDashboard } from '../../features/home/homeDashboardService.ts';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
 import { useLiveRecordsPortal } from '../records/LiveCompaniesProductionPortal.tsx';
 import { ConnectedPhase72FinanceExperience } from './Phase72FinanceExperience.tsx';
