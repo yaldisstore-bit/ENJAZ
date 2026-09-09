@@ -2,7 +2,9 @@ name: ENJAZ Real Browser Acceptance
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - 'phase9-1-*'
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -117,6 +119,10 @@ jobs:
         env:
           R2_PRODUCTION_BASE_URL: http://127.0.0.1:4176/
         run: npx playwright test tests-external/r2-production-bridge.spec.cjs --reporter=line --workers=1
+      - name: Phase 9.1 Smart Risk / production bridge / 1280 + 430 + 390 + 360 + 320
+        env:
+          R2_PRODUCTION_BASE_URL: http://127.0.0.1:4176/
+        run: npx playwright test tests-external/phase9-1-risk-live.spec.cjs --reporter=line --workers=1
       - name: Upload browser diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
