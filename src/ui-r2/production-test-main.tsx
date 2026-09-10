@@ -5,6 +5,7 @@ import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../data/cre
 import type { AutomationCommandGateway } from '../features/automation/automationCommands.ts';
 import type { FieldOperationsCommandGateway } from '../features/field-operations/fieldOperationsCommands.ts';
 import type { FinanceCommandGateway } from '../features/finance/financeCommands.ts';
+import type { SearchIntelligenceGateway } from '../features/searchIntelligence/searchIntelligenceCommands.ts';
 import type { GovernmentProcedureRuntimeGateway } from '../features/workflow/governmentProcedureRuntime.ts';
 import { UiR2ProductionRoot } from './runtime/UiR2ProductionRoot.tsx';
 
@@ -179,11 +180,18 @@ const fieldOperationsCommands: FieldOperationsCommandGateway = Object.freeze({
   async handoff() { throw new Error('R2 production test does not allow field writes'); },
 });
 
+const searchIntelligence: SearchIntelligenceGateway = Object.freeze({
+  async listSavedViews() { return Object.freeze([]); },
+  async saveSavedView() { throw new Error('R2 production test does not allow saved-view writes'); },
+  async deleteSavedView() { throw new Error('R2 production test does not allow saved-view writes'); },
+  async globalSearch() { return Object.freeze([]); },
+});
+
 const rootElement = document.getElementById('r2-production-test-root');
 if (!rootElement) throw new Error('R2 production test root is missing');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands }} />
+    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence }} />
   </StrictMode>,
 );
