@@ -59,10 +59,17 @@
     "runtimeExpansionAllowed": false
   },
   "foundation": {
-    "status": "KICKOFF",
+    "status": "LOCAL_GATE_PASS",
     "contract": "src/features/governance/governanceOwnershipContract.ts",
     "tests": "tests/phase9-3-governance-ownership-foundation.test.ts",
-    "staticAudit": "scripts/phase9-3-governance-ownership-audit.mjs"
+    "staticAudit": "scripts/phase9-3-governance-ownership-audit.mjs",
+    "gateRunId": 34511919798,
+    "gateHead": "d00286f428a9f2335f183b333cc440006e1bdeb4",
+    "destructionTestsPassed": 10,
+    "functionalRegressionPassed": 217,
+    "typecheck": "PASS",
+    "rootBudget": "PASS",
+    "pagesLiveBudget": "PASS"
   },
   "persistence": {
     "status": "PENDING",
