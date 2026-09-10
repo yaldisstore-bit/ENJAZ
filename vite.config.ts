@@ -1,46 +1,42 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
+function renderedModuleProbe(): Plugin {
+  return {
+    name: 'enjaz-rendered-module-probe',
+    apply: 'build',
+    generateBundle(_, bundle) {
+      const totals = new Map<string, number>();
+      for (const output of Object.values(bundle)) {
+        if (output.type !== 'chunk') continue;
+        for (const [id, info] of Object.entries(output.modules)) totals.set(id, (totals.get(id) ?? 0) + (info.renderedLength ?? 0));
+      }
+      console.log('ENJAZ_PHASE9_2_MODULE_PROBE_BEGIN');
+      for (const [id, bytes] of [...totals.entries()].filter(([id]) => /searchIntelligence|search-intelligence|SavedViews|transactionSavedView|UiR2LiveRoot/.test(id)).sort((a,b)=>b[1]-a[1])) console.log(`${bytes}\t${id.replace(process.cwd(), '.')}`);
+      console.log('ENJAZ_PHASE9_2_MODULE_PROBE_END');
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
-  server: {
-    host: '127.0.0.1',
-    port: 5173,
-    strictPort: true,
-  },
-  preview: {
-    host: '127.0.0.1',
-    port: 4173,
-    strictPort: true,
-  },
+  plugins: [react(), renderedModuleProbe()],
+  server: { host: '127.0.0.1', port: 5173, strictPort: true },
+  preview: { host: '127.0.0.1', port: 4173, strictPort: true },
   build: {
-    target: 'es2022',
+    target: 'esnext',
+    modulePreload: { polyfill: false },
     sourcemap: false,
     cssCodeSplit: true,
     reportCompressedSize: true,
     rolldownOptions: {
-      // Keep strict source-order protection, but let Rolldown wrap only modules
-      // whose predicted chunk execution can actually violate that order.
-      experimental: { onDemandWrapping: true },
+      optimization: { inlineConst: true },
       output: {
-        strictExecutionOrder: true,
+        minify: true,
         codeSplitting: {
           groups: [
-            {
-              name: 'react-vendor',
-              test: /node_modules[\\/](react|react-dom|react-router|scheduler)([\\/]|$)/,
-              priority: 30,
-            },
-            {
-              name: 'supabase-vendor',
-              test: /node_modules[\\/]@supabase[\\/]/,
-              priority: 20,
-            },
-            {
-              name: 'vendor',
-              test: /node_modules[\\/]/,
-              priority: 10,
-            },
+            { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|react-router|scheduler)([\\/]|$)/, priority: 30 },
+            { name: 'supabase-vendor', test: /node_modules[\\/]@supabase[\\/]/, priority: 20 },
+            { name: 'vendor', test: /node_modules[\\/]/, priority: 10 },
           ],
         },
       },

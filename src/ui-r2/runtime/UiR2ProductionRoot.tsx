@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { AuthGateway } from '../../core/auth/authGateway.ts';
 import { createSupabaseAuthGateway } from '../../core/auth/SupabaseAuthGateway.ts';
 import { createRuntimeConfig } from '../../core/config/env.ts';
@@ -12,6 +12,7 @@ import { FieldOperationsCommandProvider } from '../../features/field-operations/
 import { createFieldOperationsCommandGateway, type FieldOperationsCommandGateway } from '../../features/field-operations/fieldOperationsCommands.ts';
 import { FinanceCommandProvider } from '../../features/finance/FinanceCommandContext.tsx';
 import { createSupabaseFinanceCommandGateway, type FinanceCommandGateway } from '../../features/finance/financeCommands.ts';
+import { createSearchIntelligenceGateway, type SearchIntelligenceGateway } from '../../features/searchIntelligence/searchIntelligenceCommands.ts';
 import { GovernmentProcedureCommandProvider } from '../../features/workflow/GovernmentProcedureCommandContext.tsx';
 import { createGovernmentProcedureRuntimeGateway, type GovernmentProcedureRuntimeGateway } from '../../features/workflow/governmentProcedureRuntime.ts';
 import { CurrentUserIdProvider } from '../../shared/session/CurrentUserIdContext.tsx';
@@ -36,6 +37,7 @@ import '../command/command-center.css';
 import '../home/home-connected.css';
 import '../auth/auth.css';
 import '../workflow/workflow.css';
+import '../search-intelligence/search-intelligence.css';
 import './accessibility-hardening.css';
 
 export type UiR2ProductionResources = Readonly<{
@@ -45,6 +47,7 @@ export type UiR2ProductionResources = Readonly<{
   workflowCommands: GovernmentProcedureRuntimeGateway;
   automationCommands: AutomationCommandGateway;
   fieldOperationsCommands: FieldOperationsCommandGateway;
+  searchIntelligence: SearchIntelligenceGateway;
 }>;
 
 function createProductionResources(): UiR2ProductionResources {
@@ -57,6 +60,7 @@ function createProductionResources(): UiR2ProductionResources {
     workflowCommands: createGovernmentProcedureRuntimeGateway(client),
     automationCommands: createAutomationCommandGateway(client),
     fieldOperationsCommands: createFieldOperationsCommandGateway(client),
+    searchIntelligence: createSearchIntelligenceGateway(client),
   });
 }
 
@@ -70,14 +74,16 @@ function leaveRecoveryMode() {
   window.location.replace(url.toString());
 }
 
-function AuthenticatedR2Runtime({ dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands }: Readonly<{
+function AuthenticatedR2Runtime({ dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence }: Readonly<{
   dataFactory: EnjazDataLayerFactory;
   financeCommands: FinanceCommandGateway;
   workflowCommands: GovernmentProcedureRuntimeGateway;
   automationCommands: AutomationCommandGateway;
   fieldOperationsCommands: FieldOperationsCommandGateway;
+  searchIntelligence: SearchIntelligenceGateway;
 }>) {
   const auth = useAuth();
+  const workspace = useMemo(() => auth.user ? dataFactory.resolveWorkspaceId(auth.user.id) : Promise.resolve(null), [auth.user?.id, dataFactory]);
   if (auth.status === 'checking') return <SessionChecking />;
   if (auth.status === 'anonymous' || !auth.user) return <R2AuthScreen service={auth.service} />;
   const recoveryMode = new URLSearchParams(window.location.search).get('auth') === 'update-password';
@@ -85,7 +91,7 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, workflowCommands
   const signOut = async () => { await auth.service.signOut(); };
 
   return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}>
-    <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} />
+    <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
     <LiveCompaniesProductionPortal />
     <LivePeopleProductionPortal />
     <LiveFinanceProductionPortal />
@@ -105,5 +111,6 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     workflowCommands={runtime.resources.workflowCommands}
     automationCommands={runtime.resources.automationCommands}
     fieldOperationsCommands={runtime.resources.fieldOperationsCommands}
+    searchIntelligence={runtime.resources.searchIntelligence}
   /></AuthProvider>;
 }
