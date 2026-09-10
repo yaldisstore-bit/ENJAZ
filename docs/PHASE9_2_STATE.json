@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "phase": "9.2",
+  "name": "Smart Saved Views & Cross-domain Search Intelligence",
+  "status": "IN_PROGRESS",
+  "baseCommit": "158b3c383509d99edab0bddb3fe676b17b4e7051",
+  "implementationBranch": "phase9-2-smart-saved-views-search-intelligence",
+  "predecessor": {
+    "phase": "9.1",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase9_2Allowed=true"
+  },
+  "authority": {
+    "savedViewsPersistence": "DATABASE_RLS_REQUIRED",
+    "globalSearchAuthority": "PERMISSION_SCOPED_AUTHORITATIVE_READS_ONLY",
+    "sourceBusinessEntityWriteAuthority": "none",
+    "shadowEntityStoreAllowed": false,
+    "savedResultRowsAllowed": false,
+    "unauthorizedSearchFallbackAllowed": false,
+    "crossWorkspaceSearchAllowed": false,
+    "externalDeepLinksAllowed": false
+  },
+  "domains": [
+    "transactions",
+    "companies",
+    "people",
+    "procedures",
+    "documents"
+  ],
+  "savedViews": {
+    "schema": "enjaz.saved-view.v1",
+    "defaultVisibility": "personal",
+    "sharedVisibilities": ["team", "workspace"],
+    "sharedVisibilityRequiresExplicitPermission": true,
+    "definitionOnlyPersistence": true,
+    "reuseTransactionSchema": "enjaz.transactions.list.v1",
+    "ephemeralPageNavigationPersisted": false
+  },
+  "globalSearch": {
+    "resultSchema": "enjaz.global-search-result.v1",
+    "permissionAwareGroupingRequired": true,
+    "exactInternalDeepLinkRequired": true,
+    "missingDomainAuthorityBehavior": "OMIT_DOMAIN_FAIL_CLOSED",
+    "unauthorizedEntityBehavior": "NO_RESULT_NO_METADATA_LEAK"
+  },
+  "javascriptBudgetBytes": 670000,
+  "budgetIncreaseAllowed": false,
+  "realCloudRequired": true,
+  "realBrowserRequired": true,
+  "publishedLiveVerificationRequired": true,
+  "foundation": {
+    "status": "IN_PROGRESS",
+    "contract": "src/features/searchIntelligence/searchSavedViewContract.ts",
+    "tests": "tests/phase9-2-search-saved-views-foundation.test.ts",
+    "transactionAdapterReuseRequired": true
+  },
+  "realCloudVerification": "PENDING",
+  "realBrowserVerification": "PENDING",
+  "pullRequestGate": "PENDING",
+  "postMergeRecertification": "PENDING",
+  "exitGatePassed": false,
+  "phase9_3Allowed": false,
+  "nextPhase": "9.3",
+  "successorStatus": "LOCKED",
+  "unresolvedDefectCount": 0,
+  "criticalDefectCount": 0,
+  "highDefectCount": 0,
+  "functionalBlockerCount": 0,
+  "kickoffEvidence": "docs/PHASE9_2_KICKOFF.md"
+}
