@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { GlobalSearchResultReference } from '../../features/searchIntelligence/searchSavedViewContract.ts';
 import { useGlobalSearch } from '../../features/searchIntelligence/useSearchIntelligence.ts';
 import {
@@ -13,7 +13,6 @@ import { LiveAutomationExperience } from '../automation/LiveAutomationExperience
 import { LiveCommandCenterExperience } from '../command/LiveCommandCenterExperience.tsx';
 import { ConnectedCoreWorkRouter } from '../core-work/CoreWorkConnected.tsx';
 import { LiveFieldOperationsExperience } from '../field-operations/LiveFieldOperationsExperience.tsx';
-import { buildR2FindAnythingResults } from '../find-anything/find-anything-model.ts';
 import { ConnectedR2Home } from '../home/ConnectedHomeExperience.tsx';
 import { TransactionSavedViewsDock } from '../search-intelligence/TransactionSavedViewsDock.tsx';
 import { useR2OverlayFocusGuard } from './useR2OverlayFocusGuard.ts';
@@ -25,11 +24,21 @@ type IconName = 'home' | 'transactions' | 'plus' | 'today' | 'more' | 'search' |
 type Props = Readonly<{ accountLabel?: string | undefined; onSignOut?: (() => Promise<void> | void) | undefined }>;
 
 const VALID_DESTINATIONS = new Set<R2DestinationId>(R2_DESTINATIONS.map((item) => item.id));
-const SEARCH_ALIAS_COUNT = Object.keys(R2_SEARCH_ALIASES).length;
+const SEARCH_ALIASES = Object.entries(R2_SEARCH_ALIASES);
+const SEARCH_ALIAS_COUNT = SEARCH_ALIASES.length;
+const LOCAL_SHORTCUTS: readonly R2DestinationId[] = ['transactions', 'today', 'companies', 'finance', 'automation', 'documents'];
 const RECORDS = new Set<R2DestinationId>(['companies', 'people', 'documents']);
 const OPERATIONAL = new Set<R2DestinationId>(['finance', 'operations', 'workflow', 'automation', 'command', 'risk', 'copilot']);
 const SEARCH_DOMAIN_LABELS = Object.freeze({ transactions: 'المعاملات', companies: 'الشركات', people: 'الأشخاص', procedures: 'الإجراءات', documents: 'الوثائق' });
 const SEARCH_DOMAINS = ['transactions', 'companies', 'people', 'procedures', 'documents'] as const;
+
+function localSearchText(value: string): string { return value.normalize('NFKC').toLocaleLowerCase('ar-IQ').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, '').replace(/\u0640/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ؤ/g, 'و').replace(/[ئى]/g, 'ي').replace(/\s+/g, ' ').trim(); }
+function localDestinations(raw: string) {
+  const query = localSearchText(raw);
+  if (!query) return LOCAL_SHORTCUTS.map(getR2Destination);
+  const aliases = new Set(SEARCH_ALIASES.filter(([alias]) => localSearchText(alias).includes(query)).map(([, id]) => id));
+  return R2_DESTINATIONS.filter((item) => item.kind !== 'system_boundary' && (localSearchText(item.label).includes(query) || localSearchText(item.id).includes(query) || aliases.has(item.id))).slice(0, 12);
+}
 
 function Icon({ name }: { name: IconName }) {
   const common = { className: 'ez-r2-icon', viewBox: '0 0 24 24', 'aria-hidden': true } as const;
@@ -104,7 +113,7 @@ function DeferredDestination({ id, navigate }: { id: R2DestinationId; navigate: 
 }
 
 function SearchOverlay({ query, setQuery, close, navigate, openTransaction }: { query: string; setQuery: (value: string) => void; close: () => void; navigate: (id: R2DestinationId) => void; openTransaction: (id: string) => void }) {
-  const localResults = useMemo(() => buildR2FindAnythingResults(query), [query]);
+  const localResults = localDestinations(query);
   const authoritative = useGlobalSearch(query);
   const openAuthoritative = (item: GlobalSearchResultReference) => {
     const url = new URL(window.location.href);
@@ -127,7 +136,7 @@ function SearchOverlay({ query, setQuery, close, navigate, openTransaction }: { 
       return <section className="r2-search-live-group" key={domain} data-global-search-domain={domain}><div className="r2-search-live-group__title"><strong>{SEARCH_DOMAIN_LABELS[domain]}</strong><span>{rows.length} نتيجة موثوقة</span></div>{rows.map((item) => <button type="button" key={`${item.domain}:${item.entityId}`} className="r2-search-result" data-search-authority="workspace" data-global-search-destination={item.destination} onClick={() => openAuthoritative(item)}><span className="r2-search-result__icon"><Icon name={item.domain === 'transactions' ? 'transactions' : 'module'} /></span><span><strong>{item.title}<em className="r2-search-result__domain">{SEARCH_DOMAIN_LABELS[item.domain]}</em></strong><small>{item.subtitle ?? 'سجل موثوق ضمن صلاحياتك الحالية'}</small></span><Icon name="arrow" /></button>)}</section>;
     }) : null}
     {query.trim().length >= 2 && authoritative.status === 'ready' && !authoritative.results.length ? <p className="r2-search-authority-state">لا توجد سجلات تشغيلية مطابقة ضمن صلاحياتك الحالية.</p> : null}
-    {localResults.length ? <><div className="r2-search-local-divider">اختصارات ومسارات إنجاز</div>{localResults.map((item) => <button type="button" key={item.key} className="r2-search-result" data-find-kind={item.kind} data-find-source={item.source} onClick={() => item.kind === 'transaction' && item.transactionId ? openTransaction(item.transactionId) : navigate(item.destinationId)}><span className="r2-search-result__icon"><Icon name={item.kind === 'transaction' ? 'transactions' : 'module'} /></span><span><strong>{item.label}</strong><small>{item.secondary}</small></span><Icon name="arrow" /></button>)}</> : null}
+    {localResults.length ? <><div className="r2-search-local-divider">اختصارات ومسارات إنجاز</div>{localResults.map((item) => <button type="button" key={item.id} className="r2-search-result" data-find-kind="feature" data-find-source="navigation" onClick={() => navigate(item.id)}><span className="r2-search-result__icon"><Icon name="module" /></span><span><strong>{item.label}</strong><small>ميزة · منزل قانوني واحد</small></span><Icon name="arrow" /></button>)}</> : null}
     {!localResults.length && authoritative.status !== 'loading' && !authoritative.results.length ? <p className="r2-search-empty">لا توجد نتيجة مطابقة. لا يختلق إنجاز سجلات غير موجودة ولا يكشف سجلات خارج صلاحيتك.</p> : null}
   </div><p className="r2-search-footnote" data-alias-count={SEARCH_ALIAS_COUNT}>نتائج Phase 9.2 تأتي من مصادر الحقيقة المصرح بها؛ الاختصارات المحلية تبقى للحفاظ على عقد Zero‑Lost.</p></section></div>;
 }
