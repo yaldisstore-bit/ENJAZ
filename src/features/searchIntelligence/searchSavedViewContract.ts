@@ -167,7 +167,7 @@ export function toTransactionSavedView(value: EnjazSavedViewDefinition): Transac
     view,
     search: canonical.query,
     sort: canonical.sort as TransactionListSort,
-    pageSize: canonical.pageSize ?? undefined,
+    ...(canonical.pageSize === null ? {} : { pageSize: canonical.pageSize }),
   }));
 }
 
