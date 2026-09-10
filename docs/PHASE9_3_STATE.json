@@ -10,6 +10,20 @@
     "requiredStatus": "CLOSED",
     "requiredAuthorization": "phase9_3Allowed=true"
   },
+  "projectQualityConstitution": {
+    "version": 1,
+    "authority": "ENJAZ_NON_NEGOTIABLE_RULES.md",
+    "closureRequiresAllFourPass": true,
+    "tracks": {
+      "product": "IN_PROGRESS",
+      "uiUx": "LOCKED",
+      "engineering": "IN_PROGRESS",
+      "certification": "IN_PROGRESS"
+    },
+    "featureCutForBundleBudgetAllowed": false,
+    "legacyDnaAllowed": false,
+    "patchworkReleaseAllowed": false
+  },
   "authority": {
     "persistence": "DATABASE_RLS_REQUIRED",
     "governanceWriteAuthority": "AUTHORIZED_GOVERNANCE_COMMANDS_ONLY",
