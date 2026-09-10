@@ -187,33 +187,50 @@ if (phase91) {
   if (phase91.phase !== '9.1' || phase91.name !== 'Smart Risk Engine') errors.push('Phase 9.1 identity drifted');
   if (phase91.authority?.mode !== 'READ_ONLY_DERIVED_INTELLIGENCE' || phase91.authority?.riskOwnedTables !== 'NONE' || phase91.authority?.riskOwnedWriteRpc !== 'NONE') errors.push('Phase 9.1 read-only authority drifted');
   if (phase91.javascriptBudgetBytes !== 670000 || phase91.budgetIncreaseAllowed !== false) errors.push('Phase 9.1 JavaScript hard budget drifted');
-  if (phase91.implementationEvidence?.implementationPullRequest !== 124 || phase91.implementationEvidence?.implementationFinalHead !== '0932a33d8b28b15509bfe3da456d09c51ce344fa' || phase91.implementationEvidence?.implementationPullRequestWorkflowSuccess !== 37) errors.push('Phase 9.1 implementation PR evidence drifted');
-  if (phase91.implementationEvidence?.finalExternalRepairPullRequest !== 127 || phase91.implementationEvidence?.finalExternalRepairHead !== '549ea2205fbe9cba91a9d71631f22433afff4eaf' || phase91.implementationEvidence?.finalExternalRepairPullRequestWorkflowSuccess !== 39) errors.push('Phase 9.1 final repair PR evidence drifted');
   if (phase91.implementationEvidence?.canonicalRuntimeMerge !== '9b116d39ad3cebc62e6c4f15d4fb72fef1b25fde' || phase91.implementationEvidence?.productionJavaScriptBytes !== 669992) errors.push('Phase 9.1 canonical runtime/budget evidence drifted');
-  const post = phase91.postMergeRecertification ?? {};
-  if (post.status !== 'COMPLETE' || post.mainCommit !== '9b116d39ad3cebc62e6c4f15d4fb72fef1b25fde') errors.push('Phase 9.1 post-merge recertification SHA drifted');
-  if (post.pushWorkflowCount !== 19 || post.pushWorkflowSuccess !== 19 || post.exactShaWorkflowRunCount !== 22 || post.exactShaWorkflowRunSuccess !== 22 || post.failureCount !== 0 || post.queuedCount !== 0 || post.inProgressCount !== 0 || post.cancelledCount !== 0) errors.push('Phase 9.1 exact-main workflow census drifted');
-  if (post.phase9GateRunId !== 34411497055 || post.realBrowserRunId !== 34411497023 || post.pagesBuildRunId !== 34411495854 || post.pagesPreviewRunId !== 34411566669 || post.liveExternalRunId !== 34411616353) errors.push('Phase 9.1 canonical run IDs drifted');
-  if (post.pagesBuild !== 'SUCCESS' || post.pagesPreview !== 'SUCCESS' || post.realBrowser !== 'SUCCESS' || post.liveExternal !== 'SUCCESS' || post.publishedApplicationAttack !== 'SUCCESS') errors.push('Phase 9.1 deployed-live result drifted');
-  if (phase91.phase9_2Allowed !== true || phase91.nextPhase !== '9.2' || phase91.successorStatus !== 'AUTHORIZED') errors.push('Phase 9.1 must authorize only Phase 9.2');
+  if (phase91.phase9_2Allowed !== true || phase91.nextPhase !== '9.2' || phase91.successorStatus !== 'AUTHORIZED') errors.push('Phase 9.1 must historically authorize Phase 9.2');
+}
+
+const phase92 = assertClosedState('docs/PHASE9_2_STATE.json', 'Phase 9.2');
+if (phase92) {
+  if (phase92.phase !== '9.2' || phase92.name !== 'Smart Saved Views & Cross-domain Search Intelligence') errors.push('Phase 9.2 identity drifted');
+  if (phase92.javascriptBudgetBytes !== 670000 || phase92.budgetIncreaseAllowed !== false) errors.push('Phase 9.2 JavaScript hard budget drifted');
+  if (phase92.productionJavaScriptBytes !== 669987 || phase92.pagesLiveJavaScriptBytes !== 669998) errors.push('Phase 9.2 certified bundle evidence drifted');
+  if (phase92.realCloudVerification !== 'PASS_ZERO_RESIDUE' || phase92.realBrowserVerification !== 'PASS' || phase92.postMergeRecertification !== 'COMPLETE') errors.push('Phase 9.2 closure verification drifted');
+  if (phase92.phase9_3Allowed !== true || phase92.nextPhase !== '9.3' || phase92.successorStatus !== 'AUTHORIZED') errors.push('Phase 9.2 must authorize only Phase 9.3');
+}
+
+if (!exists('docs/PHASE9_3_STATE.json')) errors.push('Phase 9.3 state missing');
+else {
+  const phase93 = json('docs/PHASE9_3_STATE.json');
+  const open = phase93.status === 'IN_PROGRESS' && phase93.exitGatePassed === false && phase93.phase9_4Allowed === false && phase93.successorStatus === 'LOCKED';
+  const closed = phase93.status === 'CLOSED' && phase93.exitGatePassed === true && phase93.phase9_4Allowed === true && phase93.nextPhase === '9.4' && phase93.successorStatus === 'AUTHORIZED';
+  if (!open && !closed) errors.push('Phase 9.3 lifecycle/successor state is invalid');
+  if (phase93.javascriptBudgetBytes !== 670000 || phase93.budgetIncreaseAllowed !== false) errors.push('Phase 9.3 JavaScript hard budget drifted');
+  if (phase93.authority?.companyCoreAuthority !== 'REFERENCE_EXISTING_COMPANY_CORE_ONLY' || phase93.authority?.shadowCompanyStoreAllowed !== false || phase93.authority?.shadowPartyStoreAllowed !== false) errors.push('Phase 9.3 source-of-truth boundary drifted');
 }
 
 for (const marker of [
-  'الحالة الرسمية: **Phase 9.1 — Smart Risk Engine ✅ CLOSED + POST-MERGE RECERTIFIED**',
-  'آخر مرحلة مغلقة: **Phase 9.1 — Smart Risk Engine ✅**',
-  'التالي المسموح: **Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence**',
-  '**Phase 9.1 — Smart Risk Engine: ✅ CLOSED + POST-MERGE RECERTIFIED.**',
-  '**Next: Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence — AUTHORIZED.**',
-  '9b116d39ad3cebc62e6c4f15d4fb72fef1b25fde',
-  '19/19 SUCCESS', '22/22 SUCCESS', '34411616353', '669992 / 670000 PASS',
-  'READ_ONLY_DERIVED_INTELLIGENCE',
-  'docs/PHASE9_1_STATE.json', 'docs/PHASE9_1_CLOSURE.md', 'docs/PHASE9_1_POSTMERGE_RECERTIFICATION.md',
+  'الحالة الرسمية: **Phase 9.3 — Corporate Governance & Ownership Engine — M2 🚧 IN PROGRESS**',
+  'آخر مرحلة مغلقة: **Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence ✅ CLOSED + POST-MERGE RECERTIFIED**',
+  'المرحلة الحالية المصرح بها: **Phase 9.3 — Corporate Governance & Ownership Engine — M2**',
+  '**Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence: ✅ CLOSED + POST-MERGE RECERTIFIED.**',
+  '**Phase 9.3 — Corporate Governance & Ownership Engine — M2: 🚧 IN PROGRESS.**',
+  '1d98a57566a5bc55ceda773f02de17dacddaecb0',
+  '34510486188', '34510610734',
+  '669987 / 670000 PASS', '669998 / 670000 PASS',
+  'PASS_ZERO_RESIDUE',
+  'docs/PHASE9_2_STATE.json', 'docs/PHASE9_2_CLOSURE.md', 'docs/PHASE9_2_POSTMERGE_RECERTIFICATION.md',
+  'docs/PHASE9_3_KICKOFF.md', 'docs/PHASE9_3_STATE.json',
   'Zero-Escape rule', 'Gate Escape',
 ]) requireMarker(readme, marker, 'README');
+
 for (const stale of [
   'الحالة الرسمية: **Phase 8.1 — Workflow Engine & Government Procedure OS — M1',
   'التالي المسموح: **Phase 8.2 — Automation Engine**',
-  '**Next: Phase 9.1 — Smart Risk Engine**',
+  'الحالة الرسمية: **Phase 9.1 — Smart Risk Engine ✅ CLOSED + POST-MERGE RECERTIFIED**',
+  'التالي المسموح: **Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence**',
+  '**Next: Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence — AUTHORIZED.**',
 ]) forbidMarker(readme, stale, 'README');
 
 if (errors.length) {
@@ -221,5 +238,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 8 remains closed; Phase 9.1 CLOSED + exact-main/Pages/Real-Browser/Live-External recertified; M1/M5/M6 remain CLOSURE_CANDIDATE; M15/M17 remain ACTIVE; next=Phase 9.2 only.');
+  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.2 CLOSED + exact-main/Real-Browser/Live-External recertified; Phase 9.3 M2 IN_PROGRESS with 9.4 locked; major-system statuses preserved.');
 }
