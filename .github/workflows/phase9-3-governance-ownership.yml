@@ -40,6 +40,8 @@ jobs:
           node scripts/phase9-3-governance-ownership-audit.mjs
       - name: Governance and ownership foundation destruction tests
         run: node --experimental-strip-types --test tests/phase9-3-governance-ownership-foundation.test.ts
+      - name: Corporate ownership persistence destruction tests
+        run: node --experimental-strip-types --test tests/phase9-3-corporate-ownership-persistence.test.ts
       - name: Full functional regression
         run: npm run test:functional
       - name: Database and roadmap integrity
