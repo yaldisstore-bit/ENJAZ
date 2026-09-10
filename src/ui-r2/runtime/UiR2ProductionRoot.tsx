@@ -40,18 +40,77 @@ import '../workflow/workflow.css';
 import '../search-intelligence/search-intelligence.css';
 import './accessibility-hardening.css';
 
-export type UiR2ProductionResources=Readonly<{authGateway:AuthGateway;dataFactory:EnjazDataLayerFactory;financeCommands:FinanceCommandGateway;workflowCommands:GovernmentProcedureRuntimeGateway;automationCommands:AutomationCommandGateway;fieldOperationsCommands:FieldOperationsCommandGateway;searchIntelligence:SearchIntelligenceGateway}>;
-function createProductionResources():UiR2ProductionResources{const config=createRuntimeConfig(import.meta.env as unknown as Readonly<Record<string,unknown>>),client=createEnjazSupabaseClient(config);return Object.freeze({authGateway:createSupabaseAuthGateway(client),dataFactory:createEnjazDataLayerFactory(client),financeCommands:createSupabaseFinanceCommandGateway(client),workflowCommands:createGovernmentProcedureRuntimeGateway(client),automationCommands:createAutomationCommandGateway(client),fieldOperationsCommands:createFieldOperationsCommandGateway(client),searchIntelligence:createSearchIntelligenceGateway(client)})}
-function RuntimeFailure({message}:{message:string}){return <main className="r2-auth" data-r2-runtime-error="true"><section className="r2-auth__panel"><header><p className="r2-eyebrow">تشغيل إنجاز</p><h1>تعذر تشغيل مساحة العمل</h1><p>{message}</p></header></section></main>}
-function leaveRecoveryMode(){const url=new URL(window.location.href);url.searchParams.delete('auth');window.location.replace(url.toString())}
+export type UiR2ProductionResources = Readonly<{
+  authGateway: AuthGateway;
+  dataFactory: EnjazDataLayerFactory;
+  financeCommands: FinanceCommandGateway;
+  workflowCommands: GovernmentProcedureRuntimeGateway;
+  automationCommands: AutomationCommandGateway;
+  fieldOperationsCommands: FieldOperationsCommandGateway;
+  searchIntelligence: SearchIntelligenceGateway;
+}>;
 
-function AuthenticatedR2Runtime({dataFactory,financeCommands,workflowCommands,automationCommands,fieldOperationsCommands,searchIntelligence}:Omit<UiR2ProductionResources,'authGateway'>){
- const auth=useAuth(),workspace=useMemo(()=>auth.user?dataFactory.resolveWorkspaceId(auth.user.id):Promise.resolve(null),[auth.user?.id,dataFactory]);
- if(auth.status==='checking')return <SessionChecking/>;
- if(auth.status==='anonymous'||!auth.user)return <R2AuthScreen service={auth.service}/>;
- if(new URLSearchParams(window.location.search).get('auth')==='update-password')return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode}/>;
- const signOut=async()=>{await auth.service.signOut()};
- return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}><UiR2LiveRoot accountLabel={auth.user.email??'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id}/><LiveCompaniesProductionPortal/><LivePeopleProductionPortal/><LiveFinanceProductionPortal/></CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></FinanceCommandProvider></DataLayerProvider>
+function createProductionResources(): UiR2ProductionResources {
+  const config = createRuntimeConfig(import.meta.env as unknown as Readonly<Record<string, unknown>>);
+  const client = createEnjazSupabaseClient(config);
+  return Object.freeze({
+    authGateway: createSupabaseAuthGateway(client),
+    dataFactory: createEnjazDataLayerFactory(client),
+    financeCommands: createSupabaseFinanceCommandGateway(client),
+    workflowCommands: createGovernmentProcedureRuntimeGateway(client),
+    automationCommands: createAutomationCommandGateway(client),
+    fieldOperationsCommands: createFieldOperationsCommandGateway(client),
+    searchIntelligence: createSearchIntelligenceGateway(client),
+  });
 }
 
-export function UiR2ProductionRoot({resources}:{resources?:UiR2ProductionResources}={}){const [runtime]=useState(()=>{if(resources)return{resources,error:null};try{return{resources:createProductionResources(),error:null}}catch{return{resources:null,error:'إعدادات الاتصال بإنجاز غير مكتملة. لم يتم تشغيل قناة بيانات بديلة أو وضع وهمي.'}}});if(!runtime.resources)return <RuntimeFailure message={runtime.error??'إعدادات التشغيل غير صالحة.'}/>;return <AuthProvider gateway={runtime.resources.authGateway}><AuthenticatedR2Runtime dataFactory={runtime.resources.dataFactory} financeCommands={runtime.resources.financeCommands} workflowCommands={runtime.resources.workflowCommands} automationCommands={runtime.resources.automationCommands} fieldOperationsCommands={runtime.resources.fieldOperationsCommands} searchIntelligence={runtime.resources.searchIntelligence}/></AuthProvider>}
+function RuntimeFailure({ message }: Readonly<{ message: string }>) {
+  return <main className="r2-auth" data-r2-runtime-error="true"><section className="r2-auth__panel"><header><p className="r2-eyebrow">تشغيل إنجاز</p><h1>تعذر تشغيل مساحة العمل</h1><p>{message}</p></header></section></main>;
+}
+
+function leaveRecoveryMode() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('auth');
+  window.location.replace(url.toString());
+}
+
+function AuthenticatedR2Runtime({ dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence }: Readonly<{
+  dataFactory: EnjazDataLayerFactory;
+  financeCommands: FinanceCommandGateway;
+  workflowCommands: GovernmentProcedureRuntimeGateway;
+  automationCommands: AutomationCommandGateway;
+  fieldOperationsCommands: FieldOperationsCommandGateway;
+  searchIntelligence: SearchIntelligenceGateway;
+}>) {
+  const auth = useAuth();
+  const workspace = useMemo(() => auth.user ? dataFactory.resolveWorkspaceId(auth.user.id) : Promise.resolve(null), [auth.user?.id, dataFactory]);
+  if (auth.status === 'checking') return <SessionChecking />;
+  if (auth.status === 'anonymous' || !auth.user) return <R2AuthScreen service={auth.service} />;
+  const recoveryMode = new URLSearchParams(window.location.search).get('auth') === 'update-password';
+  if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode} />;
+  const signOut = async () => { await auth.service.signOut(); };
+
+  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}>
+    <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
+    <LiveCompaniesProductionPortal />
+    <LivePeopleProductionPortal />
+    <LiveFinanceProductionPortal />
+  </CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></FinanceCommandProvider></DataLayerProvider>;
+}
+
+export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2ProductionResources | undefined }> = {}) {
+  const [runtime] = useState<Readonly<{ resources: UiR2ProductionResources | null; error: string | null }>>(() => {
+    if (resources) return Object.freeze({ resources, error: null });
+    try { return Object.freeze({ resources: createProductionResources(), error: null }); }
+    catch { return Object.freeze({ resources: null, error: 'إعدادات الاتصال بإنجاز غير مكتملة. لم يتم تشغيل قناة بيانات بديلة أو وضع وهمي.' }); }
+  });
+  if (!runtime.resources) return <RuntimeFailure message={runtime.error ?? 'إعدادات التشغيل غير صالحة.'} />;
+  return <AuthProvider gateway={runtime.resources.authGateway}><AuthenticatedR2Runtime
+    dataFactory={runtime.resources.dataFactory}
+    financeCommands={runtime.resources.financeCommands}
+    workflowCommands={runtime.resources.workflowCommands}
+    automationCommands={runtime.resources.automationCommands}
+    fieldOperationsCommands={runtime.resources.fieldOperationsCommands}
+    searchIntelligence={runtime.resources.searchIntelligence}
+  /></AuthProvider>;
+}
