@@ -126,11 +126,15 @@ must(navigation, "{ id: 'risk', label: 'المخاطر', path: ROUTES.appRisk, d
 
 let changed = [];
 try {
-  changed = execFileSync('git', ['diff', '--name-only', state.baseCommit, 'HEAD'], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+  const certifiedHead = state.status === 'CLOSED'
+    ? state.implementationEvidence?.canonicalRuntimeMerge
+    : 'HEAD';
+  if (!certifiedHead) fail('certified Phase 9.1 implementation head missing');
+  changed = execFileSync('git', ['diff', '--name-only', state.baseCommit, certifiedHead], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
 } catch (error) {
-  fail(`cannot inspect phase diff: ${error.message}`);
+  fail(`cannot inspect certified Phase 9.1 diff: ${error.message}`);
 }
 const databaseChanges = changed.filter((path) => path.startsWith('database/'));
-if (databaseChanges.length) fail(`read-only risk phase may not change database authority: ${databaseChanges.join(', ')}`);
+if (databaseChanges.length) fail(`Phase 9.1 certified read-only implementation may not change database authority: ${databaseChanges.join(', ')}`);
 
 console.log(`ENJAZ PHASE 9.1 SMART RISK AUDIT PASS — status=${state.status}; read-only explainable authority preserved; hard JS budget preserved; successor=${state.successorStatus === 'AUTHORIZED' ? '9.2 AUTHORIZED' : '9.2 LOCKED'}.`);
