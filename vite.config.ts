@@ -12,6 +12,7 @@ export default defineConfig({
     cssCodeSplit: true,
     reportCompressedSize: true,
     rolldownOptions: {
+      optimization: { inlineConst: true },
       output: {
         minify: {
           compress: { target: 'esnext' },
