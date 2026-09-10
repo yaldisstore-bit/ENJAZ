@@ -8,6 +8,16 @@
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
+## دستور الجودة الأعلى
+
+الميثاق الحاكم الأعلى للمشروع هو [`ENJAZ_NON_NEGOTIABLE_RULES.md`](ENJAZ_NON_NEGOTIABLE_RULES.md). معيار إنجاز ليس نجاح جانب واحد من المشروع؛ كل مرحلة يجب أن تمر بأربعة مسارات إلزامية معًا:
+
+**Product → UI/UX → Engineering → Certification**
+
+لا تُغلق أي مرحلة ولا يُفتح successor إلا عندما تصبح المسارات الأربعة `PASS`. واجهة جميلة لا تعوّض كودًا ضعيفًا، والكود القوي لا يعوّض تجربة مستخدم رخيصة، ونجاح قاعدة البيانات لا يعوّض نقص المنتج أو غياب الاختبار الحقيقي.
+
+الواجهة يجب أن تبقى premium وموحدة وArabic/RTL/mobile-first، والمواصفات يجب أن تكون كاملة ومترابطة end-to-end، والكود يجب أن يبقى typed/modular/maintainable مع مصدر حقيقة واحد وصلاحيات حقيقية، والإغلاق يحتاج Real Cloud + Real Browser + deployed-live evidence. كما أن سقف الأداء/JavaScript هو حارس جودة وليس مبررًا لحذف ميزة معتمدة أو إضعاف UX؛ استعادة الهامش تبدأ من architecture/code-splitting/deduplication/refactor قبل أي تنازل في المنتج.
+
 ## التطبيق الحقيقي
 
 - Live runtime: `https://yaldisstore-bit.github.io/ENJAZ/live/`
@@ -79,6 +89,7 @@ M1/M5/M6 remain `CLOSURE_CANDIDATE`; M15/M17 remain `ACTIVE`; M2 is `IN_PROGRESS
 
 ## مصادر الخطة والحوكمة
 
+- [`ENJAZ_NON_NEGOTIABLE_RULES.md`](ENJAZ_NON_NEGOTIABLE_RULES.md) — دستور الجودة الأعلى: Product + UI/UX + Engineering + Certification.
 - [`docs/ENJAZ_MASTER_ROADMAP.md`](docs/ENJAZ_MASTER_ROADMAP.md) — الخطة الحاكمة حتى `ENJAZ 1.0 — Delivered`.
 - [`docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`](docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json) — سجل M1–M18 machine-readable.
 - [`docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md`](docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md) — Zero-Escape rule للأنظمة الكبيرة.
@@ -95,8 +106,9 @@ M1/M5/M6 remain `CLOSURE_CANDIDATE`; M15/M17 remain `ACTIVE`; M2 is `IN_PROGRESS
 ## قوانين الانتقال
 
 - لا يبدأ successor قبل إغلاق predecessor وإعادة تصديقه على `main` والنشر.
+- لا تُغلق أي مرحلة ما لم تكن Product / UI/UX / Engineering / Certification كلها `PASS` وفق دستور الجودة الأعلى.
 - كل bug حقيقي يحصل على regression guard دائم.
 - Gate Escape يعيد فتح مسار التصديق المتأثر بدل تجاهله.
 - Supabase/Postgres/RLS يبقى مصدر الحقيقة للسلطة الدائمة.
 - لا يُسمح لأي طبقة intelligence أو governance باختلاق business facts من بيانات ناقصة.
-- سقف JavaScript الإنتاجي يبقى **670000 bytes** ما لم يُغيّر بعقد حوكمة صريح مستقل؛ Phase 9.3 لم ترفعه.
+- سقف JavaScript الإنتاجي يبقى **670000 bytes** ما لم يُغيّر بعقد حوكمة صريح مستقل؛ Phase 9.3 لم ترفعه، ولا يجوز حذف capability معتمدة فقط لتمرير السقف.
