@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import test from 'node:test';
 import { DataAccessError } from '../src/data/contracts/DataAccessError.ts';
 import { createEnjazSavedViewDefinition } from '../src/features/searchIntelligence/searchSavedViewContract.ts';
@@ -55,4 +56,11 @@ test('short global-search query never reaches cloud',async()=>{
 test('malformed result contracts fail closed rather than leaking partial search data',async()=>{
   const gateway=createSearchIntelligenceGateway(clientWith(()=>[{schema:'enjaz.global-search-result.v1',domain:'companies',entityId:V,title:'شركة',subtitle:null,destination:'https://evil.example/'}]));
   await assert.rejects(()=>gateway.globalSearch(W,'شركة'),(error:unknown)=>error instanceof DataAccessError);
+});
+
+test('saved-view dock keeps browser-critical controls while compacting non-contract copy',()=>{
+  const source=fs.readFileSync(new URL('../src/ui-r2/search-intelligence/TransactionSavedViewsDock.tsx',import.meta.url),'utf8');
+  for(const marker of ['data-phase9-2-saved-views="transactions"','aria-label="اسم المنظر"','aria-label="إعادة تسمية"','>حفظ</button>','لا توجد مناظر.']) assert.ok(source.includes(marker));
+  assert.ok(source.includes('aria-label="المناظر"'));
+  assert.ok(source.includes('>تحميل…</p>'));
 });
