@@ -36,7 +36,7 @@ function localSearchText(value: string): string { return value.normalize('NFKC')
 function localDestinations(raw: string) {
   const query = localSearchText(raw);
   if (!query) return LOCAL_SHORTCUTS.map(getR2Destination);
-  const aliases = new Set(SEARCH_ALIASES.filter(([alias]) => localSearchText(alias).includes(query)).map(([, id]) => id));
+  const aliases = new Set<R2DestinationId>(SEARCH_ALIASES.filter(([alias]) => localSearchText(alias).includes(query)).map(([, id]) => id));
   return R2_DESTINATIONS.filter((item) => item.kind !== 'system_boundary' && (localSearchText(item.label).includes(query) || localSearchText(item.id).includes(query) || aliases.has(item.id))).slice(0, 12);
 }
 
