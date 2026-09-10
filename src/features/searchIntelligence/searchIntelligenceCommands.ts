@@ -45,7 +45,7 @@ export function createSearchIntelligenceGateway(client:EnjazSupabaseClient,timeo
   return Object.freeze({
     async listSavedViews(workspaceId:string){const data=await rpc(c,'list_saved_views_v1',{p_workspace_id:workspaceId},false,timeout);if(!Array.isArray(data))throw fail('Invalid saved-view list');return Object.freeze(data.map(parseView))},
     async saveSavedView(input:SaveSavedViewInput){
-      const draft=createSavedViewDraft({name:input.name,visibility:input.visibility,definition:input.definition}),teamId=input.teamId??null;
+      const draft=createSavedViewDraft({name:input.name,visibility:input.visibility??'personal',definition:input.definition}),teamId=input.teamId??null;
       if((draft.visibility==='team')!==(teamId!==null)||(input.savedViewId===null)!==(input.expectedVersion===null))throw fail('Invalid saved-view boundary','DATA_VALIDATION_FAILED');
       return parseWrite(await rpc(c,'save_saved_view_v1',{p_workspace_id:input.workspaceId,p_saved_view_id:input.savedViewId,p_expected_version:input.expectedVersion,p_operation_id:input.operationId,p_name:draft.name,p_visibility:draft.visibility,p_team_id:teamId,p_definition:draft.definition},true,timeout));
     },
