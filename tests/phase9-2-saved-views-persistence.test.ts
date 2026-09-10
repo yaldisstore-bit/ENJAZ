@@ -65,13 +65,14 @@ test('saved-view writes are RPC-bound, optimistic, replay-safe and soft-delete o
   assert.match(del, /deleted_at=now\(\)/i);
   assert.match(del, /p_expected_version<>v_row\.version/i);
   assert.doesNotMatch(del, /delete\s+from\s+public\.saved_views/i);
-  assert.match(sql, /public\.save_saved_view_v1[\s\S]*security invoker set search_path=''/i);
-  assert.match(sql, /public\.delete_saved_view_v1[\s\S]*security invoker set search_path=''/i);
-  assert.match(sql, /public\.list_saved_views_v1[\s\S]*security invoker set search_path=''/i);
+  for (const fn of ['save_saved_view_v1','delete_saved_view_v1','list_saved_views_v1']) {
+    const body = extractFunction('public', fn);
+    assert.match(body, /security invoker set search_path=''/i);
+    assert.doesNotMatch(body, /security definer/i);
+  }
 });
 
 test('no exposed public SECURITY DEFINER or unrestricted function execution authority exists', () => {
-  assert.doesNotMatch(sql, /create\s+or\s+replace\s+function\s+public\.[\s\S]*?security\s+definer/i);
   for (const fn of ['can_read_saved_view_v1','save_saved_view_v1_impl','delete_saved_view_v1_impl']) {
     const body = extractFunction('private', fn);
     assert.match(body, /security definer set search_path=''/i);
