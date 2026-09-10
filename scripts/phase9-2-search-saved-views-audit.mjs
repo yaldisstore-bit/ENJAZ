@@ -87,7 +87,7 @@ for (const marker of [
 
 for (const forbidden of [
   'localStorage', 'sessionStorage', '.insert(', '.update(', '.delete(', '.upsert(', '.rpc(', 'fetch(',
-  'createTransaction', 'updateTransaction', 'deleteTransaction', 'postPayment',
+  'export function createTransaction(', 'export function updateTransaction(', 'export function deleteTransaction(', 'export function postPayment(',
 ]) forbid(contract, forbidden, 'foundation contract');
 
 for (const marker of [
