@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -146,4 +147,10 @@ test('foundation exposes no mutation authority over source business entities', a
   for (const forbidden of ['createTransaction', 'updateTransaction', 'deleteTransaction', 'updateCompany', 'writeDocument', 'postPayment']) {
     assert.equal(forbidden in source, false, forbidden);
   }
+});
+
+test('saved-view dock keeps validity predicate equivalent while preserving Pages budget margin', () => {
+  const source = fs.readFileSync(new URL('../src/ui-r2/search-intelligence/TransactionSavedViewsDock.tsx', import.meta.url), 'utf8');
+  assert.match(source, /ok=!!requestFrom\(item\.definition\)/);
+  assert.doesNotMatch(source, /ok=requestFrom\(item\.definition\)!==null/);
 });
