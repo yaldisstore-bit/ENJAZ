@@ -7,6 +7,7 @@ const must = (text, marker, label) => { if (!text.includes(marker)) fail(`${labe
 
 const legacyGuard = read('database/migrations/phase_9_2_00_saved_views_legacy_guard.sql');
 const sql = read('database/migrations/phase_9_2_saved_views_search_intelligence.sql');
+const fkHardening = read('database/migrations/phase_9_2_saved_views_fk_index_hardening.sql');
 const tests = read('tests/phase9-2-saved-views-persistence.test.ts');
 const state = JSON.parse(read('docs/PHASE9_2_STATE.json'));
 
@@ -60,6 +61,9 @@ for (const marker of [
   "'saved_view.deleted'",
 ]) must(sql, marker, 'migration');
 
+for (const marker of ['create index saved_views_owner_user_fk_idx','on public.saved_views(owner_user_id)']) must(fkHardening, marker, 'FK hardening');
+if (/drop\s+index/i.test(fkHardening)) fail('FK hardening must not remove an existing index');
+
 if (!/jsonb_typeof\(p_definition->'schema'\)<>\s*'string'[\s\S]*p_definition->>'schema'<>\s*'enjaz\.saved-view\.v1'/i.test(sql)) fail('JSON null/invalid schema is not rejected explicitly');
 if (!/jsonb_typeof\(p_definition->'domain'\)<>\s*'string'[\s\S]*p_definition->>'domain'\s+not\s+in\s*\('transactions','companies','people','procedures','documents'\)/i.test(sql)) fail('JSON null/invalid domain is not rejected explicitly');
 
@@ -105,4 +109,4 @@ for (const marker of [
 if (state.status !== 'IN_PROGRESS' || state.phase9_3Allowed !== false || state.successorStatus !== 'LOCKED') fail('Phase 9.3 successor lock weakened');
 if (state.authority?.savedViewsPersistence !== 'DATABASE_RLS_REQUIRED' || state.authority?.sourceBusinessEntityWriteAuthority !== 'none') fail('state authority drift');
 
-console.log('ENJAZ PHASE 9.2 SAVED VIEWS PERSISTENCE AUDIT PASS — legacy rows fail closed; RLS SELECT-only surface; guarded RPC writes; M15 sharing authority reused; no source-business writes; JSON null/schema/domain attacks fail closed; Phase 9.3 LOCKED.');
+console.log('ENJAZ PHASE 9.2 SAVED VIEWS PERSISTENCE AUDIT PASS — legacy rows fail closed; RLS SELECT-only surface; guarded RPC writes; owner FK covered; M15 sharing authority reused; no source-business writes; JSON null/schema/domain attacks fail closed; Phase 9.3 LOCKED.');
