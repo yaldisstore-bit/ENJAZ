@@ -86,8 +86,12 @@ test('as-of ownership snapshots preserve transfer history instead of overwriting
   ];
   const before = buildOwnershipSnapshot(history, 'company-1', '2026-06-30');
   const after = buildOwnershipSnapshot(history, 'company-1', '2026-07-01');
-  assert.equal(before.stakes[0].holder.id, 'old-owner');
-  assert.equal(after.stakes[0].holder.id, 'new-owner');
+  const beforeStake = before.stakes[0];
+  const afterStake = after.stakes[0];
+  assert.ok(beforeStake);
+  assert.ok(afterStake);
+  assert.equal(beforeStake.holder.id, 'old-owner');
+  assert.equal(afterStake.holder.id, 'new-owner');
 });
 
 test('invalid dates and reversed effective periods are rejected', () => {
