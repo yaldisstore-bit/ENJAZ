@@ -9,6 +9,19 @@ Base: `1d98a57566a5bc55ceda773f02de17dacddaecb0` — formal Phase 9.2 closure me
 
 Phase 9.2 is formally `CLOSED`, its exit gate passed, and `phase9_3Allowed=true`. Its exact merged SHA completed canonical gates with zero failure/queued/in-progress runs, including Real Chromium and the published `/live/` external attack. Phase 9.3 is therefore the sole authorized implementation stage. **Phase 9.4 remains LOCKED** until Phase 9.3 completes its own Zero-Escape evidence and formal closure.
 
+## Project quality constitution
+
+Phase 9.3 is explicitly governed by the repository-level [`ENJAZ_NON_NEGOTIABLE_RULES.md`](../ENJAZ_NON_NEGOTIABLE_RULES.md). The phase is not complete because persistence works, because the UI looks good, or because CI is green in isolation. Closure requires the four mandatory quality tracks to pass together:
+
+**Product / UI/UX / Engineering / Certification**
+
+- Product must deliver the complete M2 business outcome end-to-end with no decorative or shadow implementation.
+- UI/UX must meet the premium ENJAZ bar across real current/history/governance states, RTL/mobile, keyboard/back, error/loading/empty/conflict and dense data.
+- Engineering must remain typed, modular, source-of-truth safe, RLS-backed, history-safe, idempotent/concurrency-aware and maintainable; no legacy DNA or patchwork architecture may be introduced.
+- Certification must prove the implementation through deterministic/destructive regression, Real Cloud, Real Chromium, exact-head CI, deployed-live verification and post-merge recertification.
+
+Phase 9.3 cannot transition to `CLOSED` and cannot authorize Phase 9.4 unless all four tracks are recorded as `PASS` in its phase state. Performance/bundle pressure may trigger refactor, code splitting, lazy loading, dependency control and deduplication, but it may not silently remove approved M2 capability or degrade the premium UX merely to satisfy a byte ceiling.
+
 ## Product contract
 
 Phase 9.3 builds **M2 — Corporate Governance & Ownership Engine** as a full corporate register above the existing authoritative company core. It must answer current and historical governance questions from effective-dated authoritative facts, not from overwritten display fields or a second company store.
