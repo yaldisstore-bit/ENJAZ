@@ -14,11 +14,7 @@ export default defineConfig({
     rolldownOptions: {
       optimization: { inlineConst: true },
       output: {
-        minify: {
-          compress: { target: 'esnext' },
-          mangle: { toplevel: true },
-          codegen: { removeWhitespace: true },
-        },
+        minify: true,
         codeSplitting: {
           groups: [
             { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|react-router|scheduler)([\\/]|$)/, priority: 30 },
