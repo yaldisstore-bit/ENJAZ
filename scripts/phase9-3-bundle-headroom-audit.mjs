@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+const read=(p)=>fs.readFileSync(p,'utf8'), state=JSON.parse(read('docs/PHASE9_3_STATE.json')), fail=(m)=>{throw new Error(`Phase 9.3 bundle headroom audit: ${m}`)};
+const gate=state.budgetHeadroomGate??{}, runtime=state.runtime??{}, decision=read('docs/PHASE9_3_BUNDLE_ARCHITECTURE_DECISION.md'), budget=read('scripts/dist-budget-audit.mjs'), lazy=read('src/ui-r2/runtime/LazyLiveProductionPortals.tsx'), root=read('src/ui-r2/runtime/UiR2ProductionRoot.tsx'), vite=read('vite.config.ts');
+if(state.javascriptBudgetBytes!==670000||state.budgetIncreaseAllowed!==false)fail('historical startup hard ceiling changed');
+if(gate.status!=='PASS'||gate.runtimeExpansionAllowed!==true||gate.featureCutRequired!==false)fail('runtime expansion is not backed by a passing no-feature-cut gate');
+if(gate.gateRunId!==34534013799||gate.gateHead!=='88c9681a780ad643be68d042397c6e5821b25745')fail('exact-head evidence drifted');
+if(gate.rootInitialJavaScriptBytes!==555241||gate.pagesInitialJavaScriptBytes!==555263)fail('initial graph evidence drifted');
+if(gate.rootTotalJavaScriptBytes!==673213||gate.pagesTotalJavaScriptBytes!==673235)fail('whole-dist evidence drifted');
+if(gate.pagesStartupHeadroomBytes!==114737||670000-gate.pagesInitialJavaScriptBytes!==gate.pagesStartupHeadroomBytes)fail('startup headroom arithmetic drifted');
+if(gate.totalJavaScriptGuardBytes!==760000||gate.lazyChunkGuardBytes!==140000||gate.largestLazyChunkBytes!==69464)fail('secondary lazy/total guards drifted');
+if(runtime.status!=='AUTHORIZED_FOR_M2_IMPLEMENTATION'&&runtime.status!=='IN_PROGRESS'&&runtime.status!=='CERTIFIED')fail('runtime status is incompatible with passed headroom gate');
+for(const marker of ['initial application JS graph: **<= 670000 bytes**','all shipped JS: **<= 760000 bytes**','any one lazy JS chunk: **<= 140000 bytes**','no approved feature may be removed'])if(!decision.includes(marker))fail(`architecture decision missing ${marker}`);
+for(const marker of ['const INITIAL_JS_BUDGET = 670_000','TOTAL_JS_GUARD = 760_000','LAZY_CHUNK_GUARD = 140_000','manifest.json'])if(!budget.includes(marker))fail(`budget guard missing ${marker}`);
+for(const marker of ["lazy(() => import('../records/LiveCompaniesProductionPortal.tsx')","lazy(() => import('../records/LivePeopleProductionPortal.tsx')","lazy(() => import('../finance/LiveFinanceProductionPortal.tsx')",'MutationObserver'])if(!lazy.includes(marker))fail(`lazy portal contract missing ${marker}`);
+if(root.includes("import { LiveCompaniesProductionPortal }")||root.includes("import { LivePeopleProductionPortal }")||root.includes("import { LiveFinanceProductionPortal }"))fail('domain portals returned to the startup graph');
+if(!root.includes('<LazyLiveProductionPortals />'))fail('lazy portal composition is missing');
+if(!vite.includes('manifest: true'))fail('Vite manifest proof is disabled');
+console.log(`Phase 9.3 bundle headroom PASS — Pages initial ${gate.pagesInitialJavaScriptBytes}/670000; recovered ${gate.pagesStartupHeadroomBytes} bytes; total ${gate.pagesTotalJavaScriptBytes}/${gate.totalJavaScriptGuardBytes}; largest lazy ${gate.largestLazyChunkBytes}/${gate.lazyChunkGuardBytes}.`);

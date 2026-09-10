@@ -38,6 +38,7 @@ jobs:
         run: |
           node scripts/phase9-2-search-saved-views-audit.mjs
           node scripts/phase9-3-governance-ownership-audit.mjs
+          node scripts/phase9-3-bundle-headroom-audit.mjs
       - name: Governance and ownership foundation destruction tests
         run: node --experimental-strip-types --test tests/phase9-3-governance-ownership-foundation.test.ts
       - name: Corporate ownership persistence destruction tests
@@ -50,15 +51,15 @@ jobs:
         run: node scripts/major-systems-zero-escape-audit.mjs
       - name: Secrets and TypeScript
         run: npm run audit:secrets && npm run typecheck
-      - name: Production build and unchanged hard budget
+      - name: Production build and governed startup/lazy budgets
         run: npm run build -- --base=/ && npm run audit:dist:budget
-      - name: Real Pages /live build and unchanged hard budget
+      - name: Real Pages /live build and governed startup/lazy budgets
         run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
-      - name: Assert authority, budget headroom lock and lifecycle-correct successor
+      - name: Assert authority, passed headroom gate and lifecycle-correct successor
         run: >-
           node -e "const j=JSON.parse(require('fs').readFileSync('docs/PHASE9_3_STATE.json','utf8'));
-          const a=j.authority||{};
+          const a=j.authority||{},b=j.budgetHeadroomGate||{},r=j.runtime||{};
           const authority=a.persistence==='DATABASE_RLS_REQUIRED'&&a.governanceWriteAuthority==='AUTHORIZED_GOVERNANCE_COMMANDS_ONLY'&&a.companyCoreAuthority==='REFERENCE_EXISTING_COMPANY_CORE_ONLY'&&a.partyReferenceAuthority==='EXISTING_COMPANY_OR_PERSON_RECORDS_ONLY'&&a.directBrowserSensitiveDmlAllowed===false&&a.shadowCompanyStoreAllowed===false&&a.shadowPartyStoreAllowed===false&&a.destructiveHistoryOverwriteAllowed===false&&a.crossWorkspaceAccessAllowed===false;
-          const budget=j.javascriptBudgetBytes===670000&&j.budgetIncreaseAllowed===false&&j.baselinePagesLiveJavaScriptBytes===669998&&j.budgetHeadroomGate?.baselinePagesHeadroomBytes===2&&(j.budgetHeadroomGate?.runtimeExpansionAllowed===true?j.budgetHeadroomGate?.status==='PASS':j.runtime?.status==='LOCKED_BY_BUDGET_HEADROOM_GATE');
+          const budget=j.javascriptBudgetBytes===670000&&j.budgetIncreaseAllowed===false&&j.baselinePagesLiveJavaScriptBytes===669998&&b.baselinePagesHeadroomBytes===2&&b.status==='PASS'&&b.runtimeExpansionAllowed===true&&b.pagesInitialJavaScriptBytes===555263&&b.pagesStartupHeadroomBytes===114737&&b.totalJavaScriptGuardBytes===760000&&b.lazyChunkGuardBytes===140000&&['AUTHORIZED_FOR_M2_IMPLEMENTATION','IN_PROGRESS','CERTIFIED'].includes(r.status);
           const lifecycle=j.status==='IN_PROGRESS'?(j.phase9_4Allowed===false&&j.exitGatePassed===false&&j.successorStatus==='LOCKED'):(j.status==='CLOSED'&&j.phase9_4Allowed===true&&j.exitGatePassed===true&&j.nextPhase==='9.4'&&j.successorStatus==='AUTHORIZED');
           if(!authority||!budget||!lifecycle)process.exit(1)"

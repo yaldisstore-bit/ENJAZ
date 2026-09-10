@@ -16,7 +16,7 @@
     "closureRequiresAllFourPass": true,
     "tracks": {
       "product": "IN_PROGRESS",
-      "uiUx": "LOCKED",
+      "uiUx": "IN_PROGRESS",
       "engineering": "IN_PROGRESS",
       "certification": "IN_PROGRESS"
     },
@@ -68,9 +68,21 @@
   "baselinePagesLiveJavaScriptBytes": 669998,
   "budgetIncreaseAllowed": false,
   "budgetHeadroomGate": {
-    "status": "REQUIRED_BEFORE_RUNTIME_EXPANSION",
+    "status": "PASS",
+    "architectureDecision": "docs/PHASE9_3_BUNDLE_ARCHITECTURE_DECISION.md",
     "baselinePagesHeadroomBytes": 2,
-    "runtimeExpansionAllowed": false
+    "gateRunId": 34534013799,
+    "gateHead": "88c9681a780ad643be68d042397c6e5821b25745",
+    "rootInitialJavaScriptBytes": 555241,
+    "pagesInitialJavaScriptBytes": 555263,
+    "rootTotalJavaScriptBytes": 673213,
+    "pagesTotalJavaScriptBytes": 673235,
+    "totalJavaScriptGuardBytes": 760000,
+    "largestLazyChunkBytes": 69464,
+    "lazyChunkGuardBytes": 140000,
+    "pagesStartupHeadroomBytes": 114737,
+    "runtimeExpansionAllowed": true,
+    "featureCutRequired": false
   },
   "foundation": {
     "status": "LOCAL_GATE_PASS",
@@ -111,6 +123,15 @@
     "phaseOwnedUnindexedForeignKeys": 0,
     "evidence": "docs/PHASE9_3_REAL_CLOUD_EVIDENCE.md"
   },
+  "fullM2Persistence": {
+    "status": "IN_PROGRESS",
+    "beneficialOwners": "PENDING",
+    "authorityGrants": "PENDING",
+    "resolutions": "PENDING",
+    "capitalHistory": "PENDING",
+    "unifiedContextRpc": "PENDING",
+    "governanceRiskAlerts": "PENDING"
+  },
   "realCloud": {
     "projectRef": "juzxriirhkuzviwnhkbd",
     "postgresVersion": "17.6",
@@ -120,7 +141,8 @@
     "zeroResidue": true
   },
   "runtime": {
-    "status": "LOCKED_BY_BUDGET_HEADROOM_GATE",
+    "status": "AUTHORIZED_FOR_M2_IMPLEMENTATION",
+    "bundleArchitecture": "LAZY_DOMAIN_PORTALS",
     "realBrowserVerification": "PENDING",
     "publishedLiveVerification": "PENDING"
   },
