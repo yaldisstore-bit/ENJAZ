@@ -72,8 +72,38 @@
     "pagesLiveBudget": "PASS"
   },
   "persistence": {
-    "status": "PENDING",
-    "realCloudVerification": "PENDING"
+    "status": "REAL_CLOUD_CERTIFIED",
+    "migration": "database/migrations/phase_9_3_corporate_ownership_persistence.sql",
+    "destructionTests": "tests/phase9-3-corporate-ownership-persistence.test.ts",
+    "authenticatedProbe": "database/migrations/phase_9_3_live_authenticated_ownership_probe.sql",
+    "fkIndexHardening": "database/migrations/phase_9_3_corporate_ownership_fk_index_hardening.sql",
+    "tables": [
+      "corporate_ownership_states",
+      "corporate_ownership_stakes",
+      "corporate_governance_events"
+    ],
+    "writeRpc": "replace_company_ownership_snapshot_v1",
+    "readRpc": "get_company_ownership_snapshot_v1",
+    "directBrowserDml": "SELECT_ONLY_RLS",
+    "ownerWriteAuthority": "require_organization_owner_v1",
+    "workspaceReadAuthority": "require_organization_actor_v1",
+    "operationIdempotency": true,
+    "optimisticVersioning": true,
+    "effectiveDatedHistory": true,
+    "halfOpenIntervals": true,
+    "perCompanyTransactionSerialization": true,
+    "realCloudVerification": "PASS_ZERO_RESIDUE",
+    "phaseOwnedSecurityAdvisorWarnings": 0,
+    "phaseOwnedUnindexedForeignKeys": 0,
+    "evidence": "docs/PHASE9_3_REAL_CLOUD_EVIDENCE.md"
+  },
+  "realCloud": {
+    "projectRef": "juzxriirhkuzviwnhkbd",
+    "postgresVersion": "17.6",
+    "persistenceVersion": "20260910182755",
+    "authenticatedProbeVersion": "20260910183131",
+    "fkIndexHardeningVersion": "20260910183216",
+    "zeroResidue": true
   },
   "runtime": {
     "status": "LOCKED_BY_BUDGET_HEADROOM_GATE",
