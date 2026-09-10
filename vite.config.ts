@@ -33,7 +33,6 @@ export default defineConfig({
     cssCodeSplit: true,
     reportCompressedSize: true,
     rolldownOptions: {
-      preserveEntrySignatures: false,
       optimization: { inlineConst: true },
       output: {
         minify: true,
