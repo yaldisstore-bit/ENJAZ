@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 2,
+  "phase": "9.3",
+  "name": "Corporate Governance & Ownership Engine — M2",
+  "status": "IN_PROGRESS",
+  "baseCommit": "1d98a57566a5bc55ceda773f02de17dacddaecb0",
+  "implementationBranch": "phase9-3-corporate-governance-ownership-engine",
+  "predecessor": {
+    "phase": "9.2",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase9_3Allowed=true"
+  },
+  "authority": {
+    "persistence": "DATABASE_RLS_REQUIRED",
+    "governanceWriteAuthority": "AUTHORIZED_GOVERNANCE_COMMANDS_ONLY",
+    "companyCoreAuthority": "REFERENCE_EXISTING_COMPANY_CORE_ONLY",
+    "partyReferenceAuthority": "EXISTING_COMPANY_OR_PERSON_RECORDS_ONLY",
+    "historicalTruth": "VERSIONED_EFFECTIVE_DATED_GOVERNANCE_FACTS",
+    "snapshotAuthority": "DERIVED_FROM_AUTHORITATIVE_HISTORY",
+    "directBrowserSensitiveDmlAllowed": false,
+    "shadowCompanyStoreAllowed": false,
+    "shadowPartyStoreAllowed": false,
+    "destructiveHistoryOverwriteAllowed": false,
+    "crossWorkspaceAccessAllowed": false
+  },
+  "scope": {
+    "shareholdersAndPartners": true,
+    "ownershipPercentages": true,
+    "capitalStructureAndHistory": true,
+    "beneficialOwnerRegister": true,
+    "directorsAndManagers": true,
+    "representationAuthority": true,
+    "powersAndAuthorizations": true,
+    "companyResolutions": true,
+    "capitalIncreaseDecreaseHistory": true,
+    "ownershipTransfers": true,
+    "directorAppointmentRemovalHistory": true,
+    "corporateEventTimeline": true,
+    "historicalControlQueries": true,
+    "governanceRiskAlerts": true
+  },
+  "invariants": {
+    "ownershipReconcilesTo100WhereApplicable": true,
+    "negativeOwnershipAllowed": false,
+    "ownershipAbove100Allowed": false,
+    "conflictingEffectivePeriodsAllowed": false,
+    "unauthorizedGovernanceChangesAllowed": false,
+    "historicalSnapshotsMayUseOverwrittenCurrentFields": false,
+    "missingAuthorityBehavior": "FAIL_CLOSED",
+    "crossWorkspaceReferenceBehavior": "REJECT"
+  },
+  "javascriptBudgetBytes": 670000,
+  "baselineProductionJavaScriptBytes": 669987,
+  "baselinePagesLiveJavaScriptBytes": 669998,
+  "budgetIncreaseAllowed": false,
+  "budgetHeadroomGate": {
+    "status": "REQUIRED_BEFORE_RUNTIME_EXPANSION",
+    "baselinePagesHeadroomBytes": 2,
+    "runtimeExpansionAllowed": false
+  },
+  "foundation": {
+    "status": "KICKOFF",
+    "contract": "src/features/governance/governanceOwnershipContract.ts",
+    "tests": "tests/phase9-3-governance-ownership-foundation.test.ts",
+    "staticAudit": "scripts/phase9-3-governance-ownership-audit.mjs"
+  },
+  "persistence": {
+    "status": "PENDING",
+    "realCloudVerification": "PENDING"
+  },
+  "runtime": {
+    "status": "LOCKED_BY_BUDGET_HEADROOM_GATE",
+    "realBrowserVerification": "PENDING",
+    "publishedLiveVerification": "PENDING"
+  },
+  "realCloudRequired": true,
+  "realBrowserRequired": true,
+  "publishedLiveVerificationRequired": true,
+  "exitGatePassed": false,
+  "phase9_4Allowed": false,
+  "nextPhase": "9.4",
+  "successorStatus": "LOCKED",
+  "unresolvedDefectCount": 0,
+  "criticalDefectCount": 0,
+  "highDefectCount": 0,
+  "functionalBlockerCount": 0,
+  "kickoffEvidence": "docs/PHASE9_3_KICKOFF.md"
+}
