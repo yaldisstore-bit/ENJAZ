@@ -20,6 +20,7 @@ export default defineConfig({
     cssCodeSplit: true,
     reportCompressedSize: true,
     rolldownOptions: {
+      optimization: { pifeForModuleWrappers: true },
       // Keep strict source-order protection, but let Rolldown wrap only modules
       // whose predicted chunk execution can actually violate that order.
       experimental: { onDemandWrapping: true },
