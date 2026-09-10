@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "phase": "9.2",
   "name": "Smart Saved Views & Cross-domain Search Intelligence",
   "status": "IN_PROGRESS",
@@ -20,13 +20,7 @@
     "crossWorkspaceSearchAllowed": false,
     "externalDeepLinksAllowed": false
   },
-  "domains": [
-    "transactions",
-    "companies",
-    "people",
-    "procedures",
-    "documents"
-  ],
+  "domains": ["transactions", "companies", "people", "procedures", "documents"],
   "savedViews": {
     "schema": "enjaz.saved-view.v1",
     "defaultVisibility": "personal",
@@ -44,6 +38,8 @@
     "unauthorizedEntityBehavior": "NO_RESULT_NO_METADATA_LEAK"
   },
   "javascriptBudgetBytes": 670000,
+  "productionJavaScriptBytes": 669585,
+  "pagesLiveJavaScriptBytes": 669596,
   "budgetIncreaseAllowed": false,
   "realCloudRequired": true,
   "realBrowserRequired": true,
@@ -57,8 +53,10 @@
     "gateHead": "b23050bde31a57d40bb2885e70445b2886779abb"
   },
   "persistence": {
-    "status": "IMPLEMENTED_STATIC_GATE_AND_REAL_CLOUD_PENDING",
+    "status": "REAL_CLOUD_CERTIFIED",
     "migration": "database/migrations/phase_9_2_saved_views_search_intelligence.sql",
+    "legacyGuard": "database/migrations/phase_9_2_00_saved_views_legacy_guard.sql",
+    "ownerFkHardening": "database/migrations/phase_9_2_saved_views_fk_index_hardening.sql",
     "table": "saved_views",
     "writeRpcs": ["save_saved_view_v1", "delete_saved_view_v1"],
     "readRpcs": ["list_saved_views_v1"],
@@ -76,9 +74,23 @@
     "softDelete": true,
     "staticAudit": "scripts/phase9-2-saved-views-persistence-audit.mjs",
     "destructionTests": "tests/phase9-2-saved-views-persistence.test.ts",
-    "realCloudVerification": "PENDING"
+    "realCloudVerification": "PASS_AUTHENTICATED_ZERO_RESIDUE"
   },
-  "realCloudVerification": "PENDING",
+  "realCloud": {
+    "projectRef": "juzxriirhkuzviwnhkbd",
+    "projectStatus": "ACTIVE_HEALTHY",
+    "authenticatedProbe": "database/migrations/phase_9_2_live_authenticated_search_saved_views_probe.sql",
+    "legacyGuardVersion": "20260910103833",
+    "persistenceVersion": "20260910103933",
+    "globalSearchVersion": "20260910104006",
+    "invokerGrantRepairVersion": "20260910104151",
+    "authenticatedProbeVersion": "20260910104751",
+    "ownerFkHardeningVersion": "20260910104851",
+    "zeroResidue": true,
+    "phaseOwnedSecurityAdvisorWarnings": 0
+  },
+  "realCloudVerification": "PASS_AUTHENTICATED_ZERO_RESIDUE",
+  "realCloudEvidence": "docs/PHASE9_2_REAL_CLOUD_EVIDENCE.md",
   "realBrowserVerification": "PENDING",
   "pullRequestGate": "PENDING",
   "postMergeRecertification": "PENDING",
