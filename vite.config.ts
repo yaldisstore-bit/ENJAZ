@@ -39,8 +39,6 @@ export default defineConfig({
         codeSplitting: {
           groups: [
             { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|react-router|scheduler)([\\/]|$)/, priority: 30 },
-            { name: 'supabase-vendor', test: /node_modules[\\/]@supabase[\\/]/, priority: 20 },
-            { name: 'vendor', test: /node_modules[\\/]/, priority: 10 },
           ],
         },
       },
