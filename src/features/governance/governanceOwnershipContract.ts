@@ -98,7 +98,9 @@ function parseEffectiveInterval(input: Readonly<{ effectiveFrom: unknown; effect
 
 export function parseOwnershipPercentage(value: unknown): Readonly<{ canonical: string; units: bigint }> | null {
   if (typeof value !== 'string' || !CANONICAL_PERCENT.test(value)) return null;
-  const [whole, fractional = ''] = value.split('.');
+  const decimalPoint = value.indexOf('.');
+  const whole = decimalPoint === -1 ? value : value.slice(0, decimalPoint);
+  const fractional = decimalPoint === -1 ? '' : value.slice(decimalPoint + 1);
   const units = BigInt(whole) * OWNERSHIP_SCALE + BigInt((fractional + '000000').slice(0, 6));
   if (units <= 0n || units > OWNERSHIP_TOTAL_UNITS) return null;
   const canonicalFraction = fractional.replace(/0+$/, '');
@@ -167,7 +169,10 @@ export function assertNoConflictingOwnershipPeriods(stakes: readonly OwnershipSt
   for (const group of grouped.values()) {
     const ordered = [...group].sort((a, b) => a.effectiveFrom.localeCompare(b.effectiveFrom));
     for (let index = 1; index < ordered.length; index += 1) {
-      if (intervalsOverlap(ordered[index - 1], ordered[index])) throw new TypeError('Conflicting ownership effective periods');
+      const previous = ordered[index - 1];
+      const current = ordered[index];
+      if (!previous || !current) throw new TypeError('Ownership ordering invariant failed');
+      if (intervalsOverlap(previous, current)) throw new TypeError('Conflicting ownership effective periods');
     }
   }
 }
