@@ -5,9 +5,23 @@ const read = (path) => fs.readFileSync(new URL(path, root), 'utf8');
 const fail = (message) => { throw new Error(`Phase 9.2 Saved Views persistence audit: ${message}`); };
 const must = (text, marker, label) => { if (!text.includes(marker)) fail(`${label} missing ${marker}`); };
 
+const legacyGuard = read('database/migrations/phase_9_2_00_saved_views_legacy_guard.sql');
 const sql = read('database/migrations/phase_9_2_saved_views_search_intelligence.sql');
 const tests = read('tests/phase9-2-saved-views-persistence.test.ts');
 const state = JSON.parse(read('docs/PHASE9_2_STATE.json'));
+
+for (const marker of [
+  "to_regclass('public.saved_views') is null",
+  "column_name='owner_user_id'",
+  "column_name='definition'",
+  "column_name='operation_id'",
+  "execute 'select count(*) from public.saved_views' into v_row_count",
+  'ENJAZ_SAVED_VIEWS_LEGACY_DATA_REQUIRES_MANUAL_MIGRATION',
+  'drop table public.saved_views',
+  'Intentionally no CASCADE',
+]) must(legacyGuard, marker, 'legacy upgrade guard');
+if (/drop\s+table\s+public\.saved_views\s+cascade/i.test(legacyGuard)) fail('legacy upgrade guard must never CASCADE');
+if (!/if\s+v_row_count<>0\s+then[\s\S]*ENJAZ_SAVED_VIEWS_LEGACY_DATA_REQUIRES_MANUAL_MIGRATION[\s\S]*end if;[\s\S]*drop table public\.saved_views/i.test(legacyGuard)) fail('legacy rows are not protected before table replacement');
 
 for (const marker of [
   'create table public.saved_views',
@@ -91,4 +105,4 @@ for (const marker of [
 if (state.status !== 'IN_PROGRESS' || state.phase9_3Allowed !== false || state.successorStatus !== 'LOCKED') fail('Phase 9.3 successor lock weakened');
 if (state.authority?.savedViewsPersistence !== 'DATABASE_RLS_REQUIRED' || state.authority?.sourceBusinessEntityWriteAuthority !== 'none') fail('state authority drift');
 
-console.log('ENJAZ PHASE 9.2 SAVED VIEWS PERSISTENCE AUDIT PASS — RLS SELECT-only surface; guarded RPC writes; M15 sharing authority reused; no source-business writes; JSON null/schema/domain attacks fail closed; Phase 9.3 LOCKED.');
+console.log('ENJAZ PHASE 9.2 SAVED VIEWS PERSISTENCE AUDIT PASS — legacy rows fail closed; RLS SELECT-only surface; guarded RPC writes; M15 sharing authority reused; no source-business writes; JSON null/schema/domain attacks fail closed; Phase 9.3 LOCKED.');
