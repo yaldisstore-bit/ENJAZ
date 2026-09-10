@@ -1,5 +1,6 @@
 import type {
   GlobalSearchResultReference,
+  SaveSavedViewInput,
   SavedViewRecord,
   SearchIntelligenceGateway,
 } from '../features/searchIntelligence/searchIntelligenceCommands.ts';
@@ -29,10 +30,10 @@ const searchResults:readonly GlobalSearchResultReference[]=Object.freeze([
 ]);
 
 export const phase92SearchIntelligence:SearchIntelligenceGateway=Object.freeze({
-  async listSavedViews(workspaceId){
+  async listSavedViews(workspaceId:string){
     assertWorkspace(workspaceId);phase92BrowserState.lists+=1;return Object.freeze(savedViews.map(freezeView));
   },
-  async saveSavedView(input){
+  async saveSavedView(input:SaveSavedViewInput){
     assertWorkspace(input.workspaceId);phase92BrowserState.saves+=1;
     if(input.savedViewId===null){
       const id=`92000000-0000-4000-8000-${String(nextId++).padStart(12,'0')}`;
@@ -48,10 +49,10 @@ export const phase92SearchIntelligence:SearchIntelligenceGateway=Object.freeze({
     savedViews=[...savedViews.slice(0,index),updated,...savedViews.slice(index+1)];
     return Object.freeze({savedViewId:updated.id,version:updated.version,replayed:false,wasCreated:false});
   },
-  async deleteSavedView(workspaceId,savedViewId,expectedVersion){
+  async deleteSavedView(workspaceId:string,savedViewId:string,expectedVersion:number,_operationId:string){
     assertWorkspace(workspaceId);const current=savedViews.find(item=>item.id===savedViewId);if(!current)throw new Error('Saved view not found in Phase 9.2 browser harness');if(current.version!==expectedVersion)throw new Error('ENJAZ_SAVED_VIEW_STALE');phase92BrowserState.deletes+=1;savedViews=savedViews.filter(item=>item.id!==savedViewId);return Object.freeze({savedViewId,version:expectedVersion+1,replayed:false,deleted:true});
   },
-  async globalSearch(workspaceId,query){
+  async globalSearch(workspaceId:string,query:string,_limitPerDomain=8){
     assertWorkspace(workspaceId);phase92BrowserState.searches+=1;return query.trim().length>=2?searchResults:Object.freeze([]);
   },
 });
