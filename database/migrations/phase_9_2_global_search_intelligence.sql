@@ -41,31 +41,54 @@ begin
   perform private.require_organization_actor_v1(p_workspace_id);
   v_owner := private.is_organization_owner_v1(p_workspace_id);
 
-  -- Transactions are special: M15 already owns the permission-scoped read model.
-  -- Reuse it rather than reading public.transactions under a broader definer bypass.
-  v_results := v_results || coalesce((
-    select jsonb_agg(jsonb_build_object(
-      'schema','enjaz.global-search-result.v1',
-      'domain','transactions',
-      'entityId',x.item->>'transactionId',
-      'title','#'||left(x.item->>'transactionId',8)||' · '||coalesce(x.item->>'type','معاملة'),
-      'subtitle',nullif(concat_ws(' · ',nullif(x.item->>'companyName',''),nullif(x.item->>'status','')),''),
-      'destination','/app/transactions/'||(x.item->>'transactionId')
-    ) order by x.ord)
-    from (
-      select item,ord
-      from jsonb_array_elements(private.organization_scoped_transactions_v1(p_workspace_id)) with ordinality as r(item,ord)
-      where position(lower(v_query) in lower(concat_ws(' ',
-        r.item->>'transactionId',
-        r.item->>'companyName',
-        r.item->>'type',
-        r.item->>'status',
-        r.item->>'priority'
-      ))) > 0
-      order by ord
-      limit v_limit
-    ) x
-  ),'[]'::jsonb);
+  if v_owner then
+    -- Owners must see every authoritative workspace transaction, including rows
+    -- that have not yet received M15 organizational ownership.
+    v_results := v_results || coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'schema','enjaz.global-search-result.v1',
+        'domain','transactions',
+        'entityId',t.id::text,
+        'title','#'||coalesce(nullif(t.legacy_id,''),left(t.id::text,8))||' · '||t.type,
+        'subtitle',nullif(concat_ws(' · ',coalesce(nullif(btrim(c.display_name),''),c.legal_name),nullif(t.status,'')),''),
+        'destination','/app/transactions/'||t.id::text
+      ) order by t.last_activity_at desc,t.id)
+      from (
+        select * from public.transactions
+        where workspace_id=p_workspace_id and deleted_at is null
+          and position(lower(v_query) in lower(concat_ws(' ',id::text,legacy_id,type,department,status,priority))) > 0
+        order by last_activity_at desc,id
+        limit v_limit
+      ) t
+      join public.companies c on c.workspace_id=t.workspace_id and c.id=t.company_id
+    ),'[]'::jsonb);
+  else
+    -- Workforce results must come only from the M15 scoped read model. This is
+    -- intentionally narrower than the owner's workspace-wide transaction view.
+    v_results := v_results || coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'schema','enjaz.global-search-result.v1',
+        'domain','transactions',
+        'entityId',x.item->>'transactionId',
+        'title','#'||left(x.item->>'transactionId',8)||' · '||coalesce(x.item->>'type','معاملة'),
+        'subtitle',nullif(concat_ws(' · ',nullif(x.item->>'companyName',''),nullif(x.item->>'status','')),''),
+        'destination','/app/transactions/'||(x.item->>'transactionId')
+      ) order by x.ord)
+      from (
+        select item,ord
+        from jsonb_array_elements(private.organization_scoped_transactions_v1(p_workspace_id)) with ordinality as r(item,ord)
+        where position(lower(v_query) in lower(concat_ws(' ',
+          r.item->>'transactionId',
+          r.item->>'companyName',
+          r.item->>'type',
+          r.item->>'status',
+          r.item->>'priority'
+        ))) > 0
+        order by ord
+        limit v_limit
+      ) x
+    ),'[]'::jsonb);
+  end if;
 
   -- Companies, people, procedures and documents keep the legacy owner-only
   -- workspace authority. Non-owner M15 workforce gets no metadata from them.
