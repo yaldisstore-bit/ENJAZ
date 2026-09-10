@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 const read=(p)=>fs.readFileSync(new URL(`../${p}`,import.meta.url),'utf8');
 const sql=read('database/migrations/phase_9_2_global_search_intelligence.sql');
+const grantFix=read('database/migrations/phase_9_2_global_search_invoker_grant_fix.sql');
 const fail=(m)=>{throw new Error(`Phase 9.2 Global Search audit: ${m}`)};
 const must=(m)=>{if(!sql.includes(m))fail(`missing ${m}`)};
 
@@ -29,6 +30,14 @@ for(const marker of [
   'grant execute on function public.global_search_v1(uuid,text,integer) to authenticated',
 ]) must(marker);
 
+for(const marker of [
+  'revoke all on function private.global_search_v1_impl(uuid,text,integer) from public,anon,authenticated',
+  'grant execute on function private.global_search_v1_impl(uuid,text,integer) to authenticated',
+  'revoke all on function public.global_search_v1(uuid,text,integer) from public,anon',
+  'grant execute on function public.global_search_v1(uuid,text,integer) to authenticated',
+]) if(!grantFix.includes(marker))fail(`invoker bridge repair missing ${marker}`);
+if(/grant\s+execute[\s\S]*\bto\s+anon\b/i.test(grantFix))fail('anon execution authority introduced by invoker bridge repair');
+
 const ownerBlock=sql.match(/if v_owner then([\s\S]*?)else/)?.[1]??'';
 if(!ownerBlock.includes('from public.transactions'))fail('owner transaction search must include unassigned authoritative transactions');
 const workforceBlock=sql.match(/else\n\s*-- Workforce results([\s\S]*?)end if;/)?.[1]??'';
@@ -41,4 +50,4 @@ for(const forbidden of [/\binsert\s+into\b/i,/\bupdate\s+public\./i,/\bdelete\s+
 }
 if(!/char_length\(v_query\) < 2 or char_length\(v_query\) > 120/.test(sql))fail('query bounds missing');
 if(!/v_limit < 1 or v_limit > 10/.test(sql))fail('per-domain result bound missing');
-console.log('ENJAZ PHASE 9.2 GLOBAL SEARCH AUDIT PASS — owner completeness preserved; M15 workforce transaction scope reused; owner-only domains do not leak; read-only RPC and internal deep links enforced.');
+console.log('ENJAZ PHASE 9.2 GLOBAL SEARCH AUDIT PASS — owner completeness preserved; M15 workforce transaction scope reused; SECURITY INVOKER bridge executable only by authenticated callers; owner-only domains do not leak; read-only RPC and internal deep links enforced.');
