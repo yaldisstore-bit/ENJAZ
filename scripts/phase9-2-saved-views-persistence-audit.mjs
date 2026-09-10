@@ -106,7 +106,13 @@ for (const marker of [
   'persistence indexes and constraints preserve workspace ownership and bounded lookups',
 ]) must(tests, marker, 'destruction tests');
 
-if (state.status !== 'IN_PROGRESS' || state.phase9_3Allowed !== false || state.successorStatus !== 'LOCKED') fail('Phase 9.3 successor lock weakened');
+if (state.status === 'IN_PROGRESS') {
+  if (state.phase9_3Allowed !== false || state.exitGatePassed !== false || state.successorStatus !== 'LOCKED') fail('Phase 9.3 must remain locked while Phase 9.2 is in progress');
+} else if (state.status === 'CLOSED') {
+  if (state.phase9_3Allowed !== true || state.exitGatePassed !== true || state.nextPhase !== '9.3' || state.successorStatus !== 'AUTHORIZED') fail('closed Phase 9.2 must authorize only Phase 9.3');
+} else {
+  fail(`unsupported lifecycle status: ${String(state.status)}`);
+}
 if (state.authority?.savedViewsPersistence !== 'DATABASE_RLS_REQUIRED' || state.authority?.sourceBusinessEntityWriteAuthority !== 'none') fail('state authority drift');
 
-console.log('ENJAZ PHASE 9.2 SAVED VIEWS PERSISTENCE AUDIT PASS — legacy rows fail closed; RLS SELECT-only surface; guarded RPC writes; owner FK covered; M15 sharing authority reused; no source-business writes; JSON null/schema/domain attacks fail closed; Phase 9.3 LOCKED.');
+console.log(`ENJAZ PHASE 9.2 SAVED VIEWS PERSISTENCE AUDIT PASS — legacy rows fail closed; RLS SELECT-only surface; guarded RPC writes; owner FK covered; M15 sharing authority reused; no source-business writes; JSON null/schema/domain attacks fail closed; successor=${state.successorStatus === 'AUTHORIZED' ? '9.3 AUTHORIZED' : '9.3 LOCKED'}.`);
