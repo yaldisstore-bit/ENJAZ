@@ -31,10 +31,12 @@ export default defineConfig({
     rolldownOptions: {
       optimization: { inlineConst: true },
       output: {
-        minify: true,
+        minify: { compress: true, mangle: { toplevel: true }, codegen: true, module: true },
         codeSplitting: {
           groups: [
             { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|react-router|scheduler)([\\/]|$)/, priority: 30 },
+            { name: 'supabase-vendor', test: /node_modules[\\/]@supabase[\\/]/, priority: 20 },
+            { name: 'vendor', test: /node_modules[\\/]/, priority: 10 },
           ],
         },
       },
