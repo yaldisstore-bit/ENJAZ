@@ -43,14 +43,14 @@ export function createSearchIntelligenceGateway(client:EnjazSupabaseClient,timeo
   if(!positive(timeout)||timeout>120_000)throw new Error('Invalid RPC timeout');
   const c=client as unknown as RpcClient;
   return Object.freeze({
-    async listSavedViews(workspaceId){const data=await rpc(c,'list_saved_views_v1',{p_workspace_id:workspaceId},false,timeout);if(!Array.isArray(data))throw fail('Invalid saved-view list');return Object.freeze(data.map(parseView))},
-    async saveSavedView(input){
+    async listSavedViews(workspaceId:string){const data=await rpc(c,'list_saved_views_v1',{p_workspace_id:workspaceId},false,timeout);if(!Array.isArray(data))throw fail('Invalid saved-view list');return Object.freeze(data.map(parseView))},
+    async saveSavedView(input:SaveSavedViewInput){
       const draft=createSavedViewDraft({name:input.name,visibility:input.visibility,definition:input.definition}),teamId=input.teamId??null;
       if((draft.visibility==='team')!==(teamId!==null)||(input.savedViewId===null)!==(input.expectedVersion===null))throw fail('Invalid saved-view boundary','DATA_VALIDATION_FAILED');
       return parseWrite(await rpc(c,'save_saved_view_v1',{p_workspace_id:input.workspaceId,p_saved_view_id:input.savedViewId,p_expected_version:input.expectedVersion,p_operation_id:input.operationId,p_name:draft.name,p_visibility:draft.visibility,p_team_id:teamId,p_definition:draft.definition},true,timeout));
     },
-    async deleteSavedView(workspaceId,savedViewId,expectedVersion,operationId){if(!positive(expectedVersion))throw fail('Invalid saved-view version','DATA_VALIDATION_FAILED');return parseWrite(await rpc(c,'delete_saved_view_v1',{p_workspace_id:workspaceId,p_saved_view_id:savedViewId,p_expected_version:expectedVersion,p_operation_id:operationId},true,timeout))},
-    async globalSearch(workspaceId,query,limitPerDomain=8){
+    async deleteSavedView(workspaceId:string,savedViewId:string,expectedVersion:number,operationId:string){if(!positive(expectedVersion))throw fail('Invalid saved-view version','DATA_VALIDATION_FAILED');return parseWrite(await rpc(c,'delete_saved_view_v1',{p_workspace_id:workspaceId,p_saved_view_id:savedViewId,p_expected_version:expectedVersion,p_operation_id:operationId},true,timeout))},
+    async globalSearch(workspaceId:string,query:string,limitPerDomain=8){
       const q=query.normalize('NFKC').replace(/\s+/g,' ').trim().slice(0,120);if(q.length<2)return Object.freeze([]);if(!positive(limitPerDomain)||limitPerDomain>10)throw fail('Invalid search limit','DATA_VALIDATION_FAILED');
       const data=await rpc(c,'global_search_v1',{p_workspace_id:workspaceId,p_query:q,p_limit_per_domain:limitPerDomain},false,timeout);if(!Array.isArray(data))throw fail('Invalid search result');
       const out=data.map(parseGlobalSearchResultReference);if(out.some(x=>x===null))throw fail('Global-search contract drifted');return Object.freeze(out as GlobalSearchResultReference[]);
