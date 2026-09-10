@@ -31,7 +31,10 @@ test('owner-only domains are all present but cannot escape the owner gate',()=>{
 });
 
 test('every result uses the canonical schema and exact internal app destination',()=>{
-  assert.equal((sql.match(/'schema','enjaz\.global-search-result\.v1'/g)??[]).length,5);
+  // There are five domains but six result constructors because transactions have
+  // separate owner and workforce authority branches. Both branches must emit the
+  // same canonical result schema rather than weakening the assertion to domain count.
+  assert.equal((sql.match(/'schema','enjaz\.global-search-result\.v1'/g)??[]).length,6);
   for(const destination of ['/app/transactions/','/app/companies?entity=','/app/people?entity=','/app/workflow?procedure=','/app/documents?entity=']) assert.ok(sql.includes(`'destination','${destination}`));
   assert.doesNotMatch(sql,/https?:\/\//i);
 });
