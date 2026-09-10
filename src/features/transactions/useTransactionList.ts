@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DataAccessError } from '../../data/contracts/DataAccessError.ts';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
@@ -11,6 +11,10 @@ import {
   type TransactionListSource,
   type TransactionListView,
 } from './transactionListModel.ts';
+import {
+  clearTransactionSavedViewBridge,
+  publishTransactionSavedViewBridge,
+} from './transactionSavedViewBridge.ts';
 import {
   loadTransactionListSource,
   TransactionListCapacityError,
@@ -29,6 +33,7 @@ export interface TransactionListController {
   readonly setSearch: (search: string) => void;
   readonly setSort: (sort: TransactionListSort) => void;
   readonly setPage: (page: number) => void;
+  readonly applyRequest: (request: Partial<TransactionListRequest>) => void;
 }
 
 const INITIAL_REQUEST = normalizeTransactionListRequest();
@@ -46,6 +51,7 @@ function toTransactionListErrorMessage(error: unknown): string {
 export function useTransactionList(): TransactionListController {
   const userId = useCurrentUserId();
   const factory = useDataLayerFactory();
+  const bridgeToken = useRef(Symbol('transaction-list-saved-view-bridge'));
   const [attempt, setAttempt] = useState(0);
   const [source, setSource] = useState<TransactionListSource | null>(null);
   const [status, setStatus] = useState<TransactionListLoadState>('loading');
@@ -79,6 +85,12 @@ export function useTransactionList(): TransactionListController {
     return () => { active = false; };
   }, [attempt, factory, userId]);
 
+  useEffect(() => {
+    const token = bridgeToken.current;
+    publishTransactionSavedViewBridge(token, request, (next) => setRequest(normalizeTransactionListRequest({ ...next, page: 0 })));
+    return () => clearTransactionSavedViewBridge(token);
+  }, [request]);
+
   const snapshot = useMemo(
     () => source ? buildTransactionListSnapshot(source, request) : null,
     [request, source],
@@ -94,5 +106,6 @@ export function useTransactionList(): TransactionListController {
     setSearch(search: string) { setRequest((current) => normalizeTransactionListRequest({ ...current, search, page: 0 })); },
     setSort(sort: TransactionListSort) { setRequest((current) => normalizeTransactionListRequest({ ...current, sort, page: 0 })); },
     setPage(page: number) { setRequest((current) => normalizeTransactionListRequest({ ...current, page })); },
+    applyRequest(next: Partial<TransactionListRequest>) { setRequest(normalizeTransactionListRequest({ ...next, page: 0 })); },
   });
 }
