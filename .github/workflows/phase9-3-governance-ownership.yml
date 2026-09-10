@@ -44,6 +44,7 @@ jobs:
           node --experimental-strip-types --test tests/phase9-3-governance-ownership-foundation.test.ts
           node --experimental-strip-types --test tests/phase9-3-corporate-ownership-persistence.test.ts
           node --experimental-strip-types --test tests/phase9-3-full-governance-persistence.test.ts
+          node --experimental-strip-types --test tests/phase9-3-capital-authority-hardening.test.ts
       - name: Full functional regression
         run: npm run test:functional
       - name: Database and roadmap integrity
