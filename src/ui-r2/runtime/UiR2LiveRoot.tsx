@@ -13,8 +13,10 @@ import { useR2OverlayFocusGuard } from './useR2OverlayFocusGuard.ts';
 /* Cumulative certified runtime contract markers retained for historical gate parsers.
    destinationId === 'automation'
    <LiveAutomationExperience />
+   destinationId === 'automation') content = <LiveAutomationExperience />
    destinationId === 'operations'
    <LiveFieldOperationsExperience />
+   destinationId === 'operations') content = <LiveFieldOperationsExperience />
    destinationId === 'command'
    <LiveCommandCenterExperience navigate={navigate} />
    useGlobalSearch(query,gateway,workspace)
