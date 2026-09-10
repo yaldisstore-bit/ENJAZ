@@ -12,7 +12,7 @@ function renderedModuleProbe(): Plugin {
         for (const [id, info] of Object.entries(output.modules)) totals.set(id, (totals.get(id) ?? 0) + (info.renderedLength ?? 0));
       }
       console.log('ENJAZ_PHASE9_2_MODULE_PROBE_BEGIN');
-      for (const [id, bytes] of [...totals.entries()].sort((a,b)=>b[1]-a[1]).slice(0,50)) console.log(`${bytes}\t${id.replace(process.cwd(), '.')}`);
+      for (const [id, bytes] of [...totals.entries()].filter(([id]) => /searchIntelligence|search-intelligence|SavedViews|transactionSavedView|UiR2LiveRoot/.test(id)).sort((a,b)=>b[1]-a[1])) console.log(`${bytes}\t${id.replace(process.cwd(), '.')}`);
       console.log('ENJAZ_PHASE9_2_MODULE_PROBE_END');
     },
   };
