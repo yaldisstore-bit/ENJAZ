@@ -31,6 +31,7 @@ export default defineConfig({
     modulePreload: { polyfill: false },
     sourcemap: false,
     cssCodeSplit: true,
+    manifest: true,
     reportCompressedSize: true,
     rolldownOptions: {
       optimization: { inlineConst: true },

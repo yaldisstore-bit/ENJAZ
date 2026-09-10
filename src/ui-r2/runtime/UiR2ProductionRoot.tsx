@@ -19,9 +19,7 @@ import { CurrentUserIdProvider } from '../../shared/session/CurrentUserIdContext
 import { SessionChecking } from '../../shared/session/SessionChecking.tsx';
 import { R2AuthScreen } from '../auth/R2AuthScreen.tsx';
 import { R2PasswordUpdateScreen } from '../auth/R2PasswordUpdateScreen.tsx';
-import { LiveFinanceProductionPortal } from '../finance/LiveFinanceProductionPortal.tsx';
-import { LiveCompaniesProductionPortal } from '../records/LiveCompaniesProductionPortal.tsx';
-import { LivePeopleProductionPortal } from '../records/LivePeopleProductionPortal.tsx';
+import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';
 import { UiR2LiveRoot } from './UiR2LiveRoot.tsx';
 import './shell-base.css';
 import './shell.css';
@@ -92,9 +90,7 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, workflowCommands
 
   return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
-    <LiveCompaniesProductionPortal />
-    <LivePeopleProductionPortal />
-    <LiveFinanceProductionPortal />
+    <LazyLiveProductionPortals />
   </CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
