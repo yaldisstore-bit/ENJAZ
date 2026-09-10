@@ -14,7 +14,8 @@ export default defineConfig({
     strictPort: true,
   },
   build: {
-    target: 'es2022',
+    target: 'esnext',
+    modulePreload: { polyfill: false },
     sourcemap: false,
     cssCodeSplit: true,
     reportCompressedSize: true,
@@ -24,6 +25,11 @@ export default defineConfig({
       experimental: { onDemandWrapping: true },
       output: {
         strictExecutionOrder: true,
+        minify: {
+          compress: { target: 'esnext' },
+          mangle: { toplevel: true },
+          codegen: { removeWhitespace: true },
+        },
         codeSplitting: {
           groups: [
             {
