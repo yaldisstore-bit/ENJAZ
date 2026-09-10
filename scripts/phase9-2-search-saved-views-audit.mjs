@@ -13,6 +13,7 @@ for (const path of [
   'docs/PHASE9_2_KICKOFF.md',
   'src/features/searchIntelligence/searchSavedViewContract.ts',
   'src/features/transactions/transactionListModel.ts',
+  'src/ui-r2/runtime/UiR2LiveRoot.tsx',
   'tests/phase9-2-search-saved-views-foundation.test.ts',
 ]) if (!exists(path)) fail(`required file missing: ${path}`);
 
@@ -21,6 +22,7 @@ const state = JSON.parse(read('docs/PHASE9_2_STATE.json'));
 const kickoff = read('docs/PHASE9_2_KICKOFF.md');
 const contract = read('src/features/searchIntelligence/searchSavedViewContract.ts');
 const transactionModel = read('src/features/transactions/transactionListModel.ts');
+const liveRoot = read('src/ui-r2/runtime/UiR2LiveRoot.tsx');
 const tests = read('tests/phase9-2-search-saved-views-foundation.test.ts');
 
 if (predecessor.phase !== '9.1' || predecessor.status !== 'CLOSED' || predecessor.exitGatePassed !== true || predecessor.phase9_2Allowed !== true || predecessor.nextPhase !== '9.2' || predecessor.successorStatus !== 'AUTHORIZED') {
@@ -95,6 +97,9 @@ for (const marker of [
   'createTransactionSavedViewDefinition',
   'parseTransactionSavedViewDefinition',
 ]) must(transactionModel, marker, 'canonical transaction saved-view model');
+
+must(liveRoot, 'data-operational-domain="finance"', 'finance portal marker');
+forbid(liveRoot, 'data-operational-domain="finance" aria-hidden="true"', 'finance portal marker');
 
 for (const marker of [
   'unknown saved-view schema and domain fail closed',
