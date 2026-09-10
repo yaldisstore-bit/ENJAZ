@@ -41,8 +41,14 @@ test('capital history synchronizes authoritative company capital and rejects byp
 test('sensitive writes are owner-only security-definer internals with pinned search_path and invoker public APIs',()=>{
   assert.ok((sql.match(/private\.require_organization_owner_v1/g)??[]).length>=5);
   assert.ok((sql.match(/security definer set search_path=''/g)??[]).length>=5);
-  assert.ok((sql.match(/language sql security invoker set search_path=''/g)??[]).length>=6);
-  for(const rpc of ['replace_company_beneficial_owners_v1','grant_company_authority_v1','revoke_company_authority_v1','record_company_resolution_v1','record_company_capital_event_v1','get_company_governance_context_v1']) has(rpc);
+  const publicApis=['replace_company_beneficial_owners_v1','grant_company_authority_v1','revoke_company_authority_v1','record_company_resolution_v1','record_company_capital_event_v1','get_company_governance_context_v1'];
+  for(const rpc of publicApis) {
+    has(`function public.${rpc}`);
+    const start=sql.indexOf(`function public.${rpc}`), end=sql.indexOf('$$;',start);
+    const body=sql.slice(start,end);
+    assert.match(body,/security invoker/);
+    assert.match(body,/set search_path=''/);
+  }
 });
 
 test('unified as-of context exposes current/historical ownership, governance domains and derived risk alerts',()=>{
