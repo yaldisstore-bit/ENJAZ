@@ -39,10 +39,13 @@ jobs:
           node scripts/phase9-1-smart-risk-audit.mjs
           node scripts/phase9-2-search-saved-views-audit.mjs
           node scripts/phase9-2-saved-views-persistence-audit.mjs
+          node scripts/phase9-2-global-search-audit.mjs
       - name: Saved-view and search foundation destruction tests
         run: node --experimental-strip-types --test tests/phase9-2-search-saved-views-foundation.test.ts
       - name: Saved-view persistence authority destruction tests
         run: node --experimental-strip-types --test tests/phase9-2-saved-views-persistence.test.ts
+      - name: Global-search permission destruction tests
+        run: node --experimental-strip-types --test tests/phase9-2-global-search-authority.test.ts
       - name: Full functional regression
         run: npm run test:functional
       - name: Database and roadmap integrity
