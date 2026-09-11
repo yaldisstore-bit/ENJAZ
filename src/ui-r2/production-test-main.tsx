@@ -215,7 +215,7 @@ const searchIntelligence: SearchIntelligenceGateway = Object.freeze({
 
 const regulatoryKnowledge: RegulatoryKnowledgeGateway = Object.freeze({
   async search() { return Object.freeze([]); },
-  async getEntry(input) {
+  async getEntry(input: Parameters<RegulatoryKnowledgeGateway['getEntry']>[0]) {
     return Object.freeze({ sourceId: input.sourceId, workspaceId: input.workspaceId, asOf: input.asOf ?? '2026-09-11', configured: false, official: null, derivedArtifacts: Object.freeze([]) });
   },
 });
