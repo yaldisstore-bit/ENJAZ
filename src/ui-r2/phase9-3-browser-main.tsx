@@ -52,7 +52,7 @@ const baseContext:GovernanceContext={
   beneficialOwners:[{id:'77777777-7777-4777-8777-777777777771',contactId:P1,displayName:'محمد حيدر محسن',basis:'ownership',percentage:'60',effectiveFrom:'2026-01-10',effectiveTo:null}],
   authorities:[{id:'66666666-6666-4666-8666-666666666661',contactId:P1,displayName:'محمد حيدر محسن',role:'manager',scope:'full',powers:['التوقيع','التمثيل أمام الجهات الرسمية'],effectiveFrom:'2026-01-10',effectiveTo:null,endReason:null}],
   resolutions:[{id:'88888888-8888-4888-8888-888888888881',number:'1/2026',title:'اعتماد هيكل الإدارة والتخويل',type:'appointment',effectiveOn:'2026-01-10',notes:'قرار تأسيسي معتمد'}],
-  capital:{known:true,amount:'150000000',source:'governance_history',effectiveOn:'2026-06-01',version:2},
+  capital:{known:true,amount:'9999999999999999.99',source:'governance_history',effectiveOn:'2026-06-01',version:2},
   timeline:[
     {id:'99999999-9999-4999-8999-999999999991',type:'capital.change',effectiveOn:'2026-06-01',version:2,occurredAt:'2026-06-01T09:00:00.000Z',details:{}},
     {id:'99999999-9999-4999-8999-999999999992',type:'resolution.record',effectiveOn:'2026-01-10',version:5,occurredAt:'2026-01-10T10:00:00.000Z',details:{}},
