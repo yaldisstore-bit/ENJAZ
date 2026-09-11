@@ -4,7 +4,7 @@ import type { RegulatoryKnowledgeGateway } from '../../features/regulatory/regul
 import { RegulatoryKnowledgeCenter } from './RegulatoryKnowledgeCenter.tsx';
 
 const SHELL='.r2-shell[data-r2-runtime-mode="live"][data-destination]';
-const PREVIEW='[data-regulatory-runtime-target="phase9.4"]';
+const PREVIEW='[data-screen="launcher-destination"][data-live-deferred="true"]';
 
 export function LiveRegulatoryKnowledgePortal({gateway,workspace}:Readonly<{gateway:RegulatoryKnowledgeGateway;workspace:Promise<string|null>}>){
   const [target,setTarget]=useState<HTMLElement|null>(null),[active,setActive]=useState(false);
