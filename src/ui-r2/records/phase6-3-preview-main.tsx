@@ -20,7 +20,7 @@ import '../runtime/accessibility-hardening.css';
 const factory = createPhase63PreviewDataFactory();
 const rejectHistoricalMutation = async (): Promise<never> => { throw new Error('Historical Phase 6.3 preview is read-only.'); };
 const governanceGateway: GovernanceCommandGateway = Object.freeze({
-  async loadContext(_workspaceId, companyId, asOf): Promise<GovernanceContext> {
+  async loadContext(_workspaceId: string, companyId: string, asOf?: string | null): Promise<GovernanceContext> {
     return Object.freeze({
       companyId,
       asOf: asOf ?? new Date().toISOString().slice(0, 10),
