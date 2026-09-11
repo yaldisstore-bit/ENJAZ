@@ -5,6 +5,7 @@ import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../data/cre
 import type { AutomationCommandGateway } from '../features/automation/automationCommands.ts';
 import type { FieldOperationsCommandGateway } from '../features/field-operations/fieldOperationsCommands.ts';
 import type { FinanceCommandGateway } from '../features/finance/financeCommands.ts';
+import type { GovernanceCommandGateway } from '../features/governance/governanceCommands.ts';
 import type { SearchIntelligenceGateway } from '../features/searchIntelligence/searchIntelligenceCommands.ts';
 import type { GovernmentProcedureRuntimeGateway } from '../features/workflow/governmentProcedureRuntime.ts';
 import { UiR2ProductionRoot } from './runtime/UiR2ProductionRoot.tsx';
@@ -118,6 +119,30 @@ const financeCommands: FinanceCommandGateway = Object.freeze({
   async createEngagement() { throw new Error('R2 production test does not allow finance writes'); },
 });
 
+const governanceCommands: GovernanceCommandGateway = Object.freeze({
+  async loadContext(_workspaceId: string, companyId: string, asOf?: string | null) {
+    return Object.freeze({
+      companyId,
+      asOf: asOf ?? '2026-09-11',
+      canMutate: false,
+      versions: Object.freeze({ ownership: 0, beneficialOwners: 0, authority: 0, resolutions: 0, capital: 0 }),
+      ownership: Object.freeze({ configured: false, totalPercentage: null, stakes: Object.freeze([]) }),
+      beneficialOwners: Object.freeze([]),
+      authorities: Object.freeze([]),
+      resolutions: Object.freeze([]),
+      capital: Object.freeze({ known: false, amount: null, source: 'company_current', effectiveOn: null, version: 0 }),
+      timeline: Object.freeze([]),
+      risks: Object.freeze([]),
+    });
+  },
+  async replaceOwnership() { throw new Error('R2 production test does not allow governance writes'); },
+  async replaceBeneficialOwners() { throw new Error('R2 production test does not allow governance writes'); },
+  async grantAuthority() { throw new Error('R2 production test does not allow governance writes'); },
+  async revokeAuthority() { throw new Error('R2 production test does not allow governance writes'); },
+  async recordResolution() { throw new Error('R2 production test does not allow governance writes'); },
+  async recordCapital() { throw new Error('R2 production test does not allow governance writes'); },
+});
+
 const workflowCommands: GovernmentProcedureRuntimeGateway = Object.freeze({
   async loadCatalog() {
     return Object.freeze({
@@ -192,6 +217,6 @@ if (!rootElement) throw new Error('R2 production test root is missing');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence }} />
+    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence }} />
   </StrictMode>,
 );
