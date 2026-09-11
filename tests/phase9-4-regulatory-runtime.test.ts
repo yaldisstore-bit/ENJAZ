@@ -59,15 +59,16 @@ test('9.4 runtime 05 — UI cannot bypass gateway with direct regulatory table a
   assert.doesNotMatch(portal,/\.from\s*\(/);
 });
 
-test('9.4 runtime 06 — knowledge is a live lazy destination and risk never falls through to finance',()=>{
+test('9.4 runtime 06 — knowledge is live/lazy while the certified 9.1 risk bridge remains explicit',()=>{
   const navigation=readFileSync('src/ui-r2/architecture/navigation-contract.ts','utf8');
   const lazy=readFileSync('src/ui-r2/runtime/LazyLiveProductionPortals.tsx','utf8');
+  const financePortal=readFileSync('src/ui-r2/finance/LiveFinanceProductionPortal.tsx','utf8');
   const liveRoot=readFileSync('src/ui-r2/runtime/UiR2LiveRoot.tsx','utf8');
   assert.match(navigation,/\['knowledge', 'مركز المعرفة التنظيمية', 7, 'knowledge', 0, 2\]/);
   assert.match(navigation,/\['intelligence', 'الذكاء والمعرفة', \['knowledge', 'copilot'\]\]/);
-  assert.match(lazy,/destination === 'knowledge'/);assert.match(lazy,/KnowledgePortal/);
-  assert.match(lazy,/destination === 'risk' \? <RiskPortal \/>/);
-  assert.doesNotMatch(lazy,/destination === 'risk'[^\n]*FinancePortal/);
+  assert.match(lazy,/value === 'knowledge'/);assert.match(lazy,/destination === 'knowledge' \? <KnowledgePortal/);
+  assert.match(lazy,/value === 'risk'/);assert.match(lazy,/destination === 'finance' \|\| destination === 'risk' \? <FinancePortal \/>/);
+  assert.match(financePortal,/useLiveRecordsPortal\('risk'/);assert.match(financePortal,/loadSmartRisk\(/);
   assert.match(liveRoot,/destinationId==='knowledge'/);
 });
 
