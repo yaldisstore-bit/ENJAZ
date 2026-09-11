@@ -41,6 +41,7 @@ test('database error codes are normalized without exposing raw messages as user 
   assert.ok(!forbidden.userMessage.includes('raw postgres detail'));
 
   assert.equal(normalizeDataFailure({ code: '23505' }).dataCode, 'DATA_CONFLICT');
+  assert.equal(normalizeDataFailure({ code: '40001' }).dataCode, 'DATA_CONFLICT');
   assert.equal(normalizeDataFailure({ code: '23503' }).dataCode, 'DATA_REFERENCE_CONFLICT');
   assert.equal(normalizeDataFailure({ message: 'Failed to fetch' }).dataCode, 'DATA_UNAVAILABLE');
 });
