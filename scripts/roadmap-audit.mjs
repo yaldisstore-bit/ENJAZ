@@ -100,21 +100,23 @@ for (const marker of [
   '**Phase 8 — Workflow, Automation & Operations ✅ CLOSED + post-merge recertified**',
   'Historical satisfied marker: **Next: Phase 9.1 — Smart Risk Engine**',
   '**Phase 9.1 — Smart Risk Engine ✅ CLOSED + post-merge recertified**',
-  '**Next: Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence**',
-  '9b116d39ad3cebc62e6c4f15d4fb72fef1b25fde',
-  '19/19 exact-main push workflows SUCCESS',
-  '22/22 cumulative exact-SHA workflow runs SUCCESS',
-  '34411497055', '34411497023', '34411495854', '34411566669', '34411616353',
-  '669992/670000 PASS',
-  'docs/PHASE9_1_STATE.json', 'docs/PHASE9_1_CLOSURE.md', 'docs/PHASE9_1_POSTMERGE_RECERTIFICATION.md',
+  '**Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence ✅ CLOSED + post-merge recertified**',
+  '**Phase 9.3 — Corporate Governance & Ownership Engine — M2 ✅ CLOSED + post-merge recertified**',
+  '**Next: Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation**',
+  '1c38e388285b1c566d202258d78aadb1b85b9342',
+  '34571138932', '34571138982', '34571138262', '34571185394', '34571241122',
+  '563529/670000 PASS',
+  'docs/PHASE9_3_STATE.json', 'docs/PHASE9_3_CLOSURE.md', 'docs/PHASE9_3_POSTMERGE_RECERTIFICATION.md',
   'docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json', 'docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md',
 ]) requireMarker(roadmap, marker, 'roadmap');
 
 for (const stale of [
   'Phase 9.1 is the sole newly authorized implementation stage after the formal Phase 8.7 closure.',
   'No later Phase 9 stage is pre-authorized by this transition.',
-  'This reconciliation originally made nine explicit changes and now records a tenth canonical transition:',
-  'authorize work beyond Phase 9.1',
+  'Phase 9.2 is the sole newly authorized implementation stage after formal Phase 9.1 closure.',
+  'No Phase 9.3+ stage is pre-authorized by this transition.',
+  '**Next: Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence**',
+  'authorize work beyond Phase 9.2',
 ]) forbidMarker(roadmap, stale, 'roadmap');
 
 if (major.schemaVersion !== 2 || major.status !== 'GOVERNING_AMENDMENT') errors.push('major-system registry must remain governing amendment schema v2');
@@ -149,9 +151,10 @@ for (const [id, name] of expectedSystems) {
   requireMarker(readme, `**${id} — ${name}**`, 'README major systems');
 }
 
-for (const id of ['M1', 'M5', 'M6']) {
+for (const id of ['M1', 'M2', 'M5', 'M6']) {
   const system = major.systems.find((candidate) => candidate.id === id);
   if (system?.status !== 'CLOSURE_CANDIDATE') errors.push(`${id} must remain CLOSURE_CANDIDATE; phase closure cannot fabricate global closure`);
+  if (typeof system?.closureEvidence !== 'string' || !system.closureEvidence.startsWith('docs/')) errors.push(`${id} closure candidate must reference closure evidence`);
 }
 for (const id of ['M15', 'M17']) {
   const system = major.systems.find((candidate) => candidate.id === id);
@@ -197,40 +200,39 @@ if (phase92) {
   if (phase92.javascriptBudgetBytes !== 670000 || phase92.budgetIncreaseAllowed !== false) errors.push('Phase 9.2 JavaScript hard budget drifted');
   if (phase92.productionJavaScriptBytes !== 669987 || phase92.pagesLiveJavaScriptBytes !== 669998) errors.push('Phase 9.2 certified bundle evidence drifted');
   if (phase92.realCloudVerification !== 'PASS_ZERO_RESIDUE' || phase92.realBrowserVerification !== 'PASS' || phase92.postMergeRecertification !== 'COMPLETE') errors.push('Phase 9.2 closure verification drifted');
-  if (phase92.phase9_3Allowed !== true || phase92.nextPhase !== '9.3' || phase92.successorStatus !== 'AUTHORIZED') errors.push('Phase 9.2 must authorize only Phase 9.3');
+  if (phase92.phase9_3Allowed !== true || phase92.nextPhase !== '9.3' || phase92.successorStatus !== 'AUTHORIZED') errors.push('Phase 9.2 must historically authorize Phase 9.3');
 }
 
-if (!exists('docs/PHASE9_3_STATE.json')) errors.push('Phase 9.3 state missing');
-else {
-  const phase93 = json('docs/PHASE9_3_STATE.json');
-  const open = phase93.status === 'IN_PROGRESS' && phase93.exitGatePassed === false && phase93.phase9_4Allowed === false && phase93.successorStatus === 'LOCKED';
-  const closed = phase93.status === 'CLOSED' && phase93.exitGatePassed === true && phase93.phase9_4Allowed === true && phase93.nextPhase === '9.4' && phase93.successorStatus === 'AUTHORIZED';
-  if (!open && !closed) errors.push('Phase 9.3 lifecycle/successor state is invalid');
+const phase93 = assertClosedState('docs/PHASE9_3_STATE.json', 'Phase 9.3');
+if (phase93) {
+  if (phase93.phase !== '9.3' || phase93.name !== 'Corporate Governance & Ownership Engine — M2') errors.push('Phase 9.3 identity drifted');
+  if (phase93.phase9_4Allowed !== true || phase93.nextPhase !== '9.4' || phase93.successorStatus !== 'AUTHORIZED') errors.push('Phase 9.3 must authorize only Phase 9.4');
   if (phase93.javascriptBudgetBytes !== 670000 || phase93.budgetIncreaseAllowed !== false) errors.push('Phase 9.3 JavaScript hard budget drifted');
   if (phase93.authority?.companyCoreAuthority !== 'REFERENCE_EXISTING_COMPANY_CORE_ONLY' || phase93.authority?.shadowCompanyStoreAllowed !== false || phase93.authority?.shadowPartyStoreAllowed !== false) errors.push('Phase 9.3 source-of-truth boundary drifted');
+  if (phase93.projectQualityConstitution?.tracks?.product !== 'PASS' || phase93.projectQualityConstitution?.tracks?.uiUx !== 'PASS' || phase93.projectQualityConstitution?.tracks?.engineering !== 'PASS' || phase93.projectQualityConstitution?.tracks?.certification !== 'PASS') errors.push('Phase 9.3 four-track closure evidence drifted');
+  if (phase93.canonicalRuntime?.mainSha !== '1c38e388285b1c566d202258d78aadb1b85b9342' || phase93.canonicalRuntime?.postMergeRecertification !== 'PASS') errors.push('Phase 9.3 canonical post-merge evidence drifted');
+  if (!exists('docs/PHASE9_3_CLOSURE.md') || !exists('docs/PHASE9_3_POSTMERGE_RECERTIFICATION.md')) errors.push('Phase 9.3 formal closure evidence is incomplete');
 }
 
 for (const marker of [
-  'الحالة الرسمية: **Phase 9.3 — Corporate Governance & Ownership Engine — M2 🚧 IN PROGRESS**',
-  'آخر مرحلة مغلقة: **Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence ✅ CLOSED + POST-MERGE RECERTIFIED**',
-  'المرحلة الحالية المصرح بها: **Phase 9.3 — Corporate Governance & Ownership Engine — M2**',
-  '**Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence: ✅ CLOSED + POST-MERGE RECERTIFIED.**',
-  '**Phase 9.3 — Corporate Governance & Ownership Engine — M2: 🚧 IN PROGRESS.**',
-  '1d98a57566a5bc55ceda773f02de17dacddaecb0',
-  '34510486188', '34510610734',
-  '669987 / 670000 PASS', '669998 / 670000 PASS',
+  'الحالة الرسمية: **Phase 9.3 — Corporate Governance & Ownership Engine — M2 ✅ CLOSED + POST-MERGE RECERTIFIED**',
+  'آخر مرحلة مغلقة: **Phase 9.3 — Corporate Governance & Ownership Engine — M2**',
+  'المرحلة التالية المصرح بها: **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation**',
+  '**Phase 9.3 — Corporate Governance & Ownership Engine — M2: ✅ CLOSED + POST-MERGE RECERTIFIED.**',
+  '**Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation: AUTHORIZED NEXT.**',
+  '1c38e388285b1c566d202258d78aadb1b85b9342',
+  '34571138932', '34571138982', '34571138262', '34571185394', '34571241122',
+  '563507 / 670000 PASS', '563529 / 670000 PASS',
   'PASS_ZERO_RESIDUE',
-  'docs/PHASE9_2_STATE.json', 'docs/PHASE9_2_CLOSURE.md', 'docs/PHASE9_2_POSTMERGE_RECERTIFICATION.md',
-  'docs/PHASE9_3_KICKOFF.md', 'docs/PHASE9_3_STATE.json',
-  'Zero-Escape rule', 'Gate Escape',
+  'docs/PHASE9_3_STATE.json', 'docs/PHASE9_3_CLOSURE.md', 'docs/PHASE9_3_POSTMERGE_RECERTIFICATION.md',
+  'Zero-Escape', 'Gate Escape',
 ]) requireMarker(readme, marker, 'README');
 
 for (const stale of [
-  'الحالة الرسمية: **Phase 8.1 — Workflow Engine & Government Procedure OS — M1',
-  'التالي المسموح: **Phase 8.2 — Automation Engine**',
-  'الحالة الرسمية: **Phase 9.1 — Smart Risk Engine ✅ CLOSED + POST-MERGE RECERTIFIED**',
-  'التالي المسموح: **Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence**',
-  '**Next: Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence — AUTHORIZED.**',
+  'الحالة الرسمية: **Phase 9.3 — Corporate Governance & Ownership Engine — M2 🚧 IN PROGRESS**',
+  'آخر مرحلة مغلقة: **Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence ✅ CLOSED + POST-MERGE RECERTIFIED**',
+  'المرحلة الحالية المصرح بها: **Phase 9.3 — Corporate Governance & Ownership Engine — M2**',
+  '**Phase 9.3 — Corporate Governance & Ownership Engine — M2: 🚧 IN PROGRESS.**',
 ]) forbidMarker(readme, stale, 'README');
 
 if (errors.length) {
@@ -238,5 +240,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.2 CLOSED + exact-main/Real-Browser/Live-External recertified; Phase 9.3 M2 IN_PROGRESS with 9.4 locked; major-system statuses preserved.');
+  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.3 CLOSED + exact-main/Real-Browser/Pages/Live-External recertified; Phase 9.4 is the sole authorized successor; M2 remains a Zero-Escape closure candidate.');
 }
