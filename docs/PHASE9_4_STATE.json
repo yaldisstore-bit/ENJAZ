@@ -79,14 +79,25 @@
   "baselinePagesStartupHeadroomBytes": 106471,
   "budgetIncreaseAllowed": false,
   "foundation": {
-    "status": "IMPLEMENTED_PENDING_GATE",
+    "status": "LOCAL_GATE_PASS",
     "contract": "src/features/regulatory/regulatoryKnowledgeContract.ts",
     "tests": "tests/phase9-4-regulatory-knowledge-foundation.test.ts",
     "staticAudit": "scripts/phase9-4-regulatory-knowledge-audit.mjs",
-    "destructionTestTarget": 12
+    "gateRunId": 34572856756,
+    "gateHead": "8f974c0ff9600fa7bf5c1682a6c972ed68219bee",
+    "destructionTestsPassed": 12,
+    "functionalRegression": "PASS",
+    "databaseAudit": "PASS",
+    "databaseAuditSelfTest": "PASS",
+    "roadmapAudit": "PASS",
+    "zeroEscape": "PASS",
+    "secrets": "PASS",
+    "typecheck": "PASS",
+    "rootBudget": "PASS",
+    "pagesLiveBudget": "PASS"
   },
   "persistence": {
-    "status": "LOCKED_UNTIL_FOUNDATION_GATE",
+    "status": "AUTHORIZED_FOR_IMPLEMENTATION",
     "realCloudVerification": "PENDING"
   },
   "runtime": {
