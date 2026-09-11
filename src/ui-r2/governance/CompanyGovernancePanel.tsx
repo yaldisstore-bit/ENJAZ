@@ -58,7 +58,7 @@ export function CompanyGovernancePanel({ companyId, companyLabel, contacts }: Re
       <article><span>الملكية</span><strong>{context.ownership.configured?'100%':'—'}</strong><small>{ownerCount} مساهم/شريك</small></article>
       <article><span>المستفيد الحقيقي</span><strong>{context.beneficialOwners.length}</strong><small>إقرار فعال</small></article>
       <article><span>التمثيل</span><strong>{activeAuthorities}</strong><small>صلاحية فعالة</small></article>
-      <article><span>رأس المال</span><strong dir="ltr">{context.capital.known&&context.capital.amount?new Intl.NumberFormat('ar-IQ',{maximumFractionDigits:2}).format(Number(context.capital.amount)):'—'}</strong><small>{context.capital.source==='governance_history'?'من سجل الحوكمة':'القيمة الحالية'}</small></article>
+      <article><span>رأس المال</span><strong dir="ltr">{context.capital.known&&context.capital.amount?new Intl.NumberFormat('ar-IQ',{maximumFractionDigits:2}).format(context.capital.amount):'—'}</strong><small>{context.capital.source==='governance_history'?'من سجل الحوكمة':'القيمة الحالية'}</small></article>
     </div>
     <div className="r2-gov-riskbar" aria-label="مخاطر الحوكمة">{context.risks.length?context.risks.map(r=><span key={r.code} className={`is-${r.severity}`} title={r.message}>{riskLabel(r.code)}</span>):<span className="is-clear">لا توجد إشارات حوكمة مفتوحة</span>}</div>
 
