@@ -2,7 +2,7 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation 🚧 IN PROGRESS**  
+الحالة الرسمية: **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 🚧 IN PROGRESS — FOUNDATION + REAL CLOUD PERSISTENCE PASS**  
 آخر مرحلة مغلقة: **Phase 9.3 — Corporate Governance & Ownership Engine — M2 ✅ CLOSED + POST-MERGE RECERTIFIED**  
 الخليفة التالية **Phase 9.5 ما زالت LOCKED** حتى إغلاق 9.4 رسميًا.
 
@@ -37,7 +37,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - Phase 9.1 — Smart Risk Engine: ✅ CLOSED + post-merge recertified.
 - Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence: ✅ CLOSED + post-merge recertified.
 - **Phase 9.3 — Corporate Governance & Ownership Engine — M2: ✅ CLOSED + POST-MERGE RECERTIFIED.**
-- **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation: 🚧 IN PROGRESS — FOUNDATION GATE PASS.**
+- **Phase 9.4 — Regulatory / Knowledge Base Engine — M8: 🚧 IN PROGRESS — FOUNDATION PASS + REAL CLOUD PERSISTENCE CERTIFIED؛ Runtime/UI AUTHORIZED.**
 - **Phase 9.5 وما بعدها: LOCKED** حتى إغلاق 9.4 وفق Zero-Escape.
 
 ## Phase 9.3 — دليل الإغلاق
@@ -65,7 +65,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - largest lazy chunk: **69454 / 140000 PASS**.
 - feature cuts / budget waiver: **NONE**.
 
-## Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation
+## Phase 9.4 — Regulatory / Knowledge Base Engine — M8
 
 Phase 9.4 بدأت رسميًا من merge الإغلاق `c81cc8fa3732ac97248fdaaabc72cc5f7f26b29f` على الفرع `phase9-4-regulatory-knowledge-base-engine`.
 
@@ -78,8 +78,23 @@ Phase 9.4 بدأت رسميًا من merge الإغلاق `c81cc8fa3732ac97248fd
 - first exact-head foundation run `34572856756`: **SUCCESS**.
 - Full functional regression / DB audit+selftest / roadmap / Zero-Escape / secrets / TypeScript / root budget / Pages budget: **PASS**.
 - Foundation state: **LOCAL_GATE_PASS**.
-- Persistence: **AUTHORIZED_FOR_IMPLEMENTATION**؛ Real Cloud ما زال PENDING.
-- Runtime/UI: **LOCKED** حتى شهادة persistence، فلا يوجد ادعاء بإكمال 9.4 مبكرًا.
+
+### Persistence / Real Cloud
+
+- persistence schema: `regulatory_sources` + `regulatory_source_versions` + `regulatory_derived_artifacts` مع RLS وحدود RPC صريحة.
+- official-global ingestion: **SERVICE_ROLE_ONLY**؛ لا `anon` ولا `authenticated` يملكان ingest authority.
+- workspace-curated mutation: **OWNER_RPC_ONLY** عبر authority model الموجود، بلا نظام عضويات موازٍ.
+- derived AI/editorial artifacts: **AUTHORIZED_ACTOR_RPC_ONLY** ودائمًا `authoritative=false`.
+- browser direct sensitive table DML: **FORBIDDEN**.
+- applied migrations: `20260911072927`, `20260911073147`, `20260911073533`, `20260911141327`, `20260911141412`.
+- Real Cloud destructive probe: **PASS** — official + curated revision 1→2، replay، stale، as-of، cross-workspace، outsider، ACL، audit.
+- post-probe independent residue: **0 workspaces / 0 memberships / 0 sources / 0 versions / 0 artifacts / 0 audit events**.
+- phase-owned security advisor warnings: **0**.
+- phase-owned unindexed foreign keys: **0**.
+- Real Cloud status: **PASS_ZERO_RESIDUE / REAL_CLOUD_CERTIFIED**.
+- Runtime/UI: **AUTHORIZED_FOR_IMPLEMENTATION**.
+
+الـReal Cloud probe كشف عيبًا حقيقيًا في immutable version guard يتعلق بالـgenerated `search_document`. تم إصلاحه من دون إضعاف immutability: يُستثنى العمود المشتق فقط من مقارنة `BEFORE UPDATE` مع حقلي إغلاق الفترة المسموحين، وبقيت بقية الحقول fail-closed. أضيف regression دائم لهذا العيب.
 
 ### قانون الحقيقة التنظيمية
 
@@ -97,7 +112,7 @@ M8 في هذه المرحلة يبني معرفة تنظيمية يمكن إثب
 
 ### المسار التالي داخل 9.4
 
-بعد نجاح Foundation، أصبح مسار persistence مصرحًا به: schema/RLS + official-source ingestion authority + workspace curation + immutable versions + source-grounded retrieval. بعد Real Cloud فقط يُفتح runtime/UI. **Phase 9.5 تبقى LOCKED** حتى اكتمال Product → UI/UX → Engineering → Certification لـ9.4 كاملة.
+بعد نجاح Foundation وReal Cloud Persistence أصبحت مرحلة **Runtime/UI** مصرحًا بها. يجب أن تبني Knowledge Center premium Arabic/RTL، مع البحث والاسترجاع الموثق، فصل واضح بين official / workspace-curated / derived content، version history و`as-of`، provenance/citations، وحالات loading/error/empty/permission احترافية. بعد ذلك فقط تأتي Real Browser ثم Pages/Live External والإغلاق. **Phase 9.5 تبقى LOCKED** حتى اكتمال Product → UI/UX → Engineering → Certification لـ9.4 كاملة.
 
 ## Major Product Systems — M1–M18
 
@@ -110,7 +125,7 @@ M8 في هذه المرحلة يبني معرفة تنظيمية يمكن إثب
 5. **M5 — ENJAZ Field Operations / Runner Mode** — `CLOSURE_CANDIDATE`.
 6. **M6 — Service Catalog, CRM & Commercial Intake** — `CLOSURE_CANDIDATE`.
 7. **M7 — Document Factory & Official Form Engine**.
-8. **M8 — Regulatory / Knowledge Base Engine** — `ACTIVE`; Phase 9.4 foundation gate PASS، والمرساة الثانية تبقى Phase 12.
+8. **M8 — Regulatory / Knowledge Base Engine** — `ACTIVE`; Phase 9.4 Foundation PASS + Real Cloud Persistence CERTIFIED، والمرساة الثانية تبقى Phase 12.
 9. **M9 — Agentic ENJAZ Copilot**.
 10. **M10 — Scheduling, Appointments & Deadline Engine**.
 11. **M11 — Integration Platform / API / Webhooks**.
@@ -142,6 +157,7 @@ M8 في هذه المرحلة يبني معرفة تنظيمية يمكن إثب
 - [`docs/PHASE9_3_POSTMERGE_RECERTIFICATION.md`](docs/PHASE9_3_POSTMERGE_RECERTIFICATION.md)
 - [`docs/PHASE9_4_KICKOFF.md`](docs/PHASE9_4_KICKOFF.md)
 - [`docs/PHASE9_4_STATE.json`](docs/PHASE9_4_STATE.json)
+- [`docs/PHASE9_4_REAL_CLOUD_EVIDENCE.md`](docs/PHASE9_4_REAL_CLOUD_EVIDENCE.md)
 
 ## قوانين الانتقال
 
