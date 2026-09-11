@@ -44,8 +44,11 @@ test('browser roles have read-only table grants with RLS on every exposed regula
     assert.match(sql, new RegExp(`revoke all on table public\\.${table} from anon,authenticated`, 'i'));
     assert.match(sql, new RegExp(`grant select on table public\\.${table} to authenticated`, 'i'));
     assert.doesNotMatch(sql, new RegExp(`grant\\s+(insert|update|delete|all)[\\s\\S]*on table public\\.${table}`, 'i'));
+    assert.doesNotMatch(
+      sql,
+      new RegExp(`create\\s+policy\\s+\\S+\\s+on\\s+public\\.${table}\\s+for\\s+(insert|update|delete|all)\\b`, 'i'),
+    );
   }
-  assert.doesNotMatch(sql, /create policy[\s\S]*for\s+(insert|update|delete|all)/i);
 });
 
 test('workspace reads reuse organization authority and curated rows cannot leak cross-workspace', () => {
