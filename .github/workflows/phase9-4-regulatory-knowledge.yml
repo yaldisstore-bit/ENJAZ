@@ -1,4 +1,4 @@
-name: ENJAZ Phase 9.4 — Regulatory Knowledge Foundation Gate
+name: ENJAZ Phase 9.4 — Regulatory Knowledge Gate
 
 on:
   push:
@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   phase9-4-regulatory-knowledge:
-    name: Provenance / version lineage / derived-AI separation / successor lock
+    name: Provenance / persistence / lineage / derived-AI separation / successor lock
     runs-on: ubuntu-latest
     timeout-minutes: 55
     steps:
@@ -38,8 +38,11 @@ jobs:
         run: |
           node scripts/phase9-3-governance-ownership-audit.mjs
           node scripts/phase9-4-regulatory-knowledge-audit.mjs
+          node scripts/phase9-4-regulatory-persistence-audit.mjs
       - name: Regulatory knowledge foundation destruction tests
         run: node --experimental-strip-types --test tests/phase9-4-regulatory-knowledge-foundation.test.ts
+      - name: Regulatory persistence destruction tests
+        run: node --experimental-strip-types --test tests/phase9-4-regulatory-knowledge-persistence.test.ts
       - name: Full functional regression
         run: npm run test:functional
       - name: Database and roadmap integrity
@@ -52,9 +55,9 @@ jobs:
         run: npm run build -- --base=/ && npm run audit:dist:budget
       - name: Real Pages /live build and governed budgets
         run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
-      - name: Assert foundation lifecycle and successor lock
+      - name: Assert lifecycle and successor lock
         run: >-
           node -e "const j=JSON.parse(require('fs').readFileSync('docs/PHASE9_4_STATE.json','utf8'));
-          const a=j.authority||{},m=j.majorSystem||{},f=j.foundation||{};
-          const ok=j.status==='IN_PROGRESS'&&j.javascriptBudgetBytes===670000&&j.budgetIncreaseAllowed===false&&j.exitGatePassed===false&&j.phase9_5Allowed===false&&j.successorStatus==='LOCKED'&&m.id==='M8'&&m.status==='ACTIVE'&&m.globalClosureAllowed===false&&a.officialSourceProvenance==='REQUIRED'&&a.aiOutputAuthority==='NEVER_AUTHORITATIVE'&&a.editorialInterpretationAuthority==='NEVER_AUTHORITATIVE'&&a.directBrowserSensitiveDmlAllowed===false&&a.destructiveHistoryOverwriteAllowed===false&&['IMPLEMENTED_PENDING_GATE','LOCAL_GATE_PASS'].includes(f.status);
+          const a=j.authority||{},m=j.majorSystem||{},f=j.foundation||{},p=j.persistence||{};
+          const ok=j.status==='IN_PROGRESS'&&j.javascriptBudgetBytes===670000&&j.budgetIncreaseAllowed===false&&j.exitGatePassed===false&&j.phase9_5Allowed===false&&j.successorStatus==='LOCKED'&&m.id==='M8'&&m.status==='ACTIVE'&&m.globalClosureAllowed===false&&a.officialSourceProvenance==='REQUIRED'&&a.aiOutputAuthority==='NEVER_AUTHORITATIVE'&&a.editorialInterpretationAuthority==='NEVER_AUTHORITATIVE'&&a.directBrowserSensitiveDmlAllowed===false&&a.destructiveHistoryOverwriteAllowed===false&&f.status==='LOCAL_GATE_PASS'&&['IMPLEMENTED_PENDING_STATIC_GATE','STATIC_GATE_PASS','REAL_CLOUD_CERTIFIED'].includes(p.status)&&p.directBrowserTableMutation===false;
           if(!ok)process.exit(1)"
