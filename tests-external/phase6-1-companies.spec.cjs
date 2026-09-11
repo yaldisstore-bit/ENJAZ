@@ -27,10 +27,13 @@ test('Phase 6.1 company directory is connected, searchable and bounded', async (
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto(previewUrl, { waitUntil: 'networkidle' });
   const companies = page.locator('[data-phase6-1="companies"][data-company-source="workspace"]');
+  const truth = companies.locator(':scope > .r2-records-truth');
+  const governance = companies.locator('[data-phase9-3="governance"]');
   await expect(companies).toBeVisible();
-  await expect(companies.locator('.r2-records-truth').getByText('مصادر الحقيقة محفوظة', { exact: true })).toBeVisible();
-  await expect(companies.locator('[data-phase9-3="governance"]')).toBeVisible();
-  await expect(companies.getByText('قراءة فقط', { exact: true })).toBeVisible();
+  await expect(truth.getByText('مصادر الحقيقة محفوظة', { exact: true })).toBeVisible();
+  await expect(truth.getByText(/بيانات الشركة الأساسية تبقى في Companies/)).toBeVisible();
+  await expect(governance).toBeVisible();
+  await expect(governance.getByText('قراءة فقط', { exact: true })).toBeVisible();
   await page.getByRole('textbox', { name: 'بحث الشركات' }).fill('الكرادة');
   await expect(page.getByText('روز بغداد', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'نشطة 1', exact: true }).click();
@@ -71,7 +74,7 @@ test('Phase 6.1 create confirms one company and exposes no fake later-phase CRUD
   await expect(page.getByText('تم حفظ الشركة')).toBeVisible();
   await page.getByRole('button', { name: 'العودة إلى التفاصيل' }).click();
   await expect(page.getByText('اختبار 6.1', { exact: true }).first()).toBeVisible();
-  await expect(page.locator('.r2-records-truth').getByText(/الأشخاص والعلاقات في مسارها القانوني/)).toBeVisible();
+  await expect(page.locator('[data-phase6-1="companies"] > .r2-records-truth').getByText(/الأشخاص والعلاقات في مسارها القانوني/)).toBeVisible();
   await expect(page.locator('[data-phase9-3="governance"]')).toBeVisible();
   await expect(page.getByRole('button', { name: 'تحديث الهيكل' })).toHaveCount(0);
   await assertNoHorizontalOverflow(page);
