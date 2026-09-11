@@ -199,7 +199,8 @@ else {
   if (phase94.baseCommit !== 'c81cc8fa3732ac97248fdaaabc72cc5f7f26b29f') errors.push('Phase 9.4 base must be the formal 9.3 closure merge');
   if (phase94.majorSystem?.id !== 'M8' || phase94.majorSystem?.status !== 'ACTIVE' || phase94.majorSystem?.globalClosureAllowed !== false) errors.push('Phase 9.4 M8 lifecycle drifted');
   if (phase94.foundation?.status !== 'LOCAL_GATE_PASS' || phase94.foundation?.gateRunId !== 34572856756 || phase94.foundation?.destructionTestsPassed !== 12) errors.push('Phase 9.4 foundation gate evidence drifted');
-  if (phase94.persistence?.status !== 'AUTHORIZED_FOR_IMPLEMENTATION') errors.push('Phase 9.4 persistence must be authorized only after foundation gate PASS');
+  const persistenceStatesAfterFoundation = new Set(['AUTHORIZED_FOR_IMPLEMENTATION', 'IMPLEMENTED_PENDING_STATIC_GATE', 'STATIC_GATE_PASS', 'REAL_CLOUD_CERTIFIED']);
+  if (!persistenceStatesAfterFoundation.has(phase94.persistence?.status)) errors.push('Phase 9.4 persistence lifecycle must remain inside the governed post-foundation state machine');
   if (phase94.phase9_5Allowed !== false || phase94.exitGatePassed !== false || phase94.successorStatus !== 'LOCKED') errors.push('Phase 9.5 must remain locked while 9.4 is open');
   if (phase94.javascriptBudgetBytes !== 670000 || phase94.budgetIncreaseAllowed !== false) errors.push('Phase 9.4 startup JavaScript budget drifted');
   if (phase94.authority?.aiOutputAuthority !== 'NEVER_AUTHORITATIVE' || phase94.authority?.officialSourceProvenance !== 'REQUIRED') errors.push('Phase 9.4 authority/provenance law drifted');
