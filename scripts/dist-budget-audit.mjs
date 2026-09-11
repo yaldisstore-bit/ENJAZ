@@ -2,10 +2,19 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 
-const dist = path.join(process.cwd(), 'dist');
+const cwd = process.cwd();
+const requestedDist = process.env.ENJAZ_DIST_DIR?.trim() || 'dist';
+const dist = path.resolve(cwd, requestedDist);
+const relativeDist = path.relative(cwd, dist);
+if (!relativeDist || relativeDist.startsWith('..') || path.isAbsolute(relativeDist)) {
+  if (dist !== path.resolve(cwd, 'dist')) {
+    console.error(`dist budget audit: ENJAZ_DIST_DIR must stay inside the repository (${requestedDist})`);
+    process.exit(1);
+  }
+}
 const manifestPath = path.join(dist, '.vite', 'manifest.json');
 if (!fs.existsSync(path.join(dist, 'index.html')) || !fs.existsSync(manifestPath)) {
-  console.error('dist budget audit: index.html or Vite manifest is missing');
+  console.error(`dist budget audit: index.html or Vite manifest is missing in ${requestedDist}`);
   process.exit(1);
 }
 function walk(dir) { return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => { const full = path.join(dir, entry.name); return entry.isDirectory() ? walk(full) : [full]; }); }
@@ -29,5 +38,5 @@ if (cssRaw > 180_000) failures.push(`CSS budget exceeded: ${cssRaw} > 180000 byt
 if (gzipTotal > 300_000) failures.push(`combined gzipped JS+CSS exceeded: ${gzipTotal} > 300000 bytes`);
 if (largest?.size > 500_000) failures.push(`single asset too large: ${largest.relative} = ${largest.size} bytes`);
 if (stats.some((item) => item.relative.endsWith('.map'))) failures.push('production source maps must not ship publicly');
-if (failures.length) { console.error(`ENJAZ production budget failed (${failures.length})`); for (const failure of failures) console.error(`- ${failure}`); process.exit(1); }
-console.log(`ENJAZ production budget passed: files=${files.length}, raw=${total}, initial-js=${initialJsRaw}/${INITIAL_JS_BUDGET}, total-js=${jsRaw}/${TOTAL_JS_GUARD}, lazy-js=${jsRaw-initialJsRaw}, largest-lazy=${largestLazy?.size ?? 0}/${LAZY_CHUNK_GUARD}, css=${cssRaw}, gzip(js+css)=${gzipTotal}.`);
+if (failures.length) { console.error(`ENJAZ production budget failed for ${requestedDist} (${failures.length})`); for (const failure of failures) console.error(`- ${failure}`); process.exit(1); }
+console.log(`ENJAZ production budget passed for ${requestedDist}: files=${files.length}, raw=${total}, initial-js=${initialJsRaw}/${INITIAL_JS_BUDGET}, total-js=${jsRaw}/${TOTAL_JS_GUARD}, lazy-js=${jsRaw-initialJsRaw}, largest-lazy=${largestLazy?.size ?? 0}/${LAZY_CHUNK_GUARD}, css=${cssRaw}, gzip(js+css)=${gzipTotal}.`);
