@@ -6,7 +6,7 @@ const PeoplePortal = lazy(() => import('../records/LivePeopleProductionPortal.ts
 const FinancePortal = lazy(() => import('../finance/LiveFinanceProductionPortal.tsx').then((module) => ({ default: module.LiveFinanceProductionPortal })));
 const KnowledgePortal = lazy(() => import('../regulatory/LiveRegulatoryKnowledgePortal.tsx').then((module) => ({ default: module.LiveRegulatoryKnowledgePortal })));
 const SHELL = '.r2-shell[data-r2-runtime-mode="live"][data-destination]';
-type LazyDestination = 'companies' | 'people' | 'finance' | 'knowledge' | null;
+type LazyDestination = 'companies' | 'people' | 'finance' | 'risk' | 'knowledge' | null;
 
 export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorkspace }: Readonly<{ regulatoryKnowledge: RegulatoryKnowledgeGateway; regulatoryWorkspace: Promise<string | null> }>) {
   const [destination, setDestination] = useState<LazyDestination>(null);
@@ -15,7 +15,7 @@ export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorks
     if (!shell) return;
     const sync = () => {
       const value = shell.dataset.destination;
-      setDestination(value === 'companies' || value === 'people' || value === 'finance' || value === 'knowledge' ? value : null);
+      setDestination(value === 'companies' || value === 'people' || value === 'finance' || value === 'risk' || value === 'knowledge' ? value : null);
     };
     sync();
     const observer = new MutationObserver(sync);
@@ -27,7 +27,8 @@ export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorks
   return <Suspense fallback={null}>
     {destination === 'companies' ? <CompaniesPortal />
       : destination === 'people' ? <PeoplePortal />
-      : destination === 'finance' ? <FinancePortal />
-      : <KnowledgePortal gateway={regulatoryKnowledge} workspace={regulatoryWorkspace} />}
+      : destination === 'finance' || destination === 'risk' ? <FinancePortal />
+      : destination === 'knowledge' ? <KnowledgePortal gateway={regulatoryKnowledge} workspace={regulatoryWorkspace} />
+      : null}
   </Suspense>;
 }
