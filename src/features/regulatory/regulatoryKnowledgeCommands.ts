@@ -77,6 +77,8 @@ export interface RegulatoryKnowledgeGateway {
   getEntry(input: Readonly<{ workspaceId: string; sourceId: string; asOf?: string | null }>): Promise<RegulatoryKnowledgeEntry>;
 }
 
+type RegulatorySearchInput = Parameters<RegulatoryKnowledgeGateway['search']>[0];
+type RegulatoryEntryInput = Parameters<RegulatoryKnowledgeGateway['getEntry']>[0];
 type RpcResponse = Readonly<{ data: unknown; error: null | Readonly<{ message?: string; code?: string }> }>;
 type RpcClient = Readonly<{ rpc(name: string, args?: Readonly<Record<string, unknown>>): PromiseLike<RpcResponse> }>;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -123,7 +125,7 @@ function parseEntry(value:unknown):RegulatoryKnowledgeEntry{
 export function createRegulatoryKnowledgeGateway(client:EnjazSupabaseClient):RegulatoryKnowledgeGateway{
   const rpc=client as unknown as RpcClient;
   return Object.freeze({
-    async search(input){
+    async search(input:RegulatorySearchInput){
       if(!UUID.test(input.workspaceId))throw new Error('Invalid workspace id');
       const query=(input.query??'').normalize('NFKC').trim();if(query.length>160)throw new Error('Search query is too long');
       const limit=input.limit??30;if(!Number.isSafeInteger(limit)||limit<1||limit>50)throw new Error('Invalid search limit');
@@ -131,7 +133,7 @@ export function createRegulatoryKnowledgeGateway(client:EnjazSupabaseClient):Reg
       const root=record(response.data);if(root.schema!=='enjaz.regulatory-knowledge.search.v1'||!Array.isArray(root.items))throw new Error('REGULATORY_SEARCH_RESPONSE_INVALID');
       return Object.freeze(root.items.map(parseSearchItem));
     },
-    async getEntry(input){
+    async getEntry(input:RegulatoryEntryInput){
       if(!UUID.test(input.workspaceId)||!UUID.test(input.sourceId))throw new Error('Invalid regulatory identity');
       const response=await rpc.rpc('get_regulatory_knowledge_entry_v1',{p_workspace_id:input.workspaceId,p_source_id:input.sourceId,p_as_of:input.asOf??null});rpcError(response);return parseEntry(response.data);
     },
