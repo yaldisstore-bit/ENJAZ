@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "phase": "9.4",
+  "name": "Regulatory / Knowledge Base Engine — M8 foundation",
+  "status": "IN_PROGRESS",
+  "baseCommit": "c81cc8fa3732ac97248fdaaabc72cc5f7f26b29f",
+  "implementationBranch": "phase9-4-regulatory-knowledge-base-engine",
+  "predecessor": {
+    "phase": "9.3",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase9_4Allowed=true",
+    "closureEvidence": "docs/PHASE9_3_CLOSURE.md"
+  },
+  "majorSystem": {
+    "id": "M8",
+    "name": "Regulatory / Knowledge Base Engine",
+    "status": "ACTIVE",
+    "anchors": ["9", "12"],
+    "globalClosureAllowed": false
+  },
+  "projectQualityConstitution": {
+    "version": 1,
+    "authority": "ENJAZ_NON_NEGOTIABLE_RULES.md",
+    "closureRequiresAllFourPass": true,
+    "tracks": {
+      "product": "IN_PROGRESS",
+      "uiUx": "NOT_STARTED",
+      "engineering": "IN_PROGRESS",
+      "certification": "NOT_STARTED"
+    },
+    "featureCutForBundleBudgetAllowed": false,
+    "legacyDnaAllowed": false,
+    "patchworkReleaseAllowed": false
+  },
+  "authority": {
+    "persistence": "DATABASE_RLS_REQUIRED",
+    "officialSourceProvenance": "REQUIRED",
+    "regulatoryTruth": "APPEND_VERSIONED_EFFECTIVE_DATED",
+    "officialGlobalMutation": "PRIVILEGED_INGESTION_ONLY",
+    "workspaceCuratedMutation": "AUTHORIZED_WORKSPACE_COMMANDS_ONLY",
+    "officialAndCuratedTruthMustRemainDistinct": true,
+    "aiOutputAuthority": "NEVER_AUTHORITATIVE",
+    "editorialInterpretationAuthority": "NEVER_AUTHORITATIVE",
+    "directBrowserSensitiveDmlAllowed": false,
+    "destructiveHistoryOverwriteAllowed": false,
+    "crossWorkspaceCuratedAccessAllowed": false,
+    "ambiguousAsOfResolution": "FAIL_CLOSED"
+  },
+  "scope": {
+    "laws": true,
+    "regulations": true,
+    "instructions": true,
+    "circulars": true,
+    "officialNotices": true,
+    "proceduralKnowledge": true,
+    "sourceProvenance": true,
+    "jurisdictionAndIssuer": true,
+    "publicationEffectiveSupersessionDates": true,
+    "deterministicVersionLineage": true,
+    "historicalAsOfQueries": true,
+    "arabicFirstRetrieval": true,
+    "sourceGroundedCitations": true,
+    "editorialInterpretation": true,
+    "aiSummaries": true
+  },
+  "invariants": {
+    "authoritativeVersionWithoutProvenanceAllowed": false,
+    "overlappingAuthoritativeEffectivePeriodsAllowed": false,
+    "versionCyclesOrForksAllowed": false,
+    "destructiveOfficialVersionOverwriteAllowed": false,
+    "aiMayBecomeOfficialSource": false,
+    "editorialMayReplaceOfficialSource": false,
+    "citationWithoutSourceVersionAllowed": false,
+    "searchNormalizationMayMutateSourceTruth": false,
+    "missingAuthorityBehavior": "FAIL_CLOSED"
+  },
+  "javascriptBudgetBytes": 670000,
+  "baselinePagesInitialJavaScriptBytes": 563529,
+  "baselinePagesStartupHeadroomBytes": 106471,
+  "budgetIncreaseAllowed": false,
+  "foundation": {
+    "status": "IMPLEMENTED_PENDING_GATE",
+    "contract": "src/features/regulatory/regulatoryKnowledgeContract.ts",
+    "tests": "tests/phase9-4-regulatory-knowledge-foundation.test.ts",
+    "staticAudit": "scripts/phase9-4-regulatory-knowledge-audit.mjs",
+    "destructionTestTarget": 12
+  },
+  "persistence": {
+    "status": "LOCKED_UNTIL_FOUNDATION_GATE",
+    "realCloudVerification": "PENDING"
+  },
+  "runtime": {
+    "status": "LOCKED_UNTIL_PERSISTENCE_CERTIFICATION",
+    "realBrowserVerification": "PENDING",
+    "publishedLiveVerification": "PENDING"
+  },
+  "realCloudRequired": true,
+  "realBrowserRequired": true,
+  "publishedLiveVerificationRequired": true,
+  "exitGatePassed": false,
+  "phase9_5Allowed": false,
+  "nextPhase": "9.5",
+  "successorStatus": "LOCKED",
+  "unresolvedDefectCount": 0,
+  "criticalDefectCount": 0,
+  "highDefectCount": 0,
+  "functionalBlockerCount": 0,
+  "kickoffEvidence": "docs/PHASE9_4_KICKOFF.md"
+}

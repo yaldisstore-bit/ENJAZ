@@ -20,7 +20,7 @@
     {"id":"M5","name":"ENJAZ Field Operations / Runner Mode","anchors":["8"],"kind":"field-operations","status":"CLOSURE_CANDIDATE","closureEvidence":"docs/PHASE8_7_CLOSURE.md"},
     {"id":"M6","name":"Service Catalog, CRM & Commercial Intake","anchors":["8"],"kind":"crm-intake","status":"CLOSURE_CANDIDATE","closureEvidence":"docs/PHASE8_7_CLOSURE.md"},
     {"id":"M7","name":"Document Factory & Official Form Engine","anchors":["10"],"kind":"document-generation","status":"PLANNED","closureEvidence":null},
-    {"id":"M8","name":"Regulatory / Knowledge Base Engine","anchors":["9","12"],"kind":"knowledge-system","status":"PLANNED","closureEvidence":null},
+    {"id":"M8","name":"Regulatory / Knowledge Base Engine","anchors":["9","12"],"kind":"knowledge-system","status":"ACTIVE","closureEvidence":null},
     {"id":"M9","name":"Agentic ENJAZ Copilot","anchors":["12"],"kind":"agentic-ai","status":"PLANNED","closureEvidence":null},
     {"id":"M10","name":"Scheduling, Appointments & Deadline Engine","anchors":["11"],"kind":"scheduling","status":"PLANNED","closureEvidence":null},
     {"id":"M11","name":"Integration Platform / API / Webhooks","anchors":["14","15"],"kind":"integration-platform","status":"PLANNED","closureEvidence":null},
