@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "phase": "9.3",
   "name": "Corporate Governance & Ownership Engine — M2",
-  "status": "IN_PROGRESS",
+  "status": "CLOSED",
   "baseCommit": "1d98a57566a5bc55ceda773f02de17dacddaecb0",
   "implementationBranch": "phase9-3-corporate-governance-ownership-engine",
   "predecessor": {
@@ -18,7 +18,7 @@
       "product": "PASS",
       "uiUx": "PASS",
       "engineering": "PASS",
-      "certification": "IN_PROGRESS"
+      "certification": "PASS"
     },
     "featureCutForBundleBudgetAllowed": false,
     "legacyDnaAllowed": false,
@@ -158,14 +158,20 @@
     "bundleArchitecture": "LAZY_DOMAIN_PORTALS",
     "company360Integration": "PASS",
     "realBrowserVerification": "PASS",
-    "realBrowserRunId": 34566887789,
-    "realBrowserHead": "7483fc76cd57dde2fc8d06b31a78e44a540f9c76",
+    "realBrowserRunId": 34571138982,
+    "realBrowserHead": "1c38e388285b1c566d202258d78aadb1b85b9342",
     "realBrowserViewports": [1280, 430, 390, 360, 320],
-    "publishedLiveVerification": "PENDING"
+    "publishedLiveVerification": "PASS",
+    "publishedLiveRunId": 34571241122,
+    "publishedLiveHead": "1c38e388285b1c566d202258d78aadb1b85b9342"
   },
   "runtimeCertification": {
-    "exactGateRunId": 34566887668,
-    "exactGateHead": "7483fc76cd57dde2fc8d06b31a78e44a540f9c76",
+    "premergeExactGateRunId": 34570711134,
+    "exactMainGateRunId": 34571138932,
+    "exactMainGateHead": "1c38e388285b1c566d202258d78aadb1b85b9342",
+    "pagesPreviewRunId": 34571185394,
+    "pagesDeploymentRunId": 34571138262,
+    "liveExternalRunId": 34571241122,
     "functionalRegressionPassed": 217,
     "foundationDestructionPassed": 10,
     "ownershipPersistenceDestructionPassed": 10,
@@ -186,17 +192,29 @@
     "totalJavaScriptGuardBytes": 760000,
     "lazyChunkGuardBytes": 140000
   },
+  "canonicalRuntime": {
+    "implementationPullRequest": 134,
+    "mainSha": "1c38e388285b1c566d202258d78aadb1b85b9342",
+    "exactMainGateRunId": 34571138932,
+    "realBrowserRunId": 34571138982,
+    "pagesPreviewRunId": 34571185394,
+    "pagesDeploymentRunId": 34571138262,
+    "liveExternalRunId": 34571241122,
+    "postMergeRecertification": "PASS"
+  },
   "realCloudRequired": true,
   "realBrowserRequired": true,
   "publishedLiveVerificationRequired": true,
-  "exitGatePassed": false,
-  "phase9_4Allowed": false,
+  "exitGatePassed": true,
+  "phase9_4Allowed": true,
   "nextPhase": "9.4",
-  "successorStatus": "LOCKED",
+  "successorStatus": "AUTHORIZED",
   "unresolvedDefectCount": 0,
   "criticalDefectCount": 0,
   "highDefectCount": 0,
   "functionalBlockerCount": 0,
   "premergeCertificationEvidence": "docs/PHASE9_3_PREMERGE_CERTIFICATION.md",
+  "postmergeCertificationEvidence": "docs/PHASE9_3_POSTMERGE_RECERTIFICATION.md",
+  "closureEvidence": "docs/PHASE9_3_CLOSURE.md",
   "kickoffEvidence": "docs/PHASE9_3_KICKOFF.md"
 }

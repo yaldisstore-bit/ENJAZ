@@ -16,6 +16,7 @@
 > - `docs/ENJAZ_CAPABILITY_EXPANSION_2026.json`
 > - `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json` — 18 major end-to-end systems M1–M18
 > - Zero-Escape closure governance merged on canonical `main`
+> - Phase 9.3 M2 formal closure and Phase 9.4 successor authorization
 
 ---
 
@@ -167,76 +168,49 @@ Transaction search/list, validated create/edit, authoritative 360°, lifecycle, 
 
 # Phase 7 — Finance ✅
 
-Phase 7 now owns both the original finance roadmap and the finance/commercial portions of the expanded major systems. No finance write path may bypass authoritative ledger/payment/reversal contracts.
+Phase 7 owns the authoritative finance roadmap and finance/commercial portions of expanded major systems. No finance write path may bypass authoritative ledger/payment/reversal contracts.
 
 ## 7.1 — Financial Ledger & Summary ✅
 - Authoritative read-only financial overview from transactions, payments, reversals, ledger entries, cashboxes and companies.
 - Bigint-cents money boundary and fail-closed unsafe precision.
 - Receivables, credit, balances, opening balance, ledger movement and integrity warnings.
-- Certified implementation: 24/24 pre-merge workflows SUCCESS.
-- Canonical merge `3d4043c8e5d6784f327ff8ac9879402b7d933422` independently recertified 9/9 on `main`, including deployed-application validation.
+- Certified implementation and canonical post-merge recertification are preserved by phase-specific evidence.
 
 ## 7.2 — Payments & Receipts ✅
 - Real posted-payment creation with idempotency and duplicate-submit protection.
 - Stable human/audit receipt references and immutable receipt snapshots.
 - Safe reversal/correction; no destructive silent mutation.
 - Exact reconciliation between payment, reversal, ledger and transaction/company balances.
-- Real authenticated cloud payment → receipt → idempotent replay → reverse → reconcile journey passed.
-- Controlled cashboxes and guarded finance command boundaries are active.
-- **M16 — Engagements, Contracts & Retainers:** finance/commercial anchor completed without creating a second finance store; later M16 document, communication and reporting slices remain open in their assigned phases.
-- Certified implementation head `da4800ddf4df2ecca49b01d1b40db0546fd70a13`: 26/26 pre-merge workflows SUCCESS, including Real Chromium at 1280/430/390/360/320.
-- Canonical merge `192711cfcc36bf041ab0e576f8ab3899dc63b7a6`: 11/11 post-merge workflows SUCCESS with zero failure/queued/in-progress/cancelled.
-- Pages run `34084227883` build/deploy SUCCESS; Live External run `34084261408` passed public deployment, HTTPS/HTML and **Attack the actual published application**.
 - **Phase 7.2 — Payments & Receipts ✅ CLOSED + post-merge recertified** under Zero-Escape evidence.
 
 ## 7.3 — Financial Intelligence ✅
 - Aging/receivables analysis, collection trends, cash movement, overpayment/credit visibility and anomaly signals.
 - No shadow calculations outside authoritative finance services.
 - **M13 — Business Intelligence & Forecasting Center:** finance forecasting inputs begin here and remain reconciled to source facts.
-- Certified repair/closure head `b99a39d9b4553604b49528faffdd798104042ffb`: 27/27 pull-request workflows SUCCESS, including Real Chromium and strict production budget.
-- Canonical recertified merge `a1c34888732270bea5795ac59603345c190b8fd7`: 12/12 post-merge workflows SUCCESS with zero failure/queued/in-progress/cancelled.
-- Pages Preview `34092324197`, Pages deployment `34092283834`, Real Browser `34092284382`, and Live External `34092363985` all succeeded; the published application attack passed.
-- The discovered 147-byte post-merge budget Gate Escape was repaired without raising the `670000`-byte JavaScript budget and received a permanent Chromium guard.
-- **Phase 7.3 — Financial Intelligence ✅ CLOSED + post-merge recertified** under Zero-Escape evidence. The M13 finance anchor is complete; M13 overall remains open for later assigned slices.
+- **Phase 7.3 — Financial Intelligence ✅ CLOSED + post-merge recertified** under Zero-Escape evidence.
 
 ## 7.4 — Financial Reports ✅
 - Period/company/transaction/cashbox financial reports over authoritative finance facts.
 - Deterministic export/print/PDF totals and direct drill-down provenance from the same report snapshot.
 - Reversed movements remain visible but contribute zero effective movement; unsafe money/date shapes fail closed.
-- Company/transaction scopes exclude unattributable workspace cashbox opening balances; cashbox reports refuse to fabricate movement attribution where the schema has no authoritative link.
-- **M16 — Engagements, Contracts & Retainers:** Phase-7.4 reporting hook completed as `reserved-no-shadow-store`; M16 overall remains open for later document/communication/contract slices.
-- Certified implementation head `7dba0c48e5782df5093deae57c6f10677b32fbce`: PR #103 passed 28/28 pull-request workflows SUCCESS, including Real Chromium at 1280/430/390/360/320.
-- Production JavaScript is `588519/670000`; the hard budget was not raised. Unused Supabase Storage/Functions/Realtime runtime surfaces were removed while Auth + PostgREST contracts remained fully verified.
-- Canonical merge `d4ad3844dc7ae7a1895e2fddfdb06b2ee0a01858`: 10/10 canonical `main` push workflows SUCCESS with zero failure/queued/in-progress.
-- Phase 7.4 post-merge gate `34097286172`, Pages Preview/deploy `34097333825`, Real Browser `34097286214`, and Live External `34097378705` all succeeded; **Attack the actual published application** passed.
 - **Phase 7.4 — Financial Reports ✅ CLOSED + post-merge recertified** under Zero-Escape evidence.
 
 ## 7.5 — Finance Destruction & Reconciliation Gate ✅
-- Huge values, sub-cent/unsafe inputs, reversals, repeated submit, network uncertainty, stale state, partial history and source-capacity pressure were destructively exercised.
-- Authoritative reconciliation proves no lost/duplicated money event; the database enforces one reversal per payment and fails closed on pre-existing duplicate history.
-- Real Cloud authenticated destruction passed on ENJAZ Supabase with exact `9999999999999999.99`, idempotent payment/reversal replay, changed-payload conflict, reconciliation `integrityWarnings=0`, duplicate-reversal rejection and complete probe cleanup.
-- Certified implementation head `c479af8341b9699baf639deabbd61d356ea01c4e`: PR #105 passed 30/30 workflows SUCCESS.
-- Production JavaScript remained `588688/670000`; the hard budget was not raised.
-- Canonical merge `761073812fc0e43f481ac20532ea6c10979d805d`: 11/11 canonical main push workflows SUCCESS with zero failure/queued/in-progress/cancelled.
-- Phase 7.5 gate `34103686407`, Pages Preview/deploy `34103737386`, Real Browser `34103686363`, and Live External `34103828264` all succeeded; **Attack the actual published application** passed.
+- Huge values, reversals, repeated submit, network uncertainty, stale state, partial history and source-capacity pressure are destructively exercised.
+- Authoritative reconciliation proves no lost/duplicated money event.
 - **Phase 7.5 — Finance Destruction & Reconciliation Gate ✅ CLOSED + post-merge recertified** under Zero-Escape evidence.
 
-**Phase 7 exit:** satisfied under Zero-Escape. **Phase 8.1 — Workflow Engine & Government Procedure OS — M1** is the sole next authorized implementation stage.
+**Phase 7 exit:** satisfied under Zero-Escape. Historical transition to Phase 8 is closed and preserved in phase evidence.
 
 ---
 
 # Phase 8 — Workflow, Automation & Operations
 
-Phase 8 expands from workflow UI into the main operational operating system of ENJAZ.
+Phase 8 expands workflow UI into the main operational operating system of ENJAZ.
 
 ## 8.1 — Workflow Engine & Government Procedure OS — M1 ✅
 - Visual/stateful workflow templates, instances, stages, requirements and allowed transitions.
 - **M1 Government Procedure Operating System:** authoritative procedure catalog, government entities/branches, required documents, fees, prerequisites, stage SLA and state history.
-- Procedure instances attach to real transactions; no duplicated transaction state.
-- Certified implementation head `fe19308c8707dc346a3254b92292c048c8c1bc4a`: PR #107 passed 30/30 pull-request workflows SUCCESS and Real Chromium at 1280/430/390/360/320.
-- Authenticated Real Cloud evidence passed catalog, prerequisites, branch requirements, idempotency, required items, stale state, complete, reopen and prerequisite-success behavior.
-- Canonical merge `95f988ac305d9003ee19a5f0f474c499f51d288b`: 15/15 exact-SHA workflow runs SUCCESS with zero failure/queued/in-progress/cancelled.
-- Phase 8.1 gate `34117766941`, Pages Preview `34117816460`, Pages deployment `34117766836`, Real Browser `34117766978`, and Live External `34117875655` succeeded; the published application attack passed.
 - **Phase 8.1 ✅ CLOSED + post-merge recertified. M1 implementation anchor is complete. Phase 8.7 supplied the required Phase-8 individual destruction evidence; M1 remains `CLOSURE_CANDIDATE` until the separate major-system `ZERO_ESCAPE_V1` closure evidence file satisfies every global M-system requirement (including fresh-workspace coverage where applicable).**
 
 ## 8.2 — Automation Engine
@@ -271,26 +245,39 @@ Phase 8 expands from workflow UI into the main operational operating system of E
 ## 9.1 — Smart Risk Engine ✅
 - Explainable risk signals, urgency, anomaly and prioritization.
 - **Phase 9.1 — Smart Risk Engine ✅ CLOSED + post-merge recertified** under a read-only derived-intelligence authority boundary.
-- Implementation PR #124 final head `0932a33d8b28b15509bfe3da456d09c51ce344fa`: **37/37 SUCCESS**; final published-contract repair PR #127 head `549ea2205fbe9cba91a9d71631f22433afff4eaf`: **39/39 SUCCESS**.
 - Canonical runtime SHA `9b116d39ad3cebc62e6c4f15d4fb72fef1b25fde`: **19/19 exact-main push workflows SUCCESS** and **22/22 cumulative exact-SHA workflow runs SUCCESS**.
-- Phase 9.1 gate `34411497055`, Real Browser `34411497023`, Pages build/deployment `34411495854`, Pages Preview `34411566669`, and Live External `34411616353` all succeeded, including the actual published `/live` Smart Risk deployment-contract attack.
-- Risk-owned tables/write RPCs remain **NONE**; no transaction/workflow/finance/company/automation write authority was introduced.
-- Missing evidence remains fail-closed. The production shell/bridge split preserves the unchanged **670000-byte** JavaScript ceiling; certified Phase 9.1 build: **669992/670000 PASS**.
+- Phase 9.1 gate `34411497055`, Real Browser `34411497023`, Pages build/deployment `34411495854`, Pages Preview `34411566669`, and Live External `34411616353` all succeeded.
+- Risk-owned tables/write RPCs remain **NONE**; missing evidence remains fail-closed.
+- Certified Phase 9.1 build: **669992/670000 PASS** under the unchanged 670000-byte startup ceiling.
 - Formal evidence: `docs/PHASE9_1_STATE.json`, `docs/PHASE9_1_CLOSURE.md`, `docs/PHASE9_1_POSTMERGE_RECERTIFICATION.md`.
 
-## 9.2 — Smart Saved Views & Cross-domain Search Intelligence
+## 9.2 — Smart Saved Views & Cross-domain Search Intelligence ✅
 - Stable reusable query definitions and high-value cross-domain discovery.
-- **AUTHORIZED successor after formal Phase 9.1 closure; implementation is not yet closed.**
-- Saved views must persist under explicit RLS/permission authority; global search must group authoritative results by domain and never leak unauthorized entities.
-- Existing filters/finders must be reused rather than duplicated, and deep links must return to the exact authoritative destination/entity.
+- Saved Views persist under explicit RLS/permission authority; Global Search groups authoritative results by domain and never leaks unauthorized entities.
+- Existing filters/finders are reused rather than duplicated and deep links return to authoritative destinations.
+- **Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence ✅ CLOSED + post-merge recertified** under exact-main Real Browser, Pages, Live External and Real Cloud zero-residue evidence.
+- Canonical closure SHA: `1d98a57566a5bc55ceda773f02de17dacddaecb0`.
+- Formal evidence: `docs/PHASE9_2_STATE.json`, `docs/PHASE9_2_CLOSURE.md`, `docs/PHASE9_2_POSTMERGE_RECERTIFICATION.md`.
 
-## 9.3 — Corporate Governance & Ownership Engine — M2
-- Shareholders/partners, ownership percentages, directors/authorized persons, beneficial-owner context, ownership transfers and historical control timeline.
-- Validation prevents impossible ownership states and unauthorized governance changes.
+## 9.3 — Corporate Governance & Ownership Engine — M2 ✅
+- Shareholders/partners, exact ownership percentages, beneficial owners, directors/managers, authorized representation, powers/authorizations, resolutions, capital history, ownership transfers, corporate events and historical control timeline.
+- Validation prevents impossible ownership states, conflicting effective periods, cross-workspace references and unauthorized governance changes.
+- Existing company/person records remain authoritative; governance creates no shadow company/party truth store.
+- **Phase 9.3 — Corporate Governance & Ownership Engine — M2 ✅ CLOSED + post-merge recertified**.
+- Canonical runtime SHA `1c38e388285b1c566d202258d78aadb1b85b9342`.
+- Phase 9.3 exact-main gate `34571138932`, Real Browser `34571138982`, Pages build/deployment `34571138262`, Pages Preview `34571185394`, and Live External `34571241122` all succeeded.
+- Real Browser covered 1280/430/390/360/320; Real Cloud persistence and authenticated destructive verification ended with zero residue and zero phase-owned advisor/index warnings.
+- The hard startup JavaScript ceiling remains 670000 bytes; final Pages initial runtime is **563529/670000 PASS**, achieved through lazy domain portals rather than feature cuts.
+- Formal evidence: `docs/PHASE9_3_STATE.json`, `docs/PHASE9_3_CLOSURE.md`, `docs/PHASE9_3_POSTMERGE_RECERTIFICATION.md`.
+- M2 advances only to `CLOSURE_CANDIDATE` under the independent major-system `ZERO_ESCAPE_V1` law; Phase closure does not fabricate global M2 closure.
 
 ## 9.4 — Regulatory / Knowledge Base Engine — M8 foundation
-- Structured laws, regulations, circulars, procedural knowledge and source/version metadata.
-- Knowledge facts remain distinct from AI-generated interpretation.
+- Structured laws, regulations, instructions, circulars, procedural knowledge and source/version metadata.
+- Source provenance, jurisdiction, publication/effective/supersession dates and deterministic version lineage are first-class authority fields.
+- Official source text and structured regulatory facts remain distinct from editorial interpretation and AI-generated summaries.
+- Missing provenance/version/effective-date authority fails closed; historical source truth is append/versioned rather than destructively overwritten.
+- Arabic-first retrieval must return source provenance and never turn AI interpretation into authoritative law.
+- **AUTHORIZED as the sole successor after formal Phase 9.3 closure.** Phase 9.5 remains locked until Phase 9.4 receives its own Real Cloud, Real Browser, Pages and deployed-live closure evidence.
 
 ## 9.5 — Business Intelligence & Forecasting Center — M13
 - Operational/financial KPI models, trends, capacity and forecast surfaces with source provenance.
@@ -300,7 +287,7 @@ Phase 8 expands from workflow UI into the main operational operating system of E
 - Detect bottlenecks, rework and delay patterns; prediction must expose confidence and evidence.
 
 ## 9.7 — Intelligence Zero-Escape Gate
-- Conflicting/stale signals, no-data states, high-volume datasets, invalid ownership, model drift and prediction uncertainty.
+- Conflicting/stale signals, no-data states, high-volume datasets, invalid ownership, regulatory version conflicts, model drift and prediction uncertainty.
 - M2/M8/M13/M18 require individual closure evidence.
 
 ---
@@ -535,11 +522,8 @@ The project is delivered only when:
 - **Phase 7.4 — Financial Reports ✅ CLOSED + post-merge recertified**
 - **Phase 7.5 — Finance Destruction & Reconciliation Gate ✅ CLOSED + post-merge recertified**
 - **Phase 7 — Finance ✅ CLOSED + post-merge recertified**
-- **M13 finance forecasting/BI anchor ✅ COMPLETE; M13 overall remains open for later assigned slices**
-- **M16 finance/commercial anchor ✅ COMPLETE; Phase-7.4 reporting hook ✅ COMPLETE; M16 overall remains open for later assigned slices**
-- Historical predecessor transition (satisfied): **Next: Phase 8.1 — Workflow Engine & Government Procedure OS — M1**
 - **Phase 8.1 — Workflow Engine & Government Procedure OS — M1 ✅ CLOSED + post-merge recertified**
-- Historical satisfied marker: **M1 — Government Procedure Operating System 🟠 `CLOSURE_CANDIDATE`; 8.1 implementation anchor complete, overall closure remains locked behind Phase 8.7 individual Zero-Escape evidence**
+- Historical satisfied marker: **M1 — Government Procedure Operating System 🟠 `CLOSURE_CANDIDATE`**
 - Historical satisfied marker: **Next: Phase 8.2 — Automation Engine**
 
 This snapshot is retained only as satisfied transition history. It no longer defines the canonical next stage.
@@ -557,17 +541,16 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - **Phase 8.6 — Global Command Center ✅ CLOSED + post-merge recertified**
 - **Phase 8.7 — Operations Zero-Escape Destruction Gate ✅ CLOSED + post-merge recertified**
 - **Phase 8 — Workflow, Automation & Operations ✅ CLOSED + post-merge recertified**
-- Phase 8.7 canonical post-merge certification is bound to main SHA `4334d8ab8e9db6310a07fa23fb9d11fc0665ed16`: **18/18 exact-main workflows SUCCESS**, Pages Preview/deploy SUCCESS, cumulative Real Browser SUCCESS, and Live External SUCCESS.
-- The repaired live Pages JavaScript remains within the unchanged hard ceiling: **669984 / 670000 bytes PASS**.
-- **M1 / M5 / M6:** remain `CLOSURE_CANDIDATE` under the independent M1–M18 `ZERO_ESCAPE_V1` law; Phase 8 closure does not fabricate their global system closure.
-- **M15 / M17:** remain `ACTIVE` because their governing anchors continue in later phases (15 and 11 respectively).
 - Historical satisfied marker: **Next: Phase 9.1 — Smart Risk Engine**
 - **Phase 9.1 — Smart Risk Engine ✅ CLOSED + post-merge recertified**
-- Phase 9.1 canonical runtime certification is bound to main SHA `9b116d39ad3cebc62e6c4f15d4fb72fef1b25fde`: **19/19 exact-main push workflows SUCCESS**, **22/22 cumulative exact-SHA workflow runs SUCCESS**, Phase 9.1 gate SUCCESS, Real Browser SUCCESS, Pages build/deploy + Preview SUCCESS, and Live External SUCCESS.
-- Phase 9.1 remains strictly `READ_ONLY_DERIVED_INTELLIGENCE`; Risk-owned tables and write RPCs are **NONE** and the hard JavaScript ceiling remains **670000 bytes** with certified build **669992/670000 PASS**.
-- **Next: Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence**
+- **Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence ✅ CLOSED + post-merge recertified**
+- **Phase 9.3 — Corporate Governance & Ownership Engine — M2 ✅ CLOSED + post-merge recertified**
+- Phase 9.3 canonical runtime certification is bound to `1c38e388285b1c566d202258d78aadb1b85b9342`: Phase 9.3 gate `34571138932`, Real Browser `34571138982`, Pages deployment `34571138262`, Pages Preview `34571185394`, and Live External `34571241122` are SUCCESS.
+- Phase 9.3 Product / UI/UX / Engineering / Certification are all PASS; Real Cloud is zero-residue and the final Pages initial JavaScript is **563529/670000 PASS** under the unchanged hard startup ceiling.
+- **M2 — Corporate Governance & Ownership Engine:** `CLOSURE_CANDIDATE`; Phase 9.3 implementation anchor is complete but global system closure remains governed by `ZERO_ESCAPE_V1`.
+- **Next: Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation**
 
-Phase 9.2 is the sole newly authorized implementation stage after formal Phase 9.1 closure. No Phase 9.3+ stage is pre-authorized by this transition.
+Phase 9.4 is the sole newly authorized implementation stage after formal Phase 9.3 closure. Phase 9.5+ is not pre-authorized by this transition.
 
 ---
 
@@ -602,21 +585,21 @@ The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; 
 
 This file is intentionally difficult to change by accident.
 
-This reconciliation originally made nine explicit changes and now records an eleventh canonical transition:
+The current reconciliation preserves all historical closure authority while recording the canonical transition through Phase 9.3:
 
-1. preserves the already-proven Phase 7.1 canonical post-merge recertification and its historical authorization of 7.2;
-2. preserves Phase 7.2 canonical closure/post-merge recertification and its historical authorization of 7.3;
-3. preserves Phase 7.3 canonical closure/post-merge recertification, including the repaired 147-byte Gate Escape, and its historical authorization of 7.4;
-4. preserves Phase 7.4 canonical closure/post-merge recertification and its historical authorization of 7.5;
-5. preserves Phase 7.5 canonical closure/post-merge recertification, the Phase-7 exit and its historical authorization of 8.1;
-6. records Phase 8.1 canonical closure/post-merge recertification and advances the historical implementation pointer to 8.2 while keeping M1 overall at `CLOSURE_CANDIDATE` until its individual Zero-Escape destruction evidence is complete;
-7. keeps the 18 major product systems M1–M18 embedded in their governing phases rather than detached amendments;
-8. keeps Zero-Escape closure mandatory across every major system and future phase exit where that system is anchored;
-9. preserves historical transition markers as satisfied history while moving the current pointer forward;
-10. records formal Phase 8.7 / Phase 8 closure after exact-main, Pages, Real Browser and Live External recertification, and advances the sole historical implementation pointer to Phase 9.1 without prematurely closing M1/M5/M6/M15/M17 globally;
-11. records formal Phase 9.1 closure after the implementation and verifier-repair matrices, exact-main, Real Browser, Pages and Live External recertification, preserves the read-only/no-write Risk authority boundary and advances the sole current pointer to Phase 9.2.
+1. closed phases 0–8 remain closed and are not reopened;
+2. Phase 9.1 remains closed under its read-only derived-intelligence authority;
+3. Phase 9.2 remains closed under Saved Views/Search Real Cloud and deployed-live evidence;
+4. Phase 9.3 is formally closed after full M2 product scope, Real Cloud zero-residue persistence, exact-main gate, Real Browser, Pages and Live External recertification;
+5. the production startup JavaScript hard ceiling remains 670000 bytes and Phase 9.3 restored deliberate margin through architecture rather than feature cuts;
+6. M2 advances only to `CLOSURE_CANDIDATE`, not global `CLOSED`;
+7. Phase 9.4 becomes the sole authorized successor;
+8. Phase 9.5+ remains locked;
+9. M8 remains an open multi-anchor system because its second governing anchor is Phase 12;
+10. the 18 major product systems remain governed by independent `ZERO_ESCAPE_V1` closure law;
+11. all current status documents, README and machine-readable system registry must agree with this transition.
 
-It does **not** silently reopen Phases 0–8, falsely mark M13 or M16 fully closed from their Phase-7 anchors, falsely close any major M-system without `ZERO_ESCAPE_V1` evidence, mark M2–M18 implemented without their own evidence, or authorize work beyond Phase 9.2.
+It does **not** silently reopen prior phases, falsely close a major M-system from a phase branch, weaken RLS/authority boundaries, raise the JavaScript ceiling, or authorize work beyond Phase 9.4.
 
 Any future roadmap change must state:
 1. what changes;
