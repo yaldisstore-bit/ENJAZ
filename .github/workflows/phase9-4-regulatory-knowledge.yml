@@ -42,7 +42,7 @@ jobs:
       - name: Regulatory knowledge foundation destruction tests
         run: node --experimental-strip-types --test tests/phase9-4-regulatory-knowledge-foundation.test.ts
       - name: Regulatory persistence destruction tests
-        run: node --experimental-strip-types --test tests/phase9-4-regulatory-knowledge-persistence.test.ts
+        run: node --experimental-strip-types --test tests/phase9-4-regulatory-knowledge-persistence.test.ts tests/phase9-4-regulatory-service-role-bridge.test.ts
       - name: Full functional regression
         run: npm run test:functional
       - name: Database and roadmap integrity
