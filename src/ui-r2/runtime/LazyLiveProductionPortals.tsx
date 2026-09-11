@@ -4,7 +4,7 @@ const CompaniesPortal = lazy(() => import('../records/LiveCompaniesProductionPor
 const PeoplePortal = lazy(() => import('../records/LivePeopleProductionPortal.tsx').then((module) => ({ default: module.LivePeopleProductionPortal })));
 const FinancePortal = lazy(() => import('../finance/LiveFinanceProductionPortal.tsx').then((module) => ({ default: module.LiveFinanceProductionPortal })));
 const SHELL = '.r2-shell[data-r2-runtime-mode="live"][data-destination]';
-type LazyDestination = 'companies' | 'people' | 'finance' | null;
+type LazyDestination = 'companies' | 'people' | 'finance' | 'risk' | null;
 
 export function LazyLiveProductionPortals() {
   const [destination, setDestination] = useState<LazyDestination>(null);
@@ -13,7 +13,7 @@ export function LazyLiveProductionPortals() {
     if (!shell) return;
     const sync = () => {
       const value = shell.dataset.destination;
-      setDestination(value === 'companies' || value === 'people' || value === 'finance' ? value : null);
+      setDestination(value === 'companies' || value === 'people' || value === 'finance' || value === 'risk' ? value : null);
     };
     sync();
     const observer = new MutationObserver(sync);
