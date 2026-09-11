@@ -14,6 +14,7 @@ import { FinanceCommandProvider } from '../../features/finance/FinanceCommandCon
 import { createSupabaseFinanceCommandGateway, type FinanceCommandGateway } from '../../features/finance/financeCommands.ts';
 import { GovernanceCommandProvider } from '../../features/governance/GovernanceCommandContext.tsx';
 import { createGovernanceCommandGateway, type GovernanceCommandGateway } from '../../features/governance/governanceCommands.ts';
+import { createRegulatoryKnowledgeGateway, type RegulatoryKnowledgeGateway } from '../../features/regulatory/regulatoryKnowledgeCommands.ts';
 import { createSearchIntelligenceGateway, type SearchIntelligenceGateway } from '../../features/searchIntelligence/searchIntelligenceCommands.ts';
 import { GovernmentProcedureCommandProvider } from '../../features/workflow/GovernmentProcedureCommandContext.tsx';
 import { createGovernmentProcedureRuntimeGateway, type GovernmentProcedureRuntimeGateway } from '../../features/workflow/governmentProcedureRuntime.ts';
@@ -49,6 +50,7 @@ export type UiR2ProductionResources = Readonly<{
   automationCommands: AutomationCommandGateway;
   fieldOperationsCommands: FieldOperationsCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
+  regulatoryKnowledge: RegulatoryKnowledgeGateway;
 }>;
 
 function createProductionResources(): UiR2ProductionResources {
@@ -63,6 +65,7 @@ function createProductionResources(): UiR2ProductionResources {
     automationCommands: createAutomationCommandGateway(client),
     fieldOperationsCommands: createFieldOperationsCommandGateway(client),
     searchIntelligence: createSearchIntelligenceGateway(client),
+    regulatoryKnowledge: createRegulatoryKnowledgeGateway(client),
   });
 }
 
@@ -76,7 +79,7 @@ function leaveRecoveryMode() {
   window.location.replace(url.toString());
 }
 
-function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence }: Readonly<{
+function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence, regulatoryKnowledge }: Readonly<{
   dataFactory: EnjazDataLayerFactory;
   financeCommands: FinanceCommandGateway;
   governanceCommands: GovernanceCommandGateway;
@@ -84,6 +87,7 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceComman
   automationCommands: AutomationCommandGateway;
   fieldOperationsCommands: FieldOperationsCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
+  regulatoryKnowledge: RegulatoryKnowledgeGateway;
 }>) {
   const auth = useAuth();
   const workspace = useMemo(() => auth.user ? dataFactory.resolveWorkspaceId(auth.user.id) : Promise.resolve(null), [auth.user?.id, dataFactory]);
@@ -95,7 +99,7 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceComman
 
   return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
-    <LazyLiveProductionPortals />
+    <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} />
   </CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
@@ -114,5 +118,6 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     automationCommands={runtime.resources.automationCommands}
     fieldOperationsCommands={runtime.resources.fieldOperationsCommands}
     searchIntelligence={runtime.resources.searchIntelligence}
+    regulatoryKnowledge={runtime.resources.regulatoryKnowledge}
   /></AuthProvider>;
 }
