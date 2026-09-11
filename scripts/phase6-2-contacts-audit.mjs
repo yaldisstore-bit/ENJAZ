@@ -20,6 +20,7 @@ const paths = {
   hooks: 'src/features/contacts/useContacts.ts',
   connected: 'src/ui-r2/records/ConnectedPeople.tsx',
   portal: 'src/ui-r2/records/LivePeopleProductionPortal.tsx',
+  lazyPortals: 'src/ui-r2/runtime/LazyLiveProductionPortals.tsx',
   production: 'src/ui-r2/runtime/UiR2ProductionRoot.tsx',
   liveRoot: 'src/ui-r2/runtime/UiR2LiveRoot.tsx',
   records: 'src/ui-r2/records/RecordsRelationshipsExperience.tsx',
@@ -41,6 +42,7 @@ const service = read(paths.service);
 const hooks = read(paths.hooks);
 const connected = read(paths.connected);
 const portal = read(paths.portal);
+const lazyPortals = read(paths.lazyPortals);
 const production = read(paths.production);
 const liveRoot = read(paths.liveRoot);
 const records = read(paths.records);
@@ -91,7 +93,8 @@ for (const marker of ['CONTACT_SOURCE_LIMIT = 5_000','loadContactListSource','lo
 for (const marker of ['mutationInFlightRef','globalThis.crypto.randomUUID()','useContactDirectory','useContactProfile','useContactEditor','useContactRelationshipActions','DATA_OUTCOME_UNKNOWN']) requireMarker(hooks, marker, 'contact hooks');
 for (const marker of ['data-phase6-2="lawyers-contacts"','data-contact-source="workspace"','بحث الأشخاص','المحامون','جهة اتصال جديدة','إضافة علاقة مع شركة','company_contacts','primary_contact_id','Phase 6.3','Phase 7']) requireMarker(connected, marker, 'connected people UI');
 for (const marker of ['createPortal','data-r2-runtime-mode="live"','data-destination','data-records-domain="people"','<ConnectedPeople />']) requireMarker(portal, marker, 'live people portal');
-for (const marker of ['<LiveCompaniesProductionPortal />','<LivePeopleProductionPortal />','<DataLayerProvider','<UiR2LiveRoot']) requireMarker(production, marker, 'production root');
+for (const marker of ['<DataLayerProvider','<UiR2LiveRoot','<LazyLiveProductionPortals />',"import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';"]) requireMarker(production, marker, 'production root');
+for (const marker of ["import('../records/LiveCompaniesProductionPortal.tsx')",'module.LiveCompaniesProductionPortal',"import('../records/LivePeopleProductionPortal.tsx')",'module.LivePeopleProductionPortal',"destination === 'companies' ? <CompaniesPortal />","destination === 'people' ? <PeoplePortal />"]) requireMarker(lazyPortals, marker, 'lazy records production router');
 requireMarker(liveRoot, 'data-r2-runtime-mode="live"', 'live-only production shell');
 if (production.includes("from './UiR2Root.tsx'")) errors.push('production root must not import preview UiR2Root');
 if (liveRoot.includes('RecordsRelationshipsExperience')) errors.push('live-only production shell must not import records preview implementation');

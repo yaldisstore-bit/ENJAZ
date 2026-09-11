@@ -12,6 +12,8 @@ import { FieldOperationsCommandProvider } from '../../features/field-operations/
 import { createFieldOperationsCommandGateway, type FieldOperationsCommandGateway } from '../../features/field-operations/fieldOperationsCommands.ts';
 import { FinanceCommandProvider } from '../../features/finance/FinanceCommandContext.tsx';
 import { createSupabaseFinanceCommandGateway, type FinanceCommandGateway } from '../../features/finance/financeCommands.ts';
+import { GovernanceCommandProvider } from '../../features/governance/GovernanceCommandContext.tsx';
+import { createGovernanceCommandGateway, type GovernanceCommandGateway } from '../../features/governance/governanceCommands.ts';
 import { createSearchIntelligenceGateway, type SearchIntelligenceGateway } from '../../features/searchIntelligence/searchIntelligenceCommands.ts';
 import { GovernmentProcedureCommandProvider } from '../../features/workflow/GovernmentProcedureCommandContext.tsx';
 import { createGovernmentProcedureRuntimeGateway, type GovernmentProcedureRuntimeGateway } from '../../features/workflow/governmentProcedureRuntime.ts';
@@ -19,9 +21,7 @@ import { CurrentUserIdProvider } from '../../shared/session/CurrentUserIdContext
 import { SessionChecking } from '../../shared/session/SessionChecking.tsx';
 import { R2AuthScreen } from '../auth/R2AuthScreen.tsx';
 import { R2PasswordUpdateScreen } from '../auth/R2PasswordUpdateScreen.tsx';
-import { LiveFinanceProductionPortal } from '../finance/LiveFinanceProductionPortal.tsx';
-import { LiveCompaniesProductionPortal } from '../records/LiveCompaniesProductionPortal.tsx';
-import { LivePeopleProductionPortal } from '../records/LivePeopleProductionPortal.tsx';
+import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';
 import { UiR2LiveRoot } from './UiR2LiveRoot.tsx';
 import './shell-base.css';
 import './shell.css';
@@ -44,6 +44,7 @@ export type UiR2ProductionResources = Readonly<{
   authGateway: AuthGateway;
   dataFactory: EnjazDataLayerFactory;
   financeCommands: FinanceCommandGateway;
+  governanceCommands: GovernanceCommandGateway;
   workflowCommands: GovernmentProcedureRuntimeGateway;
   automationCommands: AutomationCommandGateway;
   fieldOperationsCommands: FieldOperationsCommandGateway;
@@ -57,6 +58,7 @@ function createProductionResources(): UiR2ProductionResources {
     authGateway: createSupabaseAuthGateway(client),
     dataFactory: createEnjazDataLayerFactory(client),
     financeCommands: createSupabaseFinanceCommandGateway(client),
+    governanceCommands: createGovernanceCommandGateway(client),
     workflowCommands: createGovernmentProcedureRuntimeGateway(client),
     automationCommands: createAutomationCommandGateway(client),
     fieldOperationsCommands: createFieldOperationsCommandGateway(client),
@@ -74,9 +76,10 @@ function leaveRecoveryMode() {
   window.location.replace(url.toString());
 }
 
-function AuthenticatedR2Runtime({ dataFactory, financeCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence }: Readonly<{
+function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence }: Readonly<{
   dataFactory: EnjazDataLayerFactory;
   financeCommands: FinanceCommandGateway;
+  governanceCommands: GovernanceCommandGateway;
   workflowCommands: GovernmentProcedureRuntimeGateway;
   automationCommands: AutomationCommandGateway;
   fieldOperationsCommands: FieldOperationsCommandGateway;
@@ -90,12 +93,10 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, workflowCommands
   if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode} />;
   const signOut = async () => { await auth.service.signOut(); };
 
-  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}>
+  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
-    <LiveCompaniesProductionPortal />
-    <LivePeopleProductionPortal />
-    <LiveFinanceProductionPortal />
-  </CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></FinanceCommandProvider></DataLayerProvider>;
+    <LazyLiveProductionPortals />
+  </CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
 export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2ProductionResources | undefined }> = {}) {
@@ -108,6 +109,7 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
   return <AuthProvider gateway={runtime.resources.authGateway}><AuthenticatedR2Runtime
     dataFactory={runtime.resources.dataFactory}
     financeCommands={runtime.resources.financeCommands}
+    governanceCommands={runtime.resources.governanceCommands}
     workflowCommands={runtime.resources.workflowCommands}
     automationCommands={runtime.resources.automationCommands}
     fieldOperationsCommands={runtime.resources.fieldOperationsCommands}

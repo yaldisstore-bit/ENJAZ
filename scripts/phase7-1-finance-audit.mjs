@@ -16,13 +16,14 @@ const paths = {
   hooks: 'src/features/finance/useFinance.ts',
   experience: 'src/ui-r2/finance/FinanceLedgerExperience.tsx',
   portal: 'src/ui-r2/finance/LiveFinanceProductionPortal.tsx',
+  lazyPortals: 'src/ui-r2/runtime/LazyLiveProductionPortals.tsx',
   phase72: 'src/ui-r2/finance/Phase72FinanceExperience.tsx',
   phase73: 'src/ui-r2/finance/Phase73FinancialIntelligenceExperience.tsx',
   css: 'src/ui-r2/finance/finance.css',
   preview: 'src/ui-r2/finance/financePreviewSnapshot.ts',
 };
 
-for (const path of [paths.state, paths.notes, paths.model, paths.service, paths.hooks, paths.experience, paths.portal, paths.css, paths.preview, 'tests/financeModel.test.ts', 'tests/financeService.test.ts']) {
+for (const path of [paths.state, paths.notes, paths.model, paths.service, paths.hooks, paths.experience, paths.portal, paths.lazyPortals, paths.css, paths.preview, 'tests/financeModel.test.ts', 'tests/financeService.test.ts']) {
   if (!exists(path)) errors.push(`missing ${path}`);
 }
 if (errors.length) {
@@ -36,6 +37,7 @@ const model = read(paths.model);
 const service = read(paths.service);
 const dataLayer = read('src/data/createDataLayer.ts');
 const portal = read(paths.portal);
+const lazyPortals = read(paths.lazyPortals);
 const phase72 = exists(paths.phase72) ? read(paths.phase72) : '';
 const phase73 = exists(paths.phase73) ? read(paths.phase73) : '';
 const productionRoot = read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
@@ -108,7 +110,13 @@ const forward73Preserves71 = portal.includes('ConnectedPhase73FinancialIntellige
   && phase73.includes('<Phase72FinanceExperience')
   && phase72Preserves71;
 if (!direct71Portal && !forward72Preserves71 && !forward73Preserves71) errors.push('live finance portal must preserve the connected 7.1 ledger contract directly or through a verified later-phase composition chain');
-if (!productionRoot.includes('<LiveFinanceProductionPortal />')) errors.push('production runtime must mount the live finance portal');
+const lazyFinanceMount = productionRoot.includes("import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';")
+  && productionRoot.includes('<LazyLiveProductionPortals />')
+  && lazyPortals.includes("import('../finance/LiveFinanceProductionPortal.tsx')")
+  && lazyPortals.includes('module.LiveFinanceProductionPortal')
+  && lazyPortals.includes("value === 'finance' || value === 'risk'")
+  && lazyPortals.includes('<FinancePortal />');
+if (!productionRoot.includes('<LiveFinanceProductionPortal />') && !lazyFinanceMount) errors.push('production runtime must mount the live finance portal directly or through the verified lazy production-portal router');
 
 if (!packageJson.scripts?.['test:phase7-1']?.includes('financeModel.test.ts') || !packageJson.scripts?.['test:phase7-1']?.includes('financeService.test.ts')) errors.push('package test:phase7-1 is incomplete');
 if (packageJson.scripts?.['audit:phase7-1:finance'] !== 'node scripts/phase7-1-finance-audit.mjs') errors.push('package finance audit script missing');

@@ -76,25 +76,10 @@ jobs:
         run: node scripts/dist-budget-audit.mjs
       - name: Build real ENJAZ runtime for Pages /live
         run: npm run build -- --base="${{ steps.pages.outputs.base_path }}/live/" --outDir=dist-live
-      - name: Enforce real Pages runtime JavaScript budget
-        run: |
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          import path from 'node:path';
-          const root = 'dist-live';
-          let total = 0;
-          const walk = (dir) => {
-            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-              const target = path.join(dir, entry.name);
-              if (entry.isDirectory()) walk(target);
-              else if (/\.m?js$/i.test(entry.name)) total += fs.statSync(target).size;
-            }
-          };
-          walk(root);
-          const limit = 670000;
-          console.log(`Real Pages JS: ${total}/${limit}`);
-          if (total > limit) process.exit(1);
-          NODE
+      - name: Enforce real Pages runtime governed JavaScript budgets
+        env:
+          ENJAZ_DIST_DIR: dist-live
+        run: node scripts/dist-budget-audit.mjs
       - name: Build isolated R2 Legacy-Zero preview
         run: npx vite build --config vite.r2-preview.config.ts --base="${{ steps.pages.outputs.base_path }}/"
       - name: Enforce isolated R2 preview budget

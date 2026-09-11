@@ -21,6 +21,7 @@ const paths = {
   hooks: 'src/features/companies/useCompanies.ts',
   connected: 'src/ui-r2/records/ConnectedCompanies.tsx',
   portal: 'src/ui-r2/records/LiveCompaniesProductionPortal.tsx',
+  lazyPortals: 'src/ui-r2/runtime/LazyLiveProductionPortals.tsx',
   records: 'src/ui-r2/records/RecordsRelationshipsExperience.tsx',
   production: 'src/ui-r2/runtime/UiR2ProductionRoot.tsx',
   liveRoot: 'src/ui-r2/runtime/UiR2LiveRoot.tsx',
@@ -45,6 +46,7 @@ const service = read(paths.service);
 const hooks = read(paths.hooks);
 const connected = read(paths.connected);
 const portal = read(paths.portal);
+const lazyPortals = read(paths.lazyPortals);
 const records = read(paths.records);
 const production = read(paths.production);
 const liveRoot = read(paths.liveRoot);
@@ -94,10 +96,11 @@ for (const marker of ['Company list','Arabic-first search','Company create','Com
 for (const marker of ['COMPANY_SOURCE_LIMIT = 5_000','loadCompanyListSource','loadCompanyDetailSource','layer.companies.getById','layer.companies.create','layer.companies.update','createOperationId','expectedUpdatedAt','CompanyEditConflictError','CompanyCreateReplayConflictError','companyContacts','lifecycleEvents','blockers','truncated']) requireMarker(service, marker, 'company service');
 for (const marker of ['normalizeCompanySearch','buildCompanyListSnapshot','validateCompanyDraft','COMPANY_LIST_MAX_PAGE_SIZE = 50','COMPANY_SEARCH_MAX_LENGTH = 160','ARABIC_DIACRITICS','merged_into_id','deleted_at','normalizeDigits','Number.isSafeInteger']) requireMarker(model, marker, 'company model');
 for (const marker of ['mutationInFlightRef','globalThis.crypto.randomUUID()','DATA_OUTCOME_UNKNOWN','useCompanyDirectory','useCompanyDetail','useCompanyEditor']) requireMarker(hooks, marker, 'company hooks');
-for (const marker of ['data-phase6-1="companies"','data-company-source="workspace"','بحث الشركات','ترتيب الشركات','تصفية الشركات','شركة جديدة','تعديل البيانات','إدارة الأشخاص والعلاقات الكاملة تبقى Phase 6.2','Company/Lawyer 360° تبقى Phase 6.3','Phase 7','Phase 10','أي نتيجة كتابة غير مؤكدة لا تُعرض كنجاح']) requireMarker(connected, marker, 'connected companies UI');
+for (const marker of ['data-phase6-1="companies"','data-company-source="workspace"','بحث الشركات','ترتيب الشركات','تصفية الشركات','شركة جديدة','تعديل البيانات','buildCompany360Source','<Entity360Panel','<CompanyGovernancePanel','حوكمة 9.3 تدير الملكية','تغييره بعد التأسيس يتم من مركز الحوكمة فقط','أي نتيجة كتابة غير مؤكدة لا تُعرض كنجاح']) requireMarker(connected, marker, 'connected companies UI');
 for (const marker of ['عرض فقط في R2.0-6','لا تنفّذ إنشاءً أو تعديلًا أو رفع ملفات إنتاجية','data-records-domain="people"','data-records-domain="documents"']) requireMarker(records, marker, 'frozen records compatibility');
 for (const marker of ['createPortal','MutationObserver','data-r2-runtime-mode="live"','data-destination','data-records-stage="R2.0-6"','data-records-domain="companies"','<ConnectedCompanies />']) requireMarker(portal, marker, 'production Companies portal');
-for (const marker of ['<LiveCompaniesProductionPortal />','<DataLayerProvider','<CurrentUserIdProvider','<UiR2LiveRoot']) requireMarker(production, marker, 'production Companies mount');
+for (const marker of ['<DataLayerProvider','<CurrentUserIdProvider','<UiR2LiveRoot','<LazyLiveProductionPortals />',"import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';"]) requireMarker(production, marker, 'production Companies mount');
+for (const marker of ["import('../records/LiveCompaniesProductionPortal.tsx')",'module.LiveCompaniesProductionPortal',"destination === 'companies' ? <CompaniesPortal />"]) requireMarker(lazyPortals, marker, 'lazy Companies production router');
 requireMarker(liveRoot, 'data-r2-runtime-mode="live"', 'live-only production shell');
 if (production.includes("from './UiR2Root.tsx'")) errors.push('production Companies mount must not import preview UiR2Root');
 if (liveRoot.includes('RecordsRelationshipsExperience')) errors.push('live-only production shell must not import records preview implementation');

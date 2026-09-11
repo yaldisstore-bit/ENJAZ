@@ -6,6 +6,7 @@ on:
       - main
       - 'phase9-1-*'
       - 'phase9-2-*'
+      - 'phase9-3-*'
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -60,6 +61,8 @@ jobs:
         run: npx vite build --config vite.r2-production-test.config.ts --base=/
       - name: Isolated Phase 9.2 browser harness build
         run: npx vite build --config vite.phase9-2-browser.config.ts --base=/
+      - name: Isolated Phase 9.3 governance browser harness build
+        run: npx vite build --config vite.phase9-3-browser.config.ts --base=/
       - name: Install pinned browser and WCAG tooling
         run: |
           npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2 playwright@1.55.0
@@ -90,6 +93,15 @@ jobs:
             sleep 1
           done
           cat /tmp/enjaz-phase9-2-browser.log
+          exit 1
+      - name: Start Phase 9.3 governance browser harness
+        run: |
+          nohup npx vite preview --config vite.phase9-3-browser.config.ts --host 127.0.0.1 --port 4179 > /tmp/enjaz-phase9-3-browser.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4179/phase9-3-browser.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase9-3-browser.log
           exit 1
       - name: R2 shell reality / 1280 + 430 + 390 + 360 + 320
         env:
@@ -139,6 +151,10 @@ jobs:
         env:
           R2_PHASE92_BASE_URL: http://127.0.0.1:4178/
         run: npx playwright test tests-external/phase9-2-search-saved-views-live.spec.cjs --reporter=line --workers=1
+      - name: Phase 9.3 Corporate Governance / Company 360 / 1280 + 430 + 390 + 360 + 320
+        env:
+          R2_PHASE93_BASE_URL: http://127.0.0.1:4179/
+        run: npx playwright test tests-external/phase9-3-governance-live.spec.cjs --reporter=line --workers=1
       - name: Upload browser diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -150,5 +166,6 @@ jobs:
             /tmp/enjaz-r2-preview.log
             /tmp/enjaz-r2-production-bridge.log
             /tmp/enjaz-phase9-2-browser.log
+            /tmp/enjaz-phase9-3-browser.log
           if-no-files-found: ignore
           retention-days: 7
