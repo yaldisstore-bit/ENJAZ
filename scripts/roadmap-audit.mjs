@@ -99,9 +99,12 @@ for (const marker of [
   '**Phase 9.1 — Smart Risk Engine ✅ CLOSED + post-merge recertified**',
   '**Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence ✅ CLOSED + post-merge recertified**',
   '**Phase 9.3 — Corporate Governance & Ownership Engine — M2 ✅ CLOSED + post-merge recertified**',
-  '**Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation 🚧 IN PROGRESS — foundation gate PASS**',
+  '**Phase 9.4 — Regulatory / Knowledge Base Engine — M8 🚧 IN PROGRESS — foundation PASS + Real Cloud persistence CERTIFIED**',
   'c81cc8fa3732ac97248fdaaabc72cc5f7f26b29f',
   '34572856756',
+  'REAL_CLOUD_CERTIFIED / PASS_ZERO_RESIDUE',
+  '20260911141412',
+  'Runtime/UI is now **AUTHORIZED_FOR_IMPLEMENTATION**',
   'docs/PHASE9_4_STATE.json', 'docs/PHASE9_4_KICKOFF.md',
   '563529/670000 PASS',
   'Phase 9.5 remains LOCKED',
@@ -112,6 +115,7 @@ for (const stale of [
   '**Next: Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation**',
   'Phase 9.4 is the sole newly authorized implementation stage after formal Phase 9.3 closure.',
   '**AUTHORIZED as the sole successor after formal Phase 9.3 closure.**',
+  'Persistence is now `AUTHORIZED_FOR_IMPLEMENTATION`; runtime/UI remains locked until persistence receives Real Cloud certification.',
 ]) forbidMarker(roadmap, stale, 'roadmap');
 
 if (major.schemaVersion !== 2 || major.status !== 'GOVERNING_AMENDMENT') errors.push('major-system registry must remain governing amendment schema v2');
@@ -199,26 +203,31 @@ else {
   if (phase94.baseCommit !== 'c81cc8fa3732ac97248fdaaabc72cc5f7f26b29f') errors.push('Phase 9.4 base must be the formal 9.3 closure merge');
   if (phase94.majorSystem?.id !== 'M8' || phase94.majorSystem?.status !== 'ACTIVE' || phase94.majorSystem?.globalClosureAllowed !== false) errors.push('Phase 9.4 M8 lifecycle drifted');
   if (phase94.foundation?.status !== 'LOCAL_GATE_PASS' || phase94.foundation?.gateRunId !== 34572856756 || phase94.foundation?.destructionTestsPassed !== 12) errors.push('Phase 9.4 foundation gate evidence drifted');
-  const persistenceStatesAfterFoundation = new Set(['AUTHORIZED_FOR_IMPLEMENTATION', 'IMPLEMENTED_PENDING_STATIC_GATE', 'STATIC_GATE_PASS', 'REAL_CLOUD_CERTIFIED']);
-  if (!persistenceStatesAfterFoundation.has(phase94.persistence?.status)) errors.push('Phase 9.4 persistence lifecycle must remain inside the governed post-foundation state machine');
+  if (phase94.persistence?.status !== 'REAL_CLOUD_CERTIFIED' || phase94.persistence?.realCloudVerification !== 'PASS_ZERO_RESIDUE' || phase94.persistence?.zeroResidue !== true) errors.push('Phase 9.4 persistence must remain Real Cloud certified with zero residue');
+  if (phase94.persistence?.phaseOwnedSecurityAdvisorWarnings !== 0 || phase94.persistence?.phaseOwnedUnindexedForeignKeys !== 0) errors.push('Phase 9.4 persistence advisor ownership must remain clean');
+  if (phase94.runtime?.status !== 'AUTHORIZED_FOR_IMPLEMENTATION') errors.push('Phase 9.4 runtime must be authorized only after Real Cloud persistence certification');
+  if (!exists('docs/PHASE9_4_REAL_CLOUD_EVIDENCE.md')) errors.push('Phase 9.4 Real Cloud evidence is missing');
   if (phase94.phase9_5Allowed !== false || phase94.exitGatePassed !== false || phase94.successorStatus !== 'LOCKED') errors.push('Phase 9.5 must remain locked while 9.4 is open');
   if (phase94.javascriptBudgetBytes !== 670000 || phase94.budgetIncreaseAllowed !== false) errors.push('Phase 9.4 startup JavaScript budget drifted');
   if (phase94.authority?.aiOutputAuthority !== 'NEVER_AUTHORITATIVE' || phase94.authority?.officialSourceProvenance !== 'REQUIRED') errors.push('Phase 9.4 authority/provenance law drifted');
 }
 
 for (const marker of [
-  'الحالة الرسمية: **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation 🚧 IN PROGRESS**',
+  'الحالة الرسمية: **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 🚧 IN PROGRESS — FOUNDATION + REAL CLOUD PERSISTENCE PASS**',
   'آخر مرحلة مغلقة: **Phase 9.3 — Corporate Governance & Ownership Engine — M2 ✅ CLOSED + POST-MERGE RECERTIFIED**',
-  '**Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation: 🚧 IN PROGRESS — FOUNDATION GATE PASS.**',
-  '34572856756', '12/12', 'LOCAL_GATE_PASS', 'AUTHORIZED_FOR_IMPLEMENTATION',
-  '`ACTIVE`; Phase 9.4 foundation gate PASS',
-  'docs/PHASE9_4_STATE.json', 'docs/PHASE9_4_KICKOFF.md',
+  '**Phase 9.4 — Regulatory / Knowledge Base Engine — M8: 🚧 IN PROGRESS — FOUNDATION PASS + REAL CLOUD PERSISTENCE CERTIFIED؛ Runtime/UI AUTHORIZED.**',
+  '34572856756', '12/12', 'LOCAL_GATE_PASS', 'REAL_CLOUD_CERTIFIED', 'PASS_ZERO_RESIDUE',
+  '`ACTIVE`; Phase 9.4 Foundation PASS + Real Cloud Persistence CERTIFIED',
+  'docs/PHASE9_4_STATE.json', 'docs/PHASE9_4_KICKOFF.md', 'docs/PHASE9_4_REAL_CLOUD_EVIDENCE.md',
+  'Runtime/UI: **AUTHORIZED_FOR_IMPLEMENTATION**',
   'Phase 9.5+ تبقى مقفلة',
 ]) requireMarker(readme, marker, 'README');
 
 for (const stale of [
   '**Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation: AUTHORIZED NEXT.**',
   'المرحلة التالية المصرح بها: **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation**',
+  'Persistence: **AUTHORIZED_FOR_IMPLEMENTATION**؛ Real Cloud ما زال PENDING.',
+  'Runtime/UI: **LOCKED** حتى شهادة persistence',
 ]) forbidMarker(readme, stale, 'README');
 
 if (errors.length) {
@@ -226,5 +235,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.3 remains CLOSED; Phase 9.4 M8 foundation is IN_PROGRESS with gate PASS; M8 is ACTIVE; Phase 9.5 remains LOCKED.');
+  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.3 remains CLOSED; Phase 9.4 M8 is IN_PROGRESS with Foundation PASS + Real Cloud Persistence CERTIFIED; Runtime/UI is authorized; M8 is ACTIVE; Phase 9.5 remains LOCKED.');
 }
