@@ -25,7 +25,8 @@ for (const viewport of viewports) {
     await expect(governance).toContainText('100%');
     await expect(governance).toContainText('محمد حيدر محسن');
     await expect(governance).toContainText('اعتماد هيكل الإدارة والتخويل');
-    await expect(governance).toContainText('150,000,000');
+    const localizedCapital = await page.evaluate(() => new Intl.NumberFormat('ar-IQ', { maximumFractionDigits: 2 }).format(150000000));
+    await expect(governance).toContainText(localizedCapital);
     await expect(governance).toContainText('لا توجد إشارات حوكمة مفتوحة');
     await expect(governance.getByRole('button', { name: 'تحديث الهيكل' })).toBeVisible();
 
