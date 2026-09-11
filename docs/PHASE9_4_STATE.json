@@ -5,6 +5,7 @@
   "status": "IN_PROGRESS",
   "baseCommit": "c81cc8fa3732ac97248fdaaabc72cc5f7f26b29f",
   "implementationBranch": "phase9-4-regulatory-knowledge-base-engine",
+  "persistenceBranch": "phase9-4-regulatory-knowledge-persistence",
   "predecessor": {
     "phase": "9.3",
     "requiredStatus": "CLOSED",
@@ -97,7 +98,14 @@
     "pagesLiveBudget": "PASS"
   },
   "persistence": {
-    "status": "AUTHORIZED_FOR_IMPLEMENTATION",
+    "status": "IMPLEMENTED_PENDING_STATIC_GATE",
+    "migration": "database/migrations/phase_9_4_regulatory_knowledge_persistence.sql",
+    "tests": "tests/phase9-4-regulatory-knowledge-persistence.test.ts",
+    "staticAudit": "scripts/phase9-4-regulatory-persistence-audit.mjs",
+    "officialIngestion": "SERVICE_ROLE_ONLY",
+    "workspaceMutation": "OWNER_RPC_ONLY",
+    "derivedArtifactMutation": "AUTHORIZED_ACTOR_RPC_ONLY",
+    "directBrowserTableMutation": false,
     "realCloudVerification": "PENDING"
   },
   "runtime": {
