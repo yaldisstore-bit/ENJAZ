@@ -27,7 +27,7 @@
       "product": "IN_PROGRESS",
       "uiUx": "NOT_STARTED",
       "engineering": "IN_PROGRESS",
-      "certification": "NOT_STARTED"
+      "certification": "IN_PROGRESS"
     },
     "featureCutForBundleBudgetAllowed": false,
     "legacyDnaAllowed": false,
@@ -37,8 +37,8 @@
     "persistence": "DATABASE_RLS_REQUIRED",
     "officialSourceProvenance": "REQUIRED",
     "regulatoryTruth": "APPEND_VERSIONED_EFFECTIVE_DATED",
-    "officialGlobalMutation": "PRIVILEGED_INGESTION_ONLY",
-    "workspaceCuratedMutation": "AUTHORIZED_WORKSPACE_COMMANDS_ONLY",
+    "officialGlobalMutation": "SERVICE_ROLE_ONLY",
+    "workspaceCuratedMutation": "OWNER_RPC_ONLY",
     "officialAndCuratedTruthMustRemainDistinct": true,
     "aiOutputAuthority": "NEVER_AUTHORITATIVE",
     "editorialInterpretationAuthority": "NEVER_AUTHORITATIVE",
@@ -98,13 +98,20 @@
     "pagesLiveBudget": "PASS"
   },
   "persistence": {
-    "status": "STATIC_GATE_PASS",
+    "status": "REAL_CLOUD_CERTIFIED",
     "migration": "database/migrations/phase_9_4_regulatory_knowledge_persistence.sql",
+    "fkHardeningMigration": "database/migrations/phase_9_4_regulatory_knowledge_fk_index_hardening.sql",
+    "serviceRoleBridgeMigration": "database/migrations/phase_9_4_regulatory_knowledge_service_role_bridge.sql",
+    "generatedSearchGuardHardeningMigration": "database/migrations/phase_9_4_regulatory_version_generated_search_guard_hardening.sql",
+    "probeMigration": "database/migrations/phase_9_4_live_authenticated_regulatory_probe.sql",
     "tests": "tests/phase9-4-regulatory-knowledge-persistence.test.ts",
     "staticAudit": "scripts/phase9-4-regulatory-persistence-audit.mjs",
     "staticGateRunId": 34574341806,
     "staticGateHead": "ee0dc2f77b34f55fa3f5150a95c6f5e46ed390e2",
+    "latestPreCertificationGateRunId": 34575168369,
+    "latestPreCertificationGateHead": "ab7d981f7101bfcf007c19063193ce79b687b7ac",
     "destructionTestsPassed": 13,
+    "immutabilityHardeningRegressionTestsPassed": 2,
     "functionalRegression": "PASS",
     "databaseAudit": "PASS",
     "databaseAuditSelfTest": "PASS",
@@ -118,10 +125,23 @@
     "workspaceMutation": "OWNER_RPC_ONLY",
     "derivedArtifactMutation": "AUTHORIZED_ACTOR_RPC_ONLY",
     "directBrowserTableMutation": false,
-    "realCloudVerification": "PENDING"
+    "realCloudProjectRef": "juzxriirhkuzviwnhkbd",
+    "appliedMigrationVersions": [
+      "20260911072927",
+      "20260911073147",
+      "20260911073533",
+      "20260911141327",
+      "20260911141412"
+    ],
+    "realCloudVerification": "PASS_ZERO_RESIDUE",
+    "zeroResidue": true,
+    "phaseOwnedSecurityAdvisorWarnings": 0,
+    "phaseOwnedUnindexedForeignKeys": 0,
+    "realCloudEvidence": "docs/PHASE9_4_REAL_CLOUD_EVIDENCE.md",
+    "realCloudDefectFixed": "GENERATED_SEARCH_DOCUMENT_FALSE_IMMUTABILITY_REJECTION"
   },
   "runtime": {
-    "status": "LOCKED_UNTIL_PERSISTENCE_CERTIFICATION",
+    "status": "AUTHORIZED_FOR_IMPLEMENTATION",
     "realBrowserVerification": "PENDING",
     "publishedLiveVerification": "PENDING"
   },
