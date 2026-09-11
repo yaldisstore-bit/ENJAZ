@@ -45,11 +45,12 @@ test('company and lawyer 360 compose the same authoritative relationship graph',
   await expect(company.getByText('تعديل عقد تأسيس', { exact: true })).toBeVisible();
   await expect(company.getByText('نور حسين', { exact: true })).toBeVisible();
   await expect(company.getByText('البيانات القانونية', { exact: true })).toBeVisible();
+  await expect(company.getByText('مصادر الحقيقة محفوظة', { exact: true })).toBeVisible();
   await expect(contact.getByText('نور حسين', { exact: true }).first()).toBeVisible();
   await expect(contact.getByRole('heading', { name: '360°' })).toBeVisible();
   await expect(contact.getByText('قمر السلطان', { exact: true })).toBeVisible();
   await expect(contact.getByText('تعديل عقد تأسيس', { exact: true })).toBeVisible();
-  await expect(page.getByText('مصادر الحقيقة محفوظة')).toHaveCount(2);
+  await expect(contact.getByText('مصادر الحقيقة محفوظة', { exact: true })).toBeVisible();
   const text = await page.locator('[data-phase6-3-preview="true"]').innerText();
   expect(text).not.toMatch(/\b(?:NaN|undefined)\b/);
   expect(errors).toEqual([]);
