@@ -65,6 +65,7 @@ export function normalizeDataFailure(error: DataFailureLike | null | undefined):
   const code = error?.code ?? '';
   if (code === '42501' || code === 'PGRST301') return new DataAccessError('Database access forbidden', 'DATA_FORBIDDEN', error);
   if (code === '23505') return new DataAccessError('Database unique conflict', 'DATA_CONFLICT', error);
+  if (code === '40001') return new DataAccessError('Database concurrency conflict', 'DATA_CONFLICT', error);
   if (code === '23503') return new DataAccessError('Database reference conflict', 'DATA_REFERENCE_CONFLICT', error);
   if (code === '23514' || code === '22023' || code === '22P02') return new DataAccessError('Database validation rejected operation', 'DATA_VALIDATION_FAILED', error);
   const message = error?.message ?? '';
