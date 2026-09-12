@@ -70,8 +70,8 @@ test('9.4 runtime 06 — knowledge is live/lazy while the certified 9.1 risk bri
   assert.match(lazy,/value === 'knowledge'/);assert.match(lazy,/destination === 'knowledge' \? <KnowledgePortal/);
   assert.match(lazy,/value === 'risk'/);assert.match(lazy,/destination === 'finance' \|\| destination === 'risk' \? <FinancePortal \/>/);
   assert.match(financePortal,/useLiveRecordsPortal\('risk'/);assert.match(financePortal,/loadSmartRisk\(/);
-  assert.match(liveRoot,/data-live-deferred="true"/);assert.match(liveRoot,/else content=<DeferredDestination id=\{destinationId\}/);
-  assert.match(knowledgePortal,/const PLACEHOLDER='\[data-live-deferred=\\"true\\"\]'/);assert.match(knowledgePortal,/placeholder\.hidden=active/);assert.match(knowledgePortal,/shell\.dataset\.destination==='knowledge'/);
+  assert.match(liveRoot,/function KnowledgeTarget\(\)/);assert.match(liveRoot,/data-regulatory-runtime-target="phase9\.4"/);assert.match(liveRoot,/destinationId==='knowledge'\)content=<KnowledgeTarget\/>/);
+  assert.match(knowledgePortal,/shell\.dataset\.destination==='knowledge'/);assert.match(knowledgePortal,/createPortal\(<RegulatoryKnowledgeCenter/);
 });
 
 test('9.4 runtime 07 — SQL runtime API is bounded, actor-authorized and SECURITY INVOKER at public edge',()=>{
