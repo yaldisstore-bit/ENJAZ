@@ -68,6 +68,7 @@ export class BIWorkspaceLineageError extends BIContractError{constructor(){super
 export class BIProvenanceRequiredError extends BIContractError{constructor(){super('BI provenance is required');this.name='BIProvenanceRequiredError'}}
 export class BITimeWindowError extends BIContractError{constructor(){super('BI time window is invalid');this.name='BITimeWindowError'}}
 export class BIUnsafeIntegerError extends BIContractError{constructor(){super('BI integer is outside safe contract');this.name='BIUnsafeIntegerError'}}
+export class BIUnsupportedRunRateUnitError extends BIContractError{readonly unit:BIValue['unit'];constructor(unit:BIValue['unit']){super(`BI trailing run-rate requires an additive flow unit; unsupported: ${unit}`);this.name='BIUnsupportedRunRateUnitError';this.unit=unit}}
 
 const DOMAINS=new Set<BISourceDomain>(['transactions','transaction-blockers','finance','field-operations','workflow']);
 const clean=(v:unknown)=>typeof v==='string'&&v.trim()?v.trim():null;
@@ -121,8 +122,7 @@ export function projectRunRateValue(value:BIValue,observedDays:number,horizonDay
  const o=positive(observedDays),h=positive(horizonDays);if(!o||!h||h>BI_MAX_FORECAST_HORIZON_DAYS)throw new BITimeWindowError();
  if(value.unit==='cents')return Object.freeze({unit:'cents' as const,valueCents:(value.valueCents*BigInt(h))/BigInt(o)});
  if(value.unit==='count')return Object.freeze({unit:'count' as const,value:scaleSafeInteger(value.value,h,o)});
- if(value.unit==='basis_points')return Object.freeze({unit:'basis_points' as const,valueBps:scaleSafeInteger(value.valueBps,h,o)});
- return Object.freeze({unit:'minutes' as const,valueMinutes:scaleSafeInteger(value.valueMinutes,h,o)});
+ throw new BIUnsupportedRunRateUnitError(value.unit);
 }
 
 export function buildTrailingRunRateForecast(input:Readonly<{forecastId:string;domain:BIDomain;labelAr:string;observedValue:BIValue;observedWindowStart:string;observedWindowEnd:string;horizonDays:number;sampleCount:number;assumptions:readonly string[];provenance:readonly BIProvenance[]}>):DirectionalForecast{
