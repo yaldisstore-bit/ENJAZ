@@ -45,3 +45,8 @@ test('9.5 ui 06 — forecast surface discloses confidence, method, sample size, 
 test('9.5 ui 07 — runtime has truthful loading/error/retry and source integrity states',()=>{
  assert.match(center,/جارٍ بناء الصورة التحليلية/);assert.match(center,/تعذر بناء الصورة التحليلية/);assert.match(center,/إعادة المحاولة/);assert.match(center,/سلامة المصدر/);assert.match(center,/نفس مساحة العمل فقط/);
 });
+
+test('9.5 ui 08 — observed history is visibly separated from forecast and preserves point provenance',()=>{
+ assert.match(center,/snapshot\.trends\.map/);assert.match(center,/item\.points\.map/);assert.match(center,/data-bi-trend=/);assert.match(center,/data-bi-trend-point=/);assert.match(center,/الاتجاهات المرصودة/);assert.match(center,/مرصود من التاريخ الفعلي/);
+ assert.match(center,/point\.provenance/);assert.match(center,/point\.periodStart/);assert.match(center,/data-bi-authoritative="false"/);
+});
