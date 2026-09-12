@@ -37,7 +37,6 @@ export default defineConfig({
       optimization: { inlineConst: true },
       output: {
         minify: {
-          module: true,
           compress: { target: 'esnext', maxIterations: 10 },
           mangle: { toplevel: true },
           codegen: { removeWhitespace: true },
