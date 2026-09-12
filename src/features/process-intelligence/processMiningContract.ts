@@ -4,8 +4,8 @@ export const PROCESS_MIN_DIRECTIONAL_CASES=4;
 export type ProcessSourceDomain='workflow'|'transaction-lifecycle'|'field-operations';
 export type ProcessOrderingConfidence='strict'|'partial';
 export type ProcessPredictionConfidence='insufficient'|'directional';
-export type ProcessPredictionMethod='empirical_next_activity_frequency';
-export type ProcessPredictionTarget='next_activity';
+export type ProcessPredictionMethod='empirical_next_activity_frequency'|'empirical_wait_threshold_frequency';
+export type ProcessPredictionTarget='next_activity'|'delay_threshold_exceedance';
 
 export interface ProcessEventProvenance{
  readonly schema:typeof ENJAZ_PROCESS_MINING_SCHEMA;
@@ -64,8 +64,8 @@ export interface ProcessPredictionCandidate{
 export interface DirectionalProcessPrediction{
  readonly schema:typeof ENJAZ_PROCESS_MINING_SCHEMA;
  readonly workspaceId:string;
- readonly target:ProcessPredictionTarget;
- readonly method:ProcessPredictionMethod;
+ readonly target:'next_activity';
+ readonly method:'empirical_next_activity_frequency';
  readonly currentActivityKey:string;
  readonly asOf:string;
  readonly sampleCount:number;
@@ -73,6 +73,23 @@ export interface DirectionalProcessPrediction{
  readonly predictedActivityKey:string|null;
  readonly probabilityBps:number|null;
  readonly candidateCounts:readonly ProcessPredictionCandidate[];
+ readonly assumptions:readonly string[];
+ readonly authoritative:false;
+ readonly provenance:readonly ProcessEventProvenance[];
+}
+
+export interface DirectionalDelayPrediction{
+ readonly schema:typeof ENJAZ_PROCESS_MINING_SCHEMA;
+ readonly workspaceId:string;
+ readonly target:'delay_threshold_exceedance';
+ readonly method:'empirical_wait_threshold_frequency';
+ readonly currentActivityKey:string;
+ readonly thresholdMs:number;
+ readonly asOf:string;
+ readonly sampleCount:number;
+ readonly delayedSampleCount:number;
+ readonly confidence:ProcessPredictionConfidence;
+ readonly probabilityBps:number|null;
  readonly assumptions:readonly string[];
  readonly authoritative:false;
  readonly provenance:readonly ProcessEventProvenance[];
@@ -98,7 +115,7 @@ export function parseProcessEventProvenance(input:unknown):ProcessEventProvenanc
  if(!input||typeof input!=='object')return null;const x=input as Record<string,unknown>;
  const workspaceId=clean(x.workspaceId),caseId=clean(x.caseId),sourceEntity=clean(x.sourceEntity),sourceEventId=clean(x.sourceEventId),sourceAsOf=iso(x.sourceAsOf),derivationVersion=clean(x.derivationVersion),fields=basis(x.basis),sourceDomain=typeof x.sourceDomain==='string'&&DOMAINS.has(x.sourceDomain as ProcessSourceDomain)?x.sourceDomain as ProcessSourceDomain:null;
  if(x.schema!==ENJAZ_PROCESS_MINING_SCHEMA||!workspaceId||!caseId||!sourceEntity||!sourceEventId||!sourceAsOf||!derivationVersion||!fields||!sourceDomain)return null;
- return Object.freeze({schema:ENJAZ_PROCESS_MINING_SCHEMA,workspaceId,caseId,sourceDomain,sourceEntity,sourceEventId,sourceAsOf,basis:fields,derivationVersion});
+ return Object.freeze({schema:ENJAZ_PROCESS_MINING_SCHEMA,workspaceId,caseId,sourceDomain,sourceEntity,sourceEventId,sourceAsOf,sampleCount:undefined,basis:fields,derivationVersion}) as ProcessEventProvenance;
 }
 
 export function buildProcessEvent(input:Readonly<{workspaceId:string;caseId:string;activityKey:string;labelAr:string;occurredAt:string;provenance:ProcessEventProvenance}>):ProcessEvent{
@@ -137,7 +154,13 @@ export function buildObservedProcessWaits(path:ProcessPath):readonly ObservedPro
 
 export function classifyBottleneckCandidates(path:ProcessPath,thresholdMs:number):readonly BottleneckCandidate[]{
  const threshold=positive(thresholdMs);if(!threshold)throw new ProcessUnsafeIntegerError();
- return Object.freeze(buildObservedProcessWaits(path).filter(wait=>wait.durationMs>=threshold).map(wait=>Object.freeze({...wait,thresholdMs:threshold,evidence:'governed_duration_threshold' as const})));
+ return Object.freeze(buildObservedProcessWaits(path).filter(wait=>wait.strictOrderProven&&wait.durationMs>=threshold).map(wait=>Object.freeze({...wait,thresholdMs:threshold,evidence:'governed_duration_threshold' as const})));
+}
+
+function assertPredictionPath(path:ProcessPath,workspaceId:string,asOf:string):void{
+ if(path.workspaceId!==workspaceId)throw new ProcessWorkspaceLineageError();
+ const limit=Date.parse(asOf);
+ for(const event of path.events)if(Date.parse(event.occurredAt)>limit||Date.parse(event.provenance.sourceAsOf)>limit)throw new ProcessTimeError();
 }
 
 export function buildEmpiricalNextActivityPrediction(input:Readonly<{workspaceId:string;currentActivityKey:string;historicalPaths:readonly ProcessPath[];asOf:string;assumptions:readonly string[]}>):DirectionalProcessPrediction{
@@ -145,8 +168,7 @@ export function buildEmpiricalNextActivityPrediction(input:Readonly<{workspaceId
  const assumptions=input.assumptions.map(value=>required(value,'Prediction disclosure is required'));if(!assumptions.length)throw new ProcessMiningContractError('Prediction disclosure is required');
  const candidates=new Map<string,number>(),provenance:ProcessEventProvenance[]=[];let sampleCount=0;
  for(const path of input.historicalPaths){
-  if(path.workspaceId!==workspaceId)throw new ProcessWorkspaceLineageError();
-  for(const event of path.events){if(Date.parse(event.occurredAt)>Date.parse(asOf)||Date.parse(event.provenance.sourceAsOf)>Date.parse(asOf))throw new ProcessTimeError()}
+  assertPredictionPath(path,workspaceId,asOf);
   let index=-1;for(let i=path.events.length-2;i>=0;i-=1){if(path.events[i]!.activityKey===currentActivityKey){index=i;break}}
   if(index<0)continue;const current=path.events[index]!,next=path.events[index+1]!;sampleCount+=1;candidates.set(next.activityKey,(candidates.get(next.activityKey)??0)+1);provenance.push(current.provenance,next.provenance);
  }
@@ -156,4 +178,22 @@ export function buildEmpiricalNextActivityPrediction(input:Readonly<{workspaceId
  const probabilityBps=directional?Number((BigInt(top.count)*10_000n)/BigInt(sampleCount)):null;
  if(probabilityBps!==null&&(natural(probabilityBps)===null||probabilityBps>10_000))throw new ProcessUnsafeIntegerError();
  return Object.freeze({schema:ENJAZ_PROCESS_MINING_SCHEMA,workspaceId,target:'next_activity' as const,method:'empirical_next_activity_frequency' as const,currentActivityKey,asOf,sampleCount,confidence:directional?'directional' as const:'insufficient' as const,predictedActivityKey:directional?top.activityKey:null,probabilityBps,candidateCounts,assumptions:Object.freeze(assumptions),authoritative:false as const,provenance:Object.freeze(provenance)});
+}
+
+export function buildEmpiricalDelayPrediction(input:Readonly<{workspaceId:string;currentActivityKey:string;historicalPaths:readonly ProcessPath[];thresholdMs:number;asOf:string;assumptions:readonly string[]}>):DirectionalDelayPrediction{
+ const workspaceId=required(input.workspaceId,'Delay prediction workspace is required'),currentActivityKey=required(input.currentActivityKey,'Delay prediction activity is required'),threshold=positive(input.thresholdMs),asOf=iso(input.asOf);if(!threshold)throw new ProcessUnsafeIntegerError();if(!asOf)throw new ProcessTimeError();
+ const assumptions=input.assumptions.map(value=>required(value,'Delay prediction disclosure is required'));if(!assumptions.length)throw new ProcessMiningContractError('Delay prediction disclosure is required');
+ let sampleCount=0,delayedSampleCount=0;const provenance:ProcessEventProvenance[]=[];
+ for(const path of input.historicalPaths){
+  assertPredictionPath(path,workspaceId,asOf);
+  let index=-1;for(let i=path.events.length-2;i>=0;i-=1){if(path.events[i]!.activityKey===currentActivityKey){index=i;break}}
+  if(index<0)continue;const current=path.events[index]!,next=path.events[index+1]!,durationMs=Date.parse(next.occurredAt)-Date.parse(current.occurredAt);
+  if(!Number.isSafeInteger(durationMs)||durationMs<0)throw new ProcessTimeError();
+  if(durationMs===0)continue;
+  sampleCount+=1;if(durationMs>=threshold)delayedSampleCount+=1;provenance.push(current.provenance,next.provenance);
+ }
+ if(sampleCount===0||provenance.length===0)throw new ProcessProvenanceRequiredError();
+ const directional=sampleCount>=PROCESS_MIN_DIRECTIONAL_CASES,probabilityBps=directional?Number((BigInt(delayedSampleCount)*10_000n)/BigInt(sampleCount)):null;
+ if(probabilityBps!==null&&(natural(probabilityBps)===null||probabilityBps>10_000))throw new ProcessUnsafeIntegerError();
+ return Object.freeze({schema:ENJAZ_PROCESS_MINING_SCHEMA,workspaceId,target:'delay_threshold_exceedance' as const,method:'empirical_wait_threshold_frequency' as const,currentActivityKey,thresholdMs:threshold,asOf,sampleCount,delayedSampleCount,confidence:directional?'directional' as const:'insufficient' as const,probabilityBps,assumptions:Object.freeze(assumptions),authoritative:false as const,provenance:Object.freeze(provenance)});
 }
