@@ -14,7 +14,10 @@ const major=json('docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 const kickoff=read('docs/PHASE9_6_KICKOFF.md');
 const contract=read('src/features/process-intelligence/processMiningContract.ts');
-const tests=read('tests/phase9-6-process-mining-foundation.test.ts');
+const sourceGateway=read('src/features/process-intelligence/processMiningSources.ts');
+const service=read('src/features/process-intelligence/processMiningService.ts');
+const foundationTests=read('tests/phase9-6-process-mining-foundation.test.ts');
+const serviceTests=read('tests/phase9-6-process-mining-service.test.ts');
 const workflowMigration=read('database/migrations/phase_8_1_workflow_government_procedure_os.sql');
 const transactionLifecycle=read('docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md');
 const fieldMigration=read('database/migrations/phase_8_3_operations_field_m5.sql');
@@ -34,7 +37,7 @@ req(Array.isArray(m18?.anchors)&&m18.anchors.join(',')==='9,15','M18 must preser
 req(m18?.closureEvidence===null,'Phase 9.6 must not fabricate global M18 closure evidence');
 req(p96.majorSystem?.id==='M18'&&p96.majorSystem?.status==='ACTIVE'&&p96.majorSystem?.anchors?.join(',')==='9,15'&&p96.majorSystem?.globalClosureAllowed===false,'Phase 9.6 state must preserve M18 globally open for Phase 15');
 
-const authority=p96.authority||{},sources=p96.authoritativeSources||{},invariants=p96.invariants||{},prediction=p96.predictionFoundation||{};
+const authority=p96.authority||{},sources=p96.authoritativeSources||{},invariants=p96.invariants||{},prediction=p96.predictionFoundation||{},sourceComposition=p96.sourceComposition||{};
 req(authority.persistence==='SOURCE_DOMAIN_HISTORY_ONLY'&&authority.processIntelligenceAuthority==='READ_ONLY_DERIVED','process intelligence must remain source-history-derived and read-only');
 req(authority.sourceProvenance==='REQUIRED'&&authority.shadowProcessEventStoreAllowed===false&&authority.browserOwnedProcessPersistenceAllowed===false,'shadow/browser process persistence must remain forbidden');
 req(authority.fabricatedEventTimestampAllowed===false&&authority.fabricatedStrictSequenceAllowed===false,'fabricated timestamps/sequence must remain forbidden');
@@ -44,29 +47,36 @@ req(authority.generativeModelAsEvidenceAllowed===false,'generative output must n
 
 req(sources.workflow?.events==='workflow_transition_events'&&sources.workflow?.mode==='APPEND_ONLY_SOURCE_OWNED','workflow transition history authority drifted');
 req(sources.transactionLifecycle?.events==='transaction_activity'&&sources.transactionLifecycle?.mode==='APPEND_ONLY_SOURCE_OWNED','transaction lifecycle authority drifted');
-req(Array.isArray(sources.fieldOperations?.tables)&&sources.fieldOperations.tables.join(',')==='field_assignments,field_visits,field_visit_evidence,field_sync_receipts'&&sources.fieldOperations?.mode==='SOURCE_OWNED','field operations authority drifted');
+req(Array.isArray(sources.fieldOperations?.pathTables)&&sources.fieldOperations.pathTables.join(',')==='field_assignments,field_visits,field_visit_evidence'&&sources.fieldOperations?.mode==='SOURCE_OWNED','field process-path authority drifted');
+req(Array.isArray(sources.fieldOperations?.integrityOnlyTables)&&sources.fieldOperations.integrityOnlyTables.join(',')==='field_sync_receipts'&&sources.fieldOperations?.syncReceiptReadScope==='ACTOR_SCOPED'&&sources.fieldOperations?.syncReceiptPathInputAllowed===false,'actor-scoped sync receipts must remain integrity-only and excluded from process paths');
 req(sources.additionalDomainsRequireExplicitVerification===true,'additional process sources must require explicit verification');
 
 req(invariants.eventWithoutProvenanceAllowed===false&&invariants.pathWithoutWorkspaceLineageAllowed===false&&invariants.duplicateSourceEventIdentityAllowed===false,'event provenance/identity invariants drifted');
 req(invariants.futureEventRelativeToSnapshotAllowed===false&&invariants.missingTimestampAsZeroAllowed===false&&invariants.ambiguousEqualTimeAsStrictOrderAllowed===false,'time/ordering fail-closed invariants drifted');
 req(invariants.reworkWithoutRepeatedObservedActivityAllowed===false&&invariants.bottleneckWithoutThresholdOrCohortAllowed===false,'rework/bottleneck evidence law drifted');
 req(invariants.predictionWithoutEvidenceAllowed===false&&invariants.authoritativePredictionAllowed===false&&invariants.crossWorkspacePathAllowed===false&&invariants.syntheticHistoricalEventAllowed===false,'prediction/workspace/synthetic-history law drifted');
+req(invariants.actorScopedReceiptAsWorkspaceHistoryAllowed===false,'actor-scoped sync receipts must never impersonate workspace-wide process history');
 req(invariants.invalidEventBehavior==='FAIL_CLOSED'&&invariants.missingDurationBehavior==='UNKNOWN_NOT_ZERO'&&invariants.ambiguousOrderingBehavior==='EXPLICIT_PARTIAL_ORDER','process failure semantics drifted');
 req(invariants.insufficientSampleConfidence==='INSUFFICIENT_ONLY'&&invariants.predictionProbabilityUnit==='BASIS_POINTS_INTEGER','prediction confidence/probability semantics drifted');
 req(prediction.method==='empirical_next_activity_frequency'&&prediction.minimumDirectionalCases===4&&prediction.tieBehavior==='NO_SINGLE_WINNER'&&prediction.authoritative===false,'prediction foundation contract drifted');
 
-for(const p of ['docs/PHASE9_6_KICKOFF.md','docs/PHASE9_6_STATE.json','src/features/process-intelligence/processMiningContract.ts','tests/phase9-6-process-mining-foundation.test.ts'])req(exists(p),`missing Phase 9.6 foundation artifact: ${p}`);
+for(const p of ['docs/PHASE9_6_KICKOFF.md','docs/PHASE9_6_STATE.json','src/features/process-intelligence/processMiningContract.ts','src/features/process-intelligence/processMiningSources.ts','src/features/process-intelligence/processMiningService.ts','tests/phase9-6-process-mining-foundation.test.ts','tests/phase9-6-process-mining-service.test.ts','.github/workflows/phase9-6-process-mining.yml'])req(exists(p),`missing Phase 9.6 artifact: ${p}`);
 for(const m of ['ENJAZ_PROCESS_MINING_SCHEMA','PROCESS_MIN_DIRECTIONAL_CASES','ProcessEventProvenance','buildProcessEvent','buildProcessPath','buildObservedProcessWaits','classifyBottleneckCandidates','buildEmpiricalNextActivityPrediction','authoritative:false','ordering:ProcessOrderingConfidence','probabilityBps:number|null','ProcessDuplicateSourceEventError'])marker(contract,m,'process contract');
 for(const forbidden of ['@supabase','supabaseClient','localStorage','sessionStorage','fetch('])req(!contract.includes(forbidden),`pure process contract must not depend on runtime persistence/network: ${forbidden}`);
-for(let i=1;i<=16;i+=1)marker(tests,`9.6 foundation ${String(i).padStart(2,'0')}`,'foundation tests');
+for(const m of ['PROCESS_SOURCE_LIMIT','source_owned_process_histories','workflow_transition_events','field_assignments','field_visits','field_visit_evidence','actor_scoped_integrity_evidence_not_path_input','ProcessSourceCapacityError','ProcessSourcePageStalledError','ProcessSourceShapeError','ProcessSourceTimeError'])marker(sourceGateway,m,'source gateway');
+req(!sourceGateway.includes("'field_sync_receipts'"),'process source gateway must not read actor-scoped field_sync_receipts into workspace process history');
+for(const m of ['PROCESS_COMPOSITION_SOURCE_LIMIT','loadProcessMiningSnapshot','read_only_derived_process_intelligence','phase9.6-source-composition-v1','ProcessCompositionAuthorityError','ProcessCompositionOrphanError','ProcessCompositionPageStalledError','Workflow instance transaction drift','Field visit transaction drift','Field evidence transaction drift','Field evidence precedes visit','actor_scoped_integrity_evidence_not_path_input','predictNextActivity'])marker(service,m,'process service');
+for(let i=1;i<=16;i+=1)marker(foundationTests,`9.6 foundation ${String(i).padStart(2,'0')}`,'foundation tests');
+for(let i=1;i<=11;i+=1)marker(serviceTests,`9.6 ${i<=9?'service':'source'} ${String(i).padStart(2,'0')}`,'source/service tests');
+for(const m of ['field_sync_receipts','actor-scoped sync receipts into process paths',"!calls.includes('field_sync_receipts')"])marker(serviceTests,m,'sync-receipt regression');
 for(const m of ['Phase 9.7 remains **LOCKED**','shadow process-event ledger','ordering-ambiguous','DIRECTIONAL / NON-AUTHORITATIVE','empirical frequency','670000 bytes'])marker(kickoff,m,'kickoff');
 for(const m of ['## 9.6 — Process Mining & Predictive Operations — M18','Derive actual process paths from authoritative histories.','Detect bottlenecks, rework and delay patterns; prediction must expose confidence and evidence.'])marker(roadmap,m,'roadmap');
 marker(workflowMigration,'create table public.workflow_transition_events','workflow source');
 marker(transactionLifecycle,'transaction_activity','transaction lifecycle source');
-for(const m of ['create table public.field_assignments','create table public.field_visits','create table public.field_visit_evidence','create table public.field_sync_receipts'])marker(fieldMigration,m,'field source');
+for(const m of ['create table public.field_assignments','create table public.field_visits','create table public.field_visit_evidence','create table public.field_sync_receipts','field_sync_receipts_select_own'])marker(fieldMigration,m,'field source');
 
 const tracks=p96.projectQualityConstitution?.tracks||{},foundation=p96.foundation||{};
-req(tracks.product==='IN_PROGRESS'&&tracks.uiUx==='NOT_STARTED'&&tracks.engineering==='IN_PROGRESS'&&tracks.certification==='NOT_STARTED','Phase 9.6 foundation quality tracks must reflect pre-UI foundation state');
+req(tracks.product==='IN_PROGRESS'&&tracks.uiUx==='NOT_STARTED'&&tracks.engineering==='IN_PROGRESS'&&tracks.certification==='NOT_STARTED','Phase 9.6 quality tracks must reflect pre-UI engineering state');
 req(['IN_PROGRESS','LOCAL_GATE_PASS'].includes(foundation.status)&&foundation.contract==='src/features/process-intelligence/processMiningContract.ts'&&foundation.tests==='tests/phase9-6-process-mining-foundation.test.ts','Phase 9.6 foundation artifact registry drifted');
 if(foundation.status==='LOCAL_GATE_PASS'){
  req(foundation.destructionTestCount===16,'Certified Phase 9.6 foundation must preserve all 16 destructive tests');
@@ -74,5 +84,14 @@ if(foundation.status==='LOCAL_GATE_PASS'){
  req(foundation.audit==='PASS'&&foundation.functionalRegression==='PASS'&&foundation.databaseAndRoadmapIntegrity==='PASS'&&foundation.majorSystemsZeroEscape==='PASS'&&foundation.typecheck==='PASS'&&foundation.productionBuild==='PASS'&&foundation.pagesLiveBuild==='PASS'&&foundation.governedBudget==='PASS','Certified Phase 9.6 foundation matrix must remain all PASS');
 }
 
+req(['IN_PROGRESS_PENDING_GATE','LOCAL_GATE_PASS'].includes(sourceComposition.status),'Phase 9.6 source composition must remain pending-gate or locally certified');
+req(sourceComposition.sourceGateway==='src/features/process-intelligence/processMiningSources.ts'&&sourceComposition.service==='src/features/process-intelligence/processMiningService.ts'&&sourceComposition.tests==='tests/phase9-6-process-mining-service.test.ts'&&sourceComposition.destructionTestCount===11,'Phase 9.6 source composition artifact registry drifted');
+req(sourceComposition.workspaceIsolation==='REQUIRED'&&sourceComposition.crossSourceTransactionDrift==='FAIL_CLOSED'&&sourceComposition.orphanSourceBehavior==='FAIL_CLOSED'&&sourceComposition.paginationBehavior==='BOUNDED_FAIL_CLOSED'&&sourceComposition.equalTimestampOrdering==='EXPLICIT_PARTIAL_ORDER','Phase 9.6 source composition failure semantics drifted');
+req(sourceComposition.syncReceiptPolicy==='ACTOR_SCOPED_INTEGRITY_ONLY_NOT_PATH_INPUT','Phase 9.6 sync receipt composition law drifted');
+if(sourceComposition.status==='LOCAL_GATE_PASS'){
+ req(Number.isSafeInteger(sourceComposition.gateRunId)&&sourceComposition.gateRunId>0&&sourceComposition.gateConclusion==='SUCCESS','Certified source composition requires a successful Phase 9.6 gate run');
+ req(sourceComposition.typecheck==='PASS'&&sourceComposition.productionBuild==='PASS'&&sourceComposition.pagesLiveBuild==='PASS'&&sourceComposition.governedBudget==='PASS','Certified source composition build/budget matrix must remain PASS');
+}
+
 if(errors.length){console.error(`PHASE 9.6 PROCESS MINING AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}
-else console.log(foundation.status==='LOCAL_GATE_PASS'?'PHASE 9.6 PROCESS MINING AUDIT PASS — foundation LOCAL_GATE_PASS; Phase 9.5 closure preserved; M18 ACTIVE/open for Phase 15; source-owned event lineage and non-authoritative empirical prediction enforced; Phase 9.7 locked.':'PHASE 9.6 PROCESS MINING AUDIT PASS — Phase 9.5 closure preserved; M18 ACTIVE/open for Phase 15; source-owned event lineage, partial-order honesty, evidence-bound rework/bottlenecks and non-authoritative empirical prediction enforced; Phase 9.7 locked.');
+else console.log(sourceComposition.status==='LOCAL_GATE_PASS'?'PHASE 9.6 PROCESS MINING AUDIT PASS — foundation + source composition LOCAL_GATE_PASS; M18 remains ACTIVE/open for Phase 15; actor-scoped receipts excluded from path intelligence; Phase 9.7 locked.':'PHASE 9.6 PROCESS MINING AUDIT PASS — foundation LOCAL_GATE_PASS; source composition is governed pending gate; actor-scoped receipts are integrity-only; M18 ACTIVE/open for Phase 15; Phase 9.7 locked.');
