@@ -27,16 +27,20 @@ requireValue(phase94.authority?.directBrowserSensitiveDmlAllowed === false && ph
 requireValue(phase94.authority?.crossWorkspaceCuratedAccessAllowed === false, 'workspace-curated knowledge must remain isolated');
 
 const tracks = phase94.projectQualityConstitution?.tracks ?? {};
-const productLifecycle = new Set(['IN_PROGRESS', 'IMPLEMENTED_PENDING_CERTIFICATION']);
-const uiUxLifecycle = new Set(['IN_PROGRESS', 'IMPLEMENTED_PENDING_REAL_BROWSER']);
+const productLifecycle = new Set(['IN_PROGRESS', 'IMPLEMENTED_PENDING_CERTIFICATION', 'IMPLEMENTED_PENDING_LIVE_CERTIFICATION']);
+const uiUxLifecycle = new Set(['IN_PROGRESS', 'IMPLEMENTED_PENDING_REAL_BROWSER', 'REAL_BROWSER_PASS']);
 const engineeringLifecycle = new Set(['IN_PROGRESS', 'STATIC_GATE_PASS']);
-const certificationLifecycle = new Set(['IN_PROGRESS']);
+const certificationLifecycle = new Set(['IN_PROGRESS', 'PENDING_PUBLISHED_LIVE']);
 requireValue(productLifecycle.has(tracks.product), 'Product track must be explicitly active or implemented pending certification');
-requireValue(uiUxLifecycle.has(tracks.uiUx), 'UI/UX track must be explicitly active or pending Real Browser certification');
+requireValue(uiUxLifecycle.has(tracks.uiUx), 'UI/UX track must be explicitly active, pending Real Browser, or Real Browser certified');
 requireValue(engineeringLifecycle.has(tracks.engineering), 'Engineering track must be explicitly active or static-gate certified');
-requireValue(certificationLifecycle.has(tracks.certification), 'Certification must remain IN_PROGRESS until Real Browser/live closure');
+requireValue(certificationLifecycle.has(tracks.certification), 'Certification must remain incomplete until published-live closure');
 requireValue(phase94.projectQualityConstitution?.closureRequiresAllFourPass === true, 'closure must require Product + UI/UX + Engineering + Certification');
 requireValue(phase94.projectQualityConstitution?.tracks?.certification !== 'PASS', 'Phase 9.4 cannot be pre-certified');
+if (tracks.uiUx === 'REAL_BROWSER_PASS') {
+  requireValue(phase94.runtime?.realBrowserVerification === 'PASS' && Number.isInteger(phase94.runtime?.realBrowserRunId) && Array.isArray(phase94.runtime?.realBrowserViewports) && phase94.runtime.realBrowserViewports.join(',') === '1280,430,390,360,320', 'REAL_BROWSER_PASS must carry exact runtime browser evidence');
+  requireValue(phase94.runtime?.publishedLiveVerification === 'PENDING', 'Real Browser pass must not impersonate published-live certification');
+}
 
 const m8 = major.systems?.find((system) => system.id === 'M8');
 requireValue(m8?.name === 'Regulatory / Knowledge Base Engine' && m8?.status === 'ACTIVE', 'M8 must be ACTIVE after Phase 9.4 kickoff');
@@ -75,5 +79,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('PHASE 9.4 REGULATORY KNOWLEDGE AUDIT PASS — predecessor closed; M8 active; four-track quality lifecycle enforced; provenance/version/effective history/AI separation enforced; 9.5 locked.');
+  console.log('PHASE 9.4 REGULATORY KNOWLEDGE AUDIT PASS — predecessor closed; M8 active; four-track quality lifecycle enforced through Real Browser and published-live pending state; provenance/version/effective history/AI separation enforced; 9.5 locked.');
 }
