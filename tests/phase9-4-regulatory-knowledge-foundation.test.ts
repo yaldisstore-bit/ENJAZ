@@ -94,10 +94,7 @@ test('9.4 foundation 01 — official source/version and citation require real pr
 });
 
 test('9.4 foundation 02 — missing or malformed provenance is rejected', () => {
-  assert.equal(parseRegulatorySourceVersion({
-    ...version(),
-    provenance: null,
-  }), null);
+  assert.equal(parseRegulatorySourceVersion({ ...version(), provenance: null }), null);
   assert.equal(parseRegulatorySourceVersion({
     ...version(),
     provenance: { publisher: 'x', sourceUrl: 'http://unsafe.test', retrievedOn: '2026-09-11', sourceHash: HASH_A },
@@ -135,21 +132,13 @@ test('9.4 foundation 07 — broken/cyclic/forked lineage is rejected', () => {
 test('9.4 foundation 08 — AI output can never assert regulatory authority', () => {
   assert.equal(parseDerivedKnowledgeArtifact({
     schema: ENJAZ_REGULATORY_KNOWLEDGE_SCHEMA,
-    artifactId: 'ai-1',
-    kind: 'ai_summary',
-    sourceId: 'law-iraq-001',
-    sourceVersionId: 'law-iraq-001-v1',
-    body: 'تلخيص غير ملزم للنص الرسمي',
-    authoritative: true,
+    artifactId: 'ai-1', kind: 'ai_summary', sourceId: 'law-iraq-001', sourceVersionId: 'law-iraq-001-v1',
+    body: 'تلخيص غير ملزم للنص الرسمي', authoritative: true,
   }), null);
   const artifact = parseDerivedKnowledgeArtifact({
     schema: ENJAZ_REGULATORY_KNOWLEDGE_SCHEMA,
-    artifactId: 'ai-1',
-    kind: 'ai_summary',
-    sourceId: 'law-iraq-001',
-    sourceVersionId: 'law-iraq-001-v1',
-    body: 'تلخيص غير ملزم للنص الرسمي',
-    authoritative: false,
+    artifactId: 'ai-1', kind: 'ai_summary', sourceId: 'law-iraq-001', sourceVersionId: 'law-iraq-001-v1',
+    body: 'تلخيص غير ملزم للنص الرسمي', authoritative: false,
   });
   assert.ok(artifact);
   assert.equal(artifact.authoritative, false);
@@ -158,12 +147,8 @@ test('9.4 foundation 08 — AI output can never assert regulatory authority', ()
 test('9.4 foundation 09 — editorial interpretation cannot replace official truth', () => {
   assert.equal(parseDerivedKnowledgeArtifact({
     schema: ENJAZ_REGULATORY_KNOWLEDGE_SCHEMA,
-    artifactId: 'editorial-1',
-    kind: 'editorial_interpretation',
-    sourceId: 'law-iraq-001',
-    sourceVersionId: 'law-iraq-001-v1',
-    body: 'شرح تحريري',
-    authoritative: true,
+    artifactId: 'editorial-1', kind: 'editorial_interpretation', sourceId: 'law-iraq-001', sourceVersionId: 'law-iraq-001-v1',
+    body: 'شرح تحريري', authoritative: true,
   }), null);
 });
 
@@ -180,14 +165,24 @@ test('9.4 foundation 11 — citation rejects source/version mismatch', () => {
   assert.throws(() => buildRegulatoryCitation(mismatched, version()));
 });
 
-test('9.4 foundation 12 — Arabic search normalization is derived and successor stays locked', () => {
+test('9.4 foundation 12 — Arabic search normalization is derived and successor follows certified lifecycle', () => {
   const original = 'قَانُونُ الشَّرِكَات ـ العراقي';
   const normalized = normalizeArabicRegulatorySearchText(original);
   assert.equal(original, 'قَانُونُ الشَّرِكَات ـ العراقي');
   assert.equal(normalized, 'قانون الشركات العراقي');
+
   const state = JSON.parse(fs.readFileSync(new URL('../docs/PHASE9_4_STATE.json', import.meta.url), 'utf8')) as Record<string, unknown>;
-  assert.equal(state.status, 'IN_PROGRESS');
-  assert.equal(state.exitGatePassed, false);
-  assert.equal(state.phase9_5Allowed, false);
-  assert.equal(state.successorStatus, 'LOCKED');
+  if (state.status === 'IN_PROGRESS') {
+    assert.equal(state.exitGatePassed, false);
+    assert.equal(state.phase9_5Allowed, false);
+    assert.equal(state.successorStatus, 'LOCKED');
+    return;
+  }
+
+  assert.equal(state.status, 'CLOSED');
+  assert.equal(state.exitGatePassed, true);
+  assert.equal(state.phase9_5Allowed, true);
+  assert.equal(state.nextPhase, '9.5');
+  assert.equal(state.successorStatus, 'AUTHORIZED');
+  assert.equal(state.certifiedMainCommit, 'b72dbff8bb1dfb1afbce82ececd265bf2d5544ed');
 });
