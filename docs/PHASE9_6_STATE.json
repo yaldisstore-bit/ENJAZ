@@ -70,7 +70,10 @@
       "mode": "APPEND_ONLY_SOURCE_OWNED"
     },
     "fieldOperations": {
-      "tables": ["field_assignments", "field_visits", "field_visit_evidence", "field_sync_receipts"],
+      "pathTables": ["field_assignments", "field_visits", "field_visit_evidence"],
+      "integrityOnlyTables": ["field_sync_receipts"],
+      "syncReceiptReadScope": "ACTOR_SCOPED",
+      "syncReceiptPathInputAllowed": false,
       "mode": "SOURCE_OWNED"
     },
     "additionalDomainsRequireExplicitVerification": true
@@ -101,6 +104,7 @@
     "authoritativePredictionAllowed": false,
     "crossWorkspacePathAllowed": false,
     "syntheticHistoricalEventAllowed": false,
+    "actorScopedReceiptAsWorkspaceHistoryAllowed": false,
     "invalidEventBehavior": "FAIL_CLOSED",
     "missingDurationBehavior": "UNKNOWN_NOT_ZERO",
     "ambiguousOrderingBehavior": "EXPLICIT_PARTIAL_ORDER",
@@ -134,6 +138,25 @@
     "productionBuild": "PASS",
     "pagesLiveBuild": "PASS",
     "governedBudget": "PASS"
+  },
+  "sourceComposition": {
+    "status": "IN_PROGRESS_PENDING_GATE",
+    "sourceGateway": "src/features/process-intelligence/processMiningSources.ts",
+    "service": "src/features/process-intelligence/processMiningService.ts",
+    "tests": "tests/phase9-6-process-mining-service.test.ts",
+    "destructionTestCount": 11,
+    "workspaceIsolation": "REQUIRED",
+    "crossSourceTransactionDrift": "FAIL_CLOSED",
+    "orphanSourceBehavior": "FAIL_CLOSED",
+    "paginationBehavior": "BOUNDED_FAIL_CLOSED",
+    "equalTimestampOrdering": "EXPLICIT_PARTIAL_ORDER",
+    "syncReceiptPolicy": "ACTOR_SCOPED_INTEGRITY_ONLY_NOT_PATH_INPUT",
+    "gateRunId": null,
+    "gateConclusion": null,
+    "typecheck": "PENDING",
+    "productionBuild": "PENDING",
+    "pagesLiveBuild": "PENDING",
+    "governedBudget": "PENDING"
   },
   "realCloudRequired": true,
   "realBrowserRequired": true,
