@@ -34,8 +34,8 @@ export interface BusinessIntelligenceSnapshot{
  readonly sourceCounts:Readonly<{transactions:number;activeTransactions:number;completedLast30:number;fieldAssignments:number;fieldVisits:number;financeSignals:number}>;
 }
 
-async function all<T extends 'transactions'>(name:string,repo:ReadRepository<T>):Promise<readonly RowOf<T>[]>{
- const rows:RowOf<T>[]=[];let offset=0;
+async function all(name:string,repo:ReadRepository<'transactions'>):Promise<readonly RowOf<'transactions'>[]>{
+ const rows:RowOf<'transactions'>[]=[];let offset=0;
  for(;;){const page=await repo.list({orderBy:[{column:'created_at',ascending:false}],offset,limit:PAGE});rows.push(...page.items);if(rows.length>BI_SOURCE_LIMIT)throw new BISourceCapacityError(name);if(!page.hasMore)return Object.freeze(rows);if(!page.items.length)throw new BISourcePageStalledError(name);offset+=page.items.length}
 }
 async function finance(factory:EnjazDataLayerFactory,userId:string,now:Date){const x=await loadFinanceSource(factory,userId);return Object.freeze({workspaceId:x.workspaceId,snapshot:buildFinancialIntelligenceSnapshot(x.source,now)})}
@@ -51,7 +51,7 @@ export async function loadBusinessIntelligence(d:BusinessIntelligenceDependencie
  if(f.workspaceId!==workspaceId)throw new BIAuthorityDriftError('Finance workspace drift');fieldOk(field);
  const generatedAt=now.toISOString(),nowMs=now.getTime(),windowStart=nowMs-30*DAY;
  const live=transactions.filter(x=>x.deleted_at===null&&x.archived_at===null),active=live.filter(x=>x.status!=='completed'),stalled=active.filter(x=>x.status==='stalled');
- const completedLast30=live.filter(x=>x.completed_at!==null&&Number.isFinite(Date.parse(x.completed_at))&&Date.parse(x.completed_at!)>=windowStart&&Date.parse(x.completed_at!)<=nowMs);
+ const completedLast30=live.filter(x=>x.completed_at!==null&&Number.isFinite(Date.parse(x.completed_at))&&Date.parse(x.completed_at)>=windowStart&&Date.parse(x.completed_at)<=nowMs);
  const activeAssignments=field.assignments.filter(x=>x.status==='queued'||x.status==='in_progress'),activeVisits=field.visits.filter(x=>x.status==='checked_in');
  const txProvenance=prov(workspaceId,'transactions',generatedAt,transactions.length,['status','completed_at','archived_at','deleted_at']);
  const fieldProvenance=prov(workspaceId,'field-operations',generatedAt,field.assignments.length+field.visits.length,['assignment.status','visit.status']);
