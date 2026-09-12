@@ -1,0 +1,81 @@
+import fs from 'node:fs';
+
+const root=new URL('../',import.meta.url);
+const read=(p)=>fs.readFileSync(new URL(p,root),'utf8');
+const json=(p)=>JSON.parse(read(p));
+const exists=(p)=>fs.existsSync(new URL(p,root));
+const errors=[];
+const req=(v,m)=>{if(!v)errors.push(m)};
+const marker=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
+
+const p94=json('docs/PHASE9_4_STATE.json');
+const p95=json('docs/PHASE9_5_STATE.json');
+const major=json('docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json');
+const ia=json('docs/UI_UX_REBIRTH_2_0_INFORMATION_ARCHITECTURE.json');
+const contract=read('src/features/intelligence/businessIntelligenceContract.ts');
+const service=read('src/features/intelligence/businessIntelligenceService.ts');
+const financeAnchor=read('src/features/finance/financeIntelligence.ts');
+const foundationTests=read('tests/phase9-5-business-intelligence-foundation.test.ts');
+const serviceTests=read('tests/phase9-5-business-intelligence-service.test.ts');
+const boundaryTests=read('tests/phase9-5-business-intelligence-month-boundary.test.ts');
+const uiTests=read('tests/phase9-5-business-intelligence-ui.test.ts');
+const financeTests=read('tests/financeIntelligence.test.ts');
+const cloudProbe=read('database/migrations/phase_9_5_live_authenticated_source_probe.sql');
+const browserSpec=read('tests-external/phase9-5-business-intelligence-live.spec.cjs');
+const navigation=read('src/ui-r2/architecture/navigation-contract.ts');
+const liveRoot=read('src/ui-r2/runtime/UiR2LiveRoot.tsx');
+const lazy=read('src/ui-r2/runtime/LazyLiveProductionPortals.tsx');
+const portal=read('src/ui-r2/intelligence/LiveBusinessIntelligencePortal.tsx');
+const center=read('src/ui-r2/intelligence/BusinessIntelligenceCenter.tsx');
+const kickoff=read('docs/PHASE9_5_KICKOFF.md');
+
+req(p94.status==='CLOSED'&&p94.exitGatePassed===true&&p94.phase9_5Allowed===true&&p94.nextPhase==='9.5'&&p94.successorStatus==='AUTHORIZED','Phase 9.4 must remain formally CLOSED and authorize only 9.5');
+req(p95.phase==='9.5'&&p95.status==='IN_PROGRESS','Phase 9.5 must remain IN_PROGRESS');
+req(p95.baseCommit==='799873b5c7778c7665c934931af9dd3338bcef47','Phase 9.5 base must be exact Phase 9.4 closure merge');
+req(p95.javascriptBudgetBytes===670000&&p95.budgetIncreaseAllowed===false,'670000-byte JavaScript ceiling must remain frozen');
+req(p95.exitGatePassed===false&&p95.phase9_6Allowed===false&&p95.successorStatus==='LOCKED','Phase 9.6 must remain locked');
+req(p95.authority?.persistence==='SOURCE_DOMAIN_AUTHORITY_ONLY'&&p95.authority?.intelligenceAuthority==='READ_ONLY_DERIVED','BI must remain source-derived and read-only');
+req(p95.authority?.sourceProvenance==='REQUIRED'&&p95.authority?.crossWorkspaceAggregationAllowed===false,'provenance/workspace isolation law must remain enforced');
+req(p95.authority?.forecastAuthority==='DIRECTIONAL_NON_AUTHORITATIVE'&&p95.authority?.forecastMethodDisclosure==='REQUIRED'&&p95.authority?.forecastConfidenceDisclosure==='REQUIRED','forecast disclosure/authority law must remain enforced');
+req(p95.authority?.exactMoneyAuthority==='BIGINT_CENTS'&&p95.authority?.fabricatedHistoryAllowed===false&&p95.authority?.silentMissingDataSubstitutionAllowed===false,'exact-money/history/missing-data law must remain enforced');
+req(p95.existingAnchors?.phase7_3FinanceIntelligence==='CLOSED_REUSE_REQUIRED'&&p95.existingAnchors?.parallelLedgerAllowed===false&&p95.existingAnchors?.shadowMoneyStoreAllowed===false,'Phase 7.3 finance anchor must be reused without shadow authority');
+req(p95.foundation?.status==='LOCAL_GATE_PASS'&&p95.sourceComposition?.status==='LOCAL_GATE_PASS','foundation and source composition must remain locally certified');
+req(p95.sourceComposition?.workspaceIsolation==='PASS'&&p95.sourceComposition?.paginationFailClosed==='PASS','source composition authority must remain fail-closed');
+req(p95.scope?.observedTrends===true&&p95.invariants?.fabricatedHistoricalObservationAllowed===false,'observed history must remain in scope without fabrication');
+req(['IN_PROGRESS_PENDING_CURRENT_HEAD_GATE','LOCAL_GATE_PASS','REAL_BROWSER_PASS'].includes(p95.observedTrends?.status),'observed trends must remain in a governed certification state');
+req(p95.observedTrends?.financeAuthority==='PHASE_7_3_TRENDS_REUSED'&&p95.observedTrends?.futureOrInvalidCompletionObservation==='FAIL_CLOSED'&&p95.observedTrends?.missingFinanceTrendPeriod==='FAIL_CLOSED','trend authority/failure behavior must remain explicit');
+const cloud=p95.realCloud||{},residue=cloud.postProbeResidue||{};
+req(cloud.status==='REAL_CLOUD_CERTIFIED'&&cloud.verification==='PASS_ZERO_RESIDUE'&&cloud.projectRef==='juzxriirhkuzviwnhkbd'&&cloud.appliedMigrationVersion==='20260912072237','Real Cloud certification must remain pinned to the authenticated zero-residue probe');
+req(cloud.authenticatedOwnerRlsRead==='PASS'&&cloud.outsiderRlsIsolation==='PASS'&&cloud.outsiderFieldRpcDenial==='PASS'&&cloud.fieldOperationsRpcAuthority==='PASS','Real Cloud owner/outsider permission matrix must remain certified');
+req(cloud.shadowBiPersistenceDetected===false&&Object.values(residue).every(v=>v===0),'Real Cloud probe must leave zero shadow authority and zero fixture residue');
+
+const m13=major.systems?.find((s)=>s.id==='M13');
+req(m13?.name==='Business Intelligence & Forecasting Center'&&m13?.status==='ACTIVE','M13 must be ACTIVE during 9.5');
+req(Array.isArray(m13?.anchors)&&m13.anchors.includes('9')&&m13.anchors.includes('15'),'M13 must preserve Phase 9 + Phase 15 anchors');
+req(m13?.closureEvidence===null,'Phase 9.5 must not fabricate global M13 closure');
+const insight=ia.destinations?.find((d)=>d.id==='insights');
+req(insight?.route==='/app/insights'&&insight?.availability==='live'&&insight?.maxActionsFromHome===2,'IA must expose one canonical live insights destination');
+req(ia.launcherGroups?.find((g)=>g.id==='intelligence')?.destinations?.join(',')==='insights,knowledge,copilot','IA intelligence group must remain synchronized');
+
+for(const p of ['docs/PHASE9_5_STATE.json','docs/PHASE9_5_KICKOFF.md','src/features/intelligence/businessIntelligenceContract.ts','src/features/intelligence/businessIntelligenceService.ts','src/ui-r2/intelligence/BusinessIntelligenceCenter.tsx','src/ui-r2/intelligence/LiveBusinessIntelligencePortal.tsx','tests/phase9-5-business-intelligence-foundation.test.ts','tests/phase9-5-business-intelligence-service.test.ts','tests/phase9-5-business-intelligence-month-boundary.test.ts','tests/phase9-5-business-intelligence-ui.test.ts','tests-external/phase9-5-business-intelligence-live.spec.cjs','database/migrations/phase_9_5_live_authenticated_source_probe.sql','.github/workflows/phase9-5-business-intelligence.yml','.github/workflows/phase9-5-business-intelligence-browser.yml'])req(exists(p),`missing Phase 9.5 artifact: ${p}`);
+for(const m of ['ENJAZ_BI_SCHEMA','authoritative:false','BIProvenance','buildDerivedKpi','buildObservedTrend','buildTrailingRunRateForecast','BIUnsupportedRunRateUnitError','exactChangeBps','valueCents:bigint'])marker(contract,m,'BI contract');
+for(const m of ['loadBusinessIntelligence','read_only_derived_intelligence','Finance workspace drift','Field authority drift','phase9.5-source-composition-v1','phase9.5-observed-trends-v1','BIHistoricalObservationError','operations.completed_monthly','finance.collections_monthly','Finance trend period missing','operations.completed_next_30d','finance.collections_next_30d'])marker(service,m,'BI service');
+for(const m of ['paymentCount','if(ms>now)continue'])marker(financeAnchor,m,'Phase 7.3 trend anchor');
+for(const m of ['future-dated payments and ledger events cannot leak into an observed finance trend','paymentCount'])marker(financeTests,m,'finance trend regression');
+for(const m of ['set local role authenticated','ENJAZ_P95_PROBE: outsider RLS leak','ENJAZ_FIELD_WORKSPACE_FORBIDDEN','ENJAZ_P95_PROBE: cleanup residue','shadow BI persistence detected'])marker(cloudProbe,m,'Real Cloud probe');
+for(const m of ["'insights'",'مركز ذكاء الأعمال',"['insights', 'knowledge', 'copilot']",'تحليلات','مؤشرات','تنبؤ'])marker(navigation,m,'navigation');
+for(const m of ['InsightsTarget',"destinationId==='insights'",'data-business-intelligence-runtime-target="phase9.5"'])marker(liveRoot,m,'live root');
+for(const m of ['LiveBusinessIntelligencePortal',"destination === 'insights' ? <InsightsPortal />"])marker(lazy,m,'lazy runtime');
+for(const m of ["shell.dataset.destination==='insights'",'createPortal(<BusinessIntelligenceCenter/>'])marker(portal,m,'BI portal');
+for(const m of ['loadBusinessIntelligence({dataFactory,fieldOperations},userId)','data-phase9-5-runtime="business-intelligence"','data-bi-authority="read-only-derived"','data-bi-provenance="required"','الاتجاهات المرصودة','data-bi-trend-point','مرصود من التاريخ الفعلي','اتجاهي','عينات غير كافية','سلامة المصدر'])marker(center,m,'BI center');
+for(const m of ['data-bi-trend','trendPointCount','الاتجاهات المرصودة'])marker(browserSpec,m,'Real Browser spec');
+for(const width of [1280,430,390,360,320])marker(browserSpec,`width: ${width}`,'Real Browser viewports');
+for(let i=1;i<=14;i+=1)marker(foundationTests,`9.5 foundation ${String(i).padStart(2,'0')}`,'foundation tests');
+for(let i=1;i<=11;i+=1)marker(serviceTests,`9.5 service ${String(i).padStart(2,'0')}`,'service tests');
+marker(boundaryTests,'9.5 trend boundary','month-boundary regression');
+for(let i=1;i<=8;i+=1)marker(uiTests,`9.5 ui ${String(i).padStart(2,'0')}`,'ui tests');
+marker(kickoff,'Phase 9.6 remains **LOCKED**','kickoff');
+marker(kickoff,'DIRECTIONAL / NON-AUTHORITATIVE','kickoff');
+
+if(errors.length){console.error(`PHASE 9.5 BUSINESS INTELLIGENCE AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}
+else console.log('PHASE 9.5 BUSINESS INTELLIGENCE AUDIT PASS — predecessor closure preserved; M13 active/open; Real Cloud source authority certified; observed trends + canonical /app/insights runtime + provenance/exact-money/additive forecast authority enforced; 9.6 locked.');

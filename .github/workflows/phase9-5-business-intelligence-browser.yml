@@ -1,0 +1,66 @@
+name: ENJAZ Phase 9.5 — Business Intelligence Real Browser
+
+on:
+  push:
+    branches:
+      - main
+      - 'phase9-5-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase95-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-browser:
+    name: Real Chromium / 1280 + 430 + 390 + 360 + 320
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Phase 9.5 source contract and tests
+        run: |
+          node scripts/phase9-5-business-intelligence-audit.mjs
+          node --experimental-strip-types --test tests/phase9-5-business-intelligence-foundation.test.ts
+          node --experimental-strip-types --test tests/phase9-5-business-intelligence-service.test.ts tests/phase9-5-business-intelligence-month-boundary.test.ts
+          node --experimental-strip-types --test tests/phase9-5-business-intelligence-ui.test.ts
+      - name: Build isolated Phase 9.5 browser harness
+        run: npx vite build --config vite.phase9-5-browser.config.ts
+      - name: Install pinned real-browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated Phase 9.5 browser harness
+        run: |
+          nohup npx vite preview --config vite.phase9-5-browser.config.ts --host 127.0.0.1 --port 4181 > /tmp/enjaz-phase9-5-browser.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4181/phase9-5-browser.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase9-5-browser.log
+          exit 1
+      - name: Phase 9.5 Business Intelligence / trends + forecast / 1280 + 430 + 390 + 360 + 320
+        env:
+          R2_PHASE95_BASE_URL: http://127.0.0.1:4181/
+        run: npx playwright test tests-external/phase9-5-business-intelligence-live.spec.cjs --reporter=line --workers=1
+      - name: Upload Phase 9.5 browser diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase9-5-business-intelligence-browser-diagnostics
+          path: |
+            artifacts/phase9-5-business-intelligence
+            test-results
+            /tmp/enjaz-phase9-5-browser.log
+          if-no-files-found: ignore

@@ -86,10 +86,26 @@ test('six-month trends reconcile posted payments and ledger movement by calendar
   const august = snapshot.trends.find((item) => item.monthKey === '2026-08');
   const september = snapshot.trends.find((item) => item.monthKey === '2026-09');
   assert.equal(august?.collectedCents, 25_000n);
+  assert.equal(august?.paymentCount, 1);
   assert.equal(september?.collectedCents, 50_000n);
+  assert.equal(september?.paymentCount, 1);
   assert.equal(september?.ledgerInCents, 5_000n);
   assert.equal(september?.ledgerOutCents, 10_000n);
   assert.equal(september?.netCashCents, 45_000n);
+});
+
+test('future-dated payments and ledger events cannot leak into an observed finance trend', () => {
+  const snapshot = buildFinancialIntelligenceSnapshot(source({
+    payments: [payment('p-future', T1, C1, 900, '2026-09-20T10:00:00.000Z')],
+    ledger: [ledger('l-future', 'in', 700, '2026-09-21T10:00:00.000Z')],
+  }), AS_OF);
+  const september = snapshot.trends.find((item) => item.monthKey === '2026-09');
+  assert.equal(september?.collectedCents, 0n);
+  assert.equal(september?.paymentCount, 0);
+  assert.equal(september?.ledgerInCents, 0n);
+  assert.equal(september?.netCashCents, 0n);
+  assert.equal(snapshot.runRate.recent30CollectedCents, 0n);
+  assert.equal(snapshot.runRate.samplePaymentCount, 0);
 });
 
 test('run-rate compares rolling 30-day windows but labels confidence as directional only with enough samples', () => {
