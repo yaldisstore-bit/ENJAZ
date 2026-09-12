@@ -68,7 +68,8 @@ for(const m of ['InsightsTarget',"destinationId==='insights'",'data-business-int
 for(const m of ['LiveBusinessIntelligencePortal',"destination === 'insights' ? <InsightsPortal />"])marker(lazy,m,'lazy runtime');
 for(const m of ["shell.dataset.destination==='insights'",'createPortal(<BusinessIntelligenceCenter/>'])marker(portal,m,'BI portal');
 for(const m of ['loadBusinessIntelligence({dataFactory,fieldOperations},userId)','data-phase9-5-runtime="business-intelligence"','data-bi-authority="read-only-derived"','data-bi-provenance="required"','الاتجاهات المرصودة','data-bi-trend-point','مرصود من التاريخ الفعلي','اتجاهي','عينات غير كافية','سلامة المصدر'])marker(center,m,'BI center');
-for(const m of ['data-bi-trend','trendPointCount','الاتجاهات المرصودة','1280 + 430 + 390 + 360 + 320'])marker(browserSpec,m,'Real Browser spec');
+for(const m of ['data-bi-trend','trendPointCount','الاتجاهات المرصودة'])marker(browserSpec,m,'Real Browser spec');
+for(const width of [1280,430,390,360,320])marker(browserSpec,`width: ${width}`,'Real Browser viewports');
 for(let i=1;i<=14;i+=1)marker(foundationTests,`9.5 foundation ${String(i).padStart(2,'0')}`,'foundation tests');
 for(let i=1;i<=11;i+=1)marker(serviceTests,`9.5 service ${String(i).padStart(2,'0')}`,'service tests');
 marker(boundaryTests,'9.5 trend boundary','month-boundary regression');
