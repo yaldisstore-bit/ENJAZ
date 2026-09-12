@@ -39,13 +39,29 @@ if(state.newFeatureAuthorityAllowed!==false||state.newDatabaseTablesAllowed!==fa
 if(state.javascriptBudgetBytes!==670000||state.totalJavascriptBudgetBytes!==760000||state.cssBudgetBytes!==180000||state.budgetIncreaseAllowed!==false)fail('governed budget drift');
 if(state.exitGatePassed!==false||state.phase10_1Allowed!==false||state.nextPhase!=='10.1'||state.successorStatus!=='LOCKED')fail('Phase 10.1 must remain locked while Phase 9.7 is open');
 if(state.pullRequestGate!=='PENDING'||state.postMergeRecertification!=='PENDING'||state.deployedLiveVerification!=='PENDING')fail('premature Phase 9.7 closure evidence');
-for(const count of ['unresolvedDefectCount','criticalDefectCount','highDefectCount','functionalBlockerCount'])if(state[count]!==0)fail(`${count} must start at zero known defects`);
+for(const count of ['unresolvedDefectCount','criticalDefectCount','highDefectCount','functionalBlockerCount'])if(state[count]!==0)fail(`${count} must stay at zero known defects`);
 
 const systems=['M2','M8_PHASE9_PORTION','M13_PHASE9_PORTION','M18_PHASE9_PORTION'];
 if(JSON.stringify(state.systemsUnderGate)!==JSON.stringify(systems))fail('systems-under-gate drift');
 const dimensions=['conflicting_stale_signals','no_data_states','high_volume_datasets','invalid_ownership','regulatory_version_conflicts','model_drift','prediction_uncertainty'];
 if(JSON.stringify(state.destructionDimensions)!==JSON.stringify(dimensions))fail('destruction-dimension drift');
-for(const key of systems)if(state.systemEvidence?.[key]?.status!=='PENDING')fail(`${key} evidence must remain PENDING before real certification`);
+const allowedEvidenceStatuses=new Set(['PENDING','REAL_CLOUD_PASS','BRANCH_CERTIFIED']);
+for(const key of systems){
+  const status=state.systemEvidence?.[key]?.status;
+  if(!allowedEvidenceStatuses.has(status))fail(`${key} evidence status is invalid: ${status}`);
+}
+
+const cloudEvidencePath='docs/PHASE9_7_REAL_CLOUD_EVIDENCE.md';
+if(state.realCloudVerification==='PENDING'){
+  if(state.realCloudEvidence!==null)fail('pending Real Cloud cannot publish an evidence path');
+}else{
+  if(state.realCloudVerification!=='PASS_READ_ONLY_ZERO_NEW_RESIDUE'||state.realCloudEvidence!==cloudEvidencePath||!exists(cloudEvidencePath))fail('Real Cloud evidence/state drift');
+  for(const key of systems){
+    if(!['REAL_CLOUD_PASS','BRANCH_CERTIFIED'].includes(state.systemEvidence?.[key]?.status))fail(`${key} must carry at least Real Cloud PASS after cloud certification`);
+  }
+  const cloud=read(cloudEvidencePath);
+  for(const marker of ['READ-ONLY RECERTIFICATION / ZERO NEW RESIDUE','M2 Phase-9 Zero-Escape cloud property: PASS','M8 Phase-9 Zero-Escape cloud property: PASS','M13 Phase-9 Zero-Escape cloud property: PASS','M18 Phase-9 Zero-Escape cloud property: PASS','Phase-9.7 residual artifacts: **0**'])must(cloud,marker,'Real Cloud evidence');
+}
 
 const m2=registry.systems.find((x)=>x.id==='M2');
 const m8=registry.systems.find((x)=>x.id==='M8');
@@ -80,4 +96,4 @@ if(/createCompany|updateCompany|postPayment|writeLedger/.test(processContract))f
 
 for(const evidence of ['docs/PHASE9_3_CLOSURE.md','docs/PHASE9_4_CLOSURE.md','docs/PHASE9_5_CLOSURE.md','docs/PHASE9_6_CLOSURE.md','docs/PHASE9_6_POSTMERGE_RECERTIFICATION.md'])if(!exists(evidence))fail(`missing prior evidence ${evidence}`);
 
-console.log('ENJAZ PHASE 9.7 INTELLIGENCE ZERO-ESCAPE AUDIT PASS — Phase 9.6 closure preserved; M2/M8/M13/M18 authority boundaries frozen; seven roadmap destruction dimensions registered; no new feature/database/write authority; governed budgets unchanged; Phase 10.1 locked.');
+console.log('ENJAZ PHASE 9.7 INTELLIGENCE ZERO-ESCAPE AUDIT PASS — Phase 9.6 closure preserved; M2/M8/M13/M18 authority boundaries frozen; seven roadmap destruction dimensions registered; progressive Real Cloud evidence governed; no new feature/database/write authority; governed budgets unchanged; Phase 10.1 locked.');
