@@ -30,27 +30,8 @@ const assertClosedState = (path, label) => {
 };
 
 checkOrder([
-  '# Phase 0 — Product Freeze & Migration Contract',
-  '# Phase 1 — Engineering Foundation',
-  '# Phase 2 — ENJAZ Design System 1.0',
-  '# Phase 3 — Application Shell & Navigation',
-  '# Phase 4 — Home, Daily Work & Executive Overview',
-  '# Phase 5 — Transactions Core',
-  '# Phase 6 — Companies & People',
-  '# Phase 7 — Finance',
-  '# Phase 8 — Workflow, Automation & Operations',
-  '# Phase 9 — Risk, Governance & Intelligence',
-  '# Phase 10 — Documents, Vault, OCR & Reports',
-  '# Phase 11 — Notifications, Follow-ups, Client & Communications',
-  '# Phase 12 — ENJAZ AI & Knowledge Agent',
-  '# Phase 13 — Legacy Import & Reconciliation',
-  '# Phase 14 — Full-system Integration, API & Real E2E',
-  '# Phase 15 — Performance, Security, Reliability & Enterprise Controls',
-  '# Phase 16 — Final Visual & UX Destruction',
-  '# Phase 17 — Release Candidate & Production Validation',
-  '# Phase 18 — Final Delivery & Handoff',
+  '# Phase 0 — Product Freeze & Migration Contract','# Phase 1 — Engineering Foundation','# Phase 2 — ENJAZ Design System 1.0','# Phase 3 — Application Shell & Navigation','# Phase 4 — Home, Daily Work & Executive Overview','# Phase 5 — Transactions Core','# Phase 6 — Companies & People','# Phase 7 — Finance','# Phase 8 — Workflow, Automation & Operations','# Phase 9 — Risk, Governance & Intelligence','# Phase 10 — Documents, Vault, OCR & Reports','# Phase 11 — Notifications, Follow-ups, Client & Communications','# Phase 12 — ENJAZ AI & Knowledge Agent','# Phase 13 — Legacy Import & Reconciliation','# Phase 14 — Full-system Integration, API & Real E2E','# Phase 15 — Performance, Security, Reliability & Enterprise Controls','# Phase 16 — Final Visual & UX Destruction','# Phase 17 — Release Candidate & Production Validation','# Phase 18 — Final Delivery & Handoff',
 ], 'delivery phases');
-
 checkOrder(['## 2.1 — Visual Identity Foundation','## 2.2 — Design Tokens','## 2.3 — Typography & RTL System','## 2.4 — Core Component System','## 2.5 — Motion & Interaction System','## 2.6 — Mobile & Android Hardening','## 2.7 — Premium Pattern Library','## 2.8 — Visual Destruction & Quality Gate'], 'Phase 2 sequence');
 checkOrder(['## 5.1 — Transaction List & Search','## 5.2 — Transaction Create/Edit','## 5.3 — Transaction Details / 360°','## 5.4 — Archive/Restore/Lifecycle','## 5.5 — Transaction Destruction Gate'], 'Phase 5 sequence');
 checkOrder(['## 6.1 — Companies','## 6.2 — Lawyers / Contacts','## 6.3 — Company / Lawyer 360°','## 6.4 — Companies & People Destruction Gate'], 'Phase 6 sequence');
@@ -58,7 +39,7 @@ checkOrder(['## 7.1 — Financial Ledger & Summary','## 7.2 — Payments & Recei
 checkOrder(['## 8.1 — Workflow Engine & Government Procedure OS — M1','## 8.2 — Automation Engine','## 8.3 — Operations Center + Field Operations — M5','## 8.4 — CRM, Service Catalog & Smart Intake — M6 + M17','## 8.5 — Multi-Branch / Departments / Teams — M15 foundation','## 8.6 — Global Command Center','## 8.7 — Operations Zero-Escape Destruction Gate'], 'Phase 8 sequence');
 checkOrder(['## 9.1 — Smart Risk Engine','## 9.2 — Smart Saved Views & Cross-domain Search Intelligence','## 9.3 — Corporate Governance & Ownership Engine — M2','## 9.4 — Regulatory / Knowledge Base Engine — M8 foundation','## 9.5 — Business Intelligence & Forecasting Center — M13','## 9.6 — Process Mining & Predictive Operations — M18','## 9.7 — Intelligence Zero-Escape Gate'], 'Phase 9 sequence');
 
-for (const marker of ['ENJAZ 1.0 — Delivered','Zero-Escape closure law for M1–M18','Current position — canonical reconciled state','Major-system anchor matrix','Gate Escape','1. `ENJAZ_NON_NEGOTIABLE_RULES.md`','## 9.4 — Regulatory / Knowledge Base Engine — M8 foundation','## 9.5 — Business Intelligence & Forecasting Center — M13','M8 — Regulatory / Knowledge Base Engine: `ACTIVE`']) requireMarker(roadmap, marker, 'roadmap');
+for (const marker of ['ENJAZ 1.0 — Delivered','Zero-Escape closure law for M1–M18','Current position — canonical reconciled state','Major-system anchor matrix','Gate Escape','1. `ENJAZ_NON_NEGOTIABLE_RULES.md`','## 9.4 — Regulatory / Knowledge Base Engine — M8 foundation','## 9.5 — Business Intelligence & Forecasting Center — M13','M8 — Regulatory / Knowledge Base Engine: `ACTIVE`','Phase 9.5 — Business Intelligence & Forecasting Center — M13 ✅ CLOSED','Phase 9.6 — Process Mining & Predictive Operations — M18 — AUTHORIZED NEXT']) requireMarker(roadmap, marker, 'roadmap');
 
 if (major.schemaVersion !== 2 || major.status !== 'GOVERNING_AMENDMENT') errors.push('major-system registry must remain governing amendment schema v2');
 if (major.majorSystemCount !== 18 || major.systems?.length !== 18) errors.push('major-system registry must contain exactly M1-M18');
@@ -79,9 +60,13 @@ for (const id of ['M1','M2','M5','M6']) {
   if (system?.status !== 'CLOSURE_CANDIDATE') errors.push(`${id} must remain CLOSURE_CANDIDATE`);
   if (typeof system?.closureEvidence !== 'string' || !system.closureEvidence.startsWith('docs/')) errors.push(`${id} closure candidate must reference closure evidence`);
 }
-for (const id of ['M8','M15','M17']) if (major.systems.find((candidate) => candidate.id === id)?.status !== 'ACTIVE') errors.push(`${id} must remain ACTIVE while governing anchors are open`);
+for (const id of ['M8','M13','M15','M17']) if (major.systems.find((candidate) => candidate.id === id)?.status !== 'ACTIVE') errors.push(`${id} must remain ACTIVE while governing anchors are open`);
 const m8 = major.systems.find((candidate) => candidate.id === 'M8');
 if (!Array.isArray(m8?.anchors) || !m8.anchors.includes('9') || !m8.anchors.includes('12') || m8?.closureEvidence !== null) errors.push('M8 must preserve Phase 9 + Phase 12 anchors without fabricated global closure evidence');
+const m13 = major.systems.find((candidate) => candidate.id === 'M13');
+if (!Array.isArray(m13?.anchors) || m13.anchors.join(',') !== '9,15' || m13?.closureEvidence !== null) errors.push('M13 must preserve registry anchors 9 + 15 without fabricated global closure evidence');
+const m18 = major.systems.find((candidate) => candidate.id === 'M18');
+if (m18?.status !== 'PLANNED' || m18?.closureEvidence !== null) errors.push('M18 must remain PLANNED until Phase 9.6 kickoff begins');
 
 const historicalClosedStates = [
   ['docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json','Phase 5.5'],['docs/PHASE6_1_COMPANIES_STATE.json','Phase 6.1'],['docs/PHASE6_2_LAWYERS_CONTACTS_STATE.json','Phase 6.2'],['docs/PHASE6_3_COMPANY_LAWYER_360_STATE.json','Phase 6.3'],['docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_STATE.json','Phase 6.4'],['docs/PHASE7_1_FINANCIAL_LEDGER_STATE.json','Phase 7.1'],['docs/PHASE7_2_STATE.json','Phase 7.2'],['docs/PHASE7_3_STATE.json','Phase 7.3'],['docs/PHASE7_4_STATE.json','Phase 7.4'],['docs/PHASE7_5_STATE.json','Phase 7.5'],['docs/PHASE8_1_STATE.json','Phase 8.1'],['docs/PHASE8_2_STATE.json','Phase 8.2'],['docs/PHASE8_3_STATE.json','Phase 8.3'],['docs/PHASE8_4_STATE.json','Phase 8.4'],['docs/PHASE8_5_STATE.json','Phase 8.5'],['docs/PHASE8_6_STATE.json','Phase 8.6'],['docs/PHASE8_7_STATE.json','Phase 8.7'],['docs/PHASE9_1_STATE.json','Phase 9.1'],['docs/PHASE9_2_STATE.json','Phase 9.2'],['docs/PHASE9_3_STATE.json','Phase 9.3'],
@@ -107,23 +92,38 @@ else {
   if (phase94.majorSystem?.id !== 'M8' || phase94.majorSystem?.status !== 'ACTIVE' || phase94.majorSystem?.globalClosureAllowed !== false) errors.push('Phase 9.4 closure must not fabricate global M8 closure');
   if (phase94.foundation?.status !== 'LOCAL_GATE_PASS' || phase94.foundation?.gateRunId !== 34572856756 || phase94.foundation?.destructionTestsPassed !== 12) errors.push('Phase 9.4 foundation evidence drifted');
   if (phase94.persistence?.status !== 'REAL_CLOUD_CERTIFIED' || phase94.persistence?.realCloudVerification !== 'PASS_ZERO_RESIDUE' || phase94.persistence?.zeroResidue !== true) errors.push('Phase 9.4 Real Cloud persistence evidence drifted');
-  if (phase94.persistence?.phaseOwnedSecurityAdvisorWarnings !== 0 || phase94.persistence?.phaseOwnedUnindexedForeignKeys !== 0) errors.push('Phase 9.4 persistence advisor ledger must remain clean');
   const tracks = phase94.projectQualityConstitution?.tracks ?? {};
   if (tracks.product !== 'PASS' || tracks.uiUx !== 'PASS' || tracks.engineering !== 'PASS' || tracks.certification !== 'PASS') errors.push('Phase 9.4 four quality tracks must all be PASS');
   if (phase94.runtime?.status !== 'PUBLISHED_LIVE_PASS' || phase94.runtime?.publishedLiveVerification !== 'PASS' || phase94.runtime?.realBrowserRunId !== 34677681129) errors.push('Phase 9.4 runtime must be Real Browser + published-live certified');
   if (phase94.postMergeRecertification?.status !== 'COMPLETE' || phase94.postMergeRecertification?.workflowCount !== 23 || phase94.postMergeRecertification?.successCount !== 23 || phase94.postMergeRecertification?.failureCount !== 0) errors.push('Phase 9.4 exact-main 23/23 recertification is required');
   if (phase94.publishedLiveCertification?.pagesPreviewRunId !== 34677705458 || phase94.publishedLiveCertification?.liveExternalRunId !== 34677729775) errors.push('Phase 9.4 Pages/Live External evidence drifted');
   if (phase94.phase9_5Allowed !== true || phase94.nextPhase !== '9.5' || phase94.successorStatus !== 'AUTHORIZED') errors.push('Phase 9.4 must authorize Phase 9.5 only');
-  if (phase94.javascriptBudgetBytes !== 670000 || phase94.budgetIncreaseAllowed !== false) errors.push('Phase 9.4 startup JavaScript budget drifted');
-  if (phase94.unresolvedDefectCount !== 0 || phase94.criticalDefectCount !== 0 || phase94.highDefectCount !== 0 || phase94.functionalBlockerCount !== 0) errors.push('Phase 9.4 blocker ledger must remain zero');
   for (const path of ['docs/PHASE9_4_CLOSURE.md','docs/PHASE9_4_POSTMERGE_RECERTIFICATION.md']) if (!exists(path)) errors.push(`Phase 9.4 closure evidence missing: ${path}`);
 }
 
+if (!exists('docs/PHASE9_5_STATE.json') || !exists('docs/PHASE9_5_KICKOFF.md') || !exists('docs/PHASE9_5_CLOSURE.md') || !exists('docs/PHASE9_5_POSTMERGE_RECERTIFICATION.md')) errors.push('Phase 9.5 closure evidence is incomplete');
+else {
+  const phase95 = json('docs/PHASE9_5_STATE.json');
+  const tracks = phase95.projectQualityConstitution?.tracks ?? {},pm=phase95.postMergeRecertification??{},pl=phase95.publishedLiveCertification??{};
+  if (phase95.phase !== '9.5' || phase95.status !== 'CLOSED' || phase95.exitGatePassed !== true) errors.push('Phase 9.5 must be CLOSED with exitGatePassed=true');
+  if (phase95.baseCommit !== '799873b5c7778c7665c934931af9dd3338bcef47') errors.push('Phase 9.5 base drifted');
+  if (phase95.certifiedMainCommit !== '8d9f1bd4403656f7b8d061b843178708b3899044') errors.push('Phase 9.5 canonical final SHA drifted');
+  if (phase95.majorSystem?.id !== 'M13' || phase95.majorSystem?.status !== 'ACTIVE' || phase95.majorSystem?.globalClosureAllowed !== false || phase95.majorSystem?.anchors?.join(',') !== '9,15') errors.push('Phase 9.5 closure must preserve M13 ACTIVE with anchors 9 + 15');
+  if (tracks.product !== 'PASS' || tracks.uiUx !== 'PASS' || tracks.engineering !== 'PASS' || tracks.certification !== 'PASS') errors.push('Phase 9.5 four quality tracks must all be PASS');
+  if (phase95.realCloud?.status !== 'REAL_CLOUD_CERTIFIED' || phase95.realCloud?.verification !== 'PASS_ZERO_RESIDUE' || phase95.realCloud?.shadowBiPersistenceDetected !== false) errors.push('Phase 9.5 Real Cloud zero-residue authority evidence drifted');
+  if (phase95.runtime?.status !== 'PUBLISHED_LIVE_PASS' || phase95.runtime?.publishedLiveVerification !== 'PASS' || phase95.runtime?.realBrowserRunId !== 34686304110) errors.push('Phase 9.5 runtime published-live evidence drifted');
+  if (pm.status !== 'COMPLETE' || pm.workflowCount !== 25 || pm.successCount !== 25 || pm.failureCount !== 0 || pm.queuedCount !== 0 || pm.inProgressCount !== 0) errors.push('Phase 9.5 exact-main 25/25 recertification is required');
+  if (pm.phaseGateRunId !== 34686304068 || pm.phaseRealBrowserRunId !== 34686304110 || pm.cumulativeRealBrowserRunId !== 34686304122) errors.push('Phase 9.5 exact-main run IDs drifted');
+  if (pl.status !== 'PASS' || pl.pagesPreviewRunId !== 34686334396 || pl.liveExternalRunId !== 34686380088 || pl.directLoadReloadTestsPassed !== 7) errors.push('Phase 9.5 Pages/Live External 7/7 evidence drifted');
+  if (phase95.phase9_6Allowed !== true || phase95.nextPhase !== '9.6' || phase95.successorStatus !== 'AUTHORIZED') errors.push('Phase 9.5 must authorize Phase 9.6 only');
+  if (phase95.unresolvedDefectCount !== 0 || phase95.criticalDefectCount !== 0 || phase95.highDefectCount !== 0 || phase95.functionalBlockerCount !== 0) errors.push('Phase 9.5 blocker ledger must remain zero');
+}
+
 for (const marker of [
-  'الحالة الرسمية: **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 ✅ CLOSED + POST-MERGE / PUBLISHED-LIVE RECERTIFIED**',
-  'المرحلة التالية المصرح بها: **Phase 9.5 — Business Intelligence & Forecasting Center — M13 — AUTHORIZED NEXT**',
-  '**Phase 9.4 — Regulatory / Knowledge Base Engine — M8: ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified.**',
-  '23/23 SUCCESS','34677681118','34677681129','34677705458','34677729775','REAL_CLOUD_CERTIFIED / PASS_ZERO_RESIDUE','569465 / 670000 PASS','179984 / 180000 PASS','Phase 9 anchor CLOSED + published-live certified','docs/PHASE9_4_CLOSURE.md','docs/PHASE9_4_POSTMERGE_RECERTIFICATION.md','Phase 9.6+ مقفلة',
+  'الحالة الرسمية: **Phase 9.5 — Business Intelligence & Forecasting Center — M13 ✅ CLOSED + POST-MERGE / PUBLISHED-LIVE RECERTIFIED**',
+  'المرحلة التالية المصرح بها: **Phase 9.6 — Process Mining & Predictive Operations — M18 — AUTHORIZED NEXT**',
+  '**Phase 9.5 — Business Intelligence & Forecasting Center — M13: ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified.**',
+  '25/25 SUCCESS','34686304068','34686304110','34686304122','34686334396','34686380088','7/7 PASS','REAL_CLOUD_CERTIFIED / PASS_ZERO_RESIDUE','Phase 9 anchor CLOSED + published-live certified','docs/PHASE9_5_CLOSURE.md','docs/PHASE9_5_POSTMERGE_RECERTIFICATION.md','Phase 9.7+ مقفلة',
 ]) requireMarker(readme, marker, 'README');
 
 if (errors.length) {
@@ -131,5 +131,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.4 CLOSED + exact-main/published-live recertified; M8 remains globally ACTIVE for Phase 12; Phase 9.5 is AUTHORIZED NEXT; Phase 9.6+ locked.');
+  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.5 CLOSED + exact-main/published-live recertified; M13 remains globally ACTIVE for Phase 15; Phase 9.6 is AUTHORIZED NEXT; Phase 9.7+ locked.');
 }

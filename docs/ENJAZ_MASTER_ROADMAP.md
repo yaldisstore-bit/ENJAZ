@@ -16,7 +16,7 @@
 > - `docs/ENJAZ_CAPABILITY_EXPANSION_2026.json`
 > - `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json` — 18 major end-to-end systems M1–M18
 > - Zero-Escape closure governance merged on canonical `main`
-> - Phase 9.3 M2 formal closure and Phase 9.4 M8 Foundation + Real Cloud persistence certification
+> - Phase 9.4 M8 and Phase 9.5 M13 Phase-9 anchors formally closed with exact-main, Real Browser, Real Cloud where applicable, Pages and deployed-live certification
 
 ---
 
@@ -281,23 +281,31 @@ Phase 8 expands workflow UI into the main operational operating system of ENJAZ.
 - Citation output requires an actual matching source/version/provenance tuple; fabricated legal citations are forbidden.
 - AI summaries and editorial interpretations remain `authoritative=false` by contract.
 - Foundation contract: `src/features/regulatory/regulatoryKnowledgeContract.ts`.
-- Foundation state/kickoff: `docs/PHASE9_4_STATE.json`, `docs/PHASE9_4_KICKOFF.md`.
-- Foundation destruction suite: **12/12 PASS**.
-- Exact-head foundation gate `34572856756`: **SUCCESS** on `8f974c0ff9600fa7bf5c1682a6c972ed68219bee`.
-- Full functional regression, DB audit/selftest, roadmap, Zero-Escape, secrets, TypeScript, root and Pages budgets: **PASS**.
-- Baseline Pages startup after Phase 9.3 remains **563529/670000 PASS**; Phase 9.4 did not raise the 670000-byte cap.
 - Persistence schema/RLS/RPC boundary is **REAL_CLOUD_CERTIFIED / PASS_ZERO_RESIDUE** on Supabase project `juzxriirhkuzviwnhkbd`.
 - Applied regulatory migrations: `20260911072927`, `20260911073147`, `20260911073533`, `20260911141327`, `20260911141412`.
-- Real Cloud probe covered official-global + workspace-curated 1→2 version lineage, replay, stale conflict, historical as-of, derived non-authoritative artifacts, cross-workspace/outsider denial, ACL and audit; independent post-probe residue is zero.
-- The probe discovered and permanently guarded a generated-`search_document` false immutability rejection; the fix preserves fail-closed immutability and excludes only the generated derivative plus legal history-close fields.
 - Phase-owned security-advisor warnings: **0**; phase-owned unindexed foreign keys: **0**.
-- Runtime/UI is now **AUTHORIZED_FOR_IMPLEMENTATION**.
-- **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 🚧 IN PROGRESS — foundation PASS + Real Cloud persistence CERTIFIED**.
-- **M8 — Regulatory / Knowledge Base Engine: `ACTIVE`** because its second governing anchor remains Phase 12; no global closure is implied by this phase.
-- **Phase 9.5 remains LOCKED** until Phase 9.4 receives its own Product/UI/Engineering/Certification closure, Real Browser, Pages and deployed-live evidence.
+- **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 ✅ CLOSED + post-merge / published-live recertified**.
+- Certified implementation merge `b72dbff8bb1dfb1afbce82ececd265bf2d5544ed`; exact-main **23/23 SUCCESS**.
+- Phase gate `34677681118`, Real Browser `34677681129`, Pages `34677705458`, Live External `34677729775`: **SUCCESS**.
+- **M8 — Regulatory / Knowledge Base Engine: `ACTIVE`** because Phase 12 remains its second governing anchor; Phase 9.4 closure does not fabricate global M8 closure.
+- Formal evidence: `docs/PHASE9_4_STATE.json`, `docs/PHASE9_4_CLOSURE.md`, `docs/PHASE9_4_POSTMERGE_RECERTIFICATION.md`.
 
 ## 9.5 — Business Intelligence & Forecasting Center — M13
 - Operational/financial KPI models, trends, capacity and forecast surfaces with source provenance.
+- BI remains `READ_ONLY_DERIVED`; source provenance is required and finance reuses Phase 7.3 authoritative intelligence with exact bigint-cents semantics.
+- Forecasts are directional/non-authoritative and disclose method, confidence, sample count, horizon and assumptions; trailing run-rate scales additive `count`/`cents` only.
+- Fabricated historical observations, silent missing data substitution, cross-workspace aggregation and shadow BI persistence are forbidden.
+- Canonical Arabic-first destination: `/app/insights`.
+- Real Cloud authenticated source-composition verification: **REAL_CLOUD_CERTIFIED / PASS_ZERO_RESIDUE**.
+- **Phase 9.5 — Business Intelligence & Forecasting Center — M13 ✅ CLOSED + exact-main + post-merge / published-live recertified**.
+- Implementation lineage: PR #139 → `ee62353621701c788b3c96ae8172a59b6f95022d`; deep-link hotfix PR #140 → `ce1a4566f48ebcacfde8a8c5b7dd680b6b23a672`; final certification-semantics PR #141 → `8d9f1bd4403656f7b8d061b843178708b3899044`.
+- Final canonical main: `8d9f1bd4403656f7b8d061b843178708b3899044`; exact-main **25/25 SUCCESS**.
+- Phase gate `34686304068`, Phase 9.5 Real Browser `34686304110`, cumulative Real Browser `34686304122`, Pages `34686334396`, Live External `34686380088`: **SUCCESS**.
+- deployed `/ENJAZ/live/app/insights` direct-load/reload matrix: **7/7 PASS** across 1280/430/390/360/320.
+- four quality tracks: **PASS / PASS / PASS / PASS**; unresolved/critical/high/functional blockers: **0 / 0 / 0 / 0**.
+- **M13 remains `ACTIVE`** with governing anchors `9, 15`; Phase 15 remains open, so global M13 closure is forbidden here.
+- Formal evidence: `docs/PHASE9_5_STATE.json`, `docs/PHASE9_5_CLOSURE.md`, `docs/PHASE9_5_POSTMERGE_RECERTIFICATION.md`.
+- **Phase 9.6 — Process Mining & Predictive Operations — M18 — AUTHORIZED NEXT**; no later Phase 9 stage is pre-authorized.
 
 ## 9.6 — Process Mining & Predictive Operations — M18
 - Derive actual process paths from authoritative histories.
@@ -563,16 +571,16 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - **Phase 9.1 — Smart Risk Engine ✅ CLOSED + post-merge recertified**
 - **Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence ✅ CLOSED + post-merge recertified**
 - **Phase 9.3 — Corporate Governance & Ownership Engine — M2 ✅ CLOSED + post-merge recertified**
-- Phase 9.3 formal closure merge: `c81cc8fa3732ac97248fdaaabc72cc5f7f26b29f`.
-- Phase 9.3 canonical runtime certification remains bound to `1c38e388285b1c566d202258d78aadb1b85b9342`: gate `34571138932`, Real Browser `34571138982`, Pages deployment `34571138262`, Pages Preview `34571185394`, and Live External `34571241122` are SUCCESS.
-- **M2 — Corporate Governance & Ownership Engine:** `CLOSURE_CANDIDATE`; Phase 9.3 implementation anchor is complete but global system closure remains governed by `ZERO_ESCAPE_V1`.
-- **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 🚧 IN PROGRESS — Foundation PASS + Real Cloud Persistence CERTIFIED**
-- Phase 9.4 began from `c81cc8fa3732ac97248fdaaabc72cc5f7f26b29f`; foundation gate `34572856756` is SUCCESS with 12/12 destructive foundation tests and full regression/audit/typecheck/budget checks green.
-- Phase 9.4 persistence is `REAL_CLOUD_CERTIFIED / PASS_ZERO_RESIDUE`; runtime/UI is `AUTHORIZED_FOR_IMPLEMENTATION`.
-- Real Cloud migrations: `20260911072927`, `20260911073147`, `20260911073533`, `20260911141327`, `20260911141412`; phase-owned security/FK advisor findings remain 0.
-- **M8 — Regulatory / Knowledge Base Engine: `ACTIVE`**; Phase 12 remains its second anchor.
-- Baseline Pages startup remains **563529/670000 PASS** under the unchanged 670000-byte hard ceiling.
-- **Phase 9.5 remains LOCKED** and no later Phase 9 stage is pre-authorized.
+- **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified**; M8 remains `ACTIVE` for Phase 12.
+- **Phase 9.5 — Business Intelligence & Forecasting Center — M13 ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified**.
+- Phase 9.5 final certified main: `8d9f1bd4403656f7b8d061b843178708b3899044`; exact-main **25/25 SUCCESS**.
+- Phase 9.5 gate `34686304068`, dedicated Real Browser `34686304110`, cumulative Real Browser `34686304122`, Pages `34686334396`, Live External `34686380088`: **SUCCESS**.
+- deployed canonical `/ENJAZ/live/app/insights`: **7/7 PASS** including direct load/reload on 1280/430/390/360/320.
+- Phase 9.5 Real Cloud source authority: **REAL_CLOUD_CERTIFIED / PASS_ZERO_RESIDUE**.
+- **M13 — Business Intelligence & Forecasting Center: `ACTIVE`**; Phase 9 delivery anchor is closed and Phase 15 remains its second governing anchor.
+- **Phase 9.6 — Process Mining & Predictive Operations — M18 — AUTHORIZED NEXT**.
+- **Phase 9.7+ remains LOCKED**; M18 stays `PLANNED` until Phase 9.6 kickoff explicitly begins.
+- startup JavaScript hard ceiling remains **670000 bytes**.
 
 ---
 
@@ -592,14 +600,14 @@ This snapshot is retained only as satisfied transition history. It no longer def
 | M10 | Scheduling, Appointments & Deadline Engine | 11 |
 | M11 | Integration Platform / API / Webhooks | 14, 15 |
 | M12 | Compliance, Audit & Evidence Center | 15 |
-| M13 | Business Intelligence & Forecasting Center | 7, 9, 15 |
+| M13 | Business Intelligence & Forecasting Center | 9, 15 |
 | M14 | Backup, Restore & Workspace Portability | 15, 18 |
 | M15 | Multi-Branch, Departments & Team Operating Model | 8, 15 |
 | M16 | Engagements, Contracts & Retainers | 7, 10, 11 |
 | M17 | Smart Intake Forms & Secure Submission Links | 8, 11 |
 | M18 | Process Mining & Predictive Operations | 9, 15 |
 
-The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; this table makes that scope visible inside the Master Roadmap.
+The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; Phase 7.3 remains a required finance source/reuse authority for M13 but is not an additional global M13 anchor.
 
 ---
 
@@ -607,20 +615,21 @@ The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; 
 
 This file is intentionally difficult to change by accident.
 
-The current reconciliation preserves all historical closure authority while recording Phase 9.4 progress:
+The current reconciliation preserves all historical closure authority while recording Phase 9.5 formal closure:
 
 1. closed phases 0–8 remain closed and are not reopened;
 2. Phase 9.1 remains closed under its read-only derived-intelligence authority;
 3. Phase 9.2 remains closed under Saved Views/Search Real Cloud and deployed-live evidence;
 4. Phase 9.3 remains formally closed after full M2 scope and post-merge production recertification;
-5. Phase 9.4 is `IN_PROGRESS` from the exact formal 9.3 closure merge;
-6. the Phase 9.4 authority foundation passed before persistence work, and persistence is now Real Cloud certified before Runtime/UI;
-7. M8 is `ACTIVE`, not globally `CLOSED`, because Phase 12 remains a governing anchor;
-8. official source truth, workspace curation, editorial interpretation and AI-derived content remain distinct authority classes;
-9. AI/editorial content cannot self-promote into authoritative law or regulation;
-10. the production startup JavaScript hard ceiling remains 670000 bytes and Phase 9.4 did not raise it;
-11. Phase 9.5+ remains locked;
-12. the 18 major product systems remain governed by independent `ZERO_ESCAPE_V1` closure law;
-13. current state documents, README and machine-readable system registry must agree with this transition.
+5. Phase 9.4 remains formally closed with exact-main/Real Browser/Pages/Live External evidence; M8 stays `ACTIVE` for Phase 12;
+6. Phase 9.5 is `CLOSED` on final certified main `8d9f1bd4403656f7b8d061b843178708b3899044` with 25/25 exact-main, Real Cloud zero-residue, Real Browser and deployed-live 7/7 evidence;
+7. M13 is `ACTIVE`, not globally `CLOSED`, because Phase 15 remains a governing anchor;
+8. Phase 7.3 finance intelligence remains reused authority and no parallel ledger/shadow money store is permitted;
+9. KPI/trend/forecast provenance remains mandatory and forecast output remains directional/non-authoritative;
+10. the production startup JavaScript hard ceiling remains 670000 bytes and Phase 9.5 did not raise it;
+11. Phase 9.6 is the sole `AUTHORIZED NEXT` successor; Phase 9.7+ remains locked;
+12. M18 remains `PLANNED` until explicit Phase 9.6 kickoff;
+13. the 18 major product systems remain governed by independent `ZERO_ESCAPE_V1` closure law;
+14. current state documents, README, this roadmap and machine-readable system registry must agree with this transition.
 
-It does **not** silently reopen prior phases, falsely close a major M-system from a phase branch, weaken RLS/provenance boundaries, raise the JavaScript ceiling, or authorize work beyond the current 9.4 scope.
+It does **not** silently reopen prior phases, falsely close a major M-system from a phase branch, weaken RLS/provenance boundaries, raise the JavaScript ceiling, or authorize work beyond Phase 9.6.
