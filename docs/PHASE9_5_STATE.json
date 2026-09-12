@@ -124,8 +124,17 @@
     "governedBudget": "PASS"
   },
   "runtime": {
-    "status": "IN_PROGRESS",
-    "route": null,
+    "status": "LOCAL_GATE_PASS",
+    "route": "/app/insights",
+    "destinationId": "insights",
+    "portal": "src/ui-r2/intelligence/LiveBusinessIntelligencePortal.tsx",
+    "center": "src/ui-r2/intelligence/BusinessIntelligenceCenter.tsx",
+    "uiContractTests": "tests/phase9-5-business-intelligence-ui.test.ts",
+    "uiContractTestCount": 7,
+    "gateRunId": 34679865631,
+    "gateConclusion": "SUCCESS",
+    "lazyLoaded": true,
+    "newProductionCssAdded": false,
     "realBrowserVerification": "PENDING",
     "publishedLiveVerification": "PENDING"
   },
