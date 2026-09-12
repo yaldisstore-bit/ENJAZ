@@ -47,11 +47,11 @@ for (const viewport of viewports) {
     await center.getByRole('button', { name: 'مسح البحث' }).click();
     await expect(center).toContainText('2 نتيجة');
 
-    const officialScope = center.getByRole('button', { name: 'مصدر رسمي' });
+    const officialScope = center.getByRole('button', { name: 'مصدر رسمي', exact: true });
     await officialScope.click();
     await expect(center).toContainText('1 نتيجة');
     await expect(center).toContainText('قانون الشركات — النص النافذ');
-    await center.getByRole('button', { name: 'كل المصادر' }).click();
+    await center.getByRole('button', { name: 'كل المصادر', exact: true }).click();
     await expect(center).toContainText('2 نتيجة');
 
     const state = await page.evaluate(() => window.__ENJAZ_PHASE94_BROWSER__);
