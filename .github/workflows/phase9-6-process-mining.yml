@@ -21,6 +21,11 @@ jobs:
     name: Source-owned lineage / compact runtime parity / process intelligence / M18 lifecycle
     runs-on: ubuntu-latest
     timeout-minutes: 55
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
     steps:
       - uses: actions/checkout@v7
         with:
