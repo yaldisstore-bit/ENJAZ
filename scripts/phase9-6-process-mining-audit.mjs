@@ -11,6 +11,7 @@ const marker=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 const p95=json('docs/PHASE9_5_STATE.json');
 const p96=json('docs/PHASE9_6_STATE.json');
 const major=json('docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json');
+const ia=json('docs/UI_UX_REBIRTH_2_0_INFORMATION_ARCHITECTURE.json');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 const kickoff=read('docs/PHASE9_6_KICKOFF.md');
 const contract=read('src/features/process-intelligence/processMiningContract.ts');
@@ -18,6 +19,15 @@ const sourceGateway=read('src/features/process-intelligence/processMiningSources
 const service=read('src/features/process-intelligence/processMiningService.ts');
 const foundationTests=read('tests/phase9-6-process-mining-foundation.test.ts');
 const serviceTests=read('tests/phase9-6-process-mining-service.test.ts');
+const uiTests=read('tests/phase9-6-process-mining-ui.test.ts');
+const tabs=read('src/ui-r2/intelligence/IntelligenceViewTabs.tsx');
+const processCenter=read('src/ui-r2/intelligence/ProcessIntelligenceCenter.tsx');
+const businessCenter=read('src/ui-r2/intelligence/BusinessIntelligenceCenter.tsx');
+const productionRoot=read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
+const historyContext=read('src/features/process-intelligence/ProcessMiningHistoryContext.tsx');
+const lazyPortals=read('src/ui-r2/runtime/LazyLiveProductionPortals.tsx');
+const insightsPortal=read('src/ui-r2/intelligence/LiveBusinessIntelligencePortal.tsx');
+const navigation=read('src/ui-r2/architecture/navigation-contract.ts');
 const workflowMigration=read('database/migrations/phase_8_1_workflow_government_procedure_os.sql');
 const transactionLifecycle=read('docs/PHASE5_4_ARCHIVE_RESTORE_LIFECYCLE_CLOSURE.md');
 const fieldMigration=read('database/migrations/phase_8_3_operations_field_m5.sql');
@@ -39,7 +49,7 @@ req(Array.isArray(m18?.anchors)&&m18.anchors.join(',')==='9,15','M18 must preser
 req(m18?.closureEvidence===null,'Phase 9.6 must not fabricate global M18 closure evidence');
 req(p96.majorSystem?.id==='M18'&&p96.majorSystem?.status==='ACTIVE'&&p96.majorSystem?.anchors?.join(',')==='9,15'&&p96.majorSystem?.globalClosureAllowed===false,'Phase 9.6 state must preserve M18 globally open for Phase 15');
 
-const authority=p96.authority||{},sources=p96.authoritativeSources||{},invariants=p96.invariants||{},prediction=p96.predictionFoundation||{},sourceComposition=p96.sourceComposition||{},realCloud=p96.realCloud||{};
+const authority=p96.authority||{},sources=p96.authoritativeSources||{},invariants=p96.invariants||{},prediction=p96.predictionFoundation||{},sourceComposition=p96.sourceComposition||{},realCloud=p96.realCloud||{},runtime=p96.runtime||{};
 const cloudCertified=realCloud.status==='REAL_CLOUD_CERTIFIED';
 req(authority.persistence==='SOURCE_DOMAIN_HISTORY_ONLY'&&authority.processIntelligenceAuthority==='READ_ONLY_DERIVED','process intelligence must remain source-history-derived and read-only');
 req(authority.sourceProvenance==='REQUIRED'&&authority.shadowProcessEventStoreAllowed===false&&authority.browserOwnedProcessPersistenceAllowed===false,'shadow/browser process persistence must remain forbidden');
@@ -63,7 +73,7 @@ req(invariants.invalidEventBehavior==='FAIL_CLOSED'&&invariants.missingDurationB
 req(invariants.insufficientSampleConfidence==='INSUFFICIENT_ONLY'&&invariants.predictionProbabilityUnit==='BASIS_POINTS_INTEGER','prediction confidence/probability semantics drifted');
 req(prediction.method==='empirical_next_activity_frequency'&&prediction.delayMethod==='empirical_wait_threshold_frequency'&&prediction.minimumDirectionalCases===4&&prediction.delayThresholdRequired===true&&prediction.delayEligibleEvidence==='STRICT_POSITIVE_WAIT_ONLY'&&prediction.tieBehavior==='NO_SINGLE_WINNER'&&prediction.authoritative===false,'prediction foundation contract drifted');
 
-for(const p of ['docs/PHASE9_6_KICKOFF.md','docs/PHASE9_6_STATE.json','src/features/process-intelligence/processMiningContract.ts','src/features/process-intelligence/processMiningSources.ts','src/features/process-intelligence/processMiningService.ts','tests/phase9-6-process-mining-foundation.test.ts','tests/phase9-6-process-mining-service.test.ts','.github/workflows/phase9-6-process-mining.yml','database/migrations/phase_9_6_live_authenticated_process_probe.sql','docs/PHASE9_6_REAL_CLOUD_EVIDENCE.md'])req(exists(p),`missing Phase 9.6 artifact: ${p}`);
+for(const p of ['docs/PHASE9_6_KICKOFF.md','docs/PHASE9_6_STATE.json','src/features/process-intelligence/processMiningContract.ts','src/features/process-intelligence/processMiningSources.ts','src/features/process-intelligence/processMiningService.ts','src/features/process-intelligence/ProcessMiningHistoryContext.tsx','src/ui-r2/intelligence/IntelligenceViewTabs.tsx','src/ui-r2/intelligence/ProcessIntelligenceCenter.tsx','tests/phase9-6-process-mining-foundation.test.ts','tests/phase9-6-process-mining-service.test.ts','tests/phase9-6-process-mining-ui.test.ts','.github/workflows/phase9-6-process-mining.yml','database/migrations/phase_9_6_live_authenticated_process_probe.sql','docs/PHASE9_6_REAL_CLOUD_EVIDENCE.md'])req(exists(p),`missing Phase 9.6 artifact: ${p}`);
 for(const m of ['ENJAZ_PROCESS_MINING_SCHEMA','PROCESS_MIN_DIRECTIONAL_CASES','ProcessEventProvenance','DirectionalDelayPrediction','buildProcessEvent','buildProcessPath','buildObservedProcessWaits','classifyBottleneckCandidates','buildEmpiricalNextActivityPrediction','buildEmpiricalDelayPrediction','empirical_wait_threshold_frequency','delay_threshold_exceedance','authoritative:false','ordering:ProcessOrderingConfidence','probabilityBps:number|null','ProcessDuplicateSourceEventError'])marker(contract,m,'process contract');
 req(!contract.includes('sampleCount:undefined'),'process provenance parser must not smuggle non-contract fields through casts');
 for(const forbidden of ['@supabase','supabaseClient','localStorage','sessionStorage','fetch('])req(!contract.includes(forbidden),`pure process contract must not depend on runtime persistence/network: ${forbidden}`);
@@ -77,6 +87,25 @@ for(let i=10;i<=11;i+=1)marker(serviceTests,`9.6 source ${String(i).padStart(2,'
 marker(serviceTests,'9.6 service 12','delay service wrapper test');
 for(const m of ['predictDelayRisk','empirical_wait_threshold_frequency','delayedSampleCount','authority drift'])marker(serviceTests,m,'delay service regression');
 for(const m of ['field_sync_receipts','actor-scoped sync receipts into process paths',"!calls.includes('field_sync_receipts')"])marker(serviceTests,m,'sync-receipt regression');
+for(let i=1;i<=12;i+=1)marker(uiTests,`9.6 ui ${String(i).padStart(2,'0')}`,'UI destruction tests');
+
+const insights=(ia.destinations||[]).filter((d)=>d.id==='insights');
+req(insights.length===1&&insights[0]?.route==='/app/insights'&&insights[0]?.availability==='live','Phase 9.6 must reuse the one canonical live insights destination');
+req(!(ia.destinations||[]).some((d)=>d.id==='process'||d.id==='process-intelligence'),'Phase 9.6 must not create a duplicate process destination');
+req((ia.launcherGroups||[]).find((g)=>g.id==='intelligence')?.destinations?.join(',')==='insights,knowledge,copilot','Phase 9.6 must preserve the 9.5 intelligence launcher group');
+marker(navigation,"['insights', 'مركز ذكاء الأعمال', 7, 'insights', 0, 2]",'navigation');
+for(const m of ["get('view')==='process'","searchParams.set('view','process')","searchParams.delete('view')","window.history.pushState",'window.addEventListener(\'popstate\'','ذكاء الأعمال','ذكاء العمليات','aria-pressed'])marker(tabs,m,'intelligence tabs');
+for(const m of ['data-phase9-6-runtime="process-intelligence"','data-process-authority="read-only-derived"','loadProcessMiningSnapshot({dataFactory,historyGateway},userId)','classifyBottleneckCandidates','predictNextActivity(snapshot,activity)','predictDelayRisk(snapshot,activity,thresholdMs)','data-process-paths','data-process-ordering','ترتيب جزئي','data-process-rework','data-process-bottlenecks','data-process-next-prediction','data-process-delay-prediction','data-process-prediction-method','data-process-prediction-confidence','data-process-sync-receipt-policy','دليل سلامة فقط وليست جزءًا من مسار العملية','جارٍ إعادة بناء المسارات الفعلية','تعذر بناء ذكاء العمليات','إعادة المحاولة'])marker(processCenter,m,'process UI');
+for(const forbidden of ['createEnjazSupabaseClient','createClient(','supabaseClient','fetch(','localStorage','sessionStorage','sampleData','fakeData','mockData'])req(!processCenter.includes(forbidden),`process UI must not own persistence/demo authority: ${forbidden}`);
+req(!processCenter.includes(".css'\"")&&!processCenter.includes(".css'"),'process UI must reuse certified R2 styling without adding private CSS');
+for(const m of ['useIntelligenceView()','view===\'process\'?<ProcessIntelligenceCenter/>:<BusinessIntelligenceRuntime/>','loadBusinessIntelligence({dataFactory,fieldOperations},userId)','data-phase9-5-runtime="business-intelligence"'])marker(businessCenter,m,'insights host');
+for(const m of ['processMiningHistory?: ProcessMiningHistoryGateway','createLazyProcessMiningHistoryGateway(client)','createEnjazSupabaseClient(config)',"import('../../features/process-intelligence/processMiningSources.ts')",'module=>module.createProcessMiningHistoryGateway(client)','ProcessMiningHistoryProvider gateway={processMiningHistory??null}'])marker(productionRoot,m,'production runtime');
+req((productionRoot.match(/createEnjazSupabaseClient\(/g)||[]).length===1,'production runtime must create exactly one Supabase client');
+for(const m of ['createContext<ProcessMiningHistoryGateway|null>','useProcessMiningHistoryGateway'])marker(historyContext,m,'process history context');
+marker(lazyPortals,"destination === 'insights' ? <InsightsPortal />",'Phase 9.5 lazy compatibility');
+marker(insightsPortal,"shell.dataset.destination==='insights'",'Phase 9.5 portal compatibility');
+marker(insightsPortal,'createPortal(<BusinessIntelligenceCenter/>','Phase 9.5 portal compatibility');
+
 for(const m of ['Phase 9.7 remains **LOCKED**','shadow process-event ledger','ordering-ambiguous','DIRECTIONAL / NON-AUTHORITATIVE','empirical frequency','670000 bytes'])marker(kickoff,m,'kickoff');
 for(const m of ['## 9.6 — Process Mining & Predictive Operations — M18','Derive actual process paths from authoritative histories.','Detect bottlenecks, rework and delay patterns; prediction must expose confidence and evidence.'])marker(roadmap,m,'roadmap');
 marker(workflowMigration,'create table public.workflow_transition_events','workflow source');
@@ -86,7 +115,7 @@ for(const m of ['ENJAZ_P96_PROBE: pre-existing residue','shadow process persiste
 for(const m of ['REAL_CLOUD_CERTIFIED / PASS_ZERO_RESIDUE','20260912105428','authenticated owner','OUTSIDER_RLS_ISOLATION = PASS','field_sync_receipts_select_own','shadow process objects: `0`','Phase-9.6-owned security findings: **0**','Phase-9.6-owned performance findings: **0**'])marker(cloudEvidence,m,'Real Cloud evidence');
 
 const tracks=p96.projectQualityConstitution?.tracks||{},foundation=p96.foundation||{};
-req(tracks.product==='IN_PROGRESS'&&tracks.uiUx==='NOT_STARTED'&&tracks.engineering==='IN_PROGRESS','Phase 9.6 product/UI/engineering tracks must reflect pre-runtime UI state');
+req(tracks.product==='IN_PROGRESS'&&tracks.uiUx==='IN_PROGRESS'&&tracks.engineering==='IN_PROGRESS','Phase 9.6 Product/UI/Engineering must remain IN_PROGRESS while runtime is under certification');
 req(tracks.certification===(cloudCertified?'IN_PROGRESS':'NOT_STARTED'),'Phase 9.6 certification track must become IN_PROGRESS exactly when Real Cloud is certified');
 req(['IN_PROGRESS','LOCAL_GATE_PASS'].includes(foundation.status)&&foundation.contract==='src/features/process-intelligence/processMiningContract.ts'&&foundation.tests==='tests/phase9-6-process-mining-foundation.test.ts','Phase 9.6 foundation artifact registry drifted');
 req(foundation.destructionTestCount===20,'Phase 9.6 foundation must preserve all 20 destructive tests after delay prediction expansion');
@@ -104,6 +133,13 @@ if(sourceComposition.status==='LOCAL_GATE_PASS'){
  req(sourceComposition.typecheck==='PASS'&&sourceComposition.productionBuild==='PASS'&&sourceComposition.pagesLiveBuild==='PASS'&&sourceComposition.governedBudget==='PASS','Certified source composition build/budget matrix must remain PASS');
 }
 
+req(['IN_PROGRESS_PENDING_GATE','LOCAL_GATE_PASS'].includes(runtime.status),'Phase 9.6 runtime must be pending-gate or locally certified before browser certification');
+req(runtime.canonicalDestination==='insights'&&runtime.defaultView==='business'&&runtime.processView==='process'&&runtime.route==='/app/insights?view=process'&&runtime.viewQuery==='view=process','Phase 9.6 runtime route/view contract drifted');
+req(runtime.tabs==='src/ui-r2/intelligence/IntelligenceViewTabs.tsx'&&runtime.historyContext==='src/features/process-intelligence/ProcessMiningHistoryContext.tsx'&&runtime.center==='src/ui-r2/intelligence/ProcessIntelligenceCenter.tsx'&&runtime.hostCenter==='src/ui-r2/intelligence/BusinessIntelligenceCenter.tsx'&&runtime.uiTests==='tests/phase9-6-process-mining-ui.test.ts','Phase 9.6 runtime artifact registry drifted');
+req(runtime.uiDestructionTestCount===12&&runtime.sameSupabaseClient===true&&runtime.lazyHistoryGateway===true&&runtime.newDestinationAllowed===false&&runtime.newCssAdded===false,'Phase 9.6 runtime architecture/budget invariants drifted');
+req(runtime.realBrowser==='PENDING'&&runtime.publishedLive==='PENDING','Local UI work must not pre-certify browser or published live');
+if(runtime.status==='LOCAL_GATE_PASS')req(Number.isSafeInteger(runtime.gateRunId)&&runtime.gateRunId>0&&runtime.gateConclusion==='SUCCESS','Certified UI runtime requires successful local gate evidence');
+
 if(cloudCertified){
  const residue=realCloud.postProbeResidue||{};
  req(realCloud.verification==='PASS_ZERO_RESIDUE'&&realCloud.projectRef==='juzxriirhkuzviwnhkbd','Real Cloud Phase 9.6 certification project/verification drifted');
@@ -116,4 +152,4 @@ if(cloudCertified){
 }
 
 if(errors.length){console.error(`PHASE 9.6 PROCESS MINING AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}
-else console.log(cloudCertified?'PHASE 9.6 PROCESS MINING AUDIT PASS — delay prediction governed; 20 foundation + 12 source/service destructions registered; Real Cloud PASS_ZERO_RESIDUE; M18 ACTIVE/open for Phase 15; Phase 9.7 locked.':sourceComposition.status==='LOCAL_GATE_PASS'?'PHASE 9.6 PROCESS MINING AUDIT PASS — foundation + source composition LOCAL_GATE_PASS; M18 remains ACTIVE/open for Phase 15; Phase 9.7 locked.':'PHASE 9.6 PROCESS MINING AUDIT PASS — governed local recertification pending; M18 ACTIVE/open for Phase 15; Phase 9.7 locked.');
+else console.log(`PHASE 9.6 PROCESS MINING AUDIT PASS — 20 foundation + 12 source/service + 12 UI destructions governed; runtime ${runtime.status}; Real Cloud PASS_ZERO_RESIDUE; M18 ACTIVE/open for Phase 15; Phase 9.7 locked.`);
