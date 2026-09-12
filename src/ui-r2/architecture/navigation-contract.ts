@@ -108,7 +108,7 @@ const R2_DESTINATION_ROWS = [
   ['transactions.lifecycle', 'دورة حياة المعاملة', 6, 'transactions/:transactionId/lifecycle', 0, 3],
   ['companies', 'الشركات', 7, 'companies', 4, 2],
   ['people', 'الأشخاص والمحامون', 7, 'people', 4, 2],
-  ['documents', 'الوثائق والتقارير', 7, 'documents', 8, 2],
+  ['documents', 'الوثائق والتقارير', 7, 'documents', 0, 2],
   ['operations', 'مركز العمليات', 7, 'operations', 6, 2],
   ['workflow', 'سير العمل', 7, 'workflow', 6, 2],
   ['automation', 'الأتمتة', 7, 'automation', 0, 2],

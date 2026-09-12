@@ -8,6 +8,7 @@ import { DataLayerProvider } from '../../data/react/DataLayerContext.tsx';
 import { AutomationCommandProvider } from '../../features/automation/AutomationCommandContext.tsx';
 import { createAutomationCommandGateway, type AutomationCommandGateway } from '../../features/automation/automationCommands.ts';
 import { AuthProvider, useAuth } from '../../features/auth/state/AuthContext.tsx';
+import { createDocumentVaultGateway, type DocumentVaultGateway } from '../../features/documents/documentVaultCommands.ts';
 import { FieldOperationsCommandProvider } from '../../features/field-operations/FieldOperationsCommandContext.tsx';
 import { createFieldOperationsCommandGateway, type FieldOperationsCommandGateway } from '../../features/field-operations/fieldOperationsCommands.ts';
 import { FinanceCommandProvider } from '../../features/finance/FinanceCommandContext.tsx';
@@ -52,6 +53,7 @@ export type UiR2ProductionResources = Readonly<{
   fieldOperationsCommands: FieldOperationsCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
+  documentVault: DocumentVaultGateway;
   processRuntime?: ProcessRuntimeFactory;
 }>;
 
@@ -70,6 +72,7 @@ function createProductionResources(): UiR2ProductionResources {
     fieldOperationsCommands: createFieldOperationsCommandGateway(client),
     searchIntelligence: createSearchIntelligenceGateway(client),
     regulatoryKnowledge: createRegulatoryKnowledgeGateway(client),
+    documentVault: createDocumentVaultGateway(client, config.supabaseUrl, config.supabasePublishableKey),
     processRuntime,
   });
 }
@@ -84,7 +87,7 @@ function leaveRecoveryMode() {
   window.location.replace(url.toString());
 }
 
-function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence, regulatoryKnowledge, processRuntime }: Readonly<{
+function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence, regulatoryKnowledge, documentVault, processRuntime }: Readonly<{
   dataFactory: EnjazDataLayerFactory;
   financeCommands: FinanceCommandGateway;
   governanceCommands: GovernanceCommandGateway;
@@ -93,6 +96,7 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceComman
   fieldOperationsCommands: FieldOperationsCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
+  documentVault: DocumentVaultGateway;
   processRuntime: ProcessRuntimeFactory | undefined;
 }>) {
   const auth = useAuth();
@@ -105,7 +109,7 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceComman
 
   return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
-    <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} />
+    <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} documentVault={documentVault} documentWorkspace={workspace} />
   </ProcessRuntimeProvider></CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
@@ -125,6 +129,7 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     fieldOperationsCommands={runtime.resources.fieldOperationsCommands}
     searchIntelligence={runtime.resources.searchIntelligence}
     regulatoryKnowledge={runtime.resources.regulatoryKnowledge}
+    documentVault={runtime.resources.documentVault}
     processRuntime={runtime.resources.processRuntime}
   /></AuthProvider>;
 }
