@@ -23,6 +23,7 @@ export type R2DestinationId =
   | 'finance'
   | 'command'
   | 'risk'
+  | 'insights'
   | 'knowledge'
   | 'copilot';
 
@@ -115,6 +116,7 @@ const R2_DESTINATION_ROWS = [
   ['finance', 'المالية', 7, 'finance', 5, 2],
   ['command', 'مركز القيادة', 7, 'command', 6, 2],
   ['risk', 'المخاطر والرؤى', 7, 'risk', 7, 2],
+  ['insights', 'مركز ذكاء الأعمال', 7, 'insights', 0, 2],
   ['knowledge', 'مركز المعرفة التنظيمية', 7, 'knowledge', 0, 2],
   ['copilot', 'مساعد إنجاز', 7, 'copilot', 10, 2],
 ] as const satisfies readonly DestinationRow[];
@@ -146,7 +148,7 @@ const R2_LAUNCHER_ROWS = [
   ['records', 'السجلات', ['companies', 'people', 'documents']],
   ['operations_group', 'التشغيل', ['operations', 'workflow', 'automation', 'followups']],
   ['management', 'الإدارة', ['finance', 'command', 'risk']],
-  ['intelligence', 'الذكاء والمعرفة', ['knowledge', 'copilot']],
+  ['intelligence', 'الذكاء والمعرفة', ['insights', 'knowledge', 'copilot']],
 ] as const satisfies readonly LauncherRow[];
 
 export const R2_LAUNCHER_GROUPS: readonly R2LauncherGroup[] = R2_LAUNCHER_ROWS.map(([id, label, destinations]) => ({ id, label, destinations }));
@@ -158,6 +160,10 @@ export const R2_SEARCH_ALIASES = {
   محامي: 'people',
   قيادة: 'command',
   أتمتة: 'automation',
+  ذكاء: 'insights',
+  تحليلات: 'insights',
+  مؤشرات: 'insights',
+  تنبؤ: 'insights',
   معرفة: 'knowledge',
   قانون: 'knowledge',
   تشريع: 'knowledge',
