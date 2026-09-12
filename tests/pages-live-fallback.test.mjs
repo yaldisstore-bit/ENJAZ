@@ -17,7 +17,7 @@ test('Pages live fallback embeds the production live entry safely for /live deep
   assert.match(output, /location\.pathname\.startsWith\(p\)/);
   assert.match(output, /document\.write\(h\)/);
   assert.doesNotMatch(output, /<script type="module" src="\/ENJAZ\/live\/assets\/index-abc\.js"><\/script>/);
-  assert.match(output, /\\u003cscript type=\"module\" src=\"\/ENJAZ\/live\/assets\/index-abc\.js\">\\u003c\/script>/);
+  assert.ok(output.includes('\\u003cscript type=\\"module\\" src=\\"/ENJAZ/live/assets/index-abc.js\\">\\u003c/script>'));
 });
 
 test('Pages live fallback fails closed on malformed inputs', () => {
