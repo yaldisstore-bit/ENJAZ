@@ -10,20 +10,31 @@ for (const path of [statePath, sqlPath, testPath]) {
 
 const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
 const sql = fs.readFileSync(sqlPath, 'utf8');
+const openLifecycle = state.status === 'IN_PROGRESS'
+  && state.phase9_5Allowed === false
+  && state.exitGatePassed === false
+  && state.successorStatus === 'LOCKED';
+const closedLifecycle = state.status === 'CLOSED'
+  && state.phase9_5Allowed === true
+  && state.exitGatePassed === true
+  && state.nextPhase === '9.5'
+  && state.successorStatus === 'AUTHORIZED'
+  && state.persistence?.status === 'REAL_CLOUD_CERTIFIED'
+  && state.persistence?.realCloudVerification === 'PASS_ZERO_RESIDUE'
+  && state.persistence?.zeroResidue === true;
 
 const requiredState =
   state.phase === '9.4'
-  && state.status === 'IN_PROGRESS'
+  && (openLifecycle || closedLifecycle)
   && state.majorSystem?.id === 'M8'
   && state.majorSystem?.status === 'ACTIVE'
+  && state.majorSystem?.globalClosureAllowed === false
   && state.foundation?.status === 'LOCAL_GATE_PASS'
   && ['AUTHORIZED_FOR_IMPLEMENTATION', 'IMPLEMENTED_PENDING_STATIC_GATE', 'STATIC_GATE_PASS', 'REAL_CLOUD_CERTIFIED'].includes(state.persistence?.status)
   && state.authority?.officialSourceProvenance === 'REQUIRED'
   && state.authority?.aiOutputAuthority === 'NEVER_AUTHORITATIVE'
   && state.authority?.directBrowserSensitiveDmlAllowed === false
-  && state.authority?.destructiveHistoryOverwriteAllowed === false
-  && state.phase9_5Allowed === false
-  && state.successorStatus === 'LOCKED';
+  && state.authority?.destructiveHistoryOverwriteAllowed === false;
 
 if (!requiredState) throw new Error('Phase 9.4 persistence lifecycle/authority state is invalid');
 
@@ -63,4 +74,4 @@ if (/authoritative\s+boolean\s+not\s+null\s+default\s+false[\s\S]*check\(authori
   throw new Error('Derived authority boundary is contradictory');
 }
 
-console.log('Phase 9.4 regulatory persistence audit: PASS');
+console.log(`Phase 9.4 regulatory persistence audit: PASS — lifecycle=${state.status}; authority + Real Cloud persistence invariants preserved.`);
