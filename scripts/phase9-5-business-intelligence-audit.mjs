@@ -28,12 +28,13 @@ const lazy=read('src/ui-r2/runtime/LazyLiveProductionPortals.tsx');
 const portal=read('src/ui-r2/intelligence/LiveBusinessIntelligencePortal.tsx');
 const center=read('src/ui-r2/intelligence/BusinessIntelligenceCenter.tsx');
 const kickoff=read('docs/PHASE9_5_KICKOFF.md');
+const openLifecycle=p95.status==='IN_PROGRESS';
+const closedLifecycle=p95.status==='CLOSED';
 
 req(p94.status==='CLOSED'&&p94.exitGatePassed===true&&p94.phase9_5Allowed===true&&p94.nextPhase==='9.5'&&p94.successorStatus==='AUTHORIZED','Phase 9.4 must remain formally CLOSED and authorize only 9.5');
-req(p95.phase==='9.5'&&p95.status==='IN_PROGRESS','Phase 9.5 must remain IN_PROGRESS');
+req(p95.phase==='9.5'&&(openLifecycle||closedLifecycle),'Phase 9.5 must be IN_PROGRESS or formally CLOSED');
 req(p95.baseCommit==='799873b5c7778c7665c934931af9dd3338bcef47','Phase 9.5 base must be exact Phase 9.4 closure merge');
 req(p95.javascriptBudgetBytes===670000&&p95.budgetIncreaseAllowed===false,'670000-byte JavaScript ceiling must remain frozen');
-req(p95.exitGatePassed===false&&p95.phase9_6Allowed===false&&p95.successorStatus==='LOCKED','Phase 9.6 must remain locked');
 req(p95.authority?.persistence==='SOURCE_DOMAIN_AUTHORITY_ONLY'&&p95.authority?.intelligenceAuthority==='READ_ONLY_DERIVED','BI must remain source-derived and read-only');
 req(p95.authority?.sourceProvenance==='REQUIRED'&&p95.authority?.crossWorkspaceAggregationAllowed===false,'provenance/workspace isolation law must remain enforced');
 req(p95.authority?.forecastAuthority==='DIRECTIONAL_NON_AUTHORITATIVE'&&p95.authority?.forecastMethodDisclosure==='REQUIRED'&&p95.authority?.forecastConfidenceDisclosure==='REQUIRED','forecast disclosure/authority law must remain enforced');
@@ -50,7 +51,7 @@ req(cloud.authenticatedOwnerRlsRead==='PASS'&&cloud.outsiderRlsIsolation==='PASS
 req(cloud.shadowBiPersistenceDetected===false&&Object.values(residue).every(v=>v===0),'Real Cloud probe must leave zero shadow authority and zero fixture residue');
 
 const m13=major.systems?.find((s)=>s.id==='M13');
-req(m13?.name==='Business Intelligence & Forecasting Center'&&m13?.status==='ACTIVE','M13 must be ACTIVE during 9.5');
+req(m13?.name==='Business Intelligence & Forecasting Center'&&m13?.status==='ACTIVE','M13 must remain ACTIVE through and after 9.5 closure');
 req(Array.isArray(m13?.anchors)&&m13.anchors.includes('9')&&m13.anchors.includes('15'),'M13 must preserve Phase 9 + Phase 15 anchors');
 req(m13?.closureEvidence===null,'Phase 9.5 must not fabricate global M13 closure');
 const insight=ia.destinations?.find((d)=>d.id==='insights');
@@ -74,8 +75,25 @@ for(let i=1;i<=14;i+=1)marker(foundationTests,`9.5 foundation ${String(i).padSta
 for(let i=1;i<=11;i+=1)marker(serviceTests,`9.5 service ${String(i).padStart(2,'0')}`,'service tests');
 marker(boundaryTests,'9.5 trend boundary','month-boundary regression');
 for(let i=1;i<=8;i+=1)marker(uiTests,`9.5 ui ${String(i).padStart(2,'0')}`,'ui tests');
-marker(kickoff,'Phase 9.6 remains **LOCKED**','kickoff');
+marker(kickoff,'Phase 9.6 remains **LOCKED**','kickoff historical entry law');
 marker(kickoff,'DIRECTIONAL / NON-AUTHORITATIVE','kickoff');
 
+if(openLifecycle){
+ const t=p95.projectQualityConstitution?.tracks||{};
+ req(p95.exitGatePassed===false&&p95.phase9_6Allowed===false&&p95.successorStatus==='LOCKED'&&p95.nextPhase===null,'Open Phase 9.5 must keep 9.6 locked');
+ req(t.product==='IN_PROGRESS'&&t.uiUx==='IN_PROGRESS'&&t.engineering==='IN_PROGRESS'&&['NOT_STARTED','IN_PROGRESS'].includes(t.certification),'Open Phase 9.5 quality tracks must remain active');
+}else if(closedLifecycle){
+ const t=p95.projectQualityConstitution?.tracks||{},pm=p95.postMergeRecertification||{},pl=p95.publishedLiveCertification||{};
+ req(p95.certifiedMainCommit==='8d9f1bd4403656f7b8d061b843178708b3899044','Closed Phase 9.5 must pin final canonical main SHA');
+ req(p95.exitGatePassed===true&&p95.phase9_6Allowed===true&&p95.nextPhase==='9.6'&&p95.successorStatus==='AUTHORIZED','Closed Phase 9.5 must authorize only 9.6');
+ req(t.product==='PASS'&&t.uiUx==='PASS'&&t.engineering==='PASS'&&t.certification==='PASS','Closed Phase 9.5 requires all four quality tracks PASS');
+ req(p95.runtime?.status==='PUBLISHED_LIVE_PASS'&&p95.runtime?.publishedLiveVerification==='PASS'&&p95.runtime?.realBrowserRunId===34686304110,'Closed Phase 9.5 runtime must be Real Browser + published-live certified');
+ req(pm.status==='COMPLETE'&&pm.workflowCount===25&&pm.successCount===25&&pm.failureCount===0&&pm.queuedCount===0&&pm.inProgressCount===0,'Closed Phase 9.5 exact-main 25/25 recertification is required');
+ req(pm.phaseGateRunId===34686304068&&pm.phaseRealBrowserRunId===34686304110&&pm.cumulativeRealBrowserRunId===34686304122,'Closed Phase 9.5 exact-main run evidence drifted');
+ req(pl.status==='PASS'&&pl.pagesPreviewRunId===34686334396&&pl.liveExternalRunId===34686380088&&pl.directLoadReloadTestsPassed===7,'Closed Phase 9.5 Pages/Live External 7/7 evidence drifted');
+ req(p95.unresolvedDefectCount===0&&p95.criticalDefectCount===0&&p95.highDefectCount===0&&p95.functionalBlockerCount===0,'Closed Phase 9.5 blocker ledger must remain zero');
+ for(const p of ['docs/PHASE9_5_CLOSURE.md','docs/PHASE9_5_POSTMERGE_RECERTIFICATION.md'])req(exists(p),`missing Phase 9.5 closure artifact: ${p}`);
+}
+
 if(errors.length){console.error(`PHASE 9.5 BUSINESS INTELLIGENCE AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}
-else console.log('PHASE 9.5 BUSINESS INTELLIGENCE AUDIT PASS — predecessor closure preserved; M13 active/open; Real Cloud source authority certified; observed trends + canonical /app/insights runtime + provenance/exact-money/additive forecast authority enforced; 9.6 locked.');
+else console.log(closedLifecycle?'PHASE 9.5 BUSINESS INTELLIGENCE AUDIT PASS — Phase 9.5 CLOSED + exact-main/published-live certified; M13 remains ACTIVE for Phase 15; Phase 9.6 authorized.':'PHASE 9.5 BUSINESS INTELLIGENCE AUDIT PASS — predecessor closure preserved; M13 active/open; Real Cloud source authority certified; observed trends + canonical /app/insights runtime + provenance/exact-money/additive forecast authority enforced; 9.6 locked.');
