@@ -205,7 +205,13 @@ else {
   if (phase94.foundation?.status !== 'LOCAL_GATE_PASS' || phase94.foundation?.gateRunId !== 34572856756 || phase94.foundation?.destructionTestsPassed !== 12) errors.push('Phase 9.4 foundation gate evidence drifted');
   if (phase94.persistence?.status !== 'REAL_CLOUD_CERTIFIED' || phase94.persistence?.realCloudVerification !== 'PASS_ZERO_RESIDUE' || phase94.persistence?.zeroResidue !== true) errors.push('Phase 9.4 persistence must remain Real Cloud certified with zero residue');
   if (phase94.persistence?.phaseOwnedSecurityAdvisorWarnings !== 0 || phase94.persistence?.phaseOwnedUnindexedForeignKeys !== 0) errors.push('Phase 9.4 persistence advisor ownership must remain clean');
-  if (phase94.runtime?.status !== 'AUTHORIZED_FOR_IMPLEMENTATION') errors.push('Phase 9.4 runtime must be authorized only after Real Cloud persistence certification');
+  const allowedRuntimeStatuses = new Set([
+    'AUTHORIZED_FOR_IMPLEMENTATION',
+    'STATIC_GATE_PASS_PENDING_REAL_CLOUD_BEHAVIORAL_AND_BROWSER',
+    'REAL_CLOUD_BEHAVIORAL_PASS_PENDING_REAL_BROWSER',
+    'REAL_BROWSER_PASS_PENDING_PUBLISHED_LIVE',
+  ]);
+  if (!allowedRuntimeStatuses.has(phase94.runtime?.status)) errors.push('Phase 9.4 runtime lifecycle status is invalid after Real Cloud persistence certification');
   if (!exists('docs/PHASE9_4_REAL_CLOUD_EVIDENCE.md')) errors.push('Phase 9.4 Real Cloud evidence is missing');
   if (phase94.phase9_5Allowed !== false || phase94.exitGatePassed !== false || phase94.successorStatus !== 'LOCKED') errors.push('Phase 9.5 must remain locked while 9.4 is open');
   if (phase94.javascriptBudgetBytes !== 670000 || phase94.budgetIncreaseAllowed !== false) errors.push('Phase 9.4 startup JavaScript budget drifted');
@@ -235,5 +241,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.3 remains CLOSED; Phase 9.4 M8 is IN_PROGRESS with Foundation PASS + Real Cloud Persistence CERTIFIED; Runtime/UI is authorized; M8 is ACTIVE; Phase 9.5 remains LOCKED.');
+  console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.3 remains CLOSED; Phase 9.4 M8 is IN_PROGRESS with Foundation PASS + Real Cloud Persistence CERTIFIED; Runtime/UI lifecycle may advance only through governed certified states; M8 is ACTIVE; Phase 9.5 remains LOCKED.');
 }
