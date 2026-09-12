@@ -25,10 +25,10 @@ function history(overrides:Partial<ProcessMiningHistorySnapshot>={}):ProcessMini
  const base:ProcessMiningHistorySnapshot=Object.freeze({
   authority:'source_owned_process_histories',workspaceId:W,asOf:AS_OF.toISOString(),
   workflowInstances:Object.freeze([{id:UUID(100),workspaceId:W,transactionId:TX1,startedAt:'2026-09-01T08:00:00.000Z'}]),
-  workflowTransitions:Object.freeze([{id:UUID(101),workspaceId:W,workflowInstanceId:UUID(100),transitionKey:'advance_review',eventKind:'advance',fromStagePosition:1,toStagePosition:2,occurredAt:'2026-09-01T09:00:00.000Z'}]),
-  fieldAssignments:Object.freeze([{id:UUID(200),workspaceId:W,transactionId:TX1,status:'handoff_complete',createdAt:'2026-09-01T10:00:00.000Z',handoffAt:'2026-09-01T14:00:00.000Z'}]),
-  fieldVisits:Object.freeze([{id:UUID(201),workspaceId:W,assignmentId:UUID(200),transactionId:TX1,status:'completed',checkInAt:'2026-09-01T11:00:00.000Z',checkOutAt:'2026-09-01T12:00:00.000Z'}]),
-  fieldEvidence:Object.freeze([{id:UUID(202),workspaceId:W,visitId:UUID(201),transactionId:TX1,evidenceType:'receipt',capturedAt:'2026-09-01T11:30:00.000Z'}]),
+  workflowTransitions:Object.freeze([{id:UUID(101),workspaceId:W,workflowInstanceId:UUID(100),transitionKey:'advance_review',eventKind:'advance' as const,fromStagePosition:1,toStagePosition:2,occurredAt:'2026-09-01T09:00:00.000Z'}]),
+  fieldAssignments:Object.freeze([{id:UUID(200),workspaceId:W,transactionId:TX1,status:'handoff_complete' as const,createdAt:'2026-09-01T10:00:00.000Z',handoffAt:'2026-09-01T14:00:00.000Z'}]),
+  fieldVisits:Object.freeze([{id:UUID(201),workspaceId:W,assignmentId:UUID(200),transactionId:TX1,status:'completed' as const,checkInAt:'2026-09-01T11:00:00.000Z',checkOutAt:'2026-09-01T12:00:00.000Z'}]),
+  fieldEvidence:Object.freeze([{id:UUID(202),workspaceId:W,visitId:UUID(201),transactionId:TX1,evidenceType:'receipt' as const,capturedAt:'2026-09-01T11:30:00.000Z'}]),
   syncReceiptPolicy:'actor_scoped_integrity_evidence_not_path_input',
  });
  return Object.freeze({...base,...overrides});
