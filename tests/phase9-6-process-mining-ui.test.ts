@@ -62,7 +62,7 @@ test('9.6 ui 08 — next-activity prediction visibly discloses method, confidenc
 
 test('9.6 ui 09 — delay prediction exposes selected threshold and excludes ambiguous equal-time evidence',()=>{
  assert.match(center,/predictDelayRisk\(snapshot,activity,thresholdMs\)/);assert.match(center,/THRESHOLD_HOURS=\[4,24,72\]/);assert.match(center,/data-process-threshold-hours/);assert.match(center,/data-process-delay-threshold-ms/);
- for(const marker of ['delayPrediction.value.method','delayPrediction.value.confidence','delayPrediction.value.sampleCount','delayPrediction.value.delayedSampleCount','delayPrediction.value.probabilityBps','لا تدخل الأحداث متساوية الزمن في عينة التأخر'])assert.ok(center.includes(marker),`missing delay prediction disclosure: ${marker}`);
+ for(const marker of ['delayPrediction.value.method','delayPrediction.value.confidence','delayPrediction.value.sampleCount','delayPrediction.value.delayedSampleCount','probabilityLabel(delayPrediction.value?.probabilityBps??null)','لا تدخل الأحداث متساوية الزمن في عينة التأخر'])assert.ok(center.includes(marker),`missing delay prediction disclosure: ${marker}`);
 });
 
 test('9.6 ui 10 — actor-scoped sync receipts are disclosed as integrity-only and never rendered as path events',()=>{
