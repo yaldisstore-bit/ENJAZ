@@ -93,6 +93,12 @@ jobs:
           cp dist/index.html dist/404.html
           cp -R dist-live/. dist/live/
           cp dist/live/index.html dist/live/404.html
+          node scripts/pages-live-fallback.mjs dist/404.html dist/live/index.html "${{ steps.pages.outputs.base_path }}/live/"
+      - name: Verify Pages live deep-link fallback composition
+        run: |
+          node --test tests/pages-live-fallback.test.mjs
+          grep -q 'data-enjaz-live-fallback="v1"' dist/404.html
+          grep -q '/live/' dist/404.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:

@@ -66,6 +66,8 @@ jobs:
           npm run test:phase5-5
       - name: Functional regression baseline
         run: npm run test:functional
+      - name: Pages live deep-link fallback regression
+        run: node --test tests/pages-live-fallback.test.mjs
       - name: Secrets audit
         run: npm run audit:secrets
       - name: Database integrity
