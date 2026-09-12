@@ -110,12 +110,15 @@ const forward73Preserves71 = portal.includes('ConnectedPhase73FinancialIntellige
   && phase73.includes('<Phase72FinanceExperience')
   && phase72Preserves71;
 if (!direct71Portal && !forward72Preserves71 && !forward73Preserves71) errors.push('live finance portal must preserve the connected 7.1 ledger contract directly or through a verified later-phase composition chain');
-const lazyFinanceMount = productionRoot.includes("import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';")
-  && productionRoot.includes('<LazyLiveProductionPortals />')
+const lazyRouterMounted = productionRoot.includes("import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';")
+  && productionRoot.includes('<LazyLiveProductionPortals')
+  && productionRoot.includes('regulatoryKnowledge={regulatoryKnowledge}')
+  && productionRoot.includes('regulatoryWorkspace={workspace}');
+const lazyFinanceMount = lazyRouterMounted
   && lazyPortals.includes("import('../finance/LiveFinanceProductionPortal.tsx')")
   && lazyPortals.includes('module.LiveFinanceProductionPortal')
   && lazyPortals.includes("value === 'finance' || value === 'risk'")
-  && lazyPortals.includes('<FinancePortal />');
+  && lazyPortals.includes("destination === 'finance' || destination === 'risk' ? <FinancePortal />");
 if (!productionRoot.includes('<LiveFinanceProductionPortal />') && !lazyFinanceMount) errors.push('production runtime must mount the live finance portal directly or through the verified lazy production-portal router');
 
 if (!packageJson.scripts?.['test:phase7-1']?.includes('financeModel.test.ts') || !packageJson.scripts?.['test:phase7-1']?.includes('financeService.test.ts')) errors.push('package test:phase7-1 is incomplete');
