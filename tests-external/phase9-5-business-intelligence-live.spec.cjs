@@ -10,7 +10,7 @@ const viewports = [
 ];
 
 for (const viewport of viewports) {
-  test(`Phase 9.5 BI is explainable, non-authoritative and stable at ${viewport.width}px`, async ({ browser }) => {
+  test(`Phase 9.5 BI is explainable, historically grounded, non-authoritative and stable at ${viewport.width}px`, async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1 });
     const page = await context.newPage();
     const runtimeErrors = [];
@@ -26,6 +26,10 @@ for (const viewport of viewports) {
     await expect(center).toContainText('التشغيل');
     await expect(center).toContainText('المالية');
     await expect(center).toContainText('السعة الميدانية');
+    await expect(center).toContainText('الاتجاهات المرصودة');
+    await expect(center).toContainText('المنجز حسب الشهر');
+    await expect(center).toContainText('التحصيل حسب الشهر');
+    await expect(center).toContainText('مرصود من التاريخ الفعلي');
     await expect(center).toContainText('التوقعات الاتجاهية');
     await expect(center).toContainText('سلامة المصدر');
     await expect(center).toContainText('نفس مساحة العمل فقط');
@@ -35,6 +39,13 @@ for (const viewport of viewports) {
 
     const kpis = center.locator('[data-bi-kpi]');
     expect(await kpis.count()).toBeGreaterThanOrEqual(7);
+    const trends = center.locator('[data-bi-trend]');
+    expect(await trends.count()).toBe(2);
+    await expect(trends.nth(0)).toHaveAttribute('data-bi-authoritative', 'false');
+    await expect(trends.nth(1)).toHaveAttribute('data-bi-authoritative', 'false');
+    const trendPoints = center.locator('[data-bi-trend-point]');
+    expect(await trendPoints.count()).toBe(12);
+    for (let index = 0; index < await trendPoints.count(); index += 1) await expect(trendPoints.nth(index)).toHaveAttribute('data-bi-authoritative', 'false');
     const forecasts = center.locator('[data-bi-forecast]');
     expect(await forecasts.count()).toBe(2);
     await expect(forecasts.nth(0)).toHaveAttribute('data-bi-authoritative', 'false');
@@ -45,6 +56,8 @@ for (const viewport of viewports) {
     const state = await page.evaluate(() => window.__ENJAZ_PHASE95_BROWSER__);
     expect(state.workspaceId).toBe('11111111-1111-4111-8111-111111111111');
     expect(state.kpiCount).toBeGreaterThanOrEqual(7);
+    expect(state.trendCount).toBe(2);
+    expect(state.trendPointCount).toBe(12);
     expect(state.forecastCount).toBe(2);
 
     const overflow = await page.evaluate(() => ({
@@ -56,9 +69,9 @@ for (const viewport of viewports) {
     expect(overflow.body, `body horizontal overflow at ${viewport.width}px`).toBeLessThanOrEqual(1);
     expect(overflow.main, `main horizontal overflow at ${viewport.width}px`).toBeLessThanOrEqual(1);
 
-    const visibleRows = center.locator('[data-bi-kpi], [data-bi-forecast], [data-bi-provenance-summary] .r2-search-result');
+    const visibleRows = center.locator('[data-bi-kpi], [data-bi-trend-point], [data-bi-forecast], [data-bi-provenance-summary] .r2-search-result');
     const rowCount = await visibleRows.count();
-    expect(rowCount).toBeGreaterThanOrEqual(10);
+    expect(rowCount).toBeGreaterThanOrEqual(22);
     for (let index = 0; index < rowCount; index += 1) {
       const box = await visibleRows.nth(index).boundingBox();
       if (!box) continue;
