@@ -1,0 +1,135 @@
+name: ENJAZ Phase 9.7 — Intelligence Zero-Escape Gate
+
+on:
+  push:
+    branches:
+      - main
+      - 'phase9-7-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase97-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase9-7-intelligence-zero-escape:
+    name: M2 M8 M13 M18 / stale conflict no-data scale drift uncertainty / cumulative Real Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: npm ci --no-audit --no-fund
+
+      - name: Preserve Phase 9.3–9.6 authority and enforce Phase 9.7 open contract
+        run: node scripts/phase9-7-intelligence-zero-escape-audit.mjs
+
+      - name: Intelligence Zero-Escape destruction wave
+        run: node --experimental-strip-types --test tests/phase9-7-intelligence-zero-escape.test.ts
+
+      - name: Re-run authoritative Phase 9.3–9.6 subsystem tests
+        run: >-
+          node --experimental-strip-types --test
+          tests/phase9-3-*.test.ts
+          tests/phase9-4-*.test.ts
+          tests/phase9-5-*.test.ts
+          tests/phase9-6-*.test.ts
+
+      - name: Full functional regression
+        run: npm run test:functional
+
+      - name: Database and roadmap integrity
+        run: npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap
+
+      - name: Major systems Zero-Escape governance
+        run: node scripts/major-systems-zero-escape-audit.mjs
+
+      - name: Secrets and TypeScript
+        run: npm run audit:secrets && npm run typecheck
+
+      - name: Production build and governed budgets
+        run: npm run build -- --base=/ && npm run audit:dist:budget
+
+      - name: Real Pages /live build and governed budgets
+        run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
+
+      - name: Assert Phase 9.7 lifecycle remains open and Phase 10.1 locked
+        run: >-
+          node -e "const j=require('./docs/PHASE9_7_STATE.json');const ok=j.phase==='9.7'&&j.status==='IN_PROGRESS'&&j.baseCommit==='bcb8e697fa7457e216036ae321b8eddac2050b1b'&&j.mode==='DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY'&&j.newFeatureAuthorityAllowed===false&&j.newDatabaseTablesAllowed===false&&j.newWriteRpcAuthorityAllowed===false&&j.javascriptBudgetBytes===670000&&j.totalJavascriptBudgetBytes===760000&&j.cssBudgetBytes===180000&&j.budgetIncreaseAllowed===false&&j.exitGatePassed===false&&j.phase10_1Allowed===false&&j.nextPhase==='10.1'&&j.successorStatus==='LOCKED'&&j.systemsUnderGate?.join(',')==='M2,M8_PHASE9_PORTION,M13_PHASE9_PORTION,M18_PHASE9_PORTION'&&j.destructionDimensions?.join(',')==='conflicting_stale_signals,no_data_states,high_volume_datasets,invalid_ownership,regulatory_version_conflicts,model_drift,prediction_uncertainty';if(!ok)process.exit(1)"
+
+      - name: Build isolated Phase 9.3–9.6 intelligence browser harnesses
+        run: |
+          rm -rf dist-phase9-3-browser dist-phase9-4-browser dist-phase9-5-browser dist-phase9-6-browser node_modules/.vite
+          npx vite build --config vite.phase9-3-browser.config.ts --base=/
+          npx vite build --config vite.phase9-4-browser.config.ts --base=/
+          npx vite build --config vite.phase9-5-browser.config.ts --base=/
+          npx vite build --config vite.phase9-6-browser.config.ts --base=/
+
+      - name: Install pinned real-browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start isolated intelligence previews
+        run: |
+          nohup npx vite preview --config vite.phase9-3-browser.config.ts --host 127.0.0.1 --port 4179 > /tmp/enjaz-phase93.log 2>&1 &
+          nohup npx vite preview --config vite.phase9-4-browser.config.ts --host 127.0.0.1 --port 4180 > /tmp/enjaz-phase94.log 2>&1 &
+          nohup npx vite preview --config vite.phase9-5-browser.config.ts --host 127.0.0.1 --port 4181 > /tmp/enjaz-phase95.log 2>&1 &
+          nohup npx vite preview --config vite.phase9-6-browser.config.ts --host 127.0.0.1 --port 4182 > /tmp/enjaz-phase96.log 2>&1 &
+          for target in \
+            '4179/phase9-3-browser.html' \
+            '4180/phase9-4-browser.html' \
+            '4181/phase9-5-browser.html' \
+            '4182/phase9-6-browser.html'; do
+            ok=0
+            for i in {1..30}; do
+              if curl --fail --silent "http://127.0.0.1:${target}" >/dev/null; then ok=1; break; fi
+              sleep 1
+            done
+            test "$ok" -eq 1
+          done
+
+      - name: Cumulative Real Chromium — M2 / M8 / M13 / M18
+        env:
+          R2_PHASE93_BASE_URL: http://127.0.0.1:4179/
+          R2_PHASE94_BASE_URL: http://127.0.0.1:4180/
+          R2_PHASE95_BASE_URL: http://127.0.0.1:4181/
+          R2_PHASE96_BASE_URL: http://127.0.0.1:4182/
+        run: |
+          npx playwright test tests-external/phase9-3-governance-live.spec.cjs --reporter=line --workers=1
+          npx playwright test tests-external/phase9-4-regulatory-knowledge-live.spec.cjs --reporter=line --workers=1
+          npx playwright test tests-external/phase9-5-business-intelligence-live.spec.cjs --reporter=line --workers=1
+          npx playwright test tests-external/phase9-6-process-mining-live.spec.cjs --reporter=line --workers=1
+
+      - name: Upload Phase 9.7 diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-phase9-7-diagnostics-${{ github.sha }}
+          path: |
+            test-results/
+            /tmp/enjaz-phase93.log
+            /tmp/enjaz-phase94.log
+            /tmp/enjaz-phase95.log
+            /tmp/enjaz-phase96.log
+          if-no-files-found: ignore
+          retention-days: 7
