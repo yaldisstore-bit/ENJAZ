@@ -32,8 +32,11 @@ jobs:
           from pathlib import Path
           p=Path('vite.config.ts')
           s=p.read_text()
-          s=s.replace("minify: true,", "minify: 'terser',\n        terserOptions: { compress: { passes: 4, toplevel: true }, mangle: { toplevel: true }, format: { comments: false } },")
-          p.write_text(s)
+          needle='    reportCompressedSize: true,\n    rolldownOptions:'
+          repl="    reportCompressedSize: true,\n    minify: 'terser',\n    terserOptions: { compress: { passes: 4, toplevel: true }, mangle: { toplevel: true }, format: { comments: false } },\n    rolldownOptions:"
+          if needle not in s:
+              raise SystemExit('vite build insertion point missing')
+          p.write_text(s.replace(needle,repl,1))
           PY
       - name: Build with multi-pass Terser and enforce unchanged budget
         run: |
