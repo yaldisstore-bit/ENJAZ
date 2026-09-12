@@ -37,7 +37,13 @@ jobs:
           node --experimental-strip-types --test tests/phase9-6-process-mining-runtime-parity.test.ts
           node --experimental-strip-types --test tests/phase9-6-process-mining-ui.test.ts
       - name: Build isolated Phase 9.6 browser harness
-        run: npx vite build --config vite.phase9-6-browser.config.ts
+        run: |
+          rm -rf dist-phase9-6-browser node_modules/.vite
+          npx vite build --config vite.phase9-6-browser.config.ts
+      - name: Assert Phase 9.6 browser bundle matches source disclosure
+        run: |
+          grep -F "دليل المصدر" src/ui-r2/intelligence/ProcessIntelligenceCenter.tsx >/dev/null
+          grep -R --include='*.js' -F "دليل المصدر" dist-phase9-6-browser/assets >/dev/null
       - name: Install pinned real-browser tooling
         run: |
           npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
