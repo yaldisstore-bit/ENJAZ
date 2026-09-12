@@ -34,7 +34,7 @@
     {"id":"documents","label":"الوثائق والتقارير","kind":"launcher_destination","route":"/app/documents","availability":"presentation_until_phase10","maxActionsFromHome":2},
     {"id":"operations","label":"مركز العمليات","kind":"launcher_destination","route":"/app/operations","availability":"presentation_until_phase8","maxActionsFromHome":2},
     {"id":"workflow","label":"سير العمل","kind":"launcher_destination","route":"/app/workflow","availability":"presentation_until_phase8","maxActionsFromHome":2},
-    {"id":"automation","label":"الأتمتة","kind":"launcher_destination","route":"/app/automation","availability":"live","maxActionsFromHome":2},
+    {"id":"automation","label":"الأتمتة","kind":"launcher_destination","route":"/app/automation","availability":"presentation_until_phase8","maxActionsFromHome":2},
     {"id":"followups","label":"المتابعات والإشعارات","kind":"launcher_destination","route":"/app/followups","availability":"presentation_until_phase11","maxActionsFromHome":2},
     {"id":"finance","label":"المالية","kind":"launcher_destination","route":"/app/finance","availability":"presentation_until_phase7","maxActionsFromHome":2},
     {"id":"command","label":"مركز القيادة","kind":"launcher_destination","route":"/app/command","availability":"presentation_until_phase8","maxActionsFromHome":2},
