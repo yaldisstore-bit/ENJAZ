@@ -14,7 +14,7 @@
     {"id": "records", "label": "السجلات", "destinations": ["companies", "people", "documents"]},
     {"id": "operations_group", "label": "التشغيل", "destinations": ["operations", "workflow", "automation", "followups"]},
     {"id": "management", "label": "الإدارة", "destinations": ["finance", "command", "risk"]},
-    {"id": "intelligence", "label": "الذكاء", "destinations": ["copilot"]}
+    {"id": "intelligence", "label": "الذكاء والمعرفة", "destinations": ["knowledge", "copilot"]}
   ],
   "destinations": [
     {"id":"auth.gateway","label":"الدخول","kind":"system_boundary","route":"/auth","availability":"live","maxActionsFromHome":null},
@@ -39,6 +39,7 @@
     {"id":"finance","label":"المالية","kind":"launcher_destination","route":"/app/finance","availability":"presentation_until_phase7","maxActionsFromHome":2},
     {"id":"command","label":"مركز القيادة","kind":"launcher_destination","route":"/app/command","availability":"presentation_until_phase8","maxActionsFromHome":2},
     {"id":"risk","label":"المخاطر والرؤى","kind":"launcher_destination","route":"/app/risk","availability":"presentation_until_phase9","maxActionsFromHome":2},
+    {"id":"knowledge","label":"مركز المعرفة التنظيمية","kind":"launcher_destination","route":"/app/knowledge","availability":"live","maxActionsFromHome":2},
     {"id":"copilot","label":"مساعد إنجاز","kind":"launcher_destination","route":"/app/copilot","availability":"presentation_until_phase12","maxActionsFromHome":2}
   ],
   "canonicalRules": {
@@ -76,7 +77,10 @@
       "أرشفة": "transactions.lifecycle",
       "محامي": "people",
       "قيادة": "command",
-      "أتمتة": "automation"
+      "أتمتة": "automation",
+      "معرفة": "knowledge",
+      "قانون": "knowledge",
+      "تشريع": "knowledge"
     },
     "lockedDestinationBehavior": "Show truthful availability/phase state; never fabricate records or actions."
   },

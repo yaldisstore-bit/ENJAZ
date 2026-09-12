@@ -13,6 +13,7 @@ for(const marker of ['initial application JS graph: **<= 670000 bytes**','all sh
 for(const marker of ['const INITIAL_JS_BUDGET = 670_000','TOTAL_JS_GUARD = 760_000','LAZY_CHUNK_GUARD = 140_000','manifest.json'])if(!budget.includes(marker))fail(`budget guard missing ${marker}`);
 for(const marker of ["lazy(() => import('../records/LiveCompaniesProductionPortal.tsx')","lazy(() => import('../records/LivePeopleProductionPortal.tsx')","lazy(() => import('../finance/LiveFinanceProductionPortal.tsx')",'MutationObserver'])if(!lazy.includes(marker))fail(`lazy portal contract missing ${marker}`);
 if(root.includes("import { LiveCompaniesProductionPortal }")||root.includes("import { LivePeopleProductionPortal }")||root.includes("import { LiveFinanceProductionPortal }"))fail('domain portals returned to the startup graph');
-if(!root.includes('<LazyLiveProductionPortals />'))fail('lazy portal composition is missing');
+const lazyRouterMounted=root.includes("import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';")&&root.includes('<LazyLiveProductionPortals')&&root.includes('regulatoryKnowledge={regulatoryKnowledge}')&&root.includes('regulatoryWorkspace={workspace}');
+if(!lazyRouterMounted)fail('lazy portal composition is missing');
 if(!vite.includes('manifest: true'))fail('Vite manifest proof is disabled');
 console.log(`Phase 9.3 bundle headroom PASS — Pages initial ${gate.pagesInitialJavaScriptBytes}/670000; recovered ${gate.pagesStartupHeadroomBytes} bytes; total ${gate.pagesTotalJavaScriptBytes}/${gate.totalJavaScriptGuardBytes}; largest lazy ${gate.largestLazyChunkBytes}/${gate.lazyChunkGuardBytes}.`);

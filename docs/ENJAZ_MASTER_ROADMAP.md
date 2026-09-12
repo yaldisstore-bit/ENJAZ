@@ -16,7 +16,7 @@
 > - `docs/ENJAZ_CAPABILITY_EXPANSION_2026.json`
 > - `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json` — 18 major end-to-end systems M1–M18
 > - Zero-Escape closure governance merged on canonical `main`
-> - Phase 9.3 M2 formal closure and Phase 9.4 successor authorization
+> - Phase 9.3 M2 formal closure and Phase 9.4 M8 Foundation + Real Cloud persistence certification
 
 ---
 
@@ -31,10 +31,11 @@
 - Feature parity protects approved business capability, not legacy implementation.
 - A phase cannot unlock its successor before its own closure and required post-merge recertification are complete.
 - A major product system M1–M18 cannot be marked `CLOSED` merely because branch CI is green.
+- Regulatory or knowledge AI output cannot be promoted into authoritative legal truth without a verified official source/version/provenance boundary.
 
 ## 0.1 — Zero-Escape closure law for M1–M18
 
-Every major system must remain `PLANNED`, `IN_PROGRESS`, or `CLOSURE_CANDIDATE` until all required evidence is complete:
+Every major system must remain `PLANNED`, `ACTIVE`, `IN_PROGRESS`, or `CLOSURE_CANDIDATE` until all required evidence is complete:
 
 1. authoritative schema/data contract;
 2. authenticated ENJAZ cloud boundary;
@@ -272,12 +273,28 @@ Phase 8 expands workflow UI into the main operational operating system of ENJAZ.
 - M2 advances only to `CLOSURE_CANDIDATE` under the independent major-system `ZERO_ESCAPE_V1` law; Phase closure does not fabricate global M2 closure.
 
 ## 9.4 — Regulatory / Knowledge Base Engine — M8 foundation
-- Structured laws, regulations, instructions, circulars, procedural knowledge and source/version metadata.
-- Source provenance, jurisdiction, publication/effective/supersession dates and deterministic version lineage are first-class authority fields.
-- Official source text and structured regulatory facts remain distinct from editorial interpretation and AI-generated summaries.
+- Structured laws, regulations, instructions, circulars, official notices, procedural knowledge and source/version metadata.
+- Source provenance, jurisdiction, issuer, publication/effective/supersession dates and deterministic version lineage are first-class authority fields.
+- Official source truth remains distinct from workspace-curated knowledge, editorial interpretation and AI-generated summaries.
 - Missing provenance/version/effective-date authority fails closed; historical source truth is append/versioned rather than destructively overwritten.
-- Arabic-first retrieval must return source provenance and never turn AI interpretation into authoritative law.
-- **AUTHORIZED as the sole successor after formal Phase 9.3 closure.** Phase 9.5 remains locked until Phase 9.4 receives its own Real Cloud, Real Browser, Pages and deployed-live closure evidence.
+- Arabic-first retrieval is a derived search representation and may not mutate the authoritative source record.
+- Citation output requires an actual matching source/version/provenance tuple; fabricated legal citations are forbidden.
+- AI summaries and editorial interpretations remain `authoritative=false` by contract.
+- Foundation contract: `src/features/regulatory/regulatoryKnowledgeContract.ts`.
+- Foundation state/kickoff: `docs/PHASE9_4_STATE.json`, `docs/PHASE9_4_KICKOFF.md`.
+- Foundation destruction suite: **12/12 PASS**.
+- Exact-head foundation gate `34572856756`: **SUCCESS** on `8f974c0ff9600fa7bf5c1682a6c972ed68219bee`.
+- Full functional regression, DB audit/selftest, roadmap, Zero-Escape, secrets, TypeScript, root and Pages budgets: **PASS**.
+- Baseline Pages startup after Phase 9.3 remains **563529/670000 PASS**; Phase 9.4 did not raise the 670000-byte cap.
+- Persistence schema/RLS/RPC boundary is **REAL_CLOUD_CERTIFIED / PASS_ZERO_RESIDUE** on Supabase project `juzxriirhkuzviwnhkbd`.
+- Applied regulatory migrations: `20260911072927`, `20260911073147`, `20260911073533`, `20260911141327`, `20260911141412`.
+- Real Cloud probe covered official-global + workspace-curated 1→2 version lineage, replay, stale conflict, historical as-of, derived non-authoritative artifacts, cross-workspace/outsider denial, ACL and audit; independent post-probe residue is zero.
+- The probe discovered and permanently guarded a generated-`search_document` false immutability rejection; the fix preserves fail-closed immutability and excludes only the generated derivative plus legal history-close fields.
+- Phase-owned security-advisor warnings: **0**; phase-owned unindexed foreign keys: **0**.
+- Runtime/UI is now **AUTHORIZED_FOR_IMPLEMENTATION**.
+- **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 🚧 IN PROGRESS — foundation PASS + Real Cloud persistence CERTIFIED**.
+- **M8 — Regulatory / Knowledge Base Engine: `ACTIVE`** because its second governing anchor remains Phase 12; no global closure is implied by this phase.
+- **Phase 9.5 remains LOCKED** until Phase 9.4 receives its own Product/UI/Engineering/Certification closure, Real Browser, Pages and deployed-live evidence.
 
 ## 9.5 — Business Intelligence & Forecasting Center — M13
 - Operational/financial KPI models, trends, capacity and forecast surfaces with source provenance.
@@ -361,6 +378,7 @@ AI is allowed only after authoritative business domains and permission boundarie
 
 ## 12.4 — Regulatory Knowledge Assistance — M8
 - Retrieve/version regulatory sources and distinguish source text, structured facts and AI interpretation.
+- Phase 12 must consume the authority contract established by Phase 9.4 rather than creating a second source of regulatory truth.
 
 ## 12.5 — AI Zero-Escape & Safety Gate
 - Hallucination/missing-data resistance, prompt injection, permission attacks, malicious documents, structured-output regression, tool approval and provider outage recovery.
@@ -545,12 +563,16 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - **Phase 9.1 — Smart Risk Engine ✅ CLOSED + post-merge recertified**
 - **Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence ✅ CLOSED + post-merge recertified**
 - **Phase 9.3 — Corporate Governance & Ownership Engine — M2 ✅ CLOSED + post-merge recertified**
-- Phase 9.3 canonical runtime certification is bound to `1c38e388285b1c566d202258d78aadb1b85b9342`: Phase 9.3 gate `34571138932`, Real Browser `34571138982`, Pages deployment `34571138262`, Pages Preview `34571185394`, and Live External `34571241122` are SUCCESS.
-- Phase 9.3 Product / UI/UX / Engineering / Certification are all PASS; Real Cloud is zero-residue and the final Pages initial JavaScript is **563529/670000 PASS** under the unchanged hard startup ceiling.
+- Phase 9.3 formal closure merge: `c81cc8fa3732ac97248fdaaabc72cc5f7f26b29f`.
+- Phase 9.3 canonical runtime certification remains bound to `1c38e388285b1c566d202258d78aadb1b85b9342`: gate `34571138932`, Real Browser `34571138982`, Pages deployment `34571138262`, Pages Preview `34571185394`, and Live External `34571241122` are SUCCESS.
 - **M2 — Corporate Governance & Ownership Engine:** `CLOSURE_CANDIDATE`; Phase 9.3 implementation anchor is complete but global system closure remains governed by `ZERO_ESCAPE_V1`.
-- **Next: Phase 9.4 — Regulatory / Knowledge Base Engine — M8 foundation**
-
-Phase 9.4 is the sole newly authorized implementation stage after formal Phase 9.3 closure. Phase 9.5+ is not pre-authorized by this transition.
+- **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 🚧 IN PROGRESS — Foundation PASS + Real Cloud Persistence CERTIFIED**
+- Phase 9.4 began from `c81cc8fa3732ac97248fdaaabc72cc5f7f26b29f`; foundation gate `34572856756` is SUCCESS with 12/12 destructive foundation tests and full regression/audit/typecheck/budget checks green.
+- Phase 9.4 persistence is `REAL_CLOUD_CERTIFIED / PASS_ZERO_RESIDUE`; runtime/UI is `AUTHORIZED_FOR_IMPLEMENTATION`.
+- Real Cloud migrations: `20260911072927`, `20260911073147`, `20260911073533`, `20260911141327`, `20260911141412`; phase-owned security/FK advisor findings remain 0.
+- **M8 — Regulatory / Knowledge Base Engine: `ACTIVE`**; Phase 12 remains its second anchor.
+- Baseline Pages startup remains **563529/670000 PASS** under the unchanged 670000-byte hard ceiling.
+- **Phase 9.5 remains LOCKED** and no later Phase 9 stage is pre-authorized.
 
 ---
 
@@ -585,29 +607,20 @@ The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; 
 
 This file is intentionally difficult to change by accident.
 
-The current reconciliation preserves all historical closure authority while recording the canonical transition through Phase 9.3:
+The current reconciliation preserves all historical closure authority while recording Phase 9.4 progress:
 
 1. closed phases 0–8 remain closed and are not reopened;
 2. Phase 9.1 remains closed under its read-only derived-intelligence authority;
 3. Phase 9.2 remains closed under Saved Views/Search Real Cloud and deployed-live evidence;
-4. Phase 9.3 is formally closed after full M2 product scope, Real Cloud zero-residue persistence, exact-main gate, Real Browser, Pages and Live External recertification;
-5. the production startup JavaScript hard ceiling remains 670000 bytes and Phase 9.3 restored deliberate margin through architecture rather than feature cuts;
-6. M2 advances only to `CLOSURE_CANDIDATE`, not global `CLOSED`;
-7. Phase 9.4 becomes the sole authorized successor;
-8. Phase 9.5+ remains locked;
-9. M8 remains an open multi-anchor system because its second governing anchor is Phase 12;
-10. the 18 major product systems remain governed by independent `ZERO_ESCAPE_V1` closure law;
-11. all current status documents, README and machine-readable system registry must agree with this transition.
+4. Phase 9.3 remains formally closed after full M2 scope and post-merge production recertification;
+5. Phase 9.4 is `IN_PROGRESS` from the exact formal 9.3 closure merge;
+6. the Phase 9.4 authority foundation passed before persistence work, and persistence is now Real Cloud certified before Runtime/UI;
+7. M8 is `ACTIVE`, not globally `CLOSED`, because Phase 12 remains a governing anchor;
+8. official source truth, workspace curation, editorial interpretation and AI-derived content remain distinct authority classes;
+9. AI/editorial content cannot self-promote into authoritative law or regulation;
+10. the production startup JavaScript hard ceiling remains 670000 bytes and Phase 9.4 did not raise it;
+11. Phase 9.5+ remains locked;
+12. the 18 major product systems remain governed by independent `ZERO_ESCAPE_V1` closure law;
+13. current state documents, README and machine-readable system registry must agree with this transition.
 
-It does **not** silently reopen prior phases, falsely close a major M-system from a phase branch, weaken RLS/authority boundaries, raise the JavaScript ceiling, or authorize work beyond Phase 9.4.
-
-Any future roadmap change must state:
-1. what changes;
-2. why it changes;
-3. which phase/system contract is affected;
-4. whether delivery scope changes;
-5. which tests/gates must change;
-6. migration/compatibility/security risk;
-7. whether Zero-Escape closure evidence requirements change (default: they may only become stricter, never weaker).
-
-Silently skipping a phase, weakening a gate, marking a planned system complete without evidence, or starting a later phase before predecessor recertification is a roadmap violation.
+It does **not** silently reopen prior phases, falsely close a major M-system from a phase branch, weaken RLS/provenance boundaries, raise the JavaScript ceiling, or authorize work beyond the current 9.4 scope.

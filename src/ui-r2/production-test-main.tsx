@@ -6,6 +6,7 @@ import type { AutomationCommandGateway } from '../features/automation/automation
 import type { FieldOperationsCommandGateway } from '../features/field-operations/fieldOperationsCommands.ts';
 import type { FinanceCommandGateway } from '../features/finance/financeCommands.ts';
 import type { GovernanceCommandGateway } from '../features/governance/governanceCommands.ts';
+import type { RegulatoryKnowledgeGateway } from '../features/regulatory/regulatoryKnowledgeCommands.ts';
 import type { SearchIntelligenceGateway } from '../features/searchIntelligence/searchIntelligenceCommands.ts';
 import type { GovernmentProcedureRuntimeGateway } from '../features/workflow/governmentProcedureRuntime.ts';
 import { UiR2ProductionRoot } from './runtime/UiR2ProductionRoot.tsx';
@@ -212,11 +213,18 @@ const searchIntelligence: SearchIntelligenceGateway = Object.freeze({
   async globalSearch() { return Object.freeze([]); },
 });
 
+const regulatoryKnowledge: RegulatoryKnowledgeGateway = Object.freeze({
+  async search() { return Object.freeze([]); },
+  async getEntry(input: Parameters<RegulatoryKnowledgeGateway['getEntry']>[0]) {
+    return Object.freeze({ sourceId: input.sourceId, workspaceId: input.workspaceId, asOf: input.asOf ?? '2026-09-11', configured: false, official: null, derivedArtifacts: Object.freeze([]) });
+  },
+});
+
 const rootElement = document.getElementById('r2-production-test-root');
 if (!rootElement) throw new Error('R2 production test root is missing');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence }} />
+    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence, regulatoryKnowledge }} />
   </StrictMode>,
 );

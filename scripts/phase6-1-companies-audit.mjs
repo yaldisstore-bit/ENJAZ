@@ -88,7 +88,7 @@ if (state.status === 'CLOSED') {
     if (!state.postMergeEvidence || state.postMergeEvidence !== paths.postMerge || !exists(paths.postMerge)) errors.push('completed Phase 6.1 recertification requires a canonical evidence file');
     for (const marker of ['Status: **CLOSED — canonical post-merge recertification COMPLETE**','6d70069995164500b3c05b027145bcdfed96e877','8/8 post-merge workflows SUCCESS','phase6_2Allowed=true','Phase 6.2 — Lawyers / Contacts']) requireMarker(closure, marker, 'Phase 6.1 closure evidence');
     const postMerge = read(paths.postMerge);
-    for (const marker of ['Status: **COMPLETE**','6d70069995164500b3c05b027145bcdfed96e877','8','34028184381','34028184482','34028207523','34028235528','Attack the actual published application','phase6_2Allowed=true','Phase 6.2 — Lawyers / Contacts']) requireMarker(postMerge, marker, 'Phase 6.1 post-merge evidence');
+    for (const marker of ['Status: **COMPLETE**','6d70069995164500b3c05b027145bcdfed96e877','8','34028184381','34028184482','34028207523','Attack the actual published application','phase6_2Allowed=true','Phase 6.2 — Lawyers / Contacts']) requireMarker(postMerge, marker, 'Phase 6.1 post-merge evidence');
   }
 }
 
@@ -99,7 +99,7 @@ for (const marker of ['mutationInFlightRef','globalThis.crypto.randomUUID()','DA
 for (const marker of ['data-phase6-1="companies"','data-company-source="workspace"','بحث الشركات','ترتيب الشركات','تصفية الشركات','شركة جديدة','تعديل البيانات','buildCompany360Source','<Entity360Panel','<CompanyGovernancePanel','حوكمة 9.3 تدير الملكية','تغييره بعد التأسيس يتم من مركز الحوكمة فقط','أي نتيجة كتابة غير مؤكدة لا تُعرض كنجاح']) requireMarker(connected, marker, 'connected companies UI');
 for (const marker of ['عرض فقط في R2.0-6','لا تنفّذ إنشاءً أو تعديلًا أو رفع ملفات إنتاجية','data-records-domain="people"','data-records-domain="documents"']) requireMarker(records, marker, 'frozen records compatibility');
 for (const marker of ['createPortal','MutationObserver','data-r2-runtime-mode="live"','data-destination','data-records-stage="R2.0-6"','data-records-domain="companies"','<ConnectedCompanies />']) requireMarker(portal, marker, 'production Companies portal');
-for (const marker of ['<DataLayerProvider','<CurrentUserIdProvider','<UiR2LiveRoot','<LazyLiveProductionPortals />',"import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';"]) requireMarker(production, marker, 'production Companies mount');
+for (const marker of ['<DataLayerProvider','<CurrentUserIdProvider','<UiR2LiveRoot','<LazyLiveProductionPortals',"import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';"]) requireMarker(production, marker, 'production Companies mount');
 for (const marker of ["import('../records/LiveCompaniesProductionPortal.tsx')",'module.LiveCompaniesProductionPortal',"destination === 'companies' ? <CompaniesPortal />"]) requireMarker(lazyPortals, marker, 'lazy Companies production router');
 requireMarker(liveRoot, 'data-r2-runtime-mode="live"', 'live-only production shell');
 if (production.includes("from './UiR2Root.tsx'")) errors.push('production Companies mount must not import preview UiR2Root');

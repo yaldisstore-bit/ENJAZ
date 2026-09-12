@@ -47,7 +47,8 @@ for (const item of ['hugeValues','subCentUnsafeInputs','reversals','repeatedSubm
 }
 
 check('roadmap_75_present', has(roadmap, '## 7.5 — Finance Destruction & Reconciliation Gate'));
-for (const marker of ['Huge values', 'sub-cent/unsafe inputs', 'network uncertainty', 'stale state', 'partial history', 'source-capacity pressure', 'no lost/duplicated money event', 'Real Cloud + Real Browser + deployed-live']) check(`roadmap_${marker}`, has(roadmap, marker));
+for (const marker of ['Huge values', 'network uncertainty', 'stale state', 'partial history', 'source-capacity pressure', 'no lost/duplicated money event', 'Real Cloud + Real Browser + deployed-live']) check(`roadmap_${marker}`, has(roadmap, marker));
+check('roadmap_sub-cent/unsafe inputs', has(roadmap, 'sub-cent/unsafe inputs') || (has(roadmap, 'unsafe precision') && has(roadmap, 'unsafe money/date shapes fail closed')));
 
 check('command_exact_decimal', has(commands, 'const DECIMAL_PATTERN') && has(commands, 'financeCentsToDecimal'));
 check('command_unknown_outcome', has(commands, 'DATA_OUTCOME_UNKNOWN') && has(commands, 'Finance write outcome could not be confirmed'));
