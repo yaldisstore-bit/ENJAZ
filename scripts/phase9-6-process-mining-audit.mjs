@@ -65,9 +65,14 @@ marker(workflowMigration,'create table public.workflow_transition_events','workf
 marker(transactionLifecycle,'transaction_activity','transaction lifecycle source');
 for(const m of ['create table public.field_assignments','create table public.field_visits','create table public.field_visit_evidence','create table public.field_sync_receipts'])marker(fieldMigration,m,'field source');
 
-const tracks=p96.projectQualityConstitution?.tracks||{};
+const tracks=p96.projectQualityConstitution?.tracks||{},foundation=p96.foundation||{};
 req(tracks.product==='IN_PROGRESS'&&tracks.uiUx==='NOT_STARTED'&&tracks.engineering==='IN_PROGRESS'&&tracks.certification==='NOT_STARTED','Phase 9.6 foundation quality tracks must reflect pre-UI foundation state');
-req(p96.foundation?.status==='IN_PROGRESS'&&p96.foundation?.contract==='src/features/process-intelligence/processMiningContract.ts'&&p96.foundation?.tests==='tests/phase9-6-process-mining-foundation.test.ts','Phase 9.6 foundation artifact registry drifted');
+req(['IN_PROGRESS','LOCAL_GATE_PASS'].includes(foundation.status)&&foundation.contract==='src/features/process-intelligence/processMiningContract.ts'&&foundation.tests==='tests/phase9-6-process-mining-foundation.test.ts','Phase 9.6 foundation artifact registry drifted');
+if(foundation.status==='LOCAL_GATE_PASS'){
+ req(foundation.destructionTestCount===16,'Certified Phase 9.6 foundation must preserve all 16 destructive tests');
+ req(foundation.gateRunId===34688367427&&foundation.gateConclusion==='SUCCESS','Certified Phase 9.6 foundation gate evidence drifted');
+ req(foundation.audit==='PASS'&&foundation.functionalRegression==='PASS'&&foundation.databaseAndRoadmapIntegrity==='PASS'&&foundation.majorSystemsZeroEscape==='PASS'&&foundation.typecheck==='PASS'&&foundation.productionBuild==='PASS'&&foundation.pagesLiveBuild==='PASS'&&foundation.governedBudget==='PASS','Certified Phase 9.6 foundation matrix must remain all PASS');
+}
 
 if(errors.length){console.error(`PHASE 9.6 PROCESS MINING AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}
-else console.log('PHASE 9.6 PROCESS MINING AUDIT PASS — Phase 9.5 closure preserved; M18 ACTIVE/open for Phase 15; source-owned event lineage, partial-order honesty, evidence-bound rework/bottlenecks and non-authoritative empirical prediction enforced; Phase 9.7 locked.');
+else console.log(foundation.status==='LOCAL_GATE_PASS'?'PHASE 9.6 PROCESS MINING AUDIT PASS — foundation LOCAL_GATE_PASS; Phase 9.5 closure preserved; M18 ACTIVE/open for Phase 15; source-owned event lineage and non-authoritative empirical prediction enforced; Phase 9.7 locked.':'PHASE 9.6 PROCESS MINING AUDIT PASS — Phase 9.5 closure preserved; M18 ACTIVE/open for Phase 15; source-owned event lineage, partial-order honesty, evidence-bound rework/bottlenecks and non-authoritative empirical prediction enforced; Phase 9.7 locked.');
