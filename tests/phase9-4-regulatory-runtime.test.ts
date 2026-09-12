@@ -63,13 +63,15 @@ test('9.4 runtime 06 — knowledge is live/lazy while the certified 9.1 risk bri
   const navigation=readFileSync('src/ui-r2/architecture/navigation-contract.ts','utf8');
   const lazy=readFileSync('src/ui-r2/runtime/LazyLiveProductionPortals.tsx','utf8');
   const financePortal=readFileSync('src/ui-r2/finance/LiveFinanceProductionPortal.tsx','utf8');
+  const knowledgePortal=readFileSync('src/ui-r2/regulatory/LiveRegulatoryKnowledgePortal.tsx','utf8');
   const liveRoot=readFileSync('src/ui-r2/runtime/UiR2LiveRoot.tsx','utf8');
   assert.match(navigation,/\['knowledge', 'مركز المعرفة التنظيمية', 7, 'knowledge', 0, 2\]/);
   assert.match(navigation,/\['intelligence', 'الذكاء والمعرفة', \['knowledge', 'copilot'\]\]/);
   assert.match(lazy,/value === 'knowledge'/);assert.match(lazy,/destination === 'knowledge' \? <KnowledgePortal/);
   assert.match(lazy,/value === 'risk'/);assert.match(lazy,/destination === 'finance' \|\| destination === 'risk' \? <FinancePortal \/>/);
   assert.match(financePortal,/useLiveRecordsPortal\('risk'/);assert.match(financePortal,/loadSmartRisk\(/);
-  assert.match(liveRoot,/destinationId==='knowledge'/);
+  assert.match(liveRoot,/function KnowledgeTarget\(\)/);assert.match(liveRoot,/data-regulatory-runtime-target="phase9\.4"/);assert.match(liveRoot,/destinationId==='knowledge'\)content=<KnowledgeTarget\/>/);
+  assert.match(knowledgePortal,/data-regulatory-runtime-target=\"phase9\.4\"/);assert.match(knowledgePortal,/shell\.dataset\.destination==='knowledge'/);
 });
 
 test('9.4 runtime 07 — SQL runtime API is bounded, actor-authorized and SECURITY INVOKER at public edge',()=>{
