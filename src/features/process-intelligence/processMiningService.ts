@@ -2,8 +2,8 @@ import type { EnjazDataLayerFactory } from '../../data/createDataLayer.ts';
 import type { RowOf } from '../../data/contracts/dataTypes.ts';
 import type { ReadRepository } from '../../data/repositories/createEntityRepository.ts';
 import {
- ENJAZ_PROCESS_MINING_SCHEMA,buildEmpiricalNextActivityPrediction,buildProcessEvent,buildProcessPath,
- type DirectionalProcessPrediction,type ProcessEvent,type ProcessEventProvenance,type ProcessPath,type ProcessSourceDomain,
+ ENJAZ_PROCESS_MINING_SCHEMA,buildEmpiricalDelayPrediction,buildEmpiricalNextActivityPrediction,buildProcessEvent,buildProcessPath,
+ type DirectionalDelayPrediction,type DirectionalProcessPrediction,type ProcessEvent,type ProcessEventProvenance,type ProcessPath,type ProcessSourceDomain,
 } from './processMiningContract.ts';
 import type {
  FieldAssignmentSourceRow,FieldEvidenceSourceRow,FieldVisitSourceRow,ProcessMiningHistoryGateway,ProcessMiningHistorySnapshot,WorkflowTransitionSourceRow,
@@ -76,6 +76,7 @@ function fieldEvidenceEvent(row:FieldEvidenceSourceRow,asOf:string):ProcessEvent
 function assertHistory(history:ProcessMiningHistorySnapshot,workspaceId:string,generatedAt:string):void{
  if(history.authority!=='source_owned_process_histories'||history.workspaceId!==workspaceId||history.asOf!==generatedAt||history.syncReceiptPolicy!=='actor_scoped_integrity_evidence_not_path_input')throw new ProcessCompositionAuthorityError('Process history authority drift');
 }
+function assertSnapshot(snapshot:ProcessMiningSnapshot):void{if(snapshot.authority!=='read_only_derived_process_intelligence')throw new ProcessCompositionAuthorityError('Process snapshot authority drift')}
 function add(grouped:Map<string,ProcessEvent[]>,event:ProcessEvent):void{const list=grouped.get(event.caseId);if(list)list.push(event);else grouped.set(event.caseId,[event])}
 function stableSort(events:readonly ProcessEvent[]):readonly ProcessEvent[]{return Object.freeze([...events].sort((a,b)=>Date.parse(a.occurredAt)-Date.parse(b.occurredAt)||a.provenance.sourceDomain.localeCompare(b.provenance.sourceDomain)||a.provenance.sourceEntity.localeCompare(b.provenance.sourceEntity)||a.provenance.sourceEventId.localeCompare(b.provenance.sourceEventId)))}
 
@@ -96,6 +97,11 @@ export async function loadProcessMiningSnapshot(d:ProcessMiningDependencies,user
 }
 
 export function predictNextActivity(snapshot:ProcessMiningSnapshot,currentActivityKey:string,assumptions:readonly string[]=['توقع اتجاهي مشتق من المسارات التاريخية المرصودة فقط ولا يمثل حقيقة تشغيلية مستقبلية.']):DirectionalProcessPrediction{
- if(snapshot.authority!=='read_only_derived_process_intelligence')throw new ProcessCompositionAuthorityError('Process snapshot authority drift');
+ assertSnapshot(snapshot);
  return buildEmpiricalNextActivityPrediction({workspaceId:snapshot.workspaceId,currentActivityKey,historicalPaths:snapshot.cases,asOf:snapshot.generatedAt,assumptions});
+}
+
+export function predictDelayRisk(snapshot:ProcessMiningSnapshot,currentActivityKey:string,thresholdMs:number,assumptions:readonly string[]=['توقع اتجاهي لاحتمال تجاوز عتبة الانتظار المعلنة، مشتق فقط من مدد تاريخية ذات ترتيب زمني مثبت ولا يمثل حقيقة مستقبلية.']):DirectionalDelayPrediction{
+ assertSnapshot(snapshot);
+ return buildEmpiricalDelayPrediction({workspaceId:snapshot.workspaceId,currentActivityKey,historicalPaths:snapshot.cases,thresholdMs,asOf:snapshot.generatedAt,assumptions});
 }
