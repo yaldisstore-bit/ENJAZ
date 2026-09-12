@@ -25,7 +25,17 @@ requireValue(phase94.authority?.regulatoryTruth === 'APPEND_VERSIONED_EFFECTIVE_
 requireValue(phase94.authority?.aiOutputAuthority === 'NEVER_AUTHORITATIVE' && phase94.authority?.editorialInterpretationAuthority === 'NEVER_AUTHORITATIVE', 'derived knowledge may never become authoritative');
 requireValue(phase94.authority?.directBrowserSensitiveDmlAllowed === false && phase94.authority?.destructiveHistoryOverwriteAllowed === false, 'sensitive direct DML/history overwrite must remain forbidden');
 requireValue(phase94.authority?.crossWorkspaceCuratedAccessAllowed === false, 'workspace-curated knowledge must remain isolated');
-requireValue(phase94.projectQualityConstitution?.tracks?.product === 'IN_PROGRESS' && phase94.projectQualityConstitution?.tracks?.engineering === 'IN_PROGRESS', 'foundation must explicitly track Product and Engineering work');
+
+const tracks = phase94.projectQualityConstitution?.tracks ?? {};
+const productLifecycle = new Set(['IN_PROGRESS', 'IMPLEMENTED_PENDING_CERTIFICATION']);
+const uiUxLifecycle = new Set(['IN_PROGRESS', 'IMPLEMENTED_PENDING_REAL_BROWSER']);
+const engineeringLifecycle = new Set(['IN_PROGRESS', 'STATIC_GATE_PASS']);
+const certificationLifecycle = new Set(['IN_PROGRESS']);
+requireValue(productLifecycle.has(tracks.product), 'Product track must be explicitly active or implemented pending certification');
+requireValue(uiUxLifecycle.has(tracks.uiUx), 'UI/UX track must be explicitly active or pending Real Browser certification');
+requireValue(engineeringLifecycle.has(tracks.engineering), 'Engineering track must be explicitly active or static-gate certified');
+requireValue(certificationLifecycle.has(tracks.certification), 'Certification must remain IN_PROGRESS until Real Browser/live closure');
+requireValue(phase94.projectQualityConstitution?.closureRequiresAllFourPass === true, 'closure must require Product + UI/UX + Engineering + Certification');
 requireValue(phase94.projectQualityConstitution?.tracks?.certification !== 'PASS', 'Phase 9.4 cannot be pre-certified');
 
 const m8 = major.systems?.find((system) => system.id === 'M8');
@@ -65,5 +75,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('PHASE 9.4 REGULATORY KNOWLEDGE AUDIT PASS — predecessor closed; M8 active; provenance/version/effective history/AI separation enforced; 9.5 locked.');
+  console.log('PHASE 9.4 REGULATORY KNOWLEDGE AUDIT PASS — predecessor closed; M8 active; four-track quality lifecycle enforced; provenance/version/effective history/AI separation enforced; 9.5 locked.');
 }
