@@ -25,7 +25,7 @@
     {"id":"M10","name":"Scheduling, Appointments & Deadline Engine","anchors":["11"],"kind":"scheduling","status":"PLANNED","closureEvidence":null},
     {"id":"M11","name":"Integration Platform / API / Webhooks","anchors":["14","15"],"kind":"integration-platform","status":"PLANNED","closureEvidence":null},
     {"id":"M12","name":"Compliance, Audit & Evidence Center","anchors":["15"],"kind":"compliance","status":"PLANNED","closureEvidence":null},
-    {"id":"M13","name":"Business Intelligence & Forecasting Center","anchors":["9","15"],"kind":"business-intelligence","status":"PLANNED","closureEvidence":null},
+    {"id":"M13","name":"Business Intelligence & Forecasting Center","anchors":["9","15"],"kind":"business-intelligence","status":"ACTIVE","closureEvidence":null},
     {"id":"M14","name":"Backup, Restore & Workspace Portability","anchors":["15","18"],"kind":"resilience-portability","status":"PLANNED","closureEvidence":null},
     {"id":"M15","name":"Multi-Branch, Departments & Team Operating Model","anchors":["8","15"],"kind":"organization-operations","status":"ACTIVE","closureEvidence":null},
     {"id":"M16","name":"Engagements, Contracts & Retainers","anchors":["7","10","11"],"kind":"commercial-contracts","status":"PLANNED","closureEvidence":null},
