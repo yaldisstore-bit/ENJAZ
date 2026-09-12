@@ -34,12 +34,14 @@ jobs:
         with:
           python-version: '3.12'
       - run: npm ci --no-audit --no-fund
-      - name: Preserve Phase 9.5 closure and audit Phase 9.6 foundation
+      - name: Preserve Phase 9.5 closure and audit Phase 9.6
         run: |
           node scripts/phase9-5-business-intelligence-audit.mjs
           node scripts/phase9-6-process-mining-audit.mjs
       - name: Process mining foundation destruction tests
         run: node --experimental-strip-types --test tests/phase9-6-process-mining-foundation.test.ts
+      - name: Process source composition destruction tests
+        run: node --experimental-strip-types --test tests/phase9-6-process-mining-service.test.ts
       - name: Full functional regression
         run: npm run test:functional
       - name: Database and roadmap integrity
@@ -55,6 +57,6 @@ jobs:
       - name: Assert Phase 9.6 governed lifecycle
         run: >-
           node -e "const j=JSON.parse(require('fs').readFileSync('docs/PHASE9_6_STATE.json','utf8'));
-          const a=j.authority||{},m=j.majorSystem||{},p=j.predictionFoundation||{},t=j.projectQualityConstitution?.tracks||{};
-          const ok=j.phase==='9.6'&&j.status==='IN_PROGRESS'&&j.baseCommit==='295ad9dd308e391e7d92b1e27de74c859b0a20b1'&&j.javascriptBudgetBytes===670000&&j.budgetIncreaseAllowed===false&&m.id==='M18'&&m.status==='ACTIVE'&&m.globalClosureAllowed===false&&Array.isArray(m.anchors)&&m.anchors.join(',')==='9,15'&&a.persistence==='SOURCE_DOMAIN_HISTORY_ONLY'&&a.processIntelligenceAuthority==='READ_ONLY_DERIVED'&&a.sourceProvenance==='REQUIRED'&&a.shadowProcessEventStoreAllowed===false&&a.fabricatedEventTimestampAllowed===false&&a.fabricatedStrictSequenceAllowed===false&&a.crossWorkspaceCompositionAllowed===false&&a.predictionAuthority==='DIRECTIONAL_NON_AUTHORITATIVE'&&p.method==='empirical_next_activity_frequency'&&p.minimumDirectionalCases===4&&p.tieBehavior==='NO_SINGLE_WINNER'&&p.authoritative===false&&j.exitGatePassed===false&&j.phase9_7Allowed===false&&j.nextPhase===null&&j.successorStatus==='LOCKED'&&t.product==='IN_PROGRESS'&&t.uiUx==='NOT_STARTED'&&t.engineering==='IN_PROGRESS'&&t.certification==='NOT_STARTED';
+          const a=j.authority||{},m=j.majorSystem||{},p=j.predictionFoundation||{},t=j.projectQualityConstitution?.tracks||{},s=j.authoritativeSources?.fieldOperations||{},c=j.sourceComposition||{};
+          const ok=j.phase==='9.6'&&j.status==='IN_PROGRESS'&&j.baseCommit==='295ad9dd308e391e7d92b1e27de74c859b0a20b1'&&j.javascriptBudgetBytes===670000&&j.budgetIncreaseAllowed===false&&m.id==='M18'&&m.status==='ACTIVE'&&m.globalClosureAllowed===false&&Array.isArray(m.anchors)&&m.anchors.join(',')==='9,15'&&a.persistence==='SOURCE_DOMAIN_HISTORY_ONLY'&&a.processIntelligenceAuthority==='READ_ONLY_DERIVED'&&a.sourceProvenance==='REQUIRED'&&a.shadowProcessEventStoreAllowed===false&&a.fabricatedEventTimestampAllowed===false&&a.fabricatedStrictSequenceAllowed===false&&a.crossWorkspaceCompositionAllowed===false&&a.predictionAuthority==='DIRECTIONAL_NON_AUTHORITATIVE'&&p.method==='empirical_next_activity_frequency'&&p.minimumDirectionalCases===4&&p.tieBehavior==='NO_SINGLE_WINNER'&&p.authoritative===false&&Array.isArray(s.pathTables)&&s.pathTables.join(',')==='field_assignments,field_visits,field_visit_evidence'&&Array.isArray(s.integrityOnlyTables)&&s.integrityOnlyTables.join(',')==='field_sync_receipts'&&s.syncReceiptReadScope==='ACTOR_SCOPED'&&s.syncReceiptPathInputAllowed===false&&['IN_PROGRESS_PENDING_GATE','LOCAL_GATE_PASS'].includes(c.status)&&c.destructionTestCount===11&&c.syncReceiptPolicy==='ACTOR_SCOPED_INTEGRITY_ONLY_NOT_PATH_INPUT'&&j.exitGatePassed===false&&j.phase9_7Allowed===false&&j.nextPhase===null&&j.successorStatus==='LOCKED'&&t.product==='IN_PROGRESS'&&t.uiUx==='NOT_STARTED'&&t.engineering==='IN_PROGRESS'&&t.certification==='NOT_STARTED';
           if(!ok)process.exit(1)"
