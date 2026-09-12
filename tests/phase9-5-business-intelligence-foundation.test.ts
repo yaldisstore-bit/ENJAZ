@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
 import {
- BIContractError,BIProvenanceRequiredError,BIUnsafeIntegerError,BIWorkspaceLineageError,BITimeWindowError,
+ BIContractError,BIProvenanceRequiredError,BIUnsafeIntegerError,BIUnsupportedRunRateUnitError,BIWorkspaceLineageError,BITimeWindowError,
  ENJAZ_BI_SCHEMA,assertBIProvenance,buildDerivedKpi,buildObservedTrend,buildTrailingRunRateForecast,exactChangeBps,parseBIProvenance,projectRunRateValue,
  type BIProvenance,
 } from '../src/features/intelligence/businessIntelligenceContract.ts';
@@ -69,8 +69,11 @@ test('9.5 foundation 11 — invalid windows and horizons fail closed',()=>{
  assert.throws(()=>buildTrailingRunRateForecast(base),BITimeWindowError);assert.throws(()=>buildTrailingRunRateForecast({...base,observedWindowStart:'2026-08-01T00:00:00.000Z',horizonDays:366}),BITimeWindowError);
 });
 
-test('9.5 foundation 12 — exact run-rate math and zero denominator behavior are explicit',()=>{
- const x=projectRunRateValue({unit:'cents',valueCents:10001n},30,60);assert.equal(x.unit,'cents');if(x.unit==='cents')assert.equal(x.valueCents,20002n);
+test('9.5 foundation 12 — run-rate math is exact only for additive flows; ratios and durations fail closed',()=>{
+ const money=projectRunRateValue({unit:'cents',valueCents:10001n},30,60);assert.equal(money.unit,'cents');if(money.unit==='cents')assert.equal(money.valueCents,20002n);
+ const count=projectRunRateValue({unit:'count',value:7},30,60);assert.equal(count.unit,'count');if(count.unit==='count')assert.equal(count.value,14);
+ assert.throws(()=>projectRunRateValue({unit:'basis_points',valueBps:7500},30,60),BIUnsupportedRunRateUnitError);
+ assert.throws(()=>projectRunRateValue({unit:'minutes',valueMinutes:45},30,60),BIUnsupportedRunRateUnitError);
  assert.equal(exactChangeBps(120n,100n),2000);assert.equal(exactChangeBps(120n,0n),null);
 });
 
