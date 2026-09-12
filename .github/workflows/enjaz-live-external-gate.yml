@@ -66,11 +66,16 @@ jobs:
           npx playwright test tests-external/live-shell.spec.cjs
           --grep-invert "published Phase 9.1 Smart Risk route is real and read-only"
           --reporter=line --workers=1
-      - name: Attack real /live application and Smart Risk deployment contract
+      - name: Attack real /live application and Phase 9 deployment contract
         env:
           BASE_URL: https://yaldisstore-bit.github.io/ENJAZ/
           LIVE_APP_URL: https://yaldisstore-bit.github.io/ENJAZ/live/
         run: npx playwright test tests-external/live-app-phase9.spec.cjs --reporter=line --workers=1
+      - name: Certify Phase 9.6 process deep-link on published /live
+        env:
+          BASE_URL: https://yaldisstore-bit.github.io/ENJAZ/
+          LIVE_APP_URL: https://yaldisstore-bit.github.io/ENJAZ/live/
+        run: npx playwright test tests-external/phase9-6-published-live.spec.cjs --reporter=line --workers=1
       - name: Save public-response evidence on failure
         if: failure()
         uses: actions/upload-artifact@v4
