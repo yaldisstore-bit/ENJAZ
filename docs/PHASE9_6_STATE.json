@@ -149,7 +149,7 @@
     "sourceGateway": "src/features/process-intelligence/processMiningSources.ts",
     "service": "src/features/process-intelligence/processMiningService.ts",
     "tests": "tests/phase9-6-process-mining-service.test.ts",
-    "destructionTestCount": 11,
+    "destructionTestCount": 12,
     "workspaceIsolation": "REQUIRED",
     "crossSourceTransactionDrift": "FAIL_CLOSED",
     "orphanSourceBehavior": "FAIL_CLOSED",
