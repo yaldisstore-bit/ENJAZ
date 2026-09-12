@@ -51,6 +51,27 @@ const tests = exists(testPath) ? read(testPath) : '';
 const runtimeTests = exists(runtimeTestPath) ? read(runtimeTestPath) : '';
 const packageJson = JSON.parse(read('package.json'));
 
+function hasValidZeroEscapeClosure(system) {
+  if (!system || system.status !== 'CLOSED') return false;
+  const evidencePath = system.closureEvidence;
+  if (typeof evidencePath !== 'string' || !evidencePath.endsWith('.json') || !exists(evidencePath)) return false;
+  try {
+    const evidence = JSON.parse(read(evidencePath));
+    return evidence.gateProfile === 'ZERO_ESCAPE_V1'
+      && evidence.systemId === system.id
+      && evidence.status === 'CLOSED'
+      && evidence.unresolvedCriticalCount === 0
+      && evidence.unresolvedHighCount === 0
+      && evidence.unresolvedFunctionalBlockerCount === 0
+      && evidence.realCloudAuthenticated === 'PASS'
+      && evidence.realBrowserMobile === 'PASS'
+      && evidence.deployedLiveCriticalPath === 'PASS'
+      && evidence.postMergeRecertification === 'PASS';
+  } catch {
+    return false;
+  }
+}
+
 check('phase_identity', state.phase === '8.1' && state.name === 'Workflow Engine & Government Procedure OS — M1');
 check('phase_closed_zero_escape', state.status === 'CLOSED' && state.exitGatePassed === true && state.unresolvedDefectCount === 0 && state.criticalDefectCount === 0 && state.highDefectCount === 0 && state.functionalBlockerCount === 0);
 check('phase82_authorized_only_after_closure', state.phase8_2Allowed === true && state.nextPhase === '8.2');
@@ -60,8 +81,8 @@ check('canonical_merge_sha', state.mergeCommit === '95f988ac305d9003ee19a5f0f474
 check('phase7_5_closed', prior.phase === '7.5' && prior.status === 'CLOSED' && prior.exitGatePassed === true && prior.phase8Allowed === true && prior.nextPhase === '8.1');
 check('m1_anchor_complete_but_overall_open', state.m1AnchorStatus === 'CLOSURE_CANDIDATE' && state.m1OverallSystemClosed === false && state.m1RemainingClosureAuthority === 'Phase 8.7 individual Zero-Escape destruction evidence');
 const m1 = major.systems?.find((system) => system.id === 'M1');
-check('major_registry_m1_fail_closed_candidate', m1?.name === 'Government Procedure Operating System' && m1?.status === 'CLOSURE_CANDIDATE' && m1?.closureEvidence === 'docs/PHASE8_1_CLOSURE.md');
-check('other_major_systems_not_silently_closed', major.systems?.filter((system) => system.id !== 'M1').every((system) => system.status !== 'CLOSED'));
+check('major_registry_m1_fail_closed_or_zero_escape_closed', m1?.name === 'Government Procedure Operating System' && ((m1?.status === 'CLOSURE_CANDIDATE' && m1?.closureEvidence === 'docs/PHASE8_1_CLOSURE.md') || hasValidZeroEscapeClosure(m1)));
+check('other_major_systems_require_zero_escape_evidence_if_closed', major.systems?.filter((system) => system.id !== 'M1').every((system) => system.status !== 'CLOSED' || hasValidZeroEscapeClosure(system)));
 check('kickoff_historical_lock_preserved', has(kickoff, 'Phase 8.2 remains locked') && has(kickoff, 'Phase 8.2 is not authorized'));
 check('roadmap_81_authority', has(roadmap, '## 8.1 — Workflow Engine & Government Procedure OS — M1'));
 check('roadmap_82_authority', has(roadmap, '**Next: Phase 8.2 — Automation Engine**'));
@@ -203,4 +224,4 @@ if (failures.length) {
   console.error(`ENJAZ PHASE 8.1 WORKFLOW/GOVERNMENT PROCEDURE AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);
   process.exit(1);
 }
-console.log(`ENJAZ PHASE 8.1 WORKFLOW/GOVERNMENT PROCEDURE AUDIT PASS (${checks} checks) — backend + Transaction 360 UI + Real Chromium contract preserved; Phase 8.1 CLOSED + POST-MERGE RECERTIFIED; M1 remains fail-closed CLOSURE_CANDIDATE; Phase 8.2 authorized.`);
+console.log(`ENJAZ PHASE 8.1 WORKFLOW/GOVERNMENT PROCEDURE AUDIT PASS (${checks} checks) — backend + Transaction 360 UI + Real Chromium contract preserved; Phase 8.1 CLOSED + POST-MERGE RECERTIFIED; current major-system closures require ZERO_ESCAPE_V1 evidence; Phase 8.2 authorized.`);
