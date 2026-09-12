@@ -34,7 +34,7 @@ test('9.6 service 01 — composes transaction, workflow and field source histori
 });
 
 test('9.6 service 02 — equal-time cross-source events stay partial instead of becoming a fake strict sequence',async()=>{
- const h=history({workflowTransitions:Object.freeze([{id:UUID(101),workspaceId:W,workflowInstanceId:UUID(100),transitionKey:'advance_review',eventKind:'advance',fromStagePosition:1,toStagePosition:2,occurredAt:'2026-09-01T07:00:00.000Z'}])});const s=await snapshot([activity(1,TX1,'transaction_created','2026-09-01T07:00:00.000Z')],h);assert.equal(s.cases[0]!.ordering,'partial');
+ const h=history({workflowTransitions:Object.freeze([{id:UUID(101),workspaceId:W,workflowInstanceId:UUID(100),transitionKey:'advance_review',eventKind:'advance' as const,fromStagePosition:1,toStagePosition:2,occurredAt:'2026-09-01T07:00:00.000Z'}])});const s=await snapshot([activity(1,TX1,'transaction_created','2026-09-01T07:00:00.000Z')],h);assert.equal(s.cases[0]!.ordering,'partial');
 });
 
 test('9.6 service 03 — orphan workflow transition fails closed',async()=>{
