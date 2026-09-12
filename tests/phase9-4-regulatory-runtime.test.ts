@@ -66,7 +66,9 @@ test('9.4 runtime 06 — knowledge is live/lazy while the certified 9.1 risk bri
   const knowledgePortal=readFileSync('src/ui-r2/regulatory/LiveRegulatoryKnowledgePortal.tsx','utf8');
   const liveRoot=readFileSync('src/ui-r2/runtime/UiR2LiveRoot.tsx','utf8');
   assert.match(navigation,/\['knowledge', 'مركز المعرفة التنظيمية', 7, 'knowledge', 0, 2\]/);
-  assert.match(navigation,/\['intelligence', 'الذكاء والمعرفة', \['knowledge', 'copilot'\]\]/);
+  const intelligenceGroup=navigation.match(/\['intelligence', 'الذكاء والمعرفة', \[([^\]]+)\]\]/)?.[1]??'';
+  assert.match(intelligenceGroup,/'knowledge'/);assert.match(intelligenceGroup,/'copilot'/);
+  assert.ok(intelligenceGroup.indexOf("'knowledge'")<intelligenceGroup.indexOf("'copilot'"),'knowledge must remain before copilot while certified successors may add destinations');
   assert.match(lazy,/value === 'knowledge'/);assert.match(lazy,/destination === 'knowledge' \? <KnowledgePortal/);
   assert.match(lazy,/value === 'risk'/);assert.match(lazy,/destination === 'finance' \|\| destination === 'risk' \? <FinancePortal \/>/);
   assert.match(financePortal,/useLiveRecordsPortal\('risk'/);assert.match(financePortal,/loadSmartRisk\(/);
