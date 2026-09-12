@@ -52,7 +52,10 @@ jobs:
           tests/phase9-3-*.test.ts
           tests/phase9-4-*.test.ts
           tests/phase9-5-*.test.ts
-          tests/phase9-6-*.test.ts
+          tests/phase9-6-process-mining-closure-foundation.test.ts
+          tests/phase9-6-process-mining-service.test.ts
+          tests/phase9-6-process-mining-runtime-parity.test.ts
+          tests/phase9-6-process-mining-ui.test.ts
 
       - name: Full functional regression
         run: npm run test:functional
