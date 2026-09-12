@@ -32,7 +32,7 @@ req(Array.isArray(m13?.anchors)&&m13.anchors.includes('9')&&m13.anchors.includes
 req(m13?.closureEvidence===null,'Phase 9.5 must not fabricate global M13 closure');
 
 for(const p of ['docs/PHASE9_5_STATE.json','docs/PHASE9_5_KICKOFF.md','src/features/intelligence/businessIntelligenceContract.ts','tests/phase9-5-business-intelligence-foundation.test.ts','.github/workflows/phase9-5-business-intelligence.yml'])req(exists(p),`missing Phase 9.5 artifact: ${p}`);
-for(const m of ['ENJAZ_BI_SCHEMA','authoritative:false','BIProvenance','buildDerivedKpi','buildObservedTrend','buildTrailingRunRateForecast','BIUnsupportedRunRateUnitError','exactChangeBps','BIGINT_CENTS'])marker(contract,m,'BI contract');
+for(const m of ['ENJAZ_BI_SCHEMA','authoritative:false','BIProvenance','buildDerivedKpi','buildObservedTrend','buildTrailingRunRateForecast','BIUnsupportedRunRateUnitError','exactChangeBps','valueCents:bigint'])marker(contract,m,'BI contract');
 for(let i=1;i<=14;i+=1)marker(tests,`9.5 foundation ${String(i).padStart(2,'0')}`,'foundation tests');
 marker(kickoff,'Phase 9.6 remains **LOCKED**','kickoff');
 marker(kickoff,'DIRECTIONAL / NON-AUTHORITATIVE','kickoff');
