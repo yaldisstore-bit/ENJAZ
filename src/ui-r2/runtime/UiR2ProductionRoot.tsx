@@ -97,7 +97,7 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceComman
   fieldOperationsCommands: FieldOperationsCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
-  processMiningHistory?: ProcessMiningHistoryGateway;
+  processMiningHistory: ProcessMiningHistoryGateway | undefined;
 }>) {
   const auth = useAuth();
   const workspace = useMemo(() => auth.user ? dataFactory.resolveWorkspaceId(auth.user.id) : Promise.resolve(null), [auth.user?.id, dataFactory]);
