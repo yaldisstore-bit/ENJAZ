@@ -1,6 +1,6 @@
 # Phase 9.5 — Business Intelligence & Forecasting Center — M13
 
-Status: **IN PROGRESS — foundation contract first**
+Status: **IN PROGRESS — foundation LOCAL GATE PASS**
 
 ## Entry authority
 
@@ -29,7 +29,7 @@ The Phase 9.5 scope is:
 
 ## M13 law
 
-**M13 — Business Intelligence & Forecasting Center** becomes `ACTIVE` in this phase.
+**M13 — Business Intelligence & Forecasting Center** is `ACTIVE` in this phase.
 
 M13 is a multi-anchor system with governing anchors **Phase 9 + Phase 15**. Phase 9.5 may certify the Phase 9 product slice, but it must **not** declare M13 globally CLOSED. Global M13 closure remains forbidden until the Phase 15 enterprise-hardening anchor and independent `ZERO_ESCAPE_V1` requirements are complete.
 
@@ -89,6 +89,8 @@ Every forecast must expose:
 
 Insufficient samples must stay `insufficient`; the UI may not upgrade confidence for visual polish.
 
+The `trailing_run_rate` method is restricted to **additive flow units only** in this foundation: `count` and exact `cents`. Ratios (`basis_points`) and durations (`minutes`) must fail closed instead of being linearly multiplied across a time horizon.
+
 ## Capacity law
 
 Capacity is derived from actual authoritative work assignment/queue facts. It must not infer staff availability, working hours, skill, legal deadline capacity or productivity targets that the source model does not contain.
@@ -101,19 +103,26 @@ Closure still requires all four independent tracks:
 
 No feature cut, source weakening, provenance removal or confidence inflation is allowed to satisfy a bundle budget. The production startup JavaScript ceiling remains **670000 bytes**.
 
-## Foundation exit gate
+## Foundation certification
 
-The foundation cannot pass until automated destructive tests prove at minimum:
+The first canonical foundation gate run is `34679225016` and finished **SUCCESS**.
 
-- provenance is mandatory;
-- workspace lineage cannot drift;
-- exact money semantics remain exact;
-- forecasts cannot claim authority;
-- invalid time windows/horizons fail closed;
-- insufficient samples cannot claim directional confidence;
-- deterministic inputs produce deterministic outputs;
-- zero-denominator math is explicit and safe;
-- no fabricated historical point is accepted;
+Certified in that run:
+
+- Phase 9.4 predecessor closure preserved;
+- Phase 7.3 financial intelligence anchor preserved;
+- Phase 9.5 static audit PASS;
+- **14/14 destructive foundation tests PASS**;
+- full functional regression PASS;
+- database + roadmap integrity PASS;
+- M1–M18 Zero-Escape governance PASS;
+- secrets audit + TypeScript PASS;
+- production root build + governed budget PASS;
+- Pages `/live/` build + governed budget PASS;
 - Phase 9.6 remains locked.
 
-After foundation PASS, Phase 9.5 may proceed to authoritative source loading, runtime, UI/UX, Real Cloud, Real Browser, Pages and deployed-live certification.
+Foundation status is therefore **LOCAL_GATE_PASS**. This is not Phase 9.5 closure and does not substitute for Real Cloud, Real Browser, published Pages or Live External certification.
+
+## Next implementation authority
+
+With foundation PASS, Phase 9.5 may proceed to authoritative source loading and derived snapshot composition, followed by runtime/UI, Real Cloud, Real Browser, Pages and deployed-live certification. Source authority, provenance, exact-money semantics, workspace isolation and non-authoritative forecast law remain frozen invariants.
