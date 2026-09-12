@@ -3,7 +3,7 @@ import test from 'node:test';
 import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../src/data/createDataLayer.ts';
 import type { DataPage, RowOf } from '../src/data/contracts/dataTypes.ts';
 import type { ReadRepository } from '../src/data/repositories/createEntityRepository.ts';
-import { predictNextActivity, loadProcessMiningSnapshot, ProcessCompositionAuthorityError, ProcessCompositionOrphanError, ProcessCompositionPageStalledError } from '../src/features/process-intelligence/processMiningService.ts';
+import { predictDelayRisk, predictNextActivity, loadProcessMiningSnapshot, ProcessCompositionAuthorityError, ProcessCompositionOrphanError, ProcessCompositionPageStalledError } from '../src/features/process-intelligence/processMiningService.ts';
 import { createProcessMiningHistoryGateway, ProcessSourceShapeError, ProcessSourceTimeError, type ProcessMiningHistoryGateway, type ProcessMiningHistorySnapshot } from '../src/features/process-intelligence/processMiningSources.ts';
 
 const W='11111111-1111-4111-8111-111111111111';
@@ -99,4 +99,11 @@ test('9.6 source 11 — gateway rejects workspace drift and future source timest
  function clientFor(row:Record<string,unknown>){return {from(table:string){let rows=table==='workflow_instances'?[row]:[];const b={select(){return b},eq(){return b},lte(){return b},order(){return b},range(from:number,to:number){return Promise.resolve({data:rows.slice(from,to+1),error:null})}};return b}}}
  await assert.rejects(()=>createProcessMiningHistoryGateway(clientFor({id:UUID(100),workspace_id:TX2,transaction_id:TX1,started_at:'2026-09-01T08:00:00.000Z'}) as never).loadWorkspaceHistory(W,AS_OF),ProcessSourceShapeError);
  await assert.rejects(()=>createProcessMiningHistoryGateway(clientFor({id:UUID(100),workspace_id:W,transaction_id:TX1,started_at:'2026-09-13T08:00:00.000Z'}) as never).loadWorkspaceHistory(W,AS_OF),ProcessSourceTimeError);
+});
+
+test('9.6 service 12 — delay risk wrapper uses composed paths, preserves evidence semantics and rejects authority drift',async()=>{
+ const emptyHistory=history({workflowInstances:Object.freeze([]),workflowTransitions:Object.freeze([]),fieldAssignments:Object.freeze([]),fieldVisits:Object.freeze([]),fieldEvidence:Object.freeze([])});
+ const hours=[4,3,2,1],txs=[TX1,TX2,TX3,TX4];const rows=txs.flatMap((tx,i)=>{const day=i+1,start=new Date(Date.UTC(2026,8,day,8)),end=new Date(start.getTime()+hours[i]!*3_600_000);return [activity(30+i*2,tx,'review',start.toISOString()),activity(31+i*2,tx,'approve',end.toISOString())]});
+ const s=await snapshot(rows,emptyHistory),p=predictDelayRisk(s,'transaction:review',7_200_000);assert.equal(p.authoritative,false);assert.equal(p.method,'empirical_wait_threshold_frequency');assert.equal(p.confidence,'directional');assert.equal(p.sampleCount,4);assert.equal(p.delayedSampleCount,3);assert.equal(p.probabilityBps,7500);assert.ok(p.provenance.length===8);
+ const drift={...s,authority:'wrong'};assert.throws(()=>predictDelayRisk(drift as never,'transaction:review',7_200_000),ProcessCompositionAuthorityError);
 });
