@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import type { AuthGateway } from '../../core/auth/authGateway.ts';
 import { createSupabaseAuthGateway } from '../../core/auth/SupabaseAuthGateway.ts';
 import { createRuntimeConfig } from '../../core/config/env.ts';
-import { createEnjazSupabaseClient } from '../../core/supabase/client.ts';
+import { createEnjazSupabaseClient, type EnjazSupabaseClient } from '../../core/supabase/client.ts';
 import { createEnjazDataLayerFactory, type EnjazDataLayerFactory } from '../../data/createDataLayer.ts';
 import { DataLayerProvider } from '../../data/react/DataLayerContext.tsx';
 import { AutomationCommandProvider } from '../../features/automation/AutomationCommandContext.tsx';
@@ -14,6 +14,8 @@ import { FinanceCommandProvider } from '../../features/finance/FinanceCommandCon
 import { createSupabaseFinanceCommandGateway, type FinanceCommandGateway } from '../../features/finance/financeCommands.ts';
 import { GovernanceCommandProvider } from '../../features/governance/GovernanceCommandContext.tsx';
 import { createGovernanceCommandGateway, type GovernanceCommandGateway } from '../../features/governance/governanceCommands.ts';
+import { ProcessMiningHistoryProvider } from '../../features/process-intelligence/ProcessMiningHistoryContext.tsx';
+import type { ProcessMiningHistoryGateway } from '../../features/process-intelligence/processMiningSources.ts';
 import { createRegulatoryKnowledgeGateway, type RegulatoryKnowledgeGateway } from '../../features/regulatory/regulatoryKnowledgeCommands.ts';
 import { createSearchIntelligenceGateway, type SearchIntelligenceGateway } from '../../features/searchIntelligence/searchIntelligenceCommands.ts';
 import { GovernmentProcedureCommandProvider } from '../../features/workflow/GovernmentProcedureCommandContext.tsx';
@@ -51,7 +53,13 @@ export type UiR2ProductionResources = Readonly<{
   fieldOperationsCommands: FieldOperationsCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
+  processMiningHistory?: ProcessMiningHistoryGateway;
 }>;
+
+function createLazyProcessMiningHistoryGateway(client:EnjazSupabaseClient):ProcessMiningHistoryGateway{
+ let gateway:Promise<ProcessMiningHistoryGateway>|null=null;
+ return Object.freeze({async loadWorkspaceHistory(workspaceId:string,asOf:Date){gateway??=import('../../features/process-intelligence/processMiningSources.ts').then(module=>module.createProcessMiningHistoryGateway(client));return (await gateway).loadWorkspaceHistory(workspaceId,asOf)}});
+}
 
 function createProductionResources(): UiR2ProductionResources {
   const config = createRuntimeConfig(import.meta.env as unknown as Readonly<Record<string, unknown>>);
@@ -66,6 +74,7 @@ function createProductionResources(): UiR2ProductionResources {
     fieldOperationsCommands: createFieldOperationsCommandGateway(client),
     searchIntelligence: createSearchIntelligenceGateway(client),
     regulatoryKnowledge: createRegulatoryKnowledgeGateway(client),
+    processMiningHistory: createLazyProcessMiningHistoryGateway(client),
   });
 }
 
@@ -79,7 +88,7 @@ function leaveRecoveryMode() {
   window.location.replace(url.toString());
 }
 
-function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence, regulatoryKnowledge }: Readonly<{
+function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence, regulatoryKnowledge, processMiningHistory }: Readonly<{
   dataFactory: EnjazDataLayerFactory;
   financeCommands: FinanceCommandGateway;
   governanceCommands: GovernanceCommandGateway;
@@ -88,6 +97,7 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceComman
   fieldOperationsCommands: FieldOperationsCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
+  processMiningHistory?: ProcessMiningHistoryGateway;
 }>) {
   const auth = useAuth();
   const workspace = useMemo(() => auth.user ? dataFactory.resolveWorkspaceId(auth.user.id) : Promise.resolve(null), [auth.user?.id, dataFactory]);
@@ -97,10 +107,10 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceComman
   if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode} />;
   const signOut = async () => { await auth.service.signOut(); };
 
-  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}>
+  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessMiningHistoryProvider gateway={processMiningHistory??null}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
     <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} />
-  </CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
+  </ProcessMiningHistoryProvider></CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
 export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2ProductionResources | undefined }> = {}) {
@@ -119,5 +129,6 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     fieldOperationsCommands={runtime.resources.fieldOperationsCommands}
     searchIntelligence={runtime.resources.searchIntelligence}
     regulatoryKnowledge={runtime.resources.regulatoryKnowledge}
+    processMiningHistory={runtime.resources.processMiningHistory}
   /></AuthProvider>;
 }
