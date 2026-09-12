@@ -1,0 +1,85 @@
+name: ENJAZ Phase 9.5 — Post-Merge Published Insights Certification
+
+on:
+  push:
+    branches:
+      - phase9-5-postmerge-live-certification
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: enjaz-phase95-postmerge-live-certification
+  cancel-in-progress: true
+
+jobs:
+  published-insights:
+    name: Exact main + Pages + external Chromium / insights
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TARGET_SHA: ee62353621701c788b3c96ae8172a59b6f95022d
+      PAGES_RUN_ID: '34682370285'
+      LIVE_EXTERNAL_RUN_ID: '34682394717'
+      LIVE_APP_URL: https://yaldisstore-bit.github.io/ENJAZ/live/
+    steps:
+      - name: Checkout certification probe
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Lock certification to exact canonical main and deployment runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --quiet
+          actual_main=$(git rev-parse origin/main)
+          [ "$actual_main" = "$TARGET_SHA" ] || { echo "Canonical main drifted: $actual_main"; exit 1; }
+
+          verify_run() {
+            local run_id="$1"
+            local expected_name="$2"
+            payload=$(curl --fail --silent --show-error \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/$REPOSITORY/actions/runs/$run_id")
+            printf '%s' "$payload" | node -e '
+              let input="";process.stdin.on("data",c=>input+=c);process.stdin.on("end",()=>{
+                const run=JSON.parse(input), target=process.env.TARGET_SHA, expected=process.argv[1];
+                const ok=run.name===expected&&run.head_sha===target&&run.status==="completed"&&run.conclusion==="success";
+                if(!ok){console.error(JSON.stringify({name:run.name,head_sha:run.head_sha,status:run.status,conclusion:run.conclusion,target,expected}));process.exit(1)}
+              });' "$expected_name"
+          }
+          verify_run "$PAGES_RUN_ID" "ENJAZ Pages Preview"
+          verify_run "$LIVE_EXTERNAL_RUN_ID" "ENJAZ Live External Gate"
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked app dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install pinned external Chromium tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Attack published Phase 9.5 insights deep-link and deployed lazy bundle
+        env:
+          PHASE95_TARGET_SHA: ${{ env.TARGET_SHA }}
+          LIVE_APP_URL: ${{ env.LIVE_APP_URL }}
+        run: npx playwright test tests-external/phase9-5-postmerge-live-insights.spec.cjs --reporter=line --workers=1
+      - name: Upload published-insights diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase9-5-postmerge-live-certification-diagnostics
+          path: |
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7
