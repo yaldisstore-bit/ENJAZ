@@ -5,19 +5,20 @@ import type { FieldOperationsCommandGateway, FieldOperationsContext } from '../f
 import { buildFinancialIntelligenceSnapshot, type FinanceIntelligenceSnapshot } from '../finance/financeIntelligence.ts';
 import { loadFinanceSource } from '../finance/financeService.ts';
 import {
- ENJAZ_BI_SCHEMA,buildDerivedKpi,buildTrailingRunRateForecast,
- type BIProvenance,type DerivedKpi,type DirectionalForecast,
+ ENJAZ_BI_SCHEMA,buildDerivedKpi,buildObservedTrend,buildTrailingRunRateForecast,
+ type BIProvenance,type DerivedKpi,type DirectionalForecast,type ObservedTrend,
 } from './businessIntelligenceContract.ts';
 
-const PAGE=100,DAY=86_400_000;
+const PAGE=100,DAY=86_400_000,TREND_MONTHS=6;
 export const BI_SOURCE_LIMIT=10_000;
 
 export class BIWorkspaceUnavailableError extends Error{constructor(){super('BI workspace unavailable');this.name='BIWorkspaceUnavailableError'}}
 export class BISourceCapacityError extends Error{readonly sourceName:string;constructor(sourceName:string){super(`BI source limit: ${sourceName}`);this.name='BISourceCapacityError';this.sourceName=sourceName}}
 export class BISourcePageStalledError extends Error{readonly sourceName:string;constructor(sourceName:string){super(`BI source stalled: ${sourceName}`);this.name='BISourcePageStalledError';this.sourceName=sourceName}}
 export class BIAuthorityDriftError extends Error{constructor(message:string){super(message);this.name='BIAuthorityDriftError'}}
+export class BIHistoricalObservationError extends Error{readonly recordId:string;readonly value:string|null;constructor(recordId:string,value:string|null){super(`BI invalid historical observation: ${recordId}`);this.name='BIHistoricalObservationError';this.recordId=recordId;this.value=value}}
 
-export type FinanceBiSnapshot=Pick<FinanceIntelligenceSnapshot,'asOf'|'totalOutstandingCents'|'runRate'|'signals'>;
+export type FinanceBiSnapshot=Pick<FinanceIntelligenceSnapshot,'asOf'|'totalOutstandingCents'|'trends'|'runRate'|'signals'>;
 export type FinanceBiLoader=(factory:EnjazDataLayerFactory,userId:string,now:Date)=>Promise<Readonly<{workspaceId:string;snapshot:FinanceBiSnapshot}>>;
 export interface BusinessIntelligenceDependencies{
  readonly dataFactory:EnjazDataLayerFactory;
@@ -30,18 +31,29 @@ export interface BusinessIntelligenceSnapshot{
  readonly generatedAt:string;
  readonly authority:'read_only_derived_intelligence';
  readonly kpis:readonly DerivedKpi[];
+ readonly trends:readonly ObservedTrend[];
  readonly forecasts:readonly DirectionalForecast[];
  readonly sourceCounts:Readonly<{transactions:number;activeTransactions:number;completedLast30:number;fieldAssignments:number;fieldVisits:number;financeSignals:number}>;
 }
 
+type CalendarPeriod=Readonly<{key:string;start:string;end:string;startMs:number;endMs:number;current:boolean}>;
 async function all(name:string,repo:ReadRepository<'transactions'>):Promise<readonly RowOf<'transactions'>[]>{
  const rows:RowOf<'transactions'>[]=[];let offset=0;
  for(;;){const page=await repo.list({orderBy:[{column:'created_at',ascending:false}],offset,limit:PAGE});rows.push(...page.items);if(rows.length>BI_SOURCE_LIMIT)throw new BISourceCapacityError(name);if(!page.hasMore)return Object.freeze(rows);if(!page.items.length)throw new BISourcePageStalledError(name);offset+=page.items.length}
 }
 async function finance(factory:EnjazDataLayerFactory,userId:string,now:Date){const x=await loadFinanceSource(factory,userId);return Object.freeze({workspaceId:x.workspaceId,snapshot:buildFinancialIntelligenceSnapshot(x.source,now)})}
 function fieldOk(x:FieldOperationsContext){if(x.authority!=='field_assignments_visits_evidence_receipts'||x.transactionWriteAuthority!=='none'||x.workflowWriteAuthority!=='existing_workflow_rpc_only'||x.automationWriteAuthority!=='existing_automation_rpc_only'||x.financeWriteAuthority!=='none')throw new BIAuthorityDriftError('Field authority drift')}
-function prov(workspaceId:string,sourceDomain:BIProvenance['sourceDomain'],sourceAsOf:string,sampleCount:number,basis:readonly string[]):BIProvenance{return Object.freeze({schema:ENJAZ_BI_SCHEMA,workspaceId,sourceDomain,sourceAsOf,sampleCount,basis:Object.freeze([...basis]),derivationVersion:'phase9.5-source-composition-v1'})}
+function prov(workspaceId:string,sourceDomain:BIProvenance['sourceDomain'],sourceAsOf:string,sampleCount:number,basis:readonly string[],version='phase9.5-source-composition-v1'):BIProvenance{return Object.freeze({schema:ENJAZ_BI_SCHEMA,workspaceId,sourceDomain,sourceAsOf,sampleCount,basis:Object.freeze([...basis]),derivationVersion:version})}
 function isoMinusDays(iso:string,days:number){return new Date(Date.parse(iso)-days*DAY).toISOString()}
+function monthKey(ms:number){const d=new Date(ms);return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}`}
+function periods(asOf:Date,count=TREND_MONTHS):readonly CalendarPeriod[]{
+ const now=asOf.getTime(),y=asOf.getUTCFullYear(),m=asOf.getUTCMonth(),currentStart=Date.UTC(y,m,1),firstOffset=now>currentStart?-(count-1):-count;
+ return Object.freeze(Array.from({length:count},(_,i)=>{const offset=firstOffset+i,startMs=Date.UTC(y,m+offset,1),calendarEnd=Date.UTC(y,m+offset+1,1),current=offset===0,endMs=current?now:calendarEnd;return Object.freeze({key:monthKey(startMs),start:new Date(startMs).toISOString(),end:new Date(endMs).toISOString(),startMs,endMs,current})}));
+}
+function observedCompletionMs(row:RowOf<'transactions'>,nowMs:number):number{
+ const raw=row.completed_at;if(row.status!=='completed'||raw===null)throw new BIHistoricalObservationError(row.id,raw);const ms=Date.parse(raw);if(!Number.isFinite(ms)||ms>nowMs)throw new BIHistoricalObservationError(row.id,raw);return ms;
+}
+function inPeriod(ms:number,p:CalendarPeriod){return ms>=p.startMs&&(p.current?ms<=p.endMs:ms<p.endMs)}
 
 export async function loadBusinessIntelligence(d:BusinessIntelligenceDependencies,userId:string,now:Date=new Date()):Promise<BusinessIntelligenceSnapshot>{
  if(!Number.isFinite(now.getTime()))throw new Error('Invalid BI evaluation time');
@@ -50,8 +62,9 @@ export async function loadBusinessIntelligence(d:BusinessIntelligenceDependencie
  const [transactions,field,f]=await Promise.all([all('transactions',layer.transactions),d.fieldOperations.loadContext(workspaceId),financeLoader(d.dataFactory,userId,now)]);
  if(f.workspaceId!==workspaceId)throw new BIAuthorityDriftError('Finance workspace drift');fieldOk(field);
  const generatedAt=now.toISOString(),nowMs=now.getTime(),windowStart=nowMs-30*DAY;
- const live=transactions.filter(x=>x.deleted_at===null&&x.archived_at===null),active=live.filter(x=>x.status!=='completed'),stalled=active.filter(x=>x.status==='stalled');
- const completedLast30=live.filter(x=>x.completed_at!==null&&Number.isFinite(Date.parse(x.completed_at))&&Date.parse(x.completed_at)>=windowStart&&Date.parse(x.completed_at)<=nowMs);
+ const nonDeleted=transactions.filter(x=>x.deleted_at===null),live=nonDeleted.filter(x=>x.archived_at===null),active=live.filter(x=>x.status!=='completed'),stalled=active.filter(x=>x.status==='stalled');
+ const completedFacts=nonDeleted.filter(x=>x.status==='completed').map(row=>Object.freeze({row,ms:observedCompletionMs(row,nowMs)}));
+ const completedLast30=completedFacts.filter(x=>x.ms>=windowStart&&x.ms<=nowMs);
  const activeAssignments=field.assignments.filter(x=>x.status==='queued'||x.status==='in_progress'),activeVisits=field.visits.filter(x=>x.status==='checked_in');
  const txProvenance=prov(workspaceId,'transactions',generatedAt,transactions.length,['status','completed_at','archived_at','deleted_at']);
  const fieldProvenance=prov(workspaceId,'field-operations',generatedAt,field.assignments.length+field.visits.length,['assignment.status','visit.status']);
@@ -66,9 +79,15 @@ export async function loadBusinessIntelligence(d:BusinessIntelligenceDependencie
   buildDerivedKpi({kpiId:'finance.collected_last_30d',domain:'finance',labelAr:'التحصيل خلال 30 يوماً',value:{unit:'cents',valueCents:f.snapshot.runRate.recent30CollectedCents},asOf:generatedAt,provenance:[financeProvenance]}),
  ];
  if(f.snapshot.runRate.changeBps!==null)kpis.push(buildDerivedKpi({kpiId:'finance.collection_change',domain:'finance',labelAr:'تغير التحصيل مقابل الثلاثين يوماً السابقة',value:{unit:'basis_points',valueBps:f.snapshot.runRate.changeBps},asOf:generatedAt,provenance:[financeProvenance]}));
+
+ const operationPeriods=periods(now),operationTrend=buildObservedTrend({trendId:'operations.completed_monthly',domain:'operations',labelAr:'المنجز حسب الشهر',points:operationPeriods.map(p=>{const observations=completedFacts.filter(x=>inPeriod(x.ms,p));return{periodStart:p.start,periodEnd:p.end,value:{unit:'count' as const,value:observations.length},provenance:[prov(workspaceId,'transactions',p.end,observations.length,['status=completed','completed_at','deleted_at is null','calendar_month'],'phase9.5-observed-trends-v1')]}})});
+ const financeAsOf=new Date(f.snapshot.asOf);if(!Number.isFinite(financeAsOf.getTime())||financeAsOf.getTime()>nowMs)throw new BIAuthorityDriftError('Finance trend as-of drift');
+ const financeByMonth=new Map(f.snapshot.trends.map(x=>[x.monthKey,x])),financePeriods=periods(financeAsOf),financeTrend=buildObservedTrend({trendId:'finance.collections_monthly',domain:'finance',labelAr:'التحصيل حسب الشهر',points:financePeriods.map(p=>{const source=financeByMonth.get(p.key);if(!source)throw new BIAuthorityDriftError(`Finance trend period missing: ${p.key}`);return{periodStart:p.start,periodEnd:p.end,value:{unit:'cents' as const,valueCents:source.collectedCents},provenance:[prov(workspaceId,'finance',p.end,source.paymentCount,['phase7.3','posted_payments','payment_reversals','paid_at','calendar_month'],'phase9.5-observed-trends-v1')]}})});
+ const trends:ObservedTrend[]= [operationTrend,financeTrend];
+
  const forecasts:DirectionalForecast[]=[
   buildTrailingRunRateForecast({forecastId:'operations.completed_next_30d',domain:'operations',labelAr:'اتجاه الإنجاز للثلاثين يوماً القادمة',observedValue:{unit:'count',value:completedLast30.length},observedWindowStart:new Date(windowStart).toISOString(),observedWindowEnd:generatedAt,horizonDays:30,sampleCount:completedLast30.length,assumptions:['إسقاط اتجاهي فقط يفترض استمرار عدد المعاملات المنجزة المرصود خلال الثلاثين يوماً السابقة دون تغيير.'],provenance:[txProvenance]}),
   buildTrailingRunRateForecast({forecastId:'finance.collections_next_30d',domain:'finance',labelAr:'اتجاه التحصيل للثلاثين يوماً القادمة',observedValue:{unit:'cents',valueCents:f.snapshot.runRate.recent30CollectedCents},observedWindowStart:isoMinusDays(f.snapshot.asOf,30),observedWindowEnd:f.snapshot.asOf,horizonDays:30,sampleCount:f.snapshot.runRate.samplePaymentCount,assumptions:['إسقاط اتجاهي فقط يعيد استخدام معدل التحصيل المرصود في مرساة Phase 7.3 ولا يمثل التزاماً أو حقيقة مالية مستقبلية.'],provenance:[financeProvenance]}),
  ];
- return Object.freeze({schema:ENJAZ_BI_SCHEMA,workspaceId,generatedAt,authority:'read_only_derived_intelligence',kpis:Object.freeze(kpis),forecasts:Object.freeze(forecasts),sourceCounts:Object.freeze({transactions:transactions.length,activeTransactions:active.length,completedLast30:completedLast30.length,fieldAssignments:field.assignments.length,fieldVisits:field.visits.length,financeSignals:f.snapshot.signals.length})});
+ return Object.freeze({schema:ENJAZ_BI_SCHEMA,workspaceId,generatedAt,authority:'read_only_derived_intelligence',kpis:Object.freeze(kpis),trends:Object.freeze(trends),forecasts:Object.freeze(forecasts),sourceCounts:Object.freeze({transactions:transactions.length,activeTransactions:active.length,completedLast30:completedLast30.length,fieldAssignments:field.assignments.length,fieldVisits:field.visits.length,financeSignals:f.snapshot.signals.length})});
 }
