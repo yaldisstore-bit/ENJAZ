@@ -73,7 +73,9 @@
     "invalidWindowOrHorizonBehavior": "FAIL_CLOSED",
     "missingSourceBehavior": "FAIL_CLOSED",
     "zeroDenominatorBehavior": "EXPLICIT_NULL_OR_ZERO_BY_CONTRACT",
-    "insufficientSampleConfidence": "INSUFFICIENT_ONLY"
+    "insufficientSampleConfidence": "INSUFFICIENT_ONLY",
+    "trailingRunRateAllowedUnits": ["count", "cents"],
+    "trailingRunRateRatioOrDurationScalingAllowed": false
   },
   "existingAnchors": {
     "phase7_3FinanceIntelligence": "CLOSED_REUSE_REQUIRED",
@@ -85,11 +87,22 @@
   "baselinePagesStartupHeadroomBytes": 100535,
   "budgetIncreaseAllowed": false,
   "foundation": {
-    "status": "IN_PROGRESS",
+    "status": "LOCAL_GATE_PASS",
     "contract": "src/features/intelligence/businessIntelligenceContract.ts",
     "tests": "tests/phase9-5-business-intelligence-foundation.test.ts",
     "staticAudit": "scripts/phase9-5-business-intelligence-audit.mjs",
-    "destructionTestsRequired": true
+    "workflow": ".github/workflows/phase9-5-business-intelligence.yml",
+    "destructionTestsRequired": true,
+    "destructionTestCount": 14,
+    "gateRunId": 34679225016,
+    "gateConclusion": "SUCCESS",
+    "functionalRegression": "PASS",
+    "databaseAndRoadmapIntegrity": "PASS",
+    "majorSystemsZeroEscape": "PASS",
+    "typecheck": "PASS",
+    "productionBuild": "PASS",
+    "pagesLiveBuild": "PASS",
+    "governedBudget": "PASS"
   },
   "realCloudRequired": true,
   "realBrowserRequired": true,
