@@ -30,11 +30,49 @@ async function crawlDeployedJavascript(request, seedUrls) {
   return { javascript: bodies.join('\n'), assetCount: seen.size };
 }
 
+function observeRuntime(page) {
+  const diagnostics = { consoleErrors: [], pageErrors: [], failedResponses: [] };
+  page.on('console', (message) => {
+    if (message.type() !== 'error') return;
+    diagnostics.consoleErrors.push({ text: message.text(), url: message.location()?.url || '' });
+  });
+  page.on('pageerror', (error) => diagnostics.pageErrors.push(String(error)));
+  page.on('response', (response) => {
+    if (response.status() < 400) return;
+    diagnostics.failedResponses.push({
+      status: response.status(),
+      url: response.url(),
+      resourceType: response.request().resourceType(),
+    });
+  });
+  return diagnostics;
+}
+
+function assertOnlyExpectedPagesDocument404(diagnostics, expectedPathname, label) {
+  const expectedFallbackResponses = diagnostics.failedResponses.filter((item) => {
+    let pathname = '';
+    try { pathname = new URL(item.url).pathname; } catch {}
+    return item.status === 404 && item.resourceType === 'document' && pathname === expectedPathname;
+  });
+  const unexpectedResponses = diagnostics.failedResponses.filter((item) => !expectedFallbackResponses.includes(item));
+  expect(unexpectedResponses, `${label}: no asset/API/resource failures are allowed`).toEqual([]);
+
+  const unexpectedConsoleErrors = diagnostics.consoleErrors.filter((item) => {
+    const isTransport404 = item.text.includes('Failed to load resource') && item.text.includes('404');
+    if (!isTransport404) return true;
+    if (!item.url) return false;
+    try { return new URL(item.url).pathname !== expectedPathname; } catch { return true; }
+  });
+  expect(unexpectedConsoleErrors, `${label}: no console errors beyond the expected GitHub Pages document 404`).toEqual([]);
+  expect(
+    diagnostics.consoleErrors.length,
+    `${label}: every allowed console 404 must correspond to a captured document fallback response`,
+  ).toBeLessThanOrEqual(expectedFallbackResponses.length);
+  expect(diagnostics.pageErrors, `${label}: no uncaught page errors`).toEqual([]);
+}
+
 test('published /live app keeps Smart Risk 9.1 and Corporate Governance 9.3 deployed behind the auth boundary', async ({ page, request }) => {
-  const consoleErrors = [];
-  const pageErrors = [];
-  page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
-  page.on('pageerror', (error) => pageErrors.push(String(error)));
+  const diagnostics = observeRuntime(page);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const riskUrl = new URL(LIVE_APP_URL);
@@ -78,15 +116,13 @@ test('published /live app keeps Smart Risk 9.1 and Corporate Governance 9.3 depl
   expect(deployed.javascript, 'deployed lazy graph contains the Phase 9.3 governance context contract').toContain('enjaz.governance-context.v1');
   expect(deployed.javascript, 'deployed lazy graph contains the Arabic governance cockpit').toContain('مركز حوكمة الشركة');
 
-  expect(consoleErrors, 'live auth boundary has no console errors').toEqual([]);
-  expect(pageErrors, 'live auth boundary has no uncaught page errors').toEqual([]);
+  expect(diagnostics.failedResponses, 'live query-route has no failed resources').toEqual([]);
+  expect(diagnostics.consoleErrors, 'live auth boundary has no console errors').toEqual([]);
+  expect(diagnostics.pageErrors, 'live auth boundary has no uncaught page errors').toEqual([]);
 });
 
 test('published canonical /live/app/insights deep-link resolves to the Phase 9.5 bundle behind auth', async ({ page, request }) => {
-  const consoleErrors = [];
-  const pageErrors = [];
-  page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
-  page.on('pageerror', (error) => pageErrors.push(String(error)));
+  const diagnostics = observeRuntime(page);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const insightsUrl = new URL('app/insights', LIVE_APP_URL);
@@ -107,16 +143,12 @@ test('published canonical /live/app/insights deep-link resolves to the Phase 9.5
   expect(deployed.javascript, 'published graph contains the Arabic BI center').toContain('مركز ذكاء الأعمال');
   expect(deployed.javascript, 'published graph preserves non-authoritative forecast language').toContain('اتجاهي');
 
-  expect(consoleErrors, 'canonical insights deep-link has no console errors').toEqual([]);
-  expect(pageErrors, 'canonical insights deep-link has no uncaught page errors').toEqual([]);
+  assertOnlyExpectedPagesDocument404(diagnostics, insightsUrl.pathname, 'canonical insights direct load');
 });
 
 for (const viewport of PHASE95_VIEWPORTS) {
   test(`published /live/app/insights survives direct load and reload at ${viewport.width}px`, async ({ page }) => {
-    const consoleErrors = [];
-    const pageErrors = [];
-    page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
-    page.on('pageerror', (error) => pageErrors.push(String(error)));
+    const diagnostics = observeRuntime(page);
 
     await page.setViewportSize(viewport);
     const insightsUrl = new URL('app/insights', LIVE_APP_URL);
@@ -135,7 +167,9 @@ for (const viewport of PHASE95_VIEWPORTS) {
     expect(overflowBefore.document, `document overflow before reload at ${viewport.width}px`).toBeLessThanOrEqual(1);
     expect(overflowBefore.body, `body overflow before reload at ${viewport.width}px`).toBeLessThanOrEqual(1);
 
-    await page.reload({ waitUntil: 'networkidle', timeout: 30_000 });
+    const reloadResponse = await page.reload({ waitUntil: 'networkidle', timeout: 30_000 });
+    expect(reloadResponse).not.toBeNull();
+    expect([200, 404]).toContain(reloadResponse.status());
     await expect(page.locator('[data-r2-auth="true"]')).toBeVisible();
     const afterReload = new URL(page.url());
     expect(afterReload.pathname).toBe(insightsUrl.pathname);
@@ -147,7 +181,6 @@ for (const viewport of PHASE95_VIEWPORTS) {
     expect(overflowAfter.document, `document overflow after reload at ${viewport.width}px`).toBeLessThanOrEqual(1);
     expect(overflowAfter.body, `body overflow after reload at ${viewport.width}px`).toBeLessThanOrEqual(1);
 
-    expect(consoleErrors, `console errors at ${viewport.width}px`).toEqual([]);
-    expect(pageErrors, `page errors at ${viewport.width}px`).toEqual([]);
+    assertOnlyExpectedPagesDocument404(diagnostics, insightsUrl.pathname, `canonical insights ${viewport.width}px load/reload`);
   });
 }
