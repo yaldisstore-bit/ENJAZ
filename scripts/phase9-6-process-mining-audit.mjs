@@ -72,7 +72,10 @@ req(!sourceGateway.includes("'field_sync_receipts'"),'process source gateway mus
 for(const m of ['PROCESS_COMPOSITION_SOURCE_LIMIT','loadProcessMiningSnapshot','read_only_derived_process_intelligence','phase9.6-source-composition-v1','ProcessCompositionAuthorityError','ProcessCompositionOrphanError','ProcessCompositionPageStalledError','Workflow instance transaction drift','Field visit transaction drift','Field evidence transaction drift','Field evidence precedes visit','actor_scoped_integrity_evidence_not_path_input','predictNextActivity','predictDelayRisk'])marker(service,m,'process service');
 for(let i=1;i<=20;i+=1)marker(foundationTests,`9.6 foundation ${String(i).padStart(2,'0')}`,'foundation tests');
 for(const m of ['empirical delay prediction is exact','delay prediction below four proven waits','equal-time evidence is excluded from delay samples','delay prediction fails closed'])marker(foundationTests,m,'delay prediction destruction tests');
-for(let i=1;i<=11;i+=1)marker(serviceTests,`9.6 ${i<=9?'service':'source'} ${String(i).padStart(2,'0')}`,'source/service tests');
+for(let i=1;i<=9;i+=1)marker(serviceTests,`9.6 service ${String(i).padStart(2,'0')}`,'service tests');
+for(let i=10;i<=11;i+=1)marker(serviceTests,`9.6 source ${String(i).padStart(2,'0')}`,'source tests');
+marker(serviceTests,'9.6 service 12','delay service wrapper test');
+for(const m of ['predictDelayRisk','empirical_wait_threshold_frequency','delayedSampleCount','authority drift'])marker(serviceTests,m,'delay service regression');
 for(const m of ['field_sync_receipts','actor-scoped sync receipts into process paths',"!calls.includes('field_sync_receipts')"])marker(serviceTests,m,'sync-receipt regression');
 for(const m of ['Phase 9.7 remains **LOCKED**','shadow process-event ledger','ordering-ambiguous','DIRECTIONAL / NON-AUTHORITATIVE','empirical frequency','670000 bytes'])marker(kickoff,m,'kickoff');
 for(const m of ['## 9.6 — Process Mining & Predictive Operations — M18','Derive actual process paths from authoritative histories.','Detect bottlenecks, rework and delay patterns; prediction must expose confidence and evidence.'])marker(roadmap,m,'roadmap');
@@ -93,7 +96,7 @@ if(foundation.status==='LOCAL_GATE_PASS'){
 }
 
 req(['IN_PROGRESS_PENDING_GATE','LOCAL_GATE_PASS'].includes(sourceComposition.status),'Phase 9.6 source composition must remain pending-gate or locally certified');
-req(sourceComposition.sourceGateway==='src/features/process-intelligence/processMiningSources.ts'&&sourceComposition.service==='src/features/process-intelligence/processMiningService.ts'&&sourceComposition.tests==='tests/phase9-6-process-mining-service.test.ts'&&sourceComposition.destructionTestCount===11,'Phase 9.6 source composition artifact registry drifted');
+req(sourceComposition.sourceGateway==='src/features/process-intelligence/processMiningSources.ts'&&sourceComposition.service==='src/features/process-intelligence/processMiningService.ts'&&sourceComposition.tests==='tests/phase9-6-process-mining-service.test.ts'&&sourceComposition.destructionTestCount===12,'Phase 9.6 source composition artifact registry drifted');
 req(sourceComposition.workspaceIsolation==='REQUIRED'&&sourceComposition.crossSourceTransactionDrift==='FAIL_CLOSED'&&sourceComposition.orphanSourceBehavior==='FAIL_CLOSED'&&sourceComposition.paginationBehavior==='BOUNDED_FAIL_CLOSED'&&sourceComposition.equalTimestampOrdering==='EXPLICIT_PARTIAL_ORDER','Phase 9.6 source composition failure semantics drifted');
 req(sourceComposition.syncReceiptPolicy==='ACTOR_SCOPED_INTEGRITY_ONLY_NOT_PATH_INPUT','Phase 9.6 sync receipt composition law drifted');
 if(sourceComposition.status==='LOCAL_GATE_PASS'){
@@ -113,4 +116,4 @@ if(cloudCertified){
 }
 
 if(errors.length){console.error(`PHASE 9.6 PROCESS MINING AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}
-else console.log(cloudCertified?'PHASE 9.6 PROCESS MINING AUDIT PASS — delay prediction governed; local gates may be pending or certified; Real Cloud PASS_ZERO_RESIDUE; M18 ACTIVE/open for Phase 15; Phase 9.7 locked.':sourceComposition.status==='LOCAL_GATE_PASS'?'PHASE 9.6 PROCESS MINING AUDIT PASS — foundation + source composition LOCAL_GATE_PASS; M18 remains ACTIVE/open for Phase 15; Phase 9.7 locked.':'PHASE 9.6 PROCESS MINING AUDIT PASS — governed local recertification pending; M18 ACTIVE/open for Phase 15; Phase 9.7 locked.');
+else console.log(cloudCertified?'PHASE 9.6 PROCESS MINING AUDIT PASS — delay prediction governed; 20 foundation + 12 source/service destructions registered; Real Cloud PASS_ZERO_RESIDUE; M18 ACTIVE/open for Phase 15; Phase 9.7 locked.':sourceComposition.status==='LOCAL_GATE_PASS'?'PHASE 9.6 PROCESS MINING AUDIT PASS — foundation + source composition LOCAL_GATE_PASS; M18 remains ACTIVE/open for Phase 15; Phase 9.7 locked.':'PHASE 9.6 PROCESS MINING AUDIT PASS — governed local recertification pending; M18 ACTIVE/open for Phase 15; Phase 9.7 locked.');
