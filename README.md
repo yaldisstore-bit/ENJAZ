@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 9.6 — Process Mining & Predictive Operations — M18 ✅ CLOSED + EXACT-MAIN / REAL-BROWSER / PUBLISHED-LIVE CERTIFIED**  
-آخر مرحلة مغلقة: **Phase 9.6 — Process Mining & Predictive Operations — M18 ✅ CLOSED**  
-المرحلة التالية: **Phase 9.7 — Intelligence Zero-Escape Gate — AUTHORIZED NEXT**.
+الحالة الرسمية: **Phase 9.7 — Intelligence Zero-Escape Gate ✅ CLOSED + EXACT-MAIN / REAL-BROWSER / PAGES / LIVE-EXTERNAL CERTIFIED**  
+آخر مرحلة مغلقة: **Phase 9.7 — Intelligence Zero-Escape Gate ✅ CLOSED**  
+المرحلة التالية: **Phase 10.1 — Document Vault — AUTHORIZED NEXT**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -40,7 +40,30 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 9.4 — Regulatory / Knowledge Base Engine — M8: ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 9.5 — Business Intelligence & Forecasting Center — M13: ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 9.6 — Process Mining & Predictive Operations — M18: ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified.**
-- **Phase 9.7 — Intelligence Zero-Escape Gate: AUTHORIZED NEXT.**
+- **Phase 9.7 — Intelligence Zero-Escape Gate: ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified.**
+- **Phase 10.1 — Document Vault: AUTHORIZED NEXT.**
+
+## Phase 9.7 — دليل الإغلاق
+
+- implementation PR #149: **MERGED**.
+- exact PR head: `84331768024d1aef2eed83444a9c5aff8789e875`.
+- certified merged implementation main: `e8992650afb7bd3bd5c47770d0b2d752cdd0488e`.
+- Phase 9.7 destructive intelligence tests: **16/16 PASS**.
+- Phase 9.3–9.6 closure-aware subsystem regression: **PASS**.
+- functional regression: **218/218 PASS**.
+- exact-main aggregate: **31/31 SUCCESS**؛ failures/queued/in-progress: **0/0/0**.
+- Phase 9.7 Gate `34708680263`: **SUCCESS**.
+- cumulative Real Browser Acceptance `34708680233`: **SUCCESS** على **1280 / 430 / 390 / 360 / 320**.
+- Pages build/deployment `34708679838`: **SUCCESS**.
+- Pages Preview `34708710217`: **SUCCESS**.
+- Live External `34708764814`: **SUCCESS**.
+- Real Cloud closeout: **PASS_READ_ONLY_ZERO_NEW_RESIDUE**، مع الاحتفاظ بسلسلة M2 destructive authenticated write/history/permission evidence المعتمدة من 9.3.
+- **M2 — Corporate Governance & Ownership Engine: CLOSED تحت ZERO_ESCAPE_V1**؛ machine evidence: `docs/M2_ZERO_ESCAPE_CLOSURE.json`.
+- M8 يبقى `ACTIVE` لمرساة Phase 12؛ M13 وM18 يبقيان `ACTIVE` لمرساة Phase 15.
+- Product / UI/UX / Engineering / Certification: **PASS / PASS / PASS / PASS**.
+- unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
+- لم تُضف 9.7 feature authority أو DB table أو write RPC ولم ترفع أي budget.
+- **Phase 10.1 — Document Vault: AUTHORIZED NEXT** بعد دمج formal closure.
 
 ## Phase 9.6 — دليل الإغلاق
 
@@ -69,7 +92,6 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - final Pages `/live/` build: initial JS **571051 / 670000**، total JS **759509 / 760000**، CSS **179984 / 180000**.
 - Product / UI/UX / Engineering / Certification: **PASS / PASS / PASS / PASS**.
 - unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
-- Phase 9.7: **AUTHORIZED NEXT** بعد formal-closure merge + exact-main recertification.
 
 ## Phase 9.5 — دليل الإغلاق المحفوظ
 
@@ -110,7 +132,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 ## Major Product Systems — M1–M18
 
 1. **M1 — Government Procedure Operating System** — `CLOSURE_CANDIDATE`.
-2. **M2 — Corporate Governance & Ownership Engine** — `CLOSURE_CANDIDATE`.
+2. **M2 — Corporate Governance & Ownership Engine** — `CLOSED` تحت `ZERO_ESCAPE_V1`؛ evidence: `docs/M2_ZERO_ESCAPE_CLOSURE.json`.
 3. **M3 — Client Portal** — `PLANNED`.
 4. **M4 — Omnichannel Communications Hub** — `PLANNED`.
 5. **M5 — ENJAZ Field Operations / Runner Mode** — `CLOSURE_CANDIDATE`.
@@ -128,7 +150,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 17. **M17 — Smart Intake Forms & Secure Submission Links** — `ACTIVE`.
 18. **M18 — Process Mining & Predictive Operations** — `ACTIVE`; Phase 9.6 anchor CLOSED، Phase 15 remains open، `closureEvidence=null`.
 
-لا يتم ترقية أي M-system إلى `CLOSED` لمجرد نجاح مرحلة واحدة؛ يحتاج شهادة Zero-Escape الخاصة به بعد اكتمال جميع anchors.
+لا يتم ترقية أي M-system إلى `CLOSED` لمجرد نجاح مرحلة واحدة؛ الاستثناء الوحيد هو عندما تُثبت جميع anchors الخاصة به وشهادة `ZERO_ESCAPE_V1` المستقلة كما حدث الآن لـM2.
 
 ## مصادر الخطة والحوكمة
 
@@ -140,10 +162,12 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - [`docs/PHASE9_4_POSTMERGE_RECERTIFICATION.md`](docs/PHASE9_4_POSTMERGE_RECERTIFICATION.md)
 - [`docs/PHASE9_5_CLOSURE.md`](docs/PHASE9_5_CLOSURE.md)
 - [`docs/PHASE9_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE9_5_POSTMERGE_RECERTIFICATION.md)
-- [`docs/PHASE9_6_KICKOFF.md`](docs/PHASE9_6_KICKOFF.md)
-- [`docs/PHASE9_6_STATE.json`](docs/PHASE9_6_STATE.json)
 - [`docs/PHASE9_6_CLOSURE.md`](docs/PHASE9_6_CLOSURE.md)
 - [`docs/PHASE9_6_POSTMERGE_RECERTIFICATION.md`](docs/PHASE9_6_POSTMERGE_RECERTIFICATION.md)
+- [`docs/PHASE9_7_STATE.json`](docs/PHASE9_7_STATE.json)
+- [`docs/PHASE9_7_CLOSURE.md`](docs/PHASE9_7_CLOSURE.md)
+- [`docs/PHASE9_7_POSTMERGE_RECERTIFICATION.md`](docs/PHASE9_7_POSTMERGE_RECERTIFICATION.md)
+- [`docs/M2_ZERO_ESCAPE_CLOSURE.json`](docs/M2_ZERO_ESCAPE_CLOSURE.json)
 
 ## قوانين الانتقال
 
@@ -155,4 +179,4 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - لا يُسمح لأي intelligence layer باختلاق business/financial/process facts من بيانات ناقصة.
 - forecast/prediction لا يصبح source truth، ولا AI/editorial output يصبح authoritative fact بلا عقد سلطة مستقل.
 - سقف JavaScript startup يبقى **670000 bytes**، والإجمالي **760000 bytes**، وCSS **180000 bytes** بلا waiver أو feature cut.
-- **Phase 9.6 مغلقة؛ Phase 9.7 هي المرحلة التالية المصرح بها فقط بعد exact-main recertification للـformal-closure merge.**
+- **Phase 9.7 مغلقة ومصدقة؛ Phase 10.1 — Document Vault هي المرحلة التالية المصرح بها فقط.**
