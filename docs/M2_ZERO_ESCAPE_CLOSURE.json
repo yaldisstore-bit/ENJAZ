@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "gateProfile": "ZERO_ESCAPE_V1",
+  "systemId": "M2",
+  "status": "CLOSED",
+  "candidateHead": "84331768024d1aef2eed83444a9c5aff8789e875",
+  "mergeCommit": "e8992650afb7bd3bd5c47770d0b2d752cdd0488e",
+  "unresolvedCriticalCount": 0,
+  "unresolvedHighCount": 0,
+  "unresolvedFunctionalBlockerCount": 0,
+  "preMergeDeterministic": "PASS",
+  "realCloudAuthenticated": "PASS",
+  "freshWorkspaceBootstrap": "PASS",
+  "durableWriteRoundTrip": "PASS",
+  "permissionMatrix": "PASS",
+  "realBrowserMobile": "PASS",
+  "failureConflictRecovery": "PASS",
+  "auditReconciliation": "PASS",
+  "deployedLiveCriticalPath": "PASS",
+  "postMergeRecertification": "PASS",
+  "workflowEvidence": [
+    "PR #149 exact-head Phase 9.7 gate run 34708314655 SUCCESS",
+    "PR #149 exact-head Real Browser Acceptance run 34708340157 SUCCESS",
+    "exact-main Phase 9.7 gate run 34708680263 SUCCESS",
+    "exact-main Real Browser Acceptance run 34708680233 SUCCESS",
+    "exact-main Pages build/deployment run 34708679838 SUCCESS",
+    "exact-main Pages Preview run 34708710217 SUCCESS",
+    "exact-main Live External run 34708764814 SUCCESS",
+    "exact-main aggregate 31/31 SUCCESS; failure/queued/in-progress 0/0/0"
+  ],
+  "liveEvidence": [
+    "docs/PHASE9_3_REAL_CLOUD_EVIDENCE.md",
+    "docs/PHASE9_3_POSTMERGE_RECERTIFICATION.md",
+    "docs/PHASE9_7_REAL_CLOUD_EVIDENCE.md",
+    "docs/PHASE9_7_POSTMERGE_RECERTIFICATION.md",
+    "https://yaldisstore-bit.github.io/ENJAZ/live/"
+  ],
+  "notApplicableScenarios": [],
+  "escapedDefects": []
+}
