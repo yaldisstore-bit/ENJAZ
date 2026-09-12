@@ -82,6 +82,15 @@ test('9.5 foundation 13 — unsafe count math and missing disclosure are rejecte
  assert.throws(()=>buildTrailingRunRateForecast({forecastId:'x',domain:'operations',labelAr:'اختبار',observedValue:{unit:'count',value:4},observedWindowStart:'2026-08-01T00:00:00.000Z',observedWindowEnd:P,horizonDays:30,sampleCount:4,assumptions:[],provenance:[provenance()]}),BIContractError);
 });
 
-test('9.5 foundation 14 — M13 is active but globally open and Phase 9.6 stays locked',()=>{
- assert.equal(state.status,'IN_PROGRESS');assert.equal(state.majorSystem.id,'M13');assert.equal(state.majorSystem.status,'ACTIVE');assert.deepEqual(state.majorSystem.anchors,['9','15']);assert.equal(state.majorSystem.globalClosureAllowed,false);assert.equal(state.phase9_6Allowed,false);assert.equal(state.exitGatePassed,false);assert.equal(state.successorStatus,'LOCKED');
+test('9.5 foundation 14 — M13 stays globally open while Phase 9.5 lifecycle is governed',()=>{
+ assert.equal(state.majorSystem.id,'M13');assert.equal(state.majorSystem.status,'ACTIVE');assert.deepEqual(state.majorSystem.anchors,['9','15']);assert.equal(state.majorSystem.globalClosureAllowed,false);
+ if(state.status==='IN_PROGRESS'){
+  assert.equal(state.phase9_6Allowed,false);assert.equal(state.exitGatePassed,false);assert.equal(state.successorStatus,'LOCKED');assert.equal(state.nextPhase,null);
+ }else{
+  assert.equal(state.status,'CLOSED');assert.equal(state.phase9_6Allowed,true);assert.equal(state.exitGatePassed,true);assert.equal(state.successorStatus,'AUTHORIZED');assert.equal(state.nextPhase,'9.6');
+  assert.equal(state.certifiedMainCommit,'8d9f1bd4403656f7b8d061b843178708b3899044');
+  assert.equal(state.runtime.status,'PUBLISHED_LIVE_PASS');assert.equal(state.runtime.publishedLiveVerification,'PASS');
+  assert.equal(state.postMergeRecertification.workflowCount,25);assert.equal(state.postMergeRecertification.successCount,25);assert.equal(state.postMergeRecertification.failureCount,0);
+  assert.equal(state.publishedLiveCertification.liveExternalRunId,34686380088);assert.equal(state.publishedLiveCertification.directLoadReloadTestsPassed,7);
+ }
 });
