@@ -33,7 +33,7 @@ jobs:
         run: |
           node scripts/phase9-5-business-intelligence-audit.mjs
           node --experimental-strip-types --test tests/phase9-5-business-intelligence-foundation.test.ts
-          node --experimental-strip-types --test tests/phase9-5-business-intelligence-service.test.ts
+          node --experimental-strip-types --test tests/phase9-5-business-intelligence-service.test.ts tests/phase9-5-business-intelligence-month-boundary.test.ts
           node --experimental-strip-types --test tests/phase9-5-business-intelligence-ui.test.ts
       - name: Build isolated Phase 9.5 browser harness
         run: npx vite build --config vite.phase9-5-browser.config.ts
@@ -50,7 +50,7 @@ jobs:
           done
           cat /tmp/enjaz-phase9-5-browser.log
           exit 1
-      - name: Phase 9.5 Business Intelligence / 1280 + 430 + 390 + 360 + 320
+      - name: Phase 9.5 Business Intelligence / trends + forecast / 1280 + 430 + 390 + 360 + 320
         env:
           R2_PHASE95_BASE_URL: http://127.0.0.1:4181/
         run: npx playwright test tests-external/phase9-5-business-intelligence-live.spec.cjs --reporter=line --workers=1
