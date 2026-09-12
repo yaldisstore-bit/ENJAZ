@@ -5,6 +5,8 @@ import type { BITrendPoint,BIValue,DerivedKpi,DirectionalForecast,ObservedTrend 
 import { loadBusinessIntelligence,type BusinessIntelligenceSnapshot } from '../../features/intelligence/businessIntelligenceService.ts';
 import { formatFinanceMoney } from '../../features/finance/financeModel.ts';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
+import { IntelligenceViewTabs,useIntelligenceView } from './IntelligenceViewTabs.tsx';
+import { ProcessIntelligenceCenter } from './ProcessIntelligenceCenter.tsx';
 
 type Status='loading'|'ready'|'error';
 function value(v:BIValue){if(v.unit==='cents')return formatFinanceMoney(v.valueCents);if(v.unit==='basis_points')return `${(v.valueBps/100).toLocaleString('ar-IQ',{maximumFractionDigits:2})}%`;if(v.unit==='minutes')return `${v.valueMinutes.toLocaleString('ar-IQ')} دقيقة`;return v.value.toLocaleString('ar-IQ')}
@@ -21,7 +23,7 @@ function Empty({title,body}:{title:string;body:string}){return <section classNam
 
 export function BusinessIntelligencePanel({snapshot}:{readonly snapshot:BusinessIntelligenceSnapshot}){
  const groups=useMemo(()=>({operations:snapshot.kpis.filter(x=>x.domain==='operations'),finance:snapshot.kpis.filter(x=>x.domain==='finance'),capacity:snapshot.kpis.filter(x=>x.domain==='capacity')}),[snapshot]);
- return <section className="r2-screen" dir="rtl" data-phase9-5-runtime="business-intelligence" data-bi-authority="read-only-derived" data-bi-provenance="required"><Hero/>
+ return <section className="r2-screen" dir="rtl" data-phase9-5-runtime="business-intelligence" data-bi-authority="read-only-derived" data-bi-provenance="required"><IntelligenceViewTabs/><Hero/>
   <div className="r2-launcher-groups" data-bi-kpi-groups="true">
    <section className="r2-launcher-group"><h2>التشغيل</h2><div className="r2-launcher-list">{groups.operations.map(x=><KpiRow key={x.kpiId} item={x}/>)}</div></section>
    <section className="r2-launcher-group"><h2>المالية</h2><div className="r2-launcher-list">{groups.finance.map(x=><KpiRow key={x.kpiId} item={x}/>)}</div></section>
@@ -33,9 +35,14 @@ export function BusinessIntelligencePanel({snapshot}:{readonly snapshot:Business
  </section>
 }
 
-export function BusinessIntelligenceCenter(){
+function BusinessIntelligenceRuntime(){
  const userId=useCurrentUserId(),dataFactory=useDataLayerFactory(),fieldOperations=useFieldOperationsCommandGateway(),[status,setStatus]=useState<Status>('loading'),[snapshot,setSnapshot]=useState<BusinessIntelligenceSnapshot|null>(null),[error,setError]=useState(''),[reload,setReload]=useState(0);
  useEffect(()=>{let live=true;setStatus('loading');setError('');void (async()=>{try{if(!userId)throw new Error('لا توجد جلسة مستخدم صالحة.');const x=await loadBusinessIntelligence({dataFactory,fieldOperations},userId);if(live){setSnapshot(x);setStatus('ready')}}catch(cause){if(live){setSnapshot(null);setError(cause instanceof Error?cause.message:'تعذر تحميل ذكاء الأعمال.');setStatus('error')}}})();return()=>{live=false}},[dataFactory,fieldOperations,reload,userId]);
  if(status==='ready'&&snapshot)return <BusinessIntelligencePanel snapshot={snapshot}/>;
- return <section className="r2-screen" dir="rtl" data-phase9-5-runtime="business-intelligence" data-bi-authority="read-only-derived" data-bi-provenance="required"><Hero/>{status==='loading'?<Empty title="جارٍ بناء الصورة التحليلية…" body="يتم جمع المصادر المعتمدة لمساحة العمل والتحقق من نسبها قبل عرض أي رقم."/>:<section className="r2-destination-placeholder" role="alert"><p className="r2-eyebrow">Fail closed</p><h2>تعذر بناء الصورة التحليلية</h2><p>{error}</p><div className="r2-placeholder-actions"><button type="button" className="r2-action r2-action--primary" onClick={()=>setReload(x=>x+1)}>إعادة المحاولة</button></div></section>}</section>
+ return <section className="r2-screen" dir="rtl" data-phase9-5-runtime="business-intelligence" data-bi-authority="read-only-derived" data-bi-provenance="required"><IntelligenceViewTabs/><Hero/>{status==='loading'?<Empty title="جارٍ بناء الصورة التحليلية…" body="يتم جمع المصادر المعتمدة لمساحة العمل والتحقق من نسبها قبل عرض أي رقم."/>:<section className="r2-destination-placeholder" role="alert"><p className="r2-eyebrow">Fail closed</p><h2>تعذر بناء الصورة التحليلية</h2><p>{error}</p><div className="r2-placeholder-actions"><button type="button" className="r2-action r2-action--primary" onClick={()=>setReload(x=>x+1)}>إعادة المحاولة</button></div></section>}</section>
+}
+
+export function BusinessIntelligenceCenter(){
+ const view=useIntelligenceView();
+ return view==='process'?<ProcessIntelligenceCenter/>:<BusinessIntelligenceRuntime/>;
 }

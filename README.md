@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 9.5 — Business Intelligence & Forecasting Center — M13 ✅ CLOSED + POST-MERGE / PUBLISHED-LIVE RECERTIFIED**  
-آخر مرحلة مغلقة: **Phase 9.5 — Business Intelligence & Forecasting Center — M13 ✅ CLOSED**  
-المرحلة التالية المصرح بها: **Phase 9.6 — Process Mining & Predictive Operations — M18 — AUTHORIZED NEXT**.
+الحالة الرسمية: **Phase 9.6 — Process Mining & Predictive Operations — M18 🟡 IN PROGRESS — FOUNDATION**  
+آخر مرحلة مغلقة: **Phase 9.5 — Business Intelligence & Forecasting Center — M13 ✅ CLOSED + POST-MERGE / PUBLISHED-LIVE RECERTIFIED**  
+المرحلة التالية بعد 9.6: **Phase 9.7 — Intelligence Zero-Escape Gate — LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -21,6 +21,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - Live runtime: `https://yaldisstore-bit.github.io/ENJAZ/live/`
 - الجذر `/ENJAZ/` سطح QA/Preview تاريخي؛ العقد الإنتاجي الحي يُتحقق منه عبر `/live/`.
 - مركز ذكاء الأعمال canonical: `/app/insights`، والمسار المنشور المباشر: `/ENJAZ/live/app/insights`.
+- Phase 9.6 لم تُنشئ route إنتاجي جديدًا بعد؛ foundation authority/service contracts تسبق أي UI/runtime surface.
 
 ## الحالة الكانونية
 
@@ -37,15 +38,31 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - Phase 9.3 — Corporate Governance & Ownership Engine — M2: ✅ CLOSED + post-merge recertified.
 - **Phase 9.4 — Regulatory / Knowledge Base Engine — M8: ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 9.5 — Business Intelligence & Forecasting Center — M13: ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified.**
-- **Phase 9.6 — Process Mining & Predictive Operations — M18: AUTHORIZED NEXT.**
+- **Phase 9.6 — Process Mining & Predictive Operations — M18: 🟡 IN PROGRESS — FOUNDATION.**
 - **Phase 9.7+ تبقى LOCKED** حتى إغلاق 9.6 وفق Zero-Escape.
 
-## Phase 9.5 — دليل الإغلاق
+## Phase 9.6 — الحالة الحالية
+
+- canonical base / Phase 9.5 formal-closure main: `295ad9dd308e391e7d92b1e27de74c859b0a20b1`.
+- branch: `phase9-6-process-mining-predictive-operations`.
+- M18 registry status: **ACTIVE**؛ anchors الرسمية: `9, 15`؛ global closure: **FORBIDDEN** في 9.6.
+- foundation authority: **READ_ONLY_DERIVED FROM SOURCE-OWNED HISTORY**.
+- authoritative process sources المثبتة حاليًا: `workflow_transition_events`, `transaction_activity`, `field_assignments`, `field_visits`, `field_visit_evidence`, `field_sync_receipts`.
+- shadow process-event store / browser-owned process persistence / fabricated timestamps / fabricated strict order / cross-workspace composition: **FORBIDDEN**.
+- equal-time events بدون ترتيب سلطوي صريح تبقى **EXPLICIT_PARTIAL_ORDER**؛ لا تتحول إلى sequence مؤكدة بسبب sorting بصري.
+- rework لا يُستنتج إلا من نشاط مرصود متكرر داخل نفس case.
+- bottleneck يحتاج governed duration threshold أو cohort evidence؛ raw wait وحده لا يصبح bottleneck تلقائيًا.
+- prediction authority: **DIRECTIONAL_NON_AUTHORITATIVE**؛ method/confidence/evidence disclosure إلزامي.
+- foundation next-step method: `empirical_next_activity_frequency`، minimum directional sample = **4 cases**، probability = integer basis points، والتعادل = **NO_SINGLE_WINNER**.
+- Phase 9.7: **LOCKED**.
+- startup JavaScript ceiling: **670000 bytes** بلا waiver أو feature cut.
+
+## Phase 9.5 — دليل الإغلاق المحفوظ
 
 - implementation PR #139: **MERGED** → `ee62353621701c788b3c96ae8172a59b6f95022d`.
 - canonical deep-link / Pages fallback hotfix PR #140: **MERGED** → `ce1a4566f48ebcacfde8a8c5b7dd680b6b23a672`.
-- Live External certification-semantics PR #141: **MERGED** → final certified main `8d9f1bd4403656f7b8d061b843178708b3899044`.
-- exact-main push workflows: **25/25 SUCCESS**؛ failures/queued/in-progress: **0/0/0**.
+- Live External certification-semantics PR #141: **MERGED** → runtime-certified main `8d9f1bd4403656f7b8d061b843178708b3899044`.
+- runtime-certified exact-main push workflows: **25/25 SUCCESS**؛ failures/queued/in-progress: **0/0/0**.
 - exact-main Phase 9.5 gate `34686304068`: **SUCCESS**.
 - Phase 9.5 Real Browser `34686304110`: **SUCCESS**.
 - cumulative Real Browser `34686304122`: **SUCCESS**.
@@ -57,6 +74,10 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - Product / UI/UX / Engineering / Certification: **PASS / PASS / PASS / PASS**.
 - unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
 - startup JavaScript hard ceiling بقي **670000 bytes** دون waiver أو feature cut.
+- formal closure PR #142 merged to `295ad9dd308e391e7d92b1e27de74c859b0a20b1`.
+- formal-closure exact-main: **25/25 SUCCESS**؛ failures/queued/in-progress: **0/0/0**.
+- formal-closure Phase 9.5 gate `34687292217`: **SUCCESS**؛ Real Browser `34687292129`: **SUCCESS**؛ cumulative Real Browser `34687292148`: **SUCCESS**.
+- formal-closure Pages Preview `34687328191`: **SUCCESS**؛ Live External `34687368229`: **SUCCESS**.
 
 ## قانون ذكاء الأعمال — Phase 9.5
 
@@ -101,7 +122,7 @@ Phase 7.3 Financial Intelligence يبقى finance source/reuse authority معت�
 15. **M15 — Multi-Branch, Departments & Team Operating Model** — `ACTIVE`.
 16. **M16 — Engagements, Contracts & Retainers** — `PLANNED`.
 17. **M17 — Smart Intake Forms & Secure Submission Links** — `ACTIVE`.
-18. **M18 — Process Mining & Predictive Operations** — `PLANNED`; Phase 9.6 is authorized but implementation has not started.
+18. **M18 — Process Mining & Predictive Operations** — `ACTIVE`; Phase 9.6 IN PROGRESS، Phase 15 remains open، `closureEvidence=null`.
 
 لا يتم ترقية أي M-system إلى `CLOSED` لمجرد نجاح فرع مرحلة؛ يحتاج شهادة Zero-Escape الخاصة به.
 
@@ -117,6 +138,8 @@ Phase 7.3 Financial Intelligence يبقى finance source/reuse authority معت�
 - [`docs/PHASE9_5_STATE.json`](docs/PHASE9_5_STATE.json)
 - [`docs/PHASE9_5_CLOSURE.md`](docs/PHASE9_5_CLOSURE.md)
 - [`docs/PHASE9_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE9_5_POSTMERGE_RECERTIFICATION.md)
+- [`docs/PHASE9_6_KICKOFF.md`](docs/PHASE9_6_KICKOFF.md)
+- [`docs/PHASE9_6_STATE.json`](docs/PHASE9_6_STATE.json)
 
 ## قوانين الانتقال
 
@@ -125,7 +148,7 @@ Phase 7.3 Financial Intelligence يبقى finance source/reuse authority معت�
 - كل bug حقيقي يحصل على regression guard دائم.
 - Gate Escape يعيد فتح مسار التصديق المتأثر بدل تجاهله.
 - Supabase/Postgres/RLS يبقى مصدر الحقيقة للسلطة الدائمة.
-- لا يُسمح لأي intelligence layer باختلاق business/financial facts من بيانات ناقصة.
-- forecast لا يصبح source truth، ولا AI/editorial output يصبح authoritative fact بلا عقد سلطة مستقل.
-- سقف JavaScript الإنتاجي يبقى **670000 bytes** ما لم يُغيّر بعقد حوكمة مستقل؛ Phase 9.5 لم ترفعه.
-- **Phase 9.6 هي الخليفة الوحيدة المصرح بها الآن؛ Phase 9.7+ مقفلة حتى إغلاق 9.6.**
+- لا يُسمح لأي intelligence layer باختلاق business/financial/process facts من بيانات ناقصة.
+- forecast/prediction لا يصبح source truth، ولا AI/editorial output يصبح authoritative fact بلا عقد سلطة مستقل.
+- سقف JavaScript الإنتاجي يبقى **670000 bytes** ما لم يُغيّر بعقد حوكمة مستقل.
+- **Phase 9.6 هي المرحلة المفتوحة الآن؛ Phase 9.7+ مقفلة حتى إغلاق 9.6.**

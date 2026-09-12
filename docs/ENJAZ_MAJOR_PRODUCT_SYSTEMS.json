@@ -30,7 +30,7 @@
     {"id":"M15","name":"Multi-Branch, Departments & Team Operating Model","anchors":["8","15"],"kind":"organization-operations","status":"ACTIVE","closureEvidence":null},
     {"id":"M16","name":"Engagements, Contracts & Retainers","anchors":["7","10","11"],"kind":"commercial-contracts","status":"PLANNED","closureEvidence":null},
     {"id":"M17","name":"Smart Intake Forms & Secure Submission Links","anchors":["8","11"],"kind":"external-intake","status":"ACTIVE","closureEvidence":null},
-    {"id":"M18","name":"Process Mining & Predictive Operations","anchors":["9","15"],"kind":"process-intelligence","status":"PLANNED","closureEvidence":null}
+    {"id":"M18","name":"Process Mining & Predictive Operations","anchors":["9","15"],"kind":"process-intelligence","status":"ACTIVE","closureEvidence":null}
   ],
   "releaseRequirements": [
     "authoritative-schema-data-contract",
