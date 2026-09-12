@@ -61,14 +61,8 @@
     "generativeModelAsEvidenceAllowed": false
   },
   "authoritativeSources": {
-    "workflow": {
-      "events": "workflow_transition_events",
-      "mode": "APPEND_ONLY_SOURCE_OWNED"
-    },
-    "transactionLifecycle": {
-      "events": "transaction_activity",
-      "mode": "APPEND_ONLY_SOURCE_OWNED"
-    },
+    "workflow": {"events": "workflow_transition_events", "mode": "APPEND_ONLY_SOURCE_OWNED"},
+    "transactionLifecycle": {"events": "transaction_activity", "mode": "APPEND_ONLY_SOURCE_OWNED"},
     "fieldOperations": {
       "pathTables": ["field_assignments", "field_visits", "field_visit_evidence"],
       "integrityOnlyTables": ["field_sync_receipts"],
@@ -212,17 +206,25 @@
     "route": "/app/insights?view=process",
     "viewQuery": "view=process",
     "tabs": "src/ui-r2/intelligence/IntelligenceViewTabs.tsx",
-    "historyContext": "src/features/process-intelligence/ProcessMiningHistoryContext.tsx",
+    "runtimeContext": "src/features/process-intelligence/ProcessMiningHistoryContext.tsx",
+    "runtimeProjection": "src/features/process-intelligence/processMiningRuntime.ts",
     "center": "src/ui-r2/intelligence/ProcessIntelligenceCenter.tsx",
     "hostCenter": "src/ui-r2/intelligence/BusinessIntelligenceCenter.tsx",
     "uiTests": "tests/phase9-6-process-mining-ui.test.ts",
     "uiDestructionTestCount": 12,
+    "parityTests": "tests/phase9-6-process-mining-runtime-parity.test.ts",
+    "parityTestCount": 3,
     "sameSupabaseClient": true,
-    "lazyHistoryGateway": true,
+    "sameDataFactory": true,
+    "lazyRuntimeProjection": true,
+    "referenceContractShippedToBrowser": false,
+    "referenceServiceShippedToBrowser": false,
+    "referenceSourceGatewayShippedToBrowser": false,
     "newDestinationAllowed": false,
     "newCssAdded": false,
     "gateRunId": null,
     "gateConclusion": null,
+    "parityConclusion": null,
     "realBrowser": "PENDING",
     "publishedLive": "PENDING"
   },
