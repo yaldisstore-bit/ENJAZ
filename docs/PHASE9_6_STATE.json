@@ -140,7 +140,7 @@
     "governedBudget": "PASS"
   },
   "sourceComposition": {
-    "status": "IN_PROGRESS_PENDING_GATE",
+    "status": "LOCAL_GATE_PASS",
     "sourceGateway": "src/features/process-intelligence/processMiningSources.ts",
     "service": "src/features/process-intelligence/processMiningService.ts",
     "tests": "tests/phase9-6-process-mining-service.test.ts",
@@ -151,12 +151,16 @@
     "paginationBehavior": "BOUNDED_FAIL_CLOSED",
     "equalTimestampOrdering": "EXPLICIT_PARTIAL_ORDER",
     "syncReceiptPolicy": "ACTOR_SCOPED_INTEGRITY_ONLY_NOT_PATH_INPUT",
-    "gateRunId": null,
-    "gateConclusion": null,
-    "typecheck": "PENDING",
-    "productionBuild": "PENDING",
-    "pagesLiveBuild": "PENDING",
-    "governedBudget": "PENDING"
+    "gateRunId": 34689363444,
+    "gateConclusion": "SUCCESS",
+    "sourceDestructionTests": "11/11_PASS",
+    "functionalRegression": "PASS",
+    "databaseAndRoadmapIntegrity": "PASS",
+    "majorSystemsZeroEscape": "PASS",
+    "typecheck": "PASS",
+    "productionBuild": "PASS",
+    "pagesLiveBuild": "PASS",
+    "governedBudget": "PASS"
   },
   "realCloudRequired": true,
   "realBrowserRequired": true,
