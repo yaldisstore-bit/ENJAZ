@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   phase9-5-business-intelligence:
-    name: Provenance / source composition / canonical runtime / additive forecast / M13 lifecycle
+    name: Provenance / source composition / observed trends / canonical runtime / additive forecast / M13 lifecycle
     runs-on: ubuntu-latest
     timeout-minutes: 55
     steps:
@@ -41,8 +41,8 @@ jobs:
           node scripts/phase9-5-business-intelligence-audit.mjs
       - name: BI foundation destruction tests
         run: node --experimental-strip-types --test tests/phase9-5-business-intelligence-foundation.test.ts
-      - name: BI source composition destruction tests
-        run: node --experimental-strip-types --test tests/phase9-5-business-intelligence-service.test.ts
+      - name: BI source composition and observed-trend destruction tests
+        run: node --experimental-strip-types --test tests/phase9-5-business-intelligence-service.test.ts tests/phase9-5-business-intelligence-month-boundary.test.ts
       - name: BI canonical runtime and IA contract tests
         run: node --experimental-strip-types --test tests/phase9-5-business-intelligence-ui.test.ts
       - name: Full functional regression
@@ -61,5 +61,5 @@ jobs:
         run: >-
           node -e "const j=JSON.parse(require('fs').readFileSync('docs/PHASE9_5_STATE.json','utf8'));
           const a=j.authority||{},m=j.majorSystem||{},f=j.foundation||{},s=j.sourceComposition||{},r=j.runtime||{},t=j.projectQualityConstitution?.tracks||{};
-          const ok=j.phase==='9.5'&&j.status==='IN_PROGRESS'&&j.baseCommit==='799873b5c7778c7665c934931af9dd3338bcef47'&&j.javascriptBudgetBytes===670000&&j.budgetIncreaseAllowed===false&&m.id==='M13'&&m.status==='ACTIVE'&&m.globalClosureAllowed===false&&Array.isArray(m.anchors)&&m.anchors.includes('9')&&m.anchors.includes('15')&&a.intelligenceAuthority==='READ_ONLY_DERIVED'&&a.sourceProvenance==='REQUIRED'&&a.forecastAuthority==='DIRECTIONAL_NON_AUTHORITATIVE'&&a.exactMoneyAuthority==='BIGINT_CENTS'&&a.fabricatedHistoryAllowed===false&&a.crossWorkspaceAggregationAllowed===false&&j.exitGatePassed===false&&j.phase9_6Allowed===false&&j.successorStatus==='LOCKED'&&f.status==='LOCAL_GATE_PASS'&&s.status==='LOCAL_GATE_PASS'&&['IN_PROGRESS','LOCAL_GATE_PASS'].includes(r.status)&&t.product==='IN_PROGRESS'&&t.uiUx==='IN_PROGRESS'&&t.engineering==='IN_PROGRESS'&&t.certification==='NOT_STARTED';
+          const ok=j.phase==='9.5'&&j.status==='IN_PROGRESS'&&j.baseCommit==='799873b5c7778c7665c934931af9dd3338bcef47'&&j.javascriptBudgetBytes===670000&&j.budgetIncreaseAllowed===false&&m.id==='M13'&&m.status==='ACTIVE'&&m.globalClosureAllowed===false&&Array.isArray(m.anchors)&&m.anchors.includes('9')&&m.anchors.includes('15')&&a.intelligenceAuthority==='READ_ONLY_DERIVED'&&a.sourceProvenance==='REQUIRED'&&a.forecastAuthority==='DIRECTIONAL_NON_AUTHORITATIVE'&&a.exactMoneyAuthority==='BIGINT_CENTS'&&a.fabricatedHistoryAllowed===false&&a.crossWorkspaceAggregationAllowed===false&&j.exitGatePassed===false&&j.phase9_6Allowed===false&&j.successorStatus==='LOCKED'&&f.status==='LOCAL_GATE_PASS'&&s.status==='LOCAL_GATE_PASS'&&['IN_PROGRESS','LOCAL_GATE_PASS'].includes(r.status)&&t.product==='IN_PROGRESS'&&t.uiUx==='IN_PROGRESS'&&t.engineering==='IN_PROGRESS'&&['NOT_STARTED','IN_PROGRESS'].includes(t.certification);
           if(!ok)process.exit(1)"
