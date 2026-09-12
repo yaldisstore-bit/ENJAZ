@@ -24,10 +24,10 @@
     "authority": "ENJAZ_NON_NEGOTIABLE_RULES.md",
     "closureRequiresAllFourPass": true,
     "tracks": {
-      "product": "IMPLEMENTED_PENDING_CERTIFICATION",
-      "uiUx": "IMPLEMENTED_PENDING_REAL_BROWSER",
+      "product": "IMPLEMENTED_PENDING_LIVE_CERTIFICATION",
+      "uiUx": "REAL_BROWSER_PASS",
       "engineering": "STATIC_GATE_PASS",
-      "certification": "IN_PROGRESS"
+      "certification": "PENDING_PUBLISHED_LIVE"
     },
     "featureCutForBundleBudgetAllowed": false,
     "legacyDnaAllowed": false,
@@ -141,7 +141,7 @@
     "realCloudDefectFixed": "GENERATED_SEARCH_DOCUMENT_FALSE_IMMUTABILITY_REJECTION"
   },
   "runtime": {
-    "status": "REAL_CLOUD_BEHAVIORAL_PASS_PENDING_REAL_BROWSER",
+    "status": "REAL_BROWSER_PASS_PENDING_PUBLISHED_LIVE",
     "migration": "database/migrations/phase_9_4_regulatory_runtime_read_api.sql",
     "appliedMigrationVersion": "20260911212752",
     "behavioralProbeMigration": "database/migrations/phase_9_4_runtime_authenticated_behavioral_probe.sql",
@@ -151,8 +151,8 @@
     "ui": "src/ui-r2/regulatory/RegulatoryKnowledgeCenter.tsx",
     "lazyPortal": "src/ui-r2/regulatory/LiveRegulatoryKnowledgePortal.tsx",
     "tests": "tests/phase9-4-regulatory-runtime.test.ts",
-    "staticGateRunId": 34674347211,
-    "staticGateHead": "7bb9c1a45c089193c5eb858e0f4dcfcc94a1a8e9",
+    "staticGateRunId": 34674602929,
+    "staticGateHead": "72fab4cf157dd5962a15b7e1d8413a60d569f298",
     "destructionTestsPassed": 7,
     "functionalRegressionTestsPassed": 217,
     "databaseAudit": "PASS",
@@ -197,7 +197,10 @@
       "unauthorized_authenticated_rejection",
       "anon_execute_denied"
     ],
-    "realBrowserVerification": "PENDING",
+    "realBrowserVerification": "PASS",
+    "realBrowserRunId": 34674602914,
+    "realBrowserHead": "72fab4cf157dd5962a15b7e1d8413a60d569f298",
+    "realBrowserViewports": [1280, 430, 390, 360, 320],
     "publishedLiveVerification": "PENDING"
   },
   "realCloudRequired": true,
