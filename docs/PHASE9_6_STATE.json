@@ -199,7 +199,7 @@
     }
   },
   "runtime": {
-    "status": "IN_PROGRESS_PENDING_GATE",
+    "status": "LOCAL_GATE_PASS",
     "canonicalDestination": "insights",
     "defaultView": "business",
     "processView": "process",
@@ -222,9 +222,40 @@
     "referenceSourceGatewayShippedToBrowser": false,
     "newDestinationAllowed": false,
     "newCssAdded": false,
-    "gateRunId": null,
-    "gateConclusion": null,
-    "parityConclusion": null,
+    "gateRunId": 34694609152,
+    "gateConclusion": "SUCCESS",
+    "parityConclusion": "3/3_PASS",
+    "localGateEvidence": {
+      "foundation": "20/20_PASS",
+      "sourceService": "12/12_PASS",
+      "runtimeParity": "3/3_PASS",
+      "uiDestruction": "12/12_PASS",
+      "functionalRegression": "218/218_PASS",
+      "databaseAndRoadmapIntegrity": "PASS",
+      "majorSystemsZeroEscape": "PASS",
+      "typecheck": "PASS",
+      "rootBuild": {
+        "initialJsBytes": 570837,
+        "initialJsLimitBytes": 670000,
+        "totalJsBytes": 759915,
+        "totalJsLimitBytes": 760000,
+        "lazyJsBytes": 189078,
+        "largestLazyBytes": 57785,
+        "largestLazyLimitBytes": 140000,
+        "cssBytes": 179984
+      },
+      "pagesBuild": {
+        "base": "/ENJAZ/live/",
+        "initialJsBytes": 570859,
+        "initialJsLimitBytes": 670000,
+        "totalJsBytes": 759937,
+        "totalJsLimitBytes": 760000,
+        "lazyJsBytes": 189078,
+        "largestLazyBytes": 57785,
+        "largestLazyLimitBytes": 140000,
+        "cssBytes": 179984
+      }
+    },
     "realBrowser": "PENDING",
     "publishedLive": "PENDING"
   },
