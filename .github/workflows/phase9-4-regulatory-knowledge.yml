@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   phase9-4-regulatory-knowledge:
-    name: Provenance / persistence / lineage / derived-AI separation / successor lock
+    name: Provenance / persistence / lineage / derived-AI separation / lifecycle
     runs-on: ubuntu-latest
     timeout-minutes: 55
     steps:
@@ -57,9 +57,11 @@ jobs:
         run: npm run build -- --base=/ && npm run audit:dist:budget
       - name: Real Pages /live build and governed budgets
         run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
-      - name: Assert lifecycle and successor lock
+      - name: Assert lifecycle and successor state
         run: >-
           node -e "const j=JSON.parse(require('fs').readFileSync('docs/PHASE9_4_STATE.json','utf8'));
-          const a=j.authority||{},m=j.majorSystem||{},f=j.foundation||{},p=j.persistence||{};
-          const ok=j.status==='IN_PROGRESS'&&j.javascriptBudgetBytes===670000&&j.budgetIncreaseAllowed===false&&j.exitGatePassed===false&&j.phase9_5Allowed===false&&j.successorStatus==='LOCKED'&&m.id==='M8'&&m.status==='ACTIVE'&&m.globalClosureAllowed===false&&a.officialSourceProvenance==='REQUIRED'&&a.aiOutputAuthority==='NEVER_AUTHORITATIVE'&&a.editorialInterpretationAuthority==='NEVER_AUTHORITATIVE'&&a.directBrowserSensitiveDmlAllowed===false&&a.destructiveHistoryOverwriteAllowed===false&&f.status==='LOCAL_GATE_PASS'&&['IMPLEMENTED_PENDING_STATIC_GATE','STATIC_GATE_PASS','REAL_CLOUD_CERTIFIED'].includes(p.status)&&p.directBrowserTableMutation===false;
-          if(!ok)process.exit(1)"
+          const a=j.authority||{},m=j.majorSystem||{},f=j.foundation||{},p=j.persistence||{},t=j.projectQualityConstitution?.tracks||{};
+          const common=j.javascriptBudgetBytes===670000&&j.budgetIncreaseAllowed===false&&m.id==='M8'&&m.status==='ACTIVE'&&m.globalClosureAllowed===false&&a.officialSourceProvenance==='REQUIRED'&&a.aiOutputAuthority==='NEVER_AUTHORITATIVE'&&a.editorialInterpretationAuthority==='NEVER_AUTHORITATIVE'&&a.directBrowserSensitiveDmlAllowed===false&&a.destructiveHistoryOverwriteAllowed===false&&f.status==='LOCAL_GATE_PASS'&&['IMPLEMENTED_PENDING_STATIC_GATE','STATIC_GATE_PASS','REAL_CLOUD_CERTIFIED'].includes(p.status)&&p.directBrowserTableMutation===false;
+          const open=j.status==='IN_PROGRESS'&&j.exitGatePassed===false&&j.phase9_5Allowed===false&&j.successorStatus==='LOCKED';
+          const closed=j.status==='CLOSED'&&j.exitGatePassed===true&&j.phase9_5Allowed===true&&j.nextPhase==='9.5'&&j.successorStatus==='AUTHORIZED'&&t.product==='PASS'&&t.uiUx==='PASS'&&t.engineering==='PASS'&&t.certification==='PASS'&&j.runtime?.publishedLiveVerification==='PASS';
+          if(!(common&&(open||closed)))process.exit(1)"
