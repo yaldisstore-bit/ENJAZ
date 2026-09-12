@@ -47,8 +47,9 @@ function prov(workspaceId:string,sourceDomain:BIProvenance['sourceDomain'],sourc
 function isoMinusDays(iso:string,days:number){return new Date(Date.parse(iso)-days*DAY).toISOString()}
 function monthKey(ms:number){const d=new Date(ms);return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}`}
 function periods(asOf:Date,count=TREND_MONTHS):readonly CalendarPeriod[]{
- const now=asOf.getTime(),y=asOf.getUTCFullYear(),m=asOf.getUTCMonth(),currentStart=Date.UTC(y,m,1),firstOffset=now>currentStart?-(count-1):-count;
- return Object.freeze(Array.from({length:count},(_,i)=>{const offset=firstOffset+i,startMs=Date.UTC(y,m+offset,1),calendarEnd=Date.UTC(y,m+offset+1,1),current=offset===0,endMs=current?now:calendarEnd;return Object.freeze({key:monthKey(startMs),start:new Date(startMs).toISOString(),end:new Date(endMs).toISOString(),startMs,endMs,current})}));
+ const now=asOf.getTime(),y=asOf.getUTCFullYear(),m=asOf.getUTCMonth();
+ const items=Array.from({length:count},(_,i)=>{const offset=-(count-1)+i,startMs=Date.UTC(y,m+offset,1),calendarEnd=Date.UTC(y,m+offset+1,1),current=offset===0,endMs=current?now:calendarEnd;return Object.freeze({key:monthKey(startMs),start:new Date(startMs).toISOString(),end:new Date(endMs).toISOString(),startMs,endMs,current})}).filter(p=>p.endMs>p.startMs);
+ return Object.freeze(items);
 }
 function observedCompletionMs(row:RowOf<'transactions'>,nowMs:number):number{
  const raw=row.completed_at;if(row.status!=='completed'||raw===null)throw new BIHistoricalObservationError(row.id,raw);const ms=Date.parse(raw);if(!Number.isFinite(ms)||ms>nowMs)throw new BIHistoricalObservationError(row.id,raw);return ms;
