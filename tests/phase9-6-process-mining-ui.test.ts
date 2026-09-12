@@ -77,7 +77,7 @@ test('9.6 ui 10 — actor-scoped sync receipts are disclosed as integrity-only a
 });
 
 test('9.6 ui 11 — loading, empty, error and retry states fail closed truthfully',()=>{
- for(const marker of ['جارٍ إعادة بناء المسارات الفعلية','لا توجد مسارات مرصودة','لا يعرض إنجاز مسارًا مصطنعًا','تعذر بناء ذكاء العمليات','Fail closed','إعادة المحاولة','قناة تاريخ العمليات المعتمدة غير متاحة'])assert.ok(center.includes(marker),`missing truthful runtime state: ${marker}`);
+ for(const marker of ['جارٍ إعادة بناء المسارات الفعلية','لا توجد مسارات مرصودة','لا يعرض إنجاز مسارًا مصطنعًا','تعذر بناء ذكاء العمليات','تعذر التحقق من مصدر العمليات.','Fail closed','إعادة المحاولة'])assert.ok(center.includes(marker),`missing truthful runtime state: ${marker}`);
 });
 
 test('9.6 ui 12 — business intelligence stays default and process deep-link does not start the BI loader',()=>{
