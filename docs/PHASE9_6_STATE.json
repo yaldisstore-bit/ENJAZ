@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "phase": "9.6",
+  "name": "Process Mining & Predictive Operations — M18",
+  "status": "IN_PROGRESS",
+  "baseCommit": "295ad9dd308e391e7d92b1e27de74c859b0a20b1",
+  "implementationBranch": "phase9-6-process-mining-predictive-operations",
+  "predecessor": {
+    "phase": "9.5",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase9_6Allowed=true",
+    "closureEvidence": "docs/PHASE9_5_CLOSURE.md",
+    "postMergeEvidence": "docs/PHASE9_5_POSTMERGE_RECERTIFICATION.md",
+    "certifiedRuntimeMain": "8d9f1bd4403656f7b8d061b843178708b3899044",
+    "formalClosureCommit": "295ad9dd308e391e7d92b1e27de74c859b0a20b1",
+    "formalClosurePushWorkflowCount": 25,
+    "formalClosureSuccessCount": 25,
+    "formalClosureFailureCount": 0,
+    "formalClosureQueuedCount": 0,
+    "formalClosureInProgressCount": 0,
+    "phaseGateRunId": 34687292217,
+    "phaseRealBrowserRunId": 34687292129,
+    "cumulativeRealBrowserRunId": 34687292148,
+    "pagesPreviewRunId": 34687328191,
+    "liveExternalRunId": 34687368229
+  },
+  "majorSystem": {
+    "id": "M18",
+    "name": "Process Mining & Predictive Operations",
+    "status": "ACTIVE",
+    "anchors": ["9", "15"],
+    "globalClosureAllowed": false
+  },
+  "projectQualityConstitution": {
+    "version": 1,
+    "authority": "ENJAZ_NON_NEGOTIABLE_RULES.md",
+    "closureRequiresAllFourPass": true,
+    "tracks": {
+      "product": "IN_PROGRESS",
+      "uiUx": "NOT_STARTED",
+      "engineering": "IN_PROGRESS",
+      "certification": "NOT_STARTED"
+    },
+    "featureCutForBundleBudgetAllowed": false,
+    "legacyDnaAllowed": false,
+    "patchworkReleaseAllowed": false
+  },
+  "authority": {
+    "persistence": "SOURCE_DOMAIN_HISTORY_ONLY",
+    "processIntelligenceAuthority": "READ_ONLY_DERIVED",
+    "sourceProvenance": "REQUIRED",
+    "shadowProcessEventStoreAllowed": false,
+    "browserOwnedProcessPersistenceAllowed": false,
+    "fabricatedEventTimestampAllowed": false,
+    "fabricatedStrictSequenceAllowed": false,
+    "directBrowserSourceMutationAllowed": false,
+    "crossWorkspaceCompositionAllowed": false,
+    "predictionAuthority": "DIRECTIONAL_NON_AUTHORITATIVE",
+    "predictionMethodDisclosure": "REQUIRED",
+    "predictionConfidenceDisclosure": "REQUIRED",
+    "generativeModelAsEvidenceAllowed": false
+  },
+  "authoritativeSources": {
+    "workflow": {
+      "events": "workflow_transition_events",
+      "mode": "APPEND_ONLY_SOURCE_OWNED"
+    },
+    "transactionLifecycle": {
+      "events": "transaction_activity",
+      "mode": "APPEND_ONLY_SOURCE_OWNED"
+    },
+    "fieldOperations": {
+      "tables": ["field_assignments", "field_visits", "field_visit_evidence", "field_sync_receipts"],
+      "mode": "SOURCE_OWNED"
+    },
+    "additionalDomainsRequireExplicitVerification": true
+  },
+  "scope": {
+    "authoritativeProcessCases": true,
+    "actualPathReconstruction": true,
+    "observedDurations": true,
+    "reworkDetection": true,
+    "governedBottleneckCandidates": true,
+    "empiricalNextActivityPrediction": true,
+    "delayDirectionPrediction": true,
+    "sourceProvenance": true,
+    "methodDisclosure": true,
+    "confidenceDisclosure": true,
+    "arabicFirstSurfaces": true
+  },
+  "invariants": {
+    "eventWithoutProvenanceAllowed": false,
+    "pathWithoutWorkspaceLineageAllowed": false,
+    "duplicateSourceEventIdentityAllowed": false,
+    "futureEventRelativeToSnapshotAllowed": false,
+    "missingTimestampAsZeroAllowed": false,
+    "ambiguousEqualTimeAsStrictOrderAllowed": false,
+    "reworkWithoutRepeatedObservedActivityAllowed": false,
+    "bottleneckWithoutThresholdOrCohortAllowed": false,
+    "predictionWithoutEvidenceAllowed": false,
+    "authoritativePredictionAllowed": false,
+    "crossWorkspacePathAllowed": false,
+    "syntheticHistoricalEventAllowed": false,
+    "invalidEventBehavior": "FAIL_CLOSED",
+    "missingDurationBehavior": "UNKNOWN_NOT_ZERO",
+    "ambiguousOrderingBehavior": "EXPLICIT_PARTIAL_ORDER",
+    "insufficientSampleConfidence": "INSUFFICIENT_ONLY",
+    "predictionProbabilityUnit": "BASIS_POINTS_INTEGER"
+  },
+  "predictionFoundation": {
+    "method": "empirical_next_activity_frequency",
+    "minimumDirectionalCases": 4,
+    "confidenceLevels": ["insufficient", "directional"],
+    "tieBehavior": "NO_SINGLE_WINNER",
+    "authoritative": false
+  },
+  "javascriptBudgetBytes": 670000,
+  "budgetIncreaseAllowed": false,
+  "foundation": {
+    "status": "IN_PROGRESS",
+    "contract": "src/features/process-intelligence/processMiningContract.ts",
+    "tests": "tests/phase9-6-process-mining-foundation.test.ts",
+    "staticAudit": "scripts/phase9-6-process-mining-audit.mjs",
+    "workflow": ".github/workflows/phase9-6-process-mining.yml",
+    "destructionTestsRequired": true,
+    "gateRunId": null,
+    "gateConclusion": null
+  },
+  "realCloudRequired": true,
+  "realBrowserRequired": true,
+  "publishedLiveVerificationRequired": true,
+  "exitGatePassed": false,
+  "phase9_7Allowed": false,
+  "nextPhase": null,
+  "successorStatus": "LOCKED",
+  "unresolvedDefectCount": 0,
+  "criticalDefectCount": 0,
+  "highDefectCount": 0,
+  "functionalBlockerCount": 0,
+  "kickoffEvidence": "docs/PHASE9_6_KICKOFF.md",
+  "closureEvidence": null,
+  "postMergeEvidence": null
+}
