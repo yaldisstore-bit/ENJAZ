@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import type { AuthGateway, EnjazAuthSession, EnjazAuthUser } from '../core/auth/authGateway.ts';
 import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../data/createDataLayer.ts';
 import type { AutomationCommandGateway } from '../features/automation/automationCommands.ts';
+import type { DocumentVaultGateway } from '../features/documents/documentVaultCommands.ts';
 import type { FieldOperationsCommandGateway } from '../features/field-operations/fieldOperationsCommands.ts';
 import type { FinanceCommandGateway } from '../features/finance/financeCommands.ts';
 import type { GovernanceCommandGateway } from '../features/governance/governanceCommands.ts';
@@ -78,7 +79,8 @@ const emptyLayer = Object.freeze({
   transactions: mutableRepository,
   followups: mutableRepository,
   blockers: mutableRepository,
-  documents: mutableRepository,
+  documents: readRepository,
+  documentVersions: readRepository,
   cashboxes: mutableRepository,
   calendar: mutableRepository,
   renewals: mutableRepository,
@@ -220,11 +222,19 @@ const regulatoryKnowledge: RegulatoryKnowledgeGateway = Object.freeze({
   },
 });
 
+const documentVault: DocumentVaultGateway = Object.freeze({
+  async list(workspaceId: string) { return Object.freeze({ workspaceId, total: 0, offset: 0, limit: 100, documents: Object.freeze([]) }); },
+  async detail() { throw new Error('No document exists in production bridge harness'); },
+  async upload() { throw new Error('R2 production test does not allow document uploads'); },
+  async downloadUrl() { throw new Error('No document exists in production bridge harness'); },
+  async archive() { throw new Error('R2 production test does not allow document archive writes'); },
+});
+
 const rootElement = document.getElementById('r2-production-test-root');
 if (!rootElement) throw new Error('R2 production test root is missing');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence, regulatoryKnowledge }} />
+    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence, regulatoryKnowledge, documentVault }} />
   </StrictMode>,
 );
