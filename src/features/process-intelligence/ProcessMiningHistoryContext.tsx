@@ -1,12 +1,7 @@
 import { createContext,useContext,type ReactNode } from 'react';
-import type { ProcessMiningHistoryGateway } from './processMiningSources.ts';
+import type { ProcessRuntimeGateway } from './processMiningRuntime.ts';
 
-const ProcessMiningHistoryContext=createContext<ProcessMiningHistoryGateway|null>(null);
-
-export function ProcessMiningHistoryProvider({gateway,children}:Readonly<{gateway:ProcessMiningHistoryGateway|null;children:ReactNode}>){
- return <ProcessMiningHistoryContext.Provider value={gateway}>{children}</ProcessMiningHistoryContext.Provider>;
-}
-
-export function useProcessMiningHistoryGateway():ProcessMiningHistoryGateway|null{
- return useContext(ProcessMiningHistoryContext);
-}
+export type ProcessRuntimeFactory=()=>Promise<ProcessRuntimeGateway>;
+const ProcessRuntimeContext=createContext<ProcessRuntimeFactory|null>(null);
+export function ProcessRuntimeProvider({factory,children}:Readonly<{factory:ProcessRuntimeFactory|null;children:ReactNode}>){return <ProcessRuntimeContext.Provider value={factory}>{children}</ProcessRuntimeContext.Provider>}
+export function useProcessRuntimeFactory():ProcessRuntimeFactory|null{return useContext(ProcessRuntimeContext)}
