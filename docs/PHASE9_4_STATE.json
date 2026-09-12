@@ -141,16 +141,18 @@
     "realCloudDefectFixed": "GENERATED_SEARCH_DOCUMENT_FALSE_IMMUTABILITY_REJECTION"
   },
   "runtime": {
-    "status": "STATIC_GATE_PASS_PENDING_REAL_CLOUD_BEHAVIORAL_AND_BROWSER",
+    "status": "REAL_CLOUD_BEHAVIORAL_PASS_PENDING_REAL_BROWSER",
     "migration": "database/migrations/phase_9_4_regulatory_runtime_read_api.sql",
     "appliedMigrationVersion": "20260911212752",
+    "behavioralProbeMigration": "database/migrations/phase_9_4_runtime_authenticated_behavioral_probe.sql",
+    "appliedBehavioralProbeMigrationVersion": "20260911220051",
     "gateway": "src/features/regulatory/regulatoryKnowledgeCommands.ts",
     "viewModel": "src/ui-r2/regulatory/regulatoryKnowledgeViewModel.ts",
     "ui": "src/ui-r2/regulatory/RegulatoryKnowledgeCenter.tsx",
     "lazyPortal": "src/ui-r2/regulatory/LiveRegulatoryKnowledgePortal.tsx",
     "tests": "tests/phase9-4-regulatory-runtime.test.ts",
-    "staticGateRunId": 34651791424,
-    "staticGateHead": "cde52d1acb2241ab77702b9557e5303be9a2df92",
+    "staticGateRunId": 34673049309,
+    "staticGateHead": "da283ac23c1e80d0cc1fb6fe3e4a752c373a49e8",
     "destructionTestsPassed": 7,
     "functionalRegressionTestsPassed": 217,
     "databaseAudit": "PASS",
@@ -183,7 +185,18 @@
       "regulatoryLazyJavaScriptBytes": 12340,
       "regulatoryLazyCssBytes": 4640
     },
-    "realCloudBehavioralVerification": "PENDING",
+    "realCloudBehavioralVerification": "PASS_ZERO_RESIDUE",
+    "realCloudBehavioralZeroResidue": true,
+    "realCloudBehavioralProbeCoverage": [
+      "authenticated_owner_search",
+      "authenticated_owner_get_entry",
+      "official_global_visibility",
+      "workspace_curated_isolation",
+      "derived_artifact_source_version_binding",
+      "invalid_limit_rejection",
+      "unauthorized_authenticated_rejection",
+      "anon_execute_denied"
+    ],
     "realBrowserVerification": "PENDING",
     "publishedLiveVerification": "PENDING"
   },
