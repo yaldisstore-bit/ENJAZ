@@ -26,7 +26,7 @@ const tests=read('tests/phase9-7-intelligence-zero-escape.test.ts');
 const governance=read('src/features/governance/governanceOwnershipContract.ts');
 const regulatory=read('src/features/regulatory/regulatoryKnowledgeContract.ts');
 const bi=read('src/features/intelligence/businessIntelligenceContract.ts');
-const process=read('src/features/process-intelligence/processMiningContract.ts');
+const processContract=read('src/features/process-intelligence/processMiningContract.ts');
 
 if(prior.status!=='CLOSED'||prior.exitGatePassed!==true||prior.phase9_7Allowed!==true||prior.nextPhase!=='9.7'||prior.successorStatus!=='AUTHORIZED')fail('Phase 9.6 is not a valid closed/authorized predecessor');
 if(state.phase!=='9.7'||state.name!=='Intelligence Zero-Escape Gate')fail('identity drift');
@@ -68,15 +68,15 @@ for(const [source,markers,label] of [
   [governance,['OWNERSHIP_TOTAL_UNITS','assertNoConflictingOwnershipPeriods','buildOwnershipSnapshot','BigInt'],'M2 contract'],
   [regulatory,['assertDeterministicRegulatoryLineage','resolveRegulatoryVersionAsOf','buildRegulatoryCitation','authoritative: false'],'M8 contract'],
   [bi,['READ_ONLY_DERIVED','buildTrailingRunRateForecast'], 'M13 contract'],
-  [process,['buildEmpiricalNextActivityPrediction','buildEmpiricalDelayPrediction','authoritative:false'], 'M18 contract'],
+  [processContract,['buildEmpiricalNextActivityPrediction','buildEmpiricalDelayPrediction','authoritative:false'], 'M18 contract'],
 ]){
   for(const marker of markers){
     if(label==='M13 contract'&&marker==='READ_ONLY_DERIVED')continue;
     must(source,marker,label);
   }
 }
-if(!/BIUnsupportedRunRateUnitError/.test(bi)||!/confidence:directional\?'directional'/.test(process))fail('prediction uncertainty guards drifted');
-if(/createCompany|updateCompany|postPayment|writeLedger/.test(process))fail('M18 contract gained forbidden write authority');
+if(!/BIUnsupportedRunRateUnitError/.test(bi)||!/confidence:directional\?'directional'/.test(processContract))fail('prediction uncertainty guards drifted');
+if(/createCompany|updateCompany|postPayment|writeLedger/.test(processContract))fail('M18 contract gained forbidden write authority');
 
 for(const evidence of ['docs/PHASE9_3_CLOSURE.md','docs/PHASE9_4_CLOSURE.md','docs/PHASE9_5_CLOSURE.md','docs/PHASE9_6_CLOSURE.md','docs/PHASE9_6_POSTMERGE_RECERTIFICATION.md'])if(!exists(evidence))fail(`missing prior evidence ${evidence}`);
 
