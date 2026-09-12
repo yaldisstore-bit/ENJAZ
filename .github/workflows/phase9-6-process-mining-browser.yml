@@ -32,7 +32,11 @@ jobs:
       - name: Phase 9.6 governed source, parity and UI contracts
         run: |
           node scripts/phase9-6-process-mining-audit.mjs
-          node --experimental-strip-types --test tests/phase9-6-process-mining-foundation.test.ts
+          if [ "$(node -p "require('./docs/PHASE9_6_STATE.json').status")" = "CLOSED" ]; then
+            node --experimental-strip-types --test tests/phase9-6-process-mining-closure-foundation.test.ts
+          else
+            node --experimental-strip-types --test tests/phase9-6-process-mining-foundation.test.ts
+          fi
           node --experimental-strip-types --test tests/phase9-6-process-mining-service.test.ts
           node --experimental-strip-types --test tests/phase9-6-process-mining-runtime-parity.test.ts
           node --experimental-strip-types --test tests/phase9-6-process-mining-ui.test.ts
