@@ -1,0 +1,32 @@
+name: ENJAZ Phase 10.1 — Terser Budget Probe
+
+on:
+  push:
+    branches:
+      - phase10-1-document-vault
+
+permissions:
+  contents: read
+
+jobs:
+  terser-budget-probe:
+    runs-on: ubuntu-24.04
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Install pinned Terser probe only
+        run: npm install --no-save --package-lock=false terser@5.51.2
+      - name: Build with Terser and enforce unchanged budget
+        run: |
+          npx vite build --base=/ --minify terser
+          npm run audit:dist:budget
