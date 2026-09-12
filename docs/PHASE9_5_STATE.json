@@ -94,7 +94,7 @@
     "workflow": ".github/workflows/phase9-5-business-intelligence.yml",
     "destructionTestsRequired": true,
     "destructionTestCount": 14,
-    "gateRunId": 34679225016,
+    "gateRunId": 34681282598,
     "gateConclusion": "SUCCESS",
     "functionalRegression": "PASS",
     "databaseAndRoadmapIntegrity": "PASS",
@@ -109,7 +109,7 @@
     "service": "src/features/intelligence/businessIntelligenceService.ts",
     "tests": "tests/phase9-5-business-intelligence-service.test.ts",
     "monthBoundaryRegression": "tests/phase9-5-business-intelligence-month-boundary.test.ts",
-    "gateRunId": 34679504430,
+    "gateRunId": 34681282598,
     "gateConclusion": "SUCCESS",
     "destructionTestCount": 12,
     "workspaceIsolation": "PASS",
@@ -125,7 +125,7 @@
     "governedBudget": "PASS"
   },
   "observedTrends": {
-    "status": "IN_PROGRESS_PENDING_CURRENT_HEAD_GATE",
+    "status": "REAL_BROWSER_PASS",
     "operationalTrend": "operations.completed_monthly",
     "operationalAuthority": "transactions.status=completed + completed_at + deleted_at is null",
     "archivedCompletionHistory": "PRESERVED",
@@ -137,8 +137,10 @@
     "missingFinanceTrendPeriod": "FAIL_CLOSED",
     "monthBoundaryBehavior": "ZERO_DURATION_PERIOD_FORBIDDEN",
     "derivationVersion": "phase9.5-observed-trends-v1",
-    "gateRunId": null,
-    "gateConclusion": null
+    "gateRunId": 34681282598,
+    "gateConclusion": "SUCCESS",
+    "realBrowserRunId": 34681282589,
+    "realBrowserConclusion": "SUCCESS"
   },
   "realCloud": {
     "status": "REAL_CLOUD_CERTIFIED",
@@ -167,19 +169,32 @@
     }
   },
   "runtime": {
-    "status": "LOCAL_GATE_PASS",
+    "status": "REAL_BROWSER_PASS",
     "route": "/app/insights",
     "destinationId": "insights",
     "portal": "src/ui-r2/intelligence/LiveBusinessIntelligencePortal.tsx",
     "center": "src/ui-r2/intelligence/BusinessIntelligenceCenter.tsx",
     "uiContractTests": "tests/phase9-5-business-intelligence-ui.test.ts",
     "uiContractTestCount": 8,
-    "gateRunId": 34679865631,
+    "gateRunId": 34681282598,
     "gateConclusion": "SUCCESS",
     "lazyLoaded": true,
     "newProductionCssAdded": false,
-    "realBrowserVerification": "PENDING_CURRENT_HEAD",
+    "realBrowserVerification": "PASS",
+    "realBrowserRunId": 34681282589,
+    "realBrowserViewports": [1280, 430, 390, 360, 320],
     "publishedLiveVerification": "PENDING"
+  },
+  "branchCertification": {
+    "certifiedHead": "008b17eb0fab9fcacc217487b7f0df3544ba98e7",
+    "pushWorkflowCount": 3,
+    "successCount": 3,
+    "failureCount": 0,
+    "queuedCount": 0,
+    "inProgressCount": 0,
+    "qualityConstitutionRunId": 34681282614,
+    "phaseGateRunId": 34681282598,
+    "realBrowserRunId": 34681282589
   },
   "realCloudRequired": true,
   "realBrowserRequired": true,
