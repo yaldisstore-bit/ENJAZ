@@ -115,7 +115,7 @@ export function parseProcessEventProvenance(input:unknown):ProcessEventProvenanc
  if(!input||typeof input!=='object')return null;const x=input as Record<string,unknown>;
  const workspaceId=clean(x.workspaceId),caseId=clean(x.caseId),sourceEntity=clean(x.sourceEntity),sourceEventId=clean(x.sourceEventId),sourceAsOf=iso(x.sourceAsOf),derivationVersion=clean(x.derivationVersion),fields=basis(x.basis),sourceDomain=typeof x.sourceDomain==='string'&&DOMAINS.has(x.sourceDomain as ProcessSourceDomain)?x.sourceDomain as ProcessSourceDomain:null;
  if(x.schema!==ENJAZ_PROCESS_MINING_SCHEMA||!workspaceId||!caseId||!sourceEntity||!sourceEventId||!sourceAsOf||!derivationVersion||!fields||!sourceDomain)return null;
- return Object.freeze({schema:ENJAZ_PROCESS_MINING_SCHEMA,workspaceId,caseId,sourceDomain,sourceEntity,sourceEventId,sourceAsOf,sampleCount:undefined,basis:fields,derivationVersion}) as ProcessEventProvenance;
+ return Object.freeze({schema:ENJAZ_PROCESS_MINING_SCHEMA,workspaceId,caseId,sourceDomain,sourceEntity,sourceEventId,sourceAsOf,basis:fields,derivationVersion});
 }
 
 export function buildProcessEvent(input:Readonly<{workspaceId:string;caseId:string;activityKey:string;labelAr:string;occurredAt:string;provenance:ProcessEventProvenance}>):ProcessEvent{
