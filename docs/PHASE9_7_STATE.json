@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "phase": "9.7",
+  "name": "Intelligence Zero-Escape Gate",
+  "status": "IN_PROGRESS",
+  "baseCommit": "bcb8e697fa7457e216036ae321b8eddac2050b1b",
+  "implementationBranch": "phase9-7-intelligence-zero-escape",
+  "predecessor": {
+    "phase": "9.6",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase9_7Allowed=true",
+    "closureEvidence": "docs/PHASE9_6_CLOSURE.md",
+    "postMergeEvidence": "docs/PHASE9_6_POSTMERGE_RECERTIFICATION.md",
+    "formalClosureCommit": "bcb8e697fa7457e216036ae321b8eddac2050b1b"
+  },
+  "mode": "DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY",
+  "newFeatureAuthorityAllowed": false,
+  "newDatabaseTablesAllowed": false,
+  "newWriteRpcAuthorityAllowed": false,
+  "javascriptBudgetBytes": 670000,
+  "totalJavascriptBudgetBytes": 760000,
+  "cssBudgetBytes": 180000,
+  "budgetIncreaseAllowed": false,
+  "systemsUnderGate": [
+    "M2",
+    "M8_PHASE9_PORTION",
+    "M13_PHASE9_PORTION",
+    "M18_PHASE9_PORTION"
+  ],
+  "destructionDimensions": [
+    "conflicting_stale_signals",
+    "no_data_states",
+    "high_volume_datasets",
+    "invalid_ownership",
+    "regulatory_version_conflicts",
+    "model_drift",
+    "prediction_uncertainty"
+  ],
+  "zeroEscapeLaw": {
+    "individualSystemEvidenceRequired": true,
+    "branchCiAloneCanCloseSystem": false,
+    "realCloudRequiredWherePersistentAuthorityIsExercised": true,
+    "realBrowserRequired": true,
+    "deployedLiveRequired": true,
+    "zeroCriticalHighFunctionalBlockersRequired": true,
+    "exactMergedShaRequired": true,
+    "postMergeRecertificationRequired": true
+  },
+  "systemEvidence": {
+    "M2": {
+      "status": "PENDING",
+      "requiredProperty": "ownership_conflict_history_scale_and_permission_integrity"
+    },
+    "M8_PHASE9_PORTION": {
+      "status": "PENDING",
+      "requiredProperty": "version_lineage_conflict_provenance_and_authority_separation"
+    },
+    "M13_PHASE9_PORTION": {
+      "status": "PENDING",
+      "requiredProperty": "stale_signal_no_data_scale_model_shift_and_uncertainty"
+    },
+    "M18_PHASE9_PORTION": {
+      "status": "PENDING",
+      "requiredProperty": "path_lineage_scale_distribution_shift_and_prediction_uncertainty"
+    }
+  },
+  "majorSystemDisposition": {
+    "M2": {
+      "phase9ZeroEscape": "IN_PROGRESS",
+      "globalStatus": "CLOSURE_CANDIDATE",
+      "globalClosureAuthority": "ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY"
+    },
+    "M8": {
+      "phase9Portion": "IN_PROGRESS",
+      "globalStatus": "ACTIVE",
+      "remainingAnchor": "12"
+    },
+    "M13": {
+      "phase9Portion": "IN_PROGRESS",
+      "globalStatus": "ACTIVE",
+      "remainingAnchor": "15"
+    },
+    "M18": {
+      "phase9Portion": "IN_PROGRESS",
+      "globalStatus": "ACTIVE",
+      "remainingAnchor": "15"
+    }
+  },
+  "gateEvidence": "PENDING",
+  "realCloudVerification": "PENDING",
+  "realCloudEvidence": null,
+  "realBrowserVerification": "PENDING",
+  "realBrowserEvidence": null,
+  "deployedLiveVerification": "PENDING",
+  "pullRequestGate": "PENDING",
+  "postMergeRecertification": "PENDING",
+  "exitGatePassed": false,
+  "phase10_1Allowed": false,
+  "nextPhase": "10.1",
+  "successorStatus": "LOCKED",
+  "unresolvedDefectCount": 0,
+  "criticalDefectCount": 0,
+  "highDefectCount": 0,
+  "functionalBlockerCount": 0,
+  "kickoffEvidence": "docs/PHASE9_7_KICKOFF.md"
+}
