@@ -26,7 +26,16 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Install pinned Terser probe only
         run: npm install --no-save --package-lock=false terser@5.51.2
-      - name: Build with Terser and enforce unchanged budget
+      - name: Inject multi-pass Terser config without changing repository files
         run: |
-          npx vite build --base=/ --minify terser
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('vite.config.ts')
+          s=p.read_text()
+          s=s.replace("minify: true,", "minify: 'terser',\n        terserOptions: { compress: { passes: 4, toplevel: true }, mangle: { toplevel: true }, format: { comments: false } },")
+          p.write_text(s)
+          PY
+      - name: Build with multi-pass Terser and enforce unchanged budget
+        run: |
+          npx vite build --base=/
           npm run audit:dist:budget
