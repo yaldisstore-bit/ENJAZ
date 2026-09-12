@@ -48,19 +48,19 @@
   },
   "systemEvidence": {
     "M2": {
-      "status": "PENDING",
+      "status": "REAL_CLOUD_PASS",
       "requiredProperty": "ownership_conflict_history_scale_and_permission_integrity"
     },
     "M8_PHASE9_PORTION": {
-      "status": "PENDING",
+      "status": "REAL_CLOUD_PASS",
       "requiredProperty": "version_lineage_conflict_provenance_and_authority_separation"
     },
     "M13_PHASE9_PORTION": {
-      "status": "PENDING",
+      "status": "REAL_CLOUD_PASS",
       "requiredProperty": "stale_signal_no_data_scale_model_shift_and_uncertainty"
     },
     "M18_PHASE9_PORTION": {
-      "status": "PENDING",
+      "status": "REAL_CLOUD_PASS",
       "requiredProperty": "path_lineage_scale_distribution_shift_and_prediction_uncertainty"
     }
   },
@@ -87,8 +87,8 @@
     }
   },
   "gateEvidence": "PENDING",
-  "realCloudVerification": "PENDING",
-  "realCloudEvidence": null,
+  "realCloudVerification": "PASS_READ_ONLY_ZERO_NEW_RESIDUE",
+  "realCloudEvidence": "docs/PHASE9_7_REAL_CLOUD_EVIDENCE.md",
   "realBrowserVerification": "PENDING",
   "realBrowserEvidence": null,
   "deployedLiveVerification": "PENDING",
