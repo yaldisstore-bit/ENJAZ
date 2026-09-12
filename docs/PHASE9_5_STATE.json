@@ -28,7 +28,7 @@
     "closureRequiresAllFourPass": true,
     "tracks": {
       "product": "IN_PROGRESS",
-      "uiUx": "NOT_STARTED",
+      "uiUx": "IN_PROGRESS",
       "engineering": "IN_PROGRESS",
       "certification": "NOT_STARTED"
     },
@@ -103,6 +103,31 @@
     "productionBuild": "PASS",
     "pagesLiveBuild": "PASS",
     "governedBudget": "PASS"
+  },
+  "sourceComposition": {
+    "status": "LOCAL_GATE_PASS",
+    "service": "src/features/intelligence/businessIntelligenceService.ts",
+    "tests": "tests/phase9-5-business-intelligence-service.test.ts",
+    "gateRunId": 34679504430,
+    "gateConclusion": "SUCCESS",
+    "destructionTestCount": 8,
+    "workspaceIsolation": "PASS",
+    "financeAnchorReuse": "PASS",
+    "fieldAuthorityBoundary": "PASS",
+    "paginationFailClosed": "PASS",
+    "exactMoney": "PASS",
+    "directionalForecast": "PASS",
+    "fullFunctionalRegression": "PASS",
+    "typecheck": "PASS",
+    "productionBuild": "PASS",
+    "pagesLiveBuild": "PASS",
+    "governedBudget": "PASS"
+  },
+  "runtime": {
+    "status": "IN_PROGRESS",
+    "route": null,
+    "realBrowserVerification": "PENDING",
+    "publishedLiveVerification": "PENDING"
   },
   "realCloudRequired": true,
   "realBrowserRequired": true,
