@@ -1,0 +1,41 @@
+name: ENJAZ Phase 9.5 — Live Deep-Link Semantics Probe
+
+on:
+  push:
+    branches:
+      - hotfix/phase9-5-live-deeplink-404-semantics
+    paths:
+      - tests-external/live-app-phase9.spec.cjs
+      - .github/workflows/phase9-5-live-deeplink-semantics-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: Published /live/app/insights transport + resource integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      LIVE_APP_URL: https://yaldisstore-bit.github.io/ENJAZ/live/
+      BASE_URL: https://yaldisstore-bit.github.io/ENJAZ/
+      TARGET_MAIN_SHA: ce1a4566f48ebcacfde8a8c5b7dd680b6b23a672
+    steps:
+      - name: Checkout semantic probe
+        uses: actions/checkout@v7
+      - name: Lock public certification target to canonical main
+        run: |
+          set -euo pipefail
+          git fetch origin main --quiet
+          actual=$(git rev-parse origin/main)
+          [ "$actual" = "$TARGET_MAIN_SHA" ] || { echo "Canonical main drifted: $actual"; exit 1; }
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Install pinned external browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2
+          npx playwright install --with-deps chromium
+      - name: Certify published Phase 9.5 canonical deep-link semantics
+        run: npx playwright test tests-external/live-app-phase9.spec.cjs --reporter=line --workers=1
