@@ -8,9 +8,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: phase10-1-preact-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  preact-budget-probe:
+  preact-reality-probe:
     runs-on: ubuntu-24.04
+    timeout-minutes: 50
     env:
       VITE_APP_ENV: production
       VITE_APP_LOG_LEVEL: info
@@ -26,21 +31,88 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Install pinned Preact probe only
         run: npm install --no-save --package-lock=false preact@10.27.2
-      - name: Inject compatibility aliases without changing repository files
+      - name: Inject compatibility aliases into every governed browser build
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('vite.config.ts')
-          s=p.read_text()
-          needle='export default defineConfig({\n  plugins:'
-          repl="export default defineConfig({\n  resolve: { alias: { 'react': 'preact/compat', 'react-dom': 'preact/compat', 'react-dom/test-utils': 'preact/test-utils', 'react/jsx-runtime': 'preact/jsx-runtime', 'react/jsx-dev-runtime': 'preact/jsx-dev-runtime' } },\n  plugins:"
-          if needle not in s:
-              raise SystemExit('vite alias insertion point missing')
-          p.write_text(s.replace(needle,repl,1))
+          files=[
+            'vite.config.ts','vite.r2-preview.config.ts','vite.r2-production-test.config.ts',
+            'vite.phase9-2-browser.config.ts','vite.phase9-3-browser.config.ts','vite.phase9-4-browser.config.ts'
+          ]
+          alias="  resolve: { alias: { 'react': 'preact/compat', 'react-dom': 'preact/compat', 'react-dom/test-utils': 'preact/test-utils', 'react/jsx-runtime': 'preact/jsx-runtime', 'react/jsx-dev-runtime': 'preact/jsx-dev-runtime' } },\n"
+          for name in files:
+            p=Path(name)
+            s=p.read_text()
+            marker='export default defineConfig({\n'
+            if marker not in s:
+              raise SystemExit(f'vite alias insertion point missing: {name}')
+            p.write_text(s.replace(marker,marker+alias,1))
           PY
-      - name: Typecheck source contracts
-        run: npm run typecheck
-      - name: Build compatibility runtime and enforce unchanged budget
+      - name: Source contracts and cumulative functional regression
+        run: |
+          npm run typecheck
+          npm run test:functional
+          node --experimental-strip-types --test tests/documentVault.test.ts
+      - name: Canonical Preact-compatible production build and unchanged budget
         run: |
           npx vite build --base=/
           npm run audit:dist:budget
+      - name: Build cumulative browser harnesses through compatibility runtime
+        run: |
+          npx vite build --config vite.r2-preview.config.ts --base=/
+          node scripts/ui-rebirth-2-preview-budget-audit.mjs
+          npx vite build --config vite.r2-production-test.config.ts --base=/
+          npx vite build --config vite.phase9-2-browser.config.ts --base=/
+          npx vite build --config vite.phase9-3-browser.config.ts --base=/
+          npx vite build --config vite.phase9-4-browser.config.ts --base=/
+      - name: Install pinned Chromium and WCAG tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start cumulative harnesses
+        run: |
+          nohup npx vite preview --config vite.r2-preview.config.ts --host 127.0.0.1 --port 4174 > /tmp/r2-preview.log 2>&1 &
+          nohup npx vite preview --config vite.r2-production-test.config.ts --host 127.0.0.1 --port 4176 > /tmp/r2-production.log 2>&1 &
+          nohup npx vite preview --config vite.phase9-2-browser.config.ts --host 127.0.0.1 --port 4178 > /tmp/p92.log 2>&1 &
+          nohup npx vite preview --config vite.phase9-3-browser.config.ts --host 127.0.0.1 --port 4179 > /tmp/p93.log 2>&1 &
+          nohup npx vite preview --config vite.phase9-4-browser.config.ts --host 127.0.0.1 --port 4180 > /tmp/p94.log 2>&1 &
+          for target in '4174/r2-preview.html' '4176/r2-production-test.html' '4178/phase9-2-browser.html' '4179/phase9-3-browser.html' '4180/phase9-4-browser.html'; do
+            ok=0
+            for i in {1..40}; do
+              if curl --fail --silent "http://127.0.0.1:$target" >/dev/null; then ok=1; break; fi
+              sleep 1
+            done
+            if [ "$ok" != 1 ]; then cat /tmp/*.log; exit 1; fi
+          done
+      - name: Shell + Golden + Core Work + Records + Operational reality
+        run: |
+          BASE_URL=http://127.0.0.1:4174/ npx playwright test tests-external/r2-shell.spec.cjs --reporter=line --workers=1
+          R2_GOLDEN_BASE_URL=http://127.0.0.1:4174/ R2_GOLDEN_ARTIFACT_DIR=artifacts/preact-golden npx playwright test tests-external/r2-golden.spec.cjs --reporter=line --workers=1
+          R2_CORE_WORK_BASE_URL=http://127.0.0.1:4174/ npx playwright test tests-external/r2-core-work.spec.cjs --reporter=line --workers=1
+          R2_RECORDS_BASE_URL=http://127.0.0.1:4174/ npx playwright test tests-external/r2-records.spec.cjs --reporter=line --workers=1
+          R2_OPERATIONAL_BASE_URL=http://127.0.0.1:4174/ npx playwright test tests-external/r2-operational-intelligence.spec.cjs --reporter=line --workers=1
+      - name: Zero-Lost + destruction waves
+        run: |
+          R2_ZERO_LOST_BASE_URL=http://127.0.0.1:4174/ R2_ZERO_LOST_ARTIFACT_DIR=artifacts/preact-zero-lost npx playwright test tests-external/r2-zero-lost.spec.cjs --reporter=line --workers=1
+          R2_DESTRUCTION_BASE_URL=http://127.0.0.1:4174/ R2_DESTRUCTION_ARTIFACT_DIR=artifacts/preact-destruction npx playwright test tests-external/r2-destruction-reality.spec.cjs --reporter=line --workers=1
+          R2_DESTRUCTION_BASE_URL=http://127.0.0.1:4174/ R2_DESTRUCTION_ARTIFACT_DIR=artifacts/preact-destruction npx playwright test tests-external/r2-destruction-reality-wave2.spec.cjs --reporter=line --workers=1
+      - name: Production bridge + Phase 9.1
+        run: |
+          R2_PRODUCTION_BASE_URL=http://127.0.0.1:4176/ npx playwright test tests-external/r2-production-bridge.spec.cjs --reporter=line --workers=1
+          R2_PRODUCTION_BASE_URL=http://127.0.0.1:4176/ npx playwright test tests-external/phase9-1-risk-live.spec.cjs --reporter=line --workers=1
+      - name: Phase 9.2 + 9.3 + 9.4 real runtime / governed widths
+        run: |
+          R2_PHASE92_BASE_URL=http://127.0.0.1:4178/ npx playwright test tests-external/phase9-2-search-saved-views-live.spec.cjs --reporter=line --workers=1
+          R2_PHASE93_BASE_URL=http://127.0.0.1:4179/ npx playwright test tests-external/phase9-3-governance-live.spec.cjs --reporter=line --workers=1
+          R2_PHASE94_BASE_URL=http://127.0.0.1:4180/ npx playwright test tests-external/phase9-4-regulatory-knowledge-live.spec.cjs --reporter=line --workers=1
+      - name: Upload Preact diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10-1-preact-probe-${{ github.sha }}
+          path: |
+            test-results/
+            artifacts/
+            /tmp/*.log
+          if-no-files-found: ignore
+          retention-days: 7
