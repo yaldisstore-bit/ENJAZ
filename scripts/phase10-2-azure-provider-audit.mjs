@@ -2,7 +2,8 @@ import fs from 'node:fs';
 const edge=fs.readFileSync('supabase/functions/enjaz-document-intelligence/index.ts','utf8');
 const state=JSON.parse(fs.readFileSync('docs/PHASE10_2_STATE.json','utf8'));
 const failures=[];const check=(n,c)=>{if(!c)failures.push(n)},has=(x)=>edge.includes(x);
-check('adapter_state',state.directAzureProviderAdapterReady===true&&state.preferredProvider==='AZURE_DOCUMENT_INTELLIGENCE_PREBUILT_LAYOUT_V4'&&state.providerApiVersion==='2024-11-30'&&state.serverExtractionProviderConnected===false);
+check('adapter_state',state.directAzureProviderAdapterReady===true&&state.preferredProvider==='AZURE_DOCUMENT_INTELLIGENCE_PREBUILT_LAYOUT_V4'&&state.providerApiVersion==='2024-11-30'&&state.serverExtractionProviderConnected===true&&state.providerConfigurationStatus==='CERTIFIED');
+check('real_azure_certificate',state.azureProviderVerification==='PASS_REAL_AZURE_ARABIC_OCR_REVIEW_VERIFY'&&Number.isInteger(state.azureProviderRunId)&&typeof state.azureProviderCertifiedCommit==='string'&&state.azureArabicCharactersDetected>=1&&state.azureConfidence>=0&&state.azureConfidence<=1);
 for(const marker of [
   "Deno.env.get('ENJAZ_AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT')",
   "Deno.env.get('ENJAZ_AZURE_DOCUMENT_INTELLIGENCE_KEY')",
@@ -34,4 +35,4 @@ check('provider_result_bounded',has('MAX_PROVIDER_TEXT=8_000_000')&&has('MAX_PRO
 check('generic_fallback_preserved',has("Deno.env.get('ENJAZ_OCR_PROVIDER_URL')")&&has("Deno.env.get('ENJAZ_OCR_PROVIDER_KEY')")&&has("'X-Enjaz-OCR-Contract':'enjaz.ocr-provider.v1'"));
 check('provider_absence_explicit',has("throw new Error('OCR_PROVIDER_NOT_CONFIGURED')")&&has("return out(503,{ok:false,error:'OCR_PROVIDER_NOT_CONFIGURED'})"));
 if(failures.length){console.error(`ENJAZ PHASE 10.2 AZURE PROVIDER AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);process.exit(1)}
-console.log('ENJAZ PHASE 10.2 AZURE PROVIDER AUDIT PASS — direct Azure DI adapter is server-only, private-binary-source, size-bound, operation-origin locked, Arabic auto-detect compatible, and provider certification remains pending.');
+console.log('ENJAZ PHASE 10.2 AZURE PROVIDER AUDIT PASS — direct Azure DI adapter is server-only, source-authority preserving, Arabic real-cloud certified, review/verify governed, and provider certification is complete.');
