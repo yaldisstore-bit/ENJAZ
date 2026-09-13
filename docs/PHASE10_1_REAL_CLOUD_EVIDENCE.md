@@ -3,13 +3,13 @@
 Status: **IN PROGRESS**  
 Phase 10.2+: **LOCKED**
 
-This file records only evidence that actually ran against the production Supabase project `juzxriirhkuzviwnhkbd` or the governed Phase 10.1 branch. Phase 10.1 is intentionally not marked closed until the corrected Real-Cloud certifier completes one clean pass from start to finish.
+This file records only evidence that actually ran against the production Supabase project `juzxriirhkuzviwnhkbd` or the governed Phase 10.1 branch. Phase 10.1 is intentionally not marked closed until the corrected permanent Real-Cloud certifier completes one clean pass from start to finish, the PR is merged, and post-merge deployed-live recertification passes.
 
 ## Governed runtime candidate
 
 The client/runtime line is permanently on exact `preact@10.29.8`. The earlier `10.27.2` pin was upgraded rather than allowlisted after the high-severity advisory `GHSA-36hm-qxxp-pg3m` was detected.
 
-The latest fully measured application bundle remains inside the immutable ceilings:
+The fully measured application bundle remains inside the immutable ceilings:
 
 - raw distribution: **769,808**
 - initial JS: **390,947 / 670,000**
@@ -21,9 +21,18 @@ The latest fully measured application bundle remains inside the immutable ceilin
 
 The `/ENJAZ/live/` build also passed the fixed ceilings with total JS **583,535 / 760,000**, initial JS **390,969 / 670,000**, CSS **179,997 / 180,000**. No budget was raised.
 
-Before the Real-Cloud evidence work, the clean `10.29.8` candidate passed all normal gates: Document Vault authority/contract tests, **10/10** Vault tests, **218/218** functional regression, TypeScript, fixed production and Pages budgets, the dedicated Document Vault Chromium suite at **1280 / 430 / 390 / 360 / 320**, dependency high-severity audit, the full R2 cumulative browser matrix, and the Project Quality Constitution.
+Two real UI defects were found by the dedicated browser guard and repaired without weakening any rule: the awaited upload form used an unstable event target, and native company/transaction selects were only about 23 px high. The final controls are governed at 44 px and CSS remains below the fixed ceiling.
 
-The dedicated browser guard previously found and repaired two real UI defects without weakening its rules: the awaited upload form used an unstable event target, and native company/transaction selects were only about 23 px high. The final controls are governed at 44 px and CSS remains under the fixed ceiling.
+## Final clean branch certification before evidence refresh
+
+The clean governed runtime head `8df0625d3c2d86d59e257251928ce1eecb27b6bf` passed every normal code/browser gate:
+
+- **Document Vault Gate `34744538738` — SUCCESS**: authority audit **100 checks**, Vault tests **10/10**, functional regression **218/218**, database/roadmap/major-system integrity, secret audit, TypeScript, production build budget, `/live/` build budget, and the explicit Phase 10.2 lock check all passed.
+- **Document Vault Real Browser `34744538727` — SUCCESS**: the real UI flow passed upload, v2, version download, archive and pagination at **1280 / 430 / 390 / 360 / 320**, followed by a successful high-severity dependency audit.
+- **Real Browser Acceptance `34744538753` — SUCCESS**: Shell, Golden, Core Work, Records, Operational Intelligence, Zero-Lost, Destruction wave 1, Destruction wave 2, Production Bridge, and Phase 9.1 / 9.2 / 9.3 / 9.4 all passed.
+- **Project Quality Constitution `34744538723` — SUCCESS**.
+
+The subsequent documentation-only state/evidence refresh does not authorize Phase 10.2 and must itself retain the same normal green gates before merge readiness is considered.
 
 ## Production database and authority boundary
 
@@ -41,7 +50,7 @@ The deployed database currently enforces:
 - no overwrite-in-place contract;
 - no destructive document delete contract.
 
-The rollback-contained production DB probe certified direct mutation denial, invalid MIME/size rejection, idempotent prepare, path generation, no version before acknowledgement, outsider denial, exactly-one v1 acknowledgement, duplicate-safe service acknowledgement, failed-upload containment, immutable v2 creation preserving v1, version-specific download claims, two-version detail history, archive preservation and cleanup.
+The rollback-contained production DB probe certified direct mutation denial, invalid MIME/size rejection, idempotent prepare, path generation, no version before acknowledgement, outsider denial, exactly-one v1 acknowledgement, duplicate-safe service acknowledgement, failed-upload containment, immutable v2 creation preserving v1, version-specific download claims, two-version detail history, archive preservation, inclusive/exclusive archive-list semantics and cleanup.
 
 All Phase 10.1 foreign-key relationships introduced/touched by the vault have covering indexes. Remaining unindexed-FK advisor findings belong to earlier systems.
 
@@ -60,95 +69,98 @@ A real boundary defect was found before final Storage certification: `acknowledg
 
 The migration is applied in production, and `enjaz-document-vault` is deployed **ACTIVE v2**, `verify_jwt=true`, bundle SHA-256 `cb17bbda466e73117558e578e07aa3a52814d43565c0c449c95a67f02338d774`.
 
-## Real production Storage E2E — first authenticated run
+## Real production Storage E2E — authenticated run
 
-A disposable production certifier was executed through a short-lived GitHub OIDC route. No real user account was used. The run created temporary confirmed Auth users via the official Auth Admin API, obtained real user JWTs, exercised the deployed `enjaz-document-vault` Edge Function and Supabase Storage API, and cleaned its fixtures afterward.
+A disposable production certifier was executed through a short-lived GitHub OIDC route. No real user account was used. It created temporary confirmed Auth users via the official Auth Admin API, obtained real user JWTs, exercised the deployed `enjaz-document-vault` Edge Function and Supabase Storage API, and cleaned its fixtures afterward.
 
 GitHub workflow run: **`34743779280`**.
 
-The production run passed all of the following before its single harness assertion failure:
+The sanitized artifact records **43 successful real-cloud checks** before one harness assertion failure. Proven checks include:
 
 - disposable confirmed Auth users and isolated workspaces;
-- direct document INSERT denied;
-- invalid MIME rejected with no authority residue;
-- >50 MiB input rejected with no authority residue;
-- path-bearing filename rejected with no authority residue;
-- outsider/cross-workspace prepare rejected with no authority residue;
-- real v1 signed upload capability returned;
-- prepare replay was idempotent and produced only one document;
-- acknowledgement before object upload returned `STORAGE_OBJECT_NOT_FOUND` and preserved `prepared` state;
-- real signed v1 upload succeeded through Storage with `upsert:false`;
-- v1 acknowledgement succeeded;
-- **Edge acknowledgement replay succeeded as duplicate-safe**, proving the replay hardening in the real transport path;
-- exactly one v1 version existed;
-- direct document UPDATE and DELETE were denied;
-- signed v1 download returned byte-exact content;
-- real v2 prepare/upload/acknowledgement succeeded;
-- v1 and v2 history were both preserved at distinct immutable paths;
-- signed v1 and v2 downloads were byte-exact;
-- a deliberately wrong-size v3 object was rejected with `STORAGE_SIZE_MISMATCH`;
-- the bad object was removed;
-- the upload session became failed;
-- no v3 version was promoted;
-- the ready document pointer remained on valid v2;
-- archive RPC succeeded;
-- the archived document disappeared from the normal vault list.
+- direct document INSERT/UPDATE/DELETE denial;
+- invalid MIME, >50 MiB and path-bearing filename rejection with no authority residue;
+- outsider/cross-workspace prepare rejection;
+- real v1 signed upload capability and idempotent prepare;
+- acknowledgement before object upload rejected with `STORAGE_OBJECT_NOT_FOUND` while preserving prepared state;
+- real signed v1 upload through Storage with `upsert:false`;
+- v1 acknowledgement and **duplicate-safe Edge acknowledgement replay**;
+- exactly one v1 version;
+- byte-exact signed v1 download;
+- real v2 prepare/upload/acknowledgement;
+- immutable v1/v2 history at distinct paths;
+- byte-exact signed v1 and v2 version downloads;
+- wrong-size v3 rejection with `STORAGE_SIZE_MISMATCH`;
+- mismatched object removal, failed session, no v3 promotion and valid v2 pointer preservation;
+- guarded archive RPC;
+- archived document excluded from the normal vault list.
 
 ### The single first-run failure was a certifier parser defect, not a product defect
 
-The run then failed on `archive_retained_in_archive_vault`. Investigation showed the production RPC and application contract were correct: `get_document_vault_v1` returns the array under **`documents`**, and `parseVaultList` reads `x.documents`.
-
-The disposable certifier mistakenly read `normalList.items` / `archiveList.items`. Therefore it could not see any returned document after archive even though the production RPC response contract was correct. This was a test-harness bug, not evidence that archive filtering failed.
-
-The permanent Real-Cloud script has now been corrected to read:
+The run failed at `archive_retained_in_archive_vault` because the disposable certifier read `normalList.items` / `archiveList.items`. The production RPC and application contract both use the authoritative **`documents`** key. The permanent script is corrected to read:
 
 - `normalList.documents`
 - `archiveList.documents`
 
-The one-time OIDC workflow and its one-time self-repair workflow were physically removed from the governed branch after the correction.
+The production rollback-contained DB probe independently proves the post-archive semantics that the old parser failed to inspect: `includeArchived=false` returns zero active rows, `includeArchived=true` returns the archived document, and both v1/v2 version rows remain after archive.
+
+The permanent certifier additionally checks that v1/v2 Storage binaries remain present after archive, that the bucket is private, and that its size/MIME restrictions remain intact. Those final assertions still require one clean end-to-end permanent-certifier artifact before formal closure.
 
 ## Cleanup and current production residue
 
-Cleanup from the first real Storage run succeeded for:
+Cleanup from the authenticated Storage run succeeded for:
 
 - **3 Storage objects**;
 - **2 temporary workspaces**;
 - **2 temporary Auth users**.
 
-An independent production query after cleanup reports:
+Independent production verification after cleanup reports:
 
 - Phase 10.1 test-marked Auth users: **0**;
 - Phase 10.1 test documents: **0**;
-- Phase 10.1 test upload sessions: **0**.
+- Phase 10.1 test upload sessions: **0**;
+- candidate test Storage objects: **0**.
 
-The temporary certification endpoints were not left privileged. Because the available connector cannot delete Edge Function names, both temporary function slugs were overwritten with inert tombstones that return HTTP 410 and have `verify_jwt=true`:
+The temporary certification endpoints were not left privileged. Because the available connector cannot delete Edge Function slugs, both were overwritten with inert HTTP 410 tombstones with `verify_jwt=true`:
 
-- `enjaz-phase10-1-real-cloud-certifier` — tombstone **v4**;
+- `enjaz-phase10-1-real-cloud-certifier` — tombstone **v5**;
 - `enjaz-phase10-1-oidc-gateway` — tombstone **v2**.
 
-They are not part of the application runtime and contain no active certification/bootstrap behavior.
+They are not application runtime endpoints and contain no active certification/bootstrap behavior.
 
-## Production bucket state after the real run
+## Production bucket state
 
-The authenticated prepare path created the intended bucket through the Storage API. A current production read confirms:
+The authenticated prepare path created the intended bucket through the Storage API. Current production verification confirms:
 
 - bucket: `enjaz-documents-private`;
 - public: **false**;
 - file size limit: **52,428,800 bytes (50 MiB)**;
 - allowed MIME types: PDF, JPEG, PNG, WebP, DOCX and XLSX only.
 
-The bucket remains as product infrastructure; only test objects were removed.
+The bucket remains product infrastructure; only disposable test objects were removed.
 
-## Auth safety decisions
+## Credential boundary for the clean rerun
 
-Production email Auth is enabled, but `mailer_autoconfirm=false`; anonymous and phone Auth are disabled. The real account in production was never reset or used for certification. No Auth setting was weakened to make tests pass.
+The permanent workflow `.github/workflows/phase10-1-real-cloud-e2e.yml` is **manual only** and reads its privileged credential exclusively from the GitHub Actions Secret `ENJAZ_SUPABASE_SECRET_KEY`. No privileged Supabase secret is stored in the repository, browser bundle, workflow source or evidence artifact.
 
-The permanent Real-Cloud certifier is a manual workflow only. It requires a server-side GitHub Secret named `ENJAZ_SUPABASE_SECRET_KEY`; the privileged key is never stored in the repository, browser bundle or evidence artifact. The script creates disposable confirmed users via Auth Admin, signs them in normally to obtain user JWTs, performs the real Storage sequence, and removes users/workspaces/objects in `finally` cleanup.
+A one-time presence probe, GitHub run **`34744505666`**, stopped at its preflight before npm installation, product code, or any production request because `ENJAZ_SUPABASE_SECRET_KEY` is not installed in GitHub Actions. This is a credential-infrastructure blocker, not a product-test failure. The one-time probe workflow was immediately removed afterward.
+
+The current ChatGPT GitHub connection can update repository code and workflows but does not expose GitHub Actions Secret administration. The Supabase connector likewise does not expose server secret values for transfer into GitHub. The closure rule is therefore not weakened to work around this tooling boundary.
+
+## Pull request boundary
+
+Draft PR **#151 — `Phase 10.1 — Document Vault production candidate`** targets `main` and is intentionally merge-blocked. The PR contains no one-time OIDC/probe workflow and no embedded `sb_secret_...` value. It must remain Draft until the permanent Real-Cloud workflow produces one clean green artifact.
 
 ## Remaining closure boundary
 
-The actual Storage transport is now substantially proven in production, including real v1/v2 binary upload, exact download, replay-safe acknowledgement and mismatch cleanup. The sole first-run failure was the now-corrected `items` versus `documents` harness parser.
+The actual Storage transport is already proven extensively in production, including real v1/v2 binary upload, byte-exact version download, replay-safe acknowledgement, mismatch cleanup and guarded archive. The only real-cloud run failure was the corrected `items` versus `documents` harness parser.
 
-Before Phase 10.1 may close, the corrected permanent Real-Cloud certifier must complete **one clean full run** so the post-archive assertions and bucket assertions are part of the same green evidence artifact. After that, the branch must pass its normal Document Vault Gate, dedicated Document Vault browser gate, general Real Browser Acceptance and Quality Constitution on the final candidate, then merge and pass post-merge Pages/live checks.
+Formal Phase 10.1 closure still requires, in order:
 
-Until those conditions are met, **Phase 10.1 remains IN PROGRESS and Phase 10.2 remains LOCKED**.
+1. install the server-only GitHub Actions Secret `ENJAZ_SUPABASE_SECRET_KEY` without exposing it to source or browser code;
+2. run the corrected permanent Real-Cloud certifier to a **single clean full green artifact**;
+3. retain all normal Document Vault, dedicated browser, full browser and Quality Constitution gates on the final candidate;
+4. make PR #151 merge-ready and merge to `main`;
+5. pass post-merge Pages and deployed-live recertification.
+
+Until every item above passes, **Phase 10.1 remains IN PROGRESS, `exitGatePassed=false`, and Phase 10.2 remains LOCKED**.
