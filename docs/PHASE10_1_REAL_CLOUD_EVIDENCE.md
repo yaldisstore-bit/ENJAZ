@@ -3,24 +3,59 @@
 Status: **IN PROGRESS**  
 Phase 10.2+: **LOCKED**
 
-This evidence records what has actually passed against the production Supabase project `juzxriirhkuzviwnhkbd`. It deliberately does not mark the signed-binary path complete until an authenticated end-to-end upload reaches Storage through the deployed Edge Function.
+This evidence records only what has actually passed against the production Supabase project `juzxriirhkuzviwnhkbd` and the governed Phase 10.1 branch. It deliberately does not mark the signed-binary path complete until an authenticated end-to-end upload reaches Storage through the deployed Edge Function.
 
-## Certified code/runtime candidate
+## Current certified code/runtime candidate
 
-Clean pre-cloud runtime head: `c7c406f8d37df080e891c55b7734387f1e5821d3`.
+Clean candidate head before this evidence-only update: `72fde5c96bf05d335dcef567ab8cf40eb044954c`.
 
-Normal, non-probe gates on that head:
+Natural, non-probe gates on that exact head:
 
-- Document Vault Gate `34740283533` — **SUCCESS** (authority audit, 10/10 vault tests, 218/218 regression, DB/roadmap/major-systems integrity, secrets, TypeScript, canonical build, `/live/` build, fixed budgets, Phase 10.2 lock).
-- Project Quality Constitution `34740283504` — **SUCCESS**.
-- Real Browser Acceptance `34740283464` — **SUCCESS** across 1280 / 430 / 390 / 360 / 320, including Shell, Golden, Core Work, Records, Operational Intelligence, Zero-Lost, destruction wave 1, destruction wave 2, Production Bridge, and Phase 9.1–9.4 runtime suites.
+- Document Vault Gate `34742481433` — **SUCCESS** (80-check authority audit, 10/10 Vault tests, 218/218 functional regression, DB/roadmap/major-systems integrity, secret audit, TypeScript, production build, `/live/` build, fixed budgets, Phase 10.2 lock).
+- Project Quality Constitution `34742481445` — **SUCCESS**.
+- Dedicated Document Vault Real Browser `34742481439` — **SUCCESS**.
+- General Real Browser Acceptance `34742481472` — **SUCCESS** across Shell, Golden, Core Work, Records, Operational Intelligence, Zero-Lost, destruction wave 1, destruction wave 2, Production Bridge, and Phase 9.1–9.4 runtime suites.
 
-Permanent compatibility runtime is pinned in `package.json` / `package-lock.json` and canonical Vite configs. Certified production budget after adoption:
+The dedicated Document Vault browser guard executes the actual Phase 10.1 UI workflow at **1280 / 430 / 390 / 360 / 320** and passed all five governed widths. It covers loading, empty/error recovery, new upload, company/transaction relation, version drawer/history, real v2 UI path, version download, archive, pagination to offset 100, RTL/no horizontal overflow, and minimum interactive control geometry.
 
-- total JS: **583,531 / 760,000**
-- initial JS: **390,940 / 670,000**
-- lazy JS: **192,591**
-- CSS: **179,984**
+## Runtime and fixed budgets
+
+The React compatibility runtime remains Preact-based, but the originally adopted `preact@10.27.2` was found by the new high-severity dependency gate to be affected by `GHSA-36hm-qxxp-pg3m` (JSON VNode Injection). The vulnerability was not ignored or allowlisted.
+
+A one-time governed npm runner generated `package.json` and `package-lock.json` with exact `preact@10.29.8`, ran a locked install and high-severity audit, committed the generated metadata, and was then physically removed. The clean candidate therefore contains no temporary upgrade workflow.
+
+Dedicated run `34742481439` subsequently passed `npm audit --audit-level=high` on the clean candidate.
+
+Certified production budget on `72fde5c96bf05d335dcef567ab8cf40eb044954c`:
+
+- raw distribution: **769,808**
+- initial JS: **390,947 / 670,000**
+- total JS: **583,513 / 760,000**
+- lazy JS: **192,566**
+- largest lazy chunk: **53,363 / 140,000**
+- CSS: **179,997 / 180,000**
+- gzip JS+CSS: **188,804**
+
+The `/ENJAZ/live/` build also passed its fixed budget:
+
+- raw distribution: **769,874**
+- initial JS: **390,969 / 670,000**
+- total JS: **583,535 / 760,000**
+- lazy JS: **192,566**
+- largest lazy chunk: **53,363 / 140,000**
+- CSS: **179,997 / 180,000**
+- gzip JS+CSS: **188,817**
+
+No budget ceiling was raised.
+
+## Browser defects discovered and repaired by the dedicated guard
+
+The dedicated Phase 10.1 reality guard found two defects that the generic matrix did not expose:
+
+1. **Async upload form lifetime** — the new-document submit path used `e.currentTarget.reset()` after awaiting the upload. In the Preact/React-compatible event lifetime this could make a successful upload appear as a UI failure and prevent the refresh. The form element is now captured before the first await and reset through the stable reference.
+2. **Native select touch targets** — company/transaction selects rendered at approximately 23 px high across every governed width while other controls were 44 px. The Document Vault surface now governs selects at 44 px. The first styling form exceeded the immutable CSS ceiling by 145 bytes, so it was compacted without lowering the 44 px target or raising the budget. The final CSS is 179,997 bytes.
+
+The same unchanged browser assertions then passed at all five widths.
 
 ## Production database deployment
 
@@ -32,8 +67,10 @@ Applied successfully:
 4. `phase_10_1_temp_auth_probe_dispatch`
 5. `phase_10_1_real_cloud_db_probe`
 6. `phase_10_1_probe_transport_cleanup`
+7. `phase_10_1_auth_settings_probe_dispatch`
+8. `phase_10_1_auth_settings_probe_cleanup`
 
-The two transport-dispatch migrations in items 3–4 were one-time external side-effect probes, not product schema. Their source files were removed from the branch after execution and cleanup because replaying them during a reset would resend Auth HTTP requests, and retaining their publishable-key-shaped literals violated the repository secret-audit policy. Their applied production migration records and the captured results below remain historical evidence. The permanent product migration, hardening migration, rollback-contained DB certification probe and cleanup remain governed separately.
+The transport/settings dispatch migrations are one-time evidence probes, not product schema. The earlier transport-dispatch source files were removed from the branch after execution and cleanup because replaying them during a reset would resend external Auth requests and retaining publishable-key-shaped literals violated repository secret-audit policy. The Auth settings probe table was also removed immediately after its response was recorded.
 
 Post-deployment checks confirmed:
 
@@ -41,7 +78,7 @@ Post-deployment checks confirmed:
 - Phase 10.1 document/version metadata columns exist.
 - `prepare_document_upload_v1` and service-only acknowledgement RPCs exist.
 - `authenticated` has no direct INSERT/UPDATE/DELETE authority on `documents` or `document_versions`.
-- temporary transport probe bookkeeping was removed.
+- temporary transport/settings probe bookkeeping was removed.
 - no probe sessions, documents or workspaces remain.
 
 ## Production DB destructive probe
@@ -67,13 +104,13 @@ Post-deployment checks confirmed:
 
 Immediately after the primary migration, the performance advisor reported 27 unindexed foreign keys, including six introduced/touched by Phase 10.1. `phase_10_1_fk_index_hardening` added covering indexes for all six Phase 10.1 relationships.
 
-A second advisor run reports **21** unindexed foreign keys, all belonging to earlier systems. No Phase 10.1 foreign key remains in the unindexed-FK findings. Newly created 10.1 indexes appear as unused, which is expected immediately after creation.
+A second advisor run reports **21** unindexed foreign keys, all belonging to earlier systems. No Phase 10.1 foreign key remains in the unindexed-FK findings. Newly created 10.1 indexes appearing as unused immediately after creation is expected.
 
 Security advisor notes:
 
 - `document_upload_sessions` has RLS with no row policies by design: the table is fully revoked from browser roles and is reachable only through the guarded RPC boundary.
 - authenticated `SECURITY DEFINER` warnings on the public vault RPCs are expected for this design; the public functions call the private workspace-membership guard and direct table mutation is revoked.
-- unrelated pre-existing project warnings (for example leaked-password protection and earlier systems) are not asserted as Phase 10.1 closure evidence.
+- unrelated pre-existing project warnings are not asserted as Phase 10.1 closure evidence.
 
 ## Production Edge Function
 
@@ -84,26 +121,38 @@ Security advisor notes:
 - deployed source SHA: `11999258ea42f6f1f8fa88b4d7c729b767b5f6ee61061b024138e3af7625fb20`
 - `verify_jwt`: **true**
 
-The deployed function uses the authenticated user context for guarded RPCs and server credentials only for Storage signing/verification and service acknowledgement. Upload URLs are generated with `upsert:false`; acknowledgement checks the actual object byte size and MIME before promoting a version; downloads are short-lived signed URLs.
+The deployed function uses authenticated user context for guarded RPCs and server credentials only for Storage signing/verification and service acknowledgement. Upload URLs use `upsert:false`; acknowledgement verifies actual object byte size and MIME before promoting a version; downloads are short-lived signed URLs.
 
 ## Auth / transport evidence
 
-A real `pg_net` request to Supabase Auth verified that anonymous sign-in is disabled in production:
+A real Auth transport request verified that anonymous sign-in is disabled in production:
 
 - HTTP `422`
 - `anonymous_provider_disabled`
 
 Anonymous Auth was **not enabled** for testing.
 
-A disposable email signup transport attempt was rejected by Auth before user creation (`email_address_invalid`). No test user/session was retained. The probe transport table was subsequently removed.
+A disposable signup attempt was rejected before user creation (`email_address_invalid`). No test user/session was retained.
+
+A later read-only Auth settings probe to the project's public `/auth/v1/settings` endpoint returned HTTP 200 and confirmed:
+
+- email provider: enabled;
+- signup: enabled;
+- `mailer_autoconfirm`: **false**;
+- anonymous users: **disabled**;
+- phone auth: **disabled**.
+
+Production Auth currently contains one confirmed user and no test-marked user. That real account is intentionally not being used or reset for certification. Because email auto-confirm is disabled, an arbitrary public signup would create an unconfirmed account without a usable JWT; we intentionally did not leave such an account behind and did not weaken Auth settings.
+
+The currently available Supabase connector exposes public-key discovery and database/project operations but no Auth Admin `createUser` action and no secret/service-role-key retrieval. A temporary unauthenticated/admin bootstrap Edge endpoint was also rejected as a certification strategy because it would manufacture a privileged bypass solely to make the test pass.
 
 ## Remaining closure boundary — NOT YET PASSED
 
-The private bucket `enjaz-documents-private` does **not** yet exist. The deployed Edge Function creates/verifies it through the Storage API only after a valid authenticated invocation reaches the function. We intentionally did **not** write directly to `storage.buckets`, because Supabase documents the Storage schema as read-only for application operations.
+The private bucket `enjaz-documents-private` does **not** yet have certified creation through the production Storage API. The deployed Edge Function creates/verifies it only after a valid authenticated user invocation reaches the function. We intentionally did **not** write directly to `storage.buckets`, because Supabase documents Storage schema tables as read-only for application operations.
 
-Therefore the following must remain **pending** before Phase 10.1 can close:
+The dedicated Phase 10.1 browser acceptance is now **PASSED**, so the remaining closure boundary is exclusively the real authenticated Storage path:
 
-1. authenticated Edge `prepare` with a real user JWT;
+1. authenticated Edge `prepare` with a valid non-production-test-user JWT;
 2. creation/verification of the private 50 MiB MIME-restricted bucket through Storage API;
 3. signed browser upload with `upsert:false`;
 4. pre-object acknowledgement rejection;
@@ -113,7 +162,6 @@ Therefore the following must remain **pending** before Phase 10.1 can close:
 8. signed download of selected versions;
 9. mismatch object cleanup/failure behavior through the real Storage API;
 10. archive preserving the uploaded objects/history;
-11. cleanup of test objects/rows;
-12. dedicated Phase 10.1 browser acceptance covering the Document Vault UI itself.
+11. cleanup of test objects/rows and deletion of the disposable Auth identity.
 
-Until those are passed and recorded, **Phase 10.1 remains IN PROGRESS and Phase 10.2 remains LOCKED**.
+Until that authenticated Storage sequence is passed and recorded, **Phase 10.1 remains IN PROGRESS and Phase 10.2 remains LOCKED**.
