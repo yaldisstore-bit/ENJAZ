@@ -1,5 +1,6 @@
 name: ENJAZ Phase 10.1 — Real Cloud Storage E2E Run Once
 
+# One-time dispatch pulse after workflow registration.
 on:
   push:
     branches:
