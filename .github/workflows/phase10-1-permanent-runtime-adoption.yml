@@ -45,13 +45,6 @@ jobs:
             if s.count(marker)!=1:
               raise SystemExit(f'vite alias insertion point drifted: {name}')
             p.write_text(s.replace(marker,marker+alias,1))
-
-          p=Path('.github/workflows/enjaz-browser-acceptance.yml'); s=p.read_text()
-          anchor="      - 'phase9-4-*'\n"
-          if "      - 'phase10-1-*'\n" not in s:
-            if s.count(anchor)!=1: raise SystemExit('browser acceptance branch trigger anchor drifted')
-            s=s.replace(anchor,anchor+"      - 'phase10-1-*'\n",1)
-          p.write_text(s)
           PY
       - name: Prove locked install, contracts and fixed budget before commit
         run: |
@@ -66,6 +59,6 @@ jobs:
         run: |
           git config user.name 'enjaz-ci'
           git config user.email 'actions@users.noreply.github.com'
-          git add package.json package-lock.json vite.config.ts vite.r2-preview.config.ts vite.r2-production-test.config.ts vite.phase9-2-browser.config.ts vite.phase9-3-browser.config.ts vite.phase9-4-browser.config.ts .github/workflows/enjaz-browser-acceptance.yml
+          git add package.json package-lock.json vite.config.ts vite.r2-preview.config.ts vite.r2-production-test.config.ts vite.phase9-2-browser.config.ts vite.phase9-3-browser.config.ts vite.phase9-4-browser.config.ts
           git commit -m 'Phase 10.1 — adopt pinned Preact compatibility runtime'
           git push origin HEAD:phase10-1-document-vault
