@@ -17,7 +17,7 @@ const arr=(v:unknown)=>Array.isArray(v)?v:[];
 const boundedConfidence=(v:unknown,fallback=0)=>{const n=Number(v);return Number.isFinite(n)&&n>=0&&n<=1?n:fallback};
 
 function secret(){const modern=Deno.env.get('SUPABASE_SECRET_KEYS');if(modern)try{const p=JSON.parse(modern) as Record<string,string>;if(p.default)return p.default}catch{}const legacy=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');if(legacy)return legacy;throw new Error('SERVER_SECRET_UNAVAILABLE')}
-function publicKey(){const k=Deno.env.get('SUPABASE_ANON_KEY')||Deno.env.get('SUPABASE_PUBLISHABLE_KEY');if(k)return k;throw new Error('SERVER_PUBLIC_KEY_UNAVAILABLE')}
+function publicKey(){const modern=Deno.env.get('SUPABASE_PUBLISHABLE_KEYS');if(modern)try{const p=JSON.parse(modern) as Record<string,string>;if(p.default)return p.default}catch{}const single=Deno.env.get('SUPABASE_PUBLISHABLE_KEY')||Deno.env.get('SUPABASE_ANON_KEY');if(single)return single;throw new Error('SERVER_PUBLIC_KEY_UNAVAILABLE')}
 function normalizeHttpsEndpoint(value:string){const u=new URL(value);if(u.protocol!=='https:'||u.username||u.password)throw new Error('OCR_PROVIDER_NOT_CONFIGURED');u.search='';u.hash='';const path=u.pathname.replace(/\/+$/,'');return`${u.origin}${path}`}
 function providerConfig():Provider{
   const azureEndpoint=Deno.env.get('ENJAZ_AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT')?.trim(),azureKey=Deno.env.get('ENJAZ_AZURE_DOCUMENT_INTELLIGENCE_KEY')?.trim();
