@@ -33,6 +33,8 @@ Applied successfully:
 5. `phase_10_1_real_cloud_db_probe`
 6. `phase_10_1_probe_transport_cleanup`
 
+The two transport-dispatch migrations in items 3–4 were one-time external side-effect probes, not product schema. Their source files were removed from the branch after execution and cleanup because replaying them during a reset would resend Auth HTTP requests, and retaining their publishable-key-shaped literals violated the repository secret-audit policy. Their applied production migration records and the captured results below remain historical evidence. The permanent product migration, hardening migration, rollback-contained DB certification probe and cleanup remain governed separately.
+
 Post-deployment checks confirmed:
 
 - `public.document_upload_sessions` exists and has RLS enabled.
