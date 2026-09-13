@@ -4,6 +4,8 @@ const read=(p)=>fs.readFileSync(p,'utf8'),readJson=(p)=>JSON.parse(read(p));
 const state=readJson('docs/PHASE10_2_STATE.json'),predecessor=readJson('docs/PHASE10_1_STATE.json');
 const migration=read('database/migrations/phase_10_2_document_intelligence.sql');
 const contract=read('src/features/documents/documentIntelligenceContract.ts');
+const commands=read('src/features/documents/documentIntelligenceCommands.ts');
+const edge=read('supabase/functions/enjaz-document-intelligence/index.ts');
 const tests=read('tests/documentIntelligence.test.ts');
 const workflow=read('.github/workflows/phase10-2-document-intelligence.yml');
 const failures=[];const check=(name,condition)=>{if(!condition)failures.push(name)},has=(s,x)=>s.includes(x);
@@ -17,7 +19,9 @@ check('governed_flow',Array.isArray(state.extractionFlow)&&state.extractionFlow.
 check('traceability',state.provenanceRequired===true&&state.immutableVersionBindingRequired===true&&state.pageReferenceRequired===true&&state.confidenceRequired===true&&state.verificationStateRequired===true);
 check('explicit_failure',state.failureMustBeExplicit===true&&state.staleSourceVerificationAllowed===false);
 check('browser_mutation_forbidden',state.directBrowserAnalysisMutationAllowed===false);
-check('foundation_progress',state.persistenceContractAdded===true&&state.clientContractAdded===true&&state.contractDestructionTestsAdded===true);
+check('provider_secret_hidden',state.providerSecretBrowserVisible===false);
+check('foundation_progress',state.persistenceContractAdded===true&&state.clientContractAdded===true&&state.contractDestructionTestsAdded===true&&state.serverOrchestrationBrokerAdded===true&&state.clientGatewayAdded===true);
+check('provider_not_falsely_certified',state.serverExtractionProviderConnected===false&&state.realCloudVerification==='PENDING'&&state.realBrowserVerification==='PENDING');
 check('vault_boundary',state.storageBoundary==='PRIVATE_SIGNED_BROKER_ONLY'&&state.sourceAuthorityTables?.join(',')==='documents,document_versions');
 check('budgets_frozen',state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false);
 check('successor_locked',state.exitGatePassed===false&&state.phase10_3Allowed===false&&state.nextPhase==='10.3'&&state.successorStatus==='LOCKED');
@@ -40,10 +44,19 @@ check('no_authenticated_failure_mutation',!/grant execute on function public\.fa
 check('service_claim_private',has(migration,'revoke all on function public.get_document_extraction_claim_v1(uuid) from public,anon,authenticated'));
 
 for(const marker of ['DocumentIntelligenceState','documentVersionId','sourceVersionNumber','pageNumber','confidence','assertDocumentIntelligenceTransition','isAuthoritativeIntelligence',"a.state==='verified'&&!a.stale"])check(`contract:${marker}`,has(contract,marker));
+for(const marker of ['get_document_intelligence_v1','review_document_extraction_v1','verify_document_extraction_v1','functions/v1/enjaz-document-intelligence','Authorization:`Bearer ${token}`','crypto.randomUUID()'])check(`commands:${marker}`,has(commands,marker));
+check('commands_no_server_secret',!/SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEYS|ENJAZ_OCR_PROVIDER_KEY/.test(commands));
+
+for(const marker of ['ENJAZ_OCR_PROVIDER_URL','ENJAZ_OCR_PROVIDER_KEY','OCR_PROVIDER_NOT_CONFIGURED','get_document_extraction_claim_v1','mark_document_extraction_started_v1','complete_document_extraction_v1','fail_document_extraction_v1','enjaz-documents-private','SOURCE_FILE_REMAINS_AUTHORITATIVE','X-Enjaz-OCR-Contract','enjaz.ocr-provider.v1'])check(`edge:${marker}`,has(edge,marker));
+check('edge_secret_not_literal',!/(sb_secret_[A-Za-z0-9_-]+|service_role\s*[:=]\s*["'][^"']+|ENJAZ_OCR_PROVIDER_KEY\s*[:=]\s*["'][^"']+)/.test(edge));
+check('edge_provider_key_server_only',has(edge,"Deno.env.get('ENJAZ_OCR_PROVIDER_KEY')")&&!/body\.providerKey|body\.apiKey/.test(edge));
+check('edge_user_auth_before_service',edge.indexOf('auth.getUser()')>=0&&edge.indexOf('auth.getUser()')<edge.indexOf("get_document_extraction_claim_v1"));
+check('edge_private_source_only',has(edge,"c.bucket!=='enjaz-documents-private'")&&has(edge,"sourceAuthority!=='SOURCE_FILE_REMAINS_AUTHORITATIVE'"));
+
 for(const marker of ['rejects non-legacy extraction without immutable version provenance','rejects review-ready OCR with no page evidence','rejects page confidence outside 0..1','rejects extracted field lacking page provenance','verified-but-stale extraction is never authoritative','legacy OCR stays explicitly non-authoritative'])check(`destruction:${marker}`,has(tests,marker));
 check('workflow_runs_contract_tests',has(workflow,'tests/documentIntelligence.test.ts'));
 check('workflow_preserves_vault_tests',has(workflow,'tests/documentVault.test.ts'));
 check('workflow_full_regression',has(workflow,'npm run test:functional'));
 
 if(failures.length){console.error(`ENJAZ PHASE 10.2 AUTHORITY AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);process.exit(1)}
-console.log('ENJAZ PHASE 10.2 AUTHORITY AUDIT PASS — immutable source/version authority preserved; OCR provenance, EXTRACT→REVIEW→VERIFY, stale rejection and browser write lock enforced.');
+console.log('ENJAZ PHASE 10.2 AUTHORITY AUDIT PASS — immutable source/version authority preserved; OCR broker keeps provider secrets server-side; EXTRACT→REVIEW→VERIFY and stale rejection enforced.');
