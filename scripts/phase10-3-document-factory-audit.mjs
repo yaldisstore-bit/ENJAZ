@@ -7,6 +7,8 @@ const predecessor=readJson('docs/PHASE10_2_STATE.json');
 const systems=readJson('docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json');
 const authority=read('database/migrations/phase_10_3_document_factory_authority.sql');
 const hardening=read('database/migrations/phase_10_3_document_factory_authority_hardening.sql');
+const fkHardening=read('database/migrations/phase_10_3_document_factory_fk_index_hardening.sql');
+const liveProbe=read('database/migrations/phase_10_3_live_authenticated_authority_probe.sql');
 const contract=read('src/features/documents/documentFactoryContract.ts');
 const tests=read('tests/documentFactory.test.ts');
 const workflow=read('.github/workflows/phase10-3-document-factory.yml');
@@ -25,7 +27,15 @@ check('browser_finalization_closed',state.directBrowserFinalizationAllowed===fal
 check('ocr_fail_closed',state.unverifiedOcrAllowedInOfficialGeneration===false&&state.verifiedOcrMustBeCurrent===true);
 check('successor_locked',state.phase10_4Allowed===false&&state.nextPhase==='10.4'&&state.successorStatus==='LOCKED');
 check('budgets_frozen',state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false);
-check('foundation_tracking',state.databaseAuthorityMigrationAdded===true&&state.domainContractAdded===true&&state.stageFoundationTestsAdded===true&&state.phaseGateAdded===true&&state.databaseAuthorityExtensionAdded===false);
+check('foundation_tracking',state.databaseAuthorityMigrationAdded===true&&state.authorityHardeningMigrationAdded===true&&state.fkIndexHardeningMigrationAdded===true&&state.liveAuthenticatedAuthorityProbeAdded===true&&state.domainContractAdded===true&&state.stageFoundationTestsAdded===true&&state.phaseGateAdded===true);
+check('live_authority_certified',state.databaseAuthorityExtensionAdded===true&&state.databaseAuthorityLiveVerified===true&&state.databaseAuthorityZeroResidue===true&&state.phaseOwnedUnindexedForeignKeys===0&&state.realCloudVerification==='AUTHORITY_FOUNDATION_PASS_ZERO_RESIDUE');
+check('runtime_still_open',state.domainCommandsAdded===false&&state.reviewApprovalFlowAdded===false&&state.officialGenerationRuntimeAdded===false&&state.realBrowserVerification==='PENDING_RUNTIME'&&state.deployedLiveVerification==='PENDING_RUNTIME'&&state.exitGatePassed===false);
+const migrationVersions=state.liveMigrationVersions||{};
+check('live_migration_versions',migrationVersions.authority==='20260913234238'&&migrationVersions.authorityHardening==='20260913234248'&&migrationVersions.fkIndexHardening==='20260913234402'&&migrationVersions.authenticatedAuthorityProbe==='20260913234855');
+const live=state.liveAuthorityVerification||{};
+for(const key of ['ownerTemplateVersionCreate','idempotentReplay','requestPayloadDriftRejected','publishAndReplay','checksumVerified','crossWorkspaceReadDenied','crossWorkspaceCreateDenied','browserApprovalSmugglingDenied','publishedTemplateVersionImmutable','invalidDraftTransitionRejected','auditEvidenceVerified','sourceDocumentsUntouched'])check(`live:${key}`,live[key]===true);
+for(const key of ['probeUsersRemaining','probeTemplatesRemaining','probeVersionsRemaining','probeDraftsRemaining','probeAuditEventsRemaining','probeHelpersRemaining'])check(`zero_residue:${key}`,live[key]===0);
+check('live_status',live.status==='PASS_ZERO_RESIDUE');
 const m7=systems.systems?.find((s)=>s.id==='M7');
 check('m7_active',m7?.name==='Document Factory & Official Form Engine'&&m7?.status==='ACTIVE');
 check('kickoff_authority',has(kickoff,'template version')&&has(kickoff,'immutable')&&has(kickoff,'documents` + immutable `document_versions')&&has(kickoff,'Phase 10.4 is **LOCKED**'));
@@ -55,8 +65,8 @@ for(const marker of [
 ])check(`authority:${marker}`,has(authority,marker));
 
 check('no_template_version_direct_mutation_grant',!/grant\s+(insert|update|delete)[\s\S]{0,160}document_template_versions[\s\S]{0,100}authenticated/i.test(authority));
-check('no_source_document_mutation',!/(?:update|delete\s+from)\s+public\.documents\b/i.test(authority+hardening));
-check('no_source_version_mutation',!/(?:update|delete\s+from)\s+public\.document_versions\b/i.test(authority+hardening));
+check('no_source_document_mutation',!/(?:update|delete\s+from)\s+public\.documents\b/i.test(authority+hardening+fkHardening));
+check('no_source_version_mutation',!/(?:update|delete\s+from)\s+public\.document_versions\b/i.test(authority+hardening+fkHardening));
 check('security_definer_search_path',/create or replace function public\.create_document_template_version_v1[\s\S]*?security definer set search_path=''/i.test(authority)&&/create or replace function public\.publish_document_template_version_v1[\s\S]*?security definer set search_path=''/i.test(authority));
 
 for(const marker of [
@@ -70,6 +80,20 @@ for(const marker of [
   'for insert to authenticated',
   'for update to authenticated'
 ])check(`hardening:${marker}`,has(hardening,marker));
+for(const marker of ['document_drafts_final_document_version_fk_idx','workspace_id,final_document_id,final_document_version_id'])check(`fk_hardening:${marker}`,has(fkHardening,marker));
+for(const marker of [
+  'authenticated Real Cloud Document Factory authority probe',
+  'create_document_template_version_v1',
+  'publish_document_template_version_v1',
+  'ENJAZ_TEMPLATE_VERSION_REQUEST_DRIFT',
+  'ENJAZ_DOCUMENT_FACTORY_WORKSPACE_FORBIDDEN',
+  'browser smuggled approval insert was accepted',
+  'published template version was mutable',
+  'template-version audit evidence count is not exactly two',
+  'template-version operations mutated source document authority',
+  'probe residue remains after cleanup',
+  'immutable trigger was not restored'
+])check(`live_probe:${marker}`,has(liveProbe,marker));
 
 for(const marker of [
   'validateTemplateVersionInput',
@@ -105,4 +129,4 @@ if(failures.length){
   console.error(`ENJAZ PHASE 10.3 AUTHORITY AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);
   process.exit(1);
 }
-console.log('ENJAZ PHASE 10.3 AUTHORITY AUDIT PASS — M7 foundation is fail-closed: immutable template versions, clean draft authority, verified-current OCR contract, source-document non-mutation and Phase 10.4 lock are enforced.');
+console.log('ENJAZ PHASE 10.3 AUTHORITY AUDIT PASS — M7 live authority foundation is certified with zero probe residue; official generation/review/finalization runtime remains intentionally open and Phase 10.4 remains locked.');
