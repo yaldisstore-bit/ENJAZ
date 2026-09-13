@@ -46,7 +46,10 @@ export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorks
       : destination === 'finance' || destination === 'risk' ? <FinancePortal />
       : destination === 'insights' ? <InsightsPortal />
       : destination === 'knowledge' ? <KnowledgePortal gateway={regulatoryKnowledge} workspace={regulatoryWorkspace} />
-      : destination === 'documents' ? <DocumentsPortal factory={documentVaultFactory} intelligenceFactory={documentIntelligenceFactory} workspace={documentWorkspace}/>
-      : null}
+      : destination === 'documents'
+        ? documentIntelligenceFactory
+          ? <DocumentsPortal factory={documentVaultFactory} intelligenceFactory={documentIntelligenceFactory} workspace={documentWorkspace}/>
+          : <DocumentsPortal factory={documentVaultFactory} workspace={documentWorkspace}/>
+        : null}
   </Suspense>;
 }
