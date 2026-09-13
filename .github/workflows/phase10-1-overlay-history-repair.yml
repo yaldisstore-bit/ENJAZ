@@ -1,0 +1,55 @@
+name: ENJAZ Phase 10.1 — Overlay History Repair
+
+on:
+  push:
+    branches: [phase10-1-document-vault]
+    paths:
+      - '.github/workflows/phase10-1-overlay-history-repair.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  repair-overlay-history:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: phase10-1-document-vault
+          fetch-depth: 0
+      - name: Apply deterministic immediate-close repair
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+            'src/ui-r2/runtime/UiR2LiveRoot.tsx': (
+              "if(ownedOverlay.current){ownedOverlay.current=false;window.history.back()}",
+              "if(ownedOverlay.current){ownedOverlay.current=false;setOverlay(null);window.history.back()}"
+            ),
+            'src/ui-r2/runtime/UiR2PreviewRoot.tsx': (
+              "if (ownedOverlay.current) { ownedOverlay.current = false; window.history.back(); }",
+              "if (ownedOverlay.current) { ownedOverlay.current = false; setOverlay(null); window.history.back(); }"
+            ),
+            'src/ui-r2/runtime/UiR2Root.tsx': (
+              "if (ownedOverlay.current) { ownedOverlay.current = false; window.history.back(); }",
+              "if (ownedOverlay.current) { ownedOverlay.current = false; setOverlay(null); window.history.back(); }"
+            ),
+          }
+
+          for name, (old, new) in replacements.items():
+            path = Path(name)
+            text = path.read_text()
+            count = text.count(old)
+            if count != 1:
+              raise SystemExit(f'{name}: expected exactly one closeOverlay seam, found {count}')
+            path.write_text(text.replace(old, new, 1))
+          PY
+      - name: Commit repaired runtime seams
+        run: |
+          git config user.name 'enjaz-ci'
+          git config user.email 'actions@users.noreply.github.com'
+          git add src/ui-r2/runtime/UiR2LiveRoot.tsx src/ui-r2/runtime/UiR2PreviewRoot.tsx src/ui-r2/runtime/UiR2Root.tsx
+          git diff --cached --check
+          git commit -m 'Phase 10.1 — make overlay dismissal immediate before history sync'
+          git push origin HEAD:phase10-1-document-vault
