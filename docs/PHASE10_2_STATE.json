@@ -39,7 +39,7 @@
   "providerApiVersion": "2024-11-30",
   "providerArabicSupportRequired": true,
   "serverExtractionProviderConnected": false,
-  "providerConfigurationStatus": "CREDENTIALS_PENDING",
+  "providerConfigurationStatus": "PENDING",
   "reviewVerificationUiComplete": true,
   "realBrowserHarnessAdded": true,
   "staleSourceBrowserScenarioAdded": true,
