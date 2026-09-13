@@ -2,6 +2,9 @@ name: ENJAZ Phase 10.2 — Real Azure Arabic OCR Exit Certificate
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - phase10-2-document-intelligence-ocr
 
 permissions:
   contents: read
