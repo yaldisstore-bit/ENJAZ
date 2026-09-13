@@ -1,0 +1,56 @@
+name: ENJAZ Phase 10.2 — Real Azure Arabic OCR Exit Certificate
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-2-azure-provider-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-azure-arabic-ocr:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.head_ref == 'phase10-2-document-intelligence-ocr')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+      SUPABASE_SECRET_KEY: ${{ secrets.ENJAZ_SUPABASE_SECRET_KEY }}
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Require privileged server-only test credential
+        shell: bash
+        run: |
+          test -n "$SUPABASE_SECRET_KEY" || { echo 'ENJAZ_SUPABASE_SECRET_KEY is missing'; exit 1; }
+          case "$SUPABASE_SECRET_KEY" in sb_publishable_*) echo 'Secret is not privileged'; exit 1;; esac
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Preserve Phase 10.2 authority and Azure provider security
+        run: |
+          node scripts/phase10-2-document-intelligence-audit.mjs
+          node scripts/phase10-2-azure-provider-audit.mjs
+          node --check scripts/phase10-2-azure-provider-e2e.mjs
+          node --experimental-strip-types --test tests/documentIntelligence.test.ts
+          node --experimental-strip-types --test tests/documentVault.test.ts
+      - name: Real Azure Arabic OCR / review / verify / source-authority certificate
+        run: node scripts/phase10-2-azure-provider-e2e.mjs
+      - name: Upload Azure provider evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10-2-azure-provider-${{ github.sha }}
+          path: artifacts/phase10-2-azure-provider/evidence.json
+          if-no-files-found: error
+          retention-days: 30

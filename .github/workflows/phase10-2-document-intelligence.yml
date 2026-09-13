@@ -1,0 +1,59 @@
+name: ENJAZ Phase 10.2 — Document Intelligence / OCR Gate
+
+on:
+  push:
+    branches:
+      - 'phase10-2-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase102-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase10-2-governance:
+    name: Source authority / provenance / extraction-review-verify / successor lock
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with: { python-version: '3.12' }
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 10.2 authority and provenance audit
+        run: node scripts/phase10-2-document-intelligence-audit.mjs
+      - name: Azure Document Intelligence adapter security audit
+        run: node scripts/phase10-2-azure-provider-audit.mjs
+      - name: Document Intelligence destruction tests
+        run: node --experimental-strip-types --test tests/documentIntelligence.test.ts
+      - name: Preserve Document Vault destruction tests
+        run: node --experimental-strip-types --test tests/documentVault.test.ts
+      - name: Preserve full functional regression
+        run: npm run test:functional
+      - name: Preserve database, roadmap and major-system integrity
+        run: npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && node scripts/major-systems-zero-escape-audit.mjs
+      - name: Preserve secret boundary and TypeScript
+        run: npm run audit:secrets && npm run typecheck
+      - name: Preserve production build and frozen budgets
+        run: npm run build -- --base=/ && npm run audit:dist:budget
+      - name: Preserve Pages live build and frozen budgets
+        run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
+      - name: Enforce Phase 10.2 lifecycle governance
+        run: node -e "const j=require('./docs/PHASE10_2_STATE.json');if(!(j.phase==='10.2'&&j.status==='IN_PROGRESS'&&j.sourceAuthority==='SOURCE_FILE_REMAINS_AUTHORITATIVE'&&j.directBrowserAnalysisMutationAllowed===false&&j.staleSourceVerificationAllowed===false&&j.directAzureProviderAdapterReady===true&&j.serverExtractionProviderConnected===false&&j.exitGatePassed===false&&j.phase10_3Allowed===false&&j.successorStatus==='LOCKED'&&j.budgetIncreaseAllowed===false))process.exit(1)"
