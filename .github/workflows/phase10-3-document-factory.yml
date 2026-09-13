@@ -37,7 +37,7 @@ jobs:
         with: { python-version: '3.12' }
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Phase 10.3 authority audit
+      - name: Phase 10.3 authority and lifecycle audit
         run: node scripts/phase10-3-document-factory-audit.mjs
       - name: Document Factory destruction tests
         run: node --experimental-strip-types --test tests/documentFactory.test.ts
@@ -55,5 +55,5 @@ jobs:
         run: npm run build -- --base=/ && npm run audit:dist:budget
       - name: Preserve Pages live build and frozen budgets
         run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
-      - name: Enforce Phase 10.3 lifecycle governance
-        run: node -e "const j=require('./docs/PHASE10_3_STATE.json');if(!(j.phase==='10.3'&&j.status==='IN_PROGRESS'&&j.baseCommit==='667f2cc3892d8167e5880f030a1ff6dd6baf47b9'&&j.majorSystem==='M7'&&j.majorSystemStatus==='ACTIVE'&&j.databaseAuthorityMigrationAdded===true&&j.authorityHardeningMigrationAdded===true&&j.domainContractAdded===true&&j.stageFoundationTestsAdded===true&&j.phaseGateAdded===true&&j.databaseAuthorityExtensionAdded===false&&j.directBrowserFinalizationAllowed===false&&j.unverifiedOcrAllowedInOfficialGeneration===false&&j.verifiedOcrMustBeCurrent===true&&j.generatedOutputMayMutateSourceRecords===false&&j.phase10_4Allowed===false&&j.nextPhase==='10.4'&&j.successorStatus==='LOCKED'&&j.budgetIncreaseAllowed===false))process.exit(1)"
+      - name: Re-enforce Phase 10.3 certified state
+        run: node scripts/phase10-3-document-factory-audit.mjs
