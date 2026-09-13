@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "status": "GOVERNING_AMENDMENT",
+  "effectiveFromPhase": "18",
+  "preservesPhasesThrough": "17",
+  "closedPhasesReopened": false,
+  "historicalEvidenceInvalidated": false,
+  "finalDeliveryPhase": "20",
+  "finalState": "ENJAZ 1.0 — Delivered",
+  "phase17Role": "PRODUCTION_BASELINE_AND_RELEASE_REHEARSAL",
+  "phase18": {
+    "name": "Advanced Office & Productivity Suite",
+    "kind": "CAPABILITY",
+    "minimumSubphases": 15,
+    "requiredCapabilities": [
+      "my-work-space",
+      "command-palette",
+      "favorites-pins-recent-work",
+      "safe-bulk-operations",
+      "work-recipes",
+      "advanced-checklists",
+      "notes-tags-bookmarks",
+      "delegation-handoff",
+      "approval-center",
+      "custom-workspace-layouts",
+      "cross-record-compare",
+      "personal-team-productivity",
+      "smart-quick-create",
+      "safe-undo-correction",
+      "productivity-zero-escape"
+    ]
+  },
+  "phase19": {
+    "name": "Digital Office, Correspondence & Mobile Capture",
+    "kind": "CAPABILITY",
+    "minimumSubphases": 17,
+    "requiredCapabilities": [
+      "incoming-outgoing-correspondence",
+      "mobile-document-scanner",
+      "share-to-enjaz",
+      "smart-incoming-desk",
+      "document-toolbox",
+      "annotation-redaction",
+      "document-version-visual-compare",
+      "signature-stamp-library",
+      "qr-barcode-bridge",
+      "physical-file-tracking",
+      "submission-pack-builder",
+      "print-center",
+      "secure-share-packages",
+      "offline-capture-queue",
+      "mobile-office-mode",
+      "scan-ocr-preflight",
+      "digital-office-zero-escape"
+    ]
+  },
+  "phase20": {
+    "name": "Grand Final Zero-Escape & Reality Certification",
+    "kind": "FINAL_CERTIFICATION",
+    "minimumSubphases": 20,
+    "featureFreeze": true,
+    "requiresFullUiUxDestruction": true,
+    "requiresRealAndroid": true,
+    "requiresExactProductionSha": true,
+    "requiresBackupRestoreAcceptance": true,
+    "requiresM1M18ClosureMatrix": true,
+    "requiredZeroCounts": [
+      "critical",
+      "high",
+      "functionalBlockers",
+      "uxHigh",
+      "securityHigh",
+      "dataReconciliationErrors"
+    ]
+  },
+  "majorSystemAnchorChanges": {
+    "M14": ["15", "20"]
+  },
+  "authorizationRule": "No Phase 18-20 implementation is authorized until every predecessor closes in order under its existing gate law."
+}
