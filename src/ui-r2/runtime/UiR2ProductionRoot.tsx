@@ -46,8 +46,8 @@ import './accessibility-hardening.css';
 export type DocumentVaultFactory = () => Promise<DocumentVaultGateway>;
 
 type VaultResource =
-  | { documentVaultFactory: DocumentVaultFactory; documentVault?: never }
-  | { documentVault: DocumentVaultGateway; documentVaultFactory?: never };
+  | { documentVaultFactory:DocumentVaultFactory; documentVault?: never }
+  | { documentVault:DocumentVaultGateway; documentVaultFactory?:never };
 
 type BaseResources = {
   authGateway: AuthGateway;
@@ -67,11 +67,11 @@ export type UiR2ProductionResources = Readonly<BaseResources & VaultResource>;
 function createProductionResources(): UiR2ProductionResources {
   const config = createRuntimeConfig(import.meta.env as unknown as Readonly<Record<string, unknown>>);
   const client = createEnjazSupabaseClient(config);
-  const dataFactory = createEnjazDataLayerFactory(client);
+  const dataFactory=createEnjazDataLayerFactory(client);
   const processRuntime: ProcessRuntimeFactory = () => import('../../features/process-intelligence/processMiningRuntime.ts')
-    .then((module) => module.createProcessRuntimeGateway(client, dataFactory));
+    .then(module=>module.createProcessRuntimeGateway(client,dataFactory));
   let vault: Promise<DocumentVaultGateway> | undefined;
-  const documentVaultFactory: DocumentVaultFactory = () => vault ??= import('../../features/documents/documentVaultCommands.ts')
+  const documentVaultFactory:DocumentVaultFactory = () => vault ??= import('../../features/documents/documentVaultCommands.ts')
     .then((module) => module.createDocumentVaultGateway(client, config.supabaseUrl, config.supabasePublishableKey));
 
   return Object.freeze({
@@ -124,7 +124,7 @@ function AuthenticatedR2Runtime({
   if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode} />;
   const signOut = async () => { await auth.service.signOut(); };
 
-  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime ?? null}>
+  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
     <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} documentVaultFactory={documentVaultFactory} documentWorkspace={workspace} />
   </ProcessRuntimeProvider></CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
