@@ -8,6 +8,7 @@ on:
       - 'phase9-2-*'
       - 'phase9-3-*'
       - 'phase9-4-*'
+      - 'phase10-1-*'
   pull_request:
     branches: [main]
   workflow_dispatch:
