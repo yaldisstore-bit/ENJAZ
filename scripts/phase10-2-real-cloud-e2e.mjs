@@ -44,8 +44,13 @@ try{
  if(providerProbe.status===503&&providerProbe.data?.error==='OCR_PROVIDER_NOT_CONFIGURED'){
    evidence.providerConnected=false;record('provider_absence_fail_safe_explicit','HTTP 503 OCR_PROVIDER_NOT_CONFIGURED');
    const {data,error}=await admin.from('document_analysis').select('verification_state,failure_code').eq('id',providerRequest).single();if(error)throw error;assert(data.verification_state==='failed'&&data.failure_code==='OCR_PROVIDER_NOT_CONFIGURED','provider_absence_persisted_as_explicit_failure');
+ }else if(providerProbe.ok){
+   evidence.providerConnected=true;assert(['review_required','superseded'].includes(providerProbe.data?.state),'configured_provider_edge_contract',`HTTP ${providerProbe.status}`);
  }else{
-   evidence.providerConnected=true;assert(providerProbe.ok&&['review_required','superseded'].includes(providerProbe.data?.state),'configured_provider_edge_contract',`HTTP ${providerProbe.status}`);
+   evidence.providerConnected=true;
+   const {data,error}=await admin.from('document_analysis').select('verification_state,provider,failure_code,failure_message').eq('id',providerRequest).single();if(error)throw error;
+   const message=typeof data.failure_message==='string'?data.failure_message:'';
+   assert(providerProbe.status===500&&data.verification_state==='failed'&&data.failure_code==='OCR_PROVIDER_FAILED'&&data.provider==='azure-document-intelligence/prebuilt-layout-v4'&&message.startsWith('OCR_AZURE_ANALYZE_HTTP_400'),'configured_provider_reached_azure_and_invalid_probe_was_rejected',message.slice(0,240));
  }
  record('real_cloud_document_intelligence_boundary_passed');
 }catch(e){fatal=e;console.error(e)}finally{await cleanup();const failedCleanup=evidence.cleanup.filter(x=>!x.passed);if(failedCleanup.length&&!fatal)fatal=new Error(`Cleanup failed: ${failedCleanup.length}`);await persist()}
