@@ -228,6 +228,10 @@ const documentVault: DocumentVaultGateway = Object.freeze({
   async upload() { throw new Error('R2 production test does not allow document uploads'); },
   async downloadUrl() { throw new Error('No document exists in production bridge harness'); },
   async archive() { throw new Error('R2 production test does not allow document archive writes'); },
+  async intelligence(_workspaceId: string, documentId: string) { return Object.freeze({ documentId, currentVersionId: null, currentVersionNumber: null, sourceAuthority: 'SOURCE_FILE_REMAINS_AUTHORITATIVE' as const, analyses: Object.freeze([]) }); },
+  async extract() { throw new Error('R2 production test does not allow OCR writes'); },
+  async reviewExtraction() { throw new Error('R2 production test does not allow OCR review writes'); },
+  async verifyExtraction() { throw new Error('R2 production test does not allow OCR verification writes'); },
 });
 
 const rootElement = document.getElementById('r2-production-test-root');
