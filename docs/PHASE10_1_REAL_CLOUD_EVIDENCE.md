@@ -7,14 +7,14 @@ This evidence records only what has actually passed against the production Supab
 
 ## Current certified code/runtime candidate
 
-Clean candidate head before this evidence-only update: `72fde5c96bf05d335dcef567ab8cf40eb044954c`.
+Current replay-hardened candidate: `b009da0ea45dfde169edcf2a32d5773722401e82`.
 
 Natural, non-probe gates on that exact head:
 
-- Document Vault Gate `34742481433` — **SUCCESS** (80-check authority audit, 10/10 Vault tests, 218/218 functional regression, DB/roadmap/major-systems integrity, secret audit, TypeScript, production build, `/live/` build, fixed budgets, Phase 10.2 lock).
-- Project Quality Constitution `34742481445` — **SUCCESS**.
-- Dedicated Document Vault Real Browser `34742481439` — **SUCCESS**.
-- General Real Browser Acceptance `34742481472` — **SUCCESS** across Shell, Golden, Core Work, Records, Operational Intelligence, Zero-Lost, destruction wave 1, destruction wave 2, Production Bridge, and Phase 9.1–9.4 runtime suites.
+- Document Vault Gate `34742912758` — **SUCCESS** (authority/replay contract audit, 10/10 Vault tests, 218/218 functional regression, DB/roadmap/major-systems integrity, secret audit, TypeScript, production build, `/live/` build, fixed budgets, Phase 10.2 lock).
+- Project Quality Constitution `34742912836` — **SUCCESS**.
+- Dedicated Document Vault Real Browser `34742912786` — **SUCCESS**, including the five governed widths and high-severity dependency audit.
+- General Real Browser Acceptance `34742912806` — **SUCCESS** across Shell, Golden, Core Work, Records, Operational Intelligence, Zero-Lost, destruction wave 1, destruction wave 2, Production Bridge, and Phase 9.1–9.4 runtime suites.
 
 The dedicated Document Vault browser guard executes the actual Phase 10.1 UI workflow at **1280 / 430 / 390 / 360 / 320** and passed all five governed widths. It covers loading, empty/error recovery, new upload, company/transaction relation, version drawer/history, real v2 UI path, version download, archive, pagination to offset 100, RTL/no horizontal overflow, and minimum interactive control geometry.
 
@@ -24,9 +24,9 @@ The React compatibility runtime remains Preact-based, but the originally adopted
 
 A one-time governed npm runner generated `package.json` and `package-lock.json` with exact `preact@10.29.8`, ran a locked install and high-severity audit, committed the generated metadata, and was then physically removed. The clean candidate therefore contains no temporary upgrade workflow.
 
-Dedicated run `34742481439` subsequently passed `npm audit --audit-level=high` on the clean candidate.
+Dedicated browser runs subsequently pass `npm audit --audit-level=high`.
 
-Certified production budget on `72fde5c96bf05d335dcef567ab8cf40eb044954c`:
+The latest application runtime changes after the Preact upgrade are Edge/SQL/audit-contract only, so the certified client bundle remains within the same fixed ceilings. Last exact measured production budget:
 
 - raw distribution: **769,808**
 - initial JS: **390,947 / 670,000**
@@ -69,8 +69,9 @@ Applied successfully:
 6. `phase_10_1_probe_transport_cleanup`
 7. `phase_10_1_auth_settings_probe_dispatch`
 8. `phase_10_1_auth_settings_probe_cleanup`
+9. `phase_10_1_ack_replay_hardening`
 
-The transport/settings dispatch migrations are one-time evidence probes, not product schema. The earlier transport-dispatch source files were removed from the branch after execution and cleanup because replaying them during a reset would resend external Auth requests and retaining publishable-key-shaped literals violated repository secret-audit policy. The Auth settings probe table was also removed immediately after its response was recorded.
+The transport/settings dispatch migrations are one-time evidence probes, not product schema. Their temporary bookkeeping has been removed. No probe sessions, documents or workspaces remain.
 
 Post-deployment checks confirmed:
 
@@ -78,8 +79,9 @@ Post-deployment checks confirmed:
 - Phase 10.1 document/version metadata columns exist.
 - `prepare_document_upload_v1` and service-only acknowledgement RPCs exist.
 - `authenticated` has no direct INSERT/UPDATE/DELETE authority on `documents` or `document_versions`.
-- temporary transport/settings probe bookkeeping was removed.
-- no probe sessions, documents or workspaces remain.
+- `get_document_upload_claim_v1` now accepts only uploader-owned `prepared` or `acknowledged` sessions after the workspace membership guard.
+- an acknowledged claim returns `binaryAuthoritative=true`.
+- `authenticated` and `service_role` may execute the upload-claim RPC while `anon` may not.
 
 ## Production DB destructive probe
 
@@ -92,7 +94,7 @@ Post-deployment checks confirmed:
 - generated Storage paths contain workspace/document/version/operation identity and do not contain the original filename;
 - no `document_versions` row exists before acknowledgement;
 - outsider workspace access is rejected;
-- acknowledgement creates exactly one authoritative v1 and acknowledgement replay is duplicate-safe;
+- acknowledgement creates exactly one authoritative v1 and the service acknowledgement RPC is duplicate-safe;
 - a failed later upload never becomes a version and does not damage the current ready document;
 - a subsequent valid upload becomes v2 at a new immutable path while v1 is preserved;
 - version-specific download claims resolve the correct paths;
@@ -100,28 +102,45 @@ Post-deployment checks confirmed:
 - archive preserves binary/version history and excludes the document from the normal vault while retaining it in `includeArchived`;
 - all destructive fixtures were rolled back and residue checks passed.
 
-## Database advisors
+## Acknowledgement replay hardening
 
-Immediately after the primary migration, the performance advisor reported 27 unindexed foreign keys, including six introduced/touched by Phase 10.1. `phase_10_1_fk_index_hardening` added covering indexes for all six Phase 10.1 relationships.
+While designing the final real Storage E2E, a boundary bug was found before certification: the service RPC `acknowledge_document_upload_v1` was duplicate-safe, but the Edge broker could not reach that duplicate-safe path after a successful first acknowledgement because `get_document_upload_claim_v1` previously exposed only `prepared` sessions.
 
-A second advisor run reports **21** unindexed foreign keys, all belonging to earlier systems. No Phase 10.1 foreign key remains in the unindexed-FK findings. Newly created 10.1 indexes appearing as unused immediately after creation is expected.
+The defect was fixed without weakening authority:
+
+- migration `phase_10_1_ack_replay_hardening` allows the authenticated uploader to recover its immutable claim in `prepared` or `acknowledged` state only;
+- `prepared` claims remain `binaryAuthoritative=false`;
+- `acknowledged` claims are `binaryAuthoritative=true`;
+- failed/cancelled states are not replayable;
+- the Edge broker validates this state/authority pairing;
+- an acknowledged replay goes through `ack_replay_rpc` directly to the already duplicate-safe service acknowledgement RPC using the stored path, size and MIME, instead of pretending to be a first acknowledgement and re-running initial Storage verification.
+
+This contract is now guarded by the Phase 10.1 authority audit and passed all normal CI/browser gates on `b009da0ea45dfde169edcf2a32d5773722401e82`.
+
+The migration is applied in production as version `20260913063446`.
+
+## Database advisors after replay deployment
+
+A post-deployment performance advisor still reports **21** unindexed foreign keys, all belonging to earlier systems. No Phase 10.1 foreign key appears in the unindexed-FK findings. The Phase 10.1 covering indexes appear only as newly unused indexes, which is expected before real Storage traffic.
 
 Security advisor notes:
 
-- `document_upload_sessions` has RLS with no row policies by design: the table is fully revoked from browser roles and is reachable only through the guarded RPC boundary.
-- authenticated `SECURITY DEFINER` warnings on the public vault RPCs are expected for this design; the public functions call the private workspace-membership guard and direct table mutation is revoked.
-- unrelated pre-existing project warnings are not asserted as Phase 10.1 closure evidence.
+- `document_upload_sessions` has RLS with no row policies by design: the table is fully revoked from browser roles and is reachable only through guarded RPC boundaries.
+- authenticated `SECURITY DEFINER` notices on the Document Vault RPCs are expected for this design because they explicitly run the private workspace-membership guard and direct table mutation is revoked.
+- unrelated pre-existing warnings, including leaked-password protection being disabled and earlier-system lints, are not asserted as Phase 10.1 closure evidence.
 
 ## Production Edge Function
 
-`enjaz-document-vault` is deployed and **ACTIVE**:
+`enjaz-document-vault` is deployed and **ACTIVE** with replay hardening:
 
-- version: `1`
+- version: **2**
 - deployment id: `8e4eccee-128d-46a6-a5ac-96cf94cf4a0a`
-- deployed source SHA: `11999258ea42f6f1f8fa88b4d7c729b767b5f6ee61061b024138e3af7625fb20`
+- deployed bundle SHA-256: `cb17bbda466e73117558e578e07aa3a52814d43565c0c449c95a67f02338d774`
 - `verify_jwt`: **true**
 
-The deployed function uses authenticated user context for guarded RPCs and server credentials only for Storage signing/verification and service acknowledgement. Upload URLs use `upsert:false`; acknowledgement verifies actual object byte size and MIME before promoting a version; downloads are short-lived signed URLs.
+A production fetch of the deployed function source confirms the v2 code contains the acknowledged-claim validation and `ack_replay_rpc` branch from the governed repository candidate.
+
+The deployed function uses authenticated user context for guarded RPCs and server credentials only for Storage signing/verification and service acknowledgement. Upload URLs use `upsert:false`; first acknowledgement verifies actual object byte size and MIME before promoting a version; acknowledged replay routes to the duplicate-safe RPC; downloads are short-lived signed URLs.
 
 ## Auth / transport evidence
 
@@ -134,7 +153,7 @@ Anonymous Auth was **not enabled** for testing.
 
 A disposable signup attempt was rejected before user creation (`email_address_invalid`). No test user/session was retained.
 
-A later read-only Auth settings probe to the project's public `/auth/v1/settings` endpoint returned HTTP 200 and confirmed:
+A read-only Auth settings probe to the project's public `/auth/v1/settings` endpoint returned HTTP 200 and confirmed:
 
 - email provider: enabled;
 - signup: enabled;
@@ -142,26 +161,27 @@ A later read-only Auth settings probe to the project's public `/auth/v1/settings
 - anonymous users: **disabled**;
 - phone auth: **disabled**.
 
-Production Auth currently contains one confirmed user and no test-marked user. That real account is intentionally not being used or reset for certification. Because email auto-confirm is disabled, an arbitrary public signup would create an unconfirmed account without a usable JWT; we intentionally did not leave such an account behind and did not weaken Auth settings.
+Production Auth contains one confirmed user and no test-marked user. That real account is intentionally not being used or reset for certification. Because email auto-confirm is disabled, an arbitrary public signup would create an unconfirmed account without a usable JWT; we intentionally did not leave such an account behind and did not weaken Auth settings.
 
-The currently available Supabase connector exposes public-key discovery and database/project operations but no Auth Admin `createUser` action and no secret/service-role-key retrieval. A temporary unauthenticated/admin bootstrap Edge endpoint was also rejected as a certification strategy because it would manufacture a privileged bypass solely to make the test pass.
+The available Supabase connector provides database/project/Edge operations but no Auth Admin `createUser` action and no service-role-key retrieval. A privileged Real-Cloud test runner requiring admin/service-role credentials was not added after the platform safety layer blocked that path; no attempt was made to bypass or obfuscate the restriction. A temporary unauthenticated/admin bootstrap Edge endpoint was also rejected as a certification strategy because it would manufacture a privileged bypass solely to make the test pass.
 
 ## Remaining closure boundary — NOT YET PASSED
 
-The private bucket `enjaz-documents-private` does **not** yet have certified creation through the production Storage API. The deployed Edge Function creates/verifies it only after a valid authenticated user invocation reaches the function. We intentionally did **not** write directly to `storage.buckets`, because Supabase documents Storage schema tables as read-only for application operations.
+A production read after the v2 deployment confirms that bucket `enjaz-documents-private` still does **not** exist. This is expected: deployment itself does not create Storage state. The Edge broker creates/verifies the bucket through the Storage API only after a valid authenticated invocation reaches it. We intentionally did **not** write directly to `storage.buckets`.
 
-The dedicated Phase 10.1 browser acceptance is now **PASSED**, so the remaining closure boundary is exclusively the real authenticated Storage path:
+All code, browser, dependency, migration and Edge-v2 replay-hardening gates are green. The remaining closure boundary is exclusively the real authenticated Storage path using a disposable confirmed test identity:
 
-1. authenticated Edge `prepare` with a valid non-production-test-user JWT;
+1. authenticated Edge `prepare` with a valid disposable-user JWT;
 2. creation/verification of the private 50 MiB MIME-restricted bucket through Storage API;
 3. signed browser upload with `upsert:false`;
 4. pre-object acknowledgement rejection;
 5. exact object byte-size and MIME validation;
 6. successful acknowledgement producing exactly one v1 row;
-7. v2 upload to a distinct path preserving v1;
-8. signed download of selected versions;
-9. mismatch object cleanup/failure behavior through the real Storage API;
-10. archive preserving the uploaded objects/history;
-11. cleanup of test objects/rows and deletion of the disposable Auth identity.
+7. Edge acknowledgement replay returning the same v1 as a duplicate-safe success;
+8. mismatch object cleanup/failure behavior through the real Storage API;
+9. v2 upload to a distinct path preserving v1;
+10. signed download of selected versions;
+11. archive preserving the uploaded objects/history;
+12. cleanup of test objects/rows and deletion of the disposable Auth identity.
 
 Until that authenticated Storage sequence is passed and recorded, **Phase 10.1 remains IN PROGRESS and Phase 10.2 remains LOCKED**.
