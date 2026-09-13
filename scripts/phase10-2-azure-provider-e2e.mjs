@@ -30,7 +30,7 @@ try{
  const source=await uploadFixture(u,workspaceId,bytes),requestId=uuid();
  const extraction=await edge(u,'enjaz-document-intelligence',{action:'extract',workspaceId,documentId:source.documentId,versionNumber:source.versionNumber,requestId});
  if(extraction.status===503&&extraction.data?.error==='OCR_PROVIDER_NOT_CONFIGURED')throw new Error('AZURE_PROVIDER_NOT_CONNECTED');
- assert(extraction.ok&&extraction.status===200,'deployed_edge_provider_request_succeeded',`HTTP ${extraction.status}`);
+ assert(extraction.ok&&extraction.status===200,'deployed_edge_provider_request_succeeded',`HTTP ${extraction.status} ${JSON.stringify(extraction.data)}`);
  assert(extraction.data?.provider===EXPECTED_PROVIDER,'azure_provider_selected',String(extraction.data?.provider??'missing'));
  assert(extraction.data?.state==='review_required','provider_result_requires_human_review',String(extraction.data?.state??'missing'));
  const {data:analysis,error:analysisError}=await admin.from('document_analysis').select('verification_state,ocr_text,page_results,provider,provider_run_id,confidence,source_version_number,failure_code').eq('id',requestId).single();if(analysisError)throw analysisError;
