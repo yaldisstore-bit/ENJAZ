@@ -1,0 +1,91 @@
+name: ENJAZ Phase 10.1 — Overlay Queue Repair
+
+on:
+  push:
+    branches: [phase10-1-document-vault]
+    paths: ['.github/workflows/phase10-1-overlay-queue-repair.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  repair-overlay-race:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: phase10-1-document-vault
+          fetch-depth: 0
+      - name: Repair repeated overlay history race
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          formatted = [
+            Path('src/ui-r2/runtime/UiR2PreviewRoot.tsx'),
+            Path('src/ui-r2/runtime/UiR2Root.tsx'),
+          ]
+          for path in formatted:
+            text = path.read_text()
+            replacements = [
+              (
+                "  const ownedOverlay = useRef(false);\n  useR2OverlayFocusGuard(overlay);",
+                "  const ownedOverlay = useRef(false);\n  const pendingHistoryClose = useRef(false);\n  const queuedOverlay = useRef<Exclude<OverlayId, null> | null>(null);\n  useR2OverlayFocusGuard(overlay);"
+              ),
+              (
+                "    const syncFromHistory = () => { const next = readUrlState(); setDestinationId(next.destinationId); setTransactionId(next.transactionId); setOverlay(next.overlay); ownedOverlay.current = false; };",
+                "    const syncFromHistory = () => {\n      const next = readUrlState();\n      setDestinationId(next.destinationId);\n      setTransactionId(next.transactionId);\n      const queued = queuedOverlay.current;\n      pendingHistoryClose.current = false;\n      queuedOverlay.current = null;\n      if (queued) { writeUrlState(next.destinationId, queued, next.transactionId); setOverlay(queued); ownedOverlay.current = true; }\n      else { setOverlay(next.overlay); ownedOverlay.current = false; }\n    };"
+              ),
+              (
+                "    if (ownedOverlay.current) { ownedOverlay.current = false; setOverlay(null); window.history.back(); }",
+                "    if (ownedOverlay.current) { ownedOverlay.current = false; pendingHistoryClose.current = true; setOverlay(null); window.history.back(); }"
+              ),
+              (
+                "  const openOverlay = (id: Exclude<OverlayId, null>) => { writeUrlState(destinationId, id, transactionId); setOverlay(id); ownedOverlay.current = true; };",
+                "  const openOverlay = (id: Exclude<OverlayId, null>) => {\n    if (pendingHistoryClose.current) { queuedOverlay.current = id; return; }\n    writeUrlState(destinationId, id, transactionId);\n    setOverlay(id);\n    ownedOverlay.current = true;\n  };"
+              ),
+            ]
+            for old, new in replacements:
+              count = text.count(old)
+              if count != 1:
+                raise SystemExit(f'{path}: expected one replacement seam, found {count}: {old[:55]}')
+              text = text.replace(old, new, 1)
+            path.write_text(text)
+
+          path = Path('src/ui-r2/runtime/UiR2LiveRoot.tsx')
+          text = path.read_text()
+          replacements = [
+            (
+              "ownedOverlay=useRef(false);useR2OverlayFocusGuard(overlay);",
+              "ownedOverlay=useRef(false),pendingHistoryClose=useRef(false),queuedOverlay=useRef<Exclude<OverlayId,null>|null>(null);useR2OverlayFocusGuard(overlay);"
+            ),
+            (
+              "useEffect(()=>{const sync=()=>{const n=readUrlState();setDestinationId(n.destinationId);setTransactionId(n.transactionId);setOverlay(n.overlay);ownedOverlay.current=false};window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[]);",
+              "useEffect(()=>{const sync=()=>{const n=readUrlState(),queued=queuedOverlay.current;setDestinationId(n.destinationId);setTransactionId(n.transactionId);pendingHistoryClose.current=false;queuedOverlay.current=null;if(queued){writeUrlState(n.destinationId,queued,n.transactionId);setOverlay(queued);ownedOverlay.current=true}else{setOverlay(n.overlay);ownedOverlay.current=false}};window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[]);"
+            ),
+            (
+              "if(ownedOverlay.current){ownedOverlay.current=false;setOverlay(null);window.history.back()}",
+              "if(ownedOverlay.current){ownedOverlay.current=false;pendingHistoryClose.current=true;setOverlay(null);window.history.back()}"
+            ),
+            (
+              "openOverlay=(id:Exclude<OverlayId,null>)=>{writeUrlState(destinationId,id,transactionId);setOverlay(id);ownedOverlay.current=true};",
+              "openOverlay=(id:Exclude<OverlayId,null>)=>{if(pendingHistoryClose.current){queuedOverlay.current=id;return}writeUrlState(destinationId,id,transactionId);setOverlay(id);ownedOverlay.current=true};"
+            ),
+          ]
+          for old, new in replacements:
+            count = text.count(old)
+            if count != 1:
+              raise SystemExit(f'{path}: expected one replacement seam, found {count}: {old[:55]}')
+            text = text.replace(old, new, 1)
+          path.write_text(text)
+          PY
+      - name: Verify and commit
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          git diff --check
+          git config user.name 'enjaz-ci'
+          git config user.email 'actions@users.noreply.github.com'
+          git add src/ui-r2/runtime/UiR2LiveRoot.tsx src/ui-r2/runtime/UiR2PreviewRoot.tsx src/ui-r2/runtime/UiR2Root.tsx
+          git commit -m 'Phase 10.1 — serialize repeated overlay history ownership'
+          git push origin HEAD:phase10-1-document-vault
