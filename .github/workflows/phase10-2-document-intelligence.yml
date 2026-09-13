@@ -1,0 +1,56 @@
+name: ENJAZ Phase 10.2 — Document Intelligence Gate
+
+on:
+  push:
+    branches: [phase10-2-document-intelligence]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/features/documents/**'
+      - 'src/ui-r2/documents/**'
+      - 'database/migrations/phase_10_2_*.sql'
+      - 'supabase/functions/enjaz-document-intelligence/**'
+      - 'tests/documentIntelligence.test.ts'
+      - 'scripts/phase10-2-document-intelligence-audit.mjs'
+      - 'docs/PHASE10_2_STATE.json'
+      - '.github/workflows/phase10-2-document-intelligence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-2-document-intelligence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase10_2:
+    name: Source authority + OCR contract + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 10.2 governance audit
+        run: node scripts/phase10-2-document-intelligence-audit.mjs
+      - name: Document Intelligence contract tests
+        run: node --experimental-strip-types --test tests/documentIntelligence.test.ts
+      - name: Secrets audit
+        run: npm run audit:secrets
+      - name: Database integrity
+        run: npm run db:audit && npm run db:audit:selftest
+      - name: TypeScript check
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build
+      - name: Production asset budget
+        run: npm run audit:dist:budget
