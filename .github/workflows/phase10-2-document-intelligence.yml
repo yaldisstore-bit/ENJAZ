@@ -39,6 +39,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Phase 10.2 authority and provenance audit
         run: node scripts/phase10-2-document-intelligence-audit.mjs
+      - name: Azure Document Intelligence adapter security audit
+        run: node scripts/phase10-2-azure-provider-audit.mjs
       - name: Document Intelligence destruction tests
         run: node --experimental-strip-types --test tests/documentIntelligence.test.ts
       - name: Preserve Document Vault destruction tests
@@ -54,4 +56,4 @@ jobs:
       - name: Preserve Pages live build and frozen budgets
         run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
       - name: Enforce Phase 10.2 lifecycle governance
-        run: node -e "const j=require('./docs/PHASE10_2_STATE.json');if(!(j.phase==='10.2'&&j.status==='IN_PROGRESS'&&j.sourceAuthority==='SOURCE_FILE_REMAINS_AUTHORITATIVE'&&j.directBrowserAnalysisMutationAllowed===false&&j.staleSourceVerificationAllowed===false&&j.exitGatePassed===false&&j.phase10_3Allowed===false&&j.successorStatus==='LOCKED'&&j.budgetIncreaseAllowed===false))process.exit(1)"
+        run: node -e "const j=require('./docs/PHASE10_2_STATE.json');if(!(j.phase==='10.2'&&j.status==='IN_PROGRESS'&&j.sourceAuthority==='SOURCE_FILE_REMAINS_AUTHORITATIVE'&&j.directBrowserAnalysisMutationAllowed===false&&j.staleSourceVerificationAllowed===false&&j.directAzureProviderAdapterReady===true&&j.serverExtractionProviderConnected===false&&j.exitGatePassed===false&&j.phase10_3Allowed===false&&j.successorStatus==='LOCKED'&&j.budgetIncreaseAllowed===false))process.exit(1)"
