@@ -43,7 +43,7 @@ check('no_authenticated_completion',!/grant execute on function public\.complete
 check('no_authenticated_failure_mutation',!/grant execute on function public\.fail_document_extraction_v1[\s\S]{0,180}to authenticated/i.test(migration));
 check('service_claim_private',has(migration,'revoke all on function public.get_document_extraction_claim_v1(uuid) from public,anon,authenticated'));
 
-for(const marker of ['DocumentIntelligenceState','documentVersionId','sourceVersionNumber','pageNumber','confidence','assertDocumentIntelligenceTransition','isAuthoritativeIntelligence',"a.state==='verified'&&!a.stale"])check(`contract:${marker}`,has(contract,marker));
+for(const marker of ['DocumentIntelligenceState','documentVersionId','sourceVersionNumber','pageNumber','confidence','assertDocumentIntelligenceTransition','isVerifiedIntelligenceUsable',"a.state==='verified'&&!a.stale"])check(`contract:${marker}`,has(contract,marker));
 for(const marker of ['get_document_intelligence_v1','review_document_extraction_v1','verify_document_extraction_v1','functions/v1/enjaz-document-intelligence','Authorization:`Bearer ${token}`','crypto.randomUUID()'])check(`commands:${marker}`,has(commands,marker));
 check('commands_no_server_secret',!/SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEYS|ENJAZ_OCR_PROVIDER_KEY/.test(commands));
 
@@ -53,10 +53,10 @@ check('edge_provider_key_server_only',has(edge,"Deno.env.get('ENJAZ_OCR_PROVIDER
 check('edge_user_auth_before_service',edge.indexOf('auth.getUser()')>=0&&edge.indexOf('auth.getUser()')<edge.indexOf("get_document_extraction_claim_v1"));
 check('edge_private_source_only',has(edge,"c.bucket!=='enjaz-documents-private'")&&has(edge,"sourceAuthority!=='SOURCE_FILE_REMAINS_AUTHORITATIVE'"));
 
-for(const marker of ['rejects non-legacy extraction without immutable version provenance','rejects review-ready OCR with no page evidence','rejects page confidence outside 0..1','rejects extracted field lacking page provenance','verified-but-stale extraction is never authoritative','legacy OCR stays explicitly non-authoritative'])check(`destruction:${marker}`,has(tests,marker));
+for(const marker of ['rejects non-legacy extraction without immutable version provenance','rejects review-ready OCR with no page evidence','rejects page confidence outside 0..1','rejects extracted field lacking page provenance','verified-but-stale extraction is never usable as verified intelligence','legacy OCR stays explicitly derived and unverified'])check(`destruction:${marker}`,has(tests,marker));
 check('workflow_runs_contract_tests',has(workflow,'tests/documentIntelligence.test.ts'));
 check('workflow_preserves_vault_tests',has(workflow,'tests/documentVault.test.ts'));
 check('workflow_full_regression',has(workflow,'npm run test:functional'));
 
 if(failures.length){console.error(`ENJAZ PHASE 10.2 AUTHORITY AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);process.exit(1)}
-console.log('ENJAZ PHASE 10.2 AUTHORITY AUDIT PASS — immutable source/version authority preserved; OCR broker keeps provider secrets server-side; EXTRACT→REVIEW→VERIFY and stale rejection enforced.');
+console.log('ENJAZ PHASE 10.2 AUTHORITY AUDIT PASS — immutable source/version authority preserved; verified OCR stays derived; provider secrets remain server-side; EXTRACT→REVIEW→VERIFY and stale rejection enforced.');
