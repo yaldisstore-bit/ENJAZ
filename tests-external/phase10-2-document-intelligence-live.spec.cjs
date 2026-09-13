@@ -44,11 +44,13 @@ for(const viewport of viewports){
 
   const versionInput=page.locator('input[type="file"][hidden]');
   await versionInput.setInputFiles({name:'contract-v2.pdf',mimeType:'application/pdf',buffer:Buffer.from('phase10-2-v2')});
+  await expect(review).toHaveAttribute('data-analysis-state','superseded');
   await expect(review).toHaveAttribute('data-analysis-stale','true');
   await expect(panel.getByText(/توجد نسخة أصلية أحدث/)).toBeVisible();
   await expect(panel.getByRole('button',{name:'تحقق نهائي من النتيجة'})).toHaveCount(0);
   const afterVersion=await page.evaluate(()=>window.__ENJAZ_PHASE102_BROWSER__);
   expect(afterVersion.versions.length).toBe(2);
+  expect(afterVersion.analyses[0].state).toBe('superseded');
   expect(afterVersion.analyses[0].stale).toBe(true);
 
   await panel.getByRole('button',{name:'استخراج من النسخة الحالية'}).click();
@@ -57,6 +59,7 @@ for(const viewport of viewports){
   const afterReextract=await page.evaluate(()=>window.__ENJAZ_PHASE102_BROWSER__);
   expect(afterReextract.logs.extract.at(-1).versionNumber).toBe(2);
   expect(afterReextract.analyses[0].sourceVersionNumber).toBe(2);
+  expect(afterReextract.analyses[1].state).toBe('superseded');
   expect(afterReextract.analyses[1].stale).toBe(true);
 
   const overflow=await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,innerWidth:window.innerWidth}));
