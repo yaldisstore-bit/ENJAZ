@@ -23,16 +23,24 @@ The `/ENJAZ/live/` build also passed the fixed ceilings with total JS **583,535 
 
 Two real UI defects were found by the dedicated browser guard and repaired without weakening any rule: the awaited upload form used an unstable event target, and native company/transaction selects were only about 23 px high. The final controls are governed at 44 px and CSS remains below the fixed ceiling.
 
-## Final clean branch certification before evidence refresh
+## Final clean branch certification
 
-The clean governed runtime head `8df0625d3c2d86d59e257251928ce1eecb27b6bf` passed every normal code/browser gate:
+The governed runtime head **`edde6e69aaaea175390491f5bee9356bf19b9359`** completed the full repository sweep with **no failed workflow**. This head also reconciles the historical source-contract guards without fake comments, guard weakening or runtime feature removal.
 
-- **Document Vault Gate `34744538738` — SUCCESS**: authority audit **100 checks**, Vault tests **10/10**, functional regression **218/218**, database/roadmap/major-system integrity, secret audit, TypeScript, production build budget, `/live/` build budget, and the explicit Phase 10.2 lock check all passed.
-- **Document Vault Real Browser `34744538727` — SUCCESS**: the real UI flow passed upload, v2, version download, archive and pagination at **1280 / 430 / 390 / 360 / 320**, followed by a successful high-severity dependency audit.
-- **Real Browser Acceptance `34744538753` — SUCCESS**: Shell, Golden, Core Work, Records, Operational Intelligence, Zero-Lost, Destruction wave 1, Destruction wave 2, Production Bridge, and Phase 9.1 / 9.2 / 9.3 / 9.4 all passed.
-- **Project Quality Constitution `34744538723` — SUCCESS**.
+Key exact-head evidence:
 
-The subsequent documentation-only state/evidence refresh does not authorize Phase 10.2 and must itself retain the same normal green gates before merge readiness is considered.
+- **Document Vault Gate `34751036413` — SUCCESS**: authority audit, Vault destruction tests, full functional regression, database/roadmap/major-system integrity, secrets, TypeScript, production build budget, `/live/` build budget and explicit Phase 10.2 lock all passed.
+- **Document Vault Real Browser `34751036432` — SUCCESS**: upload, v2, version download, archive, pagination, widths **1280 / 430 / 390 / 360 / 320**, and dependency high-severity audit all passed.
+- **Phase 9.6 Gate `34751036412` — SUCCESS** and **Phase 9.6 Real Browser `34751036328` — SUCCESS**.
+- **Phase 9.7 Intelligence Zero-Escape Gate `34751036389` — SUCCESS**.
+- **Real Browser Acceptance `34751036441` — SUCCESS**: Shell, Golden, Core Work, Records, Operational Intelligence, Zero-Lost, both destruction waves, production bridge, and Phase 9.1 / 9.2 / 9.3 / 9.4 all passed.
+- **Project Quality Constitution `34751036462` — SUCCESS**.
+- **Quality Gate `34751036415` — SUCCESS**.
+- **Phase 8.7 Zero-Escape `34751036416` — SUCCESS**.
+
+The complete exact-head sweep also left the historical 5.x / 6.x / 7.x / 8.x / 9.x / R2 gates green. There was no known code, build, budget, browser or dependency failure on this head.
+
+After the credential-presence experiment was removed, branch head **`bc4cd86b6f9e90f76c28907e25a5b89966bf4ff3`** compared against `edde6e69...` with **`files: []`**. The five intervening commits are therefore history-only experiment/cleanup commits and leave the repository tree identical to the fully green candidate.
 
 ## Production database and authority boundary
 
@@ -114,12 +122,17 @@ Cleanup from the authenticated Storage run succeeded for:
 - **2 temporary workspaces**;
 - **2 temporary Auth users**.
 
-Independent production verification after cleanup reports:
+Independent production verification after the final credential preflight confirms:
 
 - Phase 10.1 test-marked Auth users: **0**;
 - Phase 10.1 test documents: **0**;
 - Phase 10.1 test upload sessions: **0**;
-- candidate test Storage objects: **0**.
+- current-pointer test Storage objects: **0**;
+- bucket public flag: **false**;
+- bucket file-size limit: **52,428,800 bytes**;
+- bucket allowed MIME set remains PDF, JPEG, PNG, WebP, DOCX and XLSX only.
+
+The final credential preflight never reached npm installation or the certifier script, so it could not create production fixtures.
 
 The temporary certification endpoints were not left privileged. Because the available connector cannot delete Edge Function slugs, both were overwritten with inert HTTP 410 tombstones with `verify_jwt=true`:
 
@@ -143,9 +156,20 @@ The bucket remains product infrastructure; only disposable test objects were rem
 
 The permanent workflow `.github/workflows/phase10-1-real-cloud-e2e.yml` is **manual only** and reads its privileged credential exclusively from the GitHub Actions Secret `ENJAZ_SUPABASE_SECRET_KEY`. No privileged Supabase secret is stored in the repository, browser bundle, workflow source or evidence artifact.
 
-A one-time presence probe, GitHub run **`34744505666`**, stopped at its preflight before npm installation, product code, or any production request because `ENJAZ_SUPABASE_SECRET_KEY` is not installed in GitHub Actions. This is a credential-infrastructure blocker, not a product-test failure. The one-time probe workflow was immediately removed afterward.
+An earlier one-time presence probe, GitHub run **`34744505666`**, stopped at its preflight because `ENJAZ_SUPABASE_SECRET_KEY` was not installed in GitHub Actions.
 
-The current ChatGPT GitHub connection can update repository code and workflows but does not expose GitHub Actions Secret administration. The Supabase connector likewise does not expose server secret values for transfer into GitHub. The closure rule is therefore not weakened to work around this tooling boundary.
+A second, independently registered preflight used a temporary one-time job inside the existing Phase 10.1 workflow so that the test could not be skipped by workflow registration behavior. Push run **`34751397295`** gives the final credential-boundary result:
+
+- the normal Phase 10.1 product job was **SUCCESS** in the same run;
+- `One-time real production Storage certification` reached its server-credential preflight;
+- `SUPABASE_SECRET_KEY` was empty in the Actions environment;
+- the job stopped with `Missing GitHub Secret ENJAZ_SUPABASE_SECRET_KEY`;
+- dependency installation, static certifier check and the Real-Cloud script were all **SKIPPED**;
+- no evidence artifact existed because the certifier never started.
+
+The temporary job was then removed from `.github/workflows/phase10-1-document-vault.yml`, restoring its exact permanent blob, and the standalone one-time wrapper was deleted. Comparing the fully green `edde6e69...` candidate with post-cleanup `bc4cd86...` reports no changed files.
+
+This is a credential-infrastructure blocker, not a product-test failure. The current ChatGPT GitHub connection can update repository code and workflows but does not expose GitHub Actions Secret administration. The Supabase connector likewise does not expose server secret values for transfer into GitHub. The closure rule is therefore not weakened to work around this tooling boundary.
 
 ## Pull request boundary
 
@@ -157,7 +181,7 @@ The actual Storage transport is already proven extensively in production, includ
 
 Formal Phase 10.1 closure still requires, in order:
 
-1. install the server-only GitHub Actions Secret `ENJAZ_SUPABASE_SECRET_KEY` without exposing it to source or browser code;
+1. install the server-only GitHub Actions Secret `ENJAZ_SUPABASE_SECRET_KEY` without exposing it to source, chat or browser code;
 2. run the corrected permanent Real-Cloud certifier to a **single clean full green artifact**;
 3. retain all normal Document Vault, dedicated browser, full browser and Quality Constitution gates on the final candidate;
 4. make PR #151 merge-ready and merge to `main`;
