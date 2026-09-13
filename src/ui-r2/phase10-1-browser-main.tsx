@@ -111,6 +111,13 @@ const gateway:DocumentVaultGateway={
     await pause(60);
     docs=docs.map(d=>d.id===documentId?{...d,status:'archived',archivedAt:new Date().toISOString()}:d);
   },
+  async intelligence(_workspaceId,documentId){
+    const latest=versions[documentId]?.at(-1)??null;
+    return{documentId,currentVersionId:latest?.id??null,currentVersionNumber:latest?.versionNumber??null,sourceAuthority:'SOURCE_FILE_REMAINS_AUTHORITATIVE',analyses:[]};
+  },
+  async extract(){return{analysisId:crypto.randomUUID(),state:'review_required'}},
+  async reviewExtraction(){return},
+  async verifyExtraction(){return},
 };
 
 const factory={
