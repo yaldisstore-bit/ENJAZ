@@ -5,14 +5,14 @@ export default defineConfig({
   resolve: { alias: { 'react': 'preact/compat', 'react-dom': 'preact/compat', 'react-dom/test-utils': 'preact/test-utils', 'react/jsx-runtime': 'preact/jsx-runtime', 'react/jsx-dev-runtime': 'preact/jsx-dev-runtime' } },
   plugins:[react()],
   build:{
-    outDir:'dist-phase9-4-browser',
+    outDir:'dist-phase10-1-browser',
     emptyOutDir:true,
     target:'es2022',
     sourcemap:false,
     cssCodeSplit:true,
     reportCompressedSize:true,
     rolldownOptions:{
-      input:'phase9-4-browser.html',
+      input:'phase10-1-browser.html',
       output:{
         strictExecutionOrder:true,
         codeSplitting:{groups:[

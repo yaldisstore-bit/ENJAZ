@@ -18,7 +18,7 @@ export const INSERTABLE_WORKSPACE_TABLES = [
   'workspace_memberships', 'contacts', 'companies', 'company_contacts', 'entity_lifecycle_events',
   'transactions', 'transaction_routes', 'transaction_notes', 'transaction_followups', 'transaction_activity',
   'transaction_blockers', 'transaction_dependencies', 'payments', 'payment_reversals', 'fee_changes',
-  'financial_ledger_entries', 'cashbox_accounts', 'documents', 'document_versions', 'document_analysis',
+  'financial_ledger_entries', 'cashbox_accounts', 'document_analysis',
   'document_templates', 'correspondence_registry', 'document_drafts', 'pdf_jobs', 'workspace_settings',
   'workflow_templates', 'workflow_template_stages', 'workflow_template_items', 'workflow_instances',
   'workflow_stage_states', 'workflow_item_states', 'calendar_events', 'renewals', 'communications',
@@ -29,8 +29,8 @@ export type InsertableWorkspaceTableName = typeof INSERTABLE_WORKSPACE_TABLES[nu
 
 export const UPDATABLE_WORKSPACE_TABLES = [
   'contacts', 'companies', 'company_contacts', 'transactions', 'transaction_routes', 'transaction_notes',
-  'transaction_followups', 'transaction_blockers', 'transaction_dependencies', 'cashbox_accounts', 'documents',
-  'document_versions', 'document_analysis', 'document_templates', 'correspondence_registry', 'document_drafts',
+  'transaction_followups', 'transaction_blockers', 'transaction_dependencies', 'cashbox_accounts',
+  'document_analysis', 'document_templates', 'correspondence_registry', 'document_drafts',
   'pdf_jobs', 'workspace_settings', 'workflow_templates', 'workflow_template_stages', 'workflow_template_items',
   'workflow_instances', 'workflow_stage_states', 'workflow_item_states', 'calendar_events', 'renewals',
   'communications', 'saved_views', 'automation_rules', 'notification_preferences', 'sync_devices',

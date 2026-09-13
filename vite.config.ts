@@ -23,6 +23,7 @@ function renderedModuleProbe(): Plugin {
 }
 
 export default defineConfig({
+  resolve: { alias: { 'react': 'preact/compat', 'react-dom': 'preact/compat', 'react-dom/test-utils': 'preact/test-utils', 'react/jsx-runtime': 'preact/jsx-runtime', 'react/jsx-dev-runtime': 'preact/jsx-dev-runtime' } },
   plugins: [react(), renderedModuleProbe()],
   server: { host: '127.0.0.1', port: 5173, strictPort: true },
   preview: { host: '127.0.0.1', port: 4173, strictPort: true },

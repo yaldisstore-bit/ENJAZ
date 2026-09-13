@@ -60,7 +60,7 @@ export const PRODUCT_NAVIGATION_ROUTES = Object.freeze([
   { id: 'risk', label: 'المخاطر', path: ROUTES.appRisk, deliveryPhase: '9', permission: 'authenticated', contentState: 'reserved' },
   { id: 'savedViews', label: 'العروض المحفوظة', path: ROUTES.appSavedViews, deliveryPhase: '9', permission: 'authenticated', contentState: 'reserved' },
   { id: 'intelligence', label: 'الرؤى', path: ROUTES.appIntelligence, deliveryPhase: '9', permission: 'authenticated', contentState: 'reserved' },
-  { id: 'documents', label: 'الوثائق', path: ROUTES.appDocuments, deliveryPhase: '10', permission: 'authenticated', contentState: 'reserved' },
+  { id: 'documents', label: 'الوثائق', path: ROUTES.appDocuments, deliveryPhase: '10', permission: 'authenticated', contentState: 'implemented' },
   { id: 'reports', label: 'التقارير', path: ROUTES.appReports, deliveryPhase: '10', permission: 'authenticated', contentState: 'reserved' },
   { id: 'notifications', label: 'الإشعارات', path: ROUTES.appNotifications, deliveryPhase: '11', permission: 'authenticated', contentState: 'reserved' },
   { id: 'followUps', label: 'المتابعات', path: ROUTES.appFollowUps, deliveryPhase: '11', permission: 'authenticated', contentState: 'reserved' },

@@ -8,6 +8,7 @@ import { DataLayerProvider } from '../../data/react/DataLayerContext.tsx';
 import { AutomationCommandProvider } from '../../features/automation/AutomationCommandContext.tsx';
 import { createAutomationCommandGateway, type AutomationCommandGateway } from '../../features/automation/automationCommands.ts';
 import { AuthProvider, useAuth } from '../../features/auth/state/AuthContext.tsx';
+import type { DocumentVaultGateway } from '../../features/documents/documentVaultCommands.ts';
 import { FieldOperationsCommandProvider } from '../../features/field-operations/FieldOperationsCommandContext.tsx';
 import { createFieldOperationsCommandGateway, type FieldOperationsCommandGateway } from '../../features/field-operations/fieldOperationsCommands.ts';
 import { FinanceCommandProvider } from '../../features/finance/FinanceCommandContext.tsx';
@@ -42,7 +43,13 @@ import '../workflow/workflow.css';
 import '../search-intelligence/search-intelligence.css';
 import './accessibility-hardening.css';
 
-export type UiR2ProductionResources = Readonly<{
+export type DocumentVaultFactory = () => Promise<DocumentVaultGateway>;
+
+type VaultResource =
+  | { documentVaultFactory:DocumentVaultFactory; documentVault?: never }
+  | { documentVault:DocumentVaultGateway; documentVaultFactory?:never };
+
+type BaseResources = {
   authGateway: AuthGateway;
   dataFactory: EnjazDataLayerFactory;
   financeCommands: FinanceCommandGateway;
@@ -53,13 +60,20 @@ export type UiR2ProductionResources = Readonly<{
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
   processRuntime?: ProcessRuntimeFactory;
-}>;
+};
+
+export type UiR2ProductionResources = Readonly<BaseResources & VaultResource>;
 
 function createProductionResources(): UiR2ProductionResources {
   const config = createRuntimeConfig(import.meta.env as unknown as Readonly<Record<string, unknown>>);
   const client = createEnjazSupabaseClient(config);
   const dataFactory=createEnjazDataLayerFactory(client);
-  const processRuntime:ProcessRuntimeFactory=()=>import('../../features/process-intelligence/processMiningRuntime.ts').then(module=>module.createProcessRuntimeGateway(client,dataFactory));
+  const processRuntime: ProcessRuntimeFactory = () => import('../../features/process-intelligence/processMiningRuntime.ts')
+    .then(module=>module.createProcessRuntimeGateway(client,dataFactory));
+  let vault: Promise<DocumentVaultGateway> | undefined;
+  const documentVaultFactory:DocumentVaultFactory = () => vault ??= import('../../features/documents/documentVaultCommands.ts')
+    .then((module) => module.createDocumentVaultGateway(client, config.supabaseUrl, config.supabasePublishableKey));
+
   return Object.freeze({
     authGateway: createSupabaseAuthGateway(client),
     dataFactory,
@@ -70,6 +84,7 @@ function createProductionResources(): UiR2ProductionResources {
     fieldOperationsCommands: createFieldOperationsCommandGateway(client),
     searchIntelligence: createSearchIntelligenceGateway(client),
     regulatoryKnowledge: createRegulatoryKnowledgeGateway(client),
+    documentVaultFactory,
     processRuntime,
   });
 }
@@ -84,17 +99,23 @@ function leaveRecoveryMode() {
   window.location.replace(url.toString());
 }
 
-function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, searchIntelligence, regulatoryKnowledge, processRuntime }: Readonly<{
-  dataFactory: EnjazDataLayerFactory;
-  financeCommands: FinanceCommandGateway;
-  governanceCommands: GovernanceCommandGateway;
-  workflowCommands: GovernmentProcedureRuntimeGateway;
-  automationCommands: AutomationCommandGateway;
-  fieldOperationsCommands: FieldOperationsCommandGateway;
-  searchIntelligence: SearchIntelligenceGateway;
-  regulatoryKnowledge: RegulatoryKnowledgeGateway;
+type RuntimeProps = Omit<BaseResources, 'authGateway' | 'processRuntime'> & {
+  documentVaultFactory: DocumentVaultFactory;
   processRuntime: ProcessRuntimeFactory | undefined;
-}>) {
+};
+
+function AuthenticatedR2Runtime({
+  dataFactory,
+  financeCommands,
+  governanceCommands,
+  workflowCommands,
+  automationCommands,
+  fieldOperationsCommands,
+  searchIntelligence,
+  regulatoryKnowledge,
+  documentVaultFactory,
+  processRuntime,
+}: RuntimeProps) {
   const auth = useAuth();
   const workspace = useMemo(() => auth.user ? dataFactory.resolveWorkspaceId(auth.user.id) : Promise.resolve(null), [auth.user?.id, dataFactory]);
   if (auth.status === 'checking') return <SessionChecking />;
@@ -105,7 +126,7 @@ function AuthenticatedR2Runtime({ dataFactory, financeCommands, governanceComman
 
   return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
-    <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} />
+    <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} documentVaultFactory={documentVaultFactory} documentWorkspace={workspace} />
   </ProcessRuntimeProvider></CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
@@ -115,7 +136,10 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     try { return Object.freeze({ resources: createProductionResources(), error: null }); }
     catch { return Object.freeze({ resources: null, error: 'إعدادات الاتصال بإنجاز غير مكتملة. لم يتم تشغيل قناة بيانات بديلة أو وضع وهمي.' }); }
   });
+
   if (!runtime.resources) return <RuntimeFailure message={runtime.error ?? 'إعدادات التشغيل غير صالحة.'} />;
+  const documentVaultFactory = runtime.resources.documentVaultFactory ?? (() => Promise.resolve(runtime.resources!.documentVault!));
+
   return <AuthProvider gateway={runtime.resources.authGateway}><AuthenticatedR2Runtime
     dataFactory={runtime.resources.dataFactory}
     financeCommands={runtime.resources.financeCommands}
@@ -125,6 +149,7 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     fieldOperationsCommands={runtime.resources.fieldOperationsCommands}
     searchIntelligence={runtime.resources.searchIntelligence}
     regulatoryKnowledge={runtime.resources.regulatoryKnowledge}
+    documentVaultFactory={documentVaultFactory}
     processRuntime={runtime.resources.processRuntime}
   /></AuthProvider>;
 }

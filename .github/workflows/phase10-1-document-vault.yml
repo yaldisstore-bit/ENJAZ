@@ -1,0 +1,55 @@
+name: ENJAZ Phase 10.1 — Document Vault Gate
+
+on:
+  push:
+    branches:
+      - main
+      - 'phase10-1-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase101-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase10-1-document-vault:
+    name: Existing metadata authority / private binary broker / versions / archive / mobile build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with: { python-version: '3.12' }
+      - run: npm ci --no-audit --no-fund
+      - name: Document Vault authority audit
+        run: node scripts/phase10-1-document-vault-audit.mjs
+      - name: Phase 10.1 contract destruction tests
+        run: node --experimental-strip-types --test tests/documentVault.test.ts
+      - name: Preserve full functional regression
+        run: npm run test:functional
+      - name: Database + roadmap + major systems integrity
+        run: npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && node scripts/major-systems-zero-escape-audit.mjs
+      - name: Secrets + TypeScript
+        run: npm run audit:secrets && npm run typecheck
+      - name: Production build + fixed budgets
+        run: npm run build -- --base=/ && npm run audit:dist:budget
+      - name: Pages /live build + fixed budgets
+        run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
+      - name: Keep Phase 10.2 locked
+        run: node -e "const j=require('./docs/PHASE10_1_STATE.json');if(!(j.phase==='10.1'&&j.status==='IN_PROGRESS'&&j.baseCommit==='78456e22c4f4eb0be1f81b255c7efbb3195a21fb'&&j.exitGatePassed===false&&j.phase10_2Allowed===false&&j.nextPhase==='10.2'&&j.successorStatus==='LOCKED'&&j.budgetIncreaseAllowed===false))process.exit(1)"
