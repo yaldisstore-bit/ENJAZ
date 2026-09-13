@@ -51,5 +51,5 @@ jobs:
         run: npm run build -- --base=/ && npm run audit:dist:budget
       - name: Pages /live build + fixed budgets
         run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
-      - name: Keep Phase 10.2 locked
-        run: node -e "const j=require('./docs/PHASE10_1_STATE.json');if(!(j.phase==='10.1'&&j.status==='IN_PROGRESS'&&j.baseCommit==='78456e22c4f4eb0be1f81b255c7efbb3195a21fb'&&j.exitGatePassed===false&&j.phase10_2Allowed===false&&j.nextPhase==='10.2'&&j.successorStatus==='LOCKED'&&j.budgetIncreaseAllowed===false))process.exit(1)"
+      - name: Enforce Phase 10.1 lifecycle governance
+        run: node -e "const j=require('./docs/PHASE10_1_STATE.json');const open=j.status==='IN_PROGRESS'&&j.exitGatePassed===false&&j.phase10_2Allowed===false&&j.successorStatus==='LOCKED';const closed=j.status==='CLOSED'&&j.exitGatePassed===true&&j.phase10_2Allowed===true&&j.successorStatus==='AUTHORIZED'&&j.realCloudVerification==='PASS_AUTHENTICATED_REAL_STORAGE_ZERO_RESIDUE'&&j.deployedLiveVerification==='PASS'&&j.postMergeRecertification==='PASS';if(!(j.phase==='10.1'&&j.baseCommit==='78456e22c4f4eb0be1f81b255c7efbb3195a21fb'&&j.nextPhase==='10.2'&&j.budgetIncreaseAllowed===false&&(open||closed)))process.exit(1)"
