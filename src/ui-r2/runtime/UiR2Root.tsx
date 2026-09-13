@@ -203,7 +203,7 @@ export function UiR2Root({ runtimeMode = 'preview', accountLabel = 'حساب إ�
   }, []);
 
   const closeOverlay = () => {
-    if (ownedOverlay.current) { ownedOverlay.current = false; window.history.back(); }
+    if (ownedOverlay.current) { ownedOverlay.current = false; setOverlay(null); window.history.back(); }
     else { writeUrlState(destinationId, null, transactionId, 'replace'); setOverlay(null); }
   };
 
