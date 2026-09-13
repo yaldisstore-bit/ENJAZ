@@ -37,10 +37,10 @@ jobs:
           case "$SUPABASE_SECRET_KEY" in sb_publishable_*) echo 'Secret is not privileged'; exit 1;; esac
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Preserve Phase 10.2 authority and Azure adapter security
+      - name: Preserve Phase 10.2 authority and Azure provider security
         run: |
           node scripts/phase10-2-document-intelligence-audit.mjs
-          node scripts/phase10-2-azure-adapter-audit.mjs
+          node scripts/phase10-2-azure-provider-audit.mjs
           node --check scripts/phase10-2-azure-provider-e2e.mjs
           node --experimental-strip-types --test tests/documentIntelligence.test.ts
           node --experimental-strip-types --test tests/documentVault.test.ts
