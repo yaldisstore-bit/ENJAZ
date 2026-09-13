@@ -11,7 +11,8 @@
   "provider": "azure-document-intelligence/prebuilt-layout-v4",
   "databaseMigrationsApplied": [
     "20260913130155 phase_10_2_document_intelligence",
-    "20260913130940 phase_10_2_stale_source_hardening"
+    "20260913130940 phase_10_2_stale_source_hardening",
+    "phase_10_2_document_intelligence_actor_indexes"
   ],
   "edgeFunction": {
     "slug": "enjaz-document-intelligence",
