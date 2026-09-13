@@ -1,0 +1,46 @@
+name: ENJAZ Phase 10.1 — One-Time OIDC Real Cloud Certification
+
+on:
+  push:
+    branches: [phase10-1-document-vault]
+    paths:
+      - .github/workflows/phase10-1-oidc-certify-once.yml
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Request repository-scoped GitHub OIDC token
+        id: oidc
+        shell: bash
+        run: |
+          set -euo pipefail
+          token_json="$(curl --silent --show-error --fail "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=enjaz-phase10-1-real-cloud-certifier" -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}")"
+          token="$(printf '%s' "$token_json" | jq -r '.value')"
+          test -n "$token" && test "$token" != "null"
+          echo "token=$token" >> "$GITHUB_OUTPUT"
+      - name: Execute disposable production Storage certification
+        shell: bash
+        env:
+          ENJAZ_GITHUB_OIDC: ${{ steps.oidc.outputs.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/phase10-1-real-cloud
+          code="$(curl --silent --show-error --max-time 180 -o artifacts/phase10-1-real-cloud/evidence.json -w '%{http_code}' -X POST 'https://juzxriirhkuzviwnhkbd.supabase.co/functions/v1/enjaz-phase10-1-oidc-gateway' -H "Authorization: Bearer ${ENJAZ_GITHUB_OIDC}" -H 'Content-Type: application/json' --data '{}')"
+          jq '{schema,projectRef,startedAt,completedAt,passed,checks,cleanup,failure}' artifacts/phase10-1-real-cloud/evidence.json
+          test "$code" = "200"
+          jq -e '.passed == true and ([.cleanup[] | select(.passed != true)] | length == 0)' artifacts/phase10-1-real-cloud/evidence.json >/dev/null
+      - name: Upload sanitized certification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10-1-oidc-real-cloud-${{ github.sha }}
+          path: artifacts/phase10-1-real-cloud/evidence.json
+          if-no-files-found: warn
+          retention-days: 14
