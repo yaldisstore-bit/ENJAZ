@@ -182,16 +182,27 @@ export function UiR2Root() {
   const [overlay, setOverlay] = useState<OverlayId>(initial.overlay);
   const [searchQuery, setSearchQuery] = useState('');
   const ownedOverlay = useRef(false);
+  const pendingHistoryClose = useRef(false);
+  const queuedOverlay = useRef<Exclude<OverlayId, null> | null>(null);
   useR2OverlayFocusGuard(overlay);
 
   useEffect(() => {
-    const syncFromHistory = () => { const next = readUrlState(); setDestinationId(next.destinationId); setTransactionId(next.transactionId); setOverlay(next.overlay); ownedOverlay.current = false; };
+    const syncFromHistory = () => {
+      const next = readUrlState();
+      setDestinationId(next.destinationId);
+      setTransactionId(next.transactionId);
+      const queued = queuedOverlay.current;
+      pendingHistoryClose.current = false;
+      queuedOverlay.current = null;
+      if (queued) { writeUrlState(next.destinationId, queued, next.transactionId); setOverlay(queued); ownedOverlay.current = true; }
+      else { setOverlay(next.overlay); ownedOverlay.current = false; }
+    };
     window.addEventListener('popstate', syncFromHistory);
     return () => window.removeEventListener('popstate', syncFromHistory);
   }, []);
 
   const closeOverlay = () => {
-    if (ownedOverlay.current) { ownedOverlay.current = false; setOverlay(null); window.history.back(); }
+    if (ownedOverlay.current) { ownedOverlay.current = false; pendingHistoryClose.current = true; setOverlay(null); window.history.back(); }
     else { writeUrlState(destinationId, null, transactionId, 'replace'); setOverlay(null); }
   };
 
@@ -218,7 +229,12 @@ export function UiR2Root() {
     ownedOverlay.current = false;
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
-  const openOverlay = (id: Exclude<OverlayId, null>) => { writeUrlState(destinationId, id, transactionId); setOverlay(id); ownedOverlay.current = true; };
+  const openOverlay = (id: Exclude<OverlayId, null>) => {
+    if (pendingHistoryClose.current) { queuedOverlay.current = id; return; }
+    writeUrlState(destinationId, id, transactionId);
+    setOverlay(id);
+    ownedOverlay.current = true;
+  };
   const currentDoor = doorFor(destinationId);
   const trail = trailFor(destinationId);
   let content: ReactNode;
