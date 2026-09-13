@@ -333,8 +333,8 @@ try {
     p_workspace_id: primaryWorkspace, p_query: null, p_include_archived: true, p_limit: 100, p_offset: 0,
   });
   if (archiveListError) throw archiveListError;
-  const normalItems = Array.isArray(normalList?.items) ? normalList.items : [];
-  const archivedItems = Array.isArray(archiveList?.items) ? archiveList.items : [];
+  const normalItems = Array.isArray(normalList?.documents) ? normalList.documents : [];
+  const archivedItems = Array.isArray(archiveList?.documents) ? archiveList.documents : [];
   assert(!normalItems.some((item) => item?.id === documentId), 'archive_excluded_from_normal_vault');
   assert(archivedItems.some((item) => item?.id === documentId), 'archive_retained_in_archive_vault');
 
