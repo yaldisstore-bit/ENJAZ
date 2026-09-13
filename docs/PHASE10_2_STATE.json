@@ -1,0 +1,29 @@
+{
+  "phase": "10.2",
+  "name": "Document Intelligence / OCR",
+  "status": "IN_PROGRESS",
+  "predecessorPhase": "10.1",
+  "predecessorStatus": "CLOSED",
+  "implementationBranch": "phase10-2-document-intelligence",
+  "implementationPullRequest": 154,
+  "sourceAuthority": "SOURCE_FILE_REMAINS_AUTHORITATIVE",
+  "flow": ["extract", "review", "verify"],
+  "provider": "azure-document-intelligence/prebuilt-layout-v4",
+  "databaseMigrationsApplied": [
+    "20260913130155 phase_10_2_document_intelligence",
+    "20260913130940 phase_10_2_stale_source_hardening"
+  ],
+  "edgeFunction": {
+    "slug": "enjaz-document-intelligence",
+    "minimumVersion": 7,
+    "verifyJwt": true
+  },
+  "realUploadedSourcePresent": true,
+  "realOcrEvidencePassed": false,
+  "focusedGatePassed": false,
+  "qualityGatePassed": false,
+  "exitGatePassed": false,
+  "unresolvedBlockers": ["authenticated real-document OCR certification"],
+  "nextPhase": "10.3",
+  "successorStatus": "LOCKED"
+}
