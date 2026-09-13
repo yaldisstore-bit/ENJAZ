@@ -1,0 +1,48 @@
+name: ENJAZ Phase 10.1 — Run Permanent Real Cloud Certifier Once
+
+on:
+  push:
+    branches: [phase10-1-document-vault]
+    paths:
+      - .github/workflows/phase10-1-real-cloud-run-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+      SUPABASE_SECRET_KEY: ${{ secrets.ENJAZ_SUPABASE_SECRET_KEY }}
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Require privileged server-only test credential
+        shell: bash
+        run: |
+          test -n "$SUPABASE_SECRET_KEY" || { echo "Missing GitHub Secret ENJAZ_SUPABASE_SECRET_KEY" >&2; exit 1; }
+          case "$SUPABASE_SECRET_KEY" in
+            sb_publishable_*) echo "Refusing publishable key as privileged credential" >&2; exit 1 ;;
+          esac
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Static guard
+        run: node --check scripts/phase10-1-real-cloud-e2e.mjs
+      - name: Run permanent disposable authenticated Storage certification
+        run: node scripts/phase10-1-real-cloud-e2e.mjs
+      - name: Upload sanitized evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10-1-real-cloud-final-${{ github.sha }}
+          path: artifacts/phase10-1-real-cloud/evidence.json
+          if-no-files-found: warn
+          retention-days: 14
