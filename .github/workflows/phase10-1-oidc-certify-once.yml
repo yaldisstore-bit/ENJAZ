@@ -14,6 +14,8 @@ jobs:
   certify:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    env:
+      ENJAZ_CERTIFICATION_ROUND: certifier-v3
     steps:
       - uses: actions/checkout@v7
       - name: Request repository-scoped GitHub OIDC token
