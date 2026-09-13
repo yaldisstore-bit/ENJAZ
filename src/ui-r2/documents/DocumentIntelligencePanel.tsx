@@ -15,7 +15,7 @@ export function DocumentIntelligencePanel({gateway,workspaceId,documentId,curren
  const selected=useMemo(()=>detail?.analyses.find(a=>a.id===selectedId)??detail?.analyses[0]??null,[detail,selectedId]),fields=useMemo(()=>uniqueFields(selected),[selected]);
  const hydrate=(a:DocumentIntelligenceAnalysis|null)=>{const next:Corrections={};for(const f of uniqueFields(a))next[f.key]=f.value??'';setCorrections(next)};
  const load=async(preferred?:string|null)=>{setLoading(true);try{const r=await gateway.detail(workspaceId,documentId),id=preferred&&r.analyses.some(a=>a.id===preferred)?preferred:r.analyses[0]?.id??null;setDetail(r);setSelectedId(id);hydrate(r.analyses.find(a=>a.id===id)??r.analyses[0]??null);setError('')}catch(e){setError(errorText(e))}finally{setLoading(false)}};
- useEffect(()=>{void load(null)},[gateway,workspaceId,documentId]);
+ useEffect(()=>{void load(null)},[gateway,workspaceId,documentId,currentVersionNumber]);
  useEffect(()=>{hydrate(selected)},[selectedId]);
  const act=async(fn:()=>Promise<{analysisId:string}>)=>{setBusy(true);try{const r=await fn();setNote('');await load(r.analysisId)}catch(e){setError(errorText(e))}finally{setBusy(false)}};
  const extract=()=>act(()=>gateway.extract({workspaceId,documentId,versionNumber:currentVersionNumber}));
