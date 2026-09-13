@@ -1,0 +1,40 @@
+import {useEffect,useMemo,useState} from 'react';
+import type {DocumentIntelligenceGateway} from '../../features/documents/documentIntelligenceCommands.ts';
+import type {DocumentIntelligenceAnalysis,IntelligenceField} from '../../features/documents/documentIntelligenceContract.ts';
+import './document-intelligence.css';
+
+type Props=Readonly<{gateway:DocumentIntelligenceGateway;workspaceId:string;documentId:string;currentVersionNumber:number|null}>;
+type Corrections=Record<string,string>;
+const labels:Record<DocumentIntelligenceAnalysis['state'],string>={queued:'بانتظار الاستخراج',extracting:'جارٍ الاستخراج',review_required:'تحتاج مراجعة',reviewed:'مراجعة مكتملة',verified:'متحقق منها',rejected:'مرفوضة',failed:'فشل الاستخراج',superseded:'نسخة مصدر أحدث',legacy_unverified:'نتيجة قديمة غير متحققة'};
+const pct=(v:number|null)=>v==null?'—':`${Math.round(v*100)}%`;
+const uniqueFields=(a:DocumentIntelligenceAnalysis|null)=>{const seen=new Set<string>(),out:IntelligenceField[]=[];for(const p of a?.pages??[])for(const f of p.fields)if(!seen.has(f.key)){seen.add(f.key);out.push(f)}return out};
+const errorText=(e:unknown)=>e instanceof Error&&/provider is not configured/i.test(e.message)?'مزود OCR غير مهيأ على الخادم بعد. لم تُرسل الوثيقة إلى أي مزود.':'تعذر إكمال عملية ذكاء الوثيقة. بقي الملف الأصلي دون تغيير.';
+
+export function DocumentIntelligencePanel({gateway,workspaceId,documentId,currentVersionNumber}:Props){
+ const[detail,setDetail]=useState<Awaited<ReturnType<DocumentIntelligenceGateway['detail']>>|null>(null),[selectedId,setSelectedId]=useState<string|null>(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[note,setNote]=useState(''),[corrections,setCorrections]=useState<Corrections>({});
+ const selected=useMemo(()=>detail?.analyses.find(a=>a.id===selectedId)??detail?.analyses[0]??null,[detail,selectedId]),fields=useMemo(()=>uniqueFields(selected),[selected]);
+ const hydrate=(a:DocumentIntelligenceAnalysis|null)=>{const next:Corrections={};for(const f of uniqueFields(a))next[f.key]=f.value??'';setCorrections(next)};
+ const load=async(preferred?:string|null)=>{setLoading(true);try{const r=await gateway.detail(workspaceId,documentId),id=preferred&&r.analyses.some(a=>a.id===preferred)?preferred:r.analyses[0]?.id??null;setDetail(r);setSelectedId(id);hydrate(r.analyses.find(a=>a.id===id)??r.analyses[0]??null);setError('')}catch(e){setError(errorText(e))}finally{setLoading(false)}};
+ useEffect(()=>{void load(null)},[gateway,workspaceId,documentId]);
+ useEffect(()=>{hydrate(selected)},[selectedId]);
+ const act=async(fn:()=>Promise<{analysisId:string}>)=>{setBusy(true);try{const r=await fn();setNote('');await load(r.analysisId)}catch(e){setError(errorText(e))}finally{setBusy(false)}};
+ const extract=()=>act(()=>gateway.extract({workspaceId,documentId,versionNumber:currentVersionNumber}));
+ const review=(decision:'accept'|'reject')=>{if(!selected)return Promise.resolve();const correctedFields=decision==='accept'&&fields.length?Object.fromEntries(fields.map(f=>[f.key,{value:corrections[f.key]??'',confidence:f.confidence,pageNumber:f.pageNumber}])):null;return act(()=>gateway.review({workspaceId,analysisId:selected.id,decision,correctedFields,note:note.trim()||null}))};
+ const verify=()=>selected?act(()=>gateway.verify({workspaceId,analysisId:selected.id,note:note.trim()||null})):Promise.resolve();
+ return <section className="di-panel" data-phase10-2="document-intelligence" data-source-authority="source-file" data-intelligence-authority="derived-until-verified">
+  <div className="di-head"><div><span className="rk-kicker">Document Intelligence · 10.2</span><h3>ذكاء الوثيقة</h3><p>الاستخراج مساعد للمراجعة فقط؛ الملف ونسخته المحفوظة يبقيان المرجع الأصلي.</p></div><button type="button" className="rk-button rk-button--primary" disabled={busy||loading||currentVersionNumber==null} onClick={()=>void extract()}>{busy?'جارٍ التنفيذ…':'استخراج من النسخة الحالية'}</button></div>
+  <div className="di-law"><strong>الأصل لا يُستبدل</strong><span>EXTRACT → REVIEW → VERIFY</span><span>أي نسخة أحدث تُبطل التحقق القديم تلقائيًا</span></div>
+  {error?<div className="di-alert" role="alert">{error}</div>:null}
+  {loading?<div className="di-loading" aria-label="تحميل ذكاء الوثيقة"/>:!detail?.analyses.length?<div className="di-empty"><strong>لا يوجد استخراج بعد</strong><span>ابدأ من النسخة الحالية ثم راجع النتيجة قبل اعتمادها كمعلومة متحققة.</span></div>:<div className="di-layout">
+   <nav className="di-runs" aria-label="سجل الاستخراج">{detail.analyses.map(a=><button type="button" key={a.id} className={a.id===selected?.id?'is-active':''} onClick={()=>setSelectedId(a.id)}><span>تحليل #{a.analysisVersion}</span><strong>{labels[a.state]}</strong><small>نسخة {a.sourceVersionNumber??'قديمة'} · ثقة {pct(a.confidence)}</small></button>)}</nav>
+   {selected?<article className="di-review" data-analysis-state={selected.state} data-analysis-stale={selected.stale?'true':'false'}>
+    <header><div><span className={`di-state di-state--${selected.state}`}>{labels[selected.state]}</span>{selected.stale?<span className="di-stale">مصدر أقدم من النسخة الحالية</span>:null}</div><strong>المصدر: نسخة {selected.sourceVersionNumber??'غير مثبتة'} · {selected.provider??'مزود غير مسجل'}</strong></header>
+    <div className="di-metrics"><div><span>الثقة العامة</span><strong>{pct(selected.confidence)}</strong></div><div><span>الصفحات</span><strong>{selected.pages.length}</strong></div><div><span>التصنيف</span><strong>{selected.classification??'غير مصنف'}</strong></div></div>
+    {fields.length?<section className="di-fields"><div className="rk-section-title"><div><span className="rk-kicker">حقول مستخرجة</span><h4>راجع القيم مع الصفحة المصدر</h4></div><span className="rk-non-authority-chip">غير معتمدة قبل التحقق</span></div>{fields.map(f=><label key={f.key} className="di-field"><span><strong>{f.key}</strong><small>صفحة {f.pageNumber} · ثقة {pct(f.confidence)}</small></span><input value={corrections[f.key]??''} disabled={selected.state!=='review_required'} onChange={e=>setCorrections(v=>({...v,[f.key]:e.target.value}))}/>{f.sourceText?<small className="di-source">المصدر: {f.sourceText}</small>:null}</label>)}</section>:null}
+    {selected.pages.length?<details className="di-pages"><summary>النص المستخرج حسب الصفحات</summary>{selected.pages.map(p=><section key={p.pageNumber}><strong>صفحة {p.pageNumber} · ثقة {pct(p.confidence)}</strong><p>{p.text||'لا يوجد نص مستخرج في هذه الصفحة.'}</p></section>)}</details>:selected.ocrText?<section className="di-pages"><strong>نص OCR قديم غير موثق بالصفحات</strong><p>{selected.ocrText}</p></section>:null}
+    {(selected.state==='review_required'||selected.state==='reviewed')?<label className="di-note"><span>ملاحظة المراجع</span><textarea maxLength={1000} value={note} onChange={e=>setNote(e.target.value)} placeholder="دوّن المطابقة أو سبب التصحيح…"/></label>:null}
+    <div className="di-actions">{selected.state==='review_required'?<><button type="button" className="rk-button rk-button--primary" disabled={busy||selected.stale} onClick={()=>void review('accept')}>اعتماد المراجعة</button><button type="button" className="rk-button" disabled={busy} onClick={()=>void review('reject')}>رفض النتيجة</button></>:null}{selected.state==='reviewed'?<button type="button" className="rk-button rk-button--primary" disabled={busy||selected.stale} onClick={()=>void verify()}>تحقق نهائي من النتيجة</button>:null}{selected.state==='legacy_unverified'?<button type="button" className="rk-button" disabled={busy} onClick={()=>void review('reject')}>رفض النتيجة القديمة</button>:null}{selected.state==='verified'&&!selected.stale?<span className="di-verified">✓ تمت المراجعة والتحقق — تبقى معلومة مشتقة من الأصل</span>:null}{selected.state==='superseded'||selected.stale?<span className="di-warning">توجد نسخة أصلية أحدث؛ أعد الاستخراج من النسخة الحالية.</span>:null}{selected.state==='failed'?<span className="di-warning">فشل الاستخراج ({selected.failureCode??'سبب غير محدد'}). يمكن بدء محاولة جديدة دون المساس بالأصل.</span>:null}</div>
+   </article>:null}
+  </div>}
+ </section>
+}
