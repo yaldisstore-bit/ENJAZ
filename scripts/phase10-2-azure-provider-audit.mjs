@@ -11,6 +11,9 @@ for(const marker of [
   "'Ocp-Apim-Subscription-Key':p.key",
   "body:JSON.stringify({urlSource:signed.data.signedUrl})",
   "created.headers.get('operation-location')",
+  'OCR_AZURE_OPERATION_ORIGIN_INVALID',
+  'operationUrl.origin!==endpointUrl.origin',
+  'normalizeHttpsEndpoint',
   'azureProviderResult',
   'pageForOffset',
   'a.keyValuePairs',
@@ -20,9 +23,11 @@ for(const marker of [
 ])check(`azure:${marker}`,has(marker));
 check('azure_key_server_only',!/(body|r|request)\.(azureKey|providerKey|apiKey)/.test(edge));
 check('azure_key_not_literal',!/ENJAZ_AZURE_DOCUMENT_INTELLIGENCE_KEY\s*[:=]\s*["'][^"']+/.test(edge));
+check('azure_operation_key_origin_locked',has("operationUrl.protocol!=='https:'||operationUrl.origin!==endpointUrl.origin")&&has("timedFetch(operation,{headers:{'Ocp-Apim-Subscription-Key':p.key}"));
+check('azure_endpoint_credentials_forbidden',has('if(u.protocol!==\'https:\'||u.username||u.password)'));
 check('azure_does_not_force_arabic_locale',!/[?&]locale=ar(?:-|&|`|')/i.test(edge));
 check('provider_result_bounded',has('MAX_PROVIDER_TEXT=8_000_000')&&has('MAX_PROVIDER_JSON=12_000_000'));
 check('generic_fallback_preserved',has("Deno.env.get('ENJAZ_OCR_PROVIDER_URL')")&&has("Deno.env.get('ENJAZ_OCR_PROVIDER_KEY')")&&has("'X-Enjaz-OCR-Contract':'enjaz.ocr-provider.v1'"));
 check('provider_absence_explicit',has("throw new Error('OCR_PROVIDER_NOT_CONFIGURED')")&&has("return out(503,{ok:false,error:'OCR_PROVIDER_NOT_CONFIGURED'})"));
 if(failures.length){console.error(`ENJAZ PHASE 10.2 AZURE PROVIDER AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);process.exit(1)}
-console.log('ENJAZ PHASE 10.2 AZURE PROVIDER AUDIT PASS — direct Azure DI adapter is server-only, signed-source, bounded, Arabic auto-detect compatible, and provider certification remains pending.');
+console.log('ENJAZ PHASE 10.2 AZURE PROVIDER AUDIT PASS — direct Azure DI adapter is server-only, signed-source, bounded, operation-origin locked, Arabic auto-detect compatible, and provider certification remains pending.');
