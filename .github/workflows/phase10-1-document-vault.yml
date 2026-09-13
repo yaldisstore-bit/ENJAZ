@@ -53,3 +53,45 @@ jobs:
         run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
       - name: Keep Phase 10.2 locked
         run: node -e "const j=require('./docs/PHASE10_1_STATE.json');if(!(j.phase==='10.1'&&j.status==='IN_PROGRESS'&&j.baseCommit==='78456e22c4f4eb0be1f81b255c7efbb3195a21fb'&&j.exitGatePassed===false&&j.phase10_2Allowed===false&&j.nextPhase==='10.2'&&j.successorStatus==='LOCKED'&&j.budgetIncreaseAllowed===false))process.exit(1)"
+
+  real-cloud-once:
+    name: One-time real production Storage certification
+    if: github.event_name == 'push' && github.ref == 'refs/heads/phase10-1-document-vault' && github.event.head_commit.message == 'Phase 10.1 — invoke one-time Real Cloud certifier'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+      SUPABASE_SECRET_KEY: ${{ secrets.ENJAZ_SUPABASE_SECRET_KEY }}
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Require privileged server-only test credential
+        shell: bash
+        run: |
+          test -n "$SUPABASE_SECRET_KEY" || {
+            echo "Missing GitHub Secret ENJAZ_SUPABASE_SECRET_KEY" >&2
+            exit 1
+          }
+          case "$SUPABASE_SECRET_KEY" in
+            sb_publishable_*) echo "Refusing publishable key as privileged credential" >&2; exit 1 ;;
+          esac
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Static guard for real-cloud certifier
+        run: node --check scripts/phase10-1-real-cloud-e2e.mjs
+      - name: Run disposable authenticated Storage certification
+        run: node scripts/phase10-1-real-cloud-e2e.mjs
+      - name: Upload sanitized real-cloud evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10-1-real-cloud-e2e-${{ github.sha }}
+          path: artifacts/phase10-1-real-cloud/evidence.json
+          if-no-files-found: warn
+          retention-days: 14
