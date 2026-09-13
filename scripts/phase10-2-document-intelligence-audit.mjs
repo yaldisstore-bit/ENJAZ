@@ -21,10 +21,13 @@ const browserHtml=read('phase10-2-browser.html');
 const browserVite=read('vite.phase10-2-browser.config.ts');
 const realCloud=read('scripts/phase10-2-real-cloud-e2e.mjs');
 const realCloudWorkflow=read('.github/workflows/phase10-2-real-cloud-e2e.yml');
+const azureWorkflow=read('.github/workflows/phase10-2-azure-provider-e2e.yml');
+const azureE2e=read('scripts/phase10-2-azure-provider-e2e.mjs');
 const failures=[];const check=(name,condition)=>{if(!condition)failures.push(name)},has=(s,x)=>s.includes(x);
 
-check('phase_identity',state.phase==='10.2'&&state.name==='Document Intelligence / OCR'&&state.status==='IN_PROGRESS');
+check('phase_identity',state.phase==='10.2'&&state.name==='Document Intelligence / OCR'&&state.status==='CLOSED'&&state.implementationStage==='CLOSED_POSTMERGE_RECERTIFIED');
 check('exact_base',state.baseCommit==='939783b2fc084c06fd9a214654355c42c30473f4');
+check('canonical_merge_recorded',state.canonicalImplementationMergeCommit==='d54c1f56e4acb9d6a28e3ea88102a2382928bf81');
 check('predecessor_closed',state.predecessorPhase==='10.1'&&state.predecessorStatus==='CLOSED'&&predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true&&predecessor.phase10_2Allowed===true);
 check('source_authority',state.sourceAuthority==='SOURCE_FILE_REMAINS_AUTHORITATIVE'&&state.extractedContentMayReplaceSource===false&&state.sourceOverwriteAllowed===false&&state.verifiedOcrRemainsDerived===true);
 check('no_silent_promotion',state.silentAuthorityPromotionAllowed===false&&/UNVERIFIED/.test(state.ocrOutputAuthority));
@@ -33,15 +36,18 @@ check('traceability',state.provenanceRequired===true&&state.immutableVersionBind
 check('explicit_failure',state.failureMustBeExplicit===true&&state.staleSourceVerificationAllowed===false);
 check('browser_mutation_forbidden',state.directBrowserAnalysisMutationAllowed===false);
 check('provider_secret_hidden',state.providerSecretBrowserVisible===false);
-check('foundation_progress',state.persistenceContractAdded===true&&state.persistenceMigrationApplied===true&&state.staleSourceHardeningApplied===true&&state.clientContractAdded===true&&state.contractDestructionTestsAdded===true&&state.serverOrchestrationBrokerAdded===true&&state.edgeFunctionDeployed===true&&state.clientGatewayAdded===true);
-check('ui_progress',state.reviewVerificationUiComplete===true&&state.realBrowserHarnessAdded===true&&state.staleSourceBrowserScenarioAdded===true);
+check('foundation_complete',state.persistenceContractAdded===true&&state.persistenceMigrationApplied===true&&state.staleSourceHardeningApplied===true&&state.clientContractAdded===true&&state.contractDestructionTestsAdded===true&&state.serverOrchestrationBrokerAdded===true&&state.edgeFunctionDeployed===true&&state.clientGatewayAdded===true);
+check('ui_complete',state.reviewVerificationUiComplete===true&&state.realBrowserHarnessAdded===true&&state.staleSourceBrowserScenarioAdded===true);
 check('browser_certified',state.realBrowserVerification==='PASS_GOVERNED_CHROMIUM_1280_390_320'&&Number.isInteger(state.realBrowserRunId)&&typeof state.realBrowserCertifiedCommit==='string');
-check('cloud_boundary_certified',state.realCloudVerification==='PASS_AUTHENTICATED_DB_STORAGE_REVIEW_VERIFY_STALE_ZERO_RESIDUE_PROVIDER_PENDING'&&Number.isInteger(state.realCloudRunId)&&typeof state.realCloudCertifiedCommit==='string');
-check('provider_not_falsely_certified',state.serverExtractionProviderConnected===false&&state.providerConfigurationStatus==='PENDING'&&state.providerFailSafeVerification==='PASS_503_OCR_PROVIDER_NOT_CONFIGURED_EXPLICIT_FAILED_STATE');
-check('deployed_live_pending',state.deployedLiveVerification==='PENDING');
+check('cloud_boundary_certified',state.realCloudVerification==='PASS_AUTHENTICATED_DB_STORAGE_REVIEW_VERIFY_STALE_ZERO_RESIDUE_AZURE_CERTIFIED'&&Number.isInteger(state.realCloudRunId)&&typeof state.realCloudCertifiedCommit==='string');
+check('provider_certified',state.serverExtractionProviderConnected===true&&state.providerConfigurationStatus==='CERTIFIED'&&state.providerFailSafeVerification==='PASS_503_OCR_PROVIDER_NOT_CONFIGURED_EXPLICIT_FAILED_STATE');
+check('azure_real_certificate',state.azureProviderVerification==='PASS_REAL_AZURE_ARABIC_OCR_REVIEW_VERIFY'&&Number.isInteger(state.azureProviderRunId)&&typeof state.azureProviderCertifiedCommit==='string'&&state.azureArabicCharactersDetected===89&&state.azureConfidence===0.9816);
+check('exact_main_certified',state.postMergeExactMainVerification==='PASS'&&state.postMergeExactMainCommit==='d54c1f56e4acb9d6a28e3ea88102a2382928bf81'&&state.postMergeExactMainWorkflowCount>=34);
+check('deployed_live_certified',state.pagesPreviewVerification==='PASS'&&Number.isInteger(state.pagesPreviewRunId)&&state.liveExternalVerification==='PASS'&&Number.isInteger(state.liveExternalRunId)&&state.deployedLiveVerification==='PASS_MAIN_PAGES_AND_LIVE_EXTERNAL');
 check('vault_boundary',state.storageBoundary==='PRIVATE_SIGNED_BROKER_ONLY'&&state.sourceAuthorityTables?.join(',')==='documents,document_versions');
 check('budgets_frozen',state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false);
-check('successor_locked',state.exitGatePassed===false&&state.phase10_3Allowed===false&&state.nextPhase==='10.3'&&state.successorStatus==='LOCKED');
+check('zero_blockers',state.knownCriticalBlockers===0&&state.knownHighBlockers===0&&state.knownFunctionalBlockers===0);
+check('successor_authorized',state.exitGatePassed===true&&state.phase10_3Allowed===true&&state.nextPhase==='10.3'&&state.nextPhaseName==='Document Factory & Official Form Engine — M7'&&state.successorStatus==='AUTHORIZED');
 check('kickoff_present',fs.existsSync('docs/PHASE10_2_KICKOFF.md'));
 
 for(const marker of [
@@ -67,9 +73,10 @@ for(const marker of ['DocumentIntelligenceState','documentVersionId','sourceVers
 for(const marker of ['get_document_intelligence_v1','review_document_extraction_v1','verify_document_extraction_v1','functions/v1/enjaz-document-intelligence','Authorization:`Bearer ${token}`','crypto.randomUUID()'])check(`commands:${marker}`,has(commands,marker));
 check('commands_no_server_secret',!/SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEYS|ENJAZ_OCR_PROVIDER_KEY/.test(commands));
 
-for(const marker of ['ENJAZ_OCR_PROVIDER_URL','ENJAZ_OCR_PROVIDER_KEY','OCR_PROVIDER_NOT_CONFIGURED','get_document_extraction_claim_v1','mark_document_extraction_started_v1','complete_document_extraction_v1','fail_document_extraction_v1','enjaz-documents-private','SOURCE_FILE_REMAINS_AUTHORITATIVE','X-Enjaz-OCR-Contract','enjaz.ocr-provider.v1'])check(`edge:${marker}`,has(edge,marker));
+for(const marker of ['ENJAZ_OCR_PROVIDER_URL','ENJAZ_OCR_PROVIDER_KEY','OCR_PROVIDER_NOT_CONFIGURED','get_document_extraction_claim_v1','mark_document_extraction_started_v1','complete_document_extraction_v1','fail_document_extraction_v1','enjaz-documents-private','SOURCE_FILE_REMAINS_AUTHORITATIVE','X-Enjaz-OCR-Contract','enjaz.ocr-provider.v1','ENJAZ_AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT','ENJAZ_AZURE_DOCUMENT_INTELLIGENCE_KEY','azure-document-intelligence/prebuilt-layout-v4'])check(`edge:${marker}`,has(edge,marker));
 check('edge_secret_not_literal',!/(sb_secret_[A-Za-z0-9_-]+|service_role\s*[:=]\s*["'][^"']+|ENJAZ_OCR_PROVIDER_KEY\s*[:=]\s*["'][^"']+)/.test(edge));
 check('edge_provider_key_server_only',has(edge,"Deno.env.get('ENJAZ_OCR_PROVIDER_KEY')")&&!/body\.providerKey|body\.apiKey/.test(edge));
+check('edge_azure_key_server_only',has(edge,"Deno.env.get('ENJAZ_AZURE_DOCUMENT_INTELLIGENCE_KEY')")&&!/body\.azureKey|body\.apiKey/.test(edge));
 check('edge_user_auth_before_service',edge.indexOf('auth.getUser()')>=0&&edge.indexOf('auth.getUser()')<edge.indexOf('get_document_extraction_claim_v1'));
 check('edge_private_source_only',has(edge,"c.bucket!=='enjaz-documents-private'")&&has(edge,"sourceAuthority!=='SOURCE_FILE_REMAINS_AUTHORITATIVE'"));
 
@@ -96,5 +103,8 @@ check('real_cloud_zero_residue_cleanup',has(realCloud,"admin.storage.from(BUCKET
 check('real_cloud_no_literal_secret',!/sb_secret_[A-Za-z0-9_-]+/.test(realCloud));
 for(const marker of ['ENJAZ_SUPABASE_SECRET_KEY','phase10-2-real-cloud-e2e.mjs','ENJAZ_REAL_CLOUD_CONFIRM','Upload Real Cloud evidence'])check(`real_cloud_workflow:${marker}`,has(realCloudWorkflow,marker));
 
+for(const marker of ['azure_provider_selected','azure_real_arabic_text_detected','azure_page_provenance_persisted','azure_confidence_persisted','human_review_required_and_recorded','verified_ocr_remains_derived_not_source','real_azure_arabic_ocr_exit_certificate_passed'])check(`azure_e2e:${marker}`,has(azureE2e,marker));
+for(const marker of ['Real Azure Arabic OCR / review / verify / source-authority certificate','phase10-2-azure-provider-e2e.mjs','ENJAZ_SUPABASE_SECRET_KEY'])check(`azure_workflow:${marker}`,has(azureWorkflow,marker));
+
 if(failures.length){console.error(`ENJAZ PHASE 10.2 AUTHORITY AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);process.exit(1)}
-console.log('ENJAZ PHASE 10.2 AUTHORITY AUDIT PASS — source/version authority preserved; stale-source hardening, Real Browser and authenticated Real Cloud boundary certified; OCR provider remains explicitly pending; Phase 10.3 locked.');
+console.log('ENJAZ PHASE 10.2 AUTHORITY AUDIT PASS — Phase 10.2 CLOSED: source authority preserved, stale-source hardening certified, Real Browser/Real Cloud/real Azure Arabic OCR passed, exact-main Pages and Live External passed, and Phase 10.3 is authorized.');
