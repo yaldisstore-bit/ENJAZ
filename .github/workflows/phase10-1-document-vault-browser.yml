@@ -1,0 +1,76 @@
+name: ENJAZ Phase 10.1 — Document Vault Real Browser
+
+on:
+  push:
+    branches: [phase10-1-document-vault]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-1-document-vault-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  document-vault-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Preserve Document Vault contracts and full regression
+        run: |
+          npm run typecheck
+          node scripts/phase10-1-document-vault-audit.mjs
+          node --experimental-strip-types --test tests/documentVault.test.ts
+          npm run test:functional
+      - name: Build canonical production and fixed budget
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
+      - name: Build dedicated Document Vault browser harness
+        run: npx vite build --config vite.phase10-1-browser.config.ts --base=/
+      - name: Install pinned Chromium tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start Document Vault browser harness
+        run: |
+          nohup npx vite preview --config vite.phase10-1-browser.config.ts --host 127.0.0.1 --port 4181 > /tmp/enjaz-phase10-1-browser.log 2>&1 &
+          for i in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4181/phase10-1-browser.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase10-1-browser.log
+          exit 1
+      - name: Document Vault reality / upload + v2 + download + archive + pagination / governed widths
+        env:
+          R2_PHASE101_BASE_URL: http://127.0.0.1:4181/
+        run: npx playwright test tests-external/phase10-1-document-vault-live.spec.cjs --reporter=line --workers=1
+      - name: Dependency high-severity audit
+        run: npm audit --audit-level=high
+      - name: Upload Document Vault browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10-1-document-vault-browser-${{ github.sha }}
+          path: |
+            artifacts/phase10-1-document-vault/
+            test-results/
+            /tmp/enjaz-phase10-1-browser.log
+          if-no-files-found: ignore
+          retention-days: 14
