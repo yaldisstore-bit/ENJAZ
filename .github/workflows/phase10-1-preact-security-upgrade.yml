@@ -1,0 +1,48 @@
+name: ENJAZ Phase 10.1 — Preact Security Upgrade
+
+on:
+  push:
+    branches: [phase10-1-document-vault]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase10-1-preact-security-upgrade-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  upgrade-preact:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Generate exact safe Preact package and lock
+        run: |
+          if grep -q '"preact": "10.29.8"' package.json; then
+            echo "Preact is already pinned to 10.29.8."
+            exit 0
+          fi
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund preact@10.29.8
+          grep -q '"preact": "10.29.8"' package.json
+          grep -q '"version": "10.29.8"' package-lock.json
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm audit --audit-level=high
+      - name: Commit generated package metadata
+        run: |
+          if git diff --quiet -- package.json package-lock.json; then
+            echo "No package metadata change required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "Phase 10.1 — upgrade Preact to 10.29.8 security patch"
+          git push origin HEAD:phase10-1-document-vault
