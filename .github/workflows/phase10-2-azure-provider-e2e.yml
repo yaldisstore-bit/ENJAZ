@@ -2,20 +2,20 @@ name: ENJAZ Phase 10.2 — Real Azure Arabic OCR Exit Certificate
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches:
-      - phase10-2-document-intelligence-ocr
+      - main
 
 permissions:
   contents: read
 
 concurrency:
-  group: phase10-2-azure-provider-${{ github.ref }}
+  group: phase10-2-azure-provider-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   real-azure-arabic-ocr:
-    if: github.ref == 'refs/heads/phase10-2-document-intelligence-ocr'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.head_ref == 'phase10-2-document-intelligence-ocr')
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
