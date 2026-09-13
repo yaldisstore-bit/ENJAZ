@@ -21,7 +21,7 @@ export function DocumentIntelligencePanel({gateway,workspaceId,documentId,curren
  const extract=()=>act(()=>gateway.extract({workspaceId,documentId,versionNumber:currentVersionNumber}));
  const review=(decision:'accept'|'reject')=>{if(!selected)return Promise.resolve();const correctedFields=decision==='accept'&&fields.length?Object.fromEntries(fields.map(f=>[f.key,{value:corrections[f.key]??'',confidence:f.confidence,pageNumber:f.pageNumber}])):null;return act(()=>gateway.review({workspaceId,analysisId:selected.id,decision,correctedFields,note:note.trim()||null}))};
  const verify=()=>selected?act(()=>gateway.verify({workspaceId,analysisId:selected.id,note:note.trim()||null})):Promise.resolve();
- return <section className="di-panel" data-phase10-2="document-intelligence" data-source-authority="source-file" data-intelligence-authority="derived-until-verified">
+ return <section className="di-panel" data-phase10-2="document-intelligence" data-source-authority="source-file" data-intelligence-authority="derived-even-when-verified">
   <div className="di-head"><div><span className="rk-kicker">Document Intelligence · 10.2</span><h3>ذكاء الوثيقة</h3><p>الاستخراج مساعد للمراجعة فقط؛ الملف ونسخته المحفوظة يبقيان المرجع الأصلي.</p></div><button type="button" className="rk-button rk-button--primary" disabled={busy||loading||currentVersionNumber==null} onClick={()=>void extract()}>{busy?'جارٍ التنفيذ…':'استخراج من النسخة الحالية'}</button></div>
   <div className="di-law"><strong>الأصل لا يُستبدل</strong><span>EXTRACT → REVIEW → VERIFY</span><span>أي نسخة أحدث تُبطل التحقق القديم تلقائيًا</span></div>
   {error?<div className="di-alert" role="alert">{error}</div>:null}
