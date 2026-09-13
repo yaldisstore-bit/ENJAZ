@@ -1,0 +1,71 @@
+name: ENJAZ Phase 10.1 — Permanent Runtime Adoption
+
+on:
+  push:
+    branches: [phase10-1-document-vault]
+    paths: ['.github/workflows/phase10-1-permanent-runtime-adoption.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  adopt-runtime:
+    runs-on: ubuntu-24.04
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: phase10-1-document-vault
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Pin compatibility runtime in package manifest and lockfile
+        run: npm install --save-exact preact@10.27.2 --no-audit --no-fund
+      - name: Make compatibility aliases canonical in every governed build
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          configs=[
+            'vite.config.ts','vite.r2-preview.config.ts','vite.r2-production-test.config.ts',
+            'vite.phase9-2-browser.config.ts','vite.phase9-3-browser.config.ts','vite.phase9-4-browser.config.ts'
+          ]
+          alias="  resolve: { alias: { 'react': 'preact/compat', 'react-dom': 'preact/compat', 'react-dom/test-utils': 'preact/test-utils', 'react/jsx-runtime': 'preact/jsx-runtime', 'react/jsx-dev-runtime': 'preact/jsx-dev-runtime' } },\n"
+          for name in configs:
+            p=Path(name); s=p.read_text()
+            if "'react': 'preact/compat'" in s:
+              raise SystemExit(f'alias already present unexpectedly: {name}')
+            marker='export default defineConfig({\n'
+            if s.count(marker)!=1:
+              raise SystemExit(f'vite alias insertion point drifted: {name}')
+            p.write_text(s.replace(marker,marker+alias,1))
+
+          p=Path('.github/workflows/enjaz-browser-acceptance.yml'); s=p.read_text()
+          anchor="      - 'phase9-4-*'\n"
+          if "      - 'phase10-1-*'\n" not in s:
+            if s.count(anchor)!=1: raise SystemExit('browser acceptance branch trigger anchor drifted')
+            s=s.replace(anchor,anchor+"      - 'phase10-1-*'\n",1)
+          p.write_text(s)
+          PY
+      - name: Prove locked install, contracts and fixed budget before commit
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm run test:functional
+          node --experimental-strip-types --test tests/documentVault.test.ts
+          npm run build -- --base=/
+          npm run audit:dist:budget
+          git diff --check
+      - name: Commit permanent runtime boundary
+        run: |
+          git config user.name 'enjaz-ci'
+          git config user.email 'actions@users.noreply.github.com'
+          git add package.json package-lock.json vite.config.ts vite.r2-preview.config.ts vite.r2-production-test.config.ts vite.phase9-2-browser.config.ts vite.phase9-3-browser.config.ts vite.phase9-4-browser.config.ts .github/workflows/enjaz-browser-acceptance.yml
+          git commit -m 'Phase 10.1 — adopt pinned Preact compatibility runtime'
+          git push origin HEAD:phase10-1-document-vault
