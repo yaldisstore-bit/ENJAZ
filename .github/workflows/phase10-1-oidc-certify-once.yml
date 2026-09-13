@@ -32,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts/phase10-1-real-cloud
-          code="$(curl --silent --show-error --max-time 180 -o artifacts/phase10-1-real-cloud/evidence.json -w '%{http_code}' -X POST 'https://juzxriirhkuzviwnhkbd.supabase.co/functions/v1/enjaz-phase10-1-oidc-gateway' -H "Authorization: Bearer ${ENJAZ_GITHUB_OIDC}" -H 'Content-Type: application/json' --data '{}')"
+          code="$(curl --silent --show-error --max-time 180 -o artifacts/phase10-1-real-cloud/evidence.json -w '%{http_code}' -X POST 'https://juzxriirhkuzviwnhkbd.supabase.co/functions/v1/enjaz-phase10-1-real-cloud-certifier' -H "Authorization: Bearer ${ENJAZ_GITHUB_OIDC}" -H 'Content-Type: application/json' --data '{}')"
           jq '{schema,projectRef,startedAt,completedAt,passed,checks,cleanup,failure}' artifacts/phase10-1-real-cloud/evidence.json
           test "$code" = "200"
           jq -e '.passed == true and ([.cleanup[] | select(.passed != true)] | length == 0)' artifacts/phase10-1-real-cloud/evidence.json >/dev/null
