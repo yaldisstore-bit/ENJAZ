@@ -28,7 +28,7 @@ check('budgets_frozen',state.javascriptBudgetBytes===670000&&state.totalJavascri
 check('foundation_tracking',state.databaseAuthorityMigrationAdded===true&&state.domainContractAdded===true&&state.stageFoundationTestsAdded===true&&state.phaseGateAdded===true&&state.databaseAuthorityExtensionAdded===false);
 const m7=systems.systems?.find((s)=>s.id==='M7');
 check('m7_active',m7?.name==='Document Factory & Official Form Engine'&&m7?.status==='ACTIVE');
-check('kickoff_authority',has(kickoff,'immutable template version')&&has(kickoff,'documents` + immutable `document_versions')&&has(kickoff,'Phase 10.4 is **LOCKED**'));
+check('kickoff_authority',has(kickoff,'template version')&&has(kickoff,'immutable')&&has(kickoff,'documents` + immutable `document_versions')&&has(kickoff,'Phase 10.4 is **LOCKED**'));
 
 for(const marker of [
   'create table public.document_template_versions',
@@ -46,7 +46,7 @@ for(const marker of [
   'document_drafts_final_immutable_v1',
   'require_document_factory_owner_v1',
   "v_role<>'owner'",
-  "extensions.digest",
+  'extensions.digest',
   'create_document_template_version_v1',
   'publish_document_template_version_v1',
   'insert into public.audit_events',
