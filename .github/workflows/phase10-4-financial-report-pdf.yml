@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: enjaz-phase104-financial-pdf-${{ github.ref }}
+  group: enjaz-phase104-financial-pdf-v2-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
