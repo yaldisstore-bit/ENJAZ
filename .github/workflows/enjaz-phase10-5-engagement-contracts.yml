@@ -1,0 +1,48 @@
+name: ENJAZ Phase 10.5 — Engagement Contract Documents
+
+on:
+  push:
+    branches:
+      - 'phase10-5-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase105-engagement-contracts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  engagement-contract-authority:
+    name: M16 authority / revisions / signatures / dates / no-shadow-money
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 10.5 governed authority audit
+        run: node scripts/phase10-5-engagement-contracts-audit.mjs
+      - name: Engagement contract lifecycle destruction tests
+        run: node --experimental-strip-types --test tests/engagementContract.test.ts
+      - name: Preserve Phase 7 finance/commercial authority
+        run: |
+          node --experimental-strip-types --test tests/financeCommands.test.ts
+          node --experimental-strip-types --test tests/financeReports.test.ts
+      - name: Preserve Document Factory authority
+        run: node --experimental-strip-types --test tests/documentFactory.test.ts
+      - name: TypeScript integration
+        run: npm run typecheck
+      - name: Production build and frozen budget
+        run: npm run build -- --base=/ && npm run audit:dist:budget
+      - name: Dependency high-severity audit
+        run: npm audit --audit-level=high
