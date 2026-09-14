@@ -1,3 +1,4 @@
+# Phase 10.3 production-certificate workflow: runs on every Phase 10.3 branch push.
 name: ENJAZ Phase 10.3 — Real Cloud Arabic PDF Certificate
 
 on:
