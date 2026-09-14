@@ -43,6 +43,8 @@ jobs:
         run: |
           npm run build -- --base=/
           npm run audit:dist:budget
+      - name: Dependency high-severity audit for locked production graph
+        run: npm audit --audit-level=high
       - name: Build dedicated Engagement Contracts browser harness
         run: npx vite build --config vite.phase10-5-browser.config.ts --base=/
       - name: Install pinned Chromium tooling
@@ -62,8 +64,6 @@ jobs:
         env:
           R2_PHASE105_BASE_URL: http://127.0.0.1:4185/
         run: npx playwright test tests-external/phase10-5-engagement-contracts-live.spec.cjs --reporter=line --workers=1
-      - name: Dependency high-severity audit
-        run: npm audit --audit-level=high
       - name: Upload Engagement Contracts browser evidence
         if: always()
         uses: actions/upload-artifact@v4
