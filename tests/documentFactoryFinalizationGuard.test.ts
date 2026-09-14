@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 
 const read=(name:string)=>readFileSync(new URL(`../database/migrations/${name}`,import.meta.url),'utf8');
+const readRepo=(path:string)=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 
 test('governed runtime has no provisional finalizer',()=>{
   const runtime=read('phase_10_3_document_factory_runtime.sql');
@@ -28,4 +29,15 @@ test('published and final records stay immutable directly but allow parent works
   assert.ok(hardening.includes("tg_op='DELETE' and not exists(select 1 from public.workspaces w where w.id=old.workspace_id)"));
   assert.ok(hardening.includes('ENJAZ_DOCUMENT_FACTORY_FINAL_ARTIFACT_IMMUTABLE'));
   assert.ok(!/disable\s+trigger/i.test(hardening),'workspace cascade hardening must not disable immutable triggers');
+});
+
+test('renderer retry keeps acknowledged Vault output intact and recovers the exact version',()=>{
+  const renderer=readRepo('supabase/functions/enjaz-document-render/index.ts');
+  assert.ok(renderer.includes("from('document_upload_sessions')"),'renderer must inspect the existing Vault upload session before preparing a duplicate');
+  assert.ok(renderer.includes("session.state==='acknowledged'"),'renderer must recognize an already acknowledged Vault output');
+  assert.ok(renderer.includes('documentVersionId=uuid(session.document_version_id)'),'acknowledged retry must reuse the exact immutable document version');
+  assert.ok(renderer.includes('await storedObject(admin,storagePath,pdf,checksum,true)'),'acknowledged retry must re-verify the authoritative binary before completion');
+  assert.ok(renderer.includes('preserveForRetry=true'),'renderer must preserve the in-flight job after service execution starts');
+  assert.ok(renderer.includes('if(admin&&jobId&&runId&&!preserveForRetry)await safeFail'),'post-start failures must not run destructive cleanup');
+  assert.ok(renderer.includes('wasRecovered:job.status===\'running\''),'successful replay must expose recovery evidence');
 });
