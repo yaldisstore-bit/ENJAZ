@@ -8,6 +8,7 @@ const predecessor = json('docs/PHASE10_6_STATE.json');
 const kickoff = read('docs/PHASE11_1_KICKOFF.md');
 const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 const baseline = read('database/baseline/phase1_2_schema.sql');
+const migration = read('database/migrations/phase_11_1_notifications_followups.sql');
 const contract = read('src/features/notifications/notificationFollowupContract.ts');
 const tests = read('tests/notificationFollowupContract.test.ts');
 
@@ -32,8 +33,8 @@ check('no_shadow_authority', state.shadowNotificationStoreAllowed === false && s
 check('provenance_and_dedupe_law', state.sourceProvenanceRequired === true && state.deterministicDedupeIdentityRequired === true && state.crossWorkspaceNotificationAllowed === false);
 check('delivery_truth_law', state.browserMayInventDeliverySuccess === false && state.notificationDeliveryHistoryMayBecomeInboxState === false && state.externalDeliveryProviderIntegrated === false);
 check('quiet_snooze_law', state.quietHoursMayEraseSourceFact === false && state.snoozeMayCompleteFollowup === false);
-check('authority_gap_recorded', state.databaseAuthorityExtensionRequired === true && state.inAppNotificationStateAuthority === 'PHASE11_1_REQUIRED_EXTENSION');
-check('foundation_tracking', state.authorityDiscoveryCompleted === true && state.lifecycleContractAdded === true && state.destructionTestsAdded === true);
+check('authority_gap_recorded', state.databaseAuthorityExtensionRequired === true && ['PHASE11_1_REQUIRED_EXTENSION','in_app_notifications'].includes(state.inAppNotificationStateAuthority));
+check('foundation_tracking', state.authorityDiscoveryCompleted === true && state.lifecycleContractAdded === true && state.destructionTestsAdded === true && state.phaseGateAdded === true);
 
 for (const marker of [
   'create table public.notification_preferences',
@@ -52,6 +53,35 @@ for (const marker of [
   'snoozed_until timestamptz',
   'constraint transaction_followups_completion_check',
 ]) check(`baseline:${marker}`, has(baseline, marker));
+
+for (const marker of [
+  'create table public.in_app_notifications',
+  'constraint in_app_notifications_source_identity_unique',
+  'transaction_followups_completion_actor_check',
+  'transaction_followups_terminal_snooze_check',
+  'alter table public.in_app_notifications enable row level security',
+  'revoke all on table public.in_app_notifications from public, anon, authenticated',
+  'grant select on table public.in_app_notifications to authenticated',
+  'create policy in_app_notifications_select_self',
+  'private.enforce_in_app_notification_lifecycle_v1',
+  'ENJAZ_NOTIFICATION_SOURCE_IDENTITY_IMMUTABLE',
+  'ENJAZ_NOTIFICATION_STALE_SOURCE_VERSION',
+  'ENJAZ_NOTIFICATION_SOURCE_REVISION_REQUIRED',
+  'public.mutate_in_app_notification_state_v1',
+  'ENJAZ_NOTIFICATION_WORKSPACE_FORBIDDEN',
+  'ENJAZ_NOTIFICATION_CANCELLED_FINAL',
+  'public.upsert_in_app_notification_v1',
+  'ENJAZ_NOTIFICATION_RECIPIENT_NOT_MEMBER',
+  'ENJAZ_NOTIFICATION_SOURCE_REVISION_DRIFT',
+  'grant execute on function public.mutate_in_app_notification_state_v1',
+  'grant execute on function public.upsert_in_app_notification_v1',
+]) check(`migration:${marker}`, has(migration, marker));
+
+check('browser_has_no_notification_source_write',
+  !has(migration, 'grant insert on table public.in_app_notifications to authenticated') &&
+  !has(migration, 'grant update on table public.in_app_notifications to authenticated') &&
+  !has(migration, 'grant delete on table public.in_app_notifications to authenticated'));
+check('delivery_history_not_repurposed', !has(migration, 'alter table public.notification_deliveries add column read_at') && !has(migration, 'alter table public.notification_deliveries add column snoozed_until'));
 
 for (const marker of [
   'PHASE11_1_AUTHORITY',
@@ -87,10 +117,13 @@ check('roadmap_scope', has(roadmap, '## 11.1 — Notifications & Follow-ups') &&
 if (state.databaseAuthorityExtensionApplied === false) {
   check('pre_migration_mode', state.mode === 'AUTHORITY_DISCOVERY_AND_LIFECYCLE_CONTRACT' && state.realCloudVerification === 'PENDING');
 }
+if (state.databaseAuthorityExtensionApplied === true) {
+  check('live_authority_recorded', state.inAppNotificationStateAuthority === 'in_app_notifications');
+}
 
 if (failures.length) {
   console.error(`ENJAZ PHASE 11.1 NOTIFICATIONS/FOLLOW-UPS AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);
   process.exit(1);
 }
 
-console.log('ENJAZ PHASE 11.1 NOTIFICATIONS/FOLLOW-UPS AUDIT PASS — existing authority is preserved, the in-app state gap is explicit, lifecycle/dedupe/provenance laws are fail-closed, and Phase 11.2 remains locked.');
+console.log('ENJAZ PHASE 11.1 NOTIFICATIONS/FOLLOW-UPS AUDIT PASS — existing authority is preserved, canonical in-app notification state is governed separately from delivery history, lifecycle/dedupe/provenance laws are fail-closed, and Phase 11.2 remains locked.');
