@@ -44,8 +44,6 @@ jobs:
           node --experimental-strip-types --test tests/financialReportServerParity.test.ts
           node --experimental-strip-types --test tests/financialReportRenderGateway.test.ts
       - name: Authenticated real-cloud Arabic financial PDF certificate
-        env:
-          NODE_OPTIONS: --import=./scripts/phase10-4-safe-fetch-diagnostic.mjs
         run: node --experimental-strip-types scripts/phase10-4-real-cloud-financial-pdf.mjs
       - name: Install real PDF inspection tooling
         run: |
