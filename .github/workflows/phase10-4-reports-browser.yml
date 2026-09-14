@@ -46,17 +46,17 @@ jobs:
         run: |
           npm run build -- --base=/
           npm run audit:dist:budget
-      - name: Build existing canonical financial-reports preview
-        run: npx vite build --config vite.phase7-4-preview.config.ts --base=/
+      - name: Build isolated Phase 10.4 reports browser harness
+        run: npx vite build --config vite.phase10-4-reports-preview.config.ts --base=/
       - name: Install pinned Chromium tooling
         run: |
           npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Start reports preview
+      - name: Start reports browser harness
         run: |
-          nohup npx vite preview --config vite.phase7-4-preview.config.ts --host 127.0.0.1 --port 4184 > /tmp/enjaz-phase10-4-reports-browser.log 2>&1 &
+          nohup npx vite preview --config vite.phase10-4-reports-preview.config.ts --host 127.0.0.1 --port 4184 > /tmp/enjaz-phase10-4-reports-browser.log 2>&1 &
           for i in {1..40}; do
-            if curl --fail --silent http://127.0.0.1:4184/phase7-4-preview.html >/dev/null; then exit 0; fi
+            if curl --fail --silent http://127.0.0.1:4184/phase10-4-reports-preview.html >/dev/null; then exit 0; fi
             sleep 1
           done
           cat /tmp/enjaz-phase10-4-reports-browser.log
