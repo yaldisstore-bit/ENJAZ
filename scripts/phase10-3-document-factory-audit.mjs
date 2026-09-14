@@ -31,8 +31,10 @@ const kickoff=read('docs/PHASE10_3_KICKOFF.md');
 const failures=[];
 const check=(name,condition)=>{if(!condition)failures.push(name)};
 const has=(source,needle)=>source.toLowerCase().includes(needle.toLowerCase());
+const phaseActive=state.status==='IN_PROGRESS';
+const phaseClosed=state.status==='CLOSED';
 
-check('phase_identity',state.phase==='10.3'&&state.name==='Document Factory & Official Form Engine — M7'&&state.status==='IN_PROGRESS');
+check('phase_identity',state.phase==='10.3'&&state.name==='Document Factory & Official Form Engine — M7'&&(phaseActive||phaseClosed));
 check('exact_base',state.baseCommit==='667f2cc3892d8167e5880f030a1ff6dd6baf47b9');
 check('predecessor_closed',state.predecessorPhase==='10.2'&&state.predecessorStatus==='CLOSED'&&predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true&&predecessor.phase10_3Allowed===true);
 check('predecessor_deployed',state.predecessorExactMainVerified===true&&state.predecessorPagesVerified===true&&state.predecessorLiveExternalVerified===true);
@@ -40,7 +42,7 @@ check('authority_contract',state.templateVersionRequired===true&&state.factSnaps
 check('source_authority',Array.isArray(state.sourceDocumentAuthority)&&state.sourceDocumentAuthority.join(',')==='documents,document_versions'&&state.generatedOutputMayMutateSourceRecords===false);
 check('browser_sensitive_writes_closed',state.directBrowserFinalizationAllowed===false&&state.directBrowserIssuedArtifactMutationAllowed===false&&state.directBrowserRenderCompletionAllowed===false);
 check('ocr_fail_closed',state.unverifiedOcrAllowedInOfficialGeneration===false&&state.verifiedOcrMustBeCurrent===true);
-check('successor_locked',state.phase10_4Allowed===false&&state.nextPhase==='10.4'&&state.successorStatus==='LOCKED');
+check('successor_locked',phaseActive?(state.phase10_4Allowed===false&&state.nextPhase==='10.4'&&state.successorStatus==='LOCKED'):(phaseClosed&&state.phase10_4Allowed===true&&state.nextPhase==='10.4'&&state.successorStatus==='AUTHORIZED'&&state.exitGatePassed===true));
 check('budgets_frozen',state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false);
 check('foundation_tracking',state.databaseAuthorityMigrationAdded===true&&state.authorityHardeningMigrationAdded===true&&state.fkIndexHardeningMigrationAdded===true&&state.liveAuthenticatedAuthorityProbeAdded===true&&state.domainContractAdded===true&&state.stageFoundationTestsAdded===true&&state.phaseGateAdded===true);
 check('live_authority_certified',state.databaseAuthorityExtensionAdded===true&&state.databaseAuthorityLiveVerified===true&&state.databaseAuthorityZeroResidue===true&&state.phaseOwnedUnindexedForeignKeys===0);
@@ -55,7 +57,7 @@ check('runtime_direct_dml_closure_source',state.browserTemplateTableMutationClos
 check('runtime_live_certified',state.runtimeLiveApplied===true&&state.renderAuthorityLiveApplied===true&&state.workspaceCascadeHardeningLiveApplied===true&&state.runtimeRealCloudVerified===true&&state.runtimeZeroResidueVerified===true&&state.officialGenerationRuntimeAdded===true);
 check('implemented_renderer_ui_truth',state.officialRenderedArtifactRuntimeAdded===true&&state.documentFactoryUiAdded===true&&state.premiumDocumentAnalysisCtaAdded===true&&state.rendererRetryRecoveryHardened===true&&state.rendererEdgeFunctionVersion>=3);
 check('expanded_factory_source_truth',state.templateManagementUiAdded===true&&state.submissionPackCompositionAdded===true&&state.submissionPackAuthorityMigrationAdded===true&&state.submissionPackAuthorityLiveApplied===true&&state.qrBarcodeIdentityAdded===true&&state.advancedTableConditionalLayoutAdded===true&&state.expandedFactoryContractTestsAdded===true);
-check('remaining_certification_truth',state.realBrowserVerification==='PENDING_PHASE10_3_REAL_BROWSER_CERTIFICATION'&&state.deployedLiveVerification==='PENDING_REAL_BROWSER_AND_DEPLOYED_CERTIFICATION'&&state.exitGatePassed===false);
+check('remaining_certification_truth',phaseActive?(state.realBrowserVerification==='PENDING_PHASE10_3_REAL_BROWSER_CERTIFICATION'&&state.deployedLiveVerification==='PENDING_REAL_BROWSER_AND_DEPLOYED_CERTIFICATION'&&state.exitGatePassed===false):(phaseClosed&&state.realBrowserVerification==='PASS'&&state.deployedLiveVerification==='PASS_MAIN_PAGES_AND_LIVE_EXTERNAL'&&state.exitGatePassed===true));
 check('real_cloud_state',state.realCloudVerification==='PASS_REAL_ARABIC_PDF_VAULT_RENDER_PROOF_FINALIZATION_ZERO_RESIDUE');
 const renderEvidence=state.realCloudRenderEvidence||{};
 check('real_cloud_render_evidence',renderEvidence.status==='PASS_REAL_ARABIC_PDF_VAULT_RENDER_PROOF_FINALIZATION_ZERO_RESIDUE'&&renderEvidence.workflowRunId===34813151586&&renderEvidence.certifiedCommit==='6fd1027777059bd03785cca85a4136a773978c36'&&renderEvidence.artifactId===10335930355&&renderEvidence.pdfByteSize===48315&&renderEvidence.pdfPages===8&&renderEvidence.pdfSignatureVerified===true&&renderEvidence.pdfSha256Verified===true&&renderEvidence.rtlArabicMultipageVerified===true&&renderEvidence.rendererIdempotentReplayVerified===true&&renderEvidence.duplicateDocumentCountAddedOnReplay===0&&renderEvidence.exactRenderProofFinalizationVerified===true&&renderEvidence.storageCleanupVerified===true&&renderEvidence.workspaceCleanupVerified===true&&renderEvidence.authUserCleanupVerified===true);
@@ -118,4 +120,4 @@ if(failures.length){
   console.error(`ENJAZ PHASE 10.3 AUTHORITY AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);
   process.exit(1);
 }
-console.log('ENJAZ PHASE 10.3 AUTHORITY AUDIT PASS — live authority, recoverable renderer, template management, QR identity, advanced conditional/table layout and governed transaction submission packs are source/state guarded. Real Browser and deployed-live certification remain required; Phase 10.4 stays locked.');
+console.log(`ENJAZ PHASE 10.3 AUTHORITY AUDIT PASS — ${phaseClosed?'closed-phase regression certificate remains valid and Phase 10.4 is authorized':'live authority, recoverable renderer, template management, QR identity, advanced conditional/table layout and governed transaction submission packs are source/state guarded; remaining Phase 10.3 certifications are still required and Phase 10.4 stays locked'}.`);

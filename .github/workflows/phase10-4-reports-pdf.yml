@@ -1,0 +1,66 @@
+name: ENJAZ Phase 10.4 — Reports & PDF Gate
+
+on:
+  push:
+    branches:
+      - 'phase10-4-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase104-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase10-4-reports-pdf:
+    name: Deterministic pagination / footer / signature / QR-barcode / no-overflow
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with: { python-version: '3.12' }
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 10.4 lifecycle and PDF authority audit
+        run: node scripts/phase10-4-reports-pdf-audit.mjs
+      - name: Reports & PDF destruction tests
+        run: |
+          node --experimental-strip-types --test tests/reportPdfContract.test.ts
+          node --experimental-strip-types --test tests/financialReportPdf.test.ts
+          node --experimental-strip-types --test tests/financialReportServerParity.test.ts
+          node --experimental-strip-types --test tests/financialReportRenderGateway.test.ts
+      - name: Preserve financial report authority tests
+        run: node --experimental-strip-types --test tests/financeReports.test.ts
+      - name: Preserve Document Factory rendering/finalization contracts
+        run: |
+          node --experimental-strip-types --test tests/documentFactory.test.ts
+          node --experimental-strip-types --test tests/documentFactoryExpansion.test.ts
+          node --experimental-strip-types --test tests/documentFactoryFinalizationGuard.test.ts
+      - name: Preserve full functional regression
+        run: npm run test:functional
+      - name: Preserve database, roadmap and major-system integrity
+        run: npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap && node scripts/major-systems-zero-escape-audit.mjs
+      - name: Preserve secret boundary and TypeScript
+        run: npm run audit:secrets && npm run typecheck
+      - name: Preserve production build and frozen budgets
+        run: npm run build -- --base=/ && npm run audit:dist:budget
+      - name: Preserve Pages live build and frozen budgets
+        run: npm run build -- --base=/ENJAZ/live/ && npm run audit:dist:budget
+      - name: Re-enforce Phase 10.4 state after build
+        run: node scripts/phase10-4-reports-pdf-audit.mjs

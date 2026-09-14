@@ -46,7 +46,7 @@ const source: FinanceSource = Object.freeze({
 });
 
 function PreviewApp() {
-  return <div className="r2-shell" data-r2-runtime-mode="preview" data-destination="finance" dir="rtl"><main id="r2-main" className="r2-main"><div className="r2-screen r2-finance-phase74" data-finance-stage="7.4" data-finance-mode="preview" data-finance-report-authority="canonical"><FinancialReportsPanel source={source} /></div></main></div>;
+  return <div className="r2-shell" data-r2-runtime-mode="preview" data-destination="finance" dir="rtl"><main id="r2-main" className="r2-main"><div className="r2-screen r2-finance-phase74" data-finance-stage="7.4" data-finance-mode="preview" data-finance-report-authority="canonical"><FinancialReportsPanel source={source} workspaceId={W} /></div></main></div>;
 }
 
 const root = document.getElementById('phase74-finance-root');
