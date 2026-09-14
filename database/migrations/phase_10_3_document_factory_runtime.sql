@@ -551,8 +551,6 @@ begin
   );
 end;$$;
 
-for_dummy: do $$ begin end $$;
-
 revoke all on function public.generate_document_draft_v1(uuid,uuid,uuid,text,uuid,uuid,uuid,uuid) from public,anon,authenticated;
 revoke all on function public.update_document_draft_content_v1(uuid,uuid,text) from public,anon,authenticated;
 revoke all on function public.submit_document_draft_for_review_v1(uuid,uuid) from public,anon,authenticated;
