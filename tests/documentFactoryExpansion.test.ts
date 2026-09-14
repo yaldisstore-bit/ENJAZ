@@ -36,8 +36,8 @@ test('renderer emits stable QR identity, conditional sections, repeated rows and
   'ENJAZ:DRAFT:',
   'ENJAZ:PACK:',
   'applyAdvancedLayout',
-  '[[IF',
-  '[[EACH',
+  '\\[\\[IF\\s+',
+  '\\[\\[EACH\\s+',
   '[[ITEM]]',
   'drawTable',
   'renderSubmissionPack',
@@ -45,8 +45,10 @@ test('renderer emits stable QR identity, conditional sections, repeated rows and
   "p_document_type:'submission-pack'",
   'complete_document_submission_pack_v1',
  ])assert.equal(has(renderer,marker),true,`missing ${marker}`);
- assert.ok(renderer.indexOf('auth.getUser()')>=0);
- assert.ok(renderer.indexOf('auth.getUser()')<renderer.indexOf("admin.rpc('complete_document_submission_pack_v1'"));
+ const auth=renderer.indexOf('auth.getUser()');
+ const dispatch=renderer.indexOf("if(body.mode==='pack')return await handlePack(body,workspaceId,who.data.user.id,user,admin)");
+ assert.ok(auth>=0&&dispatch>auth,'pack dispatch must occur only after authenticated user resolution');
+ assert.equal(has(renderer,'if(pack.requestedBy!==userId)'),true,'pack actor must match the authenticated user');
 });
 
 test('browser gateway exposes governed template versions and pack build without server credentials',()=>{
