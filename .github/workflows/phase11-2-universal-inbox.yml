@@ -1,0 +1,62 @@
+name: ENJAZ Phase 11.2 — Universal Inbox Integration Gate
+
+on:
+  push:
+    branches:
+      - 'phase11-2-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase112-universal-inbox-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  universal-inbox:
+    name: Source authority / provenance merge / deterministic dedupe / no shadow inbox
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 11.2 governed composition audit
+        run: node scripts/phase11-2-universal-inbox-audit.mjs
+      - name: Phase 11.2 composition and service destruction tests
+        run: |
+          node --experimental-strip-types --test tests/universalInboxContract.test.ts
+          node --experimental-strip-types --test tests/universalInboxService.test.ts
+      - name: Preserve live Phase 4.2 Daily Work domain/service behavior
+        run: |
+          node --experimental-strip-types --test tests/dailyWork.test.ts
+          node --experimental-strip-types --test tests/dailyWorkService.test.ts
+      - name: Preserve closed Phase 11.1 notification authority
+        run: |
+          node scripts/phase11-1-regression-audit.mjs
+          node scripts/phase11-1-live-cloud-probe-audit.mjs
+          node --experimental-strip-types --test tests/notificationFollowupContract.test.ts
+          node --experimental-strip-types --test tests/notificationCommands.test.ts
+      - name: Secrets and database integrity
+        run: |
+          npm run audit:secrets
+          npm run db:audit
+          npm run db:audit:selftest
+      - name: TypeScript integration
+        run: npm run typecheck
+      - name: Production build and frozen budgets
+        run: npm run build -- --base=/ && npm run audit:dist:budget
+      - name: Dependency high-severity audit
+        run: npm audit --audit-level=high

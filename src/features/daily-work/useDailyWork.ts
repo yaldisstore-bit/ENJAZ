@@ -3,18 +3,18 @@ import { DataAccessError } from '../../data/contracts/DataAccessError.ts';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
 import { useNotificationCommandGateway } from '../notifications/NotificationCommandContext.tsx';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
-import type { DailyWorkItem, DailyWorkSnapshot } from './dailyWorkModel.ts';
+import type { DailyWorkItem } from './dailyWorkModel.ts';
 import {
   completeDailyWorkItem,
   DailyWorkActionUnavailableError,
   DailyWorkWorkspaceUnavailableError,
-  loadDailyWork,
   snoozeDailyWorkFollowup,
 } from './dailyWorkService.ts';
+import { loadUniversalInbox, type UniversalInboxSnapshot } from './universalInboxService.ts';
 
 export type DailyWorkLoadState =
   | Readonly<{ status: 'loading'; snapshot: null; errorMessage: null }>
-  | Readonly<{ status: 'ready'; snapshot: DailyWorkSnapshot; errorMessage: null }>
+  | Readonly<{ status: 'ready'; snapshot: UniversalInboxSnapshot; errorMessage: null }>
   | Readonly<{ status: 'error'; snapshot: null; errorMessage: string }>;
 
 export type DailyWorkController = DailyWorkLoadState & Readonly<{
@@ -60,7 +60,7 @@ export function useDailyWork(): DailyWorkController {
     }
     setState(LOADING_STATE);
     setActionError(null);
-    void loadDailyWork(factory, userId)
+    void loadUniversalInbox(factory, notificationCommands, userId)
       .then(({ snapshot }) => {
         if (!active) return;
         setState(Object.freeze({ status: 'ready', snapshot, errorMessage: null }));
@@ -70,7 +70,7 @@ export function useDailyWork(): DailyWorkController {
         setState(Object.freeze({ status: 'error', snapshot: null, errorMessage: toDailyWorkErrorMessage(error) }));
       });
     return () => { active = false; };
-  }, [attempt, factory, userId]);
+  }, [attempt, factory, notificationCommands, userId]);
 
   const runAction = async (item: DailyWorkItem, action: () => Promise<void>) => {
     if (actionItemId) return;
