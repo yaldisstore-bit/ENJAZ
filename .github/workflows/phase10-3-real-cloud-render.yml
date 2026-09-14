@@ -43,8 +43,9 @@ jobs:
         run: |
           node scripts/phase10-3-document-factory-audit.mjs
           node --experimental-strip-types --test tests/documentFactory.test.ts
+          node --experimental-strip-types --test tests/documentFactoryExpansion.test.ts
           node --experimental-strip-types --test tests/documentFactoryFinalizationGuard.test.ts
-      - name: Authenticated real Arabic PDF / Vault / render-proof / finalization / zero-residue certificate
+      - name: Authenticated real advanced Arabic PDF / QR / submission pack / Vault / zero-residue certificate
         run: node scripts/phase10-3-real-cloud-render-e2e.mjs
       - name: Upload Phase 10.3 Real Cloud render evidence
         if: always()
