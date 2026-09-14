@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 const baseUrl = process.env.PHASE104_REPORTS_BASE_URL || 'http://127.0.0.1:4184/';
-const previewUrl = new URL('phase7-4-preview.html', baseUrl).toString();
+const previewUrl = new URL('phase10-4-reports-preview.html', baseUrl).toString();
 
 async function open(page, width, height) {
   const errors = [];
@@ -16,11 +16,7 @@ async function open(page, width, height) {
 }
 
 async function noHorizontalEscape(page) {
-  const geometry = await page.evaluate(() => ({
-    viewport: document.documentElement.clientWidth,
-    document: document.documentElement.scrollWidth,
-    body: document.body.scrollWidth,
-  }));
+  const geometry = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth, body: document.body.scrollWidth }));
   expect(geometry.document).toBeLessThanOrEqual(geometry.viewport + 1);
   expect(geometry.body).toBeLessThanOrEqual(geometry.viewport + 1);
 }
@@ -63,11 +59,7 @@ test('mobile print media hides controls and keeps report body printable without 
   await expect(root.locator('[data-pdf-ready="true"]')).toBeVisible();
   await expect(root.getByRole('heading', { name: 'حركة الفترة' })).toBeVisible();
   await expect(root.getByRole('heading', { name: 'الأرصدة الحالية' })).toBeVisible();
-  const printGeometry = await page.evaluate(() => ({
-    body: document.body.scrollWidth,
-    viewport: document.documentElement.clientWidth,
-    tables: [...document.querySelectorAll('.r2-f74-card table')].map(table => ({ width: table.getBoundingClientRect().width, parent: table.parentElement?.getBoundingClientRect().width || 0 })),
-  }));
+  const printGeometry = await page.evaluate(() => ({ tables: [...document.querySelectorAll('.r2-f74-card table')].map(table => ({ width: table.getBoundingClientRect().width, parent: table.parentElement?.getBoundingClientRect().width || 0 })) }));
   for (const table of printGeometry.tables) expect(table.width).toBeLessThanOrEqual(table.parent + 1);
   expect(errors).toEqual([]);
 });
