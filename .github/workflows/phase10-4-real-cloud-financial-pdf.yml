@@ -1,0 +1,94 @@
+name: ENJAZ Phase 10.4 — Real Cloud Financial PDF Certificate
+
+on:
+  push:
+    branches:
+      - 'phase10-4-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-4-real-cloud-financial-pdf-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-cloud-financial-pdf:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+      SUPABASE_SECRET_KEY: ${{ secrets.ENJAZ_SUPABASE_SECRET_KEY }}
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Require privileged server-only test credential
+        shell: bash
+        run: |
+          test -n "$SUPABASE_SECRET_KEY" || { echo 'ENJAZ_SUPABASE_SECRET_KEY is missing'; exit 1; }
+          case "$SUPABASE_SECRET_KEY" in sb_publishable_*) echo 'Secret is not privileged'; exit 1;; esac
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Preserve Phase 10.4 authority before cloud mutation
+        run: |
+          node scripts/phase10-4-reports-pdf-audit.mjs
+          node --experimental-strip-types --test tests/financialReportServerParity.test.ts
+          node --experimental-strip-types --test tests/financialReportRenderGateway.test.ts
+      - name: Authenticated real-cloud Arabic financial PDF certificate
+        run: node --experimental-strip-types scripts/phase10-4-real-cloud-financial-pdf.mjs
+      - name: Install real PDF inspection tooling
+        run: |
+          if ! command -v pdfinfo >/dev/null || ! command -v pdftotext >/dev/null || ! command -v pdfimages >/dev/null; then
+            sudo apt-get update -y
+            sudo apt-get install -y poppler-utils
+          fi
+      - name: Inspect footer / signature / QR-barcode against real cloud binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          PDF='artifacts/phase10-4-real-cloud-financial-pdf/financial-report.pdf'
+          TXT='artifacts/phase10-4-real-cloud-financial-pdf/financial-report.txt'
+          INFO='artifacts/phase10-4-real-cloud-financial-pdf/pdfinfo.txt'
+          IMAGES='artifacts/phase10-4-real-cloud-financial-pdf/pdfimages.txt'
+          pdfinfo "$PDF" | tee "$INFO"
+          pdftotext -layout "$PDF" "$TXT"
+          pdfimages -list "$PDF" | tee "$IMAGES"
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, re, unicodedata
+          root=Path('artifacts/phase10-4-real-cloud-financial-pdf')
+          evidence=json.loads((root/'evidence.json').read_text())
+          pages=int(evidence['output']['pages'])
+          text=unicodedata.normalize('NFKC',(root/'financial-report.txt').read_text(errors='replace'))
+          def seen(token): return token in text or token[::-1] in text
+          required=['التوقيع','صفحة','محكوم','بصمة']
+          missing=[token for token in required if not seen(token)]
+          if missing: raise SystemExit(f'missing extracted real-PDF markers: {missing}')
+          image_lines=[]
+          for line in (root/'pdfimages.txt').read_text().splitlines():
+              if re.match(r'^\s*\d+\s+\d+\s+',line): image_lines.append(line)
+          if len(image_lines)<2: raise SystemExit(f'expected QR/barcode images, got {len(image_lines)} image rows')
+          info=(root/'pdfinfo.txt').read_text()
+          match=re.search(r'^Pages:\s+(\d+)',info,re.M)
+          if not match or int(match.group(1))!=pages: raise SystemExit('pdfinfo page count does not match renderer certificate')
+          inspection={'pages':pages,'extractedMarkers':required,'imageRows':len(image_lines),'signatureMarker':True,'footerMarkers':True,'qrBarcodeImages':True}
+          (root/'binary-inspection.json').write_text(json.dumps(inspection,ensure_ascii=False,indent=2)+'\n')
+          print('PASS real_cloud_binary_footer_signature_qr_barcode_inspection',inspection)
+          PY
+      - name: Upload Phase 10.4 Real Cloud financial PDF evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10-4-real-cloud-financial-pdf-${{ github.sha }}
+          path: artifacts/phase10-4-real-cloud-financial-pdf/
+          if-no-files-found: error
+          retention-days: 30
