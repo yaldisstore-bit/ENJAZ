@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
 import { useNotificationCommandGateway } from '../../features/notifications/NotificationCommandContext.tsx';
-import type { InAppNotificationRuntime, NotificationLifecycleAction } from '../../features/notifications/notificationCommands.ts';
+import type { InAppNotificationRuntime } from '../../features/notifications/notificationCommands.ts';
+import type { NotificationLifecycleAction } from '../../features/notifications/notificationFollowupContract.ts';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
 import './notifications.css';
 
@@ -82,7 +83,10 @@ export function LiveNotificationExperience() {
     setBusyId(row.id);
     setMessage(null);
     try {
-      await gateway.mutateNotification({ workspaceId, notificationId: row.id, action, snoozedUntil });
+      const mutation = snoozedUntil === undefined
+        ? { workspaceId, notificationId: row.id, action }
+        : { workspaceId, notificationId: row.id, action, snoozedUntil };
+      await gateway.mutateNotification(mutation);
       await reload(workspaceId);
     } catch {
       setMessage(errorMessage());
