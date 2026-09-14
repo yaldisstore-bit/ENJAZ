@@ -6,6 +6,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8');
 const assert = (condition, message) => { if (!condition) errors.push(message); };
+const sha40 = (value) => typeof value === 'string' && /^[0-9a-f]{40}$/i.test(value);
 
 const state = JSON.parse(read('docs/PHASE11_2_STATE.json'));
 const predecessor = JSON.parse(read('docs/PHASE11_1_STATE.json'));
@@ -43,6 +44,20 @@ assert(state.runtimeIntegrationAdded === true && state.runtimeIntegrationPath ==
 assert(state.uiIntegrationAdded === true && state.uiIntegrationPath === 'src/ui-r2/core-work/CoreWorkConnected.tsx' && state.canonicalDestination === 'today', 'canonical Today UI integration is not recorded');
 assert(state.browserHarnessAdded === true && state.browserGateAdded === true && state.browserSpecPath === 'tests-external/phase11-2-universal-inbox-live.spec.cjs', 'Phase 11.2 browser certification tracking is incomplete');
 assert(state.databaseAuthorityExtensionRequired === false && state.databaseAuthorityExtensionApplied === false, 'Phase 11.2 must not invent new persistence without an explicit authority need');
+
+if (state.phaseGateVerification === 'PASS') {
+  assert(Number.isSafeInteger(state.phaseGateRunId) && state.phaseGateRunId > 0, 'Phase 11.2 PASS gate is missing a run id');
+  assert(sha40(state.phaseGateVerifiedCommit), 'Phase 11.2 PASS gate is missing an exact verified commit');
+}
+if (state.realBrowserVerification === 'PASS') {
+  assert(Number.isSafeInteger(state.realBrowserRunId) && state.realBrowserRunId > 0, 'Real Browser PASS is missing a run id');
+  assert(sha40(state.realBrowserVerifiedCommit), 'Real Browser PASS is missing an exact verified commit');
+  assert(Number.isSafeInteger(state.realBrowserArtifactId) && state.realBrowserArtifactId > 0, 'Real Browser PASS is missing an artifact id');
+  assert(typeof state.realBrowserArtifactDigest === 'string' && /^sha256:[0-9a-f]{64}$/i.test(state.realBrowserArtifactDigest), 'Real Browser PASS is missing a valid artifact digest');
+  assert(state.realBrowserMinimumWidthPx === 320, 'Real Browser minimum width must remain 320px');
+  assert(JSON.stringify(state.realBrowserVerifiedWidths) === JSON.stringify([1280, 430, 390, 360, 320]), 'Real Browser width matrix drifted');
+  assert(Array.isArray(state.realBrowserVerifiedContracts) && state.realBrowserVerifiedContracts.length >= 5, 'Real Browser verified contracts are incomplete');
+}
 
 for (const sourceKind of ['followup', 'blocker', 'calendar', 'renewal', 'workflow']) {
   assert(model.includes(`'${sourceKind}'`), `Phase 4.2 Daily Work source disappeared: ${sourceKind}`);
