@@ -35,6 +35,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Phase 11.1 governed authority audit
         run: node scripts/phase11-1-notifications-followups-audit.mjs
+      - name: Phase 11.1 Real Cloud probe contract audit
+        run: node scripts/phase11-1-live-cloud-probe-audit.mjs
       - name: Phase 11.1 notification/follow-up destruction tests
         run: node --experimental-strip-types --test tests/notificationFollowupContract.test.ts
       - name: Preserve existing follow-up consumers
