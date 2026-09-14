@@ -143,7 +143,8 @@ for (const marker of [
   "55555555-5555-4555-8555-555555555555:mark_read",
   "66666666-6666-4666-8666-666666666666:snooze",
   "55555555-5555-4555-8555-555555555555:cancel",
-  'RTL and overflow-safe at 320px',
+  'notification center is RTL and overflow-safe',
+  'for (const width of [390, 360, 320])',
 ]) check(`browserSpec:${marker}`, has(browserSpec, marker));
 check('browser_workflow_wired', has(browserWorkflow, 'phase11-1-notifications-live.spec.cjs') && has(browserWorkflow, 'audit:dist:budget') && has(browserWorkflow, 'playwright install --with-deps chromium'));
 check('cumulative_browser_promoted', has(cumulativeBrowser, 'data-phase11-1-notifications="live"') && has(cumulativeBrowser, 'لا توجد إشعارات مستحقة الآن') && !has(cumulativeBrowser, "not.toContainText(/غير مقروء|unread|تم إرسال الإشعار/)"));
