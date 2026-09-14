@@ -18,7 +18,7 @@
 > - Zero-Escape closure governance merged on canonical `main`
 > - Phase 9.4 M8, Phase 9.5 M13 and Phase 9.6 M18 Phase-9 anchors are formally closed with exact-main, Real Browser, Real Cloud where applicable, Pages and deployed-live certification
 > - Phase 9.7 Intelligence Zero-Escape is formally closed against merged implementation `e8992650afb7bd3bd5c47770d0b2d752cdd0488e`; M2 is globally `CLOSED` under `ZERO_ESCAPE_V1`, while M8/M13/M18 remain `ACTIVE` for later governing anchors
-> - **Phase 10.1 — Document Vault is the sole authorized successor.**
+> - **Phases 10.1–10.6 are formally CLOSED and certified; Phase 11.1 — Notifications & Follow-ups is the sole authorized successor.**
 
 ---
 
@@ -338,31 +338,31 @@ Phase 8 expands workflow UI into the main operational operating system of ENJAZ.
 - **M8 remains ACTIVE** for Phase 12; **M13 and M18 remain ACTIVE** for Phase 15. No later anchor is fabricated as complete.
 - Product / UI/UX / Engineering / Certification: **PASS / PASS / PASS / PASS**; unresolved/Critical/High/functional blockers: **0 / 0 / 0 / 0**.
 - Formal evidence: `docs/PHASE9_7_STATE.json`, `docs/PHASE9_7_CLOSURE.md`, `docs/PHASE9_7_POSTMERGE_RECERTIFICATION.md`.
-- **Phase 10.1 — Document Vault is AUTHORIZED NEXT; Phase 10.2+ remains locked until its predecessor closes.**
+- Historical transition note: Phase 10.1 was authorized at Phase 9.7 closure; Phases 10.1–10.6 have since CLOSED with governed evidence. **Phase 11.1 — Notifications & Follow-ups is now AUTHORIZED NEXT.**
 
 ---
 
 # Phase 10 — Documents, Vault, OCR & Reports
 
-## 10.1 — Document Vault
+## 10.1 — Document Vault ✅ CLOSED
 - Metadata-first document model, safe binary handling, ownership and entity relationships.
 
-## 10.2 — Document Intelligence / OCR
+## 10.2 — Document Intelligence / OCR ✅ CLOSED
 - Explicit extraction/review/verification flow; source file remains authoritative.
 
-## 10.3 — Document Factory & Official Form Engine — M7
+## 10.3 — Document Factory & Official Form Engine — M7 ✅ CLOSED
 - Template/version management, approved merge fields and deterministic generation of official requests, letters, decisions and submission packs.
 - Generated documents retain provenance to source entities/data and template version.
 
-## 10.4 — Reports & PDF
+## 10.4 — Reports & PDF ✅ CLOSED
 - Professional reports, deterministic pagination/footer/signature/QR/barcode handling and no blank/overflow-corrupt output.
 
-## 10.5 — Engagement/Contract Document Layer — M16
+## 10.5 — Engagement/Contract Document Layer — M16 ✅ CLOSED
 - Contract/retainer documents, revisions, signatures/status/effective dates and links to clients/services/finance.
 
-## 10.6 — Documents Zero-Escape Gate
+## 10.6 — Documents Zero-Escape Gate ✅ CLOSED
 - Missing/oversized/corrupt files, broken metadata, OCR failure, malicious uploads, long reports, multi-page overflow, offline upload/retry and unauthorized access.
-- M7 and document portion of M16 require deployed-live evidence.
+- M7 and the Phase-10 document portion of M16 received deployed-live evidence. Phase 10.6 closed with destructive Real Cloud, exact-main, Real Browser, Pages and Live External certification; formal evidence: `docs/PHASE10_6_CLOSURE.md`.
 
 ---
 
@@ -595,8 +595,13 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - Phase 9.7 gate `34708680263`, Real Browser `34708680233`, Pages build `34708679838`, Pages Preview `34708710217`, Live External `34708764814`: **SUCCESS**.
 - **M2 — Corporate Governance & Ownership Engine: `CLOSED` under `ZERO_ESCAPE_V1`** with `docs/M2_ZERO_ESCAPE_CLOSURE.json`.
 - **M8 is `ACTIVE`** for Phase 12; **M13 and M18 are `ACTIVE`** for Phase 15.
-- **Phase 10.1 — Document Vault: AUTHORIZED NEXT.**
-- Phase 10.2+ remains locked until predecessor closure.
+- **Phase 10.1 — Document Vault ✅ CLOSED.**
+- **Phase 10.2 — Document Intelligence / OCR ✅ CLOSED.**
+- **Phase 10.3 — Document Factory & Official Form Engine — M7 ✅ CLOSED.**
+- **Phase 10.4 — Reports & PDF ✅ CLOSED.**
+- **Phase 10.5 — Engagement/Contract Document Layer — M16 ✅ CLOSED.**
+- **Phase 10.6 — Documents Zero-Escape Gate ✅ CLOSED + destructive Real Cloud + exact-main + Real Browser + Pages + Live External certified.**
+- **Phase 11.1 — Notifications & Follow-ups: AUTHORIZED NEXT.**
 - startup JavaScript hard ceiling remains **670000 bytes**; total JavaScript **760000 bytes**; CSS **180000 bytes**.
 
 ---
@@ -632,7 +637,7 @@ The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; 
 
 This file is intentionally difficult to change by accident.
 
-The current reconciliation preserves all historical closure authority while authorizing only Phase 10.1:
+The current reconciliation preserves all historical closure authority while authorizing only Phase 11.1 after the complete Phase 10 document sequence closed:
 
 1. closed phases 0–8 remain closed and are not reopened;
 2. Phase 9.1 and 9.2 remain closed under their certified authority boundaries;
@@ -646,8 +651,8 @@ The current reconciliation preserves all historical closure authority while auth
 10. the production budgets remain startup JS 670000, total JS 760000 and CSS 180000 bytes with no waiver or feature cut;
 11. the 18 major product systems remain governed by independent `ZERO_ESCAPE_V1` closure law;
 12. M8/M13/M18 are not falsely globally closed because their later anchors remain open;
-13. current state documents, README, this roadmap and machine-readable system registry agree on Phase 9.7 closure;
-14. **Phase 10.1 — Document Vault is the sole authorized successor**;
-15. **Phase 10.2+ remains locked** until each predecessor closes under its own required evidence.
+13. current state documents, README, this roadmap and machine-readable system registry agree that Phases 10.1–10.6 are closed and certified;
+14. **Phase 11.1 — Notifications & Follow-ups is the sole authorized successor**;
+15. **Phase 11.2+ remains locked** until each predecessor closes under its own required evidence.
 
-It does **not** silently reopen prior phases, falsely close a major M-system from phase CI alone, weaken RLS/provenance/event-lineage boundaries, raise performance ceilings, or authorize work beyond Phase 10.1.
+It does **not** silently reopen prior phases, falsely close a major M-system from phase CI alone, weaken RLS/provenance/event-lineage boundaries, raise performance ceilings, or authorize work beyond Phase 11.1.
