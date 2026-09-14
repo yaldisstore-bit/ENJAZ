@@ -122,7 +122,7 @@ for(const marker of [
   'npm run audit:secrets',
   'npm run typecheck',
   'npm run build',
-  'PHASE10_3_STATE.json'
+  'Re-enforce Phase 10.3 certified state'
 ])check(`workflow:${marker}`,has(workflow,marker));
 
 if(failures.length){
