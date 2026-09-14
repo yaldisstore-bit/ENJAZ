@@ -45,7 +45,17 @@ const m8=major.systems.find(x=>x.id==='M8'),m13=major.systems.find(x=>x.id==='M1
 req(m8?.anchors?.join(',')==='9,12'&&m8?.closureEvidence===null,'M8 anchors/global closure drifted');
 req(m13?.anchors?.join(',')==='9,15'&&m13?.closureEvidence===null,'M13 anchors/global closure drifted');
 req(m18?.anchors?.join(',')==='9,15'&&m18?.closureEvidence===null,'M18 anchors/global closure drifted');
-for(const id of ['M3','M4','M9','M10','M11','M12','M14','M16'])req(major.systems.find(x=>x.id===id)?.status==='PLANNED',`${id} must remain PLANNED`);
+for(const id of ['M3','M4','M9','M10','M11','M12','M14'])req(major.systems.find(x=>x.id===id)?.status==='PLANNED',`${id} must remain PLANNED`);
+const m16=major.systems.find(x=>x.id==='M16');
+if(exists('docs/PHASE10_5_STATE.json')){
+  const p104=closed('docs/PHASE10_4_STATE.json','Phase 10.4');
+  const p105=json('docs/PHASE10_5_STATE.json');
+  req(m16?.status==='ACTIVE'&&m16?.anchors?.join(',')==='7,10,11'&&m16?.closureEvidence===null,'M16 must be ACTIVE with anchors 7,10,11 and no global closure evidence during Phase 10.5');
+  req(p104?.phase10_5Allowed===true&&p104?.nextPhase==='10.5'&&p104?.successorStatus==='AUTHORIZED','M16 activation requires formal Phase 10.4 authorization');
+  req(p105.phase==='10.5'&&p105.majorSystem==='M16'&&p105.majorSystemStatus==='ACTIVE'&&p105.globalM16ClosureAllowed===false&&['IN_PROGRESS','CLOSED'].includes(p105.status),'M16 ACTIVE requires a valid Phase 10.5 lifecycle state and global closure must remain forbidden');
+  if(p105.status==='IN_PROGRESS')req(p105.exitGatePassed===false&&p105.phase10_6Allowed===false&&p105.nextPhase==='10.6'&&p105.successorStatus==='LOCKED','Open Phase 10.5 must keep 10.6 locked');
+  else req(p105.exitGatePassed===true&&p105.phase10_6Allowed===true&&p105.nextPhase==='10.6'&&p105.successorStatus==='AUTHORIZED','Closed Phase 10.5 may authorize only 10.6 while M16 remains globally ACTIVE');
+}else req(m16?.status==='PLANNED','M16 must remain PLANNED before Phase 10.5 lifecycle state exists');
 const m7=major.systems.find(x=>x.id==='M7');
 if(exists('docs/PHASE10_3_STATE.json')){
   const p102=closed('docs/PHASE10_2_STATE.json','Phase 10.2');
@@ -87,4 +97,4 @@ if(exists('docs/PHASE9_7_STATE.json')){
   }
 }
 
-if(errors.length){console.error(`ENJAZ ROADMAP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.7 lifecycle is Zero-Escape governed; M2 may close only with machine evidence; M8/M13/M18 remain ACTIVE for later anchors; M7 activation is locked to formal Phase 10.2 -> 10.3 authority.');
+if(errors.length){console.error(`ENJAZ ROADMAP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.7 lifecycle is Zero-Escape governed; M2 may close only with machine evidence; M8/M13/M18 remain ACTIVE for later anchors; M7 and M16 activation are locked to formal predecessor authority, and M16 cannot globally close in Phase 10.5.');
