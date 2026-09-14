@@ -53,7 +53,7 @@ export function validateDocumentFactoryGenerationInput(input:DocumentFactoryGene
 
 export function validateDocumentFactoryDraftContent(value:unknown){const content=typeof value==='string'?value:'';if(!content||content.length>1_000_000)fail('Invalid document draft content');return content}
 export function validateDocumentFactoryReview(decision:unknown,note:unknown){if(decision!=='approve'&&decision!=='return')fail('Invalid document factory review decision');const normalized=typeof note==='string'?note.trim():'';if(normalized.length>1000)fail('Document factory review note is too long');return Object.freeze({decision,note:normalized||null})}
-export function validateDocumentFactoryFinalization(input:Readonly<{workspaceId:string;draftId:string;documentId:string;documentVersionId:string}>){return Object.freeze({workspaceId:id(input.workspaceId,'workspace id'),draftId:id(input.draftId,'draft id'),documentId:id(input.documentId,'document id'),documentVersionId:id(input.documentVersionId,'document version id')})}
+export function validateDocumentFactoryFinalization(input:Readonly<{workspaceId:string;draftId:string;renderJobId:string}>){return Object.freeze({workspaceId:id(input.workspaceId,'workspace id'),draftId:id(input.draftId,'draft id'),renderJobId:id(input.renderJobId,'render job id')})}
 
 export function assertTemplateVersionTransition(from:TemplateVersionState,to:TemplateVersionState){
  if(from==='draft'&&to==='published')return;
