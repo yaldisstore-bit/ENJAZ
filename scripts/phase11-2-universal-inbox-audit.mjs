@@ -16,6 +16,10 @@ const service = read('src/features/daily-work/universalInboxService.ts');
 const hook = read('src/features/daily-work/useDailyWork.ts');
 const ui = read('src/ui-r2/core-work/CoreWorkConnected.tsx');
 const tests = read('tests/universalInboxContract.test.ts');
+const serviceTests = read('tests/universalInboxService.test.ts');
+const browserHarness = read('src/ui-r2/phase11-2-universal-inbox-browser-main.tsx');
+const browserSpec = read('tests-external/phase11-2-universal-inbox-live.spec.cjs');
+const browserWorkflow = read('.github/workflows/phase11-2-universal-inbox-browser.yml');
 const migrationsDir = path.join(root, 'database', 'migrations');
 const migrationText = fs.existsSync(migrationsDir)
   ? fs.readdirSync(migrationsDir).filter((name) => name.endsWith('.sql')).map((name) => fs.readFileSync(path.join(migrationsDir, name), 'utf8')).join('\n')
@@ -34,9 +38,10 @@ assert(state.crossWorkspaceCompositionAllowed === false, 'cross-workspace compos
 assert(state.notificationLifecycleMayMutateBusinessFact === false, 'notification lifecycle must not mutate business facts');
 assert(state.phase11_3Allowed === false && state.successorStatus === 'LOCKED', 'Phase 11.3 must remain locked');
 assert(state.javascriptBudgetBytes === 670000 && state.totalJavascriptBudgetBytes === 760000 && state.cssBudgetBytes === 180000 && state.budgetIncreaseAllowed === false, 'frozen budgets changed');
-assert(state.authorityContractAdded === true && state.destructionTestsAdded === true && state.phaseGateAdded === true, 'Phase 11.2 foundation tracking is incomplete');
+assert(state.authorityContractAdded === true && state.destructionTestsAdded === true && state.serviceTestsAdded === true && state.phaseGateAdded === true, 'Phase 11.2 foundation/service tracking is incomplete');
 assert(state.runtimeIntegrationAdded === true && state.runtimeIntegrationPath === 'src/features/daily-work/universalInboxService.ts', 'runtime integration is not recorded');
 assert(state.uiIntegrationAdded === true && state.uiIntegrationPath === 'src/ui-r2/core-work/CoreWorkConnected.tsx' && state.canonicalDestination === 'today', 'canonical Today UI integration is not recorded');
+assert(state.browserHarnessAdded === true && state.browserGateAdded === true && state.browserSpecPath === 'tests-external/phase11-2-universal-inbox-live.spec.cjs', 'Phase 11.2 browser certification tracking is incomplete');
 assert(state.databaseAuthorityExtensionRequired === false && state.databaseAuthorityExtensionApplied === false, 'Phase 11.2 must not invent new persistence without an explicit authority need');
 
 for (const sourceKind of ['followup', 'blocker', 'calendar', 'renewal', 'workflow']) {
@@ -65,6 +70,10 @@ assert(ui.includes('r2-chip r2-chip--accent'), 'attention UI must reuse the lock
 assert(!ui.includes('مركز الإشعارات العام لا يُدّعى قبل مرحلته'), 'stale pre-Phase-11 notification copy leaked into Today');
 
 assert(tests.includes('cannot fabricate actionable work') && tests.includes('foreign-workspace') && tests.includes('newest source revision'), 'destruction test coverage is incomplete');
+assert(serviceTests.includes('without duplicating work') && serviceTests.includes('preserves actionable work when no matching notification exists'), 'service integration test coverage is incomplete');
+assert(browserHarness.includes('ConnectedCoreWorkRouter') && browserHarness.includes("destinationId: 'today'") && browserHarness.includes('NotificationCommandProvider'), 'browser harness does not exercise production Today integration');
+assert(browserSpec.includes('without duplication') && browserSpec.includes('overflow-safe through 320px') && browserSpec.includes("[data-universal-inbox-attention=\"true\"]"), 'browser certificate coverage is incomplete');
+assert(browserWorkflow.includes('phase11-2-universal-inbox-live.spec.cjs') && browserWorkflow.includes('audit:dist:budget') && browserWorkflow.includes('playwright install --with-deps chromium'), 'browser workflow is not wired to the governed certificate');
 assert(!/create\s+table(?:\s+if\s+not\s+exists)?\s+(?:public\.)?universal_inbox\b/i.test(migrationText), 'database contains forbidden universal_inbox shadow table');
 
 if (errors.length) {
@@ -72,5 +81,5 @@ if (errors.length) {
   for (const error of errors) console.error(`- ${error}`);
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 11.2 UNIVERSAL INBOX AUDIT PASS — source-owned work + certified notification attention composition, production Today integration, deterministic dedupe and no shadow inbox persistence.');
+  console.log('ENJAZ PHASE 11.2 UNIVERSAL INBOX AUDIT PASS — source-owned work + certified notification attention composition, production Today integration, service coverage, deterministic dedupe, dedicated 320px browser certificate and no shadow inbox persistence.');
 }
