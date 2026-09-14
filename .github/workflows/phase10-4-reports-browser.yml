@@ -1,0 +1,79 @@
+name: ENJAZ Phase 10.4 — Reports & PDF Real Browser
+
+on:
+  push:
+    branches:
+      - 'phase10-4-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-4-reports-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reports-pdf-browser:
+    name: Real Chromium / Mobile / Print Media / Governed PDF Journey
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Preserve Phase 10.4 report authority before browser journey
+        run: |
+          node scripts/phase10-4-reports-pdf-audit.mjs
+          node --experimental-strip-types --test tests/reportPdfContract.test.ts
+          node --experimental-strip-types --test tests/financialReportPdf.test.ts
+          node --experimental-strip-types --test tests/financialReportServerParity.test.ts
+          node --experimental-strip-types --test tests/financialReportRenderGateway.test.ts
+          npm run typecheck
+      - name: Build canonical production and frozen budget
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
+      - name: Build existing canonical financial-reports preview
+        run: npx vite build --config vite.phase7-4-preview.config.ts --base=/
+      - name: Install pinned Chromium tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start reports preview
+        run: |
+          nohup npx vite preview --config vite.phase7-4-preview.config.ts --host 127.0.0.1 --port 4184 > /tmp/enjaz-phase10-4-reports-browser.log 2>&1 &
+          for i in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4184/phase7-4-preview.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase10-4-reports-browser.log
+          exit 1
+      - name: Real Chromium desktop / mobile / print-media / governed-PDF journey
+        env:
+          PHASE104_REPORTS_BASE_URL: http://127.0.0.1:4184/
+        run: npx playwright test tests-external/phase10-4-reports-pdf-browser.spec.cjs --reporter=line --workers=1
+      - name: Dependency high-severity audit
+        run: npm audit --audit-level=high
+      - name: Upload Phase 10.4 browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10-4-reports-browser-${{ github.sha }}
+          path: |
+            test-results/
+            /tmp/enjaz-phase10-4-reports-browser.log
+          if-no-files-found: ignore
+          retention-days: 14
