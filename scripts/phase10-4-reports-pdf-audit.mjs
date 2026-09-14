@@ -57,6 +57,7 @@ check('financial_real_workspace_identity',has(financeUi,'workspaceId={loaded.wor
 check('server_pdf_wired',has(financeUi,'renderGateway.renderPdf')&&has(financeUi,'expectedFingerprint: report.fingerprint')&&has(financeUi,'data-phase10-4-server-pdf="certified"'));
 check('server_pdf_fail_closed',has(reportRenderer,'REPORT_FINGERPRINT_STALE')&&has(reportRenderer,'WORKSPACE_FORBIDDEN')&&has(reportRenderer,'workspace_memberships')&&has(reportRenderer,'buildServerFinancialReport'));
 check('server_pdf_rtl_identity',has(reportRenderer,"arabic-bidi-shaper")&&has(reportRenderer,"bwip-js")&&has(reportRenderer,"QRCode")&&has(reportRenderer,'منطقة التوقيع والختم')&&has(reportRenderer,'X-ENJAZ-Report-Pages'));
+check('server_pdf_body_height_geometry',has(reportRenderer,'const BODY_HEIGHT=TOP-CONTENT_BOTTOM')&&has(reportRenderer,'height>BODY_HEIGHT')&&!has(reportRenderer,'A4[1]-TOP-CONTENT_BOTTOM'));
 check('server_pdf_no_privileged_key',!/(SERVICE_ROLE|SECRET_KEY|sb_secret_)/.test(reportRenderer));
 check('gateway_uses_authenticated_edge_transport',has(reportGateway,"client.edge('enjaz-financial-report-render'")&&has(reportGateway,'REPORT_FINGERPRINT_STALE'));
 check('browser_print_baseline_preserved',has(financeCss,'@media print')&&has(financeCss,'.r2-f74-table-wrap { overflow: visible; }')&&has(financeCss,'.r2-f74-card table { min-width: 0; }')&&has(financeCss,'[data-no-print="true"] { display: none !important; }'));
@@ -68,4 +69,4 @@ check('roadmap_scope',has(roadmap,'## 10.4 — Reports & PDF')&&has(roadmap,'det
 check('kickoff_scope',has(kickoff,'A page may never be emitted blank')&&has(kickoff,'Oversized content must either split')&&has(kickoff,'QR/barcode identity must be stable'));
 
 if(failures.length){console.error(`ENJAZ PHASE 10.4 REPORTS & PDF AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);process.exit(1)}
-console.log('ENJAZ PHASE 10.4 REPORTS & PDF AUDIT PASS — deterministic PDF authority, authenticated server renderer, client/server parity, and 8-test real-browser/mobile/print certificate are governed; real-cloud output, exact-main, Pages, and Live External remain explicitly pending, so 10.5 stays locked.');
+console.log('ENJAZ PHASE 10.4 REPORTS & PDF AUDIT PASS — deterministic PDF authority, corrected body-height geometry, authenticated server renderer, client/server parity, and 8-test real-browser/mobile/print certificate are governed; real-cloud output, exact-main, Pages, and Live External remain explicitly pending, so 10.5 stays locked.');
