@@ -10,6 +10,7 @@ import {buildServerFinancialReport,reportIdentity,type Query,type Snapshot,type 
 const FONT_URL='https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoNaskhArabic/NotoNaskhArabic-Regular.ttf';
 const A4:[number,number]=[595.28,841.89];
 const MARGIN=46,RIGHT=A4[0]-MARGIN,CONTENT_WIDTH=A4[0]-MARGIN*2,TOP=A4[1]-54,FOOTER_TOP=64,CONTENT_BOTTOM=92;
+const BODY_HEIGHT=TOP-CONTENT_BOTTOM;
 const PAGE_BATCH=1000,MAX_ROWS_PER_TABLE=10_000;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const cors={
@@ -75,7 +76,7 @@ async function renderPdf(report:Snapshot,workspaceId:string){
  pdf.setTitle(report.title);pdf.setAuthor('ENJAZ');pdf.setCreator('ENJAZ Reports & PDF 10.4');pdf.setProducer('ENJAZ Governed Financial Report Renderer');pdf.setSubject(report.fingerprint);const stableDate=new Date(report.to??report.from??'2026-01-01T00:00:00.000Z');const metaDate=Number.isFinite(stableDate.getTime())?stableDate:new Date('2026-01-01T00:00:00.000Z');pdf.setCreationDate(metaDate);pdf.setModificationDate(metaDate);
  let page=pdf.addPage(A4),y=TOP;
  const newPage=()=>{page=pdf.addPage(A4);y=TOP};
- const ensure=(height:number)=>{if(height>A4[1]-TOP-CONTENT_BOTTOM)throw new Error('PDF_BLOCK_TOO_TALL');if(y-height<CONTENT_BOTTOM)newPage()};
+ const ensure=(height:number)=>{if(height>BODY_HEIGHT)throw new Error('PDF_BLOCK_TOO_TALL');if(y-height<CONTENT_BOTTOM)newPage()};
  const paragraph=(value:string,size=11.5,lineHeight=19,gap=5)=>{const lines=wrap(value,font,size,CONTENT_WIDTH);const height=lines.length*lineHeight+gap;ensure(height);for(const line of lines){drawRtl(page,line,font,size,y);y-=lineHeight}y-=gap};
  const heading=(value:string,size=16)=>{ensure(34);drawRtl(page,value,font,size,y,RIGHT,rgb(.07,.09,.15));y-=25;page.drawLine({start:{x:MARGIN,y:y+7},end:{x:RIGHT,y:y+7},thickness:.7,color:rgb(.82,.67,.14)});y-=9};
  const table=(title:string,headers:string[],rows:string[][],widths:number[])=>{heading(title,14);const total=widths.reduce((a,b)=>a+b,0);if(Math.abs(total-CONTENT_WIDTH)>.1)throw new Error('PDF_TABLE_WIDTH_INVALID');const drawRow=(cells:string[],header=false)=>{const wrapped=cells.map((cell,i)=>wrap(cell,font,header?10.2:9.6,widths[i]-10)),rowHeight=Math.max(26,...wrapped.map(lines=>lines.length*15+9));if(rowHeight>220)throw new Error('PDF_ROW_TOO_TALL');if(y-rowHeight<CONTENT_BOTTOM){newPage();drawRow(headers,true)}let x=MARGIN;for(let i=0;i<widths.length;i++){page.drawRectangle({x,y:y-rowHeight,width:widths[i],height:rowHeight,borderColor:rgb(.75,.77,.81),borderWidth:.45,color:header?rgb(.95,.94,.9):undefined});let cy=y-15;for(const line of wrapped[i]){drawRtl(page,line,font,header?10.2:9.6,cy,x+widths[i]-5,header?rgb(.12,.13,.16):rgb(.16,.17,.2));cy-=15}x+=widths[i]}y-=rowHeight};drawRow(headers,true);if(rows.length){for(const row of rows)drawRow(row)}else drawRow(['لا توجد بيانات ضمن هذا النطاق',...Array(Math.max(0,headers.length-1)).fill('')]);y-=13};
