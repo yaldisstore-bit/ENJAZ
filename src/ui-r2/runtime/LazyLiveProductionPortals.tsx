@@ -1,6 +1,6 @@
 import { lazy, Suspense, useLayoutEffect, useState } from 'react';
 import type { RegulatoryKnowledgeGateway } from '../../features/regulatory/regulatoryKnowledgeCommands.ts';
-import type { DocumentIntelligenceFactory, DocumentVaultFactory } from './UiR2ProductionRoot.tsx';
+import type { DocumentFactoryFactory, DocumentIntelligenceFactory, DocumentVaultFactory } from './UiR2ProductionRoot.tsx';
 
 const CompaniesPortal = lazy(() => import('../records/LiveCompaniesProductionPortal.tsx').then((module) => ({ default: module.LiveCompaniesProductionPortal })));
 const PeoplePortal = lazy(() => import('../records/LivePeopleProductionPortal.tsx').then((module) => ({ default: module.LivePeopleProductionPortal })));
@@ -16,10 +16,11 @@ type Props = Readonly<{
   regulatoryWorkspace: Promise<string | null>;
   documentVaultFactory: DocumentVaultFactory;
   documentIntelligenceFactory: DocumentIntelligenceFactory | undefined;
+  documentFactoryFactory: DocumentFactoryFactory | undefined;
   documentWorkspace: Promise<string | null>;
 }>;
 
-export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorkspace, documentVaultFactory, documentIntelligenceFactory, documentWorkspace }: Props) {
+export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorkspace, documentVaultFactory, documentIntelligenceFactory, documentFactoryFactory, documentWorkspace }: Props) {
   const [destination, setDestination] = useState<LazyDestination>(null);
 
   useLayoutEffect(() => {
@@ -47,9 +48,7 @@ export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorks
       : destination === 'insights' ? <InsightsPortal />
       : destination === 'knowledge' ? <KnowledgePortal gateway={regulatoryKnowledge} workspace={regulatoryWorkspace} />
       : destination === 'documents'
-        ? documentIntelligenceFactory
-          ? <DocumentsPortal factory={documentVaultFactory} intelligenceFactory={documentIntelligenceFactory} workspace={documentWorkspace}/>
-          : <DocumentsPortal factory={documentVaultFactory} workspace={documentWorkspace}/>
+        ? <DocumentsPortal factory={documentVaultFactory} intelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} workspace={documentWorkspace}/>
         : null}
   </Suspense>;
 }

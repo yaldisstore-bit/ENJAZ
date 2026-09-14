@@ -45,7 +45,17 @@ const m8=major.systems.find(x=>x.id==='M8'),m13=major.systems.find(x=>x.id==='M1
 req(m8?.anchors?.join(',')==='9,12'&&m8?.closureEvidence===null,'M8 anchors/global closure drifted');
 req(m13?.anchors?.join(',')==='9,15'&&m13?.closureEvidence===null,'M13 anchors/global closure drifted');
 req(m18?.anchors?.join(',')==='9,15'&&m18?.closureEvidence===null,'M18 anchors/global closure drifted');
-for(const id of ['M3','M4','M7','M9','M10','M11','M12','M14','M16'])req(major.systems.find(x=>x.id===id)?.status==='PLANNED',`${id} must remain PLANNED`);
+for(const id of ['M3','M4','M9','M10','M11','M12','M14','M16'])req(major.systems.find(x=>x.id===id)?.status==='PLANNED',`${id} must remain PLANNED`);
+const m7=major.systems.find(x=>x.id==='M7');
+if(exists('docs/PHASE10_3_STATE.json')){
+  const p102=closed('docs/PHASE10_2_STATE.json','Phase 10.2');
+  const p103=json('docs/PHASE10_3_STATE.json');
+  req(m7?.status==='ACTIVE'&&m7?.anchors?.join(',')==='10'&&m7?.closureEvidence===null,'M7 must be ACTIVE only while Phase 10.3 owns its Phase 10 anchor');
+  req(p102?.phase10_3Allowed===true&&p102?.nextPhase==='10.3'&&p102?.successorStatus==='AUTHORIZED','M7 activation requires formal Phase 10.2 authorization');
+  req(p103.phase==='10.3'&&p103.majorSystem==='M7'&&p103.majorSystemStatus==='ACTIVE'&&['IN_PROGRESS','CLOSED'].includes(p103.status),'M7 ACTIVE requires a valid Phase 10.3 lifecycle state');
+  if(p103.status==='IN_PROGRESS')req(p103.exitGatePassed===false&&p103.phase10_4Allowed===false&&p103.nextPhase==='10.4'&&p103.successorStatus==='LOCKED','Open Phase 10.3 must keep 10.4 locked');
+  else req(p103.exitGatePassed===true&&p103.phase10_4Allowed===true&&p103.nextPhase==='10.4'&&p103.successorStatus==='AUTHORIZED','Closed Phase 10.3 must authorize only 10.4');
+}else req(m7?.status==='PLANNED','M7 must remain PLANNED before Phase 10.3 lifecycle state exists');
 
 for(const [p,l] of [['docs/PHASE5_5_TRANSACTION_DESTRUCTION_STATE.json','Phase 5.5'],['docs/PHASE6_1_COMPANIES_STATE.json','Phase 6.1'],['docs/PHASE6_2_LAWYERS_CONTACTS_STATE.json','Phase 6.2'],['docs/PHASE6_3_COMPANY_LAWYER_360_STATE.json','Phase 6.3'],['docs/PHASE6_4_COMPANIES_PEOPLE_DESTRUCTION_STATE.json','Phase 6.4'],['docs/PHASE7_1_FINANCIAL_LEDGER_STATE.json','Phase 7.1'],['docs/PHASE7_2_STATE.json','Phase 7.2'],['docs/PHASE7_3_STATE.json','Phase 7.3'],['docs/PHASE7_4_STATE.json','Phase 7.4'],['docs/PHASE7_5_STATE.json','Phase 7.5'],['docs/PHASE8_1_STATE.json','Phase 8.1'],['docs/PHASE8_2_STATE.json','Phase 8.2'],['docs/PHASE8_3_STATE.json','Phase 8.3'],['docs/PHASE8_4_STATE.json','Phase 8.4'],['docs/PHASE8_5_STATE.json','Phase 8.5'],['docs/PHASE8_6_STATE.json','Phase 8.6'],['docs/PHASE8_7_STATE.json','Phase 8.7'],['docs/PHASE9_1_STATE.json','Phase 9.1'],['docs/PHASE9_2_STATE.json','Phase 9.2'],['docs/PHASE9_3_STATE.json','Phase 9.3']])closed(p,l);
 const p94=closed('docs/PHASE9_4_STATE.json','Phase 9.4'),p95=closed('docs/PHASE9_5_STATE.json','Phase 9.5');
@@ -77,4 +87,4 @@ if(exists('docs/PHASE9_7_STATE.json')){
   }
 }
 
-if(errors.length){console.error(`ENJAZ ROADMAP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.7 lifecycle is Zero-Escape governed; M2 may close only with machine evidence; M8/M13/M18 remain ACTIVE for later anchors.');
+if(errors.length){console.error(`ENJAZ ROADMAP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.7 lifecycle is Zero-Escape governed; M2 may close only with machine evidence; M8/M13/M18 remain ACTIVE for later anchors; M7 activation is locked to formal Phase 10.2 -> 10.3 authority.');

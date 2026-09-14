@@ -8,10 +8,19 @@ const labels:Record<DocumentIntelligenceAnalysis['state'],string>={queued:'با�
 const pct=(v:number|null)=>v==null?'—':`${Math.round(v*100)}%`;
 const uniqueFields=(a:DocumentIntelligenceAnalysis|null)=>{const seen=new Set<string>(),out:IntelligenceField[]=[];for(const p of a?.pages??[])for(const f of p.fields)if(!seen.has(f.key)){seen.add(f.key);out.push(f)}return out};
 const errorText=(e:unknown)=>e instanceof Error&&/provider is not configured/i.test(e.message)?'مزود OCR غير مهيأ على الخادم بعد. لم تُرسل الوثيقة إلى أي مزود.':'تعذر إكمال عملية ذكاء الوثيقة. بقي الملف الأصلي دون تغيير.';
+const ctaState=(selected:DocumentIntelligenceAnalysis|null,busy:boolean)=>{
+ if(busy||selected?.state==='extracting'||selected?.state==='queued')return{tone:'working',title:'جارٍ فحص الوثيقة…',subtitle:'يتم تحليل النسخة الحالية واستخراج البيانات دون تعديل الأصل',status:'قيد التحليل'} as const;
+ if(selected?.stale||selected?.state==='superseded')return{tone:'stale',title:'إعادة فحص النسخة الحالية',subtitle:'توجد نسخة أحدث؛ أعد التحليل قبل استخدام البيانات',status:'نسخة أحدث'} as const;
+ if(selected?.state==='review_required')return{tone:'review',title:'مراجعة نتيجة الفحص',subtitle:'اكتمل الاستخراج وتحتاج البيانات إلى مراجعتك',status:`ثقة ${pct(selected.confidence)}`} as const;
+ if(selected?.state==='reviewed')return{tone:'reviewed',title:'إكمال التحقق من الوثيقة',subtitle:'المراجعة مكتملة وتنتظر التحقق النهائي',status:`ثقة ${pct(selected.confidence)}`} as const;
+ if(selected?.state==='verified')return{tone:'verified',title:'إعادة فحص وتحليل الوثيقة',subtitle:'النتيجة الحالية متحققة ويمكن إعادة الفحص عند الحاجة',status:`متحقق · ${pct(selected.confidence)}`} as const;
+ if(selected?.state==='failed')return{tone:'failed',title:'إعادة فحص وتحليل الوثيقة',subtitle:'فشلت المحاولة السابقة وبقي الأصل دون تغيير',status:'إعادة المحاولة'} as const;
+ return{tone:'ready',title:'فحص وتحليل الوثيقة',subtitle:'قراءة ذكية للمحتوى واستخراج البيانات',status:'جاهز للفحص'} as const;
+};
 
 export function DocumentIntelligencePanel({gateway,workspaceId,documentId,currentVersionNumber}:Props){
  const[detail,setDetail]=useState<Awaited<ReturnType<DocumentIntelligenceGateway['detail']>>|null>(null),[selectedId,setSelectedId]=useState<string|null>(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[note,setNote]=useState(''),[corrections,setCorrections]=useState<Corrections>({});
- const selected=useMemo(()=>detail?.analyses.find(a=>a.id===selectedId)??detail?.analyses[0]??null,[detail,selectedId]),fields=useMemo(()=>uniqueFields(selected),[selected]);
+ const selected=useMemo(()=>detail?.analyses.find(a=>a.id===selectedId)??detail?.analyses[0]??null,[detail,selectedId]),fields=useMemo(()=>uniqueFields(selected),[selected]),cta=useMemo(()=>ctaState(selected,busy),[selected,busy]);
  const hydrate=(a:DocumentIntelligenceAnalysis|null)=>{const next:Corrections={};for(const f of uniqueFields(a))next[f.key]=f.value??'';setCorrections(next)};
  const load=async(preferred?:string|null)=>{setLoading(true);try{const r=await gateway.detail(workspaceId,documentId),id=preferred&&r.analyses.some(a=>a.id===preferred)?preferred:r.analyses[0]?.id??null;setDetail(r);setSelectedId(id);hydrate(r.analyses.find(a=>a.id===id)??r.analyses[0]??null);setError('')}catch(e){setError(errorText(e))}finally{setLoading(false)}};
  useEffect(()=>{void load(null)},[gateway,workspaceId,documentId,currentVersionNumber]);
@@ -20,8 +29,14 @@ export function DocumentIntelligencePanel({gateway,workspaceId,documentId,curren
  const extract=()=>act(()=>gateway.extract({workspaceId,documentId,versionNumber:currentVersionNumber}));
  const review=(decision:'accept'|'reject')=>{if(!selected)return Promise.resolve();const correctedFields=decision==='accept'&&fields.length?Object.fromEntries(fields.map(f=>[f.key,{value:corrections[f.key]??'',confidence:f.confidence,pageNumber:f.pageNumber}])):null;return act(()=>gateway.review({workspaceId,analysisId:selected.id,decision,correctedFields,note:note.trim()||null}))};
  const verify=()=>selected?act(()=>gateway.verify({workspaceId,analysisId:selected.id,note:note.trim()||null})):Promise.resolve();
+ const ctaDisabled=busy||loading||currentVersionNumber==null||selected?.state==='review_required'||selected?.state==='reviewed';
  return <section className="rk-derived di-panel" data-phase10-2="document-intelligence" data-source-authority="source-file" data-intelligence-authority="derived-even-when-verified">
-  <div className="rk-section-title di-head"><div><span className="rk-kicker">Document Intelligence · 10.2</span><h3>ذكاء الوثيقة</h3><p>الاستخراج مساعد للمراجعة فقط؛ الملف ونسخته المحفوظة يبقيان المرجع الأصلي.</p></div><button type="button" className="rk-button rk-button--primary" disabled={busy||loading||currentVersionNumber==null} onClick={()=>void extract()}>{busy?'جارٍ التنفيذ…':'استخراج من النسخة الحالية'}</button></div>
+  <div className="rk-section-title di-head"><div><span className="rk-kicker">Document Intelligence · 10.2</span><h3>ذكاء الوثيقة</h3><p>الاستخراج مساعد للمراجعة فقط؛ الملف ونسخته المحفوظة يبقيان المرجع الأصلي.</p></div></div>
+  <button type="button" className="di-scan-cta" data-scan-tone={cta.tone} disabled={ctaDisabled} onClick={()=>void extract()} aria-label={cta.title}>
+   <span className="di-scan-cta__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 3.75H5.75a2 2 0 0 0-2 2V7M17 3.75h1.25a2 2 0 0 1 2 2V7M7 20.25H5.75a2 2 0 0 1-2-2V17M17 20.25h1.25a2 2 0 0 0 2-2V17M8 7.75h6.5l2.5 2.5v6H8zM14.5 7.75v2.5H17M6 12h12"/></svg></span>
+   <span className="di-scan-cta__copy"><strong>{cta.title}</strong><small>{cta.subtitle}</small></span>
+   <span className="di-scan-cta__status">{cta.status}</span>
+  </button>
   <div className="rk-scope-row di-law"><strong className="rk-truth-chip">الأصل لا يُستبدل</strong><span className="rk-kind">EXTRACT → REVIEW → VERIFY</span><span className="rk-non-authority-chip">أي نسخة أحدث تُبطل التحقق القديم تلقائيًا</span></div>
   {error?<section className="rk-empty rk-empty--error di-alert" role="alert"><div className="rk-empty__mark">!</div><strong>تعذر إكمال العملية</strong><p>{error}</p></section>:null}
   {loading?<div className="rk-skeleton di-loading" aria-label="تحميل ذكاء الوثيقة"/>:!detail?.analyses.length?<section className="rk-empty di-empty"><div className="rk-empty__mark">⌁</div><strong>لا يوجد استخراج بعد</strong><span>ابدأ من النسخة الحالية ثم راجع النتيجة قبل اعتمادها كمعلومة متحققة.</span></section>:<div className="rk-result-grid di-layout">

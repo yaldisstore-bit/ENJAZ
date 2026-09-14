@@ -1,9 +1,10 @@
-name: ENJAZ Phase 10.2 — Real Cloud Document Intelligence E2E
+# Phase 10.3 production-certificate workflow: runs on every Phase 10.3 branch push.
+name: ENJAZ Phase 10.3 — Real Cloud Arabic PDF Certificate
 
 on:
   push:
     branches:
-      - 'phase10-2-*'
+      - 'phase10-3-*'
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -12,11 +13,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: phase10-2-real-cloud-${{ github.ref }}
+  group: phase10-3-real-cloud-render-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  real-cloud-document-intelligence:
+  real-cloud-arabic-pdf:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
@@ -38,30 +39,16 @@ jobs:
           case "$SUPABASE_SECRET_KEY" in sb_publishable_*) echo 'Secret is not privileged'; exit 1;; esac
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Preserve Phase 10.2 authority before cloud mutation
-        run: |
-          node scripts/phase10-2-document-intelligence-audit.mjs
-          node --experimental-strip-types --test tests/documentIntelligence.test.ts
-          node --experimental-strip-types --test tests/documentVault.test.ts
-      - name: Authenticated Real Cloud OCR lifecycle / stale-source / zero-residue certificate
-        run: node scripts/phase10-2-real-cloud-e2e.mjs
-      - name: Phase 10.3 authenticated Real Cloud Arabic PDF / Vault / render-proof / finalization certificate
-        if: startsWith(github.head_ref, 'phase10-3-') || startsWith(github.ref_name, 'phase10-3-')
+      - name: Preserve Phase 10.3 authority before cloud mutation
         run: |
           node scripts/phase10-3-document-factory-audit.mjs
           node --experimental-strip-types --test tests/documentFactory.test.ts
+          node --experimental-strip-types --test tests/documentFactoryExpansion.test.ts
           node --experimental-strip-types --test tests/documentFactoryFinalizationGuard.test.ts
-          node scripts/phase10-3-real-cloud-render-e2e.mjs
-      - name: Upload Real Cloud evidence
+      - name: Authenticated real advanced Arabic PDF / QR / submission pack / Vault / zero-residue certificate
+        run: node scripts/phase10-3-real-cloud-render-certificate.mjs
+      - name: Upload Phase 10.3 Real Cloud render evidence
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: phase10-2-real-cloud-${{ github.sha }}
-          path: artifacts/phase10-2-real-cloud/evidence.json
-          if-no-files-found: error
-          retention-days: 30
-      - name: Upload Phase 10.3 Real Cloud Arabic PDF evidence
-        if: always() && (startsWith(github.head_ref, 'phase10-3-') || startsWith(github.ref_name, 'phase10-3-'))
         uses: actions/upload-artifact@v4
         with:
           name: phase10-3-real-cloud-render-${{ github.sha }}
