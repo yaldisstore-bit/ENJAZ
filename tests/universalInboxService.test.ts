@@ -11,6 +11,8 @@ const COMPANY_ID = '44444444-4444-4444-8444-444444444444';
 const FOLLOWUP_ID = '55555555-5555-4555-8555-555555555555';
 const NOTIFICATION_ID = '66666666-6666-4666-8666-666666666666';
 
+type ListCall = Readonly<{ workspaceId: string; limit: number | undefined }>;
+
 function repository(items: readonly unknown[]) {
   return {
     async list() {
@@ -65,7 +67,7 @@ function notification(): InAppNotificationRuntime {
   });
 }
 
-function commands(calls: Array<Readonly<{ workspaceId: string; limit?: number }>>): NotificationCommandGateway {
+function commands(calls: ListCall[]): NotificationCommandGateway {
   return {
     async list(input) {
       calls.push(Object.freeze({ workspaceId: input.workspaceId, limit: input.limit }));
@@ -77,7 +79,7 @@ function commands(calls: Array<Readonly<{ workspaceId: string; limit?: number }>
 }
 
 test('Universal Inbox service composes Daily Work with notification attention without duplicating work', async () => {
-  const calls: Array<Readonly<{ workspaceId: string; limit?: number }>> = [];
+  const calls: ListCall[] = [];
   const now = new Date('2026-09-14T21:00:00.000Z');
   const result = await loadUniversalInbox(factory(), commands(calls), USER_ID, now);
 
