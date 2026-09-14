@@ -1,0 +1,77 @@
+name: ENJAZ Phase 10.5 — Engagement Contracts Real Browser
+
+on:
+  push:
+    branches:
+      - 'phase10-5-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase10-5-engagement-contracts-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  engagement-contract-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Preserve governed M16 contract authority
+        run: |
+          node scripts/phase10-5-engagement-contracts-audit.mjs
+          node --experimental-strip-types --test tests/engagementContract.test.ts
+          npm run typecheck
+          npm run test:functional
+          npm run db:audit
+          npm run audit:roadmap
+      - name: Build canonical production and fixed budget
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
+      - name: Dependency high-severity audit for locked production graph
+        run: npm audit --audit-level=high
+      - name: Build dedicated Engagement Contracts browser harness
+        run: npx vite build --config vite.phase10-5-browser.config.ts --base=/
+      - name: Install pinned Chromium tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start Engagement Contracts browser harness
+        run: |
+          nohup npx vite preview --config vite.phase10-5-browser.config.ts --host 127.0.0.1 --port 4185 > /tmp/enjaz-phase10-5-browser.log 2>&1 &
+          for i in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4185/phase10-5-browser.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase10-5-browser.log
+          exit 1
+      - name: Contract lifecycle / rollback / RTL mobile browser certificate
+        env:
+          R2_PHASE105_BASE_URL: http://127.0.0.1:4185/
+        run: npx playwright test tests-external/phase10-5-engagement-contracts-live.spec.cjs --reporter=line --workers=1
+      - name: Upload Engagement Contracts browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10-5-engagement-contracts-browser-${{ github.sha }}
+          path: |
+            artifacts/phase10-5-engagement-contracts/
+            test-results/
+            /tmp/enjaz-phase10-5-browser.log
+          if-no-files-found: ignore
+          retention-days: 14

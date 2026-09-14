@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from '../../features/auth/state/AuthContext.tsx
 import type { DocumentFactoryGateway } from '../../features/documents/documentFactoryCommands.ts';
 import type { DocumentIntelligenceGateway } from '../../features/documents/documentIntelligenceCommands.ts';
 import type { DocumentVaultGateway } from '../../features/documents/documentVaultCommands.ts';
+import type { EngagementContractGateway } from '../../features/engagements/engagementContractCommands.ts';
 import { FieldOperationsCommandProvider } from '../../features/field-operations/FieldOperationsCommandContext.tsx';
 import { createFieldOperationsCommandGateway, type FieldOperationsCommandGateway } from '../../features/field-operations/fieldOperationsCommands.ts';
 import { FinanceCommandProvider } from '../../features/finance/FinanceCommandContext.tsx';
@@ -48,6 +49,7 @@ import './accessibility-hardening.css';
 export type DocumentVaultFactory = () => Promise<DocumentVaultGateway>;
 export type DocumentIntelligenceFactory = () => Promise<DocumentIntelligenceGateway>;
 export type DocumentFactoryFactory = () => Promise<DocumentFactoryGateway>;
+export type EngagementContractFactory = () => Promise<EngagementContractGateway>;
 
 type VaultResource =
   | { documentVaultFactory:DocumentVaultFactory; documentVault?: never }
@@ -65,6 +67,7 @@ type BaseResources = {
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
   documentIntelligenceFactory?: DocumentIntelligenceFactory;
   documentFactoryFactory?: DocumentFactoryFactory;
+  engagementContractFactory?: EngagementContractFactory;
   processRuntime?: ProcessRuntimeFactory;
 };
 
@@ -85,6 +88,9 @@ function createProductionResources(): UiR2ProductionResources {
   let documentFactory: Promise<DocumentFactoryGateway> | undefined;
   const documentFactoryFactory:DocumentFactoryFactory = () => documentFactory ??= import('../../features/documents/documentFactoryCommands.ts')
     .then((module) => module.createDocumentFactoryGateway(client, config.supabaseUrl, config.supabasePublishableKey));
+  let engagementContract: Promise<EngagementContractGateway> | undefined;
+  const engagementContractFactory:EngagementContractFactory = () => engagementContract ??= import('../../features/engagements/engagementContractCommands.ts')
+    .then((module) => module.createEngagementContractGateway(client));
 
   return Object.freeze({
     authGateway: createSupabaseAuthGateway(client),
@@ -99,6 +105,7 @@ function createProductionResources(): UiR2ProductionResources {
     documentVaultFactory,
     documentIntelligenceFactory,
     documentFactoryFactory,
+    engagementContractFactory,
     processRuntime,
   });
 }
@@ -113,10 +120,11 @@ function leaveRecoveryMode() {
   window.location.replace(url.toString());
 }
 
-type RuntimeProps = Omit<BaseResources, 'authGateway' | 'processRuntime' | 'documentIntelligenceFactory' | 'documentFactoryFactory'> & {
+type RuntimeProps = Omit<BaseResources, 'authGateway' | 'processRuntime' | 'documentIntelligenceFactory' | 'documentFactoryFactory' | 'engagementContractFactory'> & {
   documentVaultFactory: DocumentVaultFactory;
   documentIntelligenceFactory: DocumentIntelligenceFactory | undefined;
   documentFactoryFactory: DocumentFactoryFactory | undefined;
+  engagementContractFactory: EngagementContractFactory | undefined;
   processRuntime: ProcessRuntimeFactory | undefined;
 };
 
@@ -132,6 +140,7 @@ function AuthenticatedR2Runtime({
   documentVaultFactory,
   documentIntelligenceFactory,
   documentFactoryFactory,
+  engagementContractFactory,
   processRuntime,
 }: RuntimeProps) {
   const auth = useAuth();
@@ -144,7 +153,7 @@ function AuthenticatedR2Runtime({
 
   return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
-    <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} documentVaultFactory={documentVaultFactory} documentIntelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} documentWorkspace={workspace} />
+    <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} documentVaultFactory={documentVaultFactory} documentIntelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} engagementContractFactory={engagementContractFactory} documentWorkspace={workspace} />
   </ProcessRuntimeProvider></CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
@@ -170,6 +179,7 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     documentVaultFactory={documentVaultFactory}
     documentIntelligenceFactory={runtime.resources.documentIntelligenceFactory}
     documentFactoryFactory={runtime.resources.documentFactoryFactory}
+    engagementContractFactory={runtime.resources.engagementContractFactory}
     processRuntime={runtime.resources.processRuntime}
   /></AuthProvider>;
 }

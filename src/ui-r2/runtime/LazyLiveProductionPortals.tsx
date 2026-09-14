@@ -1,6 +1,6 @@
 import { lazy, Suspense, useLayoutEffect, useState } from 'react';
 import type { RegulatoryKnowledgeGateway } from '../../features/regulatory/regulatoryKnowledgeCommands.ts';
-import type { DocumentFactoryFactory, DocumentIntelligenceFactory, DocumentVaultFactory } from './UiR2ProductionRoot.tsx';
+import type { DocumentFactoryFactory, DocumentIntelligenceFactory, DocumentVaultFactory, EngagementContractFactory } from './UiR2ProductionRoot.tsx';
 
 const CompaniesPortal = lazy(() => import('../records/LiveCompaniesProductionPortal.tsx').then((module) => ({ default: module.LiveCompaniesProductionPortal })));
 const PeoplePortal = lazy(() => import('../records/LivePeopleProductionPortal.tsx').then((module) => ({ default: module.LivePeopleProductionPortal })));
@@ -8,6 +8,7 @@ const FinancePortal = lazy(() => import('../finance/LiveFinanceProductionPortal.
 const KnowledgePortal = lazy(() => import('../regulatory/LiveRegulatoryKnowledgePortal.tsx').then((module) => ({ default: module.LiveRegulatoryKnowledgePortal })));
 const InsightsPortal = lazy(() => import('../intelligence/LiveBusinessIntelligencePortal.tsx').then((module) => ({ default: module.LiveBusinessIntelligencePortal })));
 const DocumentsPortal = lazy(() => import('../documents/LiveDocumentVaultPortal.tsx').then((module) => ({ default: module.LiveDocumentVaultPortal })));
+const EngagementContractsPortal = lazy(() => import('../documents/LiveEngagementContractsPortal.tsx').then((module) => ({ default: module.LiveEngagementContractsPortal })));
 const SHELL = '.r2-shell[data-r2-runtime-mode="live"][data-destination]';
 
 type LazyDestination = 'companies' | 'people' | 'finance' | 'risk' | 'insights' | 'knowledge' | 'documents' | null;
@@ -17,10 +18,11 @@ type Props = Readonly<{
   documentVaultFactory: DocumentVaultFactory;
   documentIntelligenceFactory: DocumentIntelligenceFactory | undefined;
   documentFactoryFactory: DocumentFactoryFactory | undefined;
+  engagementContractFactory: EngagementContractFactory | undefined;
   documentWorkspace: Promise<string | null>;
 }>;
 
-export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorkspace, documentVaultFactory, documentIntelligenceFactory, documentFactoryFactory, documentWorkspace }: Props) {
+export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorkspace, documentVaultFactory, documentIntelligenceFactory, documentFactoryFactory, engagementContractFactory, documentWorkspace }: Props) {
   const [destination, setDestination] = useState<LazyDestination>(null);
 
   useLayoutEffect(() => {
@@ -48,9 +50,15 @@ export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorks
       : destination === 'insights' ? <InsightsPortal />
       : destination === 'knowledge' ? <KnowledgePortal gateway={regulatoryKnowledge} workspace={regulatoryWorkspace} />
       : destination === 'documents'
-        ? (documentIntelligenceFactory || documentFactoryFactory
-          ? <DocumentsPortal factory={documentVaultFactory} intelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} workspace={documentWorkspace}/>
-          : <DocumentsPortal factory={documentVaultFactory} workspace={documentWorkspace}/>)
+        ? <>
+          {documentIntelligenceFactory || documentFactoryFactory
+            ? <DocumentsPortal factory={documentVaultFactory} intelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} workspace={documentWorkspace}/>
+            : <DocumentsPortal factory={documentVaultFactory} workspace={documentWorkspace}/>
+          }
+          {engagementContractFactory && documentFactoryFactory
+            ? <EngagementContractsPortal engagementContractFactory={engagementContractFactory} documentFactoryFactory={documentFactoryFactory} workspace={documentWorkspace}/>
+            : null}
+        </>
         : null}
   </Suspense>;
 }
