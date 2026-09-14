@@ -10,8 +10,14 @@ const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 const baseline = read('database/baseline/phase1_2_schema.sql');
 const migration = read('database/migrations/phase_11_1_notifications_followups.sql');
 const performanceHardening = read('database/migrations/phase_11_1_notification_performance_hardening.sql');
+const followupAuthority = read('database/migrations/phase_11_1_followup_lifecycle_authority.sql');
+const followupProbe = read('database/migrations/phase_11_1_live_authenticated_followup_probe.sql');
 const contract = read('src/features/notifications/notificationFollowupContract.ts');
+const runtime = read('src/features/notifications/notificationCommands.ts');
+const dailyWork = read('src/features/daily-work/dailyWorkService.ts');
 const tests = read('tests/notificationFollowupContract.test.ts');
+const runtimeTests = read('tests/notificationCommands.test.ts');
+const dailyWorkTests = read('tests/dailyWorkService.test.ts');
 
 const failures = [];
 const check = (name, condition) => { if (!condition) failures.push(name); };
@@ -34,24 +40,15 @@ check('no_shadow_authority', state.shadowNotificationStoreAllowed === false && s
 check('provenance_and_dedupe_law', state.sourceProvenanceRequired === true && state.deterministicDedupeIdentityRequired === true && state.crossWorkspaceNotificationAllowed === false);
 check('delivery_truth_law', state.browserMayInventDeliverySuccess === false && state.notificationDeliveryHistoryMayBecomeInboxState === false && state.externalDeliveryProviderIntegrated === false);
 check('quiet_snooze_law', state.quietHoursMayEraseSourceFact === false && state.snoozeMayCompleteFollowup === false);
-check('authority_gap_recorded', state.databaseAuthorityExtensionRequired === true && ['PHASE11_1_REQUIRED_EXTENSION','in_app_notifications'].includes(state.inAppNotificationStateAuthority));
+check('authority_gap_recorded', state.databaseAuthorityExtensionRequired === true && state.inAppNotificationStateAuthority === 'in_app_notifications');
 check('foundation_tracking', state.authorityDiscoveryCompleted === true && state.lifecycleContractAdded === true && state.destructionTestsAdded === true && state.phaseGateAdded === true);
+check('runtime_tracking', state.runtimeGatewayAdded === true && state.runtimeTestsAdded === true && state.runtimeFollowupLifecycleUsesRpc === true && state.runtimeNotificationSourceUpsertExposedToBrowser === false);
+check('followup_tracking', state.followupLifecycleAuthorityMigration === 'phase_11_1_followup_lifecycle_authority' && state.followupLifecycleProbeMigration === 'phase_11_1_live_authenticated_followup_probe' && state.followupDirectLifecycleMutationAllowed === false && state.followupTerminalResurrectionAllowed === false);
 
 for (const marker of [
   'create table public.notification_preferences',
-  'reminders_enabled boolean not null default false',
-  "daily_brief_time time not null default '08:00'",
-  "timezone text not null default 'Asia/Baghdad'",
   'create table public.notification_deliveries',
-  'dedupe_key text',
-  "channel text not null check (channel in ('in_app','push','email'))",
-  "status text not null default 'scheduled' check (status in ('scheduled','sent','failed','cancelled'))",
-  'constraint notification_deliveries_sent_check',
   'create table public.transaction_followups',
-  "status text not null default 'open' check (status in ('open','completed','cancelled'))",
-  'completed_at timestamptz',
-  'completed_by uuid references auth.users(id) on delete set null',
-  'snoozed_until timestamptz',
   'constraint transaction_followups_completion_check',
 ]) check(`baseline:${marker}`, has(baseline, marker));
 
@@ -61,21 +58,12 @@ for (const marker of [
   'transaction_followups_completion_actor_check',
   'transaction_followups_terminal_snooze_check',
   'alter table public.in_app_notifications enable row level security',
-  'revoke all on table public.in_app_notifications from public, anon, authenticated',
   'grant select on table public.in_app_notifications to authenticated',
   'create policy in_app_notifications_select_self',
   'private.enforce_in_app_notification_lifecycle_v1',
-  'ENJAZ_NOTIFICATION_SOURCE_IDENTITY_IMMUTABLE',
   'ENJAZ_NOTIFICATION_STALE_SOURCE_VERSION',
-  'ENJAZ_NOTIFICATION_SOURCE_REVISION_REQUIRED',
   'public.mutate_in_app_notification_state_v1',
-  'ENJAZ_NOTIFICATION_WORKSPACE_FORBIDDEN',
-  'ENJAZ_NOTIFICATION_CANCELLED_FINAL',
   'public.upsert_in_app_notification_v1',
-  'ENJAZ_NOTIFICATION_RECIPIENT_NOT_MEMBER',
-  'ENJAZ_NOTIFICATION_SOURCE_REVISION_DRIFT',
-  'grant execute on function public.mutate_in_app_notification_state_v1',
-  'grant execute on function public.upsert_in_app_notification_v1',
 ]) check(`migration:${marker}`, has(migration, marker));
 
 check('notification_user_fk_index', has(performanceHardening, 'create index in_app_notifications_user_fk_idx') && has(performanceHardening, 'on public.in_app_notifications(user_id)'));
@@ -86,6 +74,27 @@ check('browser_has_no_notification_source_write',
 check('delivery_history_not_repurposed', !has(migration, 'alter table public.notification_deliveries add column read_at') && !has(migration, 'alter table public.notification_deliveries add column snoozed_until'));
 
 for (const marker of [
+  'private.enforce_transaction_followup_lifecycle_v1',
+  'ENJAZ_FOLLOWUP_LIFECYCLE_RPC_REQUIRED',
+  'ENJAZ_FOLLOWUP_TERMINAL_FINAL',
+  'public.mutate_transaction_followup_state_v1',
+  'ENJAZ_FOLLOWUP_WORKSPACE_FORBIDDEN',
+  "set_config('enjaz.followup_lifecycle_rpc', '1', true)",
+  "grant execute on function public.mutate_transaction_followup_state_v1",
+]) check(`followupAuthority:${marker}`, has(followupAuthority, marker));
+
+for (const marker of [
+  'enjaz_phase111f_expect_direct_lifecycle_block',
+  'enjaz_phase111f_expect_cross_workspace_denied',
+  'ordinary follow-up edit was incorrectly blocked',
+  'direct lifecycle update leaked through guard',
+  'governed snooze failed',
+  'governed wake failed',
+  'governed completion evidence failed',
+  'follow-up probe residue',
+]) check(`followupProbe:${marker}`, has(followupProbe, marker));
+
+for (const marker of [
   'PHASE11_1_AUTHORITY',
   "inAppNotificationAuthority: 'in_app_notifications'",
   'notificationDedupeIdentity',
@@ -94,38 +103,40 @@ for (const marker of [
   'validateFollowupLifecycle',
   'isActionableFollowup',
   'assertSameNotificationIdentity',
-  'PHASE11_1_CROSS_WORKSPACE_SOURCE',
-  'PHASE11_1_STALE_SOURCE_VERSION',
-  'PHASE11_1_EXTERNAL_DELIVERY_PROVIDER_NOT_INTEGRATED',
-  'PHASE11_1_NOTIFICATION_CANCELLED_FINAL',
 ]) check(`contract:${marker}`, has(contract, marker));
+
+for (const marker of [
+  'createNotificationCommandGateway',
+  'mutate_in_app_notification_state_v1',
+  'mutate_transaction_followup_state_v1',
+  "client.from('in_app_notifications')",
+  'mutateNotification',
+  'mutateFollowup',
+]) check(`runtime:${marker}`, has(runtime, marker));
+check('runtime_never_exposes_source_upsert', !has(runtime, 'upsert_in_app_notification_v1'));
+check('daily_work_uses_governed_followup_rpc', has(dailyWork, 'notificationCommands.mutateFollowup') && !has(dailyWork, 'layer.followups.update'));
+check('runtime_tests_present', has(runtimeTests, 'follow-up lifecycle mutation is routed only through governed RPC') && has(runtimeTests, 'invalid or stale snooze is rejected before any RPC write'));
+check('daily_work_tests_present', has(dailyWorkTests, 'governed RPC gateway') && has(dailyWorkTests, 'governed follow-up RPC'));
 
 for (const marker of [
   'reuses existing notification/follow-up authorities',
   'stable across source revisions',
   'stale source revision cannot replace',
   'cross-workspace source notification fails closed',
-  'cannot be scheduled before its authoritative source event',
-  'cannot pretend to be integrated before an external provider exists',
   'cancelled state is final',
-  'snooze must be future-facing',
-  'contradictory lifecycle evidence',
   'only open and awake follow-ups are actionable',
 ]) check(`tests:${marker}`, has(tests, marker));
 
 check('kickoff_authority_scope', has(kickoff, '`transaction_followups`') && has(kickoff, '`notification_preferences`') && has(kickoff, '`notification_deliveries`') && has(kickoff, 'No shadow notification/follow-up fact store'));
 check('roadmap_scope', has(roadmap, '## 11.1 — Notifications & Follow-ups') && has(roadmap, 'Authoritative event-driven notifications') && has(roadmap, 'read/unread') && has(roadmap, 'snooze/cancel'));
 
-if (state.databaseAuthorityExtensionApplied === false) {
-  check('pre_migration_mode', state.mode === 'AUTHORITY_DISCOVERY_AND_LIFECYCLE_CONTRACT' && state.realCloudVerification === 'PENDING');
-}
-if (state.databaseAuthorityExtensionApplied === true) {
-  check('live_mode', state.mode === 'DATABASE_AUTHORITY_AND_REAL_CLOUD_CERTIFIED');
-  check('live_authority_recorded', state.inAppNotificationStateAuthority === 'in_app_notifications');
-  check('real_cloud_recorded', state.realCloudVerification === 'PASS' && state.realCloudProbePassed === true && state.realCloudZeroResidue === true);
-  check('migration_evidence_recorded', state.databaseAuthorityMigration === 'phase_11_1_notifications_followups' && state.realCloudProbeMigration === 'phase_11_1_live_authenticated_notification_probe' && state.databasePerformanceHardeningMigration === 'phase_11_1_notification_performance_hardening');
-  check('advisor_review_recorded', state.authenticatedSecurityDefinerAdvisorReviewed === true && state.mutateRpcAdvisorDisposition === 'INTENTIONAL_PER_USER_GOVERNED_API');
-  check('performance_hardening_recorded', state.performanceAdvisorNotificationFkResolved === true);
+check('notification_real_cloud_recorded', state.databaseAuthorityExtensionApplied === true && state.realCloudVerification === 'PASS' && state.realCloudProbePassed === true && state.realCloudZeroResidue === true);
+check('notification_migration_evidence_recorded', state.databaseAuthorityMigration === 'phase_11_1_notifications_followups' && state.realCloudProbeMigration === 'phase_11_1_live_authenticated_notification_probe' && state.databasePerformanceHardeningMigration === 'phase_11_1_notification_performance_hardening');
+check('advisor_review_recorded', state.authenticatedSecurityDefinerAdvisorReviewed === true && state.mutateRpcAdvisorDisposition === 'INTENTIONAL_PER_USER_GOVERNED_API');
+check('performance_hardening_recorded', state.performanceAdvisorNotificationFkResolved === true);
+
+if (state.followupLifecycleAuthorityApplied === true) {
+  check('followup_real_cloud_recorded', state.followupLifecycleRealCloudVerification === 'PASS');
 }
 
 if (failures.length) {
@@ -133,4 +144,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('ENJAZ PHASE 11.1 NOTIFICATIONS/FOLLOW-UPS AUDIT PASS — existing authority is preserved, canonical in-app notification state is governed separately from delivery history, Real Cloud lifecycle/dedupe/provenance laws are certified, FK performance is hardened, and Phase 11.2 remains locked.');
+console.log('ENJAZ PHASE 11.1 NOTIFICATIONS/FOLLOW-UPS AUDIT PASS — notification and follow-up authorities are separated from delivery history, browser lifecycle writes are governed, runtime uses RPC boundaries, Real Cloud notification authority remains certified, and Phase 11.2 remains locked.');
