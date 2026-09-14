@@ -40,7 +40,11 @@ jobs:
       - name: Phase 10.4 lifecycle and PDF authority audit
         run: node scripts/phase10-4-reports-pdf-audit.mjs
       - name: Reports & PDF destruction tests
-        run: node --experimental-strip-types --test tests/reportPdfContract.test.ts
+        run: |
+          node --experimental-strip-types --test tests/reportPdfContract.test.ts
+          node --experimental-strip-types --test tests/financialReportPdf.test.ts
+          node --experimental-strip-types --test tests/financialReportServerParity.test.ts
+          node --experimental-strip-types --test tests/financialReportRenderGateway.test.ts
       - name: Preserve financial report authority tests
         run: node --experimental-strip-types --test tests/financeReports.test.ts
       - name: Preserve Document Factory rendering/finalization contracts
