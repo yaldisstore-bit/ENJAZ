@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { RowOf } from '../../data/contracts/dataTypes.ts';
 import type { FinanceSource } from '../../features/finance/financeModel.ts';
+import type { FinancialReportRenderGateway } from '../../features/reports/financialReportRenderCommands.ts';
 import { FinancialReportsPanel } from './Phase74FinancialReportsExperience.tsx';
 import '../runtime/shell-base.css';
 import '../runtime/shell.css';
@@ -45,8 +46,22 @@ const source: FinanceSource = Object.freeze({
   cashboxes: Object.freeze([{ id: B1, workspace_id: W, name: 'الصندوق الرئيسي', opening_balance: 2_000_000, opened_at: '2026-01-01T00:00:00.000Z', active: true, created_at: '2026-01-01T00:00:00.000Z', updated_at: '2026-09-07T00:00:00.000Z' }]),
 });
 
+const browserCertificateRenderer: FinancialReportRenderGateway = Object.freeze({
+  async renderPdf(input) {
+    const identity = `ENJAZ:REPORT:v1:${input.workspaceId}:browser-certificate:${input.expectedFingerprint}`;
+    const bytes = new TextEncoder().encode(`%PDF-1.7\n% ENJAZ browser journey certificate only\n${'0'.repeat(2048)}\n%%EOF`);
+    return Object.freeze({
+      file: new Blob([bytes], { type: 'application/pdf' }),
+      filename: `enjaz-finance-${input.expectedFingerprint}.pdf`,
+      fingerprint: input.expectedFingerprint,
+      identity,
+      pageCount: 3,
+    });
+  },
+});
+
 function PreviewApp() {
-  return <div className="r2-shell" data-r2-runtime-mode="preview" data-destination="finance" dir="rtl"><main id="r2-main" className="r2-main"><div className="r2-screen r2-finance-phase74" data-finance-stage="7.4" data-finance-mode="preview" data-finance-report-authority="canonical"><FinancialReportsPanel source={source} workspaceId={W} /></div></main></div>;
+  return <div className="r2-shell" data-r2-runtime-mode="preview" data-destination="finance" dir="rtl"><main id="r2-main" className="r2-main"><div className="r2-screen r2-finance-phase74" data-finance-stage="7.4" data-finance-mode="preview" data-finance-report-authority="canonical" data-phase10-4-browser-certificate="enabled"><FinancialReportsPanel source={source} workspaceId={W} renderGateway={browserCertificateRenderer} /></div></main></div>;
 }
 
 const root = document.getElementById('phase74-finance-root');
