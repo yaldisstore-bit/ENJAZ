@@ -28,6 +28,7 @@ const dailyWorkTests = read('tests/dailyWorkService.test.ts');
 const failures = [];
 const check = (name, condition) => { if (!condition) failures.push(name); };
 const has = (source, needle) => source.includes(needle);
+const sha40 = value => typeof value === 'string' && /^[0-9a-f]{40}$/i.test(value);
 
 check('phase_identity', state.phase === '11.1' && state.name === 'Notifications & Follow-ups' && state.status === 'IN_PROGRESS');
 check('exact_base', state.baseCommit === '9c3fc01c40d6ddfccd2a423720c5a19fa19efa49');
@@ -50,7 +51,16 @@ check('authority_gap_recorded', state.databaseAuthorityExtensionRequired === tru
 check('foundation_tracking', state.authorityDiscoveryCompleted === true && state.lifecycleContractAdded === true && state.destructionTestsAdded === true && state.phaseGateAdded === true);
 check('runtime_tracking', state.runtimeGatewayAdded === true && state.runtimeTestsAdded === true && state.runtimeFollowupLifecycleUsesRpc === true && state.runtimeNotificationSourceUpsertExposedToBrowser === false);
 check('followup_tracking', state.followupLifecycleAuthorityMigration === 'phase_11_1_followup_lifecycle_authority' && state.followupLifecycleProbeMigration === 'phase_11_1_live_authenticated_followup_probe' && state.followupDirectLifecycleMutationAllowed === false && state.followupTerminalResurrectionAllowed === false);
-check('ui_tracking', state.uiIntegrationAdded === true && state.realBrowserVerification === 'PENDING');
+check('ui_tracking', state.uiIntegrationAdded === true && state.browserHarnessAdded === true && state.browserGateAdded === true && ['PENDING', 'PASS'].includes(state.realBrowserVerification));
+if (state.realBrowserVerification === 'PASS') {
+  check('real_browser_evidence_recorded',
+    Number.isSafeInteger(state.realBrowserRunId) && state.realBrowserRunId > 0 &&
+    Number.isSafeInteger(state.realBrowserArtifactId) && state.realBrowserArtifactId > 0 &&
+    sha40(state.realBrowserVerifiedCommit) &&
+    typeof state.realBrowserArtifactDigest === 'string' && /^sha256:[0-9a-f]{64}$/i.test(state.realBrowserArtifactDigest) &&
+    state.realBrowserMinimumWidthPx === 320 &&
+    Array.isArray(state.realBrowserVerifiedContracts) && state.realBrowserVerifiedContracts.length >= 5);
+}
 
 for (const marker of [
   'create table public.notification_preferences',
