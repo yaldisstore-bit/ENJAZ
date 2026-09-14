@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 9.7 — Intelligence Zero-Escape Gate ✅ CLOSED + EXACT-MAIN / REAL-BROWSER / PAGES / LIVE-EXTERNAL CERTIFIED**  
-آخر مرحلة مغلقة: **Phase 9.7 — Intelligence Zero-Escape Gate ✅ CLOSED**  
-المرحلة التالية: **Phase 10.1 — Document Vault — AUTHORIZED NEXT**.
+الحالة الرسمية: **Phase 10.4 — Reports & PDF ✅ CLOSED + EXACT-MAIN / REAL-BROWSER / REAL-CLOUD / PAGES / LIVE-EXTERNAL CERTIFIED**  
+آخر مرحلة مغلقة: **Phase 10.4 — Reports & PDF ✅ CLOSED**  
+المرحلة التالية: **Phase 10.5 — Engagement/Contract Document Layer — M16 — AUTHORIZED NEXT**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -41,7 +41,27 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 9.5 — Business Intelligence & Forecasting Center — M13: ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 9.6 — Process Mining & Predictive Operations — M18: ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 9.7 — Intelligence Zero-Escape Gate: ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified.**
-- **Phase 10.1 — Document Vault: AUTHORIZED NEXT.**
+- **Phase 10.1 — Document Vault: ✅ CLOSED + post-merge / deployed-live recertified.**
+- **Phase 10.2 — Document Intelligence / OCR: ✅ CLOSED + Azure Real Cloud + Real Browser + exact-main + Pages + Live External certified.**
+- **Phase 10.3 — Document Factory & Official Form Engine — M7: ✅ CLOSED + Real Cloud Arabic PDF + exact-main + Pages + Live External certified.**
+- **Phase 10.4 — Reports & PDF: ✅ CLOSED + Real Cloud Arabic/RTL PDF + exact-main + Real Browser + Pages + Live External certified.**
+- **Phase 10.5 — Engagement/Contract Document Layer — M16: AUTHORIZED NEXT.**
+
+## Phase 10.4 — دليل الإغلاق الحالي
+
+- implementation PR #158: **MERGED** → `77da8981cda39329426fff85db57644353d49ec8`.
+- formal closure main: `a0143dcca0b4e8deb330dfbe0da79789fce1e2f7`.
+- Phase 10.4 Reports & PDF gate `34846423599`: **PASS**.
+- Real Browser certificate `34846423509`: **PASS — 8/8** حتى 320px + print media.
+- final clean authenticated Real Cloud financial PDF `34846423722`: **PASS**.
+- Real Cloud output: **44,339 bytes / 3 A4 pages**؛ fingerprint `ENJAZ-FR-b7d36f8efa6ab14f`.
+- Arabic/RTL + footer + signature + QR/barcode + stale fingerprint HTTP 409 + foreign workspace HTTP 403 + zero residue: **VERIFIED**.
+- post-merge Quality Gate `34847454941`: **PASS**.
+- post-merge Real Browser `34847454391`: **PASS**.
+- Pages preview/deploy `34848266636`: **PASS**.
+- Live External `34848333080`: **PASS**.
+- unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
+- **Phase 10.5 — Engagement/Contract Document Layer — M16: AUTHORIZED NEXT.**
 
 ## Phase 9.7 — دليل الإغلاق
 
@@ -63,7 +83,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - Product / UI/UX / Engineering / Certification: **PASS / PASS / PASS / PASS**.
 - unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
 - لم تُضف 9.7 feature authority أو DB table أو write RPC ولم ترفع أي budget.
-- **Phase 10.1 — Document Vault: AUTHORIZED NEXT** بعد دمج formal closure.
+- Phase 10.1 كانت successor التاريخية المباشرة؛ وقد أغلقت منذ ذلك الحين، والتسلسل الحالي وصل إلى 10.4 CLOSED.
 
 ## Phase 9.6 — دليل الإغلاق
 
@@ -137,7 +157,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 4. **M4 — Omnichannel Communications Hub** — `PLANNED`.
 5. **M5 — ENJAZ Field Operations / Runner Mode** — `CLOSURE_CANDIDATE`.
 6. **M6 — Service Catalog, CRM & Commercial Intake** — `CLOSURE_CANDIDATE`.
-7. **M7 — Document Factory & Official Form Engine** — `PLANNED`.
+7. **M7 — Document Factory & Official Form Engine** — `ACTIVE`؛ Phase 10.3 anchor CLOSED لكن global Zero-Escape closure ما زال مستقلاً.
 8. **M8 — Regulatory / Knowledge Base Engine** — `ACTIVE`; Phase 12 remains open.
 9. **M9 — Agentic ENJAZ Copilot** — `PLANNED`.
 10. **M10 — Scheduling, Appointments & Deadline Engine** — `PLANNED`.
@@ -146,11 +166,11 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 13. **M13 — Business Intelligence & Forecasting Center** — `ACTIVE`; Phase 9 anchor CLOSED، Phase 15 remains open.
 14. **M14 — Backup, Restore & Workspace Portability** — `PLANNED`.
 15. **M15 — Multi-Branch, Departments & Team Operating Model** — `ACTIVE`.
-16. **M16 — Engagements, Contracts & Retainers** — `PLANNED`.
+16. **M16 — Engagements, Contracts & Retainers** — `PLANNED`؛ Phase 10.5 is authorized next.
 17. **M17 — Smart Intake Forms & Secure Submission Links** — `ACTIVE`.
 18. **M18 — Process Mining & Predictive Operations** — `ACTIVE`; Phase 9.6 anchor CLOSED، Phase 15 remains open، `closureEvidence=null`.
 
-لا يتم ترقية أي M-system إلى `CLOSED` لمجرد نجاح مرحلة واحدة؛ الاستثناء الوحيد هو عندما تُثبت جميع anchors الخاصة به وشهادة `ZERO_ESCAPE_V1` المستقلة كما حدث الآن لـM2.
+لا يتم ترقية أي M-system إلى `CLOSED` لمجرد نجاح مرحلة واحدة؛ الاستثناء الوحيد هو عندما تُثبت جميع anchors الخاصة به وشهادة `ZERO_ESCAPE_V1` المستقلة كما حدث لـM2.
 
 ## مصادر الخطة والحوكمة
 
@@ -159,14 +179,14 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - [`docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`](docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json)
 - [`docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md`](docs/ENJAZ_MAJOR_SYSTEMS_ZERO_ESCAPE_POLICY.md)
 - [`docs/PHASE9_4_CLOSURE.md`](docs/PHASE9_4_CLOSURE.md)
-- [`docs/PHASE9_4_POSTMERGE_RECERTIFICATION.md`](docs/PHASE9_4_POSTMERGE_RECERTIFICATION.md)
 - [`docs/PHASE9_5_CLOSURE.md`](docs/PHASE9_5_CLOSURE.md)
-- [`docs/PHASE9_5_POSTMERGE_RECERTIFICATION.md`](docs/PHASE9_5_POSTMERGE_RECERTIFICATION.md)
 - [`docs/PHASE9_6_CLOSURE.md`](docs/PHASE9_6_CLOSURE.md)
-- [`docs/PHASE9_6_POSTMERGE_RECERTIFICATION.md`](docs/PHASE9_6_POSTMERGE_RECERTIFICATION.md)
-- [`docs/PHASE9_7_STATE.json`](docs/PHASE9_7_STATE.json)
 - [`docs/PHASE9_7_CLOSURE.md`](docs/PHASE9_7_CLOSURE.md)
-- [`docs/PHASE9_7_POSTMERGE_RECERTIFICATION.md`](docs/PHASE9_7_POSTMERGE_RECERTIFICATION.md)
+- [`docs/PHASE10_1_CLOSURE.md`](docs/PHASE10_1_CLOSURE.md)
+- [`docs/PHASE10_2_CLOSURE.md`](docs/PHASE10_2_CLOSURE.md)
+- [`docs/PHASE10_3_CLOSURE.md`](docs/PHASE10_3_CLOSURE.md)
+- [`docs/PHASE10_4_STATE.json`](docs/PHASE10_4_STATE.json)
+- [`docs/PHASE10_4_CLOSURE.md`](docs/PHASE10_4_CLOSURE.md)
 - [`docs/M2_ZERO_ESCAPE_CLOSURE.json`](docs/M2_ZERO_ESCAPE_CLOSURE.json)
 
 ## قوانين الانتقال
@@ -179,4 +199,4 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - لا يُسمح لأي intelligence layer باختلاق business/financial/process facts من بيانات ناقصة.
 - forecast/prediction لا يصبح source truth، ولا AI/editorial output يصبح authoritative fact بلا عقد سلطة مستقل.
 - سقف JavaScript startup يبقى **670000 bytes**، والإجمالي **760000 bytes**، وCSS **180000 bytes** بلا waiver أو feature cut.
-- **Phase 9.7 مغلقة ومصدقة؛ Phase 10.1 — Document Vault هي المرحلة التالية المصرح بها فقط.**
+- **Phase 10.4 مغلقة ومصدقة؛ Phase 10.5 — Engagement/Contract Document Layer — M16 هي المرحلة التالية المصرح بها فقط.**
