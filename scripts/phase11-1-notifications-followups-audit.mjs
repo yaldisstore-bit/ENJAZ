@@ -87,7 +87,7 @@ check('delivery_history_not_repurposed', !has(migration, 'alter table public.not
 
 for (const marker of [
   'PHASE11_1_AUTHORITY',
-  "inAppNotificationAuthority: 'PHASE11_1_REQUIRED_EXTENSION'",
+  "inAppNotificationAuthority: 'in_app_notifications'",
   'notificationDedupeIdentity',
   'validateNotificationCandidate',
   'assertNotificationLifecycleAction',
@@ -120,8 +120,10 @@ if (state.databaseAuthorityExtensionApplied === false) {
   check('pre_migration_mode', state.mode === 'AUTHORITY_DISCOVERY_AND_LIFECYCLE_CONTRACT' && state.realCloudVerification === 'PENDING');
 }
 if (state.databaseAuthorityExtensionApplied === true) {
+  check('live_mode', state.mode === 'DATABASE_AUTHORITY_AND_REAL_CLOUD_CERTIFIED');
   check('live_authority_recorded', state.inAppNotificationStateAuthority === 'in_app_notifications');
   check('real_cloud_recorded', state.realCloudVerification === 'PASS' && state.realCloudProbePassed === true && state.realCloudZeroResidue === true);
+  check('migration_evidence_recorded', state.databaseAuthorityMigration === 'phase_11_1_notifications_followups' && state.realCloudProbeMigration === 'phase_11_1_live_authenticated_notification_probe' && state.databasePerformanceHardeningMigration === 'phase_11_1_notification_performance_hardening');
   check('advisor_review_recorded', state.authenticatedSecurityDefinerAdvisorReviewed === true && state.mutateRpcAdvisorDisposition === 'INTENTIONAL_PER_USER_GOVERNED_API');
   check('performance_hardening_recorded', state.performanceAdvisorNotificationFkResolved === true);
 }
@@ -131,4 +133,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('ENJAZ PHASE 11.1 NOTIFICATIONS/FOLLOW-UPS AUDIT PASS — existing authority is preserved, canonical in-app notification state is governed separately from delivery history, lifecycle/dedupe/provenance laws are fail-closed, FK performance is hardened, and Phase 11.2 remains locked.');
+console.log('ENJAZ PHASE 11.1 NOTIFICATIONS/FOLLOW-UPS AUDIT PASS — existing authority is preserved, canonical in-app notification state is governed separately from delivery history, Real Cloud lifecycle/dedupe/provenance laws are certified, FK performance is hardened, and Phase 11.2 remains locked.');
