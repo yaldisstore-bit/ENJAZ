@@ -26,10 +26,16 @@ function createMinimalClient(config: RuntimeConfig) {
     return fetch(input, { ...init, headers: requestHeaders });
   };
   const rest = new PostgrestClient(`${config.supabaseUrl}/rest/v1`, { headers: { apikey: key }, fetch: authedFetch });
+  const edge = async (functionName: string, init: RequestInit = {}): Promise<Response> => {
+    const slug = functionName.trim();
+    if (!/^[a-z0-9][a-z0-9-]{0,62}$/.test(slug)) throw new Error('Invalid Edge Function name');
+    return authedFetch(`${config.supabaseUrl}/functions/v1/${slug}`, init);
+  };
   return Object.freeze({
     auth,
     from: rest.from.bind(rest),
     rpc: rest.rpc.bind(rest),
+    edge,
   });
 }
 
