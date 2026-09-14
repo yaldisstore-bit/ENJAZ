@@ -41,10 +41,9 @@ function ReportTotals({ report }: { readonly report: FinancialReportSnapshot }) 
 }
 
 function PdfPreflight({ plan }: { readonly plan: FinancialReportPdfPlan }) {
-  return <section className="r2-f74-pdf-preflight" data-no-print="true" data-phase10-4-pdf-preflight="safe" aria-label="سلامة PDF">
-    <div><span>PDF 10.4</span><b>{plan.pageCount} {plan.pageCount === 1 ? 'صفحة' : 'صفحات'}</b></div>
-    <div><span>الحالة</span><b>جاهز للطباعة</b></div>
-    <code title={plan.identity}>{plan.identity}</code>
+  return <section className="r2-f74-card r2-f74-provenance" data-no-print="true" data-phase10-4-pdf-preflight="safe" aria-label="سلامة PDF">
+    <header><h3>PDF 10.4</h3><span>{plan.pageCount} {plan.pageCount === 1 ? 'صفحة' : 'صفحات'} · جاهز للطباعة</span></header>
+    <p title={plan.identity}>هوية التقرير: <b>{plan.identity}</b></p>
   </section>;
 }
 
@@ -145,9 +144,6 @@ export function FinancialReportsPanel({ source, workspaceId }: { readonly source
         <p>بصمة حتمية: <b>{report.fingerprint}</b></p>
         {report.disclosures.map((text) => <p key={text}>{text}</p>)}
       </section>
-      {pdfPreflight.plan ? <footer className="r2-f74-print-proof" aria-hidden="true">
-        <span>إنجاز · تقرير مالي موثق</span><span>{pdfPreflight.plan.identity}</span>
-      </footer> : null}
     </>}
   </section>;
 }
