@@ -51,11 +51,11 @@ function followup(patch: Partial<FollowupLifecycleState> = {}): FollowupLifecycl
   };
 }
 
-test('Phase 11.1 reuses existing notification/follow-up authorities and requires a distinct in-app state extension', () => {
+test('Phase 11.1 reuses existing notification/follow-up authorities and uses the governed in-app state extension', () => {
   assert.equal(PHASE11_1_AUTHORITY.notificationPreferences, 'notification_preferences');
   assert.equal(PHASE11_1_AUTHORITY.notificationDeliveries, 'notification_deliveries');
   assert.equal(PHASE11_1_AUTHORITY.transactionFollowups, 'transaction_followups');
-  assert.equal(PHASE11_1_AUTHORITY.inAppNotificationAuthority, 'PHASE11_1_REQUIRED_EXTENSION');
+  assert.equal(PHASE11_1_AUTHORITY.inAppNotificationAuthority, 'in_app_notifications');
 });
 
 test('notification dedupe identity is stable across source revisions of the same authoritative event', () => {
