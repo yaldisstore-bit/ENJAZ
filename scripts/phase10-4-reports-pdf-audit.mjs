@@ -27,7 +27,8 @@ check('authority_boundary',state.authoritativeReportSourcesRemainExternal===true
 check('layout_safety',state.deterministicPagePlanningRequired===true&&state.blankPageAllowed===false&&state.overflowCorruptionAllowed===false&&state.footerOverlapAllowed===false&&state.signatureOverlapAllowed===false);
 check('identity_rtl_mobile',state.qrBarcodeStableIdentityRequired===true&&state.rtlArabicRequired===true&&state.mobilePrintPreviewRequired===true);
 check('foundation_tracking',['CONTRACT_AND_DESTRUCTION_TESTS','FINANCIAL_REPORT_INTEGRATION'].includes(state.foundationStage)&&state.foundationContractAdded===true&&state.foundationTestsAdded===true&&state.phaseGateAdded===true);
-check('financial_integration_tracking',state.financialReportAdapterAdded===true&&state.financialReportPreflightAdded===true&&state.financialPrintHardeningAdded===true&&state.financialReportAdapterTestsAdded===true);
+check('financial_integration_tracking',state.financialReportAdapterAdded===true&&state.financialReportPreflightAdded===true&&state.financialReportAdapterTestsAdded===true&&state.financePreviewWorkspaceIdentityBound===true);
+check('print_stage_truth',state.browserPrintBaselinePreserved===true&&state.financialPrintHardeningAdded===false&&state.finalRendererHardeningPending===true);
 
 for(const marker of [
   'A4_WIDTH_PT','A4_HEIGHT_PT','DEFAULT_REPORT_PDF_LAYOUT','reportPdfReservedZones','planReportPdfPages','assertReportPdfPlanSafe','buildReportPdfIdentity',
@@ -45,10 +46,10 @@ for(const marker of ['safe deterministic pages and stable identity','represented
 check('financial_same_snapshot_preserved',has(financeUi,'window.print()')&&has(financeUi,'financialReportToCsv(report)')&&has(financeUi,'serializeFinancialReport(report)')&&has(financeUi,'data-pdf-ready="true"'));
 check('financial_preflight_enforced',has(financeUi,'buildFinancialReportPdfPlan(workspaceId, report)')&&has(financeUi,'disabled={!pdfPreflight.plan}')&&has(financeUi,'data-phase10-4-pdf-preflight="safe"')&&has(financeUi,'data-phase10-4-report-pdf="governed"'));
 check('financial_real_workspace_identity',has(financeUi,'workspaceId={loaded.workspaceId}')&&has(financeUi,'loadFinanceSource(factory, user)'));
-check('financial_print_hardening',has(financeCss,'@page { size:A4 portrait')&&has(financeCss,'.r2-f74-card thead { display:table-header-group; }')&&has(financeCss,'break-inside:avoid')&&has(financeCss,'.r2-f74-print-proof { display:flex;position:fixed'));
+check('browser_print_baseline_preserved',has(financeCss,'@media print')&&has(financeCss,'.r2-f74-table-wrap { overflow: visible; }')&&has(financeCss,'.r2-f74-card table { min-width: 0; }')&&has(financeCss,'[data-no-print="true"] { display: none !important; }'));
 check('renderer_identity_foundation_preserved',has(renderer,"import QRCode from 'npm:qrcode@1.5.4'")&&has(renderer,'ENJAZ:DRAFT:')&&has(renderer,'ENJAZ:PACK:'));
 check('roadmap_scope',has(roadmap,'## 10.4 — Reports & PDF')&&has(roadmap,'deterministic pagination/footer/signature/QR/barcode handling'));
 check('kickoff_scope',has(kickoff,'A page may never be emitted blank')&&has(kickoff,'Oversized content must either split')&&has(kickoff,'QR/barcode identity must be stable'));
 
 if(failures.length){console.error(`ENJAZ PHASE 10.4 REPORTS & PDF AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);process.exit(1)}
-console.log('ENJAZ PHASE 10.4 REPORTS & PDF AUDIT PASS — deterministic page contract and Financial Reports preflight/print integration governed, predecessor closed, successor locked, budgets frozen.');
+console.log('ENJAZ PHASE 10.4 REPORTS & PDF AUDIT PASS — deterministic page contract and financial preflight integration governed, browser print baseline preserved, final renderer hardening explicitly pending, predecessor closed, successor locked, budgets frozen.');
