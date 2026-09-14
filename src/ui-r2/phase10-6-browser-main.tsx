@@ -30,6 +30,7 @@ const browserState={
   edgeCalls:[] as Array<{action:string;operationId:string|null;fileName:string|null}>,
   storagePuts:[] as Array<{operationId:string}>,
   get documents(){return docs},
+  get operationDocumentCount(){return operationDocuments.size},
 };
 
 const fakeClient={
@@ -50,7 +51,8 @@ globalThis.fetch=async(input:RequestInfo|URL,init?:RequestInit)=>{
       return new Response(JSON.stringify({ok:true,signedUrl:`https://phase10-6-upload.invalid/${operationId}`,expiresInSeconds:7200}),{status:200,headers:{'Content-Type':'application/json'}});
     }
     if(action==='acknowledge'&&operationId){
-      const documentId=operationDocuments.get(operationId)??crypto.randomUUID();operationDocuments.set(operationId,documentId);
+      const documentId=operationDocuments.get(operationId);
+      if(!documentId)return new Response(JSON.stringify({ok:false,error:'STORAGE_OBJECT_NOT_FOUND'}),{status:409,headers:{'Content-Type':'application/json'}});
       return new Response(JSON.stringify({ok:true,ack:{schema:'enjaz.document-upload-ack.v1',operationId,documentId,versionNumber:1,status:'ready',wasDuplicate:false}}),{status:200,headers:{'Content-Type':'application/json'}});
     }
     return new Response(JSON.stringify({ok:false,error:'UNEXPECTED_ACTION'}),{status:400,headers:{'Content-Type':'application/json'}});
