@@ -29,8 +29,14 @@ test('governed contract lifecycle preserves signed artifact authority and rollba
   const{browser,page,runtimeErrors}=await open(390,844);
   try{
     await expect(page.getByRole('heading',{name:'مركز العقود والاتفاقيات'})).toBeVisible();
-    await expect(page.getByText('اتفاق خدمات الشركة · contract')).toBeVisible();
-    await expect(page.getByText('عقد خدمات قانونية نهائي')).toBeVisible();
+    const engagementSelect=page.getByLabel('التعامل التجاري');
+    const documentSelect=page.getByLabel('الوثيقة النهائية');
+    await expect(engagementSelect).toBeVisible();
+    await expect(engagementSelect).toHaveValue('44444444-4444-4444-8444-444444444444');
+    await expect(engagementSelect).toContainText('اتفاق خدمات الشركة · contract');
+    await expect(documentSelect).toBeVisible();
+    await expect(documentSelect).toHaveValue('55555555-5555-4555-8555-555555555555');
+    await expect(documentSelect).toContainText('عقد خدمات قانونية نهائي');
     const create=page.getByRole('button',{name:'إنشاء الإصدار الخاضع للحوكمة'});
     await expect(create).toBeEnabled();
     await create.click();
@@ -81,9 +87,9 @@ test('governed contract lifecycle preserves signed artifact authority and rollba
 test('Arabic RTL contract center is usable without horizontal escape at certified widths',async()=>{
   const widths=[1280,430,390,360,320],results=[];
   for(const width of widths){
-    const{browser,page,panel,runtimeErrors}=await open(width,width===1280?900:844);
+    const{browser,page,runtimeErrors}=await open(width,width===1280?900:844);
     try{
-      await expect(panel).toHaveAttribute('dir',/rtl|^$/).catch(()=>undefined);
+      expect(await page.evaluate(()=>document.documentElement.dir)).toBe('rtl');
       await expect(page.getByRole('button',{name:'إنشاء الإصدار الخاضع للحوكمة'})).toBeVisible();
       const geometry=await noHorizontalOverflow(page);
       expect(geometry.body).toBeLessThanOrEqual(geometry.inner+1);
