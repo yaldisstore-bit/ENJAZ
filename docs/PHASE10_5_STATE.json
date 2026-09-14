@@ -49,6 +49,7 @@
   "databaseCreationHardeningApplied": true,
   "runtimeGatewayAdded": true,
   "runtimeGatewayPath": "src/features/engagements/engagementContractCommands.ts",
+  "runtimeGatewayCoveredByTypecheck": true,
   "runtimeUiWiringAdded": false,
   "realCloudVerification": "PASS_AUTHENTICATED_DESTRUCTION_PROBE",
   "realCloudProbeMigration": "phase_10_5_live_authenticated_contract_probe",
