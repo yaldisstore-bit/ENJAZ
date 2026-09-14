@@ -18,6 +18,8 @@ import { FinanceCommandProvider } from '../../features/finance/FinanceCommandCon
 import { createSupabaseFinanceCommandGateway, type FinanceCommandGateway } from '../../features/finance/financeCommands.ts';
 import { GovernanceCommandProvider } from '../../features/governance/GovernanceCommandContext.tsx';
 import { createGovernanceCommandGateway, type GovernanceCommandGateway } from '../../features/governance/governanceCommands.ts';
+import { NotificationCommandProvider } from '../../features/notifications/NotificationCommandContext.tsx';
+import { createNotificationCommandGateway, type NotificationCommandGateway } from '../../features/notifications/notificationCommands.ts';
 import { ProcessRuntimeProvider, type ProcessRuntimeFactory } from '../../features/process-intelligence/ProcessMiningHistoryContext.tsx';
 import { createRegulatoryKnowledgeGateway, type RegulatoryKnowledgeGateway } from '../../features/regulatory/regulatoryKnowledgeCommands.ts';
 import { createSearchIntelligenceGateway, type SearchIntelligenceGateway } from '../../features/searchIntelligence/searchIntelligenceCommands.ts';
@@ -63,6 +65,7 @@ type BaseResources = {
   workflowCommands: GovernmentProcedureRuntimeGateway;
   automationCommands: AutomationCommandGateway;
   fieldOperationsCommands: FieldOperationsCommandGateway;
+  notificationCommands: NotificationCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
   documentIntelligenceFactory?: DocumentIntelligenceFactory;
@@ -100,6 +103,7 @@ function createProductionResources(): UiR2ProductionResources {
     workflowCommands: createGovernmentProcedureRuntimeGateway(client),
     automationCommands: createAutomationCommandGateway(client),
     fieldOperationsCommands: createFieldOperationsCommandGateway(client),
+    notificationCommands: createNotificationCommandGateway(client),
     searchIntelligence: createSearchIntelligenceGateway(client),
     regulatoryKnowledge: createRegulatoryKnowledgeGateway(client),
     documentVaultFactory,
@@ -135,6 +139,7 @@ function AuthenticatedR2Runtime({
   workflowCommands,
   automationCommands,
   fieldOperationsCommands,
+  notificationCommands,
   searchIntelligence,
   regulatoryKnowledge,
   documentVaultFactory,
@@ -151,10 +156,10 @@ function AuthenticatedR2Runtime({
   if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode} />;
   const signOut = async () => { await auth.service.signOut(); };
 
-  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
+  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><NotificationCommandProvider gateway={notificationCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
     <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} documentVaultFactory={documentVaultFactory} documentIntelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} engagementContractFactory={engagementContractFactory} documentWorkspace={workspace} />
-  </ProcessRuntimeProvider></CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
+  </ProcessRuntimeProvider></CurrentUserIdProvider></NotificationCommandProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
 export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2ProductionResources | undefined }> = {}) {
@@ -174,6 +179,7 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     workflowCommands={runtime.resources.workflowCommands}
     automationCommands={runtime.resources.automationCommands}
     fieldOperationsCommands={runtime.resources.fieldOperationsCommands}
+    notificationCommands={runtime.resources.notificationCommands}
     searchIntelligence={runtime.resources.searchIntelligence}
     regulatoryKnowledge={runtime.resources.regulatoryKnowledge}
     documentVaultFactory={documentVaultFactory}
