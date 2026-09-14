@@ -4,7 +4,7 @@ import type {DocumentFactoryDraft,DocumentFactoryGateway} from '../features/docu
 import {assertEngagementContractTransition,type EngagementContractStatus} from '../features/engagements/engagementContract.ts';
 import type {CreateEngagementContractRevisionInput,EngagementContractGateway,EngagementContractRuntimeRevision,TransitionEngagementContractRevisionInput} from '../features/engagements/engagementContractCommands.ts';
 import {FinanceCommandProvider} from '../features/finance/FinanceCommandContext.tsx';
-import type {FinanceCommandGateway,FinancePaymentContext} from '../features/finance/financeCommands.ts';
+import type {FinanceCommandGateway,FinanceEngagementContext,FinancePaymentContext} from '../features/finance/financeCommands.ts';
 import {EngagementContractPanel} from './documents/EngagementContractPanel.tsx';
 import './design-system/design-system.css';
 import './runtime/shell-base.css';
@@ -41,9 +41,20 @@ const finalDraft:DocumentFactoryDraft=Object.freeze({
   updatedAt:NOW,
 });
 
+const engagement:FinanceEngagementContext=Object.freeze({
+  id:E,
+  companyId:C,
+  title:'اتفاق خدمات الشركة',
+  reference:'M16-001',
+  type:'contract',
+  billingMode:'fixed',
+  status:'active',
+  transactionIds:Object.freeze([T]),
+});
+
 const financeContext:FinancePaymentContext=Object.freeze({
   cashboxes:Object.freeze([]),
-  engagements:Object.freeze([{id:E,companyId:C,title:'اتفاق خدمات الشركة',reference:'M16-001',type:'contract',billingMode:'fixed',status:'active',transactionIds:Object.freeze([T])}]),
+  engagements:Object.freeze([engagement]),
   recentReceipts:Object.freeze([]),
   reconciliation:Object.freeze({postedTotalCents:0n,reversedTotalCents:0n,statusWithoutReversal:0,reversalWithoutStatus:0,shadowLedgerEntries:0,integrityWarnings:0,moneyAuthority:'payments_plus_non_payment_ledger'}),
 });
@@ -79,9 +90,9 @@ const contractGateway:EngagementContractGateway={
     if(input.toStatus==='signed'){if(documentId!==DOCUMENT||documentVersionId!==VERSION)throw new Error('SIGNED_ARTIFACT_REQUIRED');signedAt=new Date().toISOString();signatureProvenance=Object.freeze({...input.signatureProvenance})}
     if(input.toStatus==='effective'){if(!input.effectiveOn)throw new Error('effective date required');effectiveOn=input.effectiveOn;expiresOn=input.expiresOn??null}
     if(input.toStatus==='terminated'){if(!input.note?.trim())throw new Error('termination note required');terminationNote=input.note.trim()}
-    const next:Object=Object.freeze({...current,status:input.toStatus,documentId,documentVersionId,signedAt,effectiveOn,expiresOn,signatureProvenance,terminationNote,updatedAt:new Date().toISOString()});
-    transitionLog.push({from:current.status,to:input.toStatus,documentId:(next as EngagementContractRuntimeRevision).documentId,documentVersionId:(next as EngagementContractRuntimeRevision).documentVersionId});
-    return replaceRevision(next as EngagementContractRuntimeRevision)
+    const next:EngagementContractRuntimeRevision=Object.freeze({...current,status:input.toStatus,documentId,documentVersionId,signedAt,effectiveOn,expiresOn,signatureProvenance,terminationNote,updatedAt:new Date().toISOString()});
+    transitionLog.push({from:current.status,to:input.toStatus,documentId:next.documentId,documentVersionId:next.documentVersionId});
+    return replaceRevision(next)
   },
 };
 
