@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../data/createDataLayer.ts';
 import { DataLayerProvider } from '../data/react/DataLayerContext.tsx';
 import { NotificationCommandProvider } from '../features/notifications/NotificationCommandContext.tsx';
-import type { InAppNotificationRuntime, NotificationCommandGateway } from '../features/notifications/notificationCommands.ts';
+import type { InAppNotificationRuntime, NotificationCommandGateway, NotificationListInput } from '../features/notifications/notificationCommands.ts';
 import { CurrentUserIdProvider } from '../shared/session/CurrentUserIdContext.tsx';
 import { ConnectedCoreWorkRouter } from './core-work/CoreWorkConnected.tsx';
 import './runtime/shell-base.css';
@@ -55,7 +55,7 @@ const notification: InAppNotificationRuntime = Object.freeze({
 });
 
 const commands: NotificationCommandGateway = Object.freeze({
-  async list(input) {
+  async list(input: NotificationListInput) {
     if (input.workspaceId !== WORKSPACE) throw new Error('Unexpected notification workspace');
     return Object.freeze([notification]);
   },
