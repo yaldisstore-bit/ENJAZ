@@ -25,7 +25,7 @@ export function createDocumentUploadRetryTicket(input:DocumentUploadInput):Docum
 export async function executeDocumentUploadRetry(gateway:DocumentVaultGateway,ticket:DocumentUploadRetryTicket,options:DocumentUploadRetryOptions={}):Promise<DocumentUploadRetryOutcome>{
   const maxAttempts=options.maxAttempts??3;
   if(!Number.isSafeInteger(maxAttempts)||maxAttempts<1||maxAttempts>5)throw new DataAccessError('Invalid document upload retry policy','DATA_VALIDATION_FAILED');
-  const online=options.isOnline??(()=>typeof navigator==='undefined'||navigator.onLine!==false);
+  const online=options.isOnline??(()=>typeof navigator==='undefined'||(navigator as unknown as {onLine?:boolean}).onLine!==false);
   const delay=options.delay??(attempt=>new Promise(resolve=>setTimeout(resolve,Math.min(250*2**Math.max(0,attempt-1),2000))));
   let attempts=ticket.attempts;
   if(!online())return{status:'deferred_offline',ticket:Object.freeze({...ticket,attempts})};
