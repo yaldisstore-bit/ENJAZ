@@ -29,6 +29,8 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+      - name: Canonical locked dependency high-severity audit
+        run: npm audit --audit-level=high
       - name: Preserve governed Phase 10.6 contract
         run: |
           node scripts/phase10-6-documents-zero-escape-audit.mjs
@@ -57,8 +59,6 @@ jobs:
         env:
           R2_PHASE106_BASE_URL: http://127.0.0.1:4186/
         run: npx playwright test tests-external/phase10-6-documents-zero-escape-live.spec.cjs --reporter=line --workers=1
-      - name: Dependency high-severity audit
-        run: npm audit --audit-level=high
       - name: Upload Phase 10.6 browser evidence
         if: always()
         uses: actions/upload-artifact@v4
