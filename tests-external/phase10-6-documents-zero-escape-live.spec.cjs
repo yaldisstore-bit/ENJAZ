@@ -38,7 +38,7 @@ for(const viewport of viewports){
     expect(await networkCount()).toBe(beforeMalicious);
     await expect(vault).not.toContainText('ملف نشط مرفوض قبل الشبكة',{useInnerText:true});
 
-    // Offline upload must consume no network attempt and resume the exact ticket after connectivity returns.
+    // Offline upload must consume no network attempt and duplicate online signals must collapse into one exact-ticket resume.
     await context.setOffline(true);
     const beforeOffline=await networkCount();
     await upload.locator('input[name="file"]').setInputFiles({name:'offline.pdf',mimeType:'application/pdf',buffer:safePdf('offline resume')});
@@ -52,28 +52,32 @@ for(const viewport of viewports){
     await expect(vault.getByRole('alert')).toHaveCount(0);
     const offlineFlow=await page.evaluate(()=>{
       const state=window.__ENJAZ_PHASE106_BROWSER__,uploadCall=state.uploadCalls.find(call=>call.title==='وثيقة معلقة بلا فقدان'),op=uploadCall?.operationId??null;
-      return{op,edge:state.edgeCalls.filter(call=>call.operationId===op).map(call=>call.action),puts:state.storagePuts.filter(call=>call.operationId===op).length};
+      return{op,edge:state.edgeCalls.filter(call=>call.operationId===op).map(call=>call.action),puts:state.storagePuts.filter(call=>call.operationId===op).length,documents:state.documents.filter(item=>item.title==='وثيقة معلقة بلا فقدان').length};
     });
     expect(offlineFlow.op).toMatch(/^[0-9a-f-]{36}$/i);
     expect(offlineFlow.edge).toEqual(['prepare','acknowledge']);
     expect(offlineFlow.puts).toBe(1);
+    expect(offlineFlow.documents).toBe(1);
 
-    // A transient prepare failure must retry using the same operation identity, never mint a second document operation.
+    // A transient prepare failure must fail reconciliation closed, then retry the exact operation identity once.
     await upload.locator('input[name="file"]').setInputFiles({name:'retry.pdf',mimeType:'application/pdf',buffer:safePdf('stable operation retry')});
     await upload.locator('input[name="title"]').fill('وثيقة إعادة المحاولة الثابتة');
     await upload.getByRole('button',{name:'رفع واعتماد النسخة'}).click();
     await expect(vault).toContainText('وثيقة إعادة المحاولة الثابتة');
     const retryFlow=await page.evaluate(()=>{
-      const state=window.__ENJAZ_PHASE106_BROWSER__,uploads=state.uploadCalls.filter(call=>call.title==='وثيقة إعادة المحاولة الثابتة'),ops=uploads.map(call=>call.operationId),op=ops[0]??null,prepares=state.edgeCalls.filter(call=>call.action==='prepare'&&call.fileName==='retry.pdf').map(call=>call.operationId),acks=state.edgeCalls.filter(call=>call.action==='acknowledge'&&call.operationId===op).length,puts=state.storagePuts.filter(call=>call.operationId===op).length;
-      return{ops,prepares,acks,puts};
+      const state=window.__ENJAZ_PHASE106_BROWSER__,uploads=state.uploadCalls.filter(call=>call.title==='وثيقة إعادة المحاولة الثابتة'),ops=uploads.map(call=>call.operationId),op=ops[0]??null,edge=state.edgeCalls.filter(call=>call.operationId===op).map(call=>call.action),prepares=state.edgeCalls.filter(call=>call.action==='prepare'&&call.fileName==='retry.pdf').map(call=>call.operationId),acks=state.edgeCalls.filter(call=>call.action==='acknowledge'&&call.operationId===op).length,puts=state.storagePuts.filter(call=>call.operationId===op).length,documents=state.documents.filter(item=>item.title==='وثيقة إعادة المحاولة الثابتة').length,operationDocumentCount=state.operationDocumentCount;
+      return{ops,edge,prepares,acks,puts,documents,operationDocumentCount};
     });
     expect(retryFlow.ops.length).toBe(2);
     expect(new Set(retryFlow.ops).size).toBe(1);
     expect(retryFlow.prepares.length).toBe(2);
     expect(new Set(retryFlow.prepares).size).toBe(1);
     expect(retryFlow.prepares[0]).toBe(retryFlow.ops[0]);
-    expect(retryFlow.acks).toBe(1);
+    expect(retryFlow.edge).toEqual(['prepare','acknowledge','prepare','acknowledge']);
+    expect(retryFlow.acks).toBe(2);
     expect(retryFlow.puts).toBe(1);
+    expect(retryFlow.documents).toBe(1);
+    expect(retryFlow.operationDocumentCount).toBe(2);
 
     // Responsive truth: no horizontal escape and touch controls stay usable through 320 px.
     const overflow=await page.evaluate(()=>({document:document.documentElement.scrollWidth-window.innerWidth,body:document.body.scrollWidth-window.innerWidth}));
