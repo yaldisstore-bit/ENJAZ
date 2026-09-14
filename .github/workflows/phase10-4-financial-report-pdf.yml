@@ -1,0 +1,41 @@
+name: ENJAZ Phase 10.4 — Financial Report PDF Integration
+
+on:
+  push:
+    branches:
+      - 'phase10-4-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase104-financial-pdf-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  financial-report-pdf:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 10.4 governance audit
+        run: node scripts/phase10-4-reports-pdf-audit.mjs
+      - name: Deterministic PDF contract and financial adapter tests
+        run: |
+          node --experimental-strip-types --test tests/reportPdfContract.test.ts
+          node --experimental-strip-types --test tests/financialReportPdf.test.ts
+          node --experimental-strip-types --test tests/financeReports.test.ts
+      - name: TypeScript integration
+        run: npm run typecheck
+      - name: Production build and frozen budget
+        run: npm run build -- --base=/ && npm run audit:dist:budget
