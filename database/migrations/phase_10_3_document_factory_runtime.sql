@@ -1,6 +1,6 @@
 -- ENJAZ Phase 10.3 — Document Factory governed runtime
 -- Server-owned template authoring, authoritative fact resolution, deterministic compilation,
--- review/approval lifecycle and exact Document Vault finalization binding.
+-- review/approval lifecycle. Finalization authority is added only by the render-proof migration.
 begin;
 
 create or replace function private.validate_document_factory_template_v1(
@@ -485,46 +485,6 @@ begin
   return jsonb_build_object('schema','enjaz.document-draft.v1','draftId',v.id,'status','draft','approved',false);
 end;$$;
 
-create or replace function public.finalize_document_draft_v1(
-  p_workspace_id uuid,p_draft_id uuid,p_document_id uuid,p_document_version_id uuid
-) returns jsonb language plpgsql security definer set search_path='' as $$
-declare v_actor uuid;v public.document_drafts%rowtype;v_doc public.documents%rowtype;v_ver public.document_versions%rowtype;v_latest public.document_versions%rowtype;v_content_checksum text;v_fact_checksum text;
-begin
-  v_actor:=private.require_document_factory_owner_v1(p_workspace_id);
-  if p_document_id is null or p_document_version_id is null then raise invalid_parameter_value using message='ENJAZ_DOCUMENT_FACTORY_OUTPUT_REQUIRED'; end if;
-  select * into v from public.document_drafts d where d.workspace_id=p_workspace_id and d.id=p_draft_id for update;
-  if not found then raise no_data_found using message='ENJAZ_DOCUMENT_FACTORY_DRAFT_NOT_FOUND'; end if;
-  if v.status='final' then
-    if v.final_document_id=p_document_id and v.final_document_version_id=p_document_version_id then
-      return jsonb_build_object('schema','enjaz.document-finalization.v1','draftId',v.id,'status','final','documentId',v.final_document_id,'documentVersionId',v.final_document_version_id,'wasDuplicate',true);
-    end if;
-    raise serialization_failure using message='ENJAZ_DOCUMENT_FACTORY_FINALIZATION_DRIFT';
-  end if;
-  if v.status<>'approved' or v.template_version_id is null or v.approved_at is null then raise invalid_parameter_value using message='ENJAZ_DOCUMENT_FACTORY_APPROVAL_REQUIRED'; end if;
-  perform private.assert_document_factory_provenance_current_v1(p_workspace_id,v.template_version_id,v.provenance);
-  v_content_checksum:=encode(extensions.digest(convert_to(v.compiled_content,'UTF8'),'sha256'),'hex');
-  v_fact_checksum:=encode(extensions.digest(convert_to(v.fact_snapshot::text,'UTF8'),'sha256'),'hex');
-  if v.content_checksum is distinct from v_content_checksum or v.fact_snapshot_checksum is distinct from v_fact_checksum then
-    raise data_exception using message='ENJAZ_DOCUMENT_FACTORY_DRAFT_CHECKSUM_DRIFT';
-  end if;
-
-  select * into v_doc from public.documents d where d.workspace_id=p_workspace_id and d.id=p_document_id and d.status='ready';
-  if not found then raise no_data_found using message='ENJAZ_DOCUMENT_FACTORY_OUTPUT_DOCUMENT_NOT_READY'; end if;
-  select * into v_ver from public.document_versions dv where dv.workspace_id=p_workspace_id and dv.document_id=p_document_id and dv.id=p_document_version_id;
-  if not found then raise no_data_found using message='ENJAZ_DOCUMENT_FACTORY_OUTPUT_VERSION_NOT_FOUND'; end if;
-  select * into v_latest from public.document_versions dv where dv.workspace_id=p_workspace_id and dv.document_id=p_document_id order by dv.version_number desc limit 1;
-  if not found or v_latest.id<>p_document_version_id then raise serialization_failure using message='ENJAZ_DOCUMENT_FACTORY_OUTPUT_VERSION_STALE'; end if;
-  if v.company_id is not null and v_doc.company_id is distinct from v.company_id then raise foreign_key_violation using message='ENJAZ_DOCUMENT_FACTORY_OUTPUT_COMPANY_MISMATCH'; end if;
-  if v.transaction_id is not null and v_doc.transaction_id is distinct from v.transaction_id then raise foreign_key_violation using message='ENJAZ_DOCUMENT_FACTORY_OUTPUT_TRANSACTION_MISMATCH'; end if;
-
-  update public.document_drafts set status='final',final_document_id=p_document_id,final_document_version_id=p_document_version_id,finalized_by=v_actor,finalized_at=now(),updated_at=now() where id=v.id;
-  insert into public.audit_events(workspace_id,actor_user_id,action,entity_type,entity_id,summary,details)
-  values(p_workspace_id,v_actor,'document.factory.finalized','document_draft',v.id,'Approved document draft bound to authoritative Document Vault output',jsonb_build_object(
-    'documentId',p_document_id,'documentVersionId',p_document_version_id,'versionNumber',v_ver.version_number,'contentChecksum',v_content_checksum,'factSnapshotChecksum',v_fact_checksum
-  ));
-  return jsonb_build_object('schema','enjaz.document-finalization.v1','draftId',v.id,'status','final','documentId',p_document_id,'documentVersionId',p_document_version_id,'versionNumber',v_ver.version_number,'wasDuplicate',false);
-end;$$;
-
 create or replace function public.get_document_factory_v1(p_workspace_id uuid)
 returns jsonb language plpgsql stable security definer set search_path='' as $$
 begin
@@ -555,13 +515,11 @@ revoke all on function public.generate_document_draft_v1(uuid,uuid,uuid,text,uui
 revoke all on function public.update_document_draft_content_v1(uuid,uuid,text) from public,anon,authenticated;
 revoke all on function public.submit_document_draft_for_review_v1(uuid,uuid) from public,anon,authenticated;
 revoke all on function public.review_document_draft_v1(uuid,uuid,text,text) from public,anon,authenticated;
-revoke all on function public.finalize_document_draft_v1(uuid,uuid,uuid,uuid) from public,anon,authenticated;
 revoke all on function public.get_document_factory_v1(uuid) from public,anon,authenticated;
 grant execute on function public.generate_document_draft_v1(uuid,uuid,uuid,text,uuid,uuid,uuid,uuid) to authenticated;
 grant execute on function public.update_document_draft_content_v1(uuid,uuid,text) to authenticated;
 grant execute on function public.submit_document_draft_for_review_v1(uuid,uuid) to authenticated;
 grant execute on function public.review_document_draft_v1(uuid,uuid,text,text) to authenticated;
-grant execute on function public.finalize_document_draft_v1(uuid,uuid,uuid,uuid) to authenticated;
 grant execute on function public.get_document_factory_v1(uuid) to authenticated;
 
 commit;
