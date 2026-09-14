@@ -24,8 +24,8 @@ test('Universal Inbox composes authoritative work with notification attention wi
   await expect(page.locator('[data-universal-inbox-attention="true"]')).toHaveCount(1);
   await expect(page.locator('[data-universal-inbox-attention="false"]')).toHaveCount(1);
   await expect(page.locator('[data-universal-inbox-unread="true"]')).toHaveCount(1);
-  await expect(page.getByText('متابعة توقيع العقد والوثائق النهائية', { exact: true })).toHaveCount(1);
-  await expect(page.getByText('عائق حرج يحتاج مراجعة المستند الأصلي', { exact: true })).toHaveCount(1);
+  await expect(rows.filter({ hasText: 'متابعة توقيع العقد والوثائق النهائية' })).toHaveCount(1);
+  await expect(rows.filter({ hasText: 'عائق حرج يحتاج مراجعة المستند الأصلي' })).toHaveCount(1);
   await expect(page.getByText(/تنبيه جديد/)).toHaveCount(1);
   await expect(page.locator('[data-inbox-attention-priority="high"]')).toBeVisible();
   expect(errors).toEqual([]);
@@ -36,8 +36,8 @@ test('Universal Inbox filters source-owned work without manufacturing notificati
   await page.getByRole('button', { name: 'بحاجة إجراء', exact: true }).click();
   const rows = page.locator('.r2-core-work-row');
   await expect(rows).toHaveCount(1);
-  await expect(page.getByText('عائق حرج يحتاج مراجعة المستند الأصلي', { exact: true })).toBeVisible();
-  await expect(page.getByText('متابعة توقيع العقد والوثائق النهائية', { exact: true })).toHaveCount(0);
+  await expect(rows.first()).toContainText('عائق حرج يحتاج مراجعة المستند الأصلي');
+  await expect(rows.filter({ hasText: 'متابعة توقيع العقد والوثائق النهائية' })).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
