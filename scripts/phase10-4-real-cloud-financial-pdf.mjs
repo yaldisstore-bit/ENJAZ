@@ -102,10 +102,13 @@ try{
  const companyInsert=await admin.from('companies').insert({id:companyId,workspace_id:workspaceId,legal_name:'شركة إنجاز العربية للتقارير المالية محدودة المسؤولية',display_name:'إنجاز العربية',capital:100000000,address:'العراق - بغداد - اليرموك',registration_number:'ENJAZ-FIN-104',legal_status:'محدودة المسؤولية'});if(companyInsert.error)throw companyInsert.error;
  const txInsert=await admin.from('transactions').insert({id:transactionId,workspace_id:workspaceId,company_id:companyId,type:'تقرير مالي رسمي',department:'مسجل الشركات',status:'active',priority:'normal',current_fee:250000});if(txInsert.error)throw txInsert.error;
  record('canonical_financial_fixture_created');
+ const cashbox=await rpc('create_finance_cashbox_v1',{p_workspace_id:workspaceId,p_name:'صندوق شهادة 10.4 السحابية',p_opening_balance:'0.00',p_idempotency_key:uuid()});
+ const cashboxId=cashbox?.cashboxId;
+ assert(typeof cashboxId==='string','governed_finance_cashbox_created',cashboxId??'missing');
  for(let i=0;i<32;i++){
-  await rpc('post_payment_v1',{p_workspace_id:workspaceId,p_transaction_id:transactionId,p_amount:'1000.00',p_method:'cash',p_paid_at:`2026-09-${String((i%20)+1).padStart(2,'0')}T${String(8+(i%10)).padStart(2,'0')}:00:00.000Z`,p_note:`Phase 10.4 cloud PDF pagination fixture ${i+1}`,p_idempotency_key:uuid(),p_cashbox_id:null,p_engagement_id:null});
+  await rpc('post_payment_v1',{p_workspace_id:workspaceId,p_transaction_id:transactionId,p_amount:'1000.00',p_method:'cash',p_paid_at:`2026-09-${String((i%20)+1).padStart(2,'0')}T${String(8+(i%10)).padStart(2,'0')}:00:00.000Z`,p_note:`Phase 10.4 cloud PDF pagination fixture ${i+1}`,p_idempotency_key:uuid(),p_cashbox_id:cashboxId,p_engagement_id:null});
  }
- record('governed_financial_rows_created','32 payments through post_payment_v1');
+ record('governed_financial_rows_created','32 payments through post_payment_v1 with governed cashbox');
  const query={kind:'period',from:'2026-09-01',to:'2026-09-30',companyId:null,transactionId:null,cashboxId:null};
  const source=await loadSource(),report=buildServerFinancialReport(source,query,'2026-09-30T23:59:59.999Z');
  assert(report.movements.length>=32,'server_report_has_multipage_pressure',`${report.movements.length} movements`);
@@ -123,7 +126,7 @@ try{
  await mkdir(ARTIFACT_DIR,{recursive:true});await writeFile(PDF_PATH,rendered.bytes);
  const stale=await edge({workspaceId,query,expectedFingerprint:'ENJAZ-FR-0000000000000000'},1);assert(stale.response.status===409,'stale_fingerprint_rejected','HTTP 409');
  const foreign=await edge({workspaceId:uuid(),query,expectedFingerprint:report.fingerprint},1);assert(foreign.response.status===403,'foreign_workspace_rejected','HTTP 403');
- evidence.output={pdfPath:PDF_PATH,byteSize:rendered.bytes.byteLength,pages:headerPages,fingerprint:report.fingerprint,identity:headerIdentity,binaryPageCount:binaryPages,imageObjectCount:imageObjects,movements:report.movements.length};
+ evidence.output={pdfPath:PDF_PATH,byteSize:rendered.bytes.byteLength,pages:headerPages,fingerprint:report.fingerprint,identity:headerIdentity,binaryPageCount:binaryPages,imageObjectCount:imageObjects,movements:report.movements.length,cashboxId};
 }catch(error){fatal=error;console.error(error)}finally{await cleanup();await persist()}
 if(!evidence.passed)process.exit(1);
 console.log(`PASS phase10_4_real_cloud_financial_pdf_certificate — ${evidence.output.pages} pages / ${evidence.output.byteSize} bytes / zero residue`);
