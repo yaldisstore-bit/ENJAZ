@@ -1,5 +1,6 @@
 import {createClient} from '@supabase/supabase-js';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {spawnSync} from 'node:child_process';
 import crypto from 'node:crypto';
 
 const PROJECT_REF='juzxriirhkuzviwnhkbd',BUCKET='enjaz-documents-private',ARTIFACT_DIR='artifacts/phase10-2-real-cloud',EVIDENCE_PATH=`${ARTIFACT_DIR}/evidence.json`;
@@ -57,3 +58,18 @@ try{
  record('real_cloud_document_intelligence_boundary_passed');
 }catch(e){fatal=e;console.error(e)}finally{await cleanup();const failedCleanup=evidence.cleanup.filter(x=>!x.passed);if(failedCleanup.length&&!fatal)fatal=new Error(`Cleanup failed: ${failedCleanup.length}`);await persist()}
 if(fatal)process.exit(1);
+
+const headRef=(process.env.GITHUB_HEAD_REF||process.env.GITHUB_REF_NAME||'').trim();
+if(/^phase10-3-/.test(headRef)){
+  console.log(`Running Phase 10.3 successor Real Cloud render certificate for ${headRef}`);
+  const child=spawnSync(process.execPath,['scripts/phase10-3-real-cloud-render-e2e.mjs'],{stdio:'inherit',env:process.env});
+  if(child.error){console.error(child.error);process.exit(1)}
+  if(child.status!==0)process.exit(child.status??1);
+  try{
+    const successor=JSON.parse(await readFile('artifacts/phase10-3-real-cloud-render/evidence.json','utf8'));
+    if(successor?.passed!==true)throw new Error('Phase 10.3 successor certificate did not pass');
+    evidence.successorCertificate={schema:successor.schema,passed:true,completedAt:successor.completedAt,checkCount:Array.isArray(successor.checks)?successor.checks.length:0,cleanup:successor.cleanup??[]};
+    await writeFile(EVIDENCE_PATH,`${JSON.stringify(evidence,null,2)}\n`,'utf8');
+    console.log('PASS phase10_3_successor_real_cloud_arabic_pdf_certificate');
+  }catch(e){console.error(e);process.exit(1)}
+}
