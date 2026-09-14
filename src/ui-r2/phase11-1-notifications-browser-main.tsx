@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import type { EnjazDataLayerFactory } from '../data/createDataLayer.ts';
 import { DataLayerProvider } from '../data/react/DataLayerContext.tsx';
 import { NotificationCommandProvider } from '../features/notifications/NotificationCommandContext.tsx';
-import type { InAppNotificationRuntime, NotificationCommandGateway, NotificationMutationInput } from '../features/notifications/notificationCommands.ts';
+import type { InAppNotificationRuntime, NotificationCommandGateway, NotificationListInput, NotificationMutationInput } from '../features/notifications/notificationCommands.ts';
 import { CurrentUserIdProvider } from '../shared/session/CurrentUserIdContext.tsx';
 import { LiveNotificationExperience } from './notifications/LiveNotificationExperience.tsx';
 import './runtime/shell-base.css';
@@ -50,10 +50,10 @@ function applyMutation(input: NotificationMutationInput): InAppNotificationRunti
 }
 
 const notificationCommands: NotificationCommandGateway = Object.freeze({
-  async list(input) {
+  async list(input: NotificationListInput) {
     return Object.freeze(rows.filter((row) => row.workspaceId === input.workspaceId && !row.cancelledAt && (!input.unreadOnly || !row.readAt)).slice(0, input.limit ?? 50));
   },
-  async mutateNotification(input) { return applyMutation(input); },
+  async mutateNotification(input: NotificationMutationInput) { return applyMutation(input); },
   async mutateFollowup() { throw new Error('Follow-up mutation is outside this isolated notification UI harness'); },
 });
 
