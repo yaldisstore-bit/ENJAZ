@@ -8,6 +8,7 @@ import { DataLayerProvider } from '../../data/react/DataLayerContext.tsx';
 import { AutomationCommandProvider } from '../../features/automation/AutomationCommandContext.tsx';
 import { createAutomationCommandGateway, type AutomationCommandGateway } from '../../features/automation/automationCommands.ts';
 import { AuthProvider, useAuth } from '../../features/auth/state/AuthContext.tsx';
+import type { DocumentFactoryGateway } from '../../features/documents/documentFactoryCommands.ts';
 import type { DocumentIntelligenceGateway } from '../../features/documents/documentIntelligenceCommands.ts';
 import type { DocumentVaultGateway } from '../../features/documents/documentVaultCommands.ts';
 import { FieldOperationsCommandProvider } from '../../features/field-operations/FieldOperationsCommandContext.tsx';
@@ -46,6 +47,7 @@ import './accessibility-hardening.css';
 
 export type DocumentVaultFactory = () => Promise<DocumentVaultGateway>;
 export type DocumentIntelligenceFactory = () => Promise<DocumentIntelligenceGateway>;
+export type DocumentFactoryFactory = () => Promise<DocumentFactoryGateway>;
 
 type VaultResource =
   | { documentVaultFactory:DocumentVaultFactory; documentVault?: never }
@@ -62,6 +64,7 @@ type BaseResources = {
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
   documentIntelligenceFactory?: DocumentIntelligenceFactory;
+  documentFactoryFactory?: DocumentFactoryFactory;
   processRuntime?: ProcessRuntimeFactory;
 };
 
@@ -79,6 +82,9 @@ function createProductionResources(): UiR2ProductionResources {
   let intelligence: Promise<DocumentIntelligenceGateway> | undefined;
   const documentIntelligenceFactory:DocumentIntelligenceFactory = () => intelligence ??= import('../../features/documents/documentIntelligenceCommands.ts')
     .then((module) => module.createDocumentIntelligenceGateway(client, config.supabaseUrl, config.supabasePublishableKey));
+  let documentFactory: Promise<DocumentFactoryGateway> | undefined;
+  const documentFactoryFactory:DocumentFactoryFactory = () => documentFactory ??= import('../../features/documents/documentFactoryCommands.ts')
+    .then((module) => module.createDocumentFactoryGateway(client, config.supabaseUrl, config.supabasePublishableKey));
 
   return Object.freeze({
     authGateway: createSupabaseAuthGateway(client),
@@ -92,6 +98,7 @@ function createProductionResources(): UiR2ProductionResources {
     regulatoryKnowledge: createRegulatoryKnowledgeGateway(client),
     documentVaultFactory,
     documentIntelligenceFactory,
+    documentFactoryFactory,
     processRuntime,
   });
 }
@@ -106,9 +113,10 @@ function leaveRecoveryMode() {
   window.location.replace(url.toString());
 }
 
-type RuntimeProps = Omit<BaseResources, 'authGateway' | 'processRuntime' | 'documentIntelligenceFactory'> & {
+type RuntimeProps = Omit<BaseResources, 'authGateway' | 'processRuntime' | 'documentIntelligenceFactory' | 'documentFactoryFactory'> & {
   documentVaultFactory: DocumentVaultFactory;
   documentIntelligenceFactory: DocumentIntelligenceFactory | undefined;
+  documentFactoryFactory: DocumentFactoryFactory | undefined;
   processRuntime: ProcessRuntimeFactory | undefined;
 };
 
@@ -123,6 +131,7 @@ function AuthenticatedR2Runtime({
   regulatoryKnowledge,
   documentVaultFactory,
   documentIntelligenceFactory,
+  documentFactoryFactory,
   processRuntime,
 }: RuntimeProps) {
   const auth = useAuth();
@@ -135,7 +144,7 @@ function AuthenticatedR2Runtime({
 
   return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
-    <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} documentVaultFactory={documentVaultFactory} documentIntelligenceFactory={documentIntelligenceFactory} documentWorkspace={workspace} />
+    <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} documentVaultFactory={documentVaultFactory} documentIntelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} documentWorkspace={workspace} />
   </ProcessRuntimeProvider></CurrentUserIdProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
@@ -160,6 +169,7 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     regulatoryKnowledge={runtime.resources.regulatoryKnowledge}
     documentVaultFactory={documentVaultFactory}
     documentIntelligenceFactory={runtime.resources.documentIntelligenceFactory}
+    documentFactoryFactory={runtime.resources.documentFactoryFactory}
     processRuntime={runtime.resources.processRuntime}
   /></AuthProvider>;
 }
