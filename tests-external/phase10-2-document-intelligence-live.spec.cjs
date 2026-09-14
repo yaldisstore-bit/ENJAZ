@@ -20,7 +20,7 @@ for(const viewport of viewports){
   await expect(panel).toHaveAttribute('data-intelligence-authority','derived-even-when-verified');
   await expect(panel.getByText('لا يوجد استخراج بعد')).toBeVisible();
 
-  await panel.getByRole('button',{name:'استخراج من النسخة الحالية'}).click();
+  await panel.getByRole('button',{name:'فحص وتحليل الوثيقة'}).click();
   const review=panel.locator('.di-review');
   await expect(review).toHaveAttribute('data-analysis-state','review_required');
   await expect(review).toHaveAttribute('data-analysis-stale','false');
@@ -53,7 +53,7 @@ for(const viewport of viewports){
   expect(afterVersion.analyses[0].state).toBe('superseded');
   expect(afterVersion.analyses[0].stale).toBe(true);
 
-  await panel.getByRole('button',{name:'استخراج من النسخة الحالية'}).click();
+  await panel.getByRole('button',{name:'إعادة فحص النسخة الحالية'}).click();
   await expect(review).toHaveAttribute('data-analysis-state','review_required');
   await expect(review).toHaveAttribute('data-analysis-stale','false');
   const afterReextract=await page.evaluate(()=>window.__ENJAZ_PHASE102_BROWSER__);
