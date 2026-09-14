@@ -13,6 +13,15 @@ const runtime=read('database/migrations/phase_10_3_document_factory_runtime.sql'
 const renderAuthority=read('database/migrations/phase_10_3_document_factory_render_authority.sql');
 const runtimeProbe=read('database/migrations/phase_10_3_live_runtime_render_probe_v3.sql');
 const contract=read('src/features/documents/documentFactoryContract.ts');
+const commands=read('src/features/documents/documentFactoryCommands.ts');
+const renderer=read('supabase/functions/enjaz-document-render/index.ts');
+const factoryPanel=read('src/ui-r2/documents/DocumentFactoryPanel.tsx');
+const intelligencePanel=read('src/ui-r2/documents/DocumentIntelligencePanel.tsx');
+const vaultUi=read('src/ui-r2/documents/ConnectedDocumentVault.tsx');
+const portal=read('src/ui-r2/documents/LiveDocumentVaultPortal.tsx');
+const root=read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
+const lazy=read('src/ui-r2/runtime/LazyLiveProductionPortals.tsx');
+const styles=read('src/ui-r2/regulatory/regulatory-knowledge.css');
 const tests=read('tests/documentFactory.test.ts');
 const workflow=read('.github/workflows/phase10-3-document-factory.yml');
 const kickoff=read('docs/PHASE10_3_KICKOFF.md');
@@ -80,8 +89,20 @@ for(const marker of ['validateFactoryTokenSchema','validateDocumentFactoryGenera
 for(const marker of ['rejects undeclared, malformed and unsupported authoritative tokens','governed runtime closes browser table writes and resolves facts server-side','render authority closes pdf_jobs browser mutation and requires service-only completion proof','finalization consumes exact succeeded render proof, not caller-selected Vault ids','official generation rejects unverified OCR','official generation rejects stale verified OCR'])check(`tests:${marker}`,has(tests,marker));
 for(const marker of ['scripts/phase10-3-document-factory-audit.mjs','tests/documentFactory.test.ts','tests/documentFactoryFinalizationGuard.test.ts','tests/documentIntelligence.test.ts','tests/documentVault.test.ts','npm run test:functional','npm run db:audit','npm run audit:secrets','npm run typecheck','npm run build','Re-enforce Phase 10.3 certified state'])check(`workflow:${marker}`,has(workflow,marker));
 
+for(const marker of ['createDocumentFactoryGateway','generate_document_draft_v1','review_document_draft_v1','request_document_render_v1','finalize_document_draft_v1','functions/v1/enjaz-document-render',".in('status',['queued','running','succeeded'])",'requested_by'])check(`commands:${marker}`,has(commands,marker));
+check('commands_no_server_secret',!/SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEYS|sb_secret_/i.test(commands));
+for(const marker of ["session.state==='acknowledged'",'documentVersionId=uuid(session.document_version_id)','storedObject(admin,storagePath,pdf,checksum,true)','preserveForRetry=true','wasRecovered'])check(`renderer_recovery:${marker}`,has(renderer,marker));
+check('renderer_user_auth_before_service',renderer.indexOf('auth.getUser()')>=0&&renderer.indexOf('auth.getUser()')<renderer.indexOf("admin.rpc('complete_document_render_v1'"));
+for(const marker of ['data-phase10-3="document-factory"','مصنع الوثائق الرسمية','Generate → Review → Render → Finalize','OCR متحقق','توليد مسودة رسمية','اعتماد المسودة','إصدار PDF واعتماد نهائي','فتح PDF النهائي'])check(`factory_ui:${marker}`,has(factoryPanel,marker));
+check('factory_ui_uses_verified_current_ocr',has(factoryPanel,"x.state==='verified'&&!x.stale")&&has(factoryPanel,'ocrAnalysisId:verifiedAnalysisId'));
+for(const marker of ['فحص وتحليل الوثيقة','قراءة ذكية للمحتوى واستخراج البيانات','جارٍ فحص الوثيقة…','data-scan-tone','di-scan-cta__status'])check(`premium_cta:${marker}`,has(intelligencePanel,marker));
+check('vault_embeds_factory',has(vaultUi,'DocumentFactoryPanel')&&has(vaultUi,'documentFactoryGateway')&&has(vaultUi,'companyId={s.detail.document.companyId}')&&has(vaultUi,'transactionId={s.detail.document.transactionId}'));
+check('runtime_lazy_factory',has(root,"import('../../features/documents/documentFactoryCommands.ts')")&&has(root,'DocumentFactoryFactory'));
+check('portal_lazy_factory',has(portal,'documentFactoryFactory')&&has(portal,'setDocumentFactory')&&has(lazy,'documentFactoryFactory'));
+for(const marker of ['.di-scan-cta','@media(max-width:620px)','.df-panel','.df-compose','.df-draft','@media(max-width:360px)','prefers-reduced-motion'])check(`factory_styles:${marker}`,has(styles,marker));
+
 if(failures.length){
   console.error(`ENJAZ PHASE 10.3 AUTHORITY AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);
   process.exit(1);
 }
-console.log('ENJAZ PHASE 10.3 AUTHORITY AUDIT PASS — authority plus governed generation/review/render-proof runtime are live-certified with zero probe residue; actual Arabic PDF renderer, UI/browser and deployed verification remain required. Phase 10.4 remains locked.');
+console.log('ENJAZ PHASE 10.3 AUTHORITY AUDIT PASS — authority/runtime remain live-certified; recoverable Arabic renderer, real Document Factory UI and premium analysis CTA are source-guarded while Real Cloud, Real Browser and deployed verification remain required. Phase 10.4 stays locked.');
