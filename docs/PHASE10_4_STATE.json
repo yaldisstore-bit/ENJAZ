@@ -34,7 +34,7 @@
   "foundationStage": "CONTRACT_AND_DESTRUCTION_TESTS",
   "foundationContractAdded": true,
   "foundationTestsAdded": true,
-  "phaseGateAdded": false,
+  "phaseGateAdded": true,
   "existingFinancialReportsReviewed": true,
   "existingDocumentRendererReviewed": true,
   "knownCriticalBlockers": 0,
