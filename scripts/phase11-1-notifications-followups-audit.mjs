@@ -9,6 +9,7 @@ const kickoff = read('docs/PHASE11_1_KICKOFF.md');
 const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 const baseline = read('database/baseline/phase1_2_schema.sql');
 const migration = read('database/migrations/phase_11_1_notifications_followups.sql');
+const performanceHardening = read('database/migrations/phase_11_1_notification_performance_hardening.sql');
 const contract = read('src/features/notifications/notificationFollowupContract.ts');
 const tests = read('tests/notificationFollowupContract.test.ts');
 
@@ -77,6 +78,7 @@ for (const marker of [
   'grant execute on function public.upsert_in_app_notification_v1',
 ]) check(`migration:${marker}`, has(migration, marker));
 
+check('notification_user_fk_index', has(performanceHardening, 'create index in_app_notifications_user_fk_idx') && has(performanceHardening, 'on public.in_app_notifications(user_id)'));
 check('browser_has_no_notification_source_write',
   !has(migration, 'grant insert on table public.in_app_notifications to authenticated') &&
   !has(migration, 'grant update on table public.in_app_notifications to authenticated') &&
@@ -119,6 +121,9 @@ if (state.databaseAuthorityExtensionApplied === false) {
 }
 if (state.databaseAuthorityExtensionApplied === true) {
   check('live_authority_recorded', state.inAppNotificationStateAuthority === 'in_app_notifications');
+  check('real_cloud_recorded', state.realCloudVerification === 'PASS' && state.realCloudProbePassed === true && state.realCloudZeroResidue === true);
+  check('advisor_review_recorded', state.authenticatedSecurityDefinerAdvisorReviewed === true && state.mutateRpcAdvisorDisposition === 'INTENTIONAL_PER_USER_GOVERNED_API');
+  check('performance_hardening_recorded', state.performanceAdvisorNotificationFkResolved === true);
 }
 
 if (failures.length) {
@@ -126,4 +131,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('ENJAZ PHASE 11.1 NOTIFICATIONS/FOLLOW-UPS AUDIT PASS — existing authority is preserved, canonical in-app notification state is governed separately from delivery history, lifecycle/dedupe/provenance laws are fail-closed, and Phase 11.2 remains locked.');
+console.log('ENJAZ PHASE 11.1 NOTIFICATIONS/FOLLOW-UPS AUDIT PASS — existing authority is preserved, canonical in-app notification state is governed separately from delivery history, lifecycle/dedupe/provenance laws are fail-closed, FK performance is hardened, and Phase 11.2 remains locked.');
