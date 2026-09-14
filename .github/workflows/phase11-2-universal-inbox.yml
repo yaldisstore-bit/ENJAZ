@@ -43,7 +43,7 @@ jobs:
           node --experimental-strip-types --test tests/dailyWorkService.test.ts
       - name: Preserve closed Phase 11.1 notification authority
         run: |
-          node scripts/phase11-1-notifications-followups-audit.mjs
+          node scripts/phase11-1-regression-audit.mjs
           node scripts/phase11-1-live-cloud-probe-audit.mjs
           node --experimental-strip-types --test tests/notificationFollowupContract.test.ts
           node --experimental-strip-types --test tests/notificationCommands.test.ts
