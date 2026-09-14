@@ -58,6 +58,7 @@ export interface FollowupLifecycleState {
 export interface NotificationContractOptions {
   readonly externalProviderIntegrated?: boolean;
   readonly now?: string;
+  readonly snoozeUntil?: string;
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -79,28 +80,7 @@ function instant(value: string, name: string): number {
   return parsed;
 }
 
-function nowMs(value?: string): number {
-  return value ? instant(value, 'now') : Date.now();
-}
-
-export function notificationDedupeIdentity(candidate: NotificationCandidate): string {
-  validateNotificationCandidate(candidate);
-  const source = candidate.source;
-  return [
-    'ENJAZ:NOTIFICATION:v1',
-    candidate.workspaceId.toLowerCase(),
-    candidate.recipientUserId.toLowerCase(),
-    assertText(source.sourceType, 'source_type', 120),
-    source.sourceId.toLowerCase(),
-    assertText(source.eventKey, 'event_key', 160),
-    `R${source.sourceVersion}`,
-  ].join(':');
-}
-
-export function validateNotificationCandidate(
-  candidate: NotificationCandidate,
-  options: NotificationContractOptions = {},
-): void {
+function validateNotificationIdentityFields(candidate: NotificationCandidate): void {
   const workspaceId = assertUuid(candidate.workspaceId, 'workspace_id');
   assertUuid(candidate.recipientUserId, 'recipient_user_id');
   if (assertUuid(candidate.source.workspaceId, 'source_workspace_id') !== workspaceId) {
@@ -112,10 +92,30 @@ export function validateNotificationCandidate(
   if (!Number.isSafeInteger(candidate.source.sourceVersion) || candidate.source.sourceVersion < 1) {
     throw new Error('PHASE11_1_INVALID_SOURCE_VERSION');
   }
+  assertText(candidate.title, 'title');
+}
+
+export function notificationDedupeIdentity(candidate: NotificationCandidate): string {
+  validateNotificationIdentityFields(candidate);
+  const source = candidate.source;
+  return [
+    'ENJAZ:NOTIFICATION:v1',
+    candidate.workspaceId.toLowerCase(),
+    candidate.recipientUserId.toLowerCase(),
+    assertText(source.sourceType, 'source_type', 120),
+    source.sourceId.toLowerCase(),
+    assertText(source.eventKey, 'event_key', 160),
+  ].join(':');
+}
+
+export function validateNotificationCandidate(
+  candidate: NotificationCandidate,
+  options: NotificationContractOptions = {},
+): void {
+  validateNotificationIdentityFields(candidate);
   const occurred = instant(candidate.source.occurredAt, 'source_occurred_at');
   const scheduled = instant(candidate.scheduledFor, 'scheduled_for');
   if (scheduled < occurred) throw new Error('PHASE11_1_SCHEDULE_BEFORE_SOURCE_EVENT');
-  assertText(candidate.title, 'title');
   if (candidate.channel !== 'in_app' && options.externalProviderIntegrated !== true) {
     throw new Error('PHASE11_1_EXTERNAL_DELIVERY_PROVIDER_NOT_INTEGRATED');
   }
@@ -128,37 +128,31 @@ export function assertNotificationLifecycleAction(
   options: NotificationContractOptions = {},
 ): void {
   const actionAt = instant(at, 'action_at');
-  const clock = nowMs(options.now ?? at);
   const readAt = state.readAt === null ? null : instant(state.readAt, 'read_at');
   const snoozedUntil = state.snoozedUntil === null ? null : instant(state.snoozedUntil, 'snoozed_until');
   const cancelledAt = state.cancelledAt === null ? null : instant(state.cancelledAt, 'cancelled_at');
 
-  if (cancelledAt !== null && action !== 'cancel') throw new Error('PHASE11_1_NOTIFICATION_CANCELLED_FINAL');
+  if (cancelledAt !== null) throw new Error('PHASE11_1_NOTIFICATION_CANCELLED_FINAL');
   if (action === 'mark_read' && readAt !== null) throw new Error('PHASE11_1_NOTIFICATION_ALREADY_READ');
   if (action === 'mark_unread' && readAt === null) throw new Error('PHASE11_1_NOTIFICATION_ALREADY_UNREAD');
   if (action === 'snooze') {
-    if (snoozedUntil === null || snoozedUntil <= actionAt || snoozedUntil <= clock) {
+    if (!options.snoozeUntil || instant(options.snoozeUntil, 'requested_snooze_until') <= actionAt) {
       throw new Error('PHASE11_1_INVALID_SNOOZE_WINDOW');
     }
   }
   if (action === 'wake' && (snoozedUntil === null || snoozedUntil > actionAt)) {
     throw new Error('PHASE11_1_NOTIFICATION_NOT_READY_TO_WAKE');
   }
-  if (action === 'cancel' && cancelledAt !== null) throw new Error('PHASE11_1_NOTIFICATION_ALREADY_CANCELLED');
 }
 
 export function validateFollowupLifecycle(state: FollowupLifecycleState): void {
-  const dueAt = instant(state.dueAt, 'followup_due_at');
+  instant(state.dueAt, 'followup_due_at');
   const completedAt = state.completedAt === null ? null : instant(state.completedAt, 'followup_completed_at');
   const snoozedUntil = state.snoozedUntil === null ? null : instant(state.snoozedUntil, 'followup_snoozed_until');
 
   if (state.completedBy !== null) assertUuid(state.completedBy, 'followup_completed_by');
   if (state.status === 'completed') {
     if (completedAt === null) throw new Error('PHASE11_1_COMPLETED_FOLLOWUP_REQUIRES_TIMESTAMP');
-    if (completedAt < dueAt && state.completedBy === null) {
-      // Automated early completion is allowed only when actor/provenance is explicit elsewhere.
-      throw new Error('PHASE11_1_EARLY_COMPLETION_REQUIRES_ACTOR');
-    }
     if (snoozedUntil !== null) throw new Error('PHASE11_1_COMPLETED_FOLLOWUP_CANNOT_BE_SNOOZED');
     return;
   }
