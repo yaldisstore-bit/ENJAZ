@@ -1,0 +1,67 @@
+name: ENJAZ Phase 11.1 — Notifications & Follow-ups Gate
+
+on:
+  push:
+    branches:
+      - 'phase11-1-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase111-notifications-followups-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  notifications-followups:
+    name: Authority / dedupe / lifecycle / provenance / no-shadow-store
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 11.1 governed authority audit
+        run: node scripts/phase11-1-notifications-followups-audit.mjs
+      - name: Phase 11.1 Real Cloud notification probe contract audit
+        run: node scripts/phase11-1-live-cloud-probe-audit.mjs
+      - name: Phase 11.1 notification/follow-up contract destruction tests
+        run: node --experimental-strip-types --test tests/notificationFollowupContract.test.ts
+      - name: Phase 11.1 runtime command boundary tests
+        run: |
+          node --experimental-strip-types --test tests/notificationCommands.test.ts
+          node --experimental-strip-types --test tests/dailyWorkService.test.ts
+      - name: Preserve existing follow-up consumers
+        run: |
+          node --experimental-strip-types --test tests/dailyWork.test.ts
+          node --experimental-strip-types --test tests/homeDashboard.test.ts
+          node --experimental-strip-types --test tests/homeDashboardDestruction.test.ts
+          node --experimental-strip-types --test tests/transaction360.test.ts
+          node --experimental-strip-types --test tests/transactionLifecycleService.test.ts
+      - name: Preserve formally closed Phase 10.6 authority
+        run: |
+          node scripts/phase10-6-documents-zero-escape-audit.mjs
+          node --experimental-strip-types --test tests/documentZeroEscape.test.ts
+      - name: Secrets and database integrity
+        run: |
+          npm run audit:secrets
+          npm run db:audit
+          npm run db:audit:selftest
+      - name: TypeScript runtime integration
+        run: npm run typecheck
+      - name: Production build and frozen budgets
+        run: npm run build -- --base=/ && npm run audit:dist:budget
+      - name: Dependency high-severity audit
+        run: npm audit --audit-level=high

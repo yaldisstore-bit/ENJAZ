@@ -84,7 +84,7 @@ test('R2.0-10 recovery session updates password through AuthService and returns 
   await expect(page.locator('[data-r2-runtime-mode="live"]')).toBeVisible();
 });
 
-test('R2.0-10 intentional restructuring preserves review-only create truthfulness and notification availability truthfulness', async ({ page }) => {
+test('R2.0-10 intentional restructuring preserves review-only create truthfulness and Phase 11.1 canonical notification truthfulness', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(pageUrl('?test=authenticated&dest=create'), { waitUntil: 'networkidle' });
   await expect(page.locator('[data-core-connected="create"]')).toBeVisible();
@@ -92,9 +92,13 @@ test('R2.0-10 intentional restructuring preserves review-only create truthfulnes
   await expect(page.locator('[data-core-connected="create"]')).toContainText('بدل حفظ وهمي');
 
   await page.goto(pageUrl('?test=authenticated&dest=today.notifications'), { waitUntil: 'networkidle' });
-  await expect(page.locator('[data-core-connected="today"]')).toBeVisible();
-  await expect(page.locator('[data-core-connected="today"]')).toContainText('العوائق أولًا');
-  await expect(page.locator('[data-core-connected="today"]')).not.toContainText(/غير مقروء|unread|تم إرسال الإشعار/);
+  const notifications = page.locator('[data-phase11-1-notifications="live"]');
+  await expect(notifications).toBeVisible();
+  await expect(notifications).toHaveAttribute('data-notification-authority', 'in_app_notifications');
+  await expect(notifications).toContainText('الإشعارات');
+  await expect(notifications).toContainText('لا توجد إشعارات مستحقة الآن');
+  await expect(notifications.locator('[data-notification-id]')).toHaveCount(0);
+  await expect(notifications).not.toContainText(/تم إرسال الإشعار|push ناجح|email ناجح/i);
   await noHorizontalOverflow(page);
 });
 

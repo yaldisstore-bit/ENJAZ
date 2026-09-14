@@ -1,6 +1,7 @@
 import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../../data/createDataLayer.ts';
 import type { IdWorkspaceTableName, ListRequest, RowOf } from '../../data/contracts/dataTypes.ts';
 import type { ReadRepository } from '../../data/repositories/createEntityRepository.ts';
+import type { NotificationCommandGateway } from '../notifications/notificationCommands.ts';
 import { buildDailyWorkSnapshot, type DailyWorkItem, type DailyWorkSnapshot, type DailyWorkSource } from './dailyWorkModel.ts';
 
 const DAILY_WORK_PAGE_SIZE = 100;
@@ -110,14 +111,15 @@ export async function loadDailyWork(
 
 export async function completeDailyWorkItem(
   factory: EnjazDataLayerFactory,
+  notificationCommands: NotificationCommandGateway,
   userId: string,
   item: DailyWorkItem,
   now: Date = new Date(),
 ): Promise<void> {
-  const { layer } = await resolveLayer(factory, userId);
+  const { workspaceId, layer } = await resolveLayer(factory, userId);
   const timestamp = now.toISOString();
   if (item.source === 'followup') {
-    await layer.followups.update(item.sourceId, { status: 'completed', completed_at: timestamp, completed_by: userId, snoozed_until: null });
+    await notificationCommands.mutateFollowup({ workspaceId, followupId: item.sourceId, action: 'complete' });
     return;
   }
   if (item.source === 'calendar') {
@@ -137,12 +139,13 @@ export async function completeDailyWorkItem(
 
 export async function snoozeDailyWorkFollowup(
   factory: EnjazDataLayerFactory,
+  notificationCommands: NotificationCommandGateway,
   userId: string,
   item: DailyWorkItem,
   until: Date,
 ): Promise<void> {
   if (item.source !== 'followup' || !item.snoozable) throw new DailyWorkActionUnavailableError(item.source);
   if (!Number.isFinite(until.getTime()) || until.getTime() <= Date.now()) throw new Error('Daily work snooze must be in the future');
-  const { layer } = await resolveLayer(factory, userId);
-  await layer.followups.update(item.sourceId, { snoozed_until: until.toISOString() });
+  const { workspaceId } = await resolveLayer(factory, userId);
+  await notificationCommands.mutateFollowup({ workspaceId, followupId: item.sourceId, action: 'snooze', snoozedUntil: until.toISOString() });
 }
