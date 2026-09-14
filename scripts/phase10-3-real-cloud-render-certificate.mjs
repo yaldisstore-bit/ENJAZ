@@ -22,7 +22,8 @@ const admin=createClient(url,secretKey,{auth:{autoRefreshToken:false,persistSess
 const tables=['workspaces','document_drafts','pdf_jobs','documents','document_versions','document_submission_packs','document_submission_pack_items','document_template_versions','document_templates'];
 const verified=[];
 for(const table of tables){
-  const {data,error}=await admin.from(table).select('workspace_id').eq(table==='workspaces'?'id':'workspace_id',workspaceId).limit(1);
+  const column=table==='workspaces'?'id':'workspace_id';
+  const {data,error}=await admin.from(table).select(column).eq(column,workspaceId).limit(1);
   if(error){console.error(`Cleanup verification failed for ${table}`,error);process.exit(1)}
   if((data?.length??0)!==0){console.error(`Cleanup residue remains in ${table}`);process.exit(1)}
   verified.push(table);
