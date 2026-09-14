@@ -21,34 +21,40 @@ const kickoff=read('docs/PHASE10_4_KICKOFF.md');
 const failures=[];
 const check=(name,condition)=>{if(!condition)failures.push(name)};
 const has=(source,needle)=>source.includes(needle);
+const closed=state.status==='CLOSED';
 
-check('phase_identity',state.phase==='10.4'&&state.name==='Reports & PDF'&&state.status==='IN_PROGRESS');
+check('phase_identity',state.phase==='10.4'&&state.name==='Reports & PDF'&&['IN_PROGRESS','CLOSED'].includes(state.status));
 check('exact_base',state.baseCommit==='94cbec8143aaf95664da091781e82936357ff9ae');
 check('predecessor_closed',state.predecessorPhase==='10.3'&&state.predecessorStatus==='CLOSED'&&predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true&&predecessor.phase10_4Allowed===true);
 check('predecessor_evidence',state.predecessorClosureEvidence==='docs/PHASE10_3_CLOSURE.md'&&fs.existsSync(state.predecessorClosureEvidence));
-check('successor_locked',state.phase10_5Allowed===false&&state.nextPhase==='10.5'&&state.successorStatus==='LOCKED');
+if(closed){
+  check('closure_schema',state.schemaVersion===2);
+  check('successor_authorized',state.phase10_5Allowed===true&&state.nextPhase==='10.5'&&state.successorStatus==='AUTHORIZED');
+  check('closure_exact_main',state.implementationPullRequest===158&&state.phaseGateVerification==='PASS'&&state.phaseGateRunId===34846423599&&state.canonicalImplementationMergeCommit==='77da8981cda39329426fff85db57644353d49ec8'&&state.postMergeQualityVerification==='PASS'&&state.postMergeQualityRunId===34847454941&&state.postMergeRealBrowserVerification==='PASS'&&state.postMergeRealBrowserRunId===34847454391&&state.postMergeExactMainCommit==='77da8981cda39329426fff85db57644353d49ec8');
+  check('closure_deployment',state.exactMainCertified===true&&state.pagesCertified===true&&state.pagesPreviewVerification==='PASS'&&state.pagesPreviewRunId===34848266636&&state.liveExternalCertified===true&&state.liveExternalVerification==='PASS'&&state.liveExternalRunId===34848333080&&state.deployedLiveVerification==='PASS_MAIN_PAGES_AND_LIVE_EXTERNAL');
+  check('closure_exit',state.knownCriticalBlockers===0&&state.knownHighBlockers===0&&state.knownFunctionalBlockers===0&&state.exitGatePassed===true&&state.closedOn==='2026-09-14');
+  check('closure_file',fs.existsSync('docs/PHASE10_4_CLOSURE.md'));
+}else{
+  check('successor_locked',state.phase10_5Allowed===false&&state.nextPhase==='10.5'&&state.successorStatus==='LOCKED');
+  check('postmerge_closure_pending',state.exactMainCertified===false&&state.pagesCertified===false&&state.liveExternalCertified===false&&state.exitGatePassed===false);
+}
 check('budgets_frozen',state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false);
 check('authority_boundary',state.authoritativeReportSourcesRemainExternal===true&&state.reportPdfMayMutateSourceRecords===false&&state.sameSnapshotForScreenExportPrintRequired===true);
 check('layout_safety',state.deterministicPagePlanningRequired===true&&state.blankPageAllowed===false&&state.overflowCorruptionAllowed===false&&state.footerOverlapAllowed===false&&state.signatureOverlapAllowed===false);
 check('identity_rtl_mobile',state.qrBarcodeStableIdentityRequired===true&&state.rtlArabicRequired===true&&state.mobilePrintPreviewRequired===true);
-check('foundation_tracking',['CONTRACT_AND_DESTRUCTION_TESTS','FINANCIAL_REPORT_INTEGRATION','BROWSER_CERTIFIED_CLOUD_PENDING','CLOUD_CERTIFIED_MAIN_PENDING'].includes(state.foundationStage)&&state.foundationContractAdded===true&&state.foundationTestsAdded===true&&state.phaseGateAdded===true);
+check('foundation_tracking',['CONTRACT_AND_DESTRUCTION_TESTS','FINANCIAL_REPORT_INTEGRATION','BROWSER_CERTIFIED_CLOUD_PENDING','CLOUD_CERTIFIED_MAIN_PENDING','CLOSED'].includes(state.foundationStage)&&state.foundationContractAdded===true&&state.foundationTestsAdded===true&&state.phaseGateAdded===true);
 check('financial_integration_tracking',state.financialReportAdapterAdded===true&&state.financialReportPreflightAdded===true&&state.financialReportAdapterTestsAdded===true&&state.financePreviewWorkspaceIdentityBound===true);
 check('server_renderer_tracking',state.financialServerRendererAdded===true&&state.financialServerRendererDeployed===true&&state.financialServerRendererVerifyJwt===true&&state.financialServerRendererVersion===2&&state.clientServerParityRequired===true&&state.clientServerParityCertified===true);
 check('print_stage_truth',state.browserPrintBaselinePreserved===true&&state.financialPrintHardeningAdded===true&&state.finalRendererHardeningPending===false);
 check('browser_certificate_truth',state.realBrowserCertificateAdded===true&&state.realBrowserCertificatePassed===true&&state.realBrowserCertificateTests===8&&state.realBrowserCertificateSha==='aa57241310e3321654676c557c3550bb30f52ac6'&&state.mobilePrintPreviewCertified===true&&state.minimumCertifiedViewportPx===320);
 check('cloud_certificate_truth',state.realCloudPdfOutputCertified===true&&state.realCloudCertificateRunId===34846423722&&state.realCloudPdfPages===3&&state.realCloudPdfBytes===44339&&state.realCloudPdfFingerprint==='ENJAZ-FR-b7d36f8efa6ab14f'&&state.realCloudArabicRtlVerified===true&&state.realCloudFooterSignatureVerified===true&&state.realCloudQrBarcodeVerified===true&&state.realCloudStaleFingerprintHttp409Verified===true&&state.realCloudForeignWorkspaceHttp403Verified===true&&state.realCloudZeroResidueVerified===true&&state.realCloudBinaryInspectionVerified===true&&state.realCloudEvidenceArtifactId===10348545171);
-check('postmerge_closure_still_pending',state.exactMainCertified===false&&state.pagesCertified===false&&state.liveExternalCertified===false&&state.exitGatePassed===false&&state.phase10_5Allowed===false);
 
-for(const marker of [
-  'A4_WIDTH_PT','A4_HEIGHT_PT','DEFAULT_REPORT_PDF_LAYOUT','reportPdfReservedZones','planReportPdfPages','assertReportPdfPlanSafe','buildReportPdfIdentity',
-  'REPORT_PDF_BLANK_PAGE','REPORT_PDF_OVERFLOW','REPORT_PDF_OVERLAP','REPORT_PDF_BLOCK_TOO_TALL','REPORT_PDF_ROW_TOO_TALL','ENJAZ:REPORT:v'
-]) check(`contract:${marker}`,has(contract,marker));
+for(const marker of ['A4_WIDTH_PT','A4_HEIGHT_PT','DEFAULT_REPORT_PDF_LAYOUT','reportPdfReservedZones','planReportPdfPages','assertReportPdfPlanSafe','buildReportPdfIdentity','REPORT_PDF_BLANK_PAGE','REPORT_PDF_OVERFLOW','REPORT_PDF_OVERLAP','REPORT_PDF_BLOCK_TOO_TALL','REPORT_PDF_ROW_TOO_TALL','ENJAZ:REPORT:v']) check(`contract:${marker}`,has(contract,marker));
 check('contract_no_source_mutation',!/(update|delete|insert)\s+(companies|transactions|documents|document_versions|payments|financial_ledger_entries)/i.test(contract));
 check('blank_page_eliminated_by_construction',has(contract,'pages.filter((page) => page.fragments.length > 0)')&&has(contract,"page.fragments.length === 0"));
 check('reserved_zone_geometry',has(contract,'signatureTop')&&has(contract,'identityTop')&&has(contract,'footerTop')&&has(contract,'bodyBottom'));
 check('table_header_repetition',has(contract,'repeatsTableHeader: true')&&has(contract,'REPORT_PDF_ROW_TOO_TALL'));
 for(const marker of ['never emits blank pages','cannot enter signature, identity or footer reserved zones','long tables split by rows','fail closed instead of clipping','stable QR/barcode identity']) check(`tests:${marker}`,has(tests,marker));
-
 for(const marker of ['buildFinancialReportPdfPlan','financialReportPdfBlocks','planReportPdfPages','buildReportPdfIdentity','enjaz.financial-report-pdf-plan.v1']) check(`finance_adapter:${marker}`,has(financeAdapter,marker));
 check('finance_adapter_no_shadow_facts',!/(payments|financial_ledger_entries|document_versions).*\.(insert|update|delete)/i.test(financeAdapter));
 for(const marker of ['safe deterministic pages and stable identity','represented exactly once','different report fingerprints produce different QR/barcode identities']) check(`finance_adapter_tests:${marker}`,has(financeAdapterTests,marker));
@@ -70,4 +76,6 @@ check('roadmap_scope',has(roadmap,'## 10.4 — Reports & PDF')&&has(roadmap,'det
 check('kickoff_scope',has(kickoff,'A page may never be emitted blank')&&has(kickoff,'Oversized content must either split')&&has(kickoff,'QR/barcode identity must be stable'));
 
 if(failures.length){console.error(`ENJAZ PHASE 10.4 REPORTS & PDF AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);process.exit(1)}
-console.log('ENJAZ PHASE 10.4 REPORTS & PDF AUDIT PASS — deterministic PDF authority, renderer v2, client/server parity, real-browser/mobile/print, and clean authenticated real-cloud Arabic multi-page PDF are certified; exact-main, Pages, and Live External remain pending, so 10.5 stays locked.');
+console.log(closed
+  ? 'ENJAZ PHASE 10.4 REPORTS & PDF AUDIT PASS — CLOSED: deterministic PDF authority, renderer v2, browser/mobile/print, clean authenticated real-cloud PDF, exact-main, Pages and Live External are certified; Phase 10.5 is authorized.'
+  : 'ENJAZ PHASE 10.4 REPORTS & PDF AUDIT PASS — implementation/cloud certification complete; post-merge closure evidence remains pending and Phase 10.5 stays locked.');
