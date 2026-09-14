@@ -11,6 +11,7 @@ const fkHardening=read('database/migrations/phase_10_3_document_factory_fk_index
 const liveProbe=read('database/migrations/phase_10_3_live_authenticated_authority_probe.sql');
 const runtime=read('database/migrations/phase_10_3_document_factory_runtime.sql');
 const renderAuthority=read('database/migrations/phase_10_3_document_factory_render_authority.sql');
+const runtimeProbe=read('database/migrations/phase_10_3_live_runtime_render_probe_v3.sql');
 const contract=read('src/features/documents/documentFactoryContract.ts');
 const tests=read('tests/documentFactory.test.ts');
 const workflow=read('.github/workflows/phase10-3-document-factory.yml');
@@ -32,15 +33,20 @@ check('budgets_frozen',state.javascriptBudgetBytes===670000&&state.totalJavascri
 check('foundation_tracking',state.databaseAuthorityMigrationAdded===true&&state.authorityHardeningMigrationAdded===true&&state.fkIndexHardeningMigrationAdded===true&&state.liveAuthenticatedAuthorityProbeAdded===true&&state.domainContractAdded===true&&state.stageFoundationTestsAdded===true&&state.phaseGateAdded===true);
 check('live_authority_certified',state.databaseAuthorityExtensionAdded===true&&state.databaseAuthorityLiveVerified===true&&state.databaseAuthorityZeroResidue===true&&state.phaseOwnedUnindexedForeignKeys===0);
 const migrationVersions=state.liveMigrationVersions||{};
-check('live_migration_versions',migrationVersions.authority==='20260913234238'&&migrationVersions.authorityHardening==='20260913234248'&&migrationVersions.fkIndexHardening==='20260913234402'&&migrationVersions.authenticatedAuthorityProbe==='20260913234855');
+check('live_migration_versions',migrationVersions.authority==='20260913234238'&&migrationVersions.authorityHardening==='20260913234248'&&migrationVersions.fkIndexHardening==='20260913234402'&&migrationVersions.authenticatedAuthorityProbe==='20260913234855'&&migrationVersions.runtime==='20260914004918'&&migrationVersions.renderAuthority==='20260914005013'&&migrationVersions.runtimeRenderProbeV3==='20260914010710');
 const live=state.liveAuthorityVerification||{};
 for(const key of ['ownerTemplateVersionCreate','idempotentReplay','requestPayloadDriftRejected','publishAndReplay','checksumVerified','crossWorkspaceReadDenied','crossWorkspaceCreateDenied','browserApprovalSmugglingDenied','publishedTemplateVersionImmutable','invalidDraftTransitionRejected','auditEvidenceVerified','sourceDocumentsUntouched'])check(`live:${key}`,live[key]===true);
 for(const key of ['probeUsersRemaining','probeTemplatesRemaining','probeVersionsRemaining','probeDraftsRemaining','probeAuditEventsRemaining','probeHelpersRemaining'])check(`zero_residue:${key}`,live[key]===0);
 check('live_status',live.status==='PASS_ZERO_RESIDUE');
 check('runtime_source_added',state.runtimeMigrationAdded===true&&state.renderAuthorityMigrationAdded===true&&state.governedTemplateAuthoringAdded===true&&state.authoritativeFactResolutionAdded===true&&state.logicalGenerationRuntimeAdded===true&&state.domainCommandsAdded===true&&state.reviewApprovalFlowAdded===true&&state.vaultFinalizationBindingAdded===true&&state.serviceRenderProofAuthorityAdded===true&&state.arbitraryVaultOutputFinalizationRemoved===true&&state.runtimeContractTestsAdded===true);
 check('runtime_direct_dml_closure_source',state.browserTemplateTableMutationClosureAdded===true&&state.browserDraftTableMutationClosureAdded===true&&state.browserPdfJobMutationClosureAdded===true);
-check('runtime_live_not_fabricated',state.runtimeLiveApplied===false&&state.renderAuthorityLiveApplied===false&&state.runtimeRealCloudVerified===false&&state.runtimeZeroResidueVerified===false&&state.officialRenderedArtifactRuntimeAdded===false&&state.officialGenerationRuntimeAdded===false&&state.documentFactoryUiAdded===false&&state.premiumDocumentAnalysisCtaAdded===false&&state.realBrowserVerification==='PENDING_RUNTIME_UI'&&state.deployedLiveVerification==='PENDING_RUNTIME_UI'&&state.exitGatePassed===false);
-check('real_cloud_state_split',state.realCloudVerification==='AUTHORITY_FOUNDATION_PASS_ZERO_RESIDUE_RUNTIME_PENDING');
+check('runtime_live_certified',state.runtimeLiveApplied===true&&state.renderAuthorityLiveApplied===true&&state.runtimeRealCloudVerified===true&&state.runtimeZeroResidueVerified===true&&state.officialGenerationRuntimeAdded===true);
+check('remaining_scope_not_fabricated',state.officialRenderedArtifactRuntimeAdded===false&&state.documentFactoryUiAdded===false&&state.premiumDocumentAnalysisCtaAdded===false&&state.realBrowserVerification==='PENDING_RENDERER_UI'&&state.deployedLiveVerification==='PENDING_RENDERER_UI'&&state.exitGatePassed===false);
+check('real_cloud_state_split',state.realCloudVerification==='RUNTIME_RENDER_AUTHORITY_PASS_ZERO_RESIDUE_ACTUAL_PDF_PENDING');
+const runtimeLive=state.runtimeLiveVerification||{};
+for(const key of ['authoritativeGeneration','generationReplay','generationDriftRejected','reviewReturnEditResubmitApprove','unverifiedOcrRejected','staleOcrRejected','currentVerifiedOcrAccepted','crossWorkspaceReadDenied','crossWorkspaceWriteDenied','browserDirectDraftMutationDenied','browserDirectPdfJobMutationDenied','serviceOnlyRenderCompletion','wrongRenderOutputRejected','wrongDocumentVersionRejected','renderProofFinalization','arbitraryVaultFinalizerAbsent','sourceMutationRejected'])check(`runtime_live:${key}`,runtimeLive[key]===true);
+for(const key of ['probeWorkspaceRemaining','probeDraftsRemaining','probePdfJobsRemaining','probeDocumentsRemaining','probeDocumentVersionsRemaining'])check(`runtime_zero_residue:${key}`,runtimeLive[key]===0);
+check('runtime_live_status',runtimeLive.status==='PASS_ZERO_RESIDUE');
 const m7=systems.systems?.find((s)=>s.id==='M7');
 check('m7_active',m7?.name==='Document Factory & Official Form Engine'&&m7?.status==='ACTIVE');
 check('kickoff_authority',has(kickoff,'template version')&&has(kickoff,'immutable')&&has(kickoff,'documents` + immutable `document_versions')&&has(kickoff,'Phase 10.4 is **LOCKED**'));
@@ -67,6 +73,9 @@ for(const marker of [
 check('render_completion_not_browser_executable',!/grant execute on function public\.complete_document_render_v1[^\n]+authenticated/i.test(renderAuthority));
 check('render_does_not_mutate_vault_source_rows',!/(?:update|delete\s+from)\s+public\.(documents|document_versions)\b/i.test(renderAuthority));
 
+for(const marker of ['isolated Real Cloud runtime/render authority probe v3','generate_document_draft_v1','generation drift accepted','unverified OCR accepted','stale OCR accepted','cross-workspace read accepted','complete_document_render_v1','finalize_document_draft_v1','browser/service authority boundary leaked','render request replay failed'])check(`runtime_probe:${marker}`,has(runtimeProbe,marker));
+check('runtime_probe_no_auth_user_mutation',!/(?:insert\s+into|update|delete\s+from)\s+auth\.users\b/i.test(runtimeProbe));
+
 for(const marker of ['validateFactoryTokenSchema','validateDocumentFactoryGenerationInput','validateDocumentFactoryDraftContent','validateDocumentFactoryReview','validateDocumentFactoryFinalization','renderJobId','validateOfficialGenerationProvenance',"normalized.kind==='ocr'",'isOfficialDraftFinalizable'])check(`contract:${marker}`,has(contract,marker));
 for(const marker of ['rejects undeclared, malformed and unsupported authoritative tokens','governed runtime closes browser table writes and resolves facts server-side','render authority closes pdf_jobs browser mutation and requires service-only completion proof','finalization consumes exact succeeded render proof, not caller-selected Vault ids','official generation rejects unverified OCR','official generation rejects stale verified OCR'])check(`tests:${marker}`,has(tests,marker));
 for(const marker of ['scripts/phase10-3-document-factory-audit.mjs','tests/documentFactory.test.ts','tests/documentFactoryFinalizationGuard.test.ts','tests/documentIntelligence.test.ts','tests/documentVault.test.ts','npm run test:functional','npm run db:audit','npm run audit:secrets','npm run typecheck','npm run build','Re-enforce Phase 10.3 certified state'])check(`workflow:${marker}`,has(workflow,marker));
@@ -75,4 +84,4 @@ if(failures.length){
   console.error(`ENJAZ PHASE 10.3 AUTHORITY AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);
   process.exit(1);
 }
-console.log('ENJAZ PHASE 10.3 AUTHORITY AUDIT PASS — live authority foundation is certified; governed generation/review/render-proof runtime is present in source but deliberately not claimed live or complete. Phase 10.4 remains locked.');
+console.log('ENJAZ PHASE 10.3 AUTHORITY AUDIT PASS — authority plus governed generation/review/render-proof runtime are live-certified with zero probe residue; actual Arabic PDF renderer, UI/browser and deployed verification remain required. Phase 10.4 remains locked.');
