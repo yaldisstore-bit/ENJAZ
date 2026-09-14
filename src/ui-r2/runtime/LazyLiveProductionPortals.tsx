@@ -8,6 +8,7 @@ const FinancePortal = lazy(() => import('../finance/LiveFinanceProductionPortal.
 const KnowledgePortal = lazy(() => import('../regulatory/LiveRegulatoryKnowledgePortal.tsx').then((module) => ({ default: module.LiveRegulatoryKnowledgePortal })));
 const InsightsPortal = lazy(() => import('../intelligence/LiveBusinessIntelligencePortal.tsx').then((module) => ({ default: module.LiveBusinessIntelligencePortal })));
 const DocumentsPortal = lazy(() => import('../documents/LiveDocumentVaultPortal.tsx').then((module) => ({ default: module.LiveDocumentVaultPortal })));
+const EngagementContractsPortal = lazy(() => import('../documents/LiveEngagementContractsPortal.tsx').then((module) => ({ default: module.LiveEngagementContractsPortal })));
 const SHELL = '.r2-shell[data-r2-runtime-mode="live"][data-destination]';
 
 type LazyDestination = 'companies' | 'people' | 'finance' | 'risk' | 'insights' | 'knowledge' | 'documents' | null;
@@ -49,7 +50,15 @@ export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorks
       : destination === 'insights' ? <InsightsPortal />
       : destination === 'knowledge' ? <KnowledgePortal gateway={regulatoryKnowledge} workspace={regulatoryWorkspace} />
       : destination === 'documents'
-        ? <DocumentsPortal factory={documentVaultFactory} intelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} engagementContractFactory={engagementContractFactory} workspace={documentWorkspace}/>
+        ? <>
+          {documentIntelligenceFactory || documentFactoryFactory
+            ? <DocumentsPortal factory={documentVaultFactory} intelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} workspace={documentWorkspace}/>
+            : <DocumentsPortal factory={documentVaultFactory} workspace={documentWorkspace}/>
+          }
+          {engagementContractFactory && documentFactoryFactory
+            ? <EngagementContractsPortal engagementContractFactory={engagementContractFactory} documentFactoryFactory={documentFactoryFactory} workspace={documentWorkspace}/>
+            : null}
+        </>
         : null}
   </Suspense>;
 }
