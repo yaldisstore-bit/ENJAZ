@@ -41,6 +41,8 @@ jobs:
         run: node scripts/phase10-3-document-factory-audit.mjs
       - name: Document Factory destruction tests
         run: node --experimental-strip-types --test tests/documentFactory.test.ts
+      - name: Expanded template / layout / QR / submission pack destruction tests
+        run: node --experimental-strip-types --test tests/documentFactoryExpansion.test.ts
       - name: Document Factory finalization authority guard
         run: node --experimental-strip-types --test tests/documentFactoryFinalizationGuard.test.ts
       - name: Preserve Document Intelligence destruction tests
