@@ -40,7 +40,7 @@ jobs:
           node --experimental-strip-types --test tests/financeReports.test.ts
       - name: Preserve Document Factory authority
         run: node --experimental-strip-types --test tests/documentFactory.test.ts
-      - name: TypeScript integration
+      - name: TypeScript runtime integration
         run: npm run typecheck
       - name: Production build and frozen budget
         run: npm run build -- --base=/ && npm run audit:dist:budget
