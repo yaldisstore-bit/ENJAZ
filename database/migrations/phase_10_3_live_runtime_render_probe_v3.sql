@@ -25,7 +25,6 @@ insert into public.companies(id,workspace_id,legal_name,display_name,capital,add
 ('10330000-0000-4000-8000-000000000030',current_setting('p103r3.owner_ws')::uuid,'شركة إنجاز التجريبية','إنجاز التجريبية',100000000,'بغداد','P103R3-001','محدودة المسؤولية'),
 ('10330000-0000-4000-8000-000000000031',current_setting('p103r3.owner_ws')::uuid,'شركة أخرى','شركة أخرى',2000000,'بغداد','P103R3-002','محدودة المسؤولية');
 
--- OCR authority fixture: v2 current; 90 unverified, 91 verified but stale on v1, 92 verified/current on v2.
 insert into public.documents(id,workspace_id,title,document_type,mime_type,storage_path,size_bytes,status,company_id) values
 ('10330000-0000-4000-8000-000000000080',current_setting('p103r3.owner_ws')::uuid,'OCR source','source','application/pdf','__p103r3__/ocr.pdf',100,'ready','10330000-0000-4000-8000-000000000030');
 insert into public.document_versions(id,workspace_id,document_id,version_number,storage_path,mime_type,size_bytes,checksum) values
@@ -40,19 +39,10 @@ select set_config('request.jwt.claims',jsonb_build_object('role','authenticated'
 select set_config('request.jwt.claim.sub',current_setting('p103r3.owner_user'),true);
 set local role authenticated;
 select private.enjaz_p103r3_assert(auth.uid()=current_setting('p103r3.owner_user')::uuid,'owner auth.uid mismatch');
-select private.enjaz_p103r3_assert(
-  not has_table_privilege('public.document_templates','INSERT')
-  and not has_table_privilege('public.document_drafts','INSERT')
-  and not has_table_privilege('public.pdf_jobs','INSERT')
-  and not has_function_privilege('public.complete_document_render_v1(uuid,text,uuid,uuid)','EXECUTE'),
-  'browser/service authority boundary leaked'
-);
+select private.enjaz_p103r3_assert(not has_table_privilege('public.document_templates','INSERT') and not has_table_privilege('public.document_drafts','INSERT') and not has_table_privilege('public.document_drafts','UPDATE') and not has_table_privilege('public.pdf_jobs','INSERT') and not has_function_privilege('public.complete_document_render_v1(uuid,text,uuid,uuid)','EXECUTE'),'browser/service authority boundary leaked');
 
 do $$ begin
-  begin
-    perform public.save_document_template_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000010','Bad','official-letter','{{missing}}','{}'::jsonb,true);
-    raise exception 'undeclared token accepted';
-  exception when invalid_parameter_value then if sqlerrm<>'ENJAZ_DOCUMENT_FACTORY_UNDECLARED_TOKEN' then raise; end if; end;
+  begin perform public.save_document_template_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000010','Bad','official-letter','{{missing}}','{}'::jsonb,true); raise exception 'undeclared token accepted'; exception when invalid_parameter_value then if sqlerrm<>'ENJAZ_DOCUMENT_FACTORY_UNDECLARED_TOKEN' then raise; end if; end;
 end $$;
 
 select public.save_document_template_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000010','Company letter','official-letter','الشركة / {{company_name}}',jsonb_build_object('company_name',jsonb_build_object('source','company','field','legal_name','required',true)),true);
@@ -65,12 +55,8 @@ select set_config('p103r3.main_draft',(public.generate_document_draft_v1(current
 select private.enjaz_p103r3_assert((public.generate_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000040','10330000-0000-4000-8000-000000000020','كتاب شركة إنجاز','10330000-0000-4000-8000-000000000030',null,null,null)->>'wasDuplicate')::boolean,'generation replay failed');
 select private.enjaz_p103r3_assert(exists(select 1 from public.document_drafts where id=current_setting('p103r3.main_draft')::uuid and status='review_required' and compiled_content like '%شركة إنجاز التجريبية%'),'server-resolved company fact not compiled');
 select private.enjaz_p103r3_assert((select count(*)=1 from public.documents where workspace_id=current_setting('p103r3.owner_ws')::uuid),'logical generation mutated Vault before render');
-
 do $$ begin
-  begin
-    perform public.generate_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000040','10330000-0000-4000-8000-000000000020','DRIFT','10330000-0000-4000-8000-000000000030',null,null,null);
-    raise exception 'generation drift accepted';
-  exception when serialization_failure then if sqlerrm<>'ENJAZ_DOCUMENT_FACTORY_GENERATION_REQUEST_DRIFT' then raise; end if; end;
+  begin perform public.generate_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000040','10330000-0000-4000-8000-000000000020','DRIFT','10330000-0000-4000-8000-000000000030',null,null,null); raise exception 'generation drift accepted'; exception when serialization_failure then if sqlerrm<>'ENJAZ_DOCUMENT_FACTORY_GENERATION_REQUEST_DRIFT' then raise; end if; end;
 end $$;
 select public.review_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,current_setting('p103r3.main_draft')::uuid,'return','تصحيح');
 select public.update_document_draft_content_v1(current_setting('p103r3.owner_ws')::uuid,current_setting('p103r3.main_draft')::uuid,'الشركة / شركة إنجاز التجريبية - مصحح');
@@ -79,26 +65,18 @@ select public.review_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,
 select set_config('p103r3.render_job',(public.request_document_render_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000050',current_setting('p103r3.main_draft')::uuid)->>'jobId'),true);
 select private.enjaz_p103r3_assert((public.request_document_render_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000050',current_setting('p103r3.main_draft')::uuid)->>'wasDuplicate')::boolean,'render request replay failed');
 
--- OCR fail-closed/current path.
 select public.save_document_template_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000010','OCR letter','official-letter','الرقم / {{ocr_number}}',jsonb_build_object('ocr_number',jsonb_build_object('source','ocr','field','number','required',true)),true);
 select public.create_document_template_version_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000021','10330000-0000-4000-8000-000000000010','الرقم / {{ocr_number}}',jsonb_build_object('ocr_number',jsonb_build_object('source','ocr','field','number','required',true)));
 select public.publish_document_template_version_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000021');
 do $$ begin
-  begin
-    perform public.generate_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000043','10330000-0000-4000-8000-000000000021','OCR unverified',null,null,null,'10330000-0000-4000-8000-000000000090');
-    raise exception 'unverified OCR accepted';
-  exception when check_violation then if sqlerrm<>'ENJAZ_DOCUMENT_FACTORY_OCR_NOT_VERIFIED' then raise; end if; end;
-  begin
-    perform public.generate_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000044','10330000-0000-4000-8000-000000000021','OCR stale',null,null,null,'10330000-0000-4000-8000-000000000091');
-    raise exception 'stale OCR accepted';
-  exception when serialization_failure then if sqlerrm<>'ENJAZ_DOCUMENT_FACTORY_OCR_STALE' then raise; end if; end;
+  begin perform public.generate_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000043','10330000-0000-4000-8000-000000000021','OCR unverified',null,null,null,'10330000-0000-4000-8000-000000000090'); raise exception 'unverified OCR accepted'; exception when check_violation then if sqlerrm<>'ENJAZ_DOCUMENT_FACTORY_OCR_NOT_VERIFIED' then raise; end if; end;
+  begin perform public.generate_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000044','10330000-0000-4000-8000-000000000021','OCR stale',null,null,null,'10330000-0000-4000-8000-000000000091'); raise exception 'stale OCR accepted'; exception when serialization_failure then if sqlerrm<>'ENJAZ_DOCUMENT_FACTORY_OCR_STALE' then raise; end if; end;
 end $$;
 select set_config('p103r3.ocr_draft',(public.generate_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000045','10330000-0000-4000-8000-000000000021','OCR current',null,null,null,'10330000-0000-4000-8000-000000000092')->>'draftId'),true);
 select private.enjaz_p103r3_assert(exists(select 1 from public.document_drafts where id=current_setting('p103r3.ocr_draft')::uuid and compiled_content like '%2026/55%'),'current verified OCR not compiled');
 select public.review_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,current_setting('p103r3.ocr_draft')::uuid,'approve','OCR approved');
 select set_config('p103r3.failed_job',(public.request_document_render_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000051',current_setting('p103r3.ocr_draft')::uuid)->>'jobId'),true);
 
--- Unknown authenticated subject is not a member of the disposable workspace.
 reset role;
 select set_config('request.jwt.claims',jsonb_build_object('role','authenticated','sub',current_setting('p103r3.outsider_user'))::text,true);
 select set_config('request.jwt.claim.sub',current_setting('p103r3.outsider_user'),true);
@@ -108,7 +86,6 @@ do $$ begin
   begin perform public.save_document_template_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000012','Outsider','official-letter','x','{}'::jsonb,true); raise exception 'outsider save accepted'; exception when insufficient_privilege then if sqlerrm<>'ENJAZ_DOCUMENT_FACTORY_WORKSPACE_FORBIDDEN' then raise; end if; end;
 end $$;
 
--- Service-only render lifecycle.
 reset role;
 select set_config('request.jwt.claims',jsonb_build_object('role','service_role')::text,true);
 select set_config('request.jwt.claim.sub','',true);
@@ -136,7 +113,6 @@ end $$;
 select public.complete_document_render_v1(current_setting('p103r3.render_job')::uuid,'p103r3-service-1','10330000-0000-4000-8000-000000000062','10330000-0000-4000-8000-000000000073');
 select private.enjaz_p103r3_assert((public.complete_document_render_v1(current_setting('p103r3.render_job')::uuid,'p103r3-service-1','10330000-0000-4000-8000-000000000062','10330000-0000-4000-8000-000000000073')->>'wasDuplicate')::boolean,'completion replay failed');
 
--- Owner finalization must reject arbitrary/failed proof. Exact proof succeeds inside a subtransaction that is deliberately rolled back after assertions.
 reset role;
 select set_config('request.jwt.claims',jsonb_build_object('role','authenticated','sub',current_setting('p103r3.owner_user'))::text,true);
 select set_config('request.jwt.claim.sub',current_setting('p103r3.owner_user'),true);
@@ -150,15 +126,11 @@ do $$ declare r jsonb; begin
     r:=public.finalize_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,current_setting('p103r3.main_draft')::uuid,current_setting('p103r3.render_job')::uuid);
     if r->>'status'<>'final' or r->>'documentId'<>'10330000-0000-4000-8000-000000000062' or r->>'documentVersionId'<>'10330000-0000-4000-8000-000000000073' then raise exception 'finalization binding incorrect'; end if;
     if not exists(select 1 from public.document_drafts where id=current_setting('p103r3.main_draft')::uuid and status='final') then raise exception 'draft not final after exact proof'; end if;
-    begin update public.document_drafts set title='illegal mutation' where id=current_setting('p103r3.main_draft')::uuid; raise exception 'final draft mutable'; exception when check_violation then if sqlerrm<>'ENJAZ_DOCUMENT_FACTORY_FINAL_ARTIFACT_IMMUTABLE' then raise; end if; end;
     raise exception 'ENJAZ_P103R3_ROLLBACK_FINALIZE';
-  exception when raise_exception then
-    if sqlerrm<>'ENJAZ_P103R3_ROLLBACK_FINALIZE' then raise; end if;
-  end;
+  exception when raise_exception then if sqlerrm<>'ENJAZ_P103R3_ROLLBACK_FINALIZE' then raise; end if; end;
 end $$;
 select private.enjaz_p103r3_assert(exists(select 1 from public.document_drafts where id=current_setting('p103r3.main_draft')::uuid and status='approved' and final_document_id is null),'finalization subtransaction did not roll back cleanly');
 
--- Invalidate a company source after generation; approval must fail closed even without relying on transaction-stable now().
 select set_config('p103r3.stale_draft',(public.generate_document_draft_v1(current_setting('p103r3.owner_ws')::uuid,'10330000-0000-4000-8000-000000000041','10330000-0000-4000-8000-000000000020','Stale source draft','10330000-0000-4000-8000-000000000030',null,null,null)->>'draftId'),true);
 reset role;
 select set_config('request.jwt.claims','{}',true);
@@ -172,7 +144,6 @@ do $$ begin
 end $$;
 select private.enjaz_p103r3_assert((select count(*) from public.audit_events where workspace_id=current_setting('p103r3.owner_ws')::uuid and action in ('document.template.created','document.template.updated','document.template.version.created','document.template.version.published','document.factory.generated','document.factory.returned','document.factory.draft.edited','document.factory.review.requested','document.factory.approved','document.factory.render.requested','document.factory.render.succeeded','document.factory.render.failed'))>=11,'audit evidence incomplete');
 
--- Zero-residue cleanup. Published versions are immutable by design, so disable only that DELETE trigger during controlled probe cleanup and restore it before certification.
 reset role;
 select set_config('request.jwt.claims','{}',true);
 select set_config('request.jwt.claim.sub','',true);
@@ -190,19 +161,7 @@ delete from public.companies where workspace_id=current_setting('p103r3.owner_ws
 delete from public.workspace_memberships where workspace_id=current_setting('p103r3.owner_ws')::uuid;
 delete from public.workspaces where id=current_setting('p103r3.owner_ws')::uuid;
 
-select private.enjaz_p103r3_assert(
-  not exists(select 1 from public.workspaces where id='10330000-0000-4000-8000-000000000001'::uuid)
-  and not exists(select 1 from public.document_templates where workspace_id='10330000-0000-4000-8000-000000000001'::uuid)
-  and not exists(select 1 from public.document_drafts where workspace_id='10330000-0000-4000-8000-000000000001'::uuid)
-  and not exists(select 1 from public.documents where storage_path like '__p103r3__/%')
-  and not exists(select 1 from public.pdf_jobs where workspace_id='10330000-0000-4000-8000-000000000001'::uuid),
-  'probe residue remains'
-);
-select private.enjaz_p103r3_assert(
-  exists(select 1 from pg_trigger g join pg_class t on t.oid=g.tgrelid join pg_namespace n on n.oid=t.relnamespace where n.nspname='public' and t.relname='document_template_versions' and g.tgname='document_template_versions_immutable_v1' and g.tgenabled<>'D')
-  and to_regprocedure('public.finalize_document_draft_v1(uuid,uuid,uuid,uuid)') is null
-  and to_regprocedure('public.finalize_document_draft_v1(uuid,uuid,uuid)') is not null,
-  'authority restoration/signature drift'
-);
+select private.enjaz_p103r3_assert(not exists(select 1 from public.workspaces where id='10330000-0000-4000-8000-000000000001'::uuid) and not exists(select 1 from public.document_templates where workspace_id='10330000-0000-4000-8000-000000000001'::uuid) and not exists(select 1 from public.document_drafts where workspace_id='10330000-0000-4000-8000-000000000001'::uuid) and not exists(select 1 from public.documents where storage_path like '__p103r3__/%') and not exists(select 1 from public.pdf_jobs where workspace_id='10330000-0000-4000-8000-000000000001'::uuid),'probe residue remains');
+select private.enjaz_p103r3_assert(exists(select 1 from pg_trigger g join pg_class t on t.oid=g.tgrelid join pg_namespace n on n.oid=t.relnamespace where n.nspname='public' and t.relname='document_template_versions' and g.tgname='document_template_versions_immutable_v1' and g.tgenabled<>'D') and to_regprocedure('public.finalize_document_draft_v1(uuid,uuid,uuid,uuid)') is null and to_regprocedure('public.finalize_document_draft_v1(uuid,uuid,uuid)') is not null,'authority restoration/signature drift');
 drop function private.enjaz_p103r3_assert(boolean,text);
 commit;
