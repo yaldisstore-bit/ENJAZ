@@ -42,6 +42,7 @@ export interface EnjazWorkspaceDataLayer {
 export interface EnjazDataLayerFactory {
   resolveWorkspaceId(userId: string): Promise<string | null>;
   forWorkspace(workspaceId: string): EnjazWorkspaceDataLayer;
+  edge?(functionName: string, init?: RequestInit): Promise<Response>;
 }
 
 export function createEnjazDataLayerFactory(client: EnjazSupabaseClient): EnjazDataLayerFactory {
@@ -83,6 +84,9 @@ export function createEnjazDataLayerFactory(client: EnjazSupabaseClient): EnjazD
         auditEvents: createReadRepository(gateway, scope, 'audit_events'),
         importJobs: createReadRepository(gateway, scope, 'import_jobs'),
       });
+    },
+    edge(functionName: string, init?: RequestInit) {
+      return client.edge(functionName, init);
     },
   });
 }
