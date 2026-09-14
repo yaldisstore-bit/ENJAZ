@@ -1,46 +1,38 @@
-# Phase 10.5 — Engagement/Contract Document Layer — M16 — Kickoff
+# Phase 10.5 — Engagement/Contract Document Layer — M16
 
-**Status:** IN PROGRESS  
-**Base:** `7ebdc755fff42c497796b7f3d59c966cc3855393`  
-**Predecessor:** Phase 10.4 — CLOSED / exact-main + Real Browser + Real Cloud + Pages + Live External certified  
-**Successor:** Phase 10.6 — LOCKED until Phase 10.5 closure
+Status: **IN_PROGRESS**  
+Predecessor: **Phase 10.4 — CLOSED + exact-main / Real Browser / Real Cloud / Pages / Live External certified**  
+Successor: **Phase 10.6 — LOCKED**
 
-## Objective
+## Authority contract
 
-Build the Phase-10 document anchor of **M16 — Engagements, Contracts & Retainers** without creating a second commercial, financial or document source of truth.
+Phase 10.5 extends M16 without creating parallel authorities:
 
-Phase 7 already owns the finance/commercial anchor through `commercial_engagements`, `commercial_engagement_transactions`, authoritative payments/reversals and finance reconciliation. Phase 10.3 owns governed template/version generation and immutable issued artifacts. Phase 10.5 must connect those authorities into a governed contract-document lifecycle.
+- Commercial engagement authority remains `commercial_engagements`.
+- Transaction links remain `commercial_engagement_transactions`.
+- Money authority remains Phase 7 Finance (`payments`, `payment_reversals`, `financial_ledger_entries`, `cashbox_accounts`).
+- Issued document authority remains `documents` + immutable `document_versions`.
+- Document generation authority remains Document Factory (`document_templates`, `document_drafts`, `pdf_jobs`).
+- Contract revision authority is `engagement_contract_revisions`, which references those canonical authorities rather than replacing them.
 
-## In scope
+M16 is **not globally CLOSED** in this phase. Phase 7 anchors Finance, Phase 10 anchors contract/document authority, and Phase 11 still owns the communication/renewal anchor.
 
-- Engagement/contract/retainer document records bound to an existing authoritative `commercial_engagements` row.
-- Contract revisions/amendments with explicit version lineage; no destructive overwrite of a signed/effective revision.
-- Lifecycle state with explicit review/approval/signature/effective/expiry/termination semantics.
-- Effective/start/end/renewal/notice dates with fail-closed date validation.
-- Links to authoritative company, service/transaction context and finance engagement identity.
-- Document Factory integration for deterministic contract generation.
-- Vault binding through immutable `documents` + `document_versions` artifacts.
-- Signature-ready and signed-artifact provenance; caller-selected arbitrary Vault files cannot be promoted silently.
-- Arabic/RTL/mobile-first contract review surfaces in later implementation stages.
-- Real Cloud authenticated authority tests, Real Browser/mobile acceptance, exact-main, Pages and Live External certification before closure.
+## Delivered in the current branch
 
-## Authority rules
+- TypeScript contract lifecycle and destruction tests.
+- Database authority migration with composite workspace-scoped foreign keys.
+- RLS SELECT boundary and RPC-only authoritative mutations.
+- Governed revision lineage, dates, signature provenance, immutable signed artifact binding and engagement lifecycle projection.
+- Signature rollback hardening and finalized Document Factory draft import support.
+- Authenticated Real Cloud destruction probe on the connected Supabase project, including owner access, outsider denial, idempotency, signature/effective lifecycle and zero residue.
+- Runtime `EngagementContractGateway` using the exact Supabase RPC/RLS authority.
+- Phase 10.5 CI audit expanded to fail closed if any of these authority pieces disappear.
 
-1. `commercial_engagements` remains the commercial engagement identity; Phase 10.5 does not create a shadow engagement table.
-2. Payments, reversals, balances and retainer consumption remain Finance authority; contract documents cannot become a money ledger.
-3. `documents` + immutable `document_versions` remain issued binary/document authority.
-4. Document Factory template versions and render proofs remain the only governed route for generated official contract artifacts.
-5. Signed/effective revisions are append/versioned and never overwritten in place.
-6. Effective status cannot exist without a signed/approved immutable document version and valid date range.
-7. Cross-workspace references, stale artifact versions and browser-direct authoritative mutation fail closed.
-8. M16 is **not globally CLOSED** in Phase 10.5: its governing anchors are Phase 7 + Phase 10 + Phase 11. Phase 11 remains open.
+## Remaining before closure
 
-## Initial implementation stage
+- Wire the runtime gateway into the production resource graph and contract UI.
+- Build review/signature/effective-date UX with Arabic/RTL/mobile-first behavior.
+- Real Browser certification and mobile destruction tests.
+- Exact-main, Pages, Live External and formal closure evidence.
 
-`AUTHORITY_CONTRACT_AND_DESTRUCTION_TESTS`
-
-The first stage establishes the TypeScript authority contract, lifecycle/date/version invariants, stable contract identity, destruction tests, phase audit/gate and M16 registry transition from `PLANNED` to `ACTIVE`. Database authority extension and live authenticated probes follow only after this foundation is green.
-
-## Exit gate
-
-Phase 10.5 may close only when Product / UI/UX / Engineering / Certification are all PASS, zero Critical/High/functional blockers remain, authenticated Real Cloud and Real Browser evidence pass, the exact merged SHA is deployed/certified, and Phase 10.6 is explicitly authorized. Global M16 closure remains forbidden until its Phase-11 anchor and independent Zero-Escape requirements are satisfied.
+Phase 10.6 remains locked until every Phase 10.5 exit gate is certified.
