@@ -106,9 +106,9 @@ try{
  const cashboxId=cashbox?.cashboxId;
  assert(typeof cashboxId==='string','governed_finance_cashbox_created',cashboxId??'missing');
  for(let i=0;i<32;i++){
-  await rpc('post_payment_v1',{p_workspace_id:workspaceId,p_transaction_id:transactionId,p_amount:'1000.00',p_method:'cash',p_paid_at:`2026-09-${String((i%20)+1).padStart(2,'0')}T${String(8+(i%10)).padStart(2,'0')}:00:00.000Z`,p_note:`Phase 10.4 cloud PDF pagination fixture ${i+1}`,p_idempotency_key:uuid(),p_cashbox_id:cashboxId,p_engagement_id:null});
+  await rpc('post_payment_v1',{p_workspace_id:workspaceId,p_transaction_id:transactionId,p_amount:'1000.00',p_method:'cash',p_paid_at:`2026-09-${String((i%13)+1).padStart(2,'0')}T${String(8+(i%10)).padStart(2,'0')}:00:00.000Z`,p_note:`Phase 10.4 cloud PDF pagination fixture ${i+1}`,p_idempotency_key:uuid(),p_cashbox_id:cashboxId,p_engagement_id:null});
  }
- record('governed_financial_rows_created','32 payments through post_payment_v1 with governed cashbox');
+ record('governed_financial_rows_created','32 payments through post_payment_v1 with governed cashbox and historical timestamps');
  const query={kind:'period',from:'2026-09-01',to:'2026-09-30',companyId:null,transactionId:null,cashboxId:null};
  const source=await loadSource(),report=buildServerFinancialReport(source,query,'2026-09-30T23:59:59.999Z');
  assert(report.movements.length>=32,'server_report_has_multipage_pressure',`${report.movements.length} movements`);
