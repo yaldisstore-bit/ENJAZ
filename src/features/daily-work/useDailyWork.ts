@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { DataAccessError } from '../../data/contracts/DataAccessError.ts';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
+import { useNotificationCommandGateway } from '../notifications/NotificationCommandContext.tsx';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
 import type { DailyWorkItem, DailyWorkSnapshot } from './dailyWorkModel.ts';
 import {
@@ -36,6 +37,8 @@ function toDailyWorkErrorMessage(error: unknown): string {
   if (error instanceof DataAccessError) {
     if (error.dataCode === 'DATA_FORBIDDEN') return 'ليس لديك صلاحية للوصول إلى عناصر العمل الحالية.';
     if (error.dataCode === 'DATA_UNAVAILABLE') return 'تعذر الوصول إلى بيانات العمل الآن. تحقق من الاتصال ثم أعد المحاولة.';
+    if (error.dataCode === 'DATA_CONFLICT') return 'تغيرت حالة عنصر العمل قبل تنفيذ الأمر. حدّث القائمة ثم حاول مرة أخرى.';
+    if (error.dataCode === 'DATA_VALIDATION_FAILED') return 'تعذر تنفيذ الإجراء لأن حالة المتابعة الحالية لا تسمح به.';
   }
   return 'حدث خطأ غير متوقع أثناء تجهيز العمل اليومي. لم يتم عرض بيانات جزئية أو تخمينية.';
 }
@@ -43,6 +46,7 @@ function toDailyWorkErrorMessage(error: unknown): string {
 export function useDailyWork(): DailyWorkController {
   const userId = useCurrentUserId();
   const factory = useDataLayerFactory();
+  const notificationCommands = useNotificationCommandGateway();
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<DailyWorkLoadState>(LOADING_STATE);
   const [actionItemId, setActionItemId] = useState<string | null>(null);
@@ -92,7 +96,7 @@ export function useDailyWork(): DailyWorkController {
         setActionError('انتهت جلسة المستخدم. سجّل الدخول مرة أخرى.');
         return;
       }
-      await runAction(item, () => completeDailyWorkItem(factory, userId, item));
+      await runAction(item, () => completeDailyWorkItem(factory, notificationCommands, userId, item));
     },
     async snooze(item: DailyWorkItem, hours = 2) {
       if (!userId) {
@@ -100,7 +104,7 @@ export function useDailyWork(): DailyWorkController {
         return;
       }
       const until = new Date(Date.now() + Math.max(1, hours) * 3_600_000);
-      await runAction(item, () => snoozeDailyWorkFollowup(factory, userId, item, until));
+      await runAction(item, () => snoozeDailyWorkFollowup(factory, notificationCommands, userId, item, until));
     },
   };
 }
