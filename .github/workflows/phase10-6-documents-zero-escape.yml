@@ -1,0 +1,73 @@
+name: ENJAZ Phase 10.6 — Documents Zero-Escape Gate
+
+on:
+  push:
+    branches:
+      - 'phase10-6-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase106-documents-zero-escape-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  documents-zero-escape:
+    name: Binary safety / retry / OCR / reports / authority destruction
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 10.6 governed Zero-Escape audit
+        run: node scripts/phase10-6-documents-zero-escape-audit.mjs
+      - name: Phase 10.6 destruction tests
+        run: node --experimental-strip-types --test tests/documentZeroEscape.test.ts
+      - name: Preserve Document Vault authority
+        run: |
+          node scripts/phase10-1-document-vault-audit.mjs
+          node --experimental-strip-types --test tests/documentVault.test.ts
+      - name: Preserve Document Intelligence / OCR authority
+        run: |
+          node scripts/phase10-2-document-intelligence-audit.mjs
+          node --experimental-strip-types --test tests/documentIntelligence.test.ts
+      - name: Preserve Document Factory authority
+        run: |
+          node scripts/phase10-3-document-factory-audit.mjs
+          node --experimental-strip-types --test tests/documentFactory.test.ts
+      - name: Preserve Reports / PDF deterministic safety
+        run: |
+          node scripts/phase10-4-reports-pdf-audit.mjs
+          node --experimental-strip-types --test tests/reportPdfContract.test.ts
+          node --experimental-strip-types --test tests/financialReportPdf.test.ts
+          node --experimental-strip-types --test tests/financialReportServerParity.test.ts
+          node --experimental-strip-types --test tests/financialReportRenderGateway.test.ts
+      - name: Preserve Engagement Contract document authority
+        run: |
+          node scripts/phase10-5-engagement-contracts-audit.mjs
+          node --experimental-strip-types --test tests/engagementContract.test.ts
+      - name: Secrets and database integrity
+        run: |
+          npm run audit:secrets
+          npm run db:audit
+          npm run db:audit:selftest
+      - name: TypeScript runtime integration
+        run: npm run typecheck
+      - name: Production build and frozen budgets
+        run: npm run build -- --base=/ && npm run audit:dist:budget
+      - name: Dependency high-severity audit
+        run: npm audit --audit-level=high
