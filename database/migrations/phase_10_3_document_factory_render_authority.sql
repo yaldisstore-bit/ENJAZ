@@ -220,9 +220,8 @@ begin
   return jsonb_build_object('schema','enjaz.document-render-job.v1','jobId',v.id,'status','failed','wasDuplicate',false);
 end;$$;
 
--- Remove the provisional arbitrary-output finalizer from the runtime foundation.
-revoke all on function public.finalize_document_draft_v1(uuid,uuid,uuid,uuid) from public,anon,authenticated,service_role;
-drop function public.finalize_document_draft_v1(uuid,uuid,uuid,uuid);
+-- The provisional four-argument finalizer must not exist; the governed runtime no longer creates it.
+drop function if exists public.finalize_document_draft_v1(uuid,uuid,uuid,uuid);
 
 create or replace function public.finalize_document_draft_v1(
   p_workspace_id uuid,p_draft_id uuid,p_render_job_id uuid
