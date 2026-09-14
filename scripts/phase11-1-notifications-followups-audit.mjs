@@ -15,6 +15,12 @@ const followupProbe = read('database/migrations/phase_11_1_live_authenticated_fo
 const contract = read('src/features/notifications/notificationFollowupContract.ts');
 const runtime = read('src/features/notifications/notificationCommands.ts');
 const dailyWork = read('src/features/daily-work/dailyWorkService.ts');
+const ui = read('src/ui-r2/notifications/LiveNotificationExperience.tsx');
+const portal = read('src/ui-r2/notifications/LiveNotificationsProductionPortal.tsx');
+const browserHarness = read('src/ui-r2/phase11-1-notifications-browser-main.tsx');
+const browserSpec = read('tests-external/phase11-1-notifications-live.spec.cjs');
+const browserWorkflow = read('.github/workflows/phase11-1-notifications-browser.yml');
+const cumulativeBrowser = read('tests-external/r2-production-bridge.spec.cjs');
 const tests = read('tests/notificationFollowupContract.test.ts');
 const runtimeTests = read('tests/notificationCommands.test.ts');
 const dailyWorkTests = read('tests/dailyWorkService.test.ts');
@@ -44,6 +50,7 @@ check('authority_gap_recorded', state.databaseAuthorityExtensionRequired === tru
 check('foundation_tracking', state.authorityDiscoveryCompleted === true && state.lifecycleContractAdded === true && state.destructionTestsAdded === true && state.phaseGateAdded === true);
 check('runtime_tracking', state.runtimeGatewayAdded === true && state.runtimeTestsAdded === true && state.runtimeFollowupLifecycleUsesRpc === true && state.runtimeNotificationSourceUpsertExposedToBrowser === false);
 check('followup_tracking', state.followupLifecycleAuthorityMigration === 'phase_11_1_followup_lifecycle_authority' && state.followupLifecycleProbeMigration === 'phase_11_1_live_authenticated_followup_probe' && state.followupDirectLifecycleMutationAllowed === false && state.followupTerminalResurrectionAllowed === false);
+check('ui_tracking', state.uiIntegrationAdded === true && state.realBrowserVerification === 'PENDING');
 
 for (const marker of [
   'create table public.notification_preferences',
@@ -119,6 +126,29 @@ check('runtime_tests_present', has(runtimeTests, 'follow-up lifecycle mutation i
 check('daily_work_tests_present', has(dailyWorkTests, 'governed RPC gateway') && has(dailyWorkTests, 'governed follow-up RPC'));
 
 for (const marker of [
+  'data-phase11-1-notifications="live"',
+  'data-notification-authority="in_app_notifications"',
+  'gateway.mutateNotification',
+  "'mark_read'",
+  "'mark_unread'",
+  "'snooze'",
+  "'cancel'",
+  'NOTIFICATION_STYLES',
+]) check(`ui:${marker}`, has(ui, marker));
+check('notification_css_budget_preserved', !has(ui, "import './notifications.css'") && !fs.existsSync('src/ui-r2/notifications/notifications.css'));
+check('portal_destination', has(portal, "useLiveRecordsPortal('today.notifications'") && has(portal, '<LiveNotificationExperience />'));
+check('browser_harness_governed_mutations', has(browserHarness, '__ENJAZ_PHASE111_BROWSER__') && has(browserHarness, 'NotificationCommandProvider') && has(browserHarness, 'applyMutation'));
+for (const marker of [
+  'notification center renders authoritative state and governed actions',
+  "55555555-5555-4555-8555-555555555555:mark_read",
+  "66666666-6666-4666-8666-666666666666:snooze",
+  "55555555-5555-4555-8555-555555555555:cancel",
+  'RTL and overflow-safe at 320px',
+]) check(`browserSpec:${marker}`, has(browserSpec, marker));
+check('browser_workflow_wired', has(browserWorkflow, 'phase11-1-notifications-live.spec.cjs') && has(browserWorkflow, 'audit:dist:budget') && has(browserWorkflow, 'playwright install --with-deps chromium'));
+check('cumulative_browser_promoted', has(cumulativeBrowser, 'data-phase11-1-notifications="live"') && has(cumulativeBrowser, 'لا توجد إشعارات مستحقة الآن') && !has(cumulativeBrowser, "not.toContainText(/غير مقروء|unread|تم إرسال الإشعار/)"));
+
+for (const marker of [
   'reuses existing notification/follow-up authorities',
   'stable across source revisions',
   'stale source revision cannot replace',
@@ -144,4 +174,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('ENJAZ PHASE 11.1 NOTIFICATIONS/FOLLOW-UPS AUDIT PASS — notification and follow-up authorities are separated from delivery history, browser lifecycle writes are governed, runtime uses RPC boundaries, Real Cloud notification authority remains certified, and Phase 11.2 remains locked.');
+console.log('ENJAZ PHASE 11.1 NOTIFICATIONS/FOLLOW-UPS AUDIT PASS — DB/RLS/RPC authority, runtime command boundaries, live notification UI, frozen-budget integration, cumulative production routing and real-browser certification harness are all guarded while Phase 11.2 remains locked.');
