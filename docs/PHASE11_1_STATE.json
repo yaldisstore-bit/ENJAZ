@@ -35,7 +35,7 @@
   "databaseAuthorityExtensionRequired": true,
   "databaseAuthorityExtensionReason": "notification_deliveries is transport history only and cannot safely represent read/unread/snooze/cancel in-app lifecycle without conflating delivery with user state",
   "databaseAuthorityExtensionApplied": false,
-  "phaseGateAdded": false,
+  "phaseGateAdded": true,
   "realCloudVerification": "PENDING",
   "realBrowserVerification": "PENDING",
   "exactMainVerification": "PENDING",
