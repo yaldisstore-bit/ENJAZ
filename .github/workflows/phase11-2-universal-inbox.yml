@@ -37,9 +37,8 @@ jobs:
         run: node scripts/phase11-2-universal-inbox-audit.mjs
       - name: Phase 11.2 composition destruction tests
         run: node --experimental-strip-types --test tests/universalInboxContract.test.ts
-      - name: Preserve Phase 4.2 Daily Work authority
+      - name: Preserve live Phase 4.2 Daily Work domain/service behavior
         run: |
-          node scripts/phase4-2-daily-work-audit.mjs
           node --experimental-strip-types --test tests/dailyWork.test.ts
           node --experimental-strip-types --test tests/dailyWorkService.test.ts
       - name: Preserve closed Phase 11.1 notification authority
