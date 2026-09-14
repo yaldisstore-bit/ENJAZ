@@ -58,7 +58,10 @@ for(const marker of ['REPORT_PDF_BLANK_PAGE','REPORT_PDF_OVERFLOW','REPORT_PDF_B
 for(const marker of ['rejects an executable masquerading as PDF','offline upload becomes deferred without consuming an attempt','unknown write outcome is reconciled only with the same operation identity','broken authoritative document metadata fails closed','failed OCR cannot jump to verified and stale verified OCR is unusable','long report deterministically splits across nonblank safe pages','oversized atomic report content fails closed instead of clipping','blank report pages remain forbidden']) check(`tests:${marker}`,has(tests,marker));
 
 check('kickoff_scope',has(kickoff,'missing storage objects')&&has(kickoff,'offline/network interruption')&&has(kickoff,'A green branch alone cannot close Phase 10.6'));
-check('roadmap_scope',has(roadmap,'## 10.6 — Documents Zero-Escape Gate')&&has(roadmap,'Missing/oversized/corrupt files')&&has(roadmap,'M7 and document portion of M16 require deployed-live evidence'));
+const roadmapEvidenceScope=closed
+  ? has(roadmap,'M7 and the Phase-10 document portion of M16 received deployed-live evidence')
+  : has(roadmap,'M7 and document portion of M16 require deployed-live evidence');
+check('roadmap_scope',has(roadmap,'## 10.6 — Documents Zero-Escape Gate')&&has(roadmap,'Missing/oversized/corrupt files')&&roadmapEvidenceScope);
 
 if(closed){
   check('closure_exit',state.exitGatePassed===true&&state.phase11_1Allowed===true&&state.successorStatus==='AUTHORIZED'&&state.nextPhase==='11.1');
