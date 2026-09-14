@@ -35,8 +35,10 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Phase 11.2 governed composition audit
         run: node scripts/phase11-2-universal-inbox-audit.mjs
-      - name: Phase 11.2 composition destruction tests
-        run: node --experimental-strip-types --test tests/universalInboxContract.test.ts
+      - name: Phase 11.2 composition and service destruction tests
+        run: |
+          node --experimental-strip-types --test tests/universalInboxContract.test.ts
+          node --experimental-strip-types --test tests/universalInboxService.test.ts
       - name: Preserve live Phase 4.2 Daily Work domain/service behavior
         run: |
           node --experimental-strip-types --test tests/dailyWork.test.ts
