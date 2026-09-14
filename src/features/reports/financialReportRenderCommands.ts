@@ -28,19 +28,16 @@ function requireUuid(value:string,label:string){if(!UUID.test(value.trim()))thro
 function safeFilename(value:string|null,fingerprint:string){const match=value?.match(/filename="?([^";]+)"?/i),candidate=match?.[1]?.trim();if(candidate&&/^[A-Za-z0-9._-]+\.pdf$/i.test(candidate))return candidate;return `enjaz-finance-${fingerprint}.pdf`}
 function parseErrorBody(value:unknown):Readonly<Record<string,unknown>>{return value&&typeof value==='object'&&!Array.isArray(value)?value as Readonly<Record<string,unknown>>:{}}
 
-export function createFinancialReportRenderGateway(client:EnjazSupabaseClient,url:string,key:string,timeoutMs=DEFAULT_TIMEOUT):FinancialReportRenderGateway{
- if(!url.startsWith('https://')||!key.startsWith('sb_publishable_')||!Number.isSafeInteger(timeoutMs)||timeoutMs<1||timeoutMs>120_000)throw new Error('Invalid financial report renderer configuration');
- const endpoint=`${url.replace(/\/$/,'')}/functions/v1/enjaz-financial-report-render`;
+export function createFinancialReportRenderGateway(client:EnjazSupabaseClient,timeoutMs=DEFAULT_TIMEOUT):FinancialReportRenderGateway{
+ if(!Number.isSafeInteger(timeoutMs)||timeoutMs<1||timeoutMs>120_000)throw new Error('Invalid financial report renderer timeout');
  return Object.freeze({
   async renderPdf(input:FinancialReportPdfRenderInput){
    const workspaceId=requireUuid(input.workspaceId,'workspace id');
    if(!FP.test(input.expectedFingerprint))throw new DataAccessError('Invalid report fingerprint','DATA_VALIDATION_FAILED');
    let timer:ReturnType<typeof setTimeout>|undefined;
    try{
-    const token=(await client.auth.getSession()).data.session?.access_token;
-    if(!token)throw new DataAccessError('Authentication required','DATA_FORBIDDEN');
     const controller=new AbortController();timer=setTimeout(()=>controller.abort(),timeoutMs);
-    const response=await fetch(endpoint,{method:'POST',headers:{apikey:key,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({workspaceId,query:input.query,expectedFingerprint:input.expectedFingerprint}),signal:controller.signal});
+    const response=await client.edge('enjaz-financial-report-render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({workspaceId,query:input.query,expectedFingerprint:input.expectedFingerprint}),signal:controller.signal});
     if(!response.ok){
      const body=parseErrorBody(await response.json().catch(()=>null));
      const code=typeof body.error==='string'?body.error:'';
