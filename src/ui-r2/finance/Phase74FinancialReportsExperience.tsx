@@ -4,6 +4,7 @@ import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx'
 import { buildFinancialReport, financialReportToCsv, serializeFinancialReport, type FinancialReportKind, type FinancialReportSnapshot } from '../../features/finance/financeReports.ts';
 import { formatFinanceMoney as money, type FinanceSource } from '../../features/finance/financeModel.ts';
 import { loadFinanceSource } from '../../features/finance/financeService.ts';
+import { buildFinancialReportPdfPlan, type FinancialReportPdfPlan } from '../../features/reports/financialReportPdf.ts';
 import './phase74.css';
 
 function localDateInput(date: Date): string {
@@ -31,7 +32,7 @@ function saveText(filename: string, body: string, type: string): void {
 
 function ReportTotals({ report }: { readonly report: FinancialReportSnapshot }) {
   const totals = report.totals;
-  return <section className="r2-f74-kpis" aria-label="إجماليات التقرير">
+  return <section className="r2-f74-kpis" aria-label="إجماليات التقرير" data-pdf-block="report-totals">
     <article><span>الأتعاب الحالية</span><b>{money(totals.currentFeesCents)}</b></article>
     <article><span>المحصّل بالفترة</span><b>{money(totals.collectedCents)}</b></article>
     <article><span>الرصيد المفتوح</span><b>{money(totals.outstandingAtSnapshotCents)}</b></article>
@@ -39,7 +40,15 @@ function ReportTotals({ report }: { readonly report: FinancialReportSnapshot }) 
   </section>;
 }
 
-export function FinancialReportsPanel({ source }: { readonly source: FinanceSource }) {
+function PdfPreflight({ plan }: { readonly plan: FinancialReportPdfPlan }) {
+  return <section className="r2-f74-pdf-preflight" data-no-print="true" data-phase10-4-pdf-preflight="safe" aria-label="سلامة PDF">
+    <div><span>PDF 10.4</span><b>{plan.pageCount} {plan.pageCount === 1 ? 'صفحة' : 'صفحات'}</b></div>
+    <div><span>الحالة</span><b>جاهز للطباعة</b></div>
+    <code title={plan.identity}>{plan.identity}</code>
+  </section>;
+}
+
+export function FinancialReportsPanel({ source, workspaceId }: { readonly source: FinanceSource; readonly workspaceId: string }) {
   const now = useMemo(() => new Date(), []);
   const [kind, setKind] = useState<FinancialReportKind>('period');
   const [from, setFrom] = useState(firstDayOfMonth(now));
@@ -77,8 +86,22 @@ export function FinancialReportsPanel({ source }: { readonly source: FinanceSour
   }, [cashboxId, companyId, from, kind, source, to, transactionId]);
 
   const report = result.report;
-  return <section className="r2-f74-reports" data-m16-reporting-hook="reserved-no-shadow-store">
-    <header className="r2-f74-hero">
+  const pdfPreflight = useMemo(() => {
+    if (!report) return { plan: null, error: null } as const;
+    try {
+      return { plan: buildFinancialReportPdfPlan(workspaceId, report), error: null } as const;
+    } catch (error) {
+      return { plan: null, error: error instanceof Error ? error.message : 'فشل فحص PDF' } as const;
+    }
+  }, [report, workspaceId]);
+
+  const print = () => {
+    if (!pdfPreflight.plan) return;
+    window.print();
+  };
+
+  return <section className="r2-f74-reports" data-m16-reporting-hook="reserved-no-shadow-store" data-phase10-4-report-pdf="governed">
+    <header className="r2-f74-hero" data-pdf-block="report-header">
       <div><p>Phase 7.4 · Financial Reports · deterministic source totals</p><h1>التقارير المالية</h1></div>
       {report ? <strong className="r2-f74-fingerprint" title="بصمة التقرير">{report.fingerprint}</strong> : null}
     </header>
@@ -96,53 +119,59 @@ export function FinancialReportsPanel({ source }: { readonly source: FinanceSour
       <section className="r2-f74-report-head">
         <div><h2>{report.title}</h2><p>{report.from?.slice(0, 10) ?? 'بداية السجل'} ← {report.to?.slice(0, 10) ?? 'نهاية السجل'}</p></div>
         <div className="r2-f74-actions" data-no-print="true">
-          <button type="button" onClick={() => window.print()}>طباعة / PDF</button>
+          <button type="button" disabled={!pdfPreflight.plan} onClick={print}>طباعة / PDF</button>
           <button type="button" onClick={() => saveText(`enjaz-finance-${report.fingerprint}.csv`, financialReportToCsv(report), 'text/csv;charset=utf-8')}>CSV</button>
           <button type="button" onClick={() => saveText(`enjaz-finance-${report.fingerprint}.json`, serializeFinancialReport(report), 'application/json;charset=utf-8')}>JSON</button>
         </div>
       </section>
+      {pdfPreflight.plan ? <PdfPreflight plan={pdfPreflight.plan} /> : <section className="r2-f74-error" data-no-print="true" role="alert"><h2>PDF غير آمن للطباعة</h2><p>{pdfPreflight.error}</p></section>}
       <ReportTotals report={report} />
 
       <section className="r2-f74-grid">
-        <article className="r2-f74-card">
+        <article className="r2-f74-card" data-pdf-table="report-movements">
           <header><h3>حركة الفترة</h3><span>{report.movements.length} سطر</span></header>
           <div className="r2-f74-table-wrap"><table><thead><tr><th>التاريخ</th><th>المصدر</th><th>المرجع</th><th>الحالة</th><th>القيمة الفعالة</th></tr></thead><tbody>{report.movements.length ? report.movements.map((item) => <tr key={item.id} data-report-source={item.source}><td>{item.occurredAt.slice(0, 10)}</td><td>{item.source === 'payment' ? 'دفعة' : 'قيد'}</td><td title={item.evidenceRef}>{item.title}</td><td>{item.status === 'reversed' ? 'معكوس' : 'مرحّل'}</td><td>{money(item.effectiveCents)}</td></tr>) : <tr><td colSpan={5}>لا توجد حركة مثبتة ضمن هذا النطاق.</td></tr>}</tbody></table></div>
         </article>
-        <article className="r2-f74-card">
+        <article className="r2-f74-card" data-pdf-table="report-receivables">
           <header><h3>الأرصدة الحالية</h3><span>{report.receivables.length} سطر</span></header>
           <div className="r2-f74-table-wrap"><table><thead><tr><th>المعاملة</th><th>الشركة</th><th>الأتعاب</th><th>المفتوح</th></tr></thead><tbody>{report.receivables.length ? report.receivables.map((item) => <tr key={item.transactionId}><td>{item.transactionLabel}</td><td>{item.companyLabel}</td><td>{money(item.currentFeeCents)}</td><td>{money(item.outstandingCents)}</td></tr>) : <tr><td colSpan={4}>لا توجد أرصدة حالية في النطاق.</td></tr>}</tbody></table></div>
         </article>
       </section>
 
-      <section className="r2-f74-card r2-f74-provenance" data-pdf-ready="true">
+      <section className="r2-f74-card r2-f74-provenance" data-pdf-ready="true" data-pdf-block="report-provenance">
         <header><h3>المصدر والتدقيق</h3><span>نفس الإجماليات للشاشة والطباعة والتصدير</span></header>
         <p>Finance authority: {report.provenance.financeAuthority}</p>
         <p>الحركة: {report.provenance.movementLineCount} · الأرصدة: {report.provenance.receivableLineCount}</p>
         <p>بصمة حتمية: <b>{report.fingerprint}</b></p>
         {report.disclosures.map((text) => <p key={text}>{text}</p>)}
       </section>
+      {pdfPreflight.plan ? <footer className="r2-f74-print-proof" aria-hidden="true">
+        <span>إنجاز · تقرير مالي موثق</span><span>{pdfPreflight.plan.identity}</span>
+      </footer> : null}
     </>}
   </section>;
 }
 
+type LoadedFinance = Readonly<{ workspaceId: string; source: FinanceSource }>;
+
 export function ConnectedPhase74FinancialReportsExperience() {
   const user = useCurrentUserId();
   const factory = useDataLayerFactory();
-  const [source, setSource] = useState<FinanceSource | false>();
+  const [loaded, setLoaded] = useState<LoadedFinance | false>();
   useEffect(() => {
     let active = true;
     (async () => {
       try {
         if (!user) throw new Error('missing user');
-        const loaded = await loadFinanceSource(factory, user);
-        if (active) setSource(loaded.source);
+        const result = await loadFinanceSource(factory, user);
+        if (active) setLoaded(result);
       } catch {
-        if (active) setSource(false);
+        if (active) setLoaded(false);
       }
     })();
     return () => { active = false; };
   }, [factory, user]);
-  if (source === undefined) return <div className="r2-screen r2-finance-phase74"><h1>التقارير المالية</h1><p>جارٍ تحميل المصدر المالي…</p></div>;
-  if (source === false) return <div className="r2-screen r2-finance-phase74"><h1>التقارير المالية غير متاحة</h1><p>تعذر تحميل المصدر المالي الموثوق.</p></div>;
-  return <div className="r2-screen r2-finance-phase74" data-finance-stage="7.4" data-finance-report-authority="canonical"><FinancialReportsPanel source={source} /></div>;
+  if (loaded === undefined) return <div className="r2-screen r2-finance-phase74"><h1>التقارير المالية</h1><p>جارٍ تحميل المصدر المالي…</p></div>;
+  if (loaded === false) return <div className="r2-screen r2-finance-phase74"><h1>التقارير المالية غير متاحة</h1><p>تعذر تحميل المصدر المالي الموثوق.</p></div>;
+  return <div className="r2-screen r2-finance-phase74" data-finance-stage="7.4" data-finance-report-authority="canonical"><FinancialReportsPanel source={loaded.source} workspaceId={loaded.workspaceId} /></div>;
 }
