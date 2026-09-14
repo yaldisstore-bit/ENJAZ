@@ -48,16 +48,20 @@ export class EngagementContractError extends Error {
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
+function transitionTargets(...statuses: EngagementContractStatus[]): readonly EngagementContractStatus[] {
+  return Object.freeze(statuses);
+}
+
 const TRANSITIONS: Readonly<Record<EngagementContractStatus, readonly EngagementContractStatus[]>> = Object.freeze({
-  draft: Object.freeze(['under_review']),
-  under_review: Object.freeze(['draft', 'approved']),
-  approved: Object.freeze(['under_review', 'signature_pending']),
-  signature_pending: Object.freeze(['approved', 'signed']),
-  signed: Object.freeze(['effective', 'superseded']),
-  effective: Object.freeze(['expired', 'terminated', 'superseded']),
-  expired: Object.freeze(['superseded']),
-  terminated: Object.freeze(['superseded']),
-  superseded: Object.freeze([]),
+  draft: transitionTargets('under_review'),
+  under_review: transitionTargets('draft', 'approved'),
+  approved: transitionTargets('under_review', 'signature_pending'),
+  signature_pending: transitionTargets('approved', 'signed'),
+  signed: transitionTargets('effective', 'superseded'),
+  effective: transitionTargets('expired', 'terminated', 'superseded'),
+  expired: transitionTargets('superseded'),
+  terminated: transitionTargets('superseded'),
+  superseded: transitionTargets(),
 });
 
 function requireUuid(value: string, label: string): string {
