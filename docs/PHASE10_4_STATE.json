@@ -31,6 +31,7 @@
   "financialReportPreflightAdded": true,
   "financialPrintHardeningAdded": true,
   "financialReportAdapterTestsAdded": true,
+  "financePreviewWorkspaceIdentityBound": true,
   "existingFinancialReportsReviewed": true,
   "existingDocumentRendererReviewed": true,
   "knownCriticalBlockers": 0,
