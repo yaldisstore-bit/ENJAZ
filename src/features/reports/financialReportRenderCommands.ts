@@ -1,4 +1,3 @@
-import type { EnjazSupabaseClient } from '../../core/supabase/client.ts';
 import { DataAccessError, normalizeThrownDataFailure } from '../../data/contracts/DataAccessError.ts';
 import type { FinancialReportQuery } from '../finance/financeReports.ts';
 
@@ -16,6 +15,10 @@ export interface FinancialReportPdfRenderResult {
   readonly pageCount: number;
 }
 
+export interface FinancialReportEdgeTransport {
+  edge(functionName: string, init?: RequestInit): Promise<Response>;
+}
+
 export interface FinancialReportRenderGateway {
   renderPdf(input: FinancialReportPdfRenderInput): Promise<FinancialReportPdfRenderResult>;
 }
@@ -28,7 +31,7 @@ function requireUuid(value:string,label:string){if(!UUID.test(value.trim()))thro
 function safeFilename(value:string|null,fingerprint:string){const match=value?.match(/filename="?([^";]+)"?/i),candidate=match?.[1]?.trim();if(candidate&&/^[A-Za-z0-9._-]+\.pdf$/i.test(candidate))return candidate;return `enjaz-finance-${fingerprint}.pdf`}
 function parseErrorBody(value:unknown):Readonly<Record<string,unknown>>{return value&&typeof value==='object'&&!Array.isArray(value)?value as Readonly<Record<string,unknown>>:{}}
 
-export function createFinancialReportRenderGateway(client:EnjazSupabaseClient,timeoutMs=DEFAULT_TIMEOUT):FinancialReportRenderGateway{
+export function createFinancialReportRenderGateway(client:FinancialReportEdgeTransport,timeoutMs=DEFAULT_TIMEOUT):FinancialReportRenderGateway{
  if(!Number.isSafeInteger(timeoutMs)||timeoutMs<1||timeoutMs>120_000)throw new Error('Invalid financial report renderer timeout');
  return Object.freeze({
   async renderPdf(input:FinancialReportPdfRenderInput){
