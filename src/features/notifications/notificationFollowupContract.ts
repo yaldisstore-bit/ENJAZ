@@ -2,7 +2,7 @@ export const PHASE11_1_AUTHORITY = Object.freeze({
   notificationPreferences: 'notification_preferences',
   notificationDeliveries: 'notification_deliveries',
   transactionFollowups: 'transaction_followups',
-  inAppNotificationAuthority: 'PHASE11_1_REQUIRED_EXTENSION',
+  inAppNotificationAuthority: 'in_app_notifications',
 } as const);
 
 export type NotificationPriority = 'low' | 'normal' | 'high' | 'critical';
