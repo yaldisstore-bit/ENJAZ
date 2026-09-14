@@ -11,6 +11,8 @@ const financeAdapterTests=read('tests/financialReportPdf.test.ts');
 const financeUi=read('src/ui-r2/finance/Phase74FinancialReportsExperience.tsx');
 const financeCss=read('src/ui-r2/finance/phase74.css');
 const renderer=read('supabase/functions/enjaz-document-render/index.ts');
+const reportRenderer=read('supabase/functions/enjaz-financial-report-render/index.ts');
+const reportGateway=read('src/features/reports/financialReportRenderCommands.ts');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 const kickoff=read('docs/PHASE10_4_KICKOFF.md');
 const failures=[];
@@ -44,12 +46,17 @@ for(const marker of ['buildFinancialReportPdfPlan','financialReportPdfBlocks','p
 check('finance_adapter_no_shadow_facts',!/(payments|financial_ledger_entries|document_versions).*\.(insert|update|delete)/i.test(financeAdapter));
 for(const marker of ['safe deterministic pages and stable identity','represented exactly once','different report fingerprints produce different QR/barcode identities']) check(`finance_adapter_tests:${marker}`,has(financeAdapterTests,marker));
 check('financial_same_snapshot_preserved',has(financeUi,'window.print()')&&has(financeUi,'financialReportToCsv(report)')&&has(financeUi,'serializeFinancialReport(report)')&&has(financeUi,'data-pdf-ready="true"'));
-check('financial_preflight_enforced',has(financeUi,'buildFinancialReportPdfPlan(workspaceId, report)')&&has(financeUi,'disabled={!pdfPreflight.plan}')&&has(financeUi,'data-phase10-4-pdf-preflight="safe"')&&has(financeUi,'data-phase10-4-report-pdf="governed"'));
+check('financial_preflight_enforced',has(financeUi,'buildFinancialReportPdfPlan(workspaceId, report)')&&has(financeUi,'disabled={!pdfPreflight.plan')&&has(financeUi,'data-phase10-4-pdf-preflight="safe"')&&has(financeUi,'data-phase10-4-report-pdf="governed"'));
 check('financial_real_workspace_identity',has(financeUi,'workspaceId={loaded.workspaceId}')&&has(financeUi,'loadFinanceSource(factory, user)'));
+check('server_pdf_wired',has(financeUi,'renderGateway.renderPdf')&&has(financeUi,'expectedFingerprint: report.fingerprint')&&has(financeUi,'data-phase10-4-server-pdf="certified"'));
+check('server_pdf_fail_closed',has(reportRenderer,'REPORT_FINGERPRINT_STALE')&&has(reportRenderer,'WORKSPACE_FORBIDDEN')&&has(reportRenderer,'workspace_memberships')&&has(reportRenderer,'buildServerFinancialReport'));
+check('server_pdf_rtl_identity',has(reportRenderer,"arabic-bidi-shaper")&&has(reportRenderer,"bwip-js")&&has(reportRenderer,"QRCode")&&has(reportRenderer,'منطقة التوقيع والختم')&&has(reportRenderer,'X-ENJAZ-Report-Pages'));
+check('server_pdf_no_privileged_key',!/(SERVICE_ROLE|SECRET_KEY|sb_secret_)/.test(reportRenderer));
+check('gateway_uses_authenticated_edge_transport',has(reportGateway,"client.edge('enjaz-financial-report-render'")&&has(reportGateway,'REPORT_FINGERPRINT_STALE'));
 check('browser_print_baseline_preserved',has(financeCss,'@media print')&&has(financeCss,'.r2-f74-table-wrap { overflow: visible; }')&&has(financeCss,'.r2-f74-card table { min-width: 0; }')&&has(financeCss,'[data-no-print="true"] { display: none !important; }'));
 check('renderer_identity_foundation_preserved',has(renderer,"import QRCode from 'npm:qrcode@1.5.4'")&&has(renderer,'ENJAZ:DRAFT:')&&has(renderer,'ENJAZ:PACK:'));
 check('roadmap_scope',has(roadmap,'## 10.4 — Reports & PDF')&&has(roadmap,'deterministic pagination/footer/signature/QR/barcode handling'));
 check('kickoff_scope',has(kickoff,'A page may never be emitted blank')&&has(kickoff,'Oversized content must either split')&&has(kickoff,'QR/barcode identity must be stable'));
 
 if(failures.length){console.error(`ENJAZ PHASE 10.4 REPORTS & PDF AUDIT FAIL (${failures.length})\n- ${failures.join('\n- ')}`);process.exit(1)}
-console.log('ENJAZ PHASE 10.4 REPORTS & PDF AUDIT PASS — deterministic page contract and financial preflight integration governed, browser print baseline preserved, final renderer hardening explicitly pending, predecessor closed, successor locked, budgets frozen.');
+console.log('ENJAZ PHASE 10.4 REPORTS & PDF AUDIT PASS — deterministic page contract, financial preflight, authenticated server renderer, RTL PDF identity, predecessor closure, successor lock, and frozen budgets are governed.');
