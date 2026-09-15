@@ -4,6 +4,8 @@ import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../data/cre
 import { DataLayerProvider } from '../data/react/DataLayerContext.tsx';
 import { NotificationCommandProvider } from '../features/notifications/NotificationCommandContext.tsx';
 import type { InAppNotificationRuntime, NotificationCommandGateway, NotificationListInput } from '../features/notifications/notificationCommands.ts';
+import { SchedulingCommandProvider } from '../features/scheduling/SchedulingCommandContext.tsx';
+import type { SchedulingCommandGateway } from '../features/scheduling/schedulingCommands.ts';
 import { CurrentUserIdProvider } from '../shared/session/CurrentUserIdContext.tsx';
 import { ConnectedCoreWorkRouter } from './core-work/CoreWorkConnected.tsx';
 import './runtime/shell-base.css';
@@ -63,6 +65,11 @@ const commands: NotificationCommandGateway = Object.freeze({
   async mutateFollowup() { throw new Error('Follow-up mutation is not part of this composition certificate'); },
 });
 
+const schedulingCommands: SchedulingCommandGateway = Object.freeze({
+  async mutateCalendarState() { throw new Error('Scheduling mutation is not part of this Phase 11.2 composition certificate'); },
+  async mutateRenewalState() { throw new Error('Scheduling mutation is not part of this Phase 11.2 composition certificate'); },
+});
+
 function BrowserApp() {
   return <>{ConnectedCoreWorkRouter({ destinationId: 'today', transactionId: null, navigate() {}, openTransaction() {} })}</>;
 }
@@ -74,9 +81,11 @@ createRoot(root).render(
   <StrictMode>
     <DataLayerProvider factory={factory}>
       <NotificationCommandProvider gateway={commands}>
-        <CurrentUserIdProvider userId={USER}>
-          <main className="ez-r2-root r2-shell__main" dir="rtl"><BrowserApp /></main>
-        </CurrentUserIdProvider>
+        <SchedulingCommandProvider gateway={schedulingCommands}>
+          <CurrentUserIdProvider userId={USER}>
+            <main className="ez-r2-root r2-shell__main" dir="rtl"><BrowserApp /></main>
+          </CurrentUserIdProvider>
+        </SchedulingCommandProvider>
       </NotificationCommandProvider>
     </DataLayerProvider>
   </StrictMode>,
