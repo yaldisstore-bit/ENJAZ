@@ -23,10 +23,12 @@ const errors=[];
 const req=(v,m)=>{if(!v)errors.push(m)};
 const has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 const lacks=(s,m,l)=>req(!s.includes(m),`${l} forbidden marker present: ${m}`);
+const allowedSlices=new Set(['11.5-A','11.5-B','11.5-C','11.5-D']);
+const aIsCurrent=state.currentSlice==='11.5-A';
 
 req(predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true&&predecessor.phase11_5Allowed===true,'Phase 11.4 must remain formally CLOSED and authorize 11.5');
 req(state.phase==='11.5'&&state.systemId==='M10'&&state.systemStatus==='ACTIVE','11.5/M10 lifecycle identity invalid');
-req(state.status==='IN_PROGRESS'&&state.currentSlice==='11.5-A','11.5-A must remain current IN_PROGRESS until lockdown is merged and post-merge recertified');
+req(state.status==='IN_PROGRESS'&&allowedSlices.has(state.currentSlice),'11.5 must remain IN_PROGRESS on an authorized delivery slice');
 req(state.baseCommit==='0850de9e274a18ddb49d319677890a4e59ea7226','11.5 must retain its certified Phase 11.4 opening lineage');
 req(state.phase11_6Allowed===false&&state.nextPhase==='11.6'&&state.successorStatus==='LOCKED','11.6 must remain locked');
 
@@ -74,9 +76,23 @@ req(state.databaseWriteBoundaryFinalProbeVerification==='PASS_AUTHENTICATED_DIRE
 req(state.calendarDirectAuthenticatedInsertAllowed===false&&state.calendarDirectAuthenticatedUpdateAllowed===false&&state.renewalDirectAuthenticatedInsertAllowed===false&&state.renewalDirectAuthenticatedUpdateAllowed===false,'authenticated direct scheduling writes must stay locked');
 req(state.calendarAuthenticatedSelectAllowed===true&&state.renewalAuthenticatedSelectAllowed===true,'authorized scheduling reads must remain available');
 req(state.permissionMatrixVerification==='PASS_DIRECT_TABLE_WRITE_BLOCKED_GOVERNED_RPC_ALLOWED','permission matrix evidence missing');
-req(state.phase11_5aLockdownCandidateReady===true,'lockdown candidate must be marked ready only after Real Cloud proof');
-req(state.phase11_5aExitGatePassed===false&&state.exitGatePassed===false,'11.5-A/11.5 cannot close before lockdown source is merged and post-merge recertified');
-req(state.phase11_5aExitBlocker==='LOCKDOWN_SOURCE_NOT_YET_MERGED_AND_POST_MERGE_RECERTIFIED','11.5-A exit blocker must remain truthful');
+req(state.phase11_5aLockdownCandidateReady===true,'lockdown candidate must retain Real Cloud proof');
+req(state.exitGatePassed===false,'overall Phase 11.5 cannot close before slices B-D');
+
+if(aIsCurrent){
+  req(state.phase11_5aExitGatePassed===false,'11.5-A cannot be marked closed while it is still the current slice');
+  req(state.phase11_5aExitBlocker==='LOCKDOWN_SOURCE_NOT_YET_MERGED_AND_POST_MERGE_RECERTIFIED','11.5-A current-slice blocker must remain truthful');
+}else{
+  req(state.phase11_5aExitGatePassed===true,'later 11.5 slices require certified 11.5-A closure');
+  req(state.phase11_5aExitBlocker===null,'certified 11.5-A must not retain an exit blocker');
+  req(state.phase11_5aLockdownPullRequest===183,'11.5-A lockdown PR lineage missing');
+  req(state.phase11_5aLockdownMergeCommit==='2e85c9f8fa9066ab75bae3dbf6ecdcef02917530','11.5-A merge SHA evidence missing');
+  req(state.phase11_5aPostMergeM10Verification==='PASS_RUN_35019386414','11.5-A exact-main M10 verification missing');
+  req(state.phase11_5aPostMergeQualityVerification==='PASS_RUN_35019386459','11.5-A exact-main Quality verification missing');
+  req(state.phase11_5aPostMergeRealBrowserVerification==='PASS_RUN_35019386489','11.5-A exact-main Real Browser verification missing');
+  req(state.phase11_5aPostMergePagesVerification==='PASS_RUN_35019385257','11.5-A exact-main Pages verification missing');
+  req(state.phase11_5aPostMergeFailureCount===0&&state.phase11_5aPostMergeRecertification==='PASS_EXACT_MAIN_SHA','11.5-A exact-main post-merge certificate incomplete');
+}
 
 for(const marker of [
   '`calendar_events` remains the canonical appointment / calendar-event fact',
@@ -190,5 +206,7 @@ if(errors.length){
   errors.forEach(e=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.5-A AUTHORITY AUDIT PASS — governed M10 commands are deployed; direct authenticated scheduling table writes are locked in Real Cloud with zero-residue proof; 11.5-A intentionally remains open until lockdown source merge and exact-main post-merge recertification.');
+  console.log(aIsCurrent
+    ? 'ENJAZ PHASE 11.5-A AUTHORITY AUDIT PASS — lockdown candidate remains correctly open pending exact-main recertification.'
+    : `ENJAZ PHASE 11.5-A PRESERVATION AUDIT PASS — certified closure preserved while ${state.currentSlice} is active; direct writes remain locked and 11.6 remains locked.`);
 }
