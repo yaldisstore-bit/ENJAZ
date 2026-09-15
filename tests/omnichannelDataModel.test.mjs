@@ -3,6 +3,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const sql=fs.readFileSync('database/migrations/phase_11_4_omnichannel_conversation_transport.sql','utf8');
+const deny=fs.readFileSync('database/migrations/phase_11_4_omnichannel_browser_deny_hardening.sql','utf8');
+const performance=fs.readFileSync('database/migrations/phase_11_4_omnichannel_performance_hardening.sql','utf8');
+const direction=fs.readFileSync('database/migrations/phase_11_4_omnichannel_transport_direction_hardening.sql','utf8');
+const probe=fs.readFileSync('database/migrations/phase_11_4_live_conversation_transport_probe.sql','utf8');
 
 const normalize=(value)=>value.replace(/\s+/g,' ').trim();
 
@@ -26,9 +30,10 @@ test('endpoint matching persists opaque fingerprints, not raw endpoints',()=>{
   assert.doesNotMatch(bindingTable,/\bemail_address\b|\bphone_number\b|\braw_endpoint\b/i);
 });
 
-test('ambiguous endpoint bindings are not uniqueness-collapsed into a guessed entity',()=>{
+test('exact endpoint-target duplicates are blocked without collapsing genuine ambiguity',()=>{
   assert.doesNotMatch(sql,/unique\s*\(\s*workspace_id\s*,\s*provider_account_id\s*,\s*endpoint_fingerprint\s*\)/i);
   assert.match(sql,/communication_endpoint_bindings_lookup_idx[\s\S]*endpoint_fingerprint[\s\S]*where\s+active/i);
+  assert.match(performance,/create\s+unique\s+index\s+communication_endpoint_bindings_exact_target_key[\s\S]*company_id\s*,\s*contact_id\s*,\s*transaction_id[\s\S]*nulls\s+not\s+distinct/i);
 });
 
 test('outbound retries and inbound webhook retries have independent hard dedupe identities',()=>{
@@ -41,9 +46,11 @@ test('provider event replay cannot mint duplicate delivery evidence',()=>{
   assert.match(sql,/communication_transport_events_provider_event_key\s+unique\s*\(\s*workspace_id\s*,\s*provider_account_id\s*,\s*provider_event_id\s*\)/i);
 });
 
-test('transport evidence cannot silently cross provider account or channel scope',()=>{
+test('transport evidence cannot silently cross provider account, channel, or direction scope',()=>{
   assert.match(sql,/communication_transport_events_attempt_fk\s+foreign\s+key\s*\(\s*workspace_id\s*,\s*attempt_id\s*,\s*provider_account_id\s*\)/i);
   assert.match(sql,/ENJAZ_COMMUNICATION_TRANSPORT_CHANNEL_MISMATCH/);
+  assert.match(direction,/ENJAZ_COMMUNICATION_TRANSPORT_DIRECTION_MISMATCH/);
+  assert.match(direction,/v_communication_direction<>new\.direction/i);
 });
 
 test('relink evidence proves actor, reason, old/new scope and optimistic version transition',()=>{
@@ -60,11 +67,13 @@ test('transport and relink evidence are append only even for ordinary server DML
   assert.match(normalize(sql),/revoke update,delete on table public\.communication_transport_events,public\.communication_relink_events from service_role/i);
 });
 
-test('all new public authority tables enable RLS and browser privileges are revoked',()=>{
+test('all new authority tables use RLS plus restrictive browser deny and no browser privilege',()=>{
   const tables=['communication_conversations','communication_provider_accounts','communication_endpoint_bindings','communication_channel_consents','communication_transport_attempts','communication_transport_events','communication_relink_events'];
   for(const table of tables){
     assert.match(sql,new RegExp(`alter\\s+table\\s+public\\.${table}\\s+enable\\s+row\\s+level\\s+security`,'i'));
+    assert.match(deny,new RegExp(`create\\s+policy\\s+${table}_browser_deny[\\s\\S]*?as\\s+restrictive\\s+for\\s+all\\s+to\\s+anon,authenticated[\\s\\S]*?using\\s*\\(false\\)\\s+with\\s+check\\s*\\(false\\)`,'i'));
   }
+  assert.match(deny,/communications_m4_browser_deny/);
   assert.match(sql,/revoke\s+all\s+on\s+table[\s\S]*from\s+public,anon,authenticated/i);
   assert.doesNotMatch(sql,/grant\s+(?:all|select|insert|update|delete)[\s\S]{0,250}\bto\s+(?:anon|authenticated)\b/i);
 });
@@ -74,4 +83,28 @@ test('consent is explicit and missing consent remains representable as no author
   assert.match(consent,/status\s+text\s+not\s+null\s+check\s*\(status\s+in\s*\('granted','withdrawn','not_required'\)\)/i);
   assert.doesNotMatch(consent,/default\s+'granted'/i);
   assert.match(consent,/unique\s*\(workspace_id,channel,endpoint_fingerprint\)/i);
+});
+
+test('performance hardening covers every M4 foreign key flagged by the live advisor',()=>{
+  const required=[
+    'communication_channel_consents_updated_by_fk_idx','communication_conversations_created_by_fk_idx',
+    'communication_endpoint_bindings_company_fk_idx','communication_endpoint_bindings_transaction_fk_idx',
+    'communication_endpoint_bindings_created_by_fk_idx','communication_provider_accounts_created_by_fk_idx',
+    'communication_relink_events_old_conversation_fk_idx','communication_relink_events_new_conversation_fk_idx',
+    'communication_relink_events_old_company_fk_idx','communication_relink_events_new_company_fk_idx',
+    'communication_relink_events_old_contact_fk_idx','communication_relink_events_new_contact_fk_idx',
+    'communication_relink_events_old_transaction_fk_idx','communication_relink_events_new_transaction_fk_idx',
+    'communication_transport_events_attempt_fk_idx',
+  ];
+  for(const index of required)assert.match(performance,new RegExp(`\\b${index}\\b`));
+});
+
+test('Real Cloud probe attacks every critical data-model boundary and proves zero residue',()=>{
+  for(const marker of [
+    'OUTBOUND_DEDUPE_FAILED','INBOUND_DEDUPE_FAILED','CHANNEL_GUARD_FAILED','DIRECTION_GUARD_FAILED',
+    'EVENT_REPLAY_GUARD_FAILED','EVENT_APPEND_ONLY_FAILED','RELINK_APPEND_ONLY_FAILED',
+    'EXACT_BINDING_DEDUPE_FAILED','CONSENT_IDENTITY_FAILED','CROSS_WORKSPACE_FK_FAILED','PROBE_RESIDUE',
+  ]) assert.match(probe,new RegExp(`ENJAZ_PHASE114B_${marker}`));
+  assert.match(probe,/disable\s+trigger\s+communication_transport_events_append_only[\s\S]*enable\s+trigger\s+communication_transport_events_append_only/i);
+  assert.match(probe,/disable\s+trigger\s+communication_relink_events_append_only[\s\S]*enable\s+trigger\s+communication_relink_events_append_only/i);
 });
