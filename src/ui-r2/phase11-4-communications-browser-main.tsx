@@ -71,6 +71,12 @@ const factory=Object.freeze({
     }
     return {data:null,error:{message:`Unexpected RPC ${functionName}`}};
   },
+  async edge(functionName:string,init:RequestInit={}){
+    if(functionName!=='enjaz-communications-user')return new Response(JSON.stringify({error:'Unexpected Edge Function'}),{status:404,headers:{'Content-Type':'application/json'}});
+    const body=JSON.parse(String(init.body||'{}')) as Record<string,unknown>;
+    if(body.workspaceId!==WORKSPACE||body.commandId!==COMMAND||!retried)return new Response(JSON.stringify({error:'OUTBOUND_COMMAND_NOT_QUEUED'}),{status:409,headers:{'Content-Type':'application/json'}});
+    return new Response(JSON.stringify({ok:true,dispatch:{commandId:COMMAND,status:'dispatched'}}),{status:200,headers:{'Content-Type':'application/json'}});
+  },
 }) as unknown as EnjazDataLayerFactory;
 
 function BrowserApp(){
