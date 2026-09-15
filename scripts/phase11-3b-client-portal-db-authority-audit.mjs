@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
+const exists=(p)=>fs.existsSync(path.join(root,p));
 const json=(p)=>JSON.parse(read(p));
 const sql=read('database/migrations/phase_11_3_client_portal_authority.sql');
 const hardening=read('database/migrations/phase_11_3_client_portal_authority_hardening.sql');
@@ -79,10 +80,12 @@ has(hardening,'from authenticated;','internal authority-event writer must not re
 req(state.phase==='11.3'&&state.status==='IN_PROGRESS'&&state.systemId==='M3','Phase 11.3 lifecycle must remain active');
 req(state.databaseAuthorityMigrationAdded===true,'state must record database authority migration');
 req(state.databaseAuthorityStaticAuditAdded===true,'state must record database authority static audit');
-req(state.databaseAuthorityExtensionApplied===false,'Real Cloud apply must remain pending until authenticated verification');
+req(state.databaseAuthorityExtensionApplied===true,'Real Cloud authority apply must be recorded after authenticated certification');
+req(typeof state.databasePerformanceHardeningMigrationPath==='string'&&exists(state.databasePerformanceHardeningMigrationPath),'Phase 11.3 performance hardening evidence is missing');
+req(typeof state.realCloudProbeMigrationPath==='string'&&exists(state.realCloudProbeMigrationPath),'Phase 11.3 Real Cloud probe evidence is missing');
 req(state.directWorkspaceWideReadAllowed===false&&state.directCoreTablePortalDmlAllowed===false,'direct portal core access must remain forbidden');
 req(state.portalPrincipalMayBecomeWorkspaceMember===false&&state.portalPrincipalMayBecomeOrganizationMember===false,'portal/staff trust roots must remain isolated');
-req(state.realCloudAuthenticatedVerification==='PENDING','Real Cloud verification may not be claimed by static migration work');
+req(state.realCloudAuthenticatedVerification==='PASS','Real Cloud authenticated verification must remain PASS once certified');
 req(state.phase11_4Allowed===false&&state.successorStatus==='LOCKED','Phase 11.4 must remain locked');
 
 if(errors.length){
@@ -90,5 +93,5 @@ if(errors.length){
   errors.forEach((e)=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3B CLIENT PORTAL DB AUTHORITY AUDIT PASS — external principals and exact object grants are isolated from staff trust roots; direct browser table authority stays closed; internal audit writer is non-callable; revocation and audit are explicit.');
+  console.log('ENJAZ PHASE 11.3B CLIENT PORTAL DB AUTHORITY AUDIT PASS — external principals and exact object grants are isolated from staff trust roots; direct browser table authority stays closed; internal audit writer is non-callable; revocation and audit are explicit; Real Cloud authenticated evidence is recorded while M4 stays locked.');
 }
