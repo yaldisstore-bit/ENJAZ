@@ -9,6 +9,7 @@ import type { FinanceCommandGateway } from '../features/finance/financeCommands.
 import type { GovernanceCommandGateway } from '../features/governance/governanceCommands.ts';
 import type { NotificationCommandGateway } from '../features/notifications/notificationCommands.ts';
 import type { RegulatoryKnowledgeGateway } from '../features/regulatory/regulatoryKnowledgeCommands.ts';
+import type { SchedulingCommandGateway } from '../features/scheduling/schedulingCommands.ts';
 import type { SearchIntelligenceGateway } from '../features/searchIntelligence/searchIntelligenceCommands.ts';
 import type { GovernmentProcedureRuntimeGateway } from '../features/workflow/governmentProcedureRuntime.ts';
 import { UiR2ProductionRoot } from './runtime/UiR2ProductionRoot.tsx';
@@ -215,6 +216,11 @@ const notificationCommands: NotificationCommandGateway = Object.freeze({
   async mutateFollowup() { throw new Error('R2 production test does not allow follow-up lifecycle writes'); },
 });
 
+const schedulingCommands: SchedulingCommandGateway = Object.freeze({
+  async mutateCalendarState() { throw new Error('R2 production test does not allow scheduling writes'); },
+  async mutateRenewalState() { throw new Error('R2 production test does not allow scheduling writes'); },
+});
+
 const searchIntelligence: SearchIntelligenceGateway = Object.freeze({
   async listSavedViews() { return Object.freeze([]); },
   async saveSavedView() { throw new Error('R2 production test does not allow saved-view writes'); },
@@ -242,6 +248,6 @@ if (!rootElement) throw new Error('R2 production test root is missing');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, notificationCommands, searchIntelligence, regulatoryKnowledge, documentVault }} />
+    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, notificationCommands, schedulingCommands, searchIntelligence, regulatoryKnowledge, documentVault }} />
   </StrictMode>,
 );
