@@ -29,9 +29,14 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
       - name: Preserve Phase 11.4 authority before browser certificate
+        shell: bash
         run: |
-          node scripts/phase11-4-omnichannel-audit.mjs
-          node scripts/phase11-4d-unified-communications-audit.mjs
+          if node -e "const s=require('./docs/PHASE11_4_STATE.json');process.exit(s.status==='CLOSED'?0:1)"; then
+            node scripts/phase11-4-closure-audit.mjs
+          else
+            node scripts/phase11-4-omnichannel-audit.mjs
+            node scripts/phase11-4d-unified-communications-audit.mjs
+          fi
           node --experimental-strip-types --test tests/communicationsHubService.test.ts tests/communicationsDispatchBridge.test.ts
           npm run typecheck
       - name: Build canonical production and frozen budgets
