@@ -30,7 +30,7 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Preserve Phase 11.2 authority and service contracts
         run: |
-          node scripts/phase11-2-universal-inbox-audit.mjs
+          node scripts/phase11-2-regression-audit.mjs
           node scripts/phase11-1-regression-audit.mjs
           node --experimental-strip-types --test tests/universalInboxContract.test.ts
           node --experimental-strip-types --test tests/universalInboxService.test.ts
