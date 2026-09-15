@@ -207,11 +207,16 @@ async function workspaceId(factory: EnjazDataLayerFactory, userId: string): Prom
   return id;
 }
 
+async function callRpc<T>(factory: EnjazDataLayerFactory, functionName: string, args: Record<string, unknown>) {
+  if (!factory.rpc) throw new CommunicationsHubCommandError('COMMUNICATIONS_RPC_UNAVAILABLE');
+  return factory.rpc<T>(functionName, args);
+}
+
 export async function loadCommunicationsHub(
   factory: EnjazDataLayerFactory,userId: string,query = '',conversationId: string | null = null,
 ): Promise<CommunicationsHubSnapshot> {
   const id = await workspaceId(factory,userId);
-  const result = await factory.rpc<unknown>('get_communications_hub_v1', {
+  const result = await callRpc<unknown>(factory,'get_communications_hub_v1', {
     p_workspace_id: id,p_query: query.trim() || null,p_conversation_id: conversationId,p_limit: 60,
   });
   if (result.error) throwRpc(result.error);
@@ -222,7 +227,7 @@ export async function markCommunicationConversationRead(
   factory: EnjazDataLayerFactory,userId: string,conversationId: string,
 ): Promise<void> {
   const id = await workspaceId(factory,userId);
-  const result = await factory.rpc('mark_communication_conversation_read_v1', {
+  const result = await callRpc(factory,'mark_communication_conversation_read_v1', {
     p_workspace_id: id,p_conversation_id: conversationId,p_expected_version: null,
   });
   if (result.error) throwRpc(result.error);
@@ -232,7 +237,7 @@ export async function retryCommunicationOutbound(
   factory: EnjazDataLayerFactory,userId: string,commandId: string,expectedVersion: number,
 ): Promise<void> {
   const id = await workspaceId(factory,userId);
-  const result = await factory.rpc('retry_communication_outbound_v1', {
+  const result = await callRpc(factory,'retry_communication_outbound_v1', {
     p_workspace_id: id,p_command_id: commandId,p_expected_version: expectedVersion,
   });
   if (result.error) throwRpc(result.error);
@@ -242,7 +247,7 @@ export async function relinkCommunicationToConversation(
   factory: EnjazDataLayerFactory,userId: string,item: CommunicationReviewItem,target: CommunicationConversation,reason: string,
 ): Promise<void> {
   const id = await workspaceId(factory,userId);
-  const result = await factory.rpc('relink_communication_v1', {
+  const result = await callRpc(factory,'relink_communication_v1', {
     p_workspace_id: id,p_communication_id: item.communicationId,p_expected_version: item.linkVersion,p_conversation_id: target.id,
     p_company_id: target.companyId,p_contact_id: target.contactId,p_transaction_id: target.transactionId,p_reason: reason.trim() || 'ربط يدوي من مركز الاتصالات',
   });
