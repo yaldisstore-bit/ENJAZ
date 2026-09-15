@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const sql=fs.readFileSync(new URL('../database/migrations/phase_11_3_client_portal_authority.sql',import.meta.url),'utf8');
+const hardening=fs.readFileSync(new URL('../database/migrations/phase_11_3_client_portal_authority_hardening.sql',import.meta.url),'utf8');
 
 const has=(value)=>assert.ok(sql.includes(value),`missing SQL contract: ${value}`);
 
@@ -39,6 +40,10 @@ test('browser roles receive no direct portal authority-table privileges',()=>{
   has('revoke all on table public.client_portal_principals,public.client_portal_grants,public.client_portal_authority_events');
   has('from public,anon,authenticated;');
   assert.doesNotMatch(sql,/grant\s+(select|insert|update|delete|all)[\s\S]{0,180}public\.client_portal_(principals|grants|authority_events)/i);
+});
+
+test('internal authority event writer is not callable by authenticated clients',()=>{
+  assert.match(hardening,/revoke\s+all\s+on\s+function\s+private\.record_client_portal_authority_event_v1\(uuid,uuid,uuid,uuid,text,text,jsonb\)[\s\S]*?from\s+authenticated;/i);
 });
 
 test('portal authority does not grant or alter core tables',()=>{
