@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 11.1 — Notifications & Follow-ups ✅ CLOSED + REAL-CLOUD / FINAL-HEAD / EXACT-MAIN / REAL-BROWSER / PAGES / LIVE-EXTERNAL CERTIFIED**  
-آخر مرحلة مغلقة: **Phase 11.1 — Notifications & Follow-ups ✅ CLOSED**  
-المرحلة التالية: **Phase 11.2 — Universal Inbox Integration — AUTHORIZED NEXT**.
+الحالة الرسمية: **Phase 11.2 — Universal Inbox Integration ✅ CLOSED + FINAL-HEAD / EXACT-MAIN / REAL-BROWSER / PAGES / LIVE-EXTERNAL CERTIFIED**  
+آخر مرحلة مغلقة: **Phase 11.2 — Universal Inbox Integration ✅ CLOSED**  
+المرحلة التالية: **Phase 11.3 — Client Portal — M3 — AUTHORIZED NEXT**؛ ويبقى M3 `PLANNED` حتى kickoff المرحلة.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -48,9 +48,24 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 10.5 — Engagement/Contract Document Layer — M16: ✅ CLOSED + authenticated Real Cloud + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 10.6 — Documents Zero-Escape Gate: ✅ CLOSED + destructive Real Cloud + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 11.1 — Notifications & Follow-ups: ✅ CLOSED + authenticated Real Cloud + final-head Phase Gate + Real Browser + exact-main cumulative gates + Pages + Live External certified.**
-- **Phase 11.2 — Universal Inbox Integration: AUTHORIZED NEXT.**
+- **Phase 11.2 — Universal Inbox Integration: ✅ CLOSED + final-head Gate + dedicated Real Browser + exact-main cumulative gates + Pages + Live External certified.**
+- **Phase 11.3 — Client Portal — M3: AUTHORIZED NEXT؛ M3 يبقى `PLANNED` حتى kickoff.**
 
-## Phase 11.1 — دليل الإغلاق الحالي
+## Phase 11.2 — دليل الإغلاق الحالي
+
+- implementation PR #164: **MERGED** → `c9b52706efd86e391518f82b321b16e72aa81a3d`.
+- final certified branch head `e29411298ff7404ae856fe5e523b20ae55acdb7d`.
+- Phase 11.2 Gate `34894910063`: **PASS**.
+- dedicated Phase 11.2 Real Browser `34894909604`: **PASS** على 1280 / 430 / 390 / 360 / 320؛ artifact `10368233930`.
+- exact-main Quality `34895596588` وcumulative Real Browser `34895596605`: **PASS**.
+- exact-main UI Governance `34895596647`, Project Constitution `34895596366`, Major Systems Zero-Escape `34895596305`: **PASS**.
+- Pages Preview `34895657976` + Pages deployment `34895594979`: **PASS**.
+- Live External `34895738781`: **PASS**.
+- unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
+- closure evidence: [`docs/PHASE11_2_CLOSURE.md`](docs/PHASE11_2_CLOSURE.md).
+- **Phase 11.3 — Client Portal — M3: AUTHORIZED NEXT؛ M3 يبقى `PLANNED` حتى kickoff.**
+
+## Phase 11.1 — دليل الإغلاق المحفوظ
 
 - implementation PR #163: **MERGED** → `1b010149be704e323abae5caba26bd3461af9b95`.
 - final certified branch head `1398efcd82cc1fa3b0fa73401b7dc96d17f2b202`.
@@ -65,7 +80,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - Live External `34890919578`: **PASS**.
 - unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
 - closure evidence: [`docs/PHASE11_1_CLOSURE.md`](docs/PHASE11_1_CLOSURE.md).
-- **Phase 11.2 — Universal Inbox Integration: AUTHORIZED NEXT.**
+- **Phase 11.3 — Client Portal — M3: AUTHORIZED NEXT؛ M3 يبقى `PLANNED` حتى kickoff.**
 
 ## Phase 10.6 — دليل الإغلاق المحفوظ
 
