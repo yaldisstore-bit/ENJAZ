@@ -2,7 +2,7 @@ name: ENJAZ Phase 11.3 — Client Portal M3 Gate
 
 on:
   push:
-    branches: [phase11-3-client-portal, phase11-3a-client-portal-authority, phase11-3b-client-portal-db-authority, phase11-3b-client-safe-read-model, phase11-3b-client-requests-read-model, phase11-3c-governed-client-actions]
+    branches: [phase11-3-client-portal, phase11-3a-client-portal-authority, phase11-3b-client-portal-db-authority, phase11-3b-client-safe-read-model, phase11-3b-client-requests-read-model, phase11-3c-governed-client-actions, phase11-3d-client-portal-experience]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   authority:
-    name: External identity isolation / safe reads / governed client actions / M4 lock
+    name: External identity isolation / safe reads / governed client actions / portal experience / M4 lock
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -52,6 +52,14 @@ jobs:
         run: node scripts/phase11-3c-client-actions-audit.mjs
       - name: Phase 11.3-C governed client action destruction tests
         run: node --experimental-strip-types --test tests/clientPortalActions.test.ts && node --test tests/clientPortalActionsDatabase.test.mjs tests/clientPortalGovernedDocumentActions.test.mjs tests/clientPortalGovernedDocumentActionsHardening.test.mjs
+      - name: Phase 11.3-D portal experience / activation audit
+        run: node scripts/phase11-3d-client-portal-experience-audit.mjs
+      - name: Phase 11.3-D portal isolation / activation destruction tests
+        run: node --test tests/clientPortalExperience.test.mjs
+      - name: Phase 11.3-D Real Cloud certification evidence audit
+        run: node scripts/phase11-3d-real-cloud-certification-audit.mjs
+      - name: Phase 11.3-D published certifier syntax guard
+        run: node --check scripts/phase11-3-published-portal-e2e.mjs
       - name: Roadmap lifecycle audit
         run: npm run audit:roadmap
       - name: Preserve canonical database baseline integrity
@@ -64,3 +72,55 @@ jobs:
         run: npm run build && npm run audit:dist:budget
       - name: Dependency high-severity audit
         run: npm audit --audit-level=high
+
+  portal-browser:
+    name: Portal shell / Real Chromium / 1280 + 430 + 390 + 360 + 320
+    needs: authority
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build isolated pre-auth portal browser candidate
+        env:
+          VITE_APP_ENV: test
+          VITE_SUPABASE_URL: https://phase113.invalid
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_phase113_browser_contract_only
+        run: npm run build -- --base=/
+      - name: Install pinned real-browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start portal browser candidate
+        run: |
+          nohup npx vite preview --host 127.0.0.1 --port 4193 > /tmp/enjaz-phase113-portal.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4193/portal >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase113-portal.log
+          exit 1
+      - name: Real Chromium portal shell acceptance
+        env:
+          PHASE113_PORTAL_BASE_URL: http://127.0.0.1:4193/portal
+          PHASE113_PORTAL_ARTIFACT_DIR: artifacts/phase11-3-client-portal
+        run: npx playwright test tests-external/phase11-3-client-portal.spec.cjs --reporter=line --workers=1
+      - name: Upload portal browser diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-phase11-3-portal-diagnostics-${{ github.sha }}
+          path: |
+            test-results/
+            artifacts/phase11-3-client-portal/
+            /tmp/enjaz-phase113-portal.log
+          if-no-files-found: ignore
+          retention-days: 7
