@@ -241,23 +241,23 @@ export function createClientPortalGateway(client:EnjazSupabaseClient,timeoutMs=2
   return Object.freeze({
     async listWorkspaces(){return Object.freeze(list(await call('list_client_portal_workspaces_v1')).map(parseWorkspace));},
     async listInvitations(){return Object.freeze(list(await call('list_client_portal_invitations_v1')).map(parseInvitation));},
-    async activateInvitation(workspaceId,expectedVersion){uuid(workspaceId,'معرّف مساحة العمل');if(!Number.isSafeInteger(expectedVersion)||expectedVersion<1)throw new Error('نسخة الدعوة غير صالحة.');await call('activate_client_portal_invitation_v1',{p_workspace_id:workspaceId,p_expected_version:expectedVersion});},
-    async authority(workspaceId){uuid(workspaceId,'معرّف مساحة العمل');return parseAuthority(await call('get_client_portal_authority_v1',{p_workspace_id:workspaceId}));},
-    async readModel(workspaceId){uuid(workspaceId,'معرّف مساحة العمل');return parseReadModel(await call('get_client_portal_read_model_v1',{p_workspace_id:workspaceId}));},
-    async sendMessage(input){
+    async activateInvitation(workspaceId:string,expectedVersion:number){uuid(workspaceId,'معرّف مساحة العمل');if(!Number.isSafeInteger(expectedVersion)||expectedVersion<1)throw new Error('نسخة الدعوة غير صالحة.');await call('activate_client_portal_invitation_v1',{p_workspace_id:workspaceId,p_expected_version:expectedVersion});},
+    async authority(workspaceId:string){uuid(workspaceId,'معرّف مساحة العمل');return parseAuthority(await call('get_client_portal_authority_v1',{p_workspace_id:workspaceId}));},
+    async readModel(workspaceId:string){uuid(workspaceId,'معرّف مساحة العمل');return parseReadModel(await call('get_client_portal_read_model_v1',{p_workspace_id:workspaceId}));},
+    async sendMessage(input:Parameters<ClientPortalGateway['sendMessage']>[0]){
       const messageId=input.messageId??crypto.randomUUID();
       await call('send_client_portal_message_v1',{p_workspace_id:uuid(input.workspaceId,'معرّف مساحة العمل'),p_transaction_id:uuid(input.transactionId,'معرّف المعاملة'),p_request_id:input.requestId?uuid(input.requestId,'معرّف الطلب'):null,p_message_id:messageId,p_body:assertClientPortalMessageBody(input.body)});
     },
-    async respondAppointment(input){
+    async respondAppointment(input:Parameters<ClientPortalGateway['respondAppointment']>[0]){
       await call('respond_client_portal_appointment_v1',{p_workspace_id:uuid(input.workspaceId,'معرّف مساحة العمل'),p_request_id:uuid(input.requestId,'معرّف الطلب'),p_response_id:input.responseId??crypto.randomUUID(),p_decision:assertClientPortalAppointmentDecision(input.decision),p_comment:input.comment?.trim()||null});
     },
-    async markRequestRead(input){
+    async markRequestRead(input:Parameters<ClientPortalGateway['markRequestRead']>[0]){
       await call('mark_client_portal_request_read_v1',{p_workspace_id:uuid(input.workspaceId,'معرّف مساحة العمل'),p_request_id:uuid(input.requestId,'معرّف الطلب'),p_receipt_id:input.receiptId??crypto.randomUUID()});
     },
-    async respondDocumentApproval(input){
+    async respondDocumentApproval(input:Parameters<ClientPortalGateway['respondDocumentApproval']>[0]){
       await call('respond_client_portal_document_approval_v1',{p_workspace_id:uuid(input.workspaceId,'معرّف مساحة العمل'),p_request_id:uuid(input.requestId,'معرّف الطلب'),p_response_id:input.responseId??crypto.randomUUID(),p_decision:assertClientPortalDocumentApprovalDecision(input.decision),p_comment:assertClientPortalApprovalComment(input.comment)});
     },
-    async uploadRequestedDocument(input){
+    async uploadRequestedDocument(input:Parameters<ClientPortalGateway['uploadRequestedDocument']>[0]){
       const inspected=await inspectDocumentBinary(input.file),operationId=input.operationId??crypto.randomUUID();
       const validated=assertClientPortalRequestedDocumentUpload({title:input.title,fileName:input.file.name,mimeType:inspected.mimeType,byteSize:inspected.byteSize,checksum:inspected.sha256});
       const acknowledge=()=>edge({action:'portal-acknowledge',workspaceId:uuid(input.workspaceId,'معرّف مساحة العمل'),operationId});
