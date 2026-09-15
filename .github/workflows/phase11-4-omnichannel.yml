@@ -38,6 +38,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Phase 11.4-A lifecycle / authority audit
         run: node scripts/phase11-4-omnichannel-audit.mjs
+      - name: Preserve Phase 11.3 closed lifecycle compatibility
+        run: node scripts/phase11-3-lifecycle-audit-runner.mjs scripts/phase11-3-client-portal-audit.mjs
       - name: Phase 11.4-A executable destruction tests
         run: node --experimental-strip-types --test tests/omnichannelAuthority.test.ts
       - name: Roadmap lifecycle audit
