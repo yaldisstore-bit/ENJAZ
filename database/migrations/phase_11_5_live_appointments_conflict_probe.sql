@@ -243,7 +243,7 @@ begin
     '11520000-0000-4000-8000-000000000201',null,null,null,
     array['11520000-0000-4000-8000-000000000401'::uuid],null
   );
-  if (v->>'status'<>'scheduled' then raise exception 'P115B_PAST_EVENT_CREATE_FAILED %',v; end if;
+  if v->>'status'<>'scheduled' then raise exception 'P115B_PAST_EVENT_CREATE_FAILED %',v; end if;
 
   v := public.record_calendar_event_attendance_v1(
     '11520000-0000-4000-8000-000000000001','11520000-0000-4000-8000-000000000609','11520000-0000-4000-8000-000000000717',1,
