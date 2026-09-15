@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
+const exists=(p)=>fs.existsSync(path.join(root,p));
 const json=(p)=>JSON.parse(read(p));
 const foundation=read('database/migrations/phase_11_3_client_safe_read_model.sql');
 const hardening=read('database/migrations/phase_11_3_client_safe_read_model_hardening.sql');
@@ -145,8 +146,11 @@ req(state.clientSafeReadModelFoundationAdded===true,'state must record 11.3-B re
 req(state.governedClientRequestSourceAdded===true,'state must record governed request source');
 req(state.clientSafeReadModelAdded===true,'state must record completed client-safe read model code');
 req(state.clientSafeReadModelCompletionBlocker===null,'read-model code completion blocker must be cleared');
-req(state.databaseAuthorityExtensionApplied===false,'Real Cloud apply must remain pending until authenticated verification');
-req(state.realCloudAuthenticatedVerification==='PENDING','Real Cloud verification may not be claimed by static work');
+req(state.databaseAuthorityExtensionApplied===true,'Real Cloud authority/read-model apply must remain recorded after certification');
+req(state.governedClientRequestSourceStatus==='REAL_CLOUD_VERIFIED','governed request source must remain Real Cloud verified');
+req(state.clientSafeReadModelStatus==='REAL_CLOUD_VERIFIED','client-safe read model must remain Real Cloud verified');
+req(typeof state.realCloudProbeMigrationPath==='string'&&exists(state.realCloudProbeMigrationPath),'authenticated Real Cloud read-model probe evidence is missing');
+req(state.realCloudAuthenticatedVerification==='PASS','Real Cloud verification must remain PASS once certified');
 const governedWritesStateValid = state.governedClientWriteBoundaryAdded===false || (
   state.governedClientWriteBoundaryAdded===true &&
   Array.isArray(state.governedClientActionsImplemented) &&
@@ -162,5 +166,5 @@ if(errors.length){
   errors.forEach((e)=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3-B CLIENT-SAFE READ MODEL AUDIT PASS — explicit grants, child publication and a governed request queue produce minimal client-safe Company/Transaction/Document/Receipt/Request facts; revocation is permanent/audited; later 11.3 slices may add governed actions without mutating B authority.');
+  console.log('ENJAZ PHASE 11.3-B CLIENT-SAFE READ MODEL AUDIT PASS — explicit grants, child publication and a governed request queue produce minimal client-safe Company/Transaction/Document/Receipt/Request facts; revocation is permanent/audited; authenticated Real Cloud evidence is recorded; later 11.3 slices may add governed actions without mutating B authority.');
 }
