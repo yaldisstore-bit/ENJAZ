@@ -11,7 +11,8 @@ const activation=read('database/migrations/phase_11_3_client_portal_activation.s
 function activationViolations(source){
   const out=[];
   const need=(marker,label)=>{if(!source.includes(marker))out.push(`missing:${label}`)};
-  need('p.user_id=v_actor','actor-bound-invitation');
+  const actorBindings=source.match(/p\.user_id=v_actor/g)?.length??0;
+  if(actorBindings<2)out.push('missing:actor-bound-invitation');
   need("p.status='invited'",'invited-only-discovery');
   need("v_row.status<>'invited'",'invited-only-activation');
   need('v_row.version<>p_expected_version','optimistic-version');
