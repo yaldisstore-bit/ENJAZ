@@ -7,6 +7,13 @@ const hardening=fs.readFileSync(new URL('../database/migrations/phase_11_3_clien
 const edge=fs.readFileSync(new URL('../supabase/functions/enjaz-document-vault/index.ts',import.meta.url),'utf8');
 const has=(source,value)=>assert.ok(source.includes(value),`missing contract: ${value}`);
 
+function functionBlock(source,name,nextName){
+  const start=source.indexOf(`create or replace function ${name}`);
+  if(start<0)return '';
+  const end=nextName?source.indexOf(`create or replace function ${nextName}`,start):source.length;
+  return source.slice(start,end<0?source.length:end);
+}
+
 function violations(source){
   const out=[];
   const need=(marker,label=marker)=>{if(!source.includes(marker))out.push(`missing:${label}`)};
@@ -15,8 +22,10 @@ function violations(source){
     need(`alter table public.${table} enable row level security`,`${table}-rls`);
     need(`revoke all on table public.${table} from public,anon,authenticated`,`${table}-browser-revoke`);
   }
-  need("v_request.request_type<>'document' or v_request.required_permission<>'upload_requested_document'",'upload-request-authority');
-  need("v_request.request_type<>'approval' or v_request.required_permission<>'approve_document'",'approval-request-authority');
+  const prepare=functionBlock(source,'private.prepare_client_portal_requested_document_v1_impl','public.prepare_client_portal_requested_document_v1');
+  if(!prepare.includes("v_request.request_type<>'document' or v_request.required_permission<>'upload_requested_document'"))out.push('missing:upload-request-authority');
+  const approval=functionBlock(source,'private.respond_client_portal_document_approval_v1_impl','public.respond_client_portal_document_approval_v1');
+  if(!approval.includes("v_request.request_type<>'approval' or v_request.required_permission<>'approve_document'"))out.push('missing:approval-request-authority');
   need('private.review_document_draft_canonical_v1','document-factory-canonical-boundary');
   need("p_actor_source not in ('staff_owner','client_portal')",'document-factory-actor-source');
   need("private.require_client_portal_owner_v1(p_workspace_id)",'staff-binding-owner-authority');
