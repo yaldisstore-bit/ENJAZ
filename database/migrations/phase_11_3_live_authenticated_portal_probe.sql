@@ -58,8 +58,6 @@ end $$;
 revoke all on function private.enjaz_phase113_probe_expect(text) from public,anon;
 grant execute on function private.enjaz_phase113_probe_expect(text) to authenticated;
 
--- Pick a real workspace/transaction/document that has an owner membership and two
--- unrelated auth identities. Existing canonical rows are read-only probe anchors.
 select set_config('p113.ws',(
   select w.id::text
   from public.workspaces w
@@ -126,7 +124,6 @@ select set_config('p113.read_receipt',gen_random_uuid()::text,true);
 select set_config('p113.approval_response',gen_random_uuid()::text,true);
 select set_config('p113.operation',gen_random_uuid()::text,true);
 
--- Owner establishes an invited external principal and company-only visibility.
 select set_config('request.jwt.claims',jsonb_build_object('role','authenticated','sub',current_setting('p113.owner'))::text,true);
 select set_config('request.jwt.claim.sub',current_setting('p113.owner'),true);
 set local role authenticated;
@@ -144,7 +141,6 @@ with x as (
   ) body
 ) select set_config('p113.company_grant',body->>'grantId',true) from x;
 
--- Exact invited identity sees its invitation, stale activation fails, then self-activation succeeds.
 select set_config('request.jwt.claims',jsonb_build_object('role','authenticated','sub',current_setting('p113.client1'))::text,true);
 select set_config('request.jwt.claim.sub',current_setting('p113.client1'),true);
 select private.enjaz_phase113_probe_assert(auth.uid()=current_setting('p113.client1')::uuid,'client1 auth.uid mismatch');
@@ -170,14 +166,12 @@ select private.enjaz_phase113_probe_assert(
   'company grant silently implied transaction access'
 );
 
--- A second unrelated authenticated identity sees neither invitation nor workspace and cannot query authority.
 select set_config('request.jwt.claims',jsonb_build_object('role','authenticated','sub',current_setting('p113.client2'))::text,true);
 select set_config('request.jwt.claim.sub',current_setting('p113.client2'),true);
 select private.enjaz_phase113_probe_assert(jsonb_array_length(public.list_client_portal_invitations_v1())=0,'cross-client invitation leak');
 select private.enjaz_phase113_probe_assert(jsonb_array_length(public.list_client_portal_workspaces_v1())=0,'cross-client workspace leak');
 select private.enjaz_phase113_probe_expect('foreign_authority');
 
--- Owner grants the exact transaction permissions and publishes one existing ready document.
 select set_config('request.jwt.claims',jsonb_build_object('role','authenticated','sub',current_setting('p113.owner'))::text,true);
 select set_config('request.jwt.claim.sub',current_setting('p113.owner'),true);
 with x as (
@@ -211,7 +205,6 @@ select public.save_client_portal_request_v1(
   current_setting('p113.tx')::uuid,'approval','__ENJAZ_PHASE113_APPROVAL__','Real Cloud approval probe',null,null,null,current_setting('p113.share')::uuid
 );
 
--- The client can now see only the exact transaction/request facts and execute only governed actions.
 select set_config('request.jwt.claims',jsonb_build_object('role','authenticated','sub',current_setting('p113.client1'))::text,true);
 select set_config('request.jwt.claim.sub',current_setting('p113.client1'),true);
 select private.enjaz_phase113_probe_assert(
@@ -227,7 +220,10 @@ select public.send_client_portal_message_v1(
   current_setting('p113.msg')::uuid,'__ENJAZ_PHASE113_CLIENT_MESSAGE__'
 );
 select private.enjaz_phase113_probe_assert(
-  (select status='fulfilled' from public.client_portal_requests where id=current_setting('p113.req_info')::uuid),
+  exists(
+    select 1 from jsonb_array_elements(public.get_client_portal_read_model_v1(current_setting('p113.ws')::uuid)->'requests') r
+    where r->>'id'=current_setting('p113.req_info') and r->>'status'='fulfilled'
+  ),
   'information request was not fulfilled by governed message'
 );
 select public.respond_client_portal_appointment_v1(
@@ -235,7 +231,10 @@ select public.respond_client_portal_appointment_v1(
   current_setting('p113.appointment_response')::uuid,'confirmed','__ENJAZ_PHASE113_CONFIRM__'
 );
 select private.enjaz_phase113_probe_assert(
-  (select status='fulfilled' from public.client_portal_requests where id=current_setting('p113.req_appointment')::uuid),
+  exists(
+    select 1 from jsonb_array_elements(public.get_client_portal_read_model_v1(current_setting('p113.ws')::uuid)->'requests') r
+    where r->>'id'=current_setting('p113.req_appointment') and r->>'status'='fulfilled'
+  ),
   'appointment request was not fulfilled'
 );
 select public.mark_client_portal_request_read_v1(
@@ -246,11 +245,13 @@ select public.respond_client_portal_document_approval_v1(
   current_setting('p113.approval_response')::uuid,'approved','__ENJAZ_PHASE113_APPROVE__'
 );
 select private.enjaz_phase113_probe_assert(
-  (select status='fulfilled' from public.client_portal_requests where id=current_setting('p113.req_approval')::uuid),
+  exists(
+    select 1 from jsonb_array_elements(public.get_client_portal_read_model_v1(current_setting('p113.ws')::uuid)->'requests') r
+    where r->>'id'=current_setting('p113.req_approval') and r->>'status'='fulfilled'
+  ),
   'document approval request was not fulfilled'
 );
 
--- Prepare a requested-document upload through the canonical Vault database authority.
 with x as (
   select public.prepare_client_portal_requested_document_v1(
     current_setting('p113.ws')::uuid,current_setting('p113.req_document')::uuid,current_setting('p113.operation')::uuid,
@@ -258,12 +259,10 @@ with x as (
   ) body
 ) select set_config('p113.upload_doc',body->>'documentId',true) from x;
 select private.enjaz_phase113_probe_assert(
-  (select state='prepared' from public.document_upload_sessions where id=current_setting('p113.operation')::uuid),
-  'Vault prepare did not create canonical prepared session'
+  public.get_client_portal_document_upload_claim_v1(current_setting('p113.operation')::uuid)->>'state'='prepared',
+  'Vault prepare did not expose canonical prepared claim'
 );
 
--- Remove upload permission while the Vault operation is prepared. This must permanently retire
--- the request and make a later canonical document-version acknowledgement fail closed.
 select set_config('request.jwt.claims',jsonb_build_object('role','authenticated','sub',current_setting('p113.owner'))::text,true);
 select set_config('request.jwt.claim.sub',current_setting('p113.owner'),true);
 select public.save_client_portal_grant_v1(
@@ -271,9 +270,14 @@ select public.save_client_portal_grant_v1(
   'transaction',current_setting('p113.tx')::uuid,
   array['view','approve_document','message','confirm_appointment','view_finance']::text[],null,null
 );
+select set_config('request.jwt.claims',jsonb_build_object('role','authenticated','sub',current_setting('p113.client1'))::text,true);
+select set_config('request.jwt.claim.sub',current_setting('p113.client1'),true);
 select private.enjaz_phase113_probe_assert(
-  (select revoked_at is not null from public.client_portal_requests where id=current_setting('p113.req_document')::uuid),
-  'permission removal did not auto-revoke requested-document request'
+  not exists(
+    select 1 from jsonb_array_elements(public.get_client_portal_read_model_v1(current_setting('p113.ws')::uuid)->'requests') r
+    where r->>'id'=current_setting('p113.req_document')
+  ),
+  'permission removal did not retire requested-document request from client projection'
 );
 reset role;
 select private.enjaz_phase113_probe_expect('vault_ack_after_permission_revoke');
@@ -282,7 +286,6 @@ select private.enjaz_phase113_probe_assert(
   'revoked portal upload produced a document version'
 );
 
--- Revoke the transaction grant entirely; all transaction-scoped facts must disappear from client projection.
 select set_config('request.jwt.claims',jsonb_build_object('role','authenticated','sub',current_setting('p113.owner'))::text,true);
 select set_config('request.jwt.claim.sub',current_setting('p113.owner'),true);
 set local role authenticated;
@@ -303,19 +306,18 @@ select private.enjaz_phase113_probe_assert(
   jsonb_array_length(public.get_client_portal_read_model_v1(current_setting('p113.ws')::uuid)->'requests')=0,
   'revoked transaction grant still exposed requests'
 );
+
+reset role;
 select private.enjaz_phase113_probe_assert(
   not exists(select 1 from public.workspace_memberships where workspace_id=current_setting('p113.ws')::uuid and user_id=current_setting('p113.client1')::uuid)
   and not exists(select 1 from public.organization_members where workspace_id=current_setting('p113.ws')::uuid and user_id=current_setting('p113.client1')::uuid),
   'portal activation minted staff/workforce trust'
 );
-
-reset role;
 select private.enjaz_phase113_probe_assert(
   (select count(*)>=8 from public.audit_events where workspace_id=current_setting('p113.ws')::uuid and details->>'principalId'=current_setting('p113.principal')),
   'governed portal audit evidence incomplete'
 );
 
--- Zero-residue cleanup. Existing canonical workspace/company/transaction/document rows are untouched.
 delete from public.client_portal_document_approval_responses where principal_id=current_setting('p113.principal')::uuid;
 delete from public.client_portal_document_approval_targets where principal_id=current_setting('p113.principal')::uuid;
 delete from public.client_portal_requested_document_uploads where principal_id=current_setting('p113.principal')::uuid;
