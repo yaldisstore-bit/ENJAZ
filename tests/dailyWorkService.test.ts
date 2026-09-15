@@ -61,6 +61,7 @@ function commandsFor(actions: FollowupMutationInput[]): NotificationCommandGatew
 }
 
 function schedulingFor(calendar: CalendarStateMutationInput[], renewals: RenewalStateMutationInput[]): SchedulingCommandGateway {
+  const unavailable = async (): Promise<never> => { throw new Error('appointment command not expected in Daily Work lifecycle test'); };
   return {
     async mutateCalendarState(input) {
       calendar.push(input);
@@ -78,6 +79,13 @@ function schedulingFor(calendar: CalendarStateMutationInput[], renewals: Renewal
         version: input.expectedVersion + 1, updatedAt: '2026-09-04T12:30:00.000Z', wasDuplicate: false,
       });
     },
+    checkCalendarEventStaffConflicts: unavailable,
+    createCalendarEvent: unavailable,
+    updateCalendarEventMetadata: unavailable,
+    rescheduleCalendarEvent: unavailable,
+    setCalendarEventStaff: unavailable,
+    setCalendarEventConfirmation: unavailable,
+    recordCalendarEventAttendance: unavailable,
   };
 }
 
