@@ -147,9 +147,10 @@ test('v4 read model exposes no storage authority, draft binding or actor metadat
     "'{documentUploads}'","'{documentApprovalResponses}'",
     "'documentFactoryApplied',a.document_factory_applied",
   ]) assert.ok(model.includes(marker),marker);
-  for(const forbidden of ['storage_path','checksum','actor_user_id','principal_id','draft_id','resource_share_id','created_by','approved_by']){
+  for(const forbidden of ['storage_path','checksum','actor_user_id','draft_id','resource_share_id','created_by','approved_by']){
     assert.equal(model.includes(forbidden),false,forbidden);
   }
+  assert.equal(model.includes("'principalId'"),false,'principalId must not be projected even though principal_id is used internally to filter rows');
 });
 
 test('new public commands have explicit authenticated execution and no default browser table authority',()=>{
