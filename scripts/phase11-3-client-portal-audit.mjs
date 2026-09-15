@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
+const exists=(p)=>fs.existsSync(path.join(root,p));
 const json=(p)=>JSON.parse(read(p));
 const errors=[];
 const req=(v,m)=>{if(!v)errors.push(m)};
@@ -24,7 +25,7 @@ req(m3?.status==='ACTIVE'&&m3?.anchors?.join(',')==='11'&&m3?.closureEvidence===
 req(m4?.status==='PLANNED','M4 must remain PLANNED while Phase 11.3 is open');
 req(state.systemId==='M3'&&state.systemStatus==='ACTIVE','Phase 11.3 machine state must activate M3');
 req(state.phase11_4Allowed===false&&state.successorStatus==='LOCKED','Phase 11.4 must remain locked');
-req(state.exitGatePassed===false,'Phase 11.3 cannot be closed at kickoff');
+req(state.exitGatePassed===false,'Phase 11.3 cannot be closed during foundation work');
 
 for(const [field,value] of [
   ['portalPrincipalMayBecomeWorkspaceMember',false],
@@ -46,12 +47,18 @@ for(const [field,value] of [
   ['externalWriteAuditRequired',true],
   ['revocationMustFailClosed',true],
   ['databaseAuthorityExtensionRequired',true],
-  ['databaseAuthorityExtensionApplied',false]
+  ['databaseAuthorityExtensionApplied',false],
+  ['authorityContractAdded',true],
+  ['authorityContractTestsAdded',true],
+  ['destructiveLeakageTestsAdded',true]
 ]) req(state[field]===value,`Phase 11.3 authority invariant drifted: ${field}`);
 
+req(state.authorityContractPath==='src/features/client-portal/clientPortalAuthority.ts'&&exists(state.authorityContractPath),'authority contract file is missing');
+req(state.authorityContractTestsPath==='tests/clientPortalAuthority.test.ts'&&exists(state.authorityContractTestsPath),'authority contract destruction tests are missing');
+req(Array.isArray(state.authorityContractVerifiedScenarios)&&state.authorityContractVerifiedScenarios.length>=10,'authority contract verified scenario ledger is incomplete');
 req(state.crossWorkspaceLeakageTolerance==='ZERO'&&state.crossClientLeakageTolerance==='ZERO','portal leakage tolerance must remain ZERO');
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false,'governed budgets drifted');
-req(state.knownCriticalBlockers===0&&state.knownHighBlockers===0&&state.knownFunctionalBlockers===0,'kickoff blocker ledger must remain zero');
+req(state.knownCriticalBlockers===0&&state.knownHighBlockers===0&&state.knownFunctionalBlockers===0,'foundation blocker ledger must remain zero');
 
 for(const marker of [
   'separate from ENJAZ staff authority',
@@ -65,10 +72,33 @@ for(const marker of [
   'Phase 11.4 — Omnichannel Communications Hub — M4 remains LOCKED'
 ]) has(kickoff,marker);
 
+const contract=read(state.authorityContractPath);
+const tests=read(state.authorityContractTestsPath);
+for(const marker of [
+  "status === 'active'",
+  'grant.workspaceId !== principal.workspaceId',
+  'grant.principalId !== principal.id',
+  'grant.revokedAt !== null',
+  'fact.staffOnly === true',
+  'fact.clientVisible !== true',
+  'CLIENT_PORTAL_FORBIDDEN_DOMAINS',
+  'assertClientSafeProjection'
+]) has(contract,marker);
+for(const marker of [
+  'company access never silently grants transaction access',
+  'cross-client grants are ignored',
+  'cross-workspace grants are ignored',
+  'revoked portal membership fails closed immediately',
+  'revoked, future and expired grants fail closed',
+  'internal domains remain categorically forbidden',
+  'client safe projection allowlist rejects internal fields',
+  'no user_metadata or workspace membership inference input'
+]) has(tests,marker);
+
 if(errors.length){
   console.error(`ENJAZ PHASE 11.3 CLIENT PORTAL AUDIT FAIL (${errors.length})`);
   for(const e of errors) console.error(`- ${e}`);
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3 CLIENT PORTAL AUDIT PASS — M3 activated only after certified 11.2 closure; client identity remains outside staff trust roots; object-scoped deny-by-default authority is frozen; M4 stays locked.');
+  console.log('ENJAZ PHASE 11.3 CLIENT PORTAL AUDIT PASS — M3 lifecycle valid; external identity isolated from staff trust roots; executable object-grant contract and destructive leakage tests are present; database extension remains intentionally unapplied; M4 stays locked.');
 }
