@@ -18,7 +18,7 @@
 > - Zero-Escape closure governance merged on canonical `main`
 > - Phase 9.4 M8, Phase 9.5 M13 and Phase 9.6 M18 Phase-9 anchors are formally closed with exact-main, Real Browser, Real Cloud where applicable, Pages and deployed-live certification
 > - Phase 9.7 Intelligence Zero-Escape is formally closed against merged implementation `e8992650afb7bd3bd5c47770d0b2d752cdd0488e`; M2 is globally `CLOSED` under `ZERO_ESCAPE_V1`, while M8/M13/M18 remain `ACTIVE` for later governing anchors
-> - **Phases 10.1–10.6 are formally CLOSED and certified; Phase 11.1 — Notifications & Follow-ups is the sole authorized successor.**
+> - **Phases 10.1–10.6 and Phases 11.1–11.2 are formally CLOSED and certified; Phase 11.3 — Client Portal — M3 is the sole authorized successor. M3 remains `PLANNED` until the governed Phase 11.3 kickoff.**
 
 ---
 
@@ -338,7 +338,7 @@ Phase 8 expands workflow UI into the main operational operating system of ENJAZ.
 - **M8 remains ACTIVE** for Phase 12; **M13 and M18 remain ACTIVE** for Phase 15. No later anchor is fabricated as complete.
 - Product / UI/UX / Engineering / Certification: **PASS / PASS / PASS / PASS**; unresolved/Critical/High/functional blockers: **0 / 0 / 0 / 0**.
 - Formal evidence: `docs/PHASE9_7_STATE.json`, `docs/PHASE9_7_CLOSURE.md`, `docs/PHASE9_7_POSTMERGE_RECERTIFICATION.md`.
-- Historical transition note: Phase 10.1 was authorized at Phase 9.7 closure; Phases 10.1–10.6 have since CLOSED with governed evidence. **Phase 11.1 — Notifications & Follow-ups is now AUTHORIZED NEXT.**
+- Historical transition note: Phase 10.1 was authorized at Phase 9.7 closure; Phases 10.1–10.6 and Phases 11.1–11.2 have since CLOSED with governed evidence. **Phase 11.3 — Client Portal — M3 is now AUTHORIZED NEXT; M3 remains `PLANNED` until kickoff.**
 
 ---
 
