@@ -1,6 +1,6 @@
 # Phase 11.5-B — Appointments, Staff Assignment, Conflicts & History — Evidence
 
-**Status:** IN PROGRESS / source candidate pending CI, PR merge and exact-main post-merge recertification  
+**Status:** SOURCE CANDIDATE CERTIFIED / PR merge and exact-main post-merge recertification pending  
 **Certified predecessor:** Phase 11.5-A at main SHA `2e85c9f8fa9066ab75bae3dbf6ecdcef02917530`  
 **Major system:** M10 — Scheduling, Appointments & Deadline Engine  
 **Successor:** Phase 11.6 remains LOCKED
@@ -93,7 +93,23 @@ Authenticated browser lifecycle writes remain closed:
 
 The gateway accepts only the governed response schemas `enjaz.scheduling-calendar-event.v2` and `enjaz.scheduling-conflict.v1`; malformed/shadow responses fail closed. Staff IDs are UUID-validated, deduplicated and sorted before RPC dispatch.
 
-`tests/schedulingCommands.test.ts` contains B-specific RPC/payload/parser/fail-closed coverage. Current exact-head CI certification is intentionally pending until the source audit is wired into the M10 workflow and passes on one stable candidate SHA.
+`tests/schedulingCommands.test.ts` contains B-specific RPC/payload/parser/fail-closed coverage. On exact source SHA `d72cd2d26d24e280a910f6bde264552bbefdac8b`, M10 run `35026665288` passed all 13 gateway tests together with the A preservation tests, Daily Work composition, database audit/selftest, secrets audit, TypeScript, build and dependency audit.
+
+## Source CI certification
+
+The exact source SHA `d72cd2d26d24e280a910f6bde264552bbefdac8b` was certified before this evidence-only update:
+
+- M10 run `35026665288` — PASS;
+- Project Quality Constitution run `35026665314` — PASS;
+- Roadmap Amendment run `35026665322` — PASS;
+- failed workflow count on the exact SHA — **0**;
+- scheduling gateway tests — **13/13 PASS**;
+- frozen production total JavaScript — **759,027 / 760,000 bytes**;
+- budget margin — **973 bytes**;
+- budget cap was **not increased**;
+- npm high-severity audit — **0 vulnerabilities**.
+
+The current branch head after State/Evidence recording must still pass the same source gates before the PR is opened. The recorded source SHA is therefore evidence basis, not a substitute for final-head CI.
 
 ## Advisor result
 
@@ -130,6 +146,6 @@ Those final-system requirements remain assigned to Phase 11.5-D unless a later g
 
 ## Current exit condition
 
-11.5-B remains open until all B source gates pass on one exact branch SHA, the PR is merged, and the exact merged `main` SHA passes post-merge M10/Quality/Real Browser/Pages recertification with zero critical/high/functional blockers.
+11.5-B remains open until the final branch head passes all B source gates, the PR is merged, and the exact merged `main` SHA passes post-merge M10/Quality/Real Browser/Pages recertification with zero critical/high/functional blockers.
 
 **Phase 11.6 remains LOCKED.**
