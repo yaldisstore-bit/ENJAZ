@@ -3,6 +3,7 @@
 **Status:** CLOSED  
 **Closed on:** 2026-09-15  
 **Implementation PR:** #164  
+**Formal closure PR:** #165  
 **Final certified branch head:** `e29411298ff7404ae856fe5e523b20ae55acdb7d`  
 **Canonical implementation merge:** `c9b52706efd86e391518f82b321b16e72aa81a3d`  
 **Authorized successor:** Phase 11.3 — Client Portal — M3
@@ -18,6 +19,7 @@ The Phase 11.2-specific workflows are branch/PR scoped (`phase11-2-*` push / pul
 ## Certified evidence
 
 - Implementation PR #164: **MERGED**.
+- Formal closure PR #165 records this closure and successor authorization.
 - Final certified branch head: `e29411298ff7404ae856fe5e523b20ae55acdb7d`.
 - Phase 11.2 Universal Inbox Integration Gate: **PASS** — run `34894910063` on the final branch head.
 - Phase 11.2 dedicated Real Browser: **PASS** — run `34894909604` on the final branch head.
