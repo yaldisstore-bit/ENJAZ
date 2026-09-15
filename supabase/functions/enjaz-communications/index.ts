@@ -15,10 +15,7 @@ type Communication={id:string;workspace_id:string;contact_id:string|null;transac
 type DocumentRow={id:string;storage_path:string;mime_type:string;size_bytes:number;original_file_name:string|null;title:string;status:string;archived_at:string|null};
 
 const BUCKET='enjaz-documents-private';
-const cors={
-  'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'content-type,x-enjaz-communications-key',
-  'Access-Control-Allow-Methods':'POST,OPTIONS','Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',
-};
+const cors={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'};
 const out=(status:number,body:J,headers:HeadersInit={})=>new Response(JSON.stringify(body),{status,headers:{...cors,...headers}});
 const uid=(value:unknown)=>{
   if(typeof value!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value))throw new Error('INVALID_UUID');
@@ -152,7 +149,7 @@ async function importInboundAttachment(db:ReturnType<typeof createClient>,input:
 }
 
 async function handleTwilio(req:Request,providerAccountId:string){
-  const db=admin(),account=await getAccount(db,providerAccountId),cfg=providerConfig(providerAccountId);if(account.provider!=='twilio'||!cfg.twilioAuthToken)throw new Error('TWILIO_CONFIG_INVALID');
+  const db=admin(),account=await getAccount(db,providerAccountId),cfg=providerConfig(providerAccountId);if(account.provider!=='twilio'||!cfg.twilioAuthToken||!cfg.twilioAccountSid)throw new Error('TWILIO_CONFIG_INVALID');
   const raw=await req.text();const params=new URLSearchParams(raw);const signature=req.headers.get('x-twilio-signature')||'';const exactUrl=req.url;
   if(!await verifyTwilioSignature({url:exactUrl,params,signature,authToken:cfg.twilioAuthToken}))return out(401,{ok:false,error:'WEBHOOK_SIGNATURE_INVALID'});
   const messageSid=txt(params.get('MessageSid')||params.get('SmsSid'),500);const status=params.get('MessageStatus')||params.get('SmsStatus');
@@ -160,7 +157,7 @@ async function handleTwilio(req:Request,providerAccountId:string){
   const from=txt(params.get('From'),160);const body=params.get('Body')||'';const fp=await endpointFingerprint(account.channel,from,fingerprintSecret());
   const ingested=await db.rpc('ingest_communication_provider_message_v1',{p_workspace_id:account.workspace_id,p_provider_account_id:account.id,p_provider_message_id:messageSid,p_provider_event_id:`${messageSid}:received`,p_endpoint_fingerprint:fp,p_subject:null,p_body_text:body||'(media message)',p_summary:summarize(body||'(media message)'),p_occurred_at:new Date().toISOString()});if(ingested.error)throw ingested.error;
   const communicationId=uid((ingested.data as J).communicationId);const mediaCount=Math.min(Number(params.get('NumMedia')||0),10);
-  for(let i=0;i<mediaCount;i++)try{const mediaUrl=txt(params.get(`MediaUrl${i}`),1500);const mime=txt(params.get(`MediaContentType${i}`),160).toLowerCase();if(!allowedVaultMime(mime))continue;const auth=btoa(`${cfg.twilioAccountSid||''}:${cfg.twilioAuthToken}`);const media=await fetch(mediaUrl,{headers:{Authorization:`Basic ${auth}`}});if(!media.ok)throw new Error(`TWILIO_MEDIA_HTTP_${media.status}`);const bytes=new Uint8Array(await media.arrayBuffer());const ext=mime==='application/pdf'?'pdf':mime==='image/jpeg'?'jpg':mime==='image/png'?'png':mime==='image/webp'?'webp':'bin';await importInboundAttachment(db,{account,communicationId,fileName:`twilio-${messageSid}-${i}.${ext}`,mimeType:mime,bytes});}catch(error){console.error('Twilio attachment import failed',error)}
+  for(let i=0;i<mediaCount;i++)try{const mediaUrl=txt(params.get(`MediaUrl${i}`),1500);const mime=txt(params.get(`MediaContentType${i}`),160).toLowerCase();if(!allowedVaultMime(mime))continue;const auth=btoa(`${cfg.twilioAccountSid}:${cfg.twilioAuthToken}`);const media=await fetch(mediaUrl,{headers:{Authorization:`Basic ${auth}`}});if(!media.ok)throw new Error(`TWILIO_MEDIA_HTTP_${media.status}`);const bytes=new Uint8Array(await media.arrayBuffer());const ext=mime==='application/pdf'?'pdf':mime==='image/jpeg'?'jpg':mime==='image/png'?'png':mime==='image/webp'?'webp':mime.includes('wordprocessingml')?'docx':mime.includes('spreadsheetml')?'xlsx':'bin';await importInboundAttachment(db,{account,communicationId,fileName:`twilio-${messageSid}-${i}.${ext}`,mimeType:mime,bytes});}catch(error){console.error('Twilio attachment import failed',error)}
   return new Response('<?xml version="1.0" encoding="UTF-8"?><Response></Response>',{status:200,headers:{'Content-Type':'application/xml; charset=utf-8','Cache-Control':'no-store'}});
 }
 
@@ -188,5 +185,5 @@ Deno.serve(async(req)=>{
     if(webhookIndex>=0){const provider=parts[webhookIndex+1],accountId=uid(parts[webhookIndex+2]);if(provider==='twilio')return await handleTwilio(req,accountId);if(provider==='resend')return await handleResend(req,accountId);return out(404,{ok:false,error:'WEBHOOK_PROVIDER_UNKNOWN'});}
     if(parts.at(-1)==='dispatch'||url.searchParams.get('action')==='dispatch')return await dispatch(req);
     return out(404,{ok:false,error:'ROUTE_NOT_FOUND'});
-  }catch(error){console.error(error);const message=error instanceof Error?error.message:'UNEXPECTED_ERROR';return out(500,{ok:false,error:message});}
+  }catch(error){console.error('enjaz-communications gateway error',error);return out(500,{ok:false,error:'GATEWAY_ERROR'});}
 });
