@@ -6,7 +6,9 @@ const sql=fs.readFileSync('database/migrations/phase_11_4_omnichannel_conversati
 const deny=fs.readFileSync('database/migrations/phase_11_4_omnichannel_browser_deny_hardening.sql','utf8');
 const performance=fs.readFileSync('database/migrations/phase_11_4_omnichannel_performance_hardening.sql','utf8');
 const direction=fs.readFileSync('database/migrations/phase_11_4_omnichannel_transport_direction_hardening.sql','utf8');
+const content=fs.readFileSync('database/migrations/phase_11_4_omnichannel_canonical_content_hardening.sql','utf8');
 const probe=fs.readFileSync('database/migrations/phase_11_4_live_conversation_transport_probe.sql','utf8');
+const contentProbe=fs.readFileSync('database/migrations/phase_11_4_live_canonical_content_probe.sql','utf8');
 
 const normalize=(value)=>value.replace(/\s+/g,' ').trim();
 
@@ -14,6 +16,25 @@ test('canonical communications is evolved, never replaced',()=>{
   assert.doesNotMatch(sql,/create\s+table\s+public\.communications\b/i);
   assert.match(sql,/alter\s+table\s+public\.communications[\s\S]*conversation_id/i);
   assert.match(sql,/communications_channel_check[\s\S]*'sms'[\s\S]*'whatsapp'[\s\S]*'client_portal'/i);
+});
+
+test('full message subject and body stay on canonical communications instead of a shadow store',()=>{
+  assert.match(content,/alter\s+table\s+public\.communications[\s\S]*add\s+column\s+subject\s+text[\s\S]*add\s+column\s+body_text\s+text/i);
+  assert.match(content,/communications_subject_check[\s\S]*between\s+1\s+and\s+998/i);
+  assert.match(content,/communications_body_text_check[\s\S]*between\s+1\s+and\s+200000/i);
+  assert.match(content,/Short canonical preview\/search summary only; not the full message body\./i);
+  assert.match(content,/Canonical sanitized plain-text message body\. Provider raw payload\/HTML is not authoritative here\./i);
+  assert.doesNotMatch(content,/create\s+table\s+public\.(?:message|communication)_(?:bodies|contents|payloads)\b/i);
+});
+
+test('canonical message envelope and content become immutable once transport begins',()=>{
+  assert.match(content,/guard_communication_content_immutability_v1/i);
+  for(const field of ['channel','direction','summary','subject','body_text','occurred_at','metadata']){
+    assert.match(content,new RegExp(`new\\.${field}\\s+is\\s+distinct\\s+from\\s+old\\.${field}`,'i'));
+  }
+  assert.match(content,/ENJAZ_COMMUNICATION_CONTENT_IMMUTABLE_AFTER_TRANSPORT/);
+  assert.match(content,/security\s+invoker[\s\S]*set\s+search_path\s*=\s*''/i);
+  assert.match(content,/revoke\s+all\s+on\s+function\s+private\.guard_communication_content_immutability_v1\(\)\s+from\s+public,anon,authenticated/i);
 });
 
 test('provider identity table stores no credential or raw webhook authority',()=>{
@@ -107,4 +128,16 @@ test('Real Cloud probe attacks every critical data-model boundary and proves zer
   ]) assert.match(probe,new RegExp(`ENJAZ_PHASE114B_${marker}`));
   assert.match(probe,/disable\s+trigger\s+communication_transport_events_append_only[\s\S]*enable\s+trigger\s+communication_transport_events_append_only/i);
   assert.match(probe,/disable\s+trigger\s+communication_relink_events_append_only[\s\S]*enable\s+trigger\s+communication_relink_events_append_only/i);
+});
+
+test('Real Cloud canonical content probe proves long body, pre-send editability, post-send immutability, relink separation, and zero residue',()=>{
+  for(const marker of [
+    'CONTENT_PROBE_BODY_NOT_LONG_ENOUGH','PRETRANSPORT_CONTENT_EDIT_FAILED',
+    'POSTTRANSPORT_BODY_MUTATION_ALLOWED','POSTTRANSPORT_SUBJECT_MUTATION_ALLOWED',
+    'POSTTRANSPORT_SUMMARY_MUTATION_ALLOWED','POSTTRANSPORT_METADATA_MUTATION_ALLOWED',
+    'RELINK_STATE_SEPARATION_FAILED','CONTENT_PROBE_RESIDUE',
+  ]) assert.match(contentProbe,new RegExp(`ENJAZ_PHASE114B_${marker}`));
+  assert.match(contentProbe,/char_length\(body_text\)>1200/i);
+  assert.match(contentProbe,/insert\s+into\s+public\.communication_transport_attempts[\s\S]*update\s+public\.communications\s+set\s+body_text='mutated after transport'/i);
+  assert.match(contentProbe,/set\s+link_status='review_required'\s*,\s*link_version=link_version\+1/i);
 });
