@@ -2,6 +2,7 @@ import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../../data/
 import type { IdWorkspaceTableName, ListRequest, RowOf } from '../../data/contracts/dataTypes.ts';
 import type { ReadRepository } from '../../data/repositories/createEntityRepository.ts';
 import type { NotificationCommandGateway } from '../notifications/notificationCommands.ts';
+import type { SchedulingCommandGateway } from '../scheduling/schedulingCommands.ts';
 import { buildDailyWorkSnapshot, type DailyWorkItem, type DailyWorkSnapshot, type DailyWorkSource } from './dailyWorkModel.ts';
 
 const DAILY_WORK_PAGE_SIZE = 100;
@@ -109,9 +110,20 @@ export async function loadDailyWork(
   return Object.freeze({ workspaceId, snapshot: buildDailyWorkSnapshot(source, now) });
 }
 
+function requireGovernedSourceVersion(item: DailyWorkItem): number {
+  const version = item.sourceVersion;
+  if (typeof version !== 'number' || !Number.isSafeInteger(version) || version < 1) throw new DailyWorkActionUnavailableError(item.source);
+  return version;
+}
+
+function operationId(): string {
+  return crypto.randomUUID();
+}
+
 export async function completeDailyWorkItem(
   factory: EnjazDataLayerFactory,
   notificationCommands: NotificationCommandGateway,
+  schedulingCommands: SchedulingCommandGateway,
   userId: string,
   item: DailyWorkItem,
   now: Date = new Date(),
@@ -123,11 +135,23 @@ export async function completeDailyWorkItem(
     return;
   }
   if (item.source === 'calendar') {
-    await layer.calendar.update(item.sourceId, { status: 'completed' });
+    await schedulingCommands.mutateCalendarState({
+      workspaceId,
+      eventId: item.sourceId,
+      operationId: operationId(),
+      expectedVersion: requireGovernedSourceVersion(item),
+      action: 'complete',
+    });
     return;
   }
   if (item.source === 'renewal') {
-    await layer.renewals.update(item.sourceId, { status: 'completed', last_completed_at: timestamp });
+    await schedulingCommands.mutateRenewalState({
+      workspaceId,
+      renewalId: item.sourceId,
+      operationId: operationId(),
+      expectedVersion: requireGovernedSourceVersion(item),
+      action: 'complete',
+    });
     return;
   }
   if (item.source === 'workflow') {
