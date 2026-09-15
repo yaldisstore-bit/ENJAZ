@@ -7,6 +7,7 @@ const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
 const json=(p)=>JSON.parse(read(p));
 const c1=read('database/migrations/phase_11_3_client_portal_actions_foundation.sql');
 const c2=read('database/migrations/phase_11_3_client_portal_governed_document_actions.sql');
+const c2Hardening=read('database/migrations/phase_11_3_client_portal_governed_document_actions_hardening.sql');
 const edge=read('supabase/functions/enjaz-document-vault/index.ts');
 const contract=read('src/features/client-portal/clientPortalActions.ts');
 const state=json('docs/PHASE11_3_STATE.json');
@@ -14,7 +15,6 @@ const errors=[];
 const req=(ok,msg)=>{if(!ok)errors.push(msg)};
 const has=(source,marker,label=marker)=>req(source.includes(marker),`missing ${label}`);
 
-// C1 foundation must remain intact.
 for(const table of ['client_portal_messages','client_portal_appointment_responses','client_portal_request_read_receipts']){
   has(c1,`create table public.${table}`,`${table} table`);
   has(c1,`alter table public.${table} enable row level security`,`${table} RLS`);
@@ -30,7 +30,6 @@ for(const marker of [
 req(!/service_role/i.test(c1),'C1 migration must not depend on service_role');
 req(!/prepare_document_upload_v1|acknowledge_document_upload_v1|review_document_draft_v1/i.test(c1),'C1 must stay a foundation without smuggled C2 authority');
 
-// C2 requested-document upload must broker into canonical Document Vault truth.
 for(const table of ['client_portal_requested_document_uploads','client_portal_document_approval_targets','client_portal_document_approval_responses']){
   has(c2,`create table public.${table}`,`${table} table`);
   has(c2,`alter table public.${table} enable row level security`,`${table} RLS`);
@@ -50,8 +49,14 @@ for(const marker of [
   'inspectStoredBinary(admin,expected)',"admin.rpc('acknowledge_document_upload_v2'",
   'complete_client_portal_requested_document_v1'
 ]) has(edge,marker,`Vault edge marker ${marker}`);
+for(const marker of [
+  'private.enforce_client_portal_vault_ack_authority_v1',
+  'before insert on public.document_versions',
+  "v_request.required_permission<>'upload_requested_document'",
+  "private.client_portal_principal_has_grant_v1(",
+  'ENJAZ_PORTAL_VAULT_ACK_PERMISSION_REVOKED','ENJAZ_PORTAL_VAULT_ACK_PRINCIPAL_INVALID'
+]) has(c2Hardening,marker,`Vault acknowledgement hardening ${marker}`);
 
-// C2 approval must use exact published-document scope and one canonical Factory transition.
 for(const marker of [
   'private.review_document_draft_canonical_v1',
   "p_actor_source not in ('staff_owner','client_portal')",
@@ -66,7 +71,6 @@ for(const marker of [
   "v_comment,v_actor,'client_portal'","'client_portal.document_approval.responded'"
 ]) has(c2,marker,`approval marker ${marker}`);
 
-// Read model must expose action outcomes but no storage/draft/staff authority.
 const modelStart=c2.indexOf('create or replace function private.get_client_portal_read_model_v4_impl');
 const modelEnd=c2.indexOf('create or replace function public.get_client_portal_read_model_v1',modelStart);
 req(modelStart>=0&&modelEnd>modelStart,'C2 read-model v4 missing');
@@ -77,8 +81,9 @@ for(const marker of [
   "private.client_portal_grant_allows_v1(p_workspace_id,'transaction',a.transaction_id,'approve_document')",
   "'{documentUploads}'","'{documentApprovalResponses}'"
 ]) has(model,marker,`C2 read-model marker ${marker}`);
-for(const forbidden of ['storage_path','checksum','actor_user_id','principal_id','draft_id','resource_share_id','created_by','approved_by','workspace_memberships','organization_members'])
+for(const forbidden of ['storage_path','checksum','actor_user_id','draft_id','resource_share_id','created_by','approved_by','workspace_memberships','organization_members'])
   req(!model.includes(forbidden),`C2 read model leaks internal field/source: ${forbidden}`);
+req(!model.includes("'principalId'"),'C2 read model must not project principalId even though principal_id is used internally for filtering');
 
 for(const forbiddenWrite of [
   /insert\s+into\s+public\.(workspace_memberships|organization_members|transaction_notes|financial_ledger_entries)/i,
@@ -97,7 +102,7 @@ for(const marker of [
 req(state.phase==='11.3'&&state.status==='IN_PROGRESS'&&state.systemId==='M3','Phase 11.3/M3 must remain active');
 req(state.currentSlice==='11.3-C'&&state.currentSliceName==='Governed Client Actions','canonical current slice must remain 11.3-C until merge/advance');
 req(state.mode==='GOVERNED_CLIENT_ACTIONS_COMPLETE','11.3-C completion mode drifted');
-req(state.governedClientActionFoundationAdded===true,'C1 foundation must remain recorded');
+req(state.governedClientActionFoundationAdded===true,'C1 foundation must be recorded');
 req(state.governedClientWriteBoundaryAdded===true,'C2 governed write boundary must be recorded');
 req(state.governedClientWriteBoundaryStatus==='IMPLEMENTED_PENDING_REAL_CLOUD','C2 status must remain honest about Real Cloud');
 req(Array.isArray(state.governedClientActionsImplemented)&&['message','confirm_appointment','mark_request_read','upload_requested_document','approve_document'].every((x)=>state.governedClientActionsImplemented.includes(x)),'implemented client action ledger incomplete');
@@ -112,5 +117,5 @@ if(errors.length){
   errors.forEach((e)=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3-C GOVERNED CLIENT ACTIONS PASS — all five client action classes are exact-scope, replay-safe and audited; requested-document upload is brokered through hardened Document Vault acknowledgement; document/draft approval enters one canonical Document Factory review transition; Real Cloud and 11.3-D remain pending.');
+  console.log('ENJAZ PHASE 11.3-C GOVERNED CLIENT ACTIONS PASS — all five client action classes are exact-scope, replay-safe and audited; requested-document upload is brokered through hardened Document Vault acknowledgement with live authority recheck; document/draft approval enters one canonical Document Factory review transition; Real Cloud and 11.3-D remain pending.');
 }
