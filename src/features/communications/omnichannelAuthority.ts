@@ -108,10 +108,10 @@ export function chooseAutomaticCommunicationLink(
   candidates: readonly CommunicationLinkCandidate[],
 ): CommunicationLink | null {
   const eligible = candidates.filter((candidate) => candidate.workspaceId === workspaceId && candidate.deterministic === true);
-  if (eligible.length === 0) return null;
+  const [first, ...rest] = eligible;
+  if (!first) return null;
 
-  const first = eligible[0];
-  for (const candidate of eligible.slice(1)) {
+  for (const candidate of rest) {
     if (!sameLink(first, candidate)) return null;
   }
 
