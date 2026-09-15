@@ -6,6 +6,7 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
 const json=(p)=>JSON.parse(read(p));
 const sql=read('database/migrations/phase_11_3_client_portal_authority.sql');
+const hardening=read('database/migrations/phase_11_3_client_portal_authority_hardening.sql');
 const state=json('docs/PHASE11_3_STATE.json');
 const errors=[];
 const req=(ok,msg)=>{if(!ok)errors.push(msg)};
@@ -72,6 +73,8 @@ has(sql,'insert into public.client_portal_authority_events','dedicated authority
 has(sql,'insert into public.audit_events','global audit integration');
 has(sql,"'client_portal.'||p_event_type",'portal audit action namespace');
 has(sql,"set revoked_at=coalesce(revoked_at,now())",'principal deactivation cascades grant revocation');
+has(hardening,'revoke all on function private.record_client_portal_authority_event_v1(uuid,uuid,uuid,uuid,text,text,jsonb)','internal authority-event writer revoke');
+has(hardening,'from authenticated;','internal authority-event writer must not remain browser-callable');
 
 req(state.phase==='11.3'&&state.status==='IN_PROGRESS'&&state.systemId==='M3','Phase 11.3 lifecycle must remain active');
 req(state.databaseAuthorityMigrationAdded===true,'state must record database authority migration');
@@ -87,5 +90,5 @@ if(errors.length){
   errors.forEach((e)=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3B CLIENT PORTAL DB AUTHORITY AUDIT PASS — external principals and exact object grants are isolated from staff trust roots; direct browser table authority stays closed; revocation and audit are explicit.');
+  console.log('ENJAZ PHASE 11.3B CLIENT PORTAL DB AUTHORITY AUDIT PASS — external principals and exact object grants are isolated from staff trust roots; direct browser table authority stays closed; internal audit writer is non-callable; revocation and audit are explicit.');
 }
