@@ -22,7 +22,7 @@
     {"id":"M7","name":"Document Factory & Official Form Engine","anchors":["10"],"kind":"document-generation","status":"ACTIVE","closureEvidence":null},
     {"id":"M8","name":"Regulatory / Knowledge Base Engine","anchors":["9","12"],"kind":"knowledge-system","status":"ACTIVE","closureEvidence":null},
     {"id":"M9","name":"Agentic ENJAZ Copilot","anchors":["12"],"kind":"agentic-ai","status":"PLANNED","closureEvidence":null},
-    {"id":"M10","name":"Scheduling, Appointments & Deadline Engine","anchors":["11"],"kind":"scheduling","status":"PLANNED","closureEvidence":null},
+    {"id":"M10","name":"Scheduling, Appointments & Deadline Engine","anchors":["11"],"kind":"scheduling","status":"ACTIVE","closureEvidence":null},
     {"id":"M11","name":"Integration Platform / API / Webhooks","anchors":["14","15"],"kind":"integration-platform","status":"PLANNED","closureEvidence":null},
     {"id":"M12","name":"Compliance, Audit & Evidence Center","anchors":["15"],"kind":"compliance","status":"PLANNED","closureEvidence":null},
     {"id":"M13","name":"Business Intelligence & Forecasting Center","anchors":["9","15"],"kind":"business-intelligence","status":"ACTIVE","closureEvidence":null},
