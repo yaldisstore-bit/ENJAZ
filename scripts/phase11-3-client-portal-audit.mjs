@@ -25,7 +25,7 @@ req(m3?.status==='ACTIVE'&&m3?.anchors?.join(',')==='11'&&m3?.closureEvidence===
 req(m4?.status==='PLANNED','M4 must remain PLANNED while Phase 11.3 is open');
 req(state.systemId==='M3'&&state.systemStatus==='ACTIVE','Phase 11.3 machine state must activate M3');
 req(state.phase11_4Allowed===false&&state.successorStatus==='LOCKED','Phase 11.4 must remain locked');
-req(state.exitGatePassed===false,'Phase 11.3 cannot be closed before D certification finishes');
+req(state.exitGatePassed===false,'Phase 11.3 cannot be closed before deployed/post-merge D certification finishes');
 
 for(const [field,value] of [
   ['portalPrincipalMayBecomeWorkspaceMember',false],
@@ -47,7 +47,7 @@ for(const [field,value] of [
   ['externalWriteAuditRequired',true],
   ['revocationMustFailClosed',true],
   ['databaseAuthorityExtensionRequired',true],
-  ['databaseAuthorityExtensionApplied',false],
+  ['databaseAuthorityExtensionApplied',true],
   ['authorityContractAdded',true],
   ['authorityContractTestsAdded',true],
   ['destructiveLeakageTestsAdded',true]
@@ -100,7 +100,7 @@ for(const marker of [
   'no user_metadata or workspace membership inference input'
 ]) has(authorityTests,marker);
 
-// 11.3-B remains code-complete throughout the later C/D slices.
+// 11.3-B remains code-complete and Real Cloud verified throughout later C/D slices.
 for(const p of [
   state.clientSafeReadModelMigrationPath,
   state.clientSafeReadModelHardeningPath,
@@ -108,8 +108,8 @@ for(const p of [
   state.governedClientRequestSourceMigrationPath,
 ]) req(typeof p==='string'&&exists(p),`11.3-B evidence path missing: ${p}`);
 req(state.clientSafeReadModelFoundationAdded===true,'11.3-B foundation must remain recorded');
-req(state.governedClientRequestSourceAdded===true&&state.governedClientRequestSourceStatus==='IMPLEMENTED_PENDING_REAL_CLOUD','governed request source must remain implemented without false live certification');
-req(state.clientSafeReadModelAdded===true&&state.clientSafeReadModelStatus==='IMPLEMENTED_PENDING_REAL_CLOUD','client-safe read model must remain code-complete without false live certification');
+req(state.governedClientRequestSourceAdded===true&&state.governedClientRequestSourceStatus==='REAL_CLOUD_VERIFIED','governed request source must remain Real Cloud verified');
+req(state.clientSafeReadModelAdded===true&&state.clientSafeReadModelStatus==='REAL_CLOUD_VERIFIED','client-safe read model must remain Real Cloud verified');
 req(state.clientSafeReadModelCompletionBlocker===null,'11.3-B code completion blocker must stay cleared');
 
 // 11.3-C is merged and remains the sole governed write boundary under the D UI.
@@ -123,7 +123,7 @@ for(const p of [
 ]) req(typeof p==='string'&&exists(p),`11.3-C evidence path missing: ${p}`);
 req(state.governedClientActionFoundationAdded===true,'C1 governed action foundation must remain recorded');
 req(state.governedClientWriteBoundaryAdded===true,'C2 governed client write boundary must be recorded');
-req(state.governedClientWriteBoundaryStatus==='IMPLEMENTED_PENDING_REAL_CLOUD','C2 must not falsely claim Real Cloud completion');
+req(state.governedClientWriteBoundaryStatus==='REAL_CLOUD_VERIFIED','C2 must remain authenticated Real Cloud verified');
 req(Array.isArray(state.governedClientActionsImplemented)&&['message','confirm_appointment','mark_request_read','upload_requested_document','approve_document'].every((x)=>state.governedClientActionsImplemented.includes(x)),'11.3-C implemented action ledger incomplete');
 req(Array.isArray(state.governedClientActionsPending)&&state.governedClientActionsPending.length===0,'11.3-C pending action ledger must remain empty');
 
@@ -149,22 +149,24 @@ for(const marker of [
   'private.get_client_portal_read_model_v4_impl'
 ]) has(c2,marker);
 
-// 11.3-D code implementation is active, but certification is deliberately incomplete.
+// 11.3-D implementation is active and partially certified; deployed authenticated browser/post-merge proof remains open.
 req(state.currentSlice==='11.3-D'&&state.currentSliceName==='Portal Experience & Certification','canonical current slice must be 11.3-D');
 req(state.currentSliceBaseCommit==='1bc053650360213c72930fa5ca8e326a1178e846','11.3-D must be based on merged 11.3-C');
 req(state.mode==='PORTAL_EXPERIENCE_IMPLEMENTED_PENDING_CERTIFICATION','11.3-D mode drifted');
-req(state.portalExperienceStatus==='IMPLEMENTED_PENDING_REAL_CLOUD_AND_BROWSER_CERTIFICATION','portal experience must not overclaim certification');
+req(state.portalExperienceStatus==='REAL_CLOUD_VERIFIED_PENDING_AUTHENTICATED_BROWSER_DEPLOYED_AND_POST_MERGE','portal experience certification status drifted');
 req(state.portalRoute==='/portal','canonical client portal route drifted');
 for(const p of [
   state.portalUiPath,state.portalStylesPath,state.portalGatewayPath,state.portalActivationMigrationPath,
-  state.portalExperienceAuditPath,state.portalExperienceTestsPath,
+  state.portalExperienceAuditPath,state.portalExperienceTestsPath,state.realCloudCertificationAuditPath,
+  state.databasePerformanceHardeningMigrationPath,state.realCloudProbeMigrationPath,
 ]) req(typeof p==='string'&&exists(p),`11.3-D evidence path missing: ${p}`);
+req(Array.isArray(state.durableSessionProbePaths)&&state.durableSessionProbePaths.length===4&&state.durableSessionProbePaths.every((p)=>typeof p==='string'&&exists(p)),'durable fresh-session evidence set is incomplete');
 req(state.portalUiAdded===true,'11.3-D portal UI implementation must be recorded');
 req(state.invitationActivationJourneyAdded===true,'11.3-D invitation activation code journey must be recorded');
 req(state.staticPortalIsolationTestsAdded===true,'11.3-D isolation tests must be recorded');
 req(state.portalStylesLazyLoadedWithoutBudgetIncrease===true,'portal styling must remain lazy without increasing frozen budgets');
-req(state.revocationJourneyAdded===false,'revocation journey cannot be claimed before certified end-to-end proof');
-req(state.permissionMatrixTestsAdded===false,'authenticated Real Cloud permission matrix remains pending');
+req(state.revocationJourneyAdded===true,'Real Cloud revocation journey evidence must remain recorded');
+req(state.permissionMatrixTestsAdded===true,'authenticated Real Cloud permission matrix evidence must remain recorded');
 
 const portalUi=read(state.portalUiPath);
 const portalGateway=read(state.portalGatewayPath);
@@ -183,13 +185,17 @@ for(const marker of [
   'workspace_memberships','organization_members',"'principal.activated','self_activation'"
 ]) has(activation,marker);
 
-req(state.databaseAuthorityExtensionApplied===false,'Real Cloud database apply remains pending');
-for(const field of [
-  'realCloudAuthenticatedVerification','freshPortalBootstrapVerification','durableWriteRoundTripVerification',
-  'realBrowserMobileVerification','failureConflictRecoveryVerification','auditReconciliationVerification',
-  'deployedLiveCriticalPathVerification','postMergeRecertification'
-]) req(state[field]==='PENDING',`${field} must remain PENDING until real certification evidence exists`);
-req(state.exitGatePassed===false,'M3/11.3 may not close from code/static certification alone');
+req(state.databaseAuthorityExtensionApplied===true,'Real Cloud database apply must remain recorded');
+req(state.realCloudAuthenticatedVerification==='PASS','authenticated Real Cloud verification must remain PASS');
+req(state.freshPortalBootstrapVerification==='PASS','fresh portal bootstrap verification must remain PASS');
+req(state.durableWriteRoundTripVerification==='PASS','durable write/reload verification must remain PASS');
+req(state.realBrowserPortalShellVerification==='PASS','Real Chromium portal shell verification must remain PASS');
+req(state.realBrowserMobileVerification==='PREAUTH_SHELL_PASS_AUTHENTICATED_DEPLOYED_PENDING','browser certification must distinguish shell pass from pending authenticated deployed journey');
+req(state.failureConflictRecoveryVerification==='PASS','failure/conflict recovery verification must remain PASS');
+req(state.auditReconciliationVerification==='PASS','audit reconciliation verification must remain PASS');
+req(state.deployedLiveCriticalPathVerification==='PENDING','deployed live critical path must remain pending before merge/deploy');
+req(state.postMergeRecertification==='PENDING','post-merge recertification must remain pending before merge');
+req(state.exitGatePassed===false,'M3/11.3 may not close before deployed/post-merge certification');
 req(state.phase11_4Allowed===false&&state.successorStatus==='LOCKED','Phase 11.4 must remain locked');
 
 if(errors.length){
@@ -197,5 +203,5 @@ if(errors.length){
   for(const e of errors) console.error(`- ${e}`);
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3 CLIENT PORTAL AUDIT PASS — M3 remains ACTIVE; A/B/C are preserved; 11.3-D isolated /portal UI and self-activation are implemented inside frozen budgets; Real Cloud, authenticated permission matrix, full Chromium/deployed certification and M3 closure remain pending; M4 stays locked.');
+  console.log('ENJAZ PHASE 11.3 CLIENT PORTAL AUDIT PASS — M3 remains ACTIVE; A/B/C are preserved; 11.3-D isolated /portal UI and self-activation are implemented inside frozen budgets; authenticated Real Cloud, permission/revocation destruction, fresh-session durability and Real Chromium shell are certified; deployed authenticated browser/post-merge certification remains pending; M4 stays locked.');
 }
