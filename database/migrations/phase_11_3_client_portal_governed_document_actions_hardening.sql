@@ -1,4 +1,7 @@
--- ENJAZ Phase 11.3-C2 hardening — close the Vault acknowledgement race.
+-- ENJAZ Phase 11.3-C2 hardening.
+-- 1) Close the Vault acknowledgement revocation race.
+-- 2) Preserve per-document publication authority in the client action read model.
+--
 -- The service-owned Document Vault acknowledgement remains canonical, but when
 -- the upload originated from a portal request the authoritative document-version
 -- insert re-proves the portal request and grant inside the same database transaction.
@@ -69,5 +72,58 @@ drop trigger if exists client_portal_vault_ack_authority on public.document_vers
 create trigger client_portal_vault_ack_authority
 before insert on public.document_versions
 for each row execute function private.enforce_client_portal_vault_ack_authority_v1();
+
+-- An approval response is a child fact of the published document. If that
+-- document is later unshared/expired, the response must fail closed from the
+-- client's projection as well; transaction-level approve_document alone is not
+-- enough to keep the document identifier visible.
+create or replace function private.get_client_portal_read_model_v4_impl(p_workspace_id uuid)
+returns jsonb language plpgsql stable security definer set search_path='' as $$
+declare
+  v_principal uuid;
+  v_base jsonb;
+  v_uploads jsonb;
+  v_approvals jsonb;
+begin
+  v_principal:=private.require_client_portal_principal_v1(p_workspace_id);
+  v_base:=private.get_client_portal_read_model_v3_impl(p_workspace_id);
+
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'requestId',u.request_id,'transactionId',u.transaction_id,'documentId',u.document_id,
+    'status',u.status,'createdAt',u.created_at,'acknowledgedAt',u.acknowledged_at
+  ) order by u.created_at,u.operation_id),'[]'::jsonb)
+  into v_uploads
+  from public.client_portal_requested_document_uploads u
+  where u.workspace_id=p_workspace_id and u.principal_id=v_principal
+    and private.client_portal_grant_allows_v1(p_workspace_id,'transaction',u.transaction_id,'upload_requested_document');
+
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'id',a.id,'requestId',a.request_id,'transactionId',a.transaction_id,'documentId',a.document_id,
+    'decision',a.decision,'comment',a.comment,'documentFactoryApplied',a.document_factory_applied,'respondedAt',a.responded_at
+  ) order by a.responded_at,a.id),'[]'::jsonb)
+  into v_approvals
+  from public.client_portal_document_approval_responses a
+  join public.client_portal_resource_shares s
+    on s.workspace_id=a.workspace_id
+   and s.id=a.resource_share_id
+   and s.principal_id=a.principal_id
+   and s.transaction_id=a.transaction_id
+   and s.resource_type='document'
+   and s.document_id=a.document_id
+   and s.revoked_at is null
+   and s.valid_from<=now()
+   and (s.valid_until is null or s.valid_until>now())
+  where a.workspace_id=p_workspace_id and a.principal_id=v_principal
+    and private.client_portal_grant_allows_v1(p_workspace_id,'transaction',a.transaction_id,'approve_document');
+
+  return jsonb_set(
+    jsonb_set(v_base,'{documentUploads}',v_uploads,true),
+    '{documentApprovalResponses}',v_approvals,true
+  );
+end;
+$$;
+
+revoke all on function private.get_client_portal_read_model_v4_impl(uuid) from public,anon;
+grant execute on function private.get_client_portal_read_model_v4_impl(uuid) to authenticated;
 
 commit;
