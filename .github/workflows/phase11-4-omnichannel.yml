@@ -2,7 +2,7 @@ name: ENJAZ Phase 11.4 — Omnichannel Communications M4 Gate
 
 on:
   push:
-    branches: [phase11-4-omnichannel-authority]
+    branches: [phase11-4-omnichannel-authority, phase11-4-omnichannel-data-model]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   authority:
-    name: Canonical communications / dedupe / matching / consent / M10 lock
+    name: Canonical communications / transport model / dedupe / matching / consent / M10 lock
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -42,6 +42,10 @@ jobs:
         run: node scripts/phase11-3-lifecycle-audit-runner.mjs scripts/phase11-3-client-portal-audit.mjs
       - name: Phase 11.4-A executable destruction tests
         run: node --experimental-strip-types --test tests/omnichannelAuthority.test.ts
+      - name: Phase 11.4-B data model / Real Cloud evidence audit
+        run: node scripts/phase11-4b-omnichannel-data-model-audit.mjs
+      - name: Phase 11.4-B data model destruction tests
+        run: node --test tests/omnichannelDataModel.test.mjs
       - name: Roadmap lifecycle audit
         run: npm run audit:roadmap
       - name: Preserve canonical database baseline integrity
