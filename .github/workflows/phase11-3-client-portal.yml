@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   authority:
-    name: External identity isolation / safe reads / governed client actions / portal experience / M4 lock
+    name: External identity isolation / safe reads / governed client actions / portal experience / M4 lifecycle
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -37,27 +37,27 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
       - name: Phase 11.3 lifecycle / authority / successor audit
-        run: node scripts/phase11-3-client-portal-audit.mjs
+        run: node scripts/phase11-3-lifecycle-audit-runner.mjs scripts/phase11-3-client-portal-audit.mjs
       - name: Phase 11.3-A executable authority destruction tests
         run: node --experimental-strip-types --test tests/clientPortalAuthority.test.ts
       - name: Phase 11.3-A database authority static audit
-        run: node scripts/phase11-3b-client-portal-db-authority-audit.mjs
+        run: node scripts/phase11-3-lifecycle-audit-runner.mjs scripts/phase11-3b-client-portal-db-authority-audit.mjs
       - name: Phase 11.3-A database authority destruction tests
         run: node --test tests/clientPortalDatabaseAuthority.test.mjs tests/clientPortalDatabaseAuthorityHardening.test.mjs
       - name: Phase 11.3-B client-safe read model audit
-        run: node scripts/phase11-3b-client-safe-read-model-audit.mjs
+        run: node scripts/phase11-3-lifecycle-audit-runner.mjs scripts/phase11-3b-client-safe-read-model-audit.mjs
       - name: Phase 11.3-B client-safe read model destruction tests
         run: node --test tests/clientPortalReadModel.test.mjs tests/clientPortalRequestsReadModel.test.mjs
       - name: Phase 11.3-C governed client action audit
-        run: node scripts/phase11-3c-client-actions-audit.mjs
+        run: node scripts/phase11-3-lifecycle-audit-runner.mjs scripts/phase11-3c-client-actions-audit.mjs
       - name: Phase 11.3-C governed client action destruction tests
         run: node --experimental-strip-types --test tests/clientPortalActions.test.ts && node --test tests/clientPortalActionsDatabase.test.mjs tests/clientPortalGovernedDocumentActions.test.mjs tests/clientPortalGovernedDocumentActionsHardening.test.mjs
       - name: Phase 11.3-D portal experience / activation audit
-        run: node scripts/phase11-3d-client-portal-experience-audit.mjs
+        run: node scripts/phase11-3-lifecycle-audit-runner.mjs scripts/phase11-3d-client-portal-experience-audit.mjs
       - name: Phase 11.3-D portal isolation / activation destruction tests
         run: node --test tests/clientPortalExperience.test.mjs
       - name: Phase 11.3-D Real Cloud certification evidence audit
-        run: node scripts/phase11-3d-real-cloud-certification-audit.mjs
+        run: node scripts/phase11-3-lifecycle-audit-runner.mjs scripts/phase11-3d-real-cloud-certification-audit.mjs
       - name: Phase 11.3-D published certifier syntax guard
         run: node --check scripts/phase11-3-published-portal-e2e.mjs
       - name: Roadmap lifecycle audit
