@@ -68,8 +68,8 @@ jobs:
         run: node --experimental-strip-types --check supabase/functions/enjaz-communications-user/index.ts
       - name: Phase 11.4-D unified communications authority audit
         run: node scripts/phase11-4d-unified-communications-audit.mjs
-      - name: Phase 11.4-D communications service tests
-        run: node --experimental-strip-types --test tests/communicationsHubService.test.ts
+      - name: Phase 11.4-D communications service and dispatch bridge tests
+        run: node --experimental-strip-types --test tests/communicationsHubService.test.ts tests/communicationsDispatchBridge.test.ts
       - name: Roadmap lifecycle audit
         run: npm run audit:roadmap
       - name: Preserve canonical database baseline integrity
