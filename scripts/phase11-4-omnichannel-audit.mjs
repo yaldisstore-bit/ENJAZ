@@ -16,10 +16,18 @@ const authority=read('src/features/communications/omnichannelAuthority.ts');
 const tests=read('tests/omnichannelAuthority.test.ts');
 const schema=read('database/baseline/phase1_2_schema.sql');
 
-req(state.phase==='11.4'&&state.status==='IN_PROGRESS','Phase 11.4 must be IN_PROGRESS during 11.4-A');
-req(state.currentSlice==='11.4-A'&&state.mode==='CANONICAL_AUTHORITY_FOUNDATION','11.4-A lifecycle identity drifted');
+req(state.phase==='11.4'&&state.status==='IN_PROGRESS','Phase 11.4 must remain IN_PROGRESS until formal closure');
+req(['11.4-A','11.4-B','11.4-C','11.4-D'].includes(state.currentSlice),'Phase 11.4 lifecycle slice is unsupported');
+const sliceRank={'11.4-A':1,'11.4-B':2,'11.4-C':3,'11.4-D':4}[state.currentSlice]??0;
+if(sliceRank===1){
+  req(state.mode==='CANONICAL_AUTHORITY_FOUNDATION','11.4-A lifecycle identity drifted');
+  req(state.databaseAuthorityExtensionApplied===false,'11.4-A must not claim database authority extension before 11.4-B');
+}else{
+  req(state.databaseAuthorityExtensionApplied===true,'11.4-B+ must preserve the applied database authority extension');
+  req(state.phase11_4aMergeCommit==='30a9fe04f9173f5bb4f5593e82f1843e994c49e9','11.4-B+ must preserve certified 11.4-A lineage');
+}
 req(state.baseCommit==='90abedd5af199fa497e3c7e4b8c5b2d5e18967d6','Phase 11.4 base must remain the formal Phase 11.3 closure merge');
-req(state.systemId==='M4'&&state.systemStatus==='ACTIVE','M4 must be ACTIVE once Phase 11.4 opens');
+req(state.systemId==='M4'&&state.systemStatus==='ACTIVE','M4 must remain ACTIVE while Phase 11.4 is open');
 req(predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true,'Phase 11.3 predecessor must remain formally CLOSED');
 req(predecessor.phase11_4Allowed===true&&predecessor.nextPhase==='11.4'&&predecessor.successorStatus==='AUTHORIZED_NEXT','Phase 11.3 must explicitly authorize 11.4');
 req(exists(state.predecessorClosureEvidence),'Phase 11.3 closure evidence must exist');
@@ -74,10 +82,14 @@ for(const [key,expected] of [
 req(state.authorityContractAdded===true&&state.authorityContractPath==='src/features/communications/omnichannelAuthority.ts','authority contract state missing');
 req(state.authorityContractTestsAdded===true&&state.authorityContractTestsPath==='tests/omnichannelAuthority.test.ts','authority destruction tests state missing');
 req(Array.isArray(state.authorityContractVerifiedScenarios)&&state.authorityContractVerifiedScenarios.length>=12,'authority scenario ledger incomplete');
-req(state.databaseAuthorityExtensionApplied===false,'11.4-A must not claim database authority extension before 11.4-B');
-req(state.providerIngressImplemented===false&&state.providerEgressImplemented===false,'11.4-A must not claim provider integration');
-req(state.exitGatePassed===false&&state.phase11_5Allowed===false&&state.nextPhase==='11.5'&&state.successorStatus==='LOCKED','11.4-A must keep Phase 11.5 locked');
-req(state.knownCriticalBlockers===0&&state.knownHighBlockers===0&&state.knownFunctionalBlockers===0,'11.4-A blocker ledger must remain zero');
+
+// Provider integration remains forbidden until 11.4-C. Once C/D is active the
+// dedicated C/D audits become responsible for proving its exact governed state.
+if(sliceRank<3){
+  req(state.providerIngressImplemented===false&&state.providerEgressImplemented===false,'11.4-A/B must not claim provider integration');
+}
+req(state.exitGatePassed===false&&state.phase11_5Allowed===false&&state.nextPhase==='11.5'&&state.successorStatus==='LOCKED','Phase 11.4 must keep Phase 11.5 locked until formal closure');
+req(state.knownCriticalBlockers===0&&state.knownHighBlockers===0&&state.knownFunctionalBlockers===0,'Phase 11.4 blocker ledger must remain zero');
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false,'governed production budgets drifted');
 
 for(const marker of [
@@ -110,15 +122,16 @@ for(const marker of [
   'client projection rejects provider secrets raw payloads and internal matching evidence',
 ]) req(has(tests,marker),`destruction test missing: ${marker}`);
 
+// The frozen Phase 1.2 baseline must never be rewritten by later migrations.
 req(has(schema,'create table public.communications ('),'canonical communications table missing from baseline');
-req(has(schema,"channel text not null check (channel in ('call','message','email','meeting','other'))"),'baseline communications channel contract unexpectedly drifted before 11.4-B');
+req(has(schema,"channel text not null check (channel in ('call','message','email','meeting','other'))"),'frozen baseline communications channel contract drifted');
 req(has(schema,'create table public.notification_deliveries ('),'notification_deliveries transport evidence table missing');
-req(has(schema,"channel text not null check (channel in ('in_app','push','email'))"),'notification_deliveries baseline channel contract drifted');
+req(has(schema,"channel text not null check (channel in ('in_app','push','email'))"),'notification_deliveries frozen baseline channel contract drifted');
 req(!has(schema,'provider_access_token')&&!has(schema,'provider_refresh_token')&&!has(schema,'webhook_secret'),'baseline must not contain provider credentials');
 
 if(errors.length){
-  console.error(`ENJAZ PHASE 11.4-A AUTHORITY AUDIT FAIL (${errors.length})`);
+  console.error(`ENJAZ PHASE 11.4 AUTHORITY AUDIT FAIL (${errors.length})`);
   for(const error of errors)console.error(`- ${error}`);
   process.exit(1);
 }
-console.log('ENJAZ PHASE 11.4-A AUTHORITY AUDIT PASS — M4 activation, canonical communications authority, dedupe, matching, relink, consent/approval, secret isolation, predecessor closure and M10 successor lock verified.');
+console.log(`ENJAZ PHASE 11.4 AUTHORITY AUDIT PASS — ${state.currentSlice} preserves M4 canonical communications, dedupe, matching, relink, consent/approval, secret isolation, predecessor closure and M10 successor lock.`);
