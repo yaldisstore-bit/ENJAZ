@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const sql=fs.readFileSync(new URL('../database/migrations/phase_11_3_client_portal_governed_document_actions.sql',import.meta.url),'utf8');
+const hardening=fs.readFileSync(new URL('../database/migrations/phase_11_3_client_portal_governed_document_actions_hardening.sql',import.meta.url),'utf8');
 const edge=fs.readFileSync(new URL('../supabase/functions/enjaz-document-vault/index.ts',import.meta.url),'utf8');
 const has=(source,value)=>assert.ok(source.includes(value),`missing contract: ${value}`);
 
@@ -23,6 +24,23 @@ function violations(source){
   if(/insert\s+into\s+public\.(workspace_memberships|organization_members|transaction_notes|financial_ledger_entries)/i.test(source))out.push('foreign-authority-write');
   if(/grant\s+(select|insert|update|delete|all)[\s\S]{0,220}public\.client_portal_(requested_document_uploads|document_approval_targets|document_approval_responses)/i.test(source))out.push('direct-action-table-grant');
   if(/service_role/i.test(source))out.push('service-role-in-database-migration');
+  return out;
+}
+
+function hardeningViolations(source){
+  const out=[];
+  for(const [marker,label] of [
+    ['create or replace function private.enforce_client_portal_vault_ack_authority_v1','ack-authority-helper'],
+    ['before insert on public.document_versions','document-version-trigger'],
+    ["v_request.required_permission<>'upload_requested_document'",'request-permission-recheck'],
+    ["v_request.status<>'open'",'request-status-recheck'],
+    ["private.client_portal_principal_has_grant_v1(",'grant-recheck'],
+    ["'upload_requested_document'",'upload-permission'],
+    ["p.status='active' and p.revoked_at is null",'principal-recheck'],
+    ['workspace_memberships','staff-collision-recheck'],
+    ['organization_members','workforce-collision-recheck'],
+    ['revoke all on function private.enforce_client_portal_vault_ack_authority_v1() from public,anon,authenticated','helper-browser-revoke'],
+  ]) if(!source.includes(marker))out.push(`missing:${label}`);
   return out;
 }
 
@@ -63,6 +81,14 @@ test('portal upload completion requires canonical checksum-bound Vault acknowled
   has(sql,"'client_portal.document_upload.acknowledged'");
   has(sql,"'client_portal.request.fulfilled','document_vault_acknowledgement'");
   has(sql,'ENJAZ_PORTAL_UPLOAD_REQUEST_CHANGED');
+});
+
+test('Vault acknowledgement re-proves live portal authority inside the authoritative document-version transaction',()=>{
+  assert.deepEqual(hardeningViolations(hardening),[]);
+  has(hardening,"v_session.state<>'prepared'");
+  has(hardening,'new.uploaded_by<>v_upload.actor_user_id');
+  has(hardening,'ENJAZ_PORTAL_VAULT_ACK_PERMISSION_REVOKED');
+  has(hardening,'ENJAZ_PORTAL_VAULT_ACK_PRINCIPAL_INVALID');
 });
 
 test('edge function reuses hardened stored-byte inspection and service-only acknowledgement for portal uploads',()=>{
@@ -145,6 +171,11 @@ test('destruction: removing upload request permission check is detected',()=>{
 test('destruction: removing canonical Document Factory boundary is detected',()=>{
   const broken=sql.replaceAll('private.review_document_draft_canonical_v1','private.fake_portal_review');
   assert.ok(violations(broken).includes('missing:document-factory-canonical-boundary'));
+});
+
+test('destruction: removing same-transaction Vault grant recheck is detected',()=>{
+  const broken=hardening.replace('private.client_portal_principal_has_grant_v1(','private.fake_grant_check(');
+  assert.ok(hardeningViolations(broken).includes('missing:grant-recheck'));
 });
 
 test('destruction: direct browser grant to portal upload table is detected',()=>{
