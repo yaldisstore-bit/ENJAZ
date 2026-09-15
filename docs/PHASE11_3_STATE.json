@@ -14,7 +14,7 @@
   "predecessorStatus": "CLOSED",
   "predecessorClosureEvidence": "docs/PHASE11_2_CLOSURE.md",
   "predecessorExitGatePassed": true,
-  "mode": "GOVERNED_CLIENT_ACTIONS_FOUNDATION",
+  "mode": "GOVERNED_CLIENT_ACTIONS_COMPLETE",
   "systemId": "M3",
   "systemName": "Client Portal",
   "systemStatus": "ACTIVE",
@@ -128,21 +128,25 @@
   "governedClientActionFoundationAdded": true,
   "governedClientActionContractPath": "src/features/client-portal/clientPortalActions.ts",
   "governedClientActionMigrationPath": "database/migrations/phase_11_3_client_portal_actions_foundation.sql",
+  "governedClientDocumentActionsMigrationPath": "database/migrations/phase_11_3_client_portal_governed_document_actions.sql",
+  "governedClientVaultEdgePath": "supabase/functions/enjaz-document-vault/index.ts",
   "governedClientActionAuditPath": "scripts/phase11-3c-client-actions-audit.mjs",
   "governedClientActionTables": [
     "client_portal_messages",
     "client_portal_appointment_responses",
-    "client_portal_request_read_receipts"
+    "client_portal_request_read_receipts",
+    "client_portal_requested_document_uploads",
+    "client_portal_document_approval_targets",
+    "client_portal_document_approval_responses"
   ],
   "governedClientActionsImplemented": [
     "message",
     "confirm_appointment",
-    "mark_request_read"
-  ],
-  "governedClientActionsPending": [
+    "mark_request_read",
     "upload_requested_document",
     "approve_document"
   ],
+  "governedClientActionsPending": [],
   "governedClientActionProperties": [
     "portal messages require exact transaction message permission",
     "optional message request linkage is principal and transaction bound",
@@ -150,12 +154,20 @@
     "appointment response is limited to an active appointment request",
     "appointment response does not mutate staff calendar or M10 scheduling truth",
     "critical read receipt inherits the request required permission",
-    "message appointment and read writes are idempotent and audited",
+    "requested-document upload derives company and transaction scope from the exact governed request",
+    "portal requested-document upload reuses Document Vault signed upload, stored-byte inspection and checksum-bound acknowledgement",
+    "failed Vault sessions fail the portal upload action closed and permit a fresh retry operation",
+    "portal upload request is fulfilled only after the canonical document is acknowledged and ready",
+    "approval requests remain bound to an active explicitly published document share",
+    "only staff owner authority can bind an approval request to a Document Factory draft",
+    "staff and portal draft decisions enter one canonical Document Factory review transition",
+    "portal document approval can remain document-only when no draft binding exists",
+    "message appointment read upload and approval writes are idempotent and audited",
     "portal action tables have no direct browser privileges",
-    "client action read projections expose no actor or authority metadata"
+    "client action read projections expose no storage checksum actor draft-binding or authority metadata"
   ],
-  "governedClientWriteBoundaryAdded": false,
-  "governedClientWriteBoundaryStatus": "FOUNDATION_PENDING_VAULT_UPLOAD_AND_DOCUMENT_APPROVAL",
+  "governedClientWriteBoundaryAdded": true,
+  "governedClientWriteBoundaryStatus": "IMPLEMENTED_PENDING_REAL_CLOUD",
   "portalUiAdded": false,
   "invitationActivationJourneyAdded": false,
   "revocationJourneyAdded": false,
