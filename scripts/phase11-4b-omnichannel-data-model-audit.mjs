@@ -8,7 +8,9 @@ const paths={
   browserDeny:'database/migrations/phase_11_4_omnichannel_browser_deny_hardening.sql',
   performance:'database/migrations/phase_11_4_omnichannel_performance_hardening.sql',
   direction:'database/migrations/phase_11_4_omnichannel_transport_direction_hardening.sql',
+  canonicalContent:'database/migrations/phase_11_4_omnichannel_canonical_content_hardening.sql',
   probe:'database/migrations/phase_11_4_live_conversation_transport_probe.sql',
+  contentProbe:'database/migrations/phase_11_4_live_canonical_content_probe.sql',
 };
 const statePath='docs/PHASE11_4_STATE.json';
 const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
@@ -16,7 +18,9 @@ const migration=read(paths.authority);
 const browserDeny=read(paths.browserDeny);
 const performance=read(paths.performance);
 const direction=read(paths.direction);
+const canonicalContent=read(paths.canonicalContent);
 const probe=read(paths.probe);
+const contentProbe=read(paths.contentProbe);
 const state=JSON.parse(read(statePath));
 const errors=[];
 const req=(condition,message)=>{if(!condition)errors.push(message)};
@@ -33,8 +37,16 @@ req(state.databaseAuthorityMigrationPath===paths.authority,'11.4-B authority mig
 req(state.databaseBrowserDenyHardeningPath===paths.browserDeny,'11.4-B browser deny hardening path drifted');
 req(state.databasePerformanceHardeningPath===paths.performance,'11.4-B performance hardening path drifted');
 req(state.databaseTransportDirectionHardeningPath===paths.direction,'11.4-B direction hardening path drifted');
+req(state.databaseCanonicalContentHardeningPath===paths.canonicalContent,'11.4-B canonical content hardening path drifted');
 req(state.databaseLiveProbePath===paths.probe,'11.4-B live probe path drifted');
+req(state.databaseCanonicalContentLiveProbePath===paths.contentProbe,'11.4-B canonical content live probe path drifted');
 req(state.realCloudDatabaseVerification==='PASS'&&state.realCloudDatabaseProbeZeroResidue===true,'11.4-B Real Cloud database evidence must PASS with zero residue');
+req(state.realCloudCanonicalContentVerification==='PASS'&&state.realCloudCanonicalContentProbeZeroResidue===true,'11.4-B canonical content Real Cloud evidence must PASS with zero residue');
+req(state.canonicalMessageContentAuthority==='communications','full message content must remain on canonical communications');
+req(state.canonicalMessageSubjectColumn==='subject'&&state.canonicalMessageBodyColumn==='body_text','canonical message subject/body columns drifted');
+req(state.summaryRole==='SHORT_PREVIEW_SEARCH_ONLY','summary must not be treated as full message body');
+req(state.providerRawHtmlCanonicalAllowed===false,'raw provider HTML must not become canonical communication truth');
+req(state.contentMutableBeforeTransport===true&&state.contentImmutableAfterTransport===true,'canonical content lifecycle contract drifted');
 req(state.durableWriteRoundTripVerification==='PASS_DATABASE_PROBE','11.4-B durable database round trip must PASS');
 req(state.permissionMatrixVerification==='PASS_BACKEND_ONLY_DIRECT_BROWSER_DENY','11.4-B browser authority boundary must PASS');
 req(state.supabaseM4SecurityAdvisorRlsNoPolicyFindings===0,'M4 must have zero RLS-no-policy advisor findings');
@@ -47,6 +59,20 @@ req(has(migration,/alter\s+table\s+public\.communications[\s\S]*add\s+column\s+c
 req(has(migration,/add\s+column\s+link_status\s+text\s+not\s+null\s+default\s+'unmatched'/i),'canonical communications must preserve fail-closed link state');
 req(has(migration,/add\s+column\s+link_version\s+integer\s+not\s+null\s+default\s+1/i),'canonical communications relink concurrency version is required');
 for(const channel of ['sms','whatsapp','client_portal']) req(migration.includes(`'${channel}'`),`canonical channel ${channel} is missing`);
+
+req(has(canonicalContent,/alter\s+table\s+public\.communications[\s\S]*add\s+column\s+subject\s+text[\s\S]*add\s+column\s+body_text\s+text/i),'canonical communications must own full subject/body content');
+req(has(canonicalContent,/communications_subject_check[\s\S]*between\s+1\s+and\s+998/i),'canonical subject bound is missing');
+req(has(canonicalContent,/communications_body_text_check[\s\S]*between\s+1\s+and\s+200000/i),'canonical body bound is missing');
+req(has(canonicalContent,/Short canonical preview\/search summary only; not the full message body\./i),'summary preview-only role must be documented at the database boundary');
+req(has(canonicalContent,/Canonical sanitized plain-text message body\. Provider raw payload\/HTML is not authoritative here\./i),'canonical body must explicitly reject provider raw payload/HTML authority');
+req(has(canonicalContent,/guard_communication_content_immutability_v1/i),'post-transport content immutability guard is missing');
+for(const field of ['channel','direction','summary','subject','body_text','occurred_at','metadata']){
+  req(has(canonicalContent,new RegExp(`new\\.${field}\\s+is\\s+distinct\\s+from\\s+old\\.${field}`,'i')),`post-transport immutability guard omits ${field}`);
+}
+req(has(canonicalContent,/ENJAZ_COMMUNICATION_CONTENT_IMMUTABLE_AFTER_TRANSPORT/i),'content immutability failure contract is missing');
+req(has(canonicalContent,/before\s+update\s+of\s+channel\s*,\s*direction\s*,\s*summary\s*,\s*subject\s*,\s*body_text\s*,\s*occurred_at\s*,\s*metadata/i),'canonical content trigger field scope drifted');
+req(has(canonicalContent,/security\s+invoker[\s\S]*set\s+search_path\s*=\s*''/i),'canonical content guard must remain security invoker with empty search_path');
+req(has(canonicalContent,/revoke\s+all\s+on\s+function\s+private\.guard_communication_content_immutability_v1\(\)\s+from\s+public\s*,\s*anon\s*,\s*authenticated/i),'canonical content helper must not be directly API callable');
 
 const tables=[
   'communication_conversations','communication_provider_accounts','communication_endpoint_bindings',
@@ -105,6 +131,15 @@ for(const marker of [
 ]) req(probe.includes(marker),`Real Cloud destructive probe marker ${marker} is missing`);
 req(has(probe,/disable\s+trigger\s+communication_transport_events_append_only[\s\S]*enable\s+trigger\s+communication_transport_events_append_only/i),'probe must re-enable transport append-only trigger after privileged cleanup');
 req(has(probe,/disable\s+trigger\s+communication_relink_events_append_only[\s\S]*enable\s+trigger\s+communication_relink_events_append_only/i),'probe must re-enable relink append-only trigger after privileged cleanup');
+
+for(const marker of [
+  'ENJAZ_PHASE114B_CONTENT_PROBE_BODY_NOT_LONG_ENOUGH','ENJAZ_PHASE114B_PRETRANSPORT_CONTENT_EDIT_FAILED',
+  'ENJAZ_PHASE114B_POSTTRANSPORT_BODY_MUTATION_ALLOWED','ENJAZ_PHASE114B_POSTTRANSPORT_SUBJECT_MUTATION_ALLOWED',
+  'ENJAZ_PHASE114B_POSTTRANSPORT_SUMMARY_MUTATION_ALLOWED','ENJAZ_PHASE114B_POSTTRANSPORT_METADATA_MUTATION_ALLOWED',
+  'ENJAZ_PHASE114B_RELINK_STATE_SEPARATION_FAILED','ENJAZ_PHASE114B_CONTENT_PROBE_RESIDUE',
+]) req(contentProbe.includes(marker),`Real Cloud canonical-content probe marker ${marker} is missing`);
+req(has(contentProbe,/char_length\(body_text\)>1200/i),'canonical-content probe must prove body capacity beyond legacy summary limit');
+req(has(contentProbe,/insert\s+into\s+public\.communication_transport_attempts[\s\S]*update\s+public\.communications\s+set\s+body_text='mutated after transport'/i),'canonical-content probe must attempt mutation only after transport begins');
 
 if(errors.length){
   console.error(`ENJAZ PHASE 11.4-B DATA MODEL AUDIT FAIL (${errors.length})`);
