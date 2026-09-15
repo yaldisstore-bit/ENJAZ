@@ -167,7 +167,10 @@ async function runPrimaryBrowserJourney(){
     await page.getByRole('heading',{name:MARKER}).waitFor({state:'visible',timeout:30000});
     await page.getByPlaceholder('اكتب ردك أو المعلومة المطلوبة…').fill(MESSAGE);
     await page.getByRole('button',{name:'إرسال الرد'}).click();
-    await page.getByText('تم التعامل مع هذا الطلب.').waitFor({state:'visible',timeout:30000});
+    await page.getByRole('button',{name:'الطلبات'}).click();
+    const completedRequest=page.locator('.cp-request').filter({hasText:MARKER});
+    await completedRequest.waitFor({state:'visible',timeout:30000});
+    await completedRequest.getByText('مكتمل').waitFor({state:'visible',timeout:30000});
     record('published_client_reply_completed');
     await assertNoHorizontalOverflow(page,'published_mobile_390_action');
   }finally{
