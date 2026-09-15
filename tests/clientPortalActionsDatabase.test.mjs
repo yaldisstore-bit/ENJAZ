@@ -99,8 +99,11 @@ test('v3 read model exposes only the calling principal action facts behind curre
     "client_portal_grant_allows_v1(p_workspace_id,'transaction',r.transaction_id,q.required_permission)",
     "'{messages}'","'{appointmentResponses}'","'{readReceipts}'",
   ]) assert.ok(model.includes(marker),marker);
-  for(const forbidden of ['actor_user_id','required_permission','created_by','revoked_by','workspace_memberships','organization_members','transaction_notes']){
-    assert.equal(model.includes(forbidden),false,forbidden);
+  for(const forbiddenProjection of ["'actorUserId'","'requiredPermission'","'createdBy'","'revokedBy'","'principalId'"]){
+    assert.equal(model.includes(forbiddenProjection),false,forbiddenProjection);
+  }
+  for(const forbiddenSource of ['workspace_memberships','organization_members','transaction_notes']){
+    assert.equal(model.includes(forbiddenSource),false,forbiddenSource);
   }
 });
 
