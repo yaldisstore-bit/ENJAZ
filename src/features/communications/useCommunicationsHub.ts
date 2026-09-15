@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
+import { sendQueuedCommunication } from './communicationsDispatchBridge.ts';
 import {
   CommunicationsHubCommandError,
   CommunicationsHubWorkspaceUnavailableError,
@@ -33,7 +34,10 @@ export type CommunicationsHubController = Readonly<{
 function messageFor(error: unknown): string {
   if (error instanceof CommunicationsHubWorkspaceUnavailableError) return 'تعذر العثور على مساحة العمل المرتبطة بحسابك.';
   if (error instanceof CommunicationsHubCommandError) {
-    if (error.code === 'ENJAZ_COMMUNICATION_WORKSPACE_FORBIDDEN') return 'ليس لديك تصريح لعرض مركز الاتصالات في مساحة العمل هذه.';
+    if (error.code === 'ENJAZ_COMMUNICATION_WORKSPACE_FORBIDDEN' || error.code === 'WORKSPACE_FORBIDDEN') return 'ليس لديك تصريح لعرض أو إرسال اتصالات في مساحة العمل هذه.';
+    if (error.code === 'OUTBOUND_COMMAND_NOT_OWNED') return 'لا يمكنك إرسال أمر اتصال أنشأه مستخدم آخر.';
+    if (error.code === 'OUTBOUND_COMMAND_NOT_QUEUED') return 'تغيرت حالة أمر الإرسال قبل التنفيذ. حدّث المحادثة ثم حاول مجددًا.';
+    if (error.code === 'COMMUNICATIONS_EDGE_UNAVAILABLE' || error.code === 'DISPATCH_BRIDGE_UNAVAILABLE') return 'بوابة الإرسال الآمنة غير متاحة حالياً؛ لم يتم إرسال الرسالة.';
     if (error.code === 'ENJAZ_COMMUNICATION_RETRY_RECONCILIATION_REQUIRED') return 'حالة الإرسال غير محسومة لدى المزوّد؛ أوقفنا إعادة الإرسال لمنع التكرار.';
     if (error.code === 'ENJAZ_COMMUNICATION_RETRY_STALE' || error.code === 'ENJAZ_COMMUNICATION_RELINK_STALE') return 'تغيرت المحادثة قبل تنفيذ الأمر. حدّث العرض ثم حاول مجددًا.';
     if (error.code === 'ENJAZ_COMMUNICATION_RETRY_TRANSPORT_UNSAFE') return 'لا يمكن إعادة هذا الإرسال بأمان لأن للمزوّد دليلاً قد يعني أنه استلمه.';
@@ -105,7 +109,10 @@ export function useCommunicationsHub(): CommunicationsHubController {
     retryLoad() { setAttempt((value) => value + 1); },
     async retryOutbound(item: CommunicationTimelineItem) {
       if (!userId || !item.canRetry || !item.outboundCommandId || item.outboundVersion === null) return;
-      await run(`retry:${item.id}`,() => retryCommunicationOutbound(factory,userId,item.outboundCommandId!,item.outboundVersion!));
+      await run(`retry:${item.id}`, async () => {
+        await retryCommunicationOutbound(factory,userId,item.outboundCommandId!,item.outboundVersion!);
+        await sendQueuedCommunication(factory,userId,item.outboundCommandId!);
+      });
     },
     async relink(item: CommunicationReviewItem) {
       if (!userId || !selectedConversation) {
