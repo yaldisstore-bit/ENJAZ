@@ -100,8 +100,11 @@ for(const marker of [
 ]) has(contract,marker,`client action contract ${marker}`);
 
 req(state.phase==='11.3'&&state.status==='IN_PROGRESS'&&state.systemId==='M3','Phase 11.3/M3 must remain active');
-req(state.currentSlice==='11.3-C'&&state.currentSliceName==='Governed Client Actions','canonical current slice must remain 11.3-C until merge/advance');
-req(state.mode==='GOVERNED_CLIENT_ACTIONS_COMPLETE','11.3-C completion mode drifted');
+const sliceC=state.currentSlice==='11.3-C'&&state.currentSliceName==='Governed Client Actions';
+const sliceD=state.currentSlice==='11.3-D'&&state.currentSliceName==='Portal Experience & Certification';
+req(sliceC||sliceD,'canonical lifecycle may preserve 11.3-C or legally advance to 11.3-D only');
+if(sliceC) req(state.mode==='GOVERNED_CLIENT_ACTIONS_COMPLETE','11.3-C completion mode drifted');
+if(sliceD) req(state.mode==='PORTAL_EXPERIENCE_IMPLEMENTED_PENDING_CERTIFICATION','11.3-D must preserve completed C under the portal certification mode');
 req(state.governedClientActionFoundationAdded===true,'C1 foundation must be recorded');
 req(state.governedClientWriteBoundaryAdded===true,'C2 governed write boundary must be recorded');
 req(state.governedClientWriteBoundaryStatus==='IMPLEMENTED_PENDING_REAL_CLOUD','C2 status must remain honest about Real Cloud');
@@ -109,7 +112,8 @@ req(Array.isArray(state.governedClientActionsImplemented)&&['message','confirm_a
 req(Array.isArray(state.governedClientActionsPending)&&state.governedClientActionsPending.length===0,'C action pending ledger must be empty after C2');
 req(state.governedClientDocumentActionsMigrationPath==='database/migrations/phase_11_3_client_portal_governed_document_actions.sql','C2 migration evidence path drifted');
 req(state.realCloudAuthenticatedVerification==='PENDING','must not claim Real Cloud without connected project');
-req(state.portalUiAdded===false,'11.3-D UI must not be falsely claimed');
+if(sliceC) req(state.portalUiAdded===false,'11.3-C state must not falsely claim successor UI before advance');
+if(sliceD) req(state.portalUiAdded===true&&state.invitationActivationJourneyAdded===true,'11.3-D state must record the implemented portal UI and activation journey');
 req(state.phase11_4Allowed===false&&state.successorStatus==='LOCKED','M4 must remain locked');
 
 if(errors.length){
@@ -117,5 +121,5 @@ if(errors.length){
   errors.forEach((e)=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3-C GOVERNED CLIENT ACTIONS PASS — all five client action classes are exact-scope, replay-safe and audited; requested-document upload is brokered through hardened Document Vault acknowledgement with live authority recheck; document/draft approval enters one canonical Document Factory review transition; Real Cloud and 11.3-D remain pending.');
+  console.log(`ENJAZ PHASE 11.3-C GOVERNED CLIENT ACTIONS PASS — all five exact-scope, replay-safe and audited client action classes remain preserved through ${state.currentSlice}; requested-document upload stays brokered through hardened Document Vault acknowledgement and document/draft approval stays on the canonical Document Factory transition; Real Cloud remains unclaimed and M4 stays locked.`);
 }
