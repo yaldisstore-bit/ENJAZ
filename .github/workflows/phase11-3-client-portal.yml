@@ -56,6 +56,8 @@ jobs:
         run: node scripts/phase11-3d-client-portal-experience-audit.mjs
       - name: Phase 11.3-D portal isolation / activation destruction tests
         run: node --test tests/clientPortalExperience.test.mjs
+      - name: Phase 11.3-D Real Cloud certification evidence audit
+        run: node scripts/phase11-3d-real-cloud-certification-audit.mjs
       - name: Roadmap lifecycle audit
         run: npm run audit:roadmap
       - name: Preserve canonical database baseline integrity
