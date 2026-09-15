@@ -188,6 +188,11 @@
     "database/migrations/phase_11_3_durable_session_probe_fresh_reload.sql",
     "database/migrations/phase_11_3_durable_session_probe_cleanup.sql"
   ],
+  "pagesDeploymentWorkflowPath": ".github/workflows/enjaz-pages-preview.yml",
+  "deploymentShaManifestAdded": true,
+  "publishedPortalCertificateWorkflowPath": ".github/workflows/phase11-3-published-client-portal.yml",
+  "publishedPortalCertificateScriptPath": "scripts/phase11-3-published-portal-e2e.mjs",
+  "publishedPortalCertificateStatus": "ARMED_PENDING_MAIN_DEPLOY",
   "portalUiAdded": true,
   "invitationActivationJourneyAdded": true,
   "revocationJourneyAdded": true,
