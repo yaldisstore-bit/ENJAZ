@@ -22,6 +22,8 @@ import { NotificationCommandProvider } from '../../features/notifications/Notifi
 import { createNotificationCommandGateway, type NotificationCommandGateway } from '../../features/notifications/notificationCommands.ts';
 import { ProcessRuntimeProvider, type ProcessRuntimeFactory } from '../../features/process-intelligence/ProcessMiningHistoryContext.tsx';
 import { createRegulatoryKnowledgeGateway, type RegulatoryKnowledgeGateway } from '../../features/regulatory/regulatoryKnowledgeCommands.ts';
+import { SchedulingCommandProvider } from '../../features/scheduling/SchedulingCommandContext.tsx';
+import { createSchedulingCommandGateway, type SchedulingCommandGateway } from '../../features/scheduling/schedulingCommands.ts';
 import { createSearchIntelligenceGateway, type SearchIntelligenceGateway } from '../../features/searchIntelligence/searchIntelligenceCommands.ts';
 import { GovernmentProcedureCommandProvider } from '../../features/workflow/GovernmentProcedureCommandContext.tsx';
 import { createGovernmentProcedureRuntimeGateway, type GovernmentProcedureRuntimeGateway } from '../../features/workflow/governmentProcedureRuntime.ts';
@@ -66,6 +68,7 @@ type BaseResources = {
   automationCommands: AutomationCommandGateway;
   fieldOperationsCommands: FieldOperationsCommandGateway;
   notificationCommands: NotificationCommandGateway;
+  schedulingCommands: SchedulingCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
   documentIntelligenceFactory?: DocumentIntelligenceFactory;
@@ -104,6 +107,7 @@ function createProductionResources(): UiR2ProductionResources {
     automationCommands: createAutomationCommandGateway(client),
     fieldOperationsCommands: createFieldOperationsCommandGateway(client),
     notificationCommands: createNotificationCommandGateway(client),
+    schedulingCommands: createSchedulingCommandGateway(client),
     searchIntelligence: createSearchIntelligenceGateway(client),
     regulatoryKnowledge: createRegulatoryKnowledgeGateway(client),
     documentVaultFactory,
@@ -140,6 +144,7 @@ function AuthenticatedR2Runtime({
   automationCommands,
   fieldOperationsCommands,
   notificationCommands,
+  schedulingCommands,
   searchIntelligence,
   regulatoryKnowledge,
   documentVaultFactory,
@@ -156,10 +161,10 @@ function AuthenticatedR2Runtime({
   if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode} />;
   const signOut = async () => { await auth.service.signOut(); };
 
-  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><NotificationCommandProvider gateway={notificationCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
+  return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><NotificationCommandProvider gateway={notificationCommands}><SchedulingCommandProvider gateway={schedulingCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
     <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} documentVaultFactory={documentVaultFactory} documentIntelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} engagementContractFactory={engagementContractFactory} documentWorkspace={workspace} />
-  </ProcessRuntimeProvider></CurrentUserIdProvider></NotificationCommandProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
+  </ProcessRuntimeProvider></CurrentUserIdProvider></SchedulingCommandProvider></NotificationCommandProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
 export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2ProductionResources | undefined }> = {}) {
@@ -180,6 +185,7 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     automationCommands={runtime.resources.automationCommands}
     fieldOperationsCommands={runtime.resources.fieldOperationsCommands}
     notificationCommands={runtime.resources.notificationCommands}
+    schedulingCommands={runtime.resources.schedulingCommands}
     searchIntelligence={runtime.resources.searchIntelligence}
     regulatoryKnowledge={runtime.resources.regulatoryKnowledge}
     documentVaultFactory={documentVaultFactory}

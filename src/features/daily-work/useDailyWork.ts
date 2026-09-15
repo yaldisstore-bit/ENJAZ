@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { DataAccessError } from '../../data/contracts/DataAccessError.ts';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
 import { useNotificationCommandGateway } from '../notifications/NotificationCommandContext.tsx';
+import { useSchedulingCommandGateway } from '../scheduling/SchedulingCommandContext.tsx';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
 import type { DailyWorkItem } from './dailyWorkModel.ts';
 import {
@@ -47,6 +48,7 @@ export function useDailyWork(): DailyWorkController {
   const userId = useCurrentUserId();
   const factory = useDataLayerFactory();
   const notificationCommands = useNotificationCommandGateway();
+  const schedulingCommands = useSchedulingCommandGateway();
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<DailyWorkLoadState>(LOADING_STATE);
   const [actionItemId, setActionItemId] = useState<string | null>(null);
@@ -96,7 +98,7 @@ export function useDailyWork(): DailyWorkController {
         setActionError('انتهت جلسة المستخدم. سجّل الدخول مرة أخرى.');
         return;
       }
-      await runAction(item, () => completeDailyWorkItem(factory, notificationCommands, userId, item));
+      await runAction(item, () => completeDailyWorkItem(factory, notificationCommands, schedulingCommands, userId, item));
     },
     async snooze(item: DailyWorkItem, hours = 2) {
       if (!userId) {
