@@ -15,7 +15,8 @@ function dailyItem(source: DailyWorkItem['source'], sourceId = FOLLOWUP_ID): Dai
   return Object.freeze({
     id: `${source}:${sourceId}`, sourceId, source, title: 'عنصر اختبار', subject: 'شركة اختبار', ownerLabel: 'أنت', stateLabel: 'اليوم', tone: 'gold',
     bucket: 'today', dueAt: '2026-09-04T12:00:00.000Z', transactionId: 'tx-1', companyId: 'company-1', score: 90,
-    completable: source !== 'blocker', snoozable: source === 'followup', sourceVersion: source === 'calendar' || source === 'renewal' ? 1 : undefined,
+    completable: source !== 'blocker', snoozable: source === 'followup',
+    ...(source === 'calendar' || source === 'renewal' ? { sourceVersion: 1 } : {}),
   });
 }
 
