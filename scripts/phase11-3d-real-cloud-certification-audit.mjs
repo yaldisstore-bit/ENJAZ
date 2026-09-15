@@ -18,6 +18,9 @@ const paths={
   reload:'database/migrations/phase_11_3_durable_session_probe_fresh_reload.sql',
   cleanup:'database/migrations/phase_11_3_durable_session_probe_cleanup.sql',
   edge:'supabase/functions/enjaz-document-vault/index.ts',
+  pages:'.github/workflows/enjaz-pages-preview.yml',
+  publishedWorkflow:'.github/workflows/phase11-3-published-client-portal.yml',
+  publishedScript:'scripts/phase11-3-published-portal-e2e.mjs',
 };
 for(const [name,p] of Object.entries(paths)) req(exists(p),`Phase 11.3-D certification evidence missing: ${name} -> ${p}`);
 
@@ -28,6 +31,9 @@ const write=read(paths.write);
 const reload=read(paths.reload);
 const cleanup=read(paths.cleanup);
 const edge=read(paths.edge);
+const pages=read(paths.pages);
+const publishedWorkflow=read(paths.publishedWorkflow);
+const publishedScript=read(paths.publishedScript);
 
 req((performance.match(/create index if not exists cp_/g)||[]).length>=34,'Phase 11.3 FK performance hardening index set is incomplete');
 for(const marker of [
@@ -71,6 +77,27 @@ for(const marker of [
 for(const marker of ["action==='portal-prepare'","action==='portal-acknowledge'",'inspectStoredBinary(admin,expected)',"admin.rpc('acknowledge_document_upload_v2'"])
   has(edge,marker,`live Vault edge ${marker}`);
 
+// Post-merge exact-deployment certificate is armed now, but must not be claimed before it runs on main.
+for(const marker of [
+  'Stamp exact deployed source SHA','dist-live/enjaz-deploy.json','ENJAZ_DEPLOY_SHA',
+  'test -f dist/live/enjaz-deploy.json'
+]) has(pages,marker,`Pages exact-SHA evidence ${marker}`);
+for(const marker of [
+  'workflows: ["ENJAZ Pages Preview"]','ENJAZ_SUPABASE_SECRET_KEY',
+  'LIVE_PORTAL_URL: https://yaldisstore-bit.github.io/ENJAZ/live/portal',
+  'EXPECTED_DEPLOYED_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}',
+  'node --check scripts/phase11-3-published-portal-e2e.mjs',
+  'node scripts/phase11-3-published-portal-e2e.mjs'
+]) has(publishedWorkflow,marker,`published workflow ${marker}`);
+for(const marker of [
+  "schema:'enjaz.phase11-3-published-portal.v1'",'exact_deployed_sha',
+  "user_metadata:{enjaz_test_marker:'phase11_3_published_portal'}",
+  "permissions:['view','message']",'published_invitation_discovered',
+  'published_client_reply_completed','published_activation_did_not_mint_staff_trust',
+  'published_portal_zero_residue','published_auth_user_zero_residue',
+  "{width:1280,height:800,label:'desktop-1280'}","{width:320,height:720,label:'mobile-320'}"
+]) has(publishedScript,marker,`published browser certificate ${marker}`);
+
 req(state.databaseAuthorityExtensionApplied===true,'Real Cloud database authority must be recorded as applied');
 req(state.governedClientRequestSourceStatus==='REAL_CLOUD_VERIFIED','governed request source Real Cloud status missing');
 req(state.clientSafeReadModelStatus==='REAL_CLOUD_VERIFIED','client-safe read model Real Cloud status missing');
@@ -81,6 +108,11 @@ req(state.durableWriteRoundTripVerification==='PASS','durable fresh-session writ
 req(state.failureConflictRecoveryVerification==='PASS','failure/conflict recovery evidence must be PASS');
 req(state.auditReconciliationVerification==='PASS','portal audit reconciliation evidence must be PASS');
 req(state.realBrowserPortalShellVerification==='PASS','Real Chromium portal shell verification must be PASS');
+req(state.pagesDeploymentWorkflowPath===paths.pages,'Pages deployment evidence path drifted');
+req(state.deploymentShaManifestAdded===true,'exact deployed SHA manifest must be armed');
+req(state.publishedPortalCertificateWorkflowPath===paths.publishedWorkflow,'published portal workflow path drifted');
+req(state.publishedPortalCertificateScriptPath===paths.publishedScript,'published portal certifier path drifted');
+req(state.publishedPortalCertificateStatus==='ARMED_PENDING_MAIN_DEPLOY','published portal certificate must remain armed/pending before merge');
 req(state.deployedLiveCriticalPathVerification==='PENDING','deployed-live critical path must remain pending before merge/deploy');
 req(state.postMergeRecertification==='PENDING','post-merge recertification must remain pending before merge');
 req(state.exitGatePassed===false,'Phase 11.3 must remain open until deployed-live/post-merge certification');
@@ -91,5 +123,5 @@ if(errors.length){
   errors.forEach((e)=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3-D REAL CLOUD CERTIFICATION AUDIT PASS — authenticated authority/isolation, revocation, Vault race denial, audit evidence, fresh-session bootstrap, durable write/reload, idempotent replay, zero-residue cleanup and Phase-11.3 FK hardening are represented by reproducible repository evidence; deployed-live and post-merge certification remain pending; M4 stays locked.');
+  console.log('ENJAZ PHASE 11.3-D REAL CLOUD CERTIFICATION AUDIT PASS — authenticated authority/isolation, revocation, Vault race denial, audit evidence, fresh-session bootstrap, durable write/reload, idempotent replay, zero-residue cleanup and Phase-11.3 FK hardening are represented by reproducible repository evidence; exact-SHA public /live/portal certification is armed but deliberately pending main deployment; M4 stays locked.');
 }
