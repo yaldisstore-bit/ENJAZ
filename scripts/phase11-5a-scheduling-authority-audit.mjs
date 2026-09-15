@@ -16,6 +16,8 @@ const production=read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
 const foundation=read('database/migrations/phase_11_5_scheduling_command_boundary_foundation.sql');
 const receiptIntegrity=read('database/migrations/phase_11_5_scheduling_receipt_integrity.sql');
 const liveProbe=read('database/migrations/phase_11_5_live_scheduling_command_probe.sql');
+const lockdown=read('database/migrations/phase_11_5_scheduling_direct_write_lockdown.sql');
+const lockdownProbe=read('database/migrations/phase_11_5_live_scheduling_lockdown_probe.sql');
 const predecessor=json('docs/PHASE11_4_STATE.json');
 const errors=[];
 const req=(v,m)=>{if(!v)errors.push(m)};
@@ -24,8 +26,8 @@ const lacks=(s,m,l)=>req(!s.includes(m),`${l} forbidden marker present: ${m}`);
 
 req(predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true&&predecessor.phase11_5Allowed===true,'Phase 11.4 must remain formally CLOSED and authorize 11.5');
 req(state.phase==='11.5'&&state.systemId==='M10'&&state.systemStatus==='ACTIVE','11.5/M10 lifecycle identity invalid');
-req(state.status==='IN_PROGRESS'&&state.currentSlice==='11.5-A','11.5-A must be current IN_PROGRESS slice');
-req(state.baseCommit==='0850de9e274a18ddb49d319677890a4e59ea7226','11.5 must open from certified Phase 11.4 closure SHA');
+req(state.status==='IN_PROGRESS'&&state.currentSlice==='11.5-A','11.5-A must remain current IN_PROGRESS until lockdown is merged and post-merge recertified');
+req(state.baseCommit==='0850de9e274a18ddb49d319677890a4e59ea7226','11.5 must retain its certified Phase 11.4 opening lineage');
 req(state.phase11_6Allowed===false&&state.nextPhase==='11.6'&&state.successorStatus==='LOCKED','11.6 must remain locked');
 
 for(const [field,value] of [
@@ -60,8 +62,21 @@ req(state.databaseLiveCommandProbeVerification==='PASS_AUTHENTICATED_IDEMPOTENCY
 req(state.runtimeSchedulingGatewayAdded===true&&state.runtimeSchedulingContextAdded===true&&state.runtimeSchedulingGatewayTestsAdded===true,'runtime scheduling bridge tracking incomplete');
 req(state.dailyWorkSchedulingLifecycleUsesRpc===true&&state.dailyWorkDirectCalendarLifecycleMutationPresent===false&&state.dailyWorkDirectRenewalLifecycleMutationPresent===false,'Daily Work scheduling authority bridge drifted');
 req(state.productionSchedulingProviderWired===true,'production scheduling provider must be wired');
-req(state.phase11_5aExitGatePassed===false&&state.databaseWriteBoundaryHardeningApplied===false,'11.5-A cannot close before direct-write lockdown');
-req(state.calendarDirectAuthenticatedInsertAllowed===true&&state.calendarDirectAuthenticatedUpdateAllowed===true&&state.renewalDirectAuthenticatedInsertAllowed===true&&state.renewalDirectAuthenticatedUpdateAllowed===true,'pre-lockdown grants must remain honestly tracked until final hardening');
+
+req(state.bridgePullRequest===182&&state.bridgeMergeCommit==='ac57fc454d21c328704f83eb9eab562969d298d6','governed runtime bridge merge lineage missing');
+req(state.bridgePublishedDeploymentVerification==='PASS_GITHUB_PAGES_RUN_35016980643','bridge published deployment evidence missing');
+req(state.bridgePostMergeQualityVerification==='PASS_RUN_35016983558','bridge exact-main Quality evidence missing');
+req(state.bridgePostMergeRealBrowserVerification==='PASS_RUN_35016983334','bridge exact-main Real Browser evidence missing');
+
+req(state.databaseWriteBoundaryHardeningApplied===true&&state.databaseWriteBoundaryHardeningVersion==='20260915200729','direct-write lockdown migration evidence missing');
+req(state.databaseWriteBoundaryFinalProbeApplied===true&&state.databaseWriteBoundaryFinalProbeVersion==='20260915200812','lockdown Real Cloud probe evidence missing');
+req(state.databaseWriteBoundaryFinalProbeVerification==='PASS_AUTHENTICATED_DIRECT_INSERT_UPDATE_DENIED_GOVERNED_RPC_PASS_AUDIT_ZERO_RESIDUE','lockdown verification drifted');
+req(state.calendarDirectAuthenticatedInsertAllowed===false&&state.calendarDirectAuthenticatedUpdateAllowed===false&&state.renewalDirectAuthenticatedInsertAllowed===false&&state.renewalDirectAuthenticatedUpdateAllowed===false,'authenticated direct scheduling writes must stay locked');
+req(state.calendarAuthenticatedSelectAllowed===true&&state.renewalAuthenticatedSelectAllowed===true,'authorized scheduling reads must remain available');
+req(state.permissionMatrixVerification==='PASS_DIRECT_TABLE_WRITE_BLOCKED_GOVERNED_RPC_ALLOWED','permission matrix evidence missing');
+req(state.phase11_5aLockdownCandidateReady===true,'lockdown candidate must be marked ready only after Real Cloud proof');
+req(state.phase11_5aExitGatePassed===false&&state.exitGatePassed===false,'11.5-A/11.5 cannot close before lockdown source is merged and post-merge recertified');
+req(state.phase11_5aExitBlocker==='LOCKDOWN_SOURCE_NOT_YET_MERGED_AND_POST_MERGE_RECERTIFIED','11.5-A exit blocker must remain truthful');
 
 for(const marker of [
   '`calendar_events` remains the canonical appointment / calendar-event fact',
@@ -124,6 +139,8 @@ for(const marker of [
   'private.mutate_renewal_state_v1_impl',
   'public.mutate_renewal_state_v1',
   'security invoker',
+  'security definer',
+  'set search_path = \'\'',
   'ENJAZ_SCHEDULING_IDEMPOTENCY_CONFLICT',
   'ENJAZ_SCHEDULING_STALE_VERSION',
   'scheduling.calendar.completed',
@@ -143,10 +160,35 @@ for(const marker of [
   'P115_AUDIT_RESIDUE',
 ]) has(liveProbe,marker,'live command probe');
 
+for(const marker of [
+  'revoke insert, update on table public.calendar_events from authenticated',
+  'revoke insert, update on table public.renewals from authenticated',
+  'drop policy if exists calendar_events_insert_workspace',
+  'drop policy if exists calendar_events_update_workspace',
+  'drop policy if exists renewals_insert_workspace',
+  'drop policy if exists renewals_update_workspace',
+]) has(lockdown,marker,'direct-write lockdown migration');
+
+for(const marker of [
+  'set local role authenticated',
+  'P115_DIRECT_CALENDAR_UPDATE_NOT_BLOCKED',
+  'P115_DIRECT_CALENDAR_INSERT_NOT_BLOCKED',
+  'P115_DIRECT_RENEWAL_UPDATE_NOT_BLOCKED',
+  'P115_DIRECT_RENEWAL_INSERT_NOT_BLOCKED',
+  'public.mutate_calendar_event_state_v1',
+  'public.mutate_renewal_state_v1',
+  'P115_GOVERNED_CALENDAR_FAILED',
+  'P115_GOVERNED_RENEWAL_FAILED',
+  'P115_LOCKDOWN_AUDIT_INVALID',
+  'P115_LOCKDOWN_WORKSPACE_RESIDUE',
+  'P115_LOCKDOWN_RECEIPT_RESIDUE',
+  'P115_LOCKDOWN_AUDIT_RESIDUE',
+]) has(lockdownProbe,marker,'live lockdown probe');
+
 if(errors.length){
   console.error(`ENJAZ PHASE 11.5-A AUTHORITY AUDIT FAIL (${errors.length})`);
   errors.forEach(e=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.5-A AUTHORITY AUDIT PASS — canonical authorities and governed Real Cloud command foundation are verified; Daily Work uses M10 RPCs; 11.6 remains locked; direct table grant lockdown remains intentionally pending deployment-safe hardening.');
+  console.log('ENJAZ PHASE 11.5-A AUTHORITY AUDIT PASS — governed M10 commands are deployed; direct authenticated scheduling table writes are locked in Real Cloud with zero-residue proof; 11.5-A intentionally remains open until lockdown source merge and exact-main post-merge recertification.');
 }
