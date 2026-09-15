@@ -25,7 +25,7 @@ req(m3?.status==='ACTIVE'&&m3?.anchors?.join(',')==='11'&&m3?.closureEvidence===
 req(m4?.status==='PLANNED','M4 must remain PLANNED while Phase 11.3 is open');
 req(state.systemId==='M3'&&state.systemStatus==='ACTIVE','Phase 11.3 machine state must activate M3');
 req(state.phase11_4Allowed===false&&state.successorStatus==='LOCKED','Phase 11.4 must remain locked');
-req(state.exitGatePassed===false,'Phase 11.3 cannot be closed during foundation work');
+req(state.exitGatePassed===false,'Phase 11.3 cannot be closed during foundation/read-model work');
 
 for(const [field,value] of [
   ['portalPrincipalMayBecomeWorkspaceMember',false],
@@ -91,14 +91,27 @@ for(const marker of [
   'revoked portal membership fails closed immediately',
   'revoked, future and expired grants fail closed',
   'internal domains remain categorically forbidden',
-  'client safe projection allowlist rejects internal fields',
+  'client-safe company projection rejects internal fields',
+  'transaction projection uses canonical transaction fields',
+  'document projection never exposes storage, checksum or OCR intelligence',
+  'receipt projection excludes staff-only finance metadata',
   'no user_metadata or workspace membership inference input'
 ]) has(tests,marker);
+
+if(state.clientSafeReadModelFoundationAdded===true){
+  req(state.currentSlice==='11.3-B'&&state.currentSliceName==='Client-Safe Read Model','read-model foundation must live in canonical 11.3-B');
+  req(state.mode==='CLIENT_SAFE_READ_MODEL_FOUNDATION','11.3-B mode drifted');
+  req(state.currentSliceBaseCommit==='3684745cbed82058fc231cae209f14dd6c51fe8e','11.3-B must be based on merged authority foundation');
+  for(const p of [state.clientSafeReadModelMigrationPath,state.clientSafeReadModelHardeningPath,state.clientSafeReadModelAuditPath])
+    req(typeof p==='string'&&exists(p),`11.3-B evidence path missing: ${p}`);
+  req(state.governedClientRequestSourceAdded===false&&state.governedClientRequestSourceStatus==='PENDING','11.3-B must fail closed while governed request source is pending');
+  req(state.clientSafeReadModelAdded===false,'11.3-B may not claim completion before governed request source is added');
+}
 
 if(errors.length){
   console.error(`ENJAZ PHASE 11.3 CLIENT PORTAL AUDIT FAIL (${errors.length})`);
   for(const e of errors) console.error(`- ${e}`);
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3 CLIENT PORTAL AUDIT PASS — M3 lifecycle valid; external identity isolated from staff trust roots; executable object-grant contract and destructive leakage tests are present; database extension remains intentionally unapplied; M4 stays locked.');
+  console.log('ENJAZ PHASE 11.3 CLIENT PORTAL AUDIT PASS — M3 lifecycle valid; external identity remains isolated; canonical 11.3-B read-model foundation is explicit and fail-closed while governed request source is pending; M4 stays locked.');
 }

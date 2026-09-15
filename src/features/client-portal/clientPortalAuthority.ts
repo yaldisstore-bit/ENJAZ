@@ -73,14 +73,47 @@ export const CLIENT_SAFE_COMPANY_FIELDS = Object.freeze([
   'status',
 ] as const);
 
+// Keep this list tied to canonical public.transactions columns. Client-safe
+// projection intentionally excludes primary contact, department, priority,
+// current fee, deletion metadata and legacy provenance.
 export const CLIENT_SAFE_TRANSACTION_FIELDS = Object.freeze([
   'id',
   'companyId',
-  'title',
+  'type',
   'status',
-  'referenceNumber',
   'createdAt',
   'updatedAt',
+  'completedAt',
+] as const);
+
+// Binary storage paths, checksums, OCR/analysis and internal provenance are
+// intentionally absent. Download brokerage is a separate governed boundary.
+export const CLIENT_SAFE_DOCUMENT_FIELDS = Object.freeze([
+  'id',
+  'transactionId',
+  'companyId',
+  'title',
+  'documentType',
+  'mimeType',
+  'sizeBytes',
+  'status',
+  'capturedAt',
+  'createdAt',
+  'updatedAt',
+] as const);
+
+// Receipt facts come from authoritative payment/receipt state only. Internal
+// notes, cashbox, creator, engagement and reversal reasons are never projected.
+export const CLIENT_SAFE_RECEIPT_FIELDS = Object.freeze([
+  'paymentId',
+  'transactionId',
+  'companyId',
+  'receiptRef',
+  'amount',
+  'method',
+  'paidAt',
+  'status',
+  'receiptVersion',
 ] as const);
 
 function validInstant(value: string | null): number | null {

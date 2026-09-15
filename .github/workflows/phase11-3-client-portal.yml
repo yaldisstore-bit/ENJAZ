@@ -2,7 +2,7 @@ name: ENJAZ Phase 11.3 — Client Portal M3 Gate
 
 on:
   push:
-    branches: [phase11-3-client-portal, phase11-3a-client-portal-authority, phase11-3b-client-portal-db-authority]
+    branches: [phase11-3-client-portal, phase11-3a-client-portal-authority, phase11-3b-client-portal-db-authority, phase11-3b-client-safe-read-model]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   authority:
-    name: External identity isolation / object grants / M4 lock
+    name: External identity isolation / object grants / client-safe read model / M4 lock
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -36,14 +36,18 @@ jobs:
           python-version: '3.13'
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Phase 11.3 authority and successor audit
+      - name: Phase 11.3 lifecycle / authority / successor audit
         run: node scripts/phase11-3-client-portal-audit.mjs
-      - name: Phase 11.3A executable authority destruction tests
+      - name: Phase 11.3-A executable authority destruction tests
         run: node --experimental-strip-types --test tests/clientPortalAuthority.test.ts
-      - name: Phase 11.3B database authority static audit
+      - name: Phase 11.3-A database authority static audit
         run: node scripts/phase11-3b-client-portal-db-authority-audit.mjs
-      - name: Phase 11.3B database authority destruction tests
+      - name: Phase 11.3-A database authority destruction tests
         run: node --test tests/clientPortalDatabaseAuthority.test.mjs tests/clientPortalDatabaseAuthorityHardening.test.mjs
+      - name: Phase 11.3-B client-safe read model audit
+        run: node scripts/phase11-3b-client-safe-read-model-audit.mjs
+      - name: Phase 11.3-B client-safe read model destruction tests
+        run: node --test tests/clientPortalReadModel.test.mjs
       - name: Roadmap lifecycle audit
         run: npm run audit:roadmap
       - name: Preserve canonical database baseline integrity
