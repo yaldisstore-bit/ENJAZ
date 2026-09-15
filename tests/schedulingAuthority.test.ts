@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {
   SCHEDULING_AUTHORITY,
   SCHEDULING_LAWS,
@@ -101,4 +102,31 @@ test('forbidden inference laws remain fail closed', () => {
   assert.equal(SCHEDULING_LAWS.systemMayInventMissedDeadlineRootCause, false);
   assert.equal(SCHEDULING_LAWS.externalCalendarMayBecomeCanonicalTruthWithoutGovernedReconciliation, false);
   assert.equal(SCHEDULING_LAWS.crossWorkspaceReferencesAllowed, false);
+});
+
+test('database lockdown revokes direct scheduling writes and preserves governed command proof', () => {
+  const lockdown = fs.readFileSync(new URL('../database/migrations/phase_11_5_scheduling_direct_write_lockdown.sql', import.meta.url), 'utf8');
+  const probe = fs.readFileSync(new URL('../database/migrations/phase_11_5_live_scheduling_lockdown_probe.sql', import.meta.url), 'utf8');
+
+  for (const marker of [
+    'revoke insert, update on table public.calendar_events from authenticated',
+    'revoke insert, update on table public.renewals from authenticated',
+    'drop policy if exists calendar_events_insert_workspace',
+    'drop policy if exists calendar_events_update_workspace',
+    'drop policy if exists renewals_insert_workspace',
+    'drop policy if exists renewals_update_workspace',
+  ]) assert.ok(lockdown.includes(marker), `lockdown missing: ${marker}`);
+
+  for (const marker of [
+    'P115_DIRECT_CALENDAR_UPDATE_NOT_BLOCKED',
+    'P115_DIRECT_CALENDAR_INSERT_NOT_BLOCKED',
+    'P115_DIRECT_RENEWAL_UPDATE_NOT_BLOCKED',
+    'P115_DIRECT_RENEWAL_INSERT_NOT_BLOCKED',
+    'public.mutate_calendar_event_state_v1',
+    'public.mutate_renewal_state_v1',
+    'P115_GOVERNED_CALENDAR_FAILED',
+    'P115_GOVERNED_RENEWAL_FAILED',
+    'P115_LOCKDOWN_RECEIPT_RESIDUE',
+    'P115_LOCKDOWN_AUDIT_RESIDUE',
+  ]) assert.ok(probe.includes(marker), `lockdown probe missing: ${marker}`);
 });
