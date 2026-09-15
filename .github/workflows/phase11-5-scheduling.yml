@@ -1,0 +1,56 @@
+name: ENJAZ Phase 11.5 — Scheduling Appointments Deadline M10 Gate
+
+on:
+  push:
+    branches: [phase11-5a-scheduling-authority]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase11-5-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  authority:
+    name: Scheduling authority / temporal invariants / M11.6 lock
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 11.5-A scheduling authority audit
+        run: node scripts/phase11-5a-scheduling-authority-audit.mjs
+      - name: Phase 11.5-A scheduling authority destruction tests
+        run: node --experimental-strip-types --test tests/schedulingAuthority.test.ts
+      - name: Preserve Phase 11.4 formal closure
+        run: node scripts/phase11-4-closure-audit.mjs
+      - name: Roadmap lifecycle audit
+        run: npm run audit:roadmap
+      - name: Preserve canonical database baseline integrity
+        run: npm run db:audit && npm run db:audit:selftest
+      - name: Secrets boundary
+        run: npm run audit:secrets
+      - name: TypeScript integration baseline
+        run: npm run typecheck
+      - name: Production build and frozen budgets
+        run: npm run build && npm run audit:dist:budget
+      - name: Dependency high-severity audit
+        run: npm audit --audit-level=high
