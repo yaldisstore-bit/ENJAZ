@@ -58,6 +58,8 @@ jobs:
         run: node --test tests/clientPortalExperience.test.mjs
       - name: Phase 11.3-D Real Cloud certification evidence audit
         run: node scripts/phase11-3d-real-cloud-certification-audit.mjs
+      - name: Phase 11.3-D published certifier syntax guard
+        run: node --check scripts/phase11-3-published-portal-e2e.mjs
       - name: Roadmap lifecycle audit
         run: npm run audit:roadmap
       - name: Preserve canonical database baseline integrity
