@@ -100,7 +100,7 @@ for(const marker of [
   'no user_metadata or workspace membership inference input'
 ]) has(authorityTests,marker);
 
-// Canonical 11.3-B remains complete while C starts.
+// 11.3-B remains code-complete while C is completed.
 for(const p of [
   state.clientSafeReadModelMigrationPath,
   state.clientSafeReadModelHardeningPath,
@@ -112,17 +112,22 @@ req(state.governedClientRequestSourceAdded===true&&state.governedClientRequestSo
 req(state.clientSafeReadModelAdded===true&&state.clientSafeReadModelStatus==='IMPLEMENTED_PENDING_REAL_CLOUD','client-safe read model must remain code-complete without false live certification');
 req(state.clientSafeReadModelCompletionBlocker===null,'11.3-B code completion blocker must stay cleared');
 
-// Canonical 11.3-C foundation.
-req(state.currentSlice==='11.3-C'&&state.currentSliceName==='Governed Client Actions','canonical current slice must be 11.3-C');
-req(state.mode==='GOVERNED_CLIENT_ACTIONS_FOUNDATION','11.3-C foundation mode drifted');
-req(state.currentSliceBaseCommit==='6f488cdbb78971e2c5243b82055f3f35e6436792','11.3-C must start from merged 11.3-B completion');
-for(const p of [state.governedClientActionContractPath,state.governedClientActionMigrationPath,state.governedClientActionAuditPath])
-  req(typeof p==='string'&&exists(p),`11.3-C evidence path missing: ${p}`);
-req(state.governedClientActionFoundationAdded===true,'C1 governed action foundation must be recorded');
-req(Array.isArray(state.governedClientActionsImplemented)&&['message','confirm_appointment','mark_request_read'].every((x)=>state.governedClientActionsImplemented.includes(x)),'C1 implemented action ledger incomplete');
-req(Array.isArray(state.governedClientActionsPending)&&['upload_requested_document','approve_document'].every((x)=>state.governedClientActionsPending.includes(x)),'C1 pending domain action ledger incomplete');
-req(state.governedClientWriteBoundaryAdded===false,'11.3-C may not claim completion before canonical upload and approval commands exist');
-req(state.governedClientWriteBoundaryStatus==='FOUNDATION_PENDING_VAULT_UPLOAD_AND_DOCUMENT_APPROVAL','C1 completion blocker/status drifted');
+// Canonical 11.3-C completed code boundary. Real Cloud and D remain pending.
+req(state.currentSlice==='11.3-C'&&state.currentSliceName==='Governed Client Actions','canonical current slice must remain 11.3-C until the completion PR merges');
+req(state.mode==='GOVERNED_CLIENT_ACTIONS_COMPLETE','11.3-C completion mode drifted');
+req(state.currentSliceBaseCommit==='6f488cdbb78971e2c5243b82055f3f35e6436792','11.3-C must remain based on merged 11.3-B completion');
+for(const p of [
+  state.governedClientActionContractPath,
+  state.governedClientActionMigrationPath,
+  state.governedClientDocumentActionsMigrationPath,
+  state.governedClientVaultEdgePath,
+  state.governedClientActionAuditPath,
+]) req(typeof p==='string'&&exists(p),`11.3-C evidence path missing: ${p}`);
+req(state.governedClientActionFoundationAdded===true,'C1 governed action foundation must remain recorded');
+req(state.governedClientWriteBoundaryAdded===true,'C2 governed client write boundary must be recorded');
+req(state.governedClientWriteBoundaryStatus==='IMPLEMENTED_PENDING_REAL_CLOUD','C2 must not falsely claim Real Cloud completion');
+req(Array.isArray(state.governedClientActionsImplemented)&&['message','confirm_appointment','mark_request_read','upload_requested_document','approve_document'].every((x)=>state.governedClientActionsImplemented.includes(x)),'11.3-C implemented action ledger incomplete');
+req(Array.isArray(state.governedClientActionsPending)&&state.governedClientActionsPending.length===0,'11.3-C pending action ledger must be empty after C2');
 
 const actionContract=read(state.governedClientActionContractPath);
 for(const marker of [
@@ -131,12 +136,24 @@ for(const marker of [
   "mark_request_read: 'request_required_permission'",
   "upload_requested_document: 'upload_requested_document'",
   "approve_document: 'approve_document'",
-  'CLIENT_SAFE_MESSAGE_FIELDS','CLIENT_SAFE_APPOINTMENT_RESPONSE_FIELDS','CLIENT_SAFE_READ_RECEIPT_FIELDS'
+  'CLIENT_SAFE_MESSAGE_FIELDS','CLIENT_SAFE_APPOINTMENT_RESPONSE_FIELDS','CLIENT_SAFE_READ_RECEIPT_FIELDS',
+  'CLIENT_SAFE_DOCUMENT_UPLOAD_FIELDS','CLIENT_SAFE_DOCUMENT_APPROVAL_RESPONSE_FIELDS',
+  'assertClientPortalRequestedDocumentUpload','assertClientPortalDocumentApprovalDecision'
 ]) has(actionContract,marker);
+
+const c2=read(state.governedClientDocumentActionsMigrationPath);
+for(const marker of [
+  "v_request.request_type<>'document' or v_request.required_permission<>'upload_requested_document'",
+  'insert into public.document_upload_sessions(',
+  'create trigger client_portal_upload_session_sync',
+  'private.review_document_draft_canonical_v1',
+  "v_request.request_type<>'approval' or v_request.required_permission<>'approve_document'",
+  'private.get_client_portal_read_model_v4_impl'
+]) has(c2,marker);
 
 req(state.databaseAuthorityExtensionApplied===false,'Real Cloud database apply remains pending');
 req(state.realCloudAuthenticatedVerification==='PENDING','Real Cloud verification remains pending');
-req(state.portalUiAdded===false,'11.3-D portal UI must not be claimed during 11.3-C');
+req(state.portalUiAdded===false,'11.3-D portal UI must not be claimed during 11.3-C completion');
 req(state.phase11_4Allowed===false&&state.successorStatus==='LOCKED','Phase 11.4 must remain locked');
 
 if(errors.length){
@@ -144,5 +161,5 @@ if(errors.length){
   for(const e of errors) console.error(`- ${e}`);
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3 CLIENT PORTAL AUDIT PASS — M3 remains fail-closed; 11.3-B stays code-complete; canonical 11.3-C governed-action foundation is active with message/appointment/read actions implemented and Vault upload + document approval explicitly pending; M4 stays locked.');
+  console.log('ENJAZ PHASE 11.3 CLIENT PORTAL AUDIT PASS — M3 remains fail-closed; 11.3-B stays code-complete; 11.3-C now has all five governed action classes including Vault-brokered uploads and canonical Document Factory approvals; Real Cloud and 11.3-D remain pending; M4 stays locked.');
 }
