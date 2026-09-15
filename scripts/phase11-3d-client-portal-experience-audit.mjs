@@ -75,12 +75,18 @@ has(css,'.cp-bottom-nav','client mobile navigation');
 
 req(state.phase==='11.3'&&state.status==='IN_PROGRESS'&&state.systemId==='M3','Phase 11.3 / M3 must remain active while D is under certification');
 req(state.phase11_4Allowed===false&&state.successorStatus==='LOCKED','M4 / Phase 11.4 must remain locked');
-req(state.realCloudAuthenticatedVerification==='PENDING','static D work may not claim Real Cloud verification');
+req(state.realCloudAuthenticatedVerification==='PASS','D must retain authenticated Real Cloud certification once proven');
+req(state.freshPortalBootstrapVerification==='PASS','fresh portal bootstrap must remain certified');
+req(state.durableWriteRoundTripVerification==='PASS','durable write/reload must remain certified');
+req(state.realBrowserPortalShellVerification==='PASS','Real Chromium portal shell must remain certified');
+req(state.deployedLiveCriticalPathVerification==='PENDING','deployed authenticated critical path remains pending before merge/deploy');
+req(state.postMergeRecertification==='PENDING','post-merge recertification remains pending before merge');
+req(state.exitGatePassed===false,'M3 must remain open until deployed/post-merge certification');
 
 if(errors.length){
   console.error(`ENJAZ PHASE 11.3-D PORTAL EXPERIENCE AUDIT FAIL (${errors.length})`);
   for(const error of errors)console.error(`- ${error}`);
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3-D PORTAL EXPERIENCE AUDIT PASS — /portal is an isolated lazy client runtime, invite activation is auth.uid-bound and non-escalating, governed action UI uses only portal RPC/Vault boundaries, mobile RTL contracts exist, Real Cloud remains unclaimed and M4 stays locked.');
+  console.log('ENJAZ PHASE 11.3-D PORTAL EXPERIENCE AUDIT PASS — /portal is an isolated lazy client runtime, invite activation is auth.uid-bound and non-escalating, governed action UI uses only portal RPC/Vault boundaries, mobile RTL contracts exist, authenticated Real Cloud + fresh-session durability + Real Chromium shell evidence are recorded; deployed/post-merge certification remains pending and M4 stays locked.');
 }
