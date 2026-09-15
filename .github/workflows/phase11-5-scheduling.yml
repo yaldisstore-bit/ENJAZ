@@ -40,6 +40,10 @@ jobs:
         run: node scripts/phase11-5a-scheduling-authority-audit.mjs
       - name: Phase 11.5-A scheduling authority destruction tests
         run: node --experimental-strip-types --test tests/schedulingAuthority.test.ts
+      - name: Phase 11.5-A governed runtime command tests
+        run: node --experimental-strip-types --test tests/schedulingCommands.test.ts tests/dailyWorkService.test.ts tests/dailyWork.test.ts
+      - name: Preserve Phase 11.2 Universal Inbox authority composition
+        run: node scripts/phase11-2-universal-inbox-audit.mjs
       - name: Preserve Phase 11.4 formal closure
         run: node scripts/phase11-4-closure-audit.mjs
       - name: Roadmap lifecycle audit
