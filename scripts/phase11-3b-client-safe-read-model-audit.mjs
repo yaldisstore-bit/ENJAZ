@@ -122,7 +122,7 @@ for(const forbidden of ["'requiredPermission'","'createdBy'","'revokedAt'","'rev
   req(!finalModel.includes(forbidden),`final request projection leaks authority/internal field ${forbidden}`);
 req(!finalModel.includes('PENDING_GOVERNED_CLIENT_REQUEST_SOURCE'),'final read model must not retain pending request placeholder');
 
-// Client cannot complete/fulfil requests in B; that authority is reserved for 11.3-C.
+// B itself owns no client completion authority. Later slices may layer governed actions outside this migration.
 req(!/create\s+or\s+replace\s+function\s+public\.(fulfill|complete|respond|approve)_client_portal_request/i.test(requests),'11.3-B must not smuggle client write authority');
 req(!/grant\s+(select|insert|update|delete|all)[\s\S]{0,160}public\.client_portal_requests/i.test(requests),'client request table must have no direct browser DML/read grant');
 
@@ -147,7 +147,14 @@ req(state.clientSafeReadModelAdded===true,'state must record completed client-sa
 req(state.clientSafeReadModelCompletionBlocker===null,'read-model code completion blocker must be cleared');
 req(state.databaseAuthorityExtensionApplied===false,'Real Cloud apply must remain pending until authenticated verification');
 req(state.realCloudAuthenticatedVerification==='PENDING','Real Cloud verification may not be claimed by static work');
-req(state.governedClientWriteBoundaryAdded===false,'11.3-C client writes remain pending');
+const governedWritesStateValid = state.governedClientWriteBoundaryAdded===false || (
+  state.governedClientWriteBoundaryAdded===true &&
+  Array.isArray(state.governedClientActionsImplemented) &&
+  state.governedClientActionsImplemented.length===5 &&
+  Array.isArray(state.governedClientActionsPending) &&
+  state.governedClientActionsPending.length===0
+);
+req(governedWritesStateValid,'later governed client writes must be either pending or recorded as fully governed; B must never require rollback of C');
 req(state.phase11_4Allowed===false&&state.successorStatus==='LOCKED','Phase 11.4 must remain locked');
 
 if(errors.length){
@@ -155,5 +162,5 @@ if(errors.length){
   errors.forEach((e)=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.3-B CLIENT-SAFE READ MODEL AUDIT PASS — explicit grants, child publication and a governed request queue produce minimal client-safe Company/Transaction/Document/Receipt/Request facts; revocation is permanent/audited; 11.3-C writes remain closed.');
+  console.log('ENJAZ PHASE 11.3-B CLIENT-SAFE READ MODEL AUDIT PASS — explicit grants, child publication and a governed request queue produce minimal client-safe Company/Transaction/Document/Receipt/Request facts; revocation is permanent/audited; later 11.3 slices may add governed actions without mutating B authority.');
 }
