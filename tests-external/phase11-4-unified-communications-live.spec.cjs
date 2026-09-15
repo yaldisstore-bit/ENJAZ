@@ -48,7 +48,7 @@ test('manual relink review queue is explicit and clears after governed relink',a
   const errors=await openHub(page,360,740);
   await selectConversation(page);
   const review=page.locator('[data-communications-review="governed"]');
-  await expect(review).toContainText('Client reply unique incoming');
+  await expect(review).toContainText('المستندات المطلوبة');
   await review.getByRole('button',{name:/ربط بـ أحمد كريم/}).click();
   await expect(review.getByText('قائمة المراجعة نظيفة')).toBeVisible();
   expect(errors).toEqual([]);
