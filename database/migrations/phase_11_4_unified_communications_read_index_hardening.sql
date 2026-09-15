@@ -1,0 +1,1 @@
+create index communication_conversation_reads_user_fk_idx on public.communication_conversation_reads(user_id);
