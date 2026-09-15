@@ -64,6 +64,8 @@ jobs:
         run: node --experimental-strip-types --test tests/omnichannelProviderGateway.test.ts
       - name: Phase 11.4-C Edge gateway syntax
         run: node --experimental-strip-types --check supabase/functions/enjaz-communications/index.ts && node --experimental-strip-types --check supabase/functions/enjaz-communications/providerCore.ts
+      - name: Phase 11.4-D authenticated staff Edge syntax
+        run: node --experimental-strip-types --check supabase/functions/enjaz-communications-user/index.ts
       - name: Phase 11.4-D unified communications authority audit
         run: node scripts/phase11-4d-unified-communications-audit.mjs
       - name: Phase 11.4-D communications service tests
