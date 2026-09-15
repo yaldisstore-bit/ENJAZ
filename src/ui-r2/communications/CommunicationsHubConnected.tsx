@@ -1,7 +1,9 @@
 import { useCommunicationsHub } from '../../features/communications/useCommunicationsHub.ts';
 import type { CommunicationConversation, CommunicationTimelineItem } from '../../features/communications/communicationsHubService.ts';
-import './communications-hub.css';
 
+const COMMUNICATIONS_INLINE_CSS = `.r2-comms{display:grid;gap:1rem;min-width:0}.r2-comms__summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(7rem,1fr));gap:.5rem}.r2-comms__summary article,.r2-comms__provider-state,.r2-comms__toolbar,.r2-comms__review,.r2-comms-state{padding:.8rem;border:1px solid var(--ez-r2-surface-warm);border-radius:1rem;background:var(--ez-r2-canvas)}.r2-comms__summary article{text-align:center}.r2-comms__summary strong,.r2-comms__provider-state strong{display:block;font-size:1.25rem;color:var(--ez-r2-interactive)}.r2-comms__toolbar{display:flex;gap:.75rem;align-items:center;background:var(--ez-r2-surface-warm)}.r2-comms__toolbar label{display:flex;flex:1;min-width:0;gap:.5rem}.r2-comms__toolbar input{width:100%;min-width:0;border:0;background:transparent;color:inherit;font:inherit}.r2-comms__workspace{display:grid;grid-template-columns:minmax(16rem,21rem) minmax(0,1fr);overflow:hidden;border:1px solid var(--ez-r2-surface-warm);border-radius:1rem}.r2-comms__threads{min-width:0;background:var(--ez-r2-surface-warm)}.r2-comms__pane-head,.r2-comms__conversation-head,.r2-comms__review>header,.r2-comms__thread-copy>span,.r2-comms__message-meta,.r2-comms__bubble footer{display:flex;justify-content:space-between;gap:.6rem;align-items:center}.r2-comms__pane-head,.r2-comms__conversation-head{padding:1rem}.r2-comms__thread-list,.r2-comms__messages{display:grid;overflow:auto;max-height:38rem}.r2-comms__thread{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:.65rem;align-items:center;width:100%;padding:.8rem;border:0;border-block-start:1px solid var(--ez-r2-canvas);background:transparent;color:inherit;text-align:start;font:inherit}.r2-comms__thread.is-selected{background:var(--ez-r2-canvas)}.r2-comms__avatar{display:grid;place-items:center;width:2.4rem;height:2.4rem;border-radius:50%;background:var(--ez-r2-interactive);color:var(--ez-r2-text-on-dark)}.r2-comms__thread-copy{display:grid;gap:.2rem;min-width:0}.r2-comms__thread-copy strong,.r2-comms__thread-copy b,.r2-comms__thread-copy small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.r2-comms__thread em{min-width:1.6rem;padding:.2rem;border-radius:999px;background:var(--ez-r2-interactive);color:var(--ez-r2-text-on-dark);text-align:center;font-style:normal}.r2-comms__messages{padding:1rem;gap:.75rem}.r2-comms__message{display:flex}.r2-comms__message.is-outgoing{justify-content:flex-end}.r2-comms__bubble{width:min(82%,40rem);padding:.8rem 1rem;border-radius:1rem;background:var(--ez-r2-surface-warm);overflow-wrap:anywhere}.r2-comms__message.is-outgoing .r2-comms__bubble{background:var(--ez-r2-interactive);color:var(--ez-r2-text-on-dark)}.r2-comms__bubble p{white-space:pre-wrap}.r2-comms__review-list{display:grid;gap:.5rem}.r2-comms__review-list article{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.7rem;align-items:center;padding:.7rem}.r2-comms__empty{text-align:center;padding:1rem}@media(max-width:60rem){.r2-comms__workspace{grid-template-columns:1fr}.r2-comms__thread-list{max-height:18rem}}@media(max-width:42rem){.r2-comms__toolbar,.r2-comms__conversation-head,.r2-comms__review>header{align-items:stretch;flex-direction:column}.r2-comms__bubble{width:94%}.r2-comms__review-list article{grid-template-columns:1fr}}@media(max-width:24rem){.r2-comms__thread{grid-template-columns:auto minmax(0,1fr)}.r2-comms__thread em,.r2-comms__thread i{grid-column:2}.r2-comms__bubble{width:100%}}`;
+
+function Styles() { return <style>{COMMUNICATIONS_INLINE_CSS}</style>; }
 function when(value: string | null): string {
   if (!value) return '—';
   const date = new Date(value);
@@ -39,15 +41,15 @@ function identity(item: CommunicationConversation): string {
 export function CommunicationsHubConnected() {
   const controller = useCommunicationsHub();
   if (controller.status === 'loading' && !controller.snapshot) {
-    return <div className="r2-screen r2-comms" data-phase11-4-unified-communications="loading"><section className="r2-comms-state" role="status"><strong>جارٍ تجهيز الاتصالات</strong><p>نقرأ المحادثات من السلطة الأصلية داخل مساحة العمل.</p></section></div>;
+    return <><Styles/><div className="r2-screen r2-comms" data-phase11-4-unified-communications="loading"><section className="r2-comms-state" role="status"><strong>جارٍ تجهيز الاتصالات</strong><p>نقرأ المحادثات من السلطة الأصلية داخل مساحة العمل.</p></section></div></>;
   }
   if (controller.status === 'error' || !controller.snapshot) {
-    return <div className="r2-screen r2-comms" data-phase11-4-unified-communications="error"><section className="r2-comms-state" role="alert"><strong>تعذر فتح مركز الاتصالات</strong><p>{controller.errorMessage ?? 'تعذر تجهيز البيانات.'}</p><button type="button" className="r2-action r2-action--secondary" onClick={controller.retryLoad}>إعادة المحاولة</button></section></div>;
+    return <><Styles/><div className="r2-screen r2-comms" data-phase11-4-unified-communications="error"><section className="r2-comms-state" role="alert"><strong>تعذر فتح مركز الاتصالات</strong><p>{controller.errorMessage ?? 'تعذر تجهيز البيانات.'}</p><button type="button" className="r2-action r2-action--secondary" onClick={controller.retryLoad}>إعادة المحاولة</button></section></div></>;
   }
   const snapshot = controller.snapshot;
   const selected = controller.selectedConversation;
   return (
-    <div className="r2-screen r2-comms" data-screen="communications" data-phase11-4-unified-communications="live">
+    <><Styles/><div className="r2-screen r2-comms" data-screen="communications" data-phase11-4-unified-communications="live">
       <header className="r2-section-heading r2-section-heading--hero r2-comms__hero">
         <div><span className="r2-core-badge">Phase 11.4-D · M4 · متصل</span><p className="r2-eyebrow">Omnichannel Communications Hub</p><h1>الاتصالات</h1><p className="r2-supporting">محادثة واحدة موثوقة لكل سياق؛ البريد وواتساب وSMS وسائل نقل، وليست مخازن حقيقة مستقلة.</p></div>
         <div className="r2-comms__provider-state"><strong>{snapshot.providerAccounts.length}</strong><span>قناة مزوّد مهيأة</span></div>
@@ -102,6 +104,6 @@ export function CommunicationsHubConnected() {
           <article key={item.communicationId}><div><span>{channel(item.channel)} · {item.linkStatus === 'review_required' ? 'مرشحة لأكثر من سياق' : 'غير مرتبطة'}</span><strong>{item.subject || item.summary}</strong><small>{when(item.occurredAt)}</small></div><button type="button" className="r2-action r2-action--secondary" disabled={!selected || controller.actionKey === `relink:${item.communicationId}`} onClick={() => { void controller.relink(item); }}>{selected ? `ربط بـ ${identity(selected)}` : 'اختر محادثة أولًا'}</button></article>
         ))}</div> : <div className="r2-comms__empty"><strong>قائمة المراجعة نظيفة</strong><p>لا توجد رسالة واردة مجهولة أو ملتبسة حاليًا.</p></div>}
       </section>
-    </div>
+    </div></>
   );
 }
