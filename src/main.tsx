@@ -1,9 +1,17 @@
-import { StrictMode } from 'react';
+import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
 import { R2_DESTINATIONS } from './ui-r2/architecture/navigation-contract.ts';
 import { UiR2ProductionRoot } from './ui-r2/runtime/UiR2ProductionRoot.tsx';
 
+const ClientPortalProductionRoot=lazy(()=>import('./ui-r2/client-portal/ClientPortalProductionRoot.tsx').then((module)=>({default:module.ClientPortalProductionRoot})));
+
+function isClientPortalPath():boolean{
+  const parts=window.location.pathname.split('/').filter(Boolean);
+  return parts.includes('portal');
+}
+
 function normalizeCanonicalAppDeepLink(): void {
+  if(isClientPortalPath())return;
   const url = new URL(window.location.href);
   if (url.searchParams.has('dest')) return;
 
@@ -21,13 +29,12 @@ function normalizeCanonicalAppDeepLink(): void {
 normalizeCanonicalAppDeepLink();
 
 const rootElement = document.getElementById('root');
-
-if (!rootElement) {
-  throw new Error('ENJAZ root element was not found.');
-}
+if (!rootElement) throw new Error('ENJAZ root element was not found.');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot />
+    {isClientPortalPath()
+      ? <Suspense fallback={<main dir="rtl" style={{minHeight:'100dvh',display:'grid',placeItems:'center'}}>جارٍ فتح بوابة إنجاز…</main>}><ClientPortalProductionRoot /></Suspense>
+      : <UiR2ProductionRoot />}
   </StrictMode>,
 );
