@@ -216,9 +216,20 @@ const notificationCommands: NotificationCommandGateway = Object.freeze({
   async mutateFollowup() { throw new Error('R2 production test does not allow follow-up lifecycle writes'); },
 });
 
+const schedulingUnavailable = async (): Promise<never> => {
+  throw new Error('R2 production test does not allow scheduling writes');
+};
+
 const schedulingCommands: SchedulingCommandGateway = Object.freeze({
-  async mutateCalendarState() { throw new Error('R2 production test does not allow scheduling writes'); },
-  async mutateRenewalState() { throw new Error('R2 production test does not allow scheduling writes'); },
+  mutateCalendarState: schedulingUnavailable,
+  mutateRenewalState: schedulingUnavailable,
+  checkCalendarEventStaffConflicts: schedulingUnavailable,
+  createCalendarEvent: schedulingUnavailable,
+  updateCalendarEventMetadata: schedulingUnavailable,
+  rescheduleCalendarEvent: schedulingUnavailable,
+  setCalendarEventStaff: schedulingUnavailable,
+  setCalendarEventConfirmation: schedulingUnavailable,
+  recordCalendarEventAttendance: schedulingUnavailable,
 });
 
 const searchIntelligence: SearchIntelligenceGateway = Object.freeze({
