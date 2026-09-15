@@ -80,6 +80,14 @@ jobs:
         env:
           ENJAZ_DIST_DIR: dist-live
         run: node scripts/dist-budget-audit.mjs
+      - name: Stamp exact deployed source SHA
+        env:
+          ENJAZ_DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test -n "$ENJAZ_DEPLOY_SHA"
+          node -e 'const fs=require("fs"); const sha=process.env.ENJAZ_DEPLOY_SHA; if(!/^[0-9a-f]{40}$/.test(sha)) throw new Error("invalid deploy sha"); fs.writeFileSync("dist-live/enjaz-deploy.json", JSON.stringify({schema:"enjaz.deploy.v1",sha})+"\n");'
+          grep -q "$ENJAZ_DEPLOY_SHA" dist-live/enjaz-deploy.json
       - name: Build isolated R2 Legacy-Zero preview
         run: npx vite build --config vite.r2-preview.config.ts --base="${{ steps.pages.outputs.base_path }}/"
       - name: Enforce isolated R2 preview budget
@@ -95,10 +103,14 @@ jobs:
           cp dist/live/index.html dist/live/404.html
           node scripts/pages-live-fallback.mjs dist/404.html dist/live/index.html "${{ steps.pages.outputs.base_path }}/live/"
       - name: Verify Pages live deep-link fallback composition
+        env:
+          ENJAZ_DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
           node --test tests/pages-live-fallback.test.mjs
           grep -q 'data-enjaz-live-fallback="v1"' dist/404.html
           grep -q '/live/' dist/404.html
+          test -f dist/live/enjaz-deploy.json
+          grep -q "$ENJAZ_DEPLOY_SHA" dist/live/enjaz-deploy.json
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
