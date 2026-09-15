@@ -6,6 +6,7 @@ const closure=read('docs/PHASE11_4C_CLOSURE.md');
 const migration=read('database/migrations/phase_11_4_unified_communications_read_model.sql');
 const hardening=read('database/migrations/phase_11_4_unified_communications_read_index_hardening.sql');
 const probe=read('database/migrations/phase_11_4_live_unified_communications_probe.sql');
+const freshProbe=read('database/migrations/phase_11_4_live_fresh_workspace_empty_hub_probe.sql');
 const service=read('src/features/communications/communicationsHubService.ts');
 const dispatchBridge=read('src/features/communications/communicationsDispatchBridge.ts');
 const controller=read('src/features/communications/useCommunicationsHub.ts');
@@ -25,11 +26,19 @@ req(state.currentSliceBaseCommit==='0fc0ab580b5b9414f9bf9aa323260aa56fc4793e','D
 req(state.phase11_4cMergeCommit===state.currentSliceBaseCommit,'C merge lineage must equal D base');
 req(state.phase11_4cExitGatePassed===true,'C closure must remain passed');
 req(state.phase11_4cPostMergeRecertification==='PASS_ZERO_FAILED_ZERO_RUNNING_ZERO_QUEUED','C post-merge recertification proof missing');
-req(state.phase11_4dExitGatePassed===false&&state.exitGatePassed===false,'D/overall gate must remain open until final certification');
-req(state.phase11_5Allowed===false&&state.successorStatus==='LOCKED','Phase 11.5 must remain locked');
+req(state.phase11_4dExitGatePassed===false&&state.exitGatePassed===false,'D/overall gate must remain open until post-merge closure certification');
+req(state.phase11_5Allowed===false&&state.successorStatus==='LOCKED','Phase 11.5 must remain locked before post-merge closure');
 req(state.conversationExperienceImplemented===true,'unified conversation experience must be implemented');
 req(state.unifiedCommunicationsRealCloudVerification.startsWith('PASS_'),'Real Cloud D verification must pass');
 req(state.unifiedCommunicationsRealCloudProbeZeroResidue===true,'D Real Cloud probe must leave zero residue');
+req(state.freshWorkspaceBootstrapVerification==='PASS_AUTHENTICATED_EMPTY_HUB_ZERO_RESIDUE','fresh-workspace empty hub certificate missing');
+req(state.realBrowserMobileVerification==='PASS_CHROMIUM_1280_430_390_360_320','multi-width Chromium certificate missing');
+req(state.authenticatedStaffDispatchBridgeImplemented===true,'authenticated staff dispatch bridge must be implemented');
+req(state.staffDispatchEdgeFunction==='enjaz-communications-user','staff dispatch Edge identity mismatch');
+req(state.staffDispatchEdgeVersion===1&&state.staffDispatchEdgeVerifyJwt===true,'staff dispatch Edge must be deployed as JWT-verified v1');
+req(state.staffDispatchDeploymentVerification==='PASS_ACTIVE_V1_VERIFY_JWT','staff dispatch deployment evidence missing');
+req(state.providerConfiguredIntegrationVerification==='PENDING_NOT_CONFIGURED','must not fabricate configured provider verification');
+req(state.configuredProviderAccountCount===0&&state.providerAccountsConfigured===false,'provider account state must remain truthfully unconfigured');
 req(state.unifiedCommunicationsNewUnindexedForeignKeys===0,'D must add no unindexed foreign keys');
 req(state.unifiedCommunicationsNewSecurityDefinerPublicFindings===0,'D must add no public security-definer exposure');
 req(state.unifiedCommunicationsNewRlsNoPolicyFindings===0,'D must add no RLS-no-policy finding');
@@ -55,6 +64,9 @@ has(hardening,'communication_conversation_reads_user_fk_idx','read cursor user F
 for(const marker of ['PHASE114D_HUB_CONVERSATIONS_EMPTY','PHASE114D_TIMELINE_COUNT_FAIL','PHASE114D_UNREAD_NOT_DERIVED','PHASE114D_AWAITING_STAFF_FAIL','PHASE114D_SEARCH_FAIL','PHASE114D_READ_CURSOR_FAIL','PHASE114D_DIRECT_READ_TABLE_ALLOWED','PHASE114D_SAFE_RETRY_FAIL','PHASE114D_RECONCILIATION_BLIND_RETRY_ALLOWED']) has(probe,marker,`Real Cloud destruction probe marker missing: ${marker}`);
 has(probe,'set local role authenticated','probe must exercise actual authenticated role');
 has(probe,'rollback;','probe must roll back all fixtures');
+for(const marker of ['PHASE114D_FRESH_CONVERSATIONS_NOT_ZERO','PHASE114D_FRESH_UNREAD_NOT_ZERO','PHASE114D_FRESH_REVIEW_NOT_ZERO','PHASE114D_FRESH_PROVIDER_ROWS']) has(freshProbe,marker,`fresh workspace probe marker missing: ${marker}`);
+has(freshProbe,'set local role authenticated','fresh workspace probe must exercise authenticated role');
+has(freshProbe,'rollback;','fresh workspace probe must roll back all fixtures');
 
 for(const marker of ['get_communications_hub_v1','mark_communication_conversation_read_v1','retry_communication_outbound_v1','relink_communication_v1']) has(service,marker,`service must use governed RPC ${marker}`);
 lacks(service,".from('communications')",'browser service must never read canonical table directly');
@@ -84,4 +96,4 @@ for(const alias of ['اتصالات','رسائل','واتساب','بريد']) ha
 for(const breakpoint of ['@media (max-width:60rem)','@media (max-width:42rem)','@media (max-width:24rem)']) has(css,breakpoint,`responsive communications reference CSS missing ${breakpoint}`);
 
 if(fail.length){console.error(`ENJAZ PHASE 11.4-D UNIFIED COMMUNICATIONS AUDIT FAIL (${fail.length})`);for(const item of fail)console.error(`- ${item}`);process.exit(1);}
-console.log('ENJAZ PHASE 11.4-D UNIFIED COMMUNICATIONS AUDIT PASS — canonical timeline, per-user unread, SLA, governed search/relink, safe retry, authenticated staff transport bridge, C lineage and M10 lock preserved.');
+console.log('ENJAZ PHASE 11.4-D UNIFIED COMMUNICATIONS AUDIT PASS — canonical timeline, per-user unread, SLA, governed search/relink, safe retry, fresh-workspace zero-residue, JWT staff transport bridge, multi-width Chromium evidence, C lineage and M10 lock preserved.');
