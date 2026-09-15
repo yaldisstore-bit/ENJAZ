@@ -6,159 +6,27 @@ export type CalendarConfirmationStatus = 'confirmed' | 'declined';
 export type CalendarAttendanceOutcome = 'attended' | 'missed';
 export type CalendarConflictState = 'clear' | 'conflict' | 'unknown_assignment' | 'unknown_range';
 
-export type CalendarStateMutationInput = Readonly<{
-  workspaceId: string;
-  eventId: string;
-  operationId: string;
-  expectedVersion: number;
-  action: SchedulingLifecycleAction;
-  reason?: string | null;
-}>;
+export type CalendarStateMutationInput = Readonly<{ workspaceId: string; eventId: string; operationId: string; expectedVersion: number; action: SchedulingLifecycleAction; reason?: string | null }>;
+export type RenewalStateMutationInput = Readonly<{ workspaceId: string; renewalId: string; operationId: string; expectedVersion: number; action: SchedulingLifecycleAction; reason?: string | null }>;
+export type CreateCalendarEventInput = Readonly<{ workspaceId: string; eventId: string; operationId: string; title: string; eventType: string; startsAt: string; endsAt?: string | null; transactionId?: string | null; companyId?: string | null; contactId?: string | null; workflowInstanceId?: string | null; staffMemberIds?: readonly string[]; note?: string | null }>;
+export type UpdateCalendarEventMetadataInput = Readonly<{ workspaceId: string; eventId: string; operationId: string; expectedVersion: number; title: string; eventType: string; transactionId?: string | null; companyId?: string | null; contactId?: string | null; workflowInstanceId?: string | null; note?: string | null }>;
+export type RescheduleCalendarEventInput = Readonly<{ workspaceId: string; eventId: string; operationId: string; expectedVersion: number; startsAt: string; endsAt?: string | null; reason: string }>;
+export type SetCalendarEventStaffInput = Readonly<{ workspaceId: string; eventId: string; operationId: string; expectedVersion: number; staffMemberIds: readonly string[]; reason?: string | null }>;
+export type SetCalendarEventConfirmationInput = Readonly<{ workspaceId: string; eventId: string; operationId: string; expectedVersion: number; status: CalendarConfirmationStatus; responseId?: string | null }>;
+export type RecordCalendarEventAttendanceInput = Readonly<{ workspaceId: string; eventId: string; operationId: string; expectedVersion: number; outcome: CalendarAttendanceOutcome; note?: string | null }>;
+export type CheckCalendarEventStaffConflictsInput = Readonly<{ workspaceId: string; startsAt: string; endsAt?: string | null; staffMemberIds: readonly string[]; excludeEventId?: string | null }>;
 
-export type RenewalStateMutationInput = Readonly<{
-  workspaceId: string;
-  renewalId: string;
-  operationId: string;
-  expectedVersion: number;
-  action: SchedulingLifecycleAction;
-  reason?: string | null;
-}>;
-
-export type CreateCalendarEventInput = Readonly<{
-  workspaceId: string;
-  eventId: string;
-  operationId: string;
-  title: string;
-  eventType: string;
-  startsAt: string;
-  endsAt?: string | null;
-  transactionId?: string | null;
-  companyId?: string | null;
-  contactId?: string | null;
-  workflowInstanceId?: string | null;
-  staffMemberIds?: readonly string[];
-  note?: string | null;
-}>;
-
-export type UpdateCalendarEventMetadataInput = Readonly<{
-  workspaceId: string;
-  eventId: string;
-  operationId: string;
-  expectedVersion: number;
-  title: string;
-  eventType: string;
-  transactionId?: string | null;
-  companyId?: string | null;
-  contactId?: string | null;
-  workflowInstanceId?: string | null;
-  note?: string | null;
-}>;
-
-export type RescheduleCalendarEventInput = Readonly<{
-  workspaceId: string;
-  eventId: string;
-  operationId: string;
-  expectedVersion: number;
-  startsAt: string;
-  endsAt?: string | null;
-  reason: string;
-}>;
-
-export type SetCalendarEventStaffInput = Readonly<{
-  workspaceId: string;
-  eventId: string;
-  operationId: string;
-  expectedVersion: number;
-  staffMemberIds: readonly string[];
-  reason?: string | null;
-}>;
-
-export type SetCalendarEventConfirmationInput = Readonly<{
-  workspaceId: string;
-  eventId: string;
-  operationId: string;
-  expectedVersion: number;
-  status: CalendarConfirmationStatus;
-  responseId?: string | null;
-}>;
-
-export type RecordCalendarEventAttendanceInput = Readonly<{
-  workspaceId: string;
-  eventId: string;
-  operationId: string;
-  expectedVersion: number;
-  outcome: CalendarAttendanceOutcome;
-  note?: string | null;
-}>;
-
-export type CheckCalendarEventStaffConflictsInput = Readonly<{
-  workspaceId: string;
-  startsAt: string;
-  endsAt?: string | null;
-  staffMemberIds: readonly string[];
-  excludeEventId?: string | null;
-}>;
-
-export type CalendarStateMutationResult = Readonly<{
-  id: string;
-  workspaceId: string;
-  status: 'scheduled' | 'completed' | 'cancelled';
-  startsAt: string;
-  endsAt: string | null;
-  version: number;
-  updatedAt: string;
-  wasDuplicate: boolean;
-}>;
-
-export type RenewalStateMutationResult = Readonly<{
-  id: string;
-  workspaceId: string;
-  status: 'active' | 'completed' | 'cancelled';
-  dueDate: string;
-  lastCompletedAt: string | null;
-  version: number;
-  updatedAt: string;
-  wasDuplicate: boolean;
-}>;
-
+export type CalendarStateMutationResult = Readonly<{ id: string; workspaceId: string; status: 'scheduled' | 'completed' | 'cancelled'; startsAt: string; endsAt: string | null; version: number; updatedAt: string; wasDuplicate: boolean }>;
+export type RenewalStateMutationResult = Readonly<{ id: string; workspaceId: string; status: 'active' | 'completed' | 'cancelled'; dueDate: string; lastCompletedAt: string | null; version: number; updatedAt: string; wasDuplicate: boolean }>;
 export type CalendarEventMutationResult = Readonly<{
-  id: string;
-  workspaceId: string;
-  transactionId: string | null;
-  companyId: string | null;
-  contactId: string | null;
-  workflowInstanceId: string | null;
-  title: string;
-  eventType: string;
-  startsAt: string;
-  endsAt: string | null;
-  status: 'scheduled' | 'completed' | 'cancelled';
-  note: string | null;
-  staffMemberIds: readonly string[];
-  confirmationStatus: 'unconfirmed' | 'confirmed' | 'declined';
-  confirmationAt: string | null;
-  confirmationSource: 'staff' | 'client_portal' | null;
-  confirmationResponseId: string | null;
-  attendanceOutcome: 'attended' | 'missed' | 'cancelled' | null;
-  attendanceRecordedAt: string | null;
-  version: number;
-  updatedAt: string;
-  wasDuplicate: boolean;
-  changed?: boolean;
+  id: string; workspaceId: string; transactionId: string | null; companyId: string | null; contactId: string | null; workflowInstanceId: string | null;
+  title: string; eventType: string; startsAt: string; endsAt: string | null; status: 'scheduled' | 'completed' | 'cancelled'; note: string | null;
+  staffMemberIds: readonly string[]; confirmationStatus: 'unconfirmed' | 'confirmed' | 'declined'; confirmationAt: string | null;
+  confirmationSource: 'staff' | 'client_portal' | null; confirmationResponseId: string | null; attendanceOutcome: 'attended' | 'missed' | 'cancelled' | null;
+  attendanceRecordedAt: string | null; version: number; updatedAt: string; wasDuplicate: boolean; changed?: boolean;
 }>;
-
-export type CalendarConflictItem = Readonly<{
-  eventId: string;
-  organizationMemberId: string;
-  startsAt: string;
-  endsAt: string | null;
-}>;
-
-export type CalendarConflictResult = Readonly<{
-  state: CalendarConflictState;
-  conflicts: readonly CalendarConflictItem[];
-  unknownRanges: readonly CalendarConflictItem[];
-}>;
+export type CalendarConflictItem = Readonly<{ eventId: string; organizationMemberId: string; startsAt: string; endsAt: string | null }>;
+export type CalendarConflictResult = Readonly<{ state: CalendarConflictState; conflicts: readonly CalendarConflictItem[]; unknownRanges: readonly CalendarConflictItem[] }>;
 
 export interface SchedulingCommandGateway {
   mutateCalendarState(input: CalendarStateMutationInput): Promise<CalendarStateMutationResult>;
@@ -172,222 +40,133 @@ export interface SchedulingCommandGateway {
   recordCalendarEventAttendance(input: RecordCalendarEventAttendanceInput): Promise<CalendarEventMutationResult>;
 }
 
-type RpcClientLike = {
-  rpc(name: string, args: Readonly<Record<string, unknown>>): PromiseLike<{ data: unknown; error: DataFailureLike | null }>;
-};
+type RpcClientLike = { rpc(name: string, args: Readonly<Record<string, unknown>>): PromiseLike<{ data: unknown; error: DataFailureLike | null }> };
+type BCommandInput = CreateCalendarEventInput | UpdateCalendarEventMetadataInput | RescheduleCalendarEventInput | SetCalendarEventStaffInput | SetCalendarEventConfirmationInput | RecordCalendarEventAttendanceInput;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const CALENDAR_STATUSES = new Set(['scheduled', 'completed', 'cancelled']);
-const RENEWAL_STATUSES = new Set(['active', 'completed', 'cancelled']);
-const ACTIONS = new Set<SchedulingLifecycleAction>(['complete', 'cancel']);
-const CONFIRMATION_STATUSES = new Set<CalendarConfirmationStatus>(['confirmed', 'declined']);
-const ATTENDANCE_OUTCOMES = new Set<CalendarAttendanceOutcome>(['attended', 'missed']);
-const CONFLICT_STATES = new Set<CalendarConflictState>(['clear', 'conflict', 'unknown_assignment', 'unknown_range']);
-const EVENT_CONFIRMATION_STATUSES = new Set(['unconfirmed', 'confirmed', 'declined']);
-const EVENT_CONFIRMATION_SOURCES = new Set(['staff', 'client_portal']);
-const EVENT_ATTENDANCE_OUTCOMES = new Set(['attended', 'missed', 'cancelled']);
+const CALENDAR_STATUSES = ['scheduled', 'completed', 'cancelled'] as const;
+const RENEWAL_STATUSES = ['active', 'completed', 'cancelled'] as const;
+const CONFLICT_STATES = ['clear', 'conflict', 'unknown_assignment', 'unknown_range'] as const;
+const CONFIRMATION_STATUSES = ['unconfirmed', 'confirmed', 'declined'] as const;
+const CONFIRMATION_SOURCES = ['staff', 'client_portal'] as const;
+const ATTENDANCE_OUTCOMES = ['attended', 'missed', 'cancelled'] as const;
 
-function requireUuid(value: unknown, label: string): string {
-  if (typeof value !== 'string' || !UUID.test(value.trim())) throw new DataAccessError(`Invalid ${label}`, 'DATA_VALIDATION_FAILED');
+function fail(label: string, code: 'DATA_VALIDATION_FAILED' | 'DATA_OPERATION_FAILED'): never {
+  throw new DataAccessError(`Invalid ${label}`, code);
+}
+function uuid(value: unknown, label: string, code: 'DATA_VALIDATION_FAILED' | 'DATA_OPERATION_FAILED' = 'DATA_VALIDATION_FAILED'): string {
+  if (typeof value !== 'string' || !UUID.test(value.trim())) return fail(label, code);
   return value.trim().toLowerCase();
 }
-
-function optionalUuid(value: unknown, label: string): string | null {
-  if (value === null || value === undefined || value === '') return null;
-  return requireUuid(value, label);
+function optUuid(value: unknown, label: string, code: 'DATA_VALIDATION_FAILED' | 'DATA_OPERATION_FAILED' = 'DATA_VALIDATION_FAILED'): string | null {
+  return value === null || value === undefined || value === '' ? null : uuid(value, label, code);
 }
-
-function requireUuidList(value: readonly string[] | undefined, label: string): readonly string[] {
+function uuidList(value: readonly string[] | undefined, code: 'DATA_VALIDATION_FAILED' | 'DATA_OPERATION_FAILED' = 'DATA_VALIDATION_FAILED'): readonly string[] {
   if (value === undefined) return Object.freeze([]);
-  if (!Array.isArray(value)) throw new DataAccessError(`Invalid ${label}`, 'DATA_VALIDATION_FAILED');
-  const normalized = [...new Set(value.map((item) => requireUuid(item, label)))].sort();
-  return Object.freeze(normalized);
+  if (!Array.isArray(value)) return fail('staff member ids', code);
+  return Object.freeze([...new Set(value.map((entry) => uuid(entry, 'staff member id', code)))].sort());
 }
-
-function requirePositiveInteger(value: unknown, label: string): number {
-  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 1) throw new DataAccessError(`Invalid ${label}`, 'DATA_VALIDATION_FAILED');
+function positive(value: unknown, label: string, code: 'DATA_VALIDATION_FAILED' | 'DATA_OPERATION_FAILED' = 'DATA_VALIDATION_FAILED'): number {
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 1) return fail(label, code);
   return value;
 }
-
-function requireText(value: unknown, label: string, max = 1200): string {
-  if (typeof value !== 'string' || !value.trim() || value.length > max || /[\u0000\r\n]/u.test(value)) {
-    throw new DataAccessError(`Invalid ${label}`, 'DATA_VALIDATION_FAILED');
-  }
+function text(value: unknown, label: string, max: number, code: 'DATA_VALIDATION_FAILED' | 'DATA_OPERATION_FAILED' = 'DATA_VALIDATION_FAILED'): string {
+  if (typeof value !== 'string' || !value.trim() || value.length > max || (code === 'DATA_VALIDATION_FAILED' && /[\u0000\r\n]/u.test(value))) return fail(label, code);
   return value.trim();
 }
-
-function optionalText(value: unknown, label: string, max: number): string | null {
-  if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) return null;
-  return requireText(value, label, max);
+function optText(value: unknown, label: string, max: number, code: 'DATA_VALIDATION_FAILED' | 'DATA_OPERATION_FAILED' = 'DATA_VALIDATION_FAILED'): string | null {
+  return value === null || value === undefined || (typeof value === 'string' && !value.trim()) ? null : text(value, label, max, code);
 }
-
-function optionalReason(value: string | null | undefined, action: SchedulingLifecycleAction): string | null {
-  if (value === null || value === undefined || value.trim() === '') {
-    if (action === 'cancel') throw new DataAccessError('Cancellation reason is required', 'DATA_VALIDATION_FAILED');
-    return null;
-  }
-  return requireText(value, 'scheduling reason');
+function instant(value: unknown, label: string, code: 'DATA_VALIDATION_FAILED' | 'DATA_OPERATION_FAILED'): string {
+  if (typeof value !== 'string' || !Number.isFinite(Date.parse(value))) return fail(label, code);
+  return value;
 }
-
+function optInstant(value: unknown, label: string, code: 'DATA_VALIDATION_FAILED' | 'DATA_OPERATION_FAILED'): string | null {
+  return value === null || value === undefined || value === '' ? null : instant(value, label, code);
+}
 function record(value: unknown, label: string): Readonly<Record<string, unknown>> {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new DataAccessError(`Invalid ${label}`, 'DATA_OPERATION_FAILED');
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return fail(label, 'DATA_OPERATION_FAILED');
   return value as Readonly<Record<string, unknown>>;
 }
-
-function instant(value: unknown, label: string): string {
-  if (typeof value !== 'string' || !Number.isFinite(Date.parse(value))) throw new DataAccessError(`Invalid ${label}`, 'DATA_OPERATION_FAILED');
+function bool(value: unknown, label: string): boolean {
+  if (typeof value !== 'boolean') return fail(label, 'DATA_OPERATION_FAILED');
   return value;
 }
-
-function inputInstant(value: unknown, label: string): string {
-  if (typeof value !== 'string' || !Number.isFinite(Date.parse(value))) throw new DataAccessError(`Invalid ${label}`, 'DATA_VALIDATION_FAILED');
+function oneOf<T extends string>(value: unknown, allowed: readonly T[], label: string): T {
+  const parsed = text(value, label, 40, 'DATA_OPERATION_FAILED');
+  if (!allowed.includes(parsed as T)) return fail(label, 'DATA_OPERATION_FAILED');
+  return parsed as T;
+}
+function date(value: unknown): string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return fail('renewal date', 'DATA_OPERATION_FAILED');
   return value;
 }
-
-function optionalInstant(value: unknown, label: string): string | null {
-  if (value === null || value === undefined) return null;
-  return instant(value, label);
-}
-
-function optionalInputInstant(value: unknown, label: string): string | null {
-  if (value === null || value === undefined || value === '') return null;
-  return inputInstant(value, label);
-}
-
-function boolean(value: unknown, label: string): boolean {
-  if (typeof value !== 'boolean') throw new DataAccessError(`Invalid ${label}`, 'DATA_OPERATION_FAILED');
-  return value;
-}
-
-function optionalBoolean(value: unknown, label: string): boolean | undefined {
-  if (value === null || value === undefined) return undefined;
-  return boolean(value, label);
-}
-
-function requireResponseText(value: unknown, label: string, max = 4000): string {
-  if (typeof value !== 'string' || !value.trim() || value.length > max) throw new DataAccessError(`Invalid ${label}`, 'DATA_OPERATION_FAILED');
-  return value;
-}
-
-function optionalResponseText(value: unknown, label: string, max = 4000): string | null {
-  if (value === null || value === undefined) return null;
-  return requireResponseText(value, label, max);
+function commandIds(input: BCommandInput) {
+  return {
+    p_workspace_id: uuid(input.workspaceId, 'workspace id'),
+    p_event_id: uuid(input.eventId, 'calendar event id'),
+    p_operation_id: uuid(input.operationId, 'operation id'),
+  };
 }
 
 function parseCalendarResult(value: unknown): CalendarStateMutationResult {
-  const row = record(value, 'calendar command response');
-  const status = requireResponseText(row.status, 'calendar status', 24);
-  if (!CALENDAR_STATUSES.has(status)) throw new DataAccessError('Invalid calendar status', 'DATA_OPERATION_FAILED');
+  const row = record(value, 'calendar response');
   return Object.freeze({
-    id: requireUuid(row.id, 'calendar event id'),
-    workspaceId: requireUuid(row.workspaceId ?? row.workspace_id, 'workspace id'),
-    status: status as CalendarStateMutationResult['status'],
-    startsAt: instant(row.startsAt ?? row.starts_at, 'calendar start'),
-    endsAt: optionalInstant(row.endsAt ?? row.ends_at, 'calendar end'),
-    version: requirePositiveInteger(row.version, 'calendar version'),
-    updatedAt: instant(row.updatedAt ?? row.updated_at, 'calendar updated timestamp'),
-    wasDuplicate: boolean(row.wasDuplicate ?? row.was_duplicate, 'calendar duplicate marker'),
+    id: uuid(row.id, 'event id', 'DATA_OPERATION_FAILED'), workspaceId: uuid(row.workspaceId, 'workspace id', 'DATA_OPERATION_FAILED'),
+    status: oneOf(row.status, CALENDAR_STATUSES, 'calendar status'), startsAt: instant(row.startsAt, 'calendar start', 'DATA_OPERATION_FAILED'),
+    endsAt: optInstant(row.endsAt, 'calendar end', 'DATA_OPERATION_FAILED'), version: positive(row.version, 'calendar version', 'DATA_OPERATION_FAILED'),
+    updatedAt: instant(row.updatedAt, 'calendar update', 'DATA_OPERATION_FAILED'), wasDuplicate: bool(row.wasDuplicate, 'duplicate marker'),
   });
 }
-
-function requireDate(value: unknown, label: string): string {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new DataAccessError(`Invalid ${label}`, 'DATA_OPERATION_FAILED');
-  return value;
-}
-
 function parseRenewalResult(value: unknown): RenewalStateMutationResult {
-  const row = record(value, 'renewal command response');
-  const status = requireResponseText(row.status, 'renewal status', 24);
-  if (!RENEWAL_STATUSES.has(status)) throw new DataAccessError('Invalid renewal status', 'DATA_OPERATION_FAILED');
+  const row = record(value, 'renewal response');
   return Object.freeze({
-    id: requireUuid(row.id, 'renewal id'),
-    workspaceId: requireUuid(row.workspaceId ?? row.workspace_id, 'workspace id'),
-    status: status as RenewalStateMutationResult['status'],
-    dueDate: requireDate(row.dueDate ?? row.due_date, 'renewal due date'),
-    lastCompletedAt: optionalInstant(row.lastCompletedAt ?? row.last_completed_at, 'renewal completion timestamp'),
-    version: requirePositiveInteger(row.version, 'renewal version'),
-    updatedAt: instant(row.updatedAt ?? row.updated_at, 'renewal updated timestamp'),
-    wasDuplicate: boolean(row.wasDuplicate ?? row.was_duplicate, 'renewal duplicate marker'),
+    id: uuid(row.id, 'renewal id', 'DATA_OPERATION_FAILED'), workspaceId: uuid(row.workspaceId, 'workspace id', 'DATA_OPERATION_FAILED'),
+    status: oneOf(row.status, RENEWAL_STATUSES, 'renewal status'), dueDate: date(row.dueDate),
+    lastCompletedAt: optInstant(row.lastCompletedAt, 'renewal completion', 'DATA_OPERATION_FAILED'), version: positive(row.version, 'renewal version', 'DATA_OPERATION_FAILED'),
+    updatedAt: instant(row.updatedAt, 'renewal update', 'DATA_OPERATION_FAILED'), wasDuplicate: bool(row.wasDuplicate, 'duplicate marker'),
   });
 }
-
-function parseUuidArray(value: unknown, label: string): readonly string[] {
-  if (!Array.isArray(value)) throw new DataAccessError(`Invalid ${label}`, 'DATA_OPERATION_FAILED');
-  return Object.freeze(value.map((item) => requireUuid(item, label)));
-}
-
 function parseCalendarEventResult(value: unknown): CalendarEventMutationResult {
-  const row = record(value, 'calendar event command response');
-  if (row.schema !== 'enjaz.scheduling-calendar-event.v2') throw new DataAccessError('Invalid calendar event schema', 'DATA_OPERATION_FAILED');
-  const status = requireResponseText(row.status, 'calendar status', 24);
-  const confirmationStatus = requireResponseText(row.confirmationStatus ?? row.confirmation_status, 'confirmation status', 24);
-  const confirmationSourceRaw = row.confirmationSource ?? row.confirmation_source;
-  const attendanceOutcomeRaw = row.attendanceOutcome ?? row.attendance_outcome;
-  if (!CALENDAR_STATUSES.has(status)) throw new DataAccessError('Invalid calendar status', 'DATA_OPERATION_FAILED');
-  if (!EVENT_CONFIRMATION_STATUSES.has(confirmationStatus)) throw new DataAccessError('Invalid confirmation status', 'DATA_OPERATION_FAILED');
-  const confirmationSource = confirmationSourceRaw === null || confirmationSourceRaw === undefined ? null : requireResponseText(confirmationSourceRaw, 'confirmation source', 24);
-  if (confirmationSource !== null && !EVENT_CONFIRMATION_SOURCES.has(confirmationSource)) throw new DataAccessError('Invalid confirmation source', 'DATA_OPERATION_FAILED');
-  const attendanceOutcome = attendanceOutcomeRaw === null || attendanceOutcomeRaw === undefined ? null : requireResponseText(attendanceOutcomeRaw, 'attendance outcome', 24);
-  if (attendanceOutcome !== null && !EVENT_ATTENDANCE_OUTCOMES.has(attendanceOutcome)) throw new DataAccessError('Invalid attendance outcome', 'DATA_OPERATION_FAILED');
-  const changed = optionalBoolean(row.changed, 'calendar changed marker');
+  const row = record(value, 'calendar event response');
+  if (row.schema !== 'enjaz.scheduling-calendar-event.v2') return fail('calendar event schema', 'DATA_OPERATION_FAILED');
+  const source = row.confirmationSource === null || row.confirmationSource === undefined ? null : oneOf(row.confirmationSource, CONFIRMATION_SOURCES, 'confirmation source');
+  const attendance = row.attendanceOutcome === null || row.attendanceOutcome === undefined ? null : oneOf(row.attendanceOutcome, ATTENDANCE_OUTCOMES, 'attendance outcome');
   return Object.freeze({
-    id: requireUuid(row.id, 'calendar event id'),
-    workspaceId: requireUuid(row.workspaceId ?? row.workspace_id, 'workspace id'),
-    transactionId: optionalUuid(row.transactionId ?? row.transaction_id, 'transaction id'),
-    companyId: optionalUuid(row.companyId ?? row.company_id, 'company id'),
-    contactId: optionalUuid(row.contactId ?? row.contact_id, 'contact id'),
-    workflowInstanceId: optionalUuid(row.workflowInstanceId ?? row.workflow_instance_id, 'workflow instance id'),
-    title: requireResponseText(row.title, 'calendar title', 320),
-    eventType: requireResponseText(row.eventType ?? row.event_type, 'calendar event type', 120),
-    startsAt: instant(row.startsAt ?? row.starts_at, 'calendar start'),
-    endsAt: optionalInstant(row.endsAt ?? row.ends_at, 'calendar end'),
-    status: status as CalendarEventMutationResult['status'],
-    note: optionalResponseText(row.note, 'calendar note', 4000),
-    staffMemberIds: parseUuidArray(row.staffMemberIds ?? row.staff_member_ids, 'staff member id'),
-    confirmationStatus: confirmationStatus as CalendarEventMutationResult['confirmationStatus'],
-    confirmationAt: optionalInstant(row.confirmationAt ?? row.confirmation_at, 'confirmation timestamp'),
-    confirmationSource: confirmationSource as CalendarEventMutationResult['confirmationSource'],
-    confirmationResponseId: optionalUuid(row.confirmationResponseId ?? row.confirmation_response_id, 'confirmation response id'),
-    attendanceOutcome: attendanceOutcome as CalendarEventMutationResult['attendanceOutcome'],
-    attendanceRecordedAt: optionalInstant(row.attendanceRecordedAt ?? row.attendance_recorded_at, 'attendance timestamp'),
-    version: requirePositiveInteger(row.version, 'calendar version'),
-    updatedAt: instant(row.updatedAt ?? row.updated_at, 'calendar updated timestamp'),
-    wasDuplicate: boolean(row.wasDuplicate ?? row.was_duplicate, 'calendar duplicate marker'),
-    ...(changed === undefined ? {} : { changed }),
+    id: uuid(row.id, 'event id', 'DATA_OPERATION_FAILED'), workspaceId: uuid(row.workspaceId, 'workspace id', 'DATA_OPERATION_FAILED'),
+    transactionId: optUuid(row.transactionId, 'transaction id', 'DATA_OPERATION_FAILED'), companyId: optUuid(row.companyId, 'company id', 'DATA_OPERATION_FAILED'),
+    contactId: optUuid(row.contactId, 'contact id', 'DATA_OPERATION_FAILED'), workflowInstanceId: optUuid(row.workflowInstanceId, 'workflow id', 'DATA_OPERATION_FAILED'),
+    title: text(row.title, 'calendar title', 320, 'DATA_OPERATION_FAILED'), eventType: text(row.eventType, 'event type', 120, 'DATA_OPERATION_FAILED'),
+    startsAt: instant(row.startsAt, 'calendar start', 'DATA_OPERATION_FAILED'), endsAt: optInstant(row.endsAt, 'calendar end', 'DATA_OPERATION_FAILED'),
+    status: oneOf(row.status, CALENDAR_STATUSES, 'calendar status'), note: optText(row.note, 'calendar note', 4000, 'DATA_OPERATION_FAILED'),
+    staffMemberIds: uuidList(row.staffMemberIds as readonly string[] | undefined, 'DATA_OPERATION_FAILED'), confirmationStatus: oneOf(row.confirmationStatus, CONFIRMATION_STATUSES, 'confirmation status'),
+    confirmationAt: optInstant(row.confirmationAt, 'confirmation time', 'DATA_OPERATION_FAILED'), confirmationSource: source,
+    confirmationResponseId: optUuid(row.confirmationResponseId, 'confirmation response id', 'DATA_OPERATION_FAILED'), attendanceOutcome: attendance,
+    attendanceRecordedAt: optInstant(row.attendanceRecordedAt, 'attendance time', 'DATA_OPERATION_FAILED'), version: positive(row.version, 'calendar version', 'DATA_OPERATION_FAILED'),
+    updatedAt: instant(row.updatedAt, 'calendar update', 'DATA_OPERATION_FAILED'), wasDuplicate: bool(row.wasDuplicate, 'duplicate marker'),
+    ...(row.changed === undefined ? {} : { changed: bool(row.changed, 'changed marker') }),
   });
 }
-
-function parseConflictItem(value: unknown, label: string): CalendarConflictItem {
-  const row = record(value, label);
+function parseConflictItem(value: unknown): CalendarConflictItem {
+  const row = record(value, 'conflict item');
   return Object.freeze({
-    eventId: requireUuid(row.eventId ?? row.event_id, 'conflict event id'),
-    organizationMemberId: requireUuid(row.organizationMemberId ?? row.organization_member_id, 'conflict organization member id'),
-    startsAt: instant(row.startsAt ?? row.starts_at, 'conflict start'),
-    endsAt: optionalInstant(row.endsAt ?? row.ends_at, 'conflict end'),
+    eventId: uuid(row.eventId, 'conflict event id', 'DATA_OPERATION_FAILED'), organizationMemberId: uuid(row.organizationMemberId, 'conflict staff id', 'DATA_OPERATION_FAILED'),
+    startsAt: instant(row.startsAt, 'conflict start', 'DATA_OPERATION_FAILED'), endsAt: optInstant(row.endsAt, 'conflict end', 'DATA_OPERATION_FAILED'),
   });
 }
-
-function parseConflictArray(value: unknown, label: string): readonly CalendarConflictItem[] {
-  if (!Array.isArray(value)) throw new DataAccessError(`Invalid ${label}`, 'DATA_OPERATION_FAILED');
-  return Object.freeze(value.map((entry, index) => parseConflictItem(entry, `${label}[${index}]`)));
+function conflictArray(value: unknown): readonly CalendarConflictItem[] {
+  if (!Array.isArray(value)) return fail('conflict list', 'DATA_OPERATION_FAILED');
+  return Object.freeze(value.map(parseConflictItem));
 }
-
 function parseConflictResult(value: unknown): CalendarConflictResult {
-  const row = record(value, 'calendar conflict response');
-  if (row.schema !== 'enjaz.scheduling-conflict.v1') throw new DataAccessError('Invalid calendar conflict schema', 'DATA_OPERATION_FAILED');
-  const state = requireResponseText(row.state, 'conflict state', 32);
-  if (!CONFLICT_STATES.has(state as CalendarConflictState)) throw new DataAccessError('Invalid calendar conflict state', 'DATA_OPERATION_FAILED');
-  return Object.freeze({
-    state: state as CalendarConflictState,
-    conflicts: parseConflictArray(row.conflicts, 'conflicts'),
-    unknownRanges: parseConflictArray(row.unknownRanges ?? row.unknown_ranges, 'unknown ranges'),
-  });
+  const row = record(value, 'conflict response');
+  if (row.schema !== 'enjaz.scheduling-conflict.v1') return fail('conflict schema', 'DATA_OPERATION_FAILED');
+  return Object.freeze({ state: oneOf(row.state, CONFLICT_STATES, 'conflict state'), conflicts: conflictArray(row.conflicts), unknownRanges: conflictArray(row.unknownRanges) });
 }
 
 export function createSchedulingCommandGateway(client: EnjazSupabaseClient, timeoutMs = 15_000): SchedulingCommandGateway {
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 120_000) throw new Error('Invalid scheduling command timeout');
   const rpc = client as unknown as RpcClientLike;
-
   const call = async (name: string, args: Readonly<Record<string, unknown>>): Promise<unknown> => {
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
@@ -400,163 +179,75 @@ export function createSchedulingCommandGateway(client: EnjazSupabaseClient, time
     } catch (error) {
       if (error instanceof DataAccessError) throw error;
       throw normalizeThrownDataFailure(error, 'write');
-    } finally {
-      if (timer) clearTimeout(timer);
-    }
+    } finally { if (timer) clearTimeout(timer); }
   };
+  const bCall = async (name: string, input: BCommandInput, args: Readonly<Record<string, unknown>>) => parseCalendarEventResult(await call(name, { ...commandIds(input), ...args }));
 
   return Object.freeze({
-    async mutateCalendarState(input: CalendarStateMutationInput) {
-      const workspaceId = requireUuid(input.workspaceId, 'workspace id');
-      const eventId = requireUuid(input.eventId, 'calendar event id');
-      const operationId = requireUuid(input.operationId, 'operation id');
-      const expectedVersion = requirePositiveInteger(input.expectedVersion, 'calendar expected version');
-      if (!ACTIONS.has(input.action)) throw new DataAccessError('Invalid calendar lifecycle action', 'DATA_VALIDATION_FAILED');
-      const reason = optionalReason(input.reason, input.action);
+    async mutateCalendarState(input) {
+      const action = input.action;
+      if (action !== 'complete' && action !== 'cancel') return fail('calendar lifecycle action', 'DATA_VALIDATION_FAILED');
+      const reason = input.reason?.trim() ? text(input.reason, 'scheduling reason', 1200) : null;
+      if (action === 'cancel' && !reason) throw new DataAccessError('Cancellation reason is required', 'DATA_VALIDATION_FAILED');
       return parseCalendarResult(await call('mutate_calendar_event_state_v1', {
-        p_workspace_id: workspaceId,
-        p_event_id: eventId,
-        p_operation_id: operationId,
-        p_expected_version: expectedVersion,
-        p_action: input.action,
-        p_reason: reason,
+        p_workspace_id: uuid(input.workspaceId, 'workspace id'), p_event_id: uuid(input.eventId, 'event id'), p_operation_id: uuid(input.operationId, 'operation id'),
+        p_expected_version: positive(input.expectedVersion, 'expected version'), p_action: action, p_reason: reason,
       }));
     },
-
-    async mutateRenewalState(input: RenewalStateMutationInput) {
-      const workspaceId = requireUuid(input.workspaceId, 'workspace id');
-      const renewalId = requireUuid(input.renewalId, 'renewal id');
-      const operationId = requireUuid(input.operationId, 'operation id');
-      const expectedVersion = requirePositiveInteger(input.expectedVersion, 'renewal expected version');
-      if (!ACTIONS.has(input.action)) throw new DataAccessError('Invalid renewal lifecycle action', 'DATA_VALIDATION_FAILED');
-      const reason = optionalReason(input.reason, input.action);
+    async mutateRenewalState(input) {
+      const action = input.action;
+      if (action !== 'complete' && action !== 'cancel') return fail('renewal lifecycle action', 'DATA_VALIDATION_FAILED');
+      const reason = input.reason?.trim() ? text(input.reason, 'scheduling reason', 1200) : null;
+      if (action === 'cancel' && !reason) throw new DataAccessError('Cancellation reason is required', 'DATA_VALIDATION_FAILED');
       return parseRenewalResult(await call('mutate_renewal_state_v1', {
-        p_workspace_id: workspaceId,
-        p_renewal_id: renewalId,
-        p_operation_id: operationId,
-        p_expected_version: expectedVersion,
-        p_action: input.action,
-        p_reason: reason,
+        p_workspace_id: uuid(input.workspaceId, 'workspace id'), p_renewal_id: uuid(input.renewalId, 'renewal id'), p_operation_id: uuid(input.operationId, 'operation id'),
+        p_expected_version: positive(input.expectedVersion, 'expected version'), p_action: action, p_reason: reason,
       }));
     },
-
-    async checkCalendarEventStaffConflicts(input: CheckCalendarEventStaffConflictsInput) {
-      const workspaceId = requireUuid(input.workspaceId, 'workspace id');
-      const startsAt = inputInstant(input.startsAt, 'calendar start');
-      const endsAt = optionalInputInstant(input.endsAt, 'calendar end');
-      const staffMemberIds = requireUuidList(input.staffMemberIds, 'staff member id');
-      const excludeEventId = optionalUuid(input.excludeEventId, 'excluded calendar event id');
+    async checkCalendarEventStaffConflicts(input) {
       return parseConflictResult(await call('check_calendar_event_staff_conflicts_v1', {
-        p_workspace_id: workspaceId,
-        p_starts_at: startsAt,
-        p_ends_at: endsAt,
-        p_staff_member_ids: staffMemberIds,
-        p_exclude_event_id: excludeEventId,
+        p_workspace_id: uuid(input.workspaceId, 'workspace id'), p_starts_at: instant(input.startsAt, 'calendar start', 'DATA_VALIDATION_FAILED'),
+        p_ends_at: optInstant(input.endsAt, 'calendar end', 'DATA_VALIDATION_FAILED'), p_staff_member_ids: uuidList(input.staffMemberIds),
+        p_exclude_event_id: optUuid(input.excludeEventId, 'excluded event id'),
       }));
     },
-
-    async createCalendarEvent(input: CreateCalendarEventInput) {
-      const workspaceId = requireUuid(input.workspaceId, 'workspace id');
-      const eventId = requireUuid(input.eventId, 'calendar event id');
-      const operationId = requireUuid(input.operationId, 'operation id');
-      const title = requireText(input.title, 'calendar title', 320);
-      const eventType = requireText(input.eventType, 'calendar event type', 120);
-      const startsAt = inputInstant(input.startsAt, 'calendar start');
-      const endsAt = optionalInputInstant(input.endsAt, 'calendar end');
-      const staffMemberIds = requireUuidList(input.staffMemberIds, 'staff member id');
-      return parseCalendarEventResult(await call('create_calendar_event_v1', {
-        p_workspace_id: workspaceId,
-        p_event_id: eventId,
-        p_operation_id: operationId,
-        p_title: title,
-        p_event_type: eventType,
-        p_starts_at: startsAt,
-        p_ends_at: endsAt,
-        p_transaction_id: optionalUuid(input.transactionId, 'transaction id'),
-        p_company_id: optionalUuid(input.companyId, 'company id'),
-        p_contact_id: optionalUuid(input.contactId, 'contact id'),
-        p_workflow_instance_id: optionalUuid(input.workflowInstanceId, 'workflow instance id'),
-        p_staff_member_ids: staffMemberIds,
-        p_note: optionalText(input.note, 'calendar note', 4000),
-      }));
+    async createCalendarEvent(input) {
+      return bCall('create_calendar_event_v1', input, {
+        p_title: text(input.title, 'calendar title', 320), p_event_type: text(input.eventType, 'event type', 120),
+        p_starts_at: instant(input.startsAt, 'calendar start', 'DATA_VALIDATION_FAILED'), p_ends_at: optInstant(input.endsAt, 'calendar end', 'DATA_VALIDATION_FAILED'),
+        p_transaction_id: optUuid(input.transactionId, 'transaction id'), p_company_id: optUuid(input.companyId, 'company id'), p_contact_id: optUuid(input.contactId, 'contact id'),
+        p_workflow_instance_id: optUuid(input.workflowInstanceId, 'workflow id'), p_staff_member_ids: uuidList(input.staffMemberIds), p_note: optText(input.note, 'calendar note', 4000),
+      });
     },
-
-    async updateCalendarEventMetadata(input: UpdateCalendarEventMetadataInput) {
-      const workspaceId = requireUuid(input.workspaceId, 'workspace id');
-      const eventId = requireUuid(input.eventId, 'calendar event id');
-      const operationId = requireUuid(input.operationId, 'operation id');
-      return parseCalendarEventResult(await call('update_calendar_event_metadata_v1', {
-        p_workspace_id: workspaceId,
-        p_event_id: eventId,
-        p_operation_id: operationId,
-        p_expected_version: requirePositiveInteger(input.expectedVersion, 'calendar expected version'),
-        p_title: requireText(input.title, 'calendar title', 320),
-        p_event_type: requireText(input.eventType, 'calendar event type', 120),
-        p_transaction_id: optionalUuid(input.transactionId, 'transaction id'),
-        p_company_id: optionalUuid(input.companyId, 'company id'),
-        p_contact_id: optionalUuid(input.contactId, 'contact id'),
-        p_workflow_instance_id: optionalUuid(input.workflowInstanceId, 'workflow instance id'),
-        p_note: optionalText(input.note, 'calendar note', 4000),
-      }));
+    async updateCalendarEventMetadata(input) {
+      return bCall('update_calendar_event_metadata_v1', input, {
+        p_expected_version: positive(input.expectedVersion, 'expected version'), p_title: text(input.title, 'calendar title', 320), p_event_type: text(input.eventType, 'event type', 120),
+        p_transaction_id: optUuid(input.transactionId, 'transaction id'), p_company_id: optUuid(input.companyId, 'company id'), p_contact_id: optUuid(input.contactId, 'contact id'),
+        p_workflow_instance_id: optUuid(input.workflowInstanceId, 'workflow id'), p_note: optText(input.note, 'calendar note', 4000),
+      });
     },
-
-    async rescheduleCalendarEvent(input: RescheduleCalendarEventInput) {
-      const workspaceId = requireUuid(input.workspaceId, 'workspace id');
-      const eventId = requireUuid(input.eventId, 'calendar event id');
-      const operationId = requireUuid(input.operationId, 'operation id');
-      return parseCalendarEventResult(await call('reschedule_calendar_event_v1', {
-        p_workspace_id: workspaceId,
-        p_event_id: eventId,
-        p_operation_id: operationId,
-        p_expected_version: requirePositiveInteger(input.expectedVersion, 'calendar expected version'),
-        p_starts_at: inputInstant(input.startsAt, 'calendar start'),
-        p_ends_at: optionalInputInstant(input.endsAt, 'calendar end'),
-        p_reason: requireText(input.reason, 'reschedule reason', 1200),
-      }));
+    async rescheduleCalendarEvent(input) {
+      return bCall('reschedule_calendar_event_v1', input, {
+        p_expected_version: positive(input.expectedVersion, 'expected version'), p_starts_at: instant(input.startsAt, 'calendar start', 'DATA_VALIDATION_FAILED'),
+        p_ends_at: optInstant(input.endsAt, 'calendar end', 'DATA_VALIDATION_FAILED'), p_reason: text(input.reason, 'reschedule reason', 1200),
+      });
     },
-
-    async setCalendarEventStaff(input: SetCalendarEventStaffInput) {
-      const workspaceId = requireUuid(input.workspaceId, 'workspace id');
-      const eventId = requireUuid(input.eventId, 'calendar event id');
-      const operationId = requireUuid(input.operationId, 'operation id');
-      return parseCalendarEventResult(await call('set_calendar_event_staff_v1', {
-        p_workspace_id: workspaceId,
-        p_event_id: eventId,
-        p_operation_id: operationId,
-        p_expected_version: requirePositiveInteger(input.expectedVersion, 'calendar expected version'),
-        p_staff_member_ids: requireUuidList(input.staffMemberIds, 'staff member id'),
-        p_reason: optionalText(input.reason, 'staff assignment reason', 1200),
-      }));
+    async setCalendarEventStaff(input) {
+      return bCall('set_calendar_event_staff_v1', input, {
+        p_expected_version: positive(input.expectedVersion, 'expected version'), p_staff_member_ids: uuidList(input.staffMemberIds), p_reason: optText(input.reason, 'staff reason', 1200),
+      });
     },
-
-    async setCalendarEventConfirmation(input: SetCalendarEventConfirmationInput) {
-      const workspaceId = requireUuid(input.workspaceId, 'workspace id');
-      const eventId = requireUuid(input.eventId, 'calendar event id');
-      const operationId = requireUuid(input.operationId, 'operation id');
-      if (!CONFIRMATION_STATUSES.has(input.status)) throw new DataAccessError('Invalid confirmation status', 'DATA_VALIDATION_FAILED');
-      return parseCalendarEventResult(await call('set_calendar_event_confirmation_v1', {
-        p_workspace_id: workspaceId,
-        p_event_id: eventId,
-        p_operation_id: operationId,
-        p_expected_version: requirePositiveInteger(input.expectedVersion, 'calendar expected version'),
-        p_confirmation_status: input.status,
-        p_response_id: optionalUuid(input.responseId, 'portal response id'),
-      }));
+    async setCalendarEventConfirmation(input) {
+      if (input.status !== 'confirmed' && input.status !== 'declined') return fail('confirmation status', 'DATA_VALIDATION_FAILED');
+      return bCall('set_calendar_event_confirmation_v1', input, {
+        p_expected_version: positive(input.expectedVersion, 'expected version'), p_confirmation_status: input.status, p_response_id: optUuid(input.responseId, 'portal response id'),
+      });
     },
-
-    async recordCalendarEventAttendance(input: RecordCalendarEventAttendanceInput) {
-      const workspaceId = requireUuid(input.workspaceId, 'workspace id');
-      const eventId = requireUuid(input.eventId, 'calendar event id');
-      const operationId = requireUuid(input.operationId, 'operation id');
-      if (!ATTENDANCE_OUTCOMES.has(input.outcome)) throw new DataAccessError('Invalid attendance outcome', 'DATA_VALIDATION_FAILED');
-      return parseCalendarEventResult(await call('record_calendar_event_attendance_v1', {
-        p_workspace_id: workspaceId,
-        p_event_id: eventId,
-        p_operation_id: operationId,
-        p_expected_version: requirePositiveInteger(input.expectedVersion, 'calendar expected version'),
-        p_outcome: input.outcome,
-        p_note: optionalText(input.note, 'attendance note', 1200),
-      }));
+    async recordCalendarEventAttendance(input) {
+      if (input.outcome !== 'attended' && input.outcome !== 'missed') return fail('attendance outcome', 'DATA_VALIDATION_FAILED');
+      return bCall('record_calendar_event_attendance_v1', input, {
+        p_expected_version: positive(input.expectedVersion, 'expected version'), p_outcome: input.outcome, p_note: optText(input.note, 'attendance note', 1200),
+      });
     },
   });
 }
