@@ -1,0 +1,73 @@
+name: ENJAZ Phase 11.3 — Published Client Portal Certificate
+
+on:
+  workflow_run:
+    workflows: ["ENJAZ Pages Preview"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase11-3-published-portal
+  cancel-in-progress: false
+
+jobs:
+  published-client-portal:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    name: Exact SHA / Real Supabase Auth / Public Pages / Real Chromium
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+      SUPABASE_SECRET_KEY: ${{ secrets.ENJAZ_SUPABASE_SECRET_KEY }}
+      LIVE_PORTAL_URL: https://yaldisstore-bit.github.io/ENJAZ/live/portal
+      EXPECTED_DEPLOYED_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - name: Checkout exact deployed source candidate
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Require server-only certification credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_SECRET_KEY" || {
+            echo "Missing GitHub Secret ENJAZ_SUPABASE_SECRET_KEY" >&2
+            exit 1
+          }
+          case "$SUPABASE_SECRET_KEY" in
+            sb_publishable_*) echo "Refusing publishable key as privileged credential" >&2; exit 1 ;;
+          esac
+          [[ "$EXPECTED_DEPLOYED_SHA" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "Expected deployed SHA is not exact" >&2
+            exit 1
+          }
+      - name: Install locked application dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Static-check published portal certifier
+        run: node --check scripts/phase11-3-published-portal-e2e.mjs
+      - name: Install pinned Real Chromium runtime
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run exact-SHA published authenticated portal certificate
+        run: node scripts/phase11-3-published-portal-e2e.mjs
+      - name: Upload sanitized Phase 11.3 published evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase11-3-published-portal-${{ github.event.workflow_run.head_sha || github.sha }}
+          path: artifacts/phase11-3-published-portal/evidence.json
+          if-no-files-found: warn
+          retention-days: 14
