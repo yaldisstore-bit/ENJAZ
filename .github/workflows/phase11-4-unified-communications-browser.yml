@@ -32,7 +32,7 @@ jobs:
         run: |
           node scripts/phase11-4-omnichannel-audit.mjs
           node scripts/phase11-4d-unified-communications-audit.mjs
-          node --experimental-strip-types --test tests/communicationsHubService.test.ts
+          node --experimental-strip-types --test tests/communicationsHubService.test.ts tests/communicationsDispatchBridge.test.ts
           npm run typecheck
       - name: Build canonical production and frozen budgets
         run: |
