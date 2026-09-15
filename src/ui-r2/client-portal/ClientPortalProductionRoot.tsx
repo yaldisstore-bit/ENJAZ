@@ -12,7 +12,7 @@ import {
   type ClientPortalRequestView,
   type ClientPortalWorkspace,
 } from '../../features/client-portal/clientPortalGateway.ts';
-import './client-portal.css';
+import clientPortalCss from './client-portal.css?raw';
 
 type PortalSection='overview'|'requests'|'transactions'|'documents'|'receipts';
 type Notice={kind:'success'|'error'|'info';message:string}|null;
@@ -22,6 +22,7 @@ function userMessage(reason:unknown,fallback:string):string{
   return typeof candidate?.userMessage==='string'?candidate.userMessage:typeof candidate?.message==='string'?candidate.message:fallback;
 }
 
+function ClientPortalStyles(){return <style data-client-portal-styles="lazy">{clientPortalCss}</style>;}
 function ClientPortalMark(){return <div className="cp-mark" aria-hidden="true"><span>إ</span></div>;}
 function LoadingPortal(){return <main className="cp-loading" dir="rtl"><ClientPortalMark/><strong>إنجاز</strong><span>نجهّز بوابتك الآمنة…</span></main>;}
 
@@ -117,6 +118,6 @@ function AuthenticatedPortal({gateway}:Readonly<{gateway:ClientPortalGateway}>){
 
 export function ClientPortalProductionRoot(){
   const [runtime]=useState(()=>{try{const config=createRuntimeConfig(import.meta.env as unknown as Readonly<Record<string,unknown>>),client=createEnjazSupabaseClient(config);return {auth:createSupabaseAuthGateway(client),gateway:createClientPortalGateway(client),error:null as string|null};}catch{return {auth:null,gateway:null,error:'إعدادات الاتصال ببوابة إنجاز غير مكتملة.'};}});
-  if(!runtime.auth||!runtime.gateway)return <main className="cp-entry" dir="rtl"><section className="cp-entry__card"><ClientPortalMark/><h1>تعذر تشغيل بوابة العميل</h1><p>{runtime.error}</p></section></main>;
-  return <AuthProvider gateway={runtime.auth}><AuthenticatedPortal gateway={runtime.gateway}/></AuthProvider>;
+  if(!runtime.auth||!runtime.gateway)return <><ClientPortalStyles/><main className="cp-entry" dir="rtl"><section className="cp-entry__card"><ClientPortalMark/><h1>تعذر تشغيل بوابة العميل</h1><p>{runtime.error}</p></section></main></>;
+  return <><ClientPortalStyles/><AuthProvider gateway={runtime.auth}><AuthenticatedPortal gateway={runtime.gateway}/></AuthProvider></>;
 }
