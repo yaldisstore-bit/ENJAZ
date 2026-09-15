@@ -43,7 +43,7 @@ jobs:
       - name: Phase 11.3B database authority static audit
         run: node scripts/phase11-3b-client-portal-db-authority-audit.mjs
       - name: Phase 11.3B database authority destruction tests
-        run: node --test tests/clientPortalDatabaseAuthority.test.mjs
+        run: node --test tests/clientPortalDatabaseAuthority.test.mjs tests/clientPortalDatabaseAuthorityHardening.test.mjs
       - name: Roadmap lifecycle audit
         run: npm run audit:roadmap
       - name: Preserve canonical database baseline integrity
