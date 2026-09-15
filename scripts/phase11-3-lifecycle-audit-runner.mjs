@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const statePath=path.join(root,'docs/PHASE11_3_STATE.json');
+const systemsPath=path.join(root,'docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json');
+const phase114Path=path.join(root,'docs/PHASE11_4_STATE.json');
 const target=process.argv[2];
 if(!target){
   console.error('Usage: node scripts/phase11-3-lifecycle-audit-runner.mjs <audit-script>');
@@ -13,6 +15,8 @@ if(!target){
 
 const original=fs.readFileSync(statePath,'utf8');
 const state=JSON.parse(original);
+const originalSystems=fs.readFileSync(systemsPath,'utf8');
+const systems=JSON.parse(originalSystems);
 const errors=[];
 const req=(ok,msg)=>{if(!ok)errors.push(msg)};
 
@@ -48,6 +52,16 @@ if(state.status==='CLOSED'){
   req(state.exitGatePassed===true,'closed Phase 11.3 exit gate must PASS');
   req(state.phase11_4Allowed===true&&state.nextPhase==='11.4'&&state.successorStatus==='AUTHORIZED_NEXT','closed Phase 11.3 must authorize only Phase 11.4');
 
+  const m4=systems.systems?.find((system)=>system.id==='M4');
+  if(fs.existsSync(phase114Path)){
+    const phase114=JSON.parse(fs.readFileSync(phase114Path,'utf8'));
+    req(phase114.phase==='11.4'&&phase114.systemId==='M4'&&phase114.systemStatus==='ACTIVE','Phase 11.4 lifecycle identity is invalid after M4 activation');
+    req(phase114.predecessorPhase==='11.3'&&phase114.predecessorStatus==='CLOSED'&&phase114.predecessorExitGatePassed===true,'Phase 11.4 must preserve Phase 11.3 closure authority');
+    req(m4?.status==='ACTIVE'&&m4?.anchors?.join(',')==='11'&&m4?.closureEvidence===null,'M4 registry must be ACTIVE only after Phase 11.4 opens');
+  }else{
+    req(m4?.status==='PLANNED','M4 must remain PLANNED before Phase 11.4 opens');
+  }
+
   if(errors.length){
     console.error(`ENJAZ PHASE 11.3 CLOSED LIFECYCLE AUDIT FAIL (${errors.length})`);
     for(const error of errors)console.error(`- ${error}`);
@@ -55,9 +69,10 @@ if(state.status==='CLOSED'){
   }
 
   // The slice audits intentionally encode the pre-closure lock. Re-run them
-  // against an ephemeral compatibility view so every substantive authority,
-  // schema, projection, source and UI invariant is still enforced unchanged.
-  // The canonical CLOSED state is restored before this process exits.
+  // against an ephemeral compatibility view so every substantive 11.3 authority,
+  // schema, projection, source and UI invariant stays executable even after the
+  // formally authorized successor M4 becomes ACTIVE. Canonical files are always
+  // restored before this process exits.
   const compatibility={
     ...state,
     status:'IN_PROGRESS',
@@ -71,13 +86,21 @@ if(state.status==='CLOSED'){
     phase11_4Allowed:false,
     successorStatus:'LOCKED',
   };
+  const compatibilitySystems={
+    ...systems,
+    systems:systems.systems.map((system)=>system.id==='M4'
+      ? {...system,status:'PLANNED',closureEvidence:null}
+      : system),
+  };
 
   let result;
   try{
     fs.writeFileSync(statePath,`${JSON.stringify(compatibility,null,2)}\n`,'utf8');
+    fs.writeFileSync(systemsPath,`${JSON.stringify(compatibilitySystems,null,2)}\n`,'utf8');
     result=spawnSync(process.execPath,[target],{cwd:root,stdio:'inherit',env:process.env});
   }finally{
     fs.writeFileSync(statePath,original,'utf8');
+    fs.writeFileSync(systemsPath,originalSystems,'utf8');
   }
   if(result?.error)throw result.error;
   if(result?.status!==0)process.exit(result?.status??1);
