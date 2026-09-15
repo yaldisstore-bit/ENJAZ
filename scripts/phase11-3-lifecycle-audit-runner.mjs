@@ -31,13 +31,19 @@ if(state.status==='CLOSED'){
   req(state.auditReconciliationVerification==='PASS','audit reconciliation must PASS');
   req(state.deployedLiveCriticalPathVerification==='PASS','deployed live critical path must PASS');
   req(state.postMergeRecertification==='PASS','post-merge recertification must PASS');
-  req(state.pagesPreviewVerification==='PASS'&&Number.isInteger(state.pagesPreviewRunId),'Pages deployment evidence is missing');
-  req(Number.isInteger(state.publishedPortalCertificateRunId),'published portal workflow evidence is missing');
-  req(state.liveExternalVerification==='PASS'&&Number.isInteger(state.liveExternalRunId),'live external evidence is missing');
-  req(Number.isInteger(state.exactMainQualityRunId),'exact-main quality evidence is missing');
-  req(/^[0-9a-f]{40}$/.test(state.certifiedMainCommit??''),'certified main SHA is invalid');
-  req(state.certificateFixMergeCommit===state.certifiedMainCommit,'certificate fix merge must be the certified main SHA');
+
+  // Closure evidence is immutable and tied to one deployed main lineage.
+  req(state.implementationPullRequestNumber===173,'implementation PR evidence drifted');
+  req(state.implementationMergeCommit==='30627b5f771b41f977bae1742d3c0eaf8ca66f53','implementation merge evidence drifted');
+  req(state.certificateFixPullRequestNumber===174,'certificate-fix PR evidence drifted');
+  req(state.certificateFixMergeCommit==='f99d5a4a3eff8aefc7346ebb2a8e74f8a3de2fe8','certificate-fix merge evidence drifted');
+  req(state.certifiedMainCommit==='f99d5a4a3eff8aefc7346ebb2a8e74f8a3de2fe8','certified main SHA evidence drifted');
+  req(state.exactMainQualityRunId===34965017371,'exact-main Quality Gate evidence drifted');
+  req(state.pagesPreviewVerification==='PASS'&&state.pagesPreviewRunId===34965220159,'Pages deployment evidence drifted');
+  req(state.publishedPortalCertificateRunId===34965281229,'published portal certificate workflow evidence drifted');
+  req(state.liveExternalVerification==='PASS'&&state.liveExternalRunId===34965281142,'live external evidence drifted');
   req(state.closureEvidence==='docs/PHASE11_3_CLOSURE.md'&&fs.existsSync(path.join(root,state.closureEvidence)),'formal closure evidence is missing');
+
   req(state.knownCriticalBlockers===0&&state.knownHighBlockers===0&&state.knownFunctionalBlockers===0,'closed lifecycle blocker ledger must be zero');
   req(state.exitGatePassed===true,'closed Phase 11.3 exit gate must PASS');
   req(state.phase11_4Allowed===true&&state.nextPhase==='11.4'&&state.successorStatus==='AUTHORIZED_NEXT','closed Phase 11.3 must authorize only Phase 11.4');
