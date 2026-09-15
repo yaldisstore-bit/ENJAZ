@@ -1,0 +1,72 @@
+name: ENJAZ Phase 11.4 — Unified Communications Real Browser
+
+on:
+  push:
+    branches:
+      - 'phase11-4d-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase11-4-unified-communications-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unified-communications-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Preserve Phase 11.4 authority before browser certificate
+        run: |
+          node scripts/phase11-4-omnichannel-audit.mjs
+          node scripts/phase11-4d-unified-communications-audit.mjs
+          node --experimental-strip-types --test tests/communicationsHubService.test.ts
+          npm run typecheck
+      - name: Build canonical production and frozen budgets
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
+      - name: Dependency high-severity audit
+        run: npm audit --audit-level=high
+      - name: Build dedicated Phase 11.4-D browser harness
+        run: npx vite build --config vite.phase11-4-browser.config.ts --base=/
+      - name: Install pinned Chromium tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start Phase 11.4-D browser harness
+        run: |
+          nohup npx vite preview --config vite.phase11-4-browser.config.ts --host 127.0.0.1 --port 4194 > /tmp/enjaz-phase11-4-browser.log 2>&1 &
+          for i in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4194/phase11-4-communications-browser.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase11-4-browser.log
+          exit 1
+      - name: Timeline / unread / retry / relink / search / RTL multi-width certificate
+        env:
+          R2_PHASE114_BASE_URL: http://127.0.0.1:4194/
+        run: npx playwright test tests-external/phase11-4-unified-communications-live.spec.cjs --reporter=line --workers=1
+      - name: Upload Phase 11.4-D browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase11-4-unified-communications-browser-${{ github.sha }}
+          path: |
+            artifacts/phase11-4-unified-communications/
+            test-results/
+            /tmp/enjaz-phase11-4-browser.log
+          if-no-files-found: ignore
+          retention-days: 14
