@@ -2,7 +2,9 @@ name: ENJAZ Phase 11.5 — Scheduling Appointments Deadline M10 Gate
 
 on:
   push:
-    branches: [phase11-5a-scheduling-authority]
+    branches:
+      - main
+      - 'phase11-5*'
   pull_request:
     branches: [main]
   workflow_dispatch:
