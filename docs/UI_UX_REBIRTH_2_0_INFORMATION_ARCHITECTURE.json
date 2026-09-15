@@ -12,7 +12,7 @@
   },
   "launcherGroups": [
     {"id": "records", "label": "السجلات", "destinations": ["companies", "people", "documents"]},
-    {"id": "operations_group", "label": "التشغيل", "destinations": ["operations", "workflow", "automation", "followups"]},
+    {"id": "operations_group", "label": "التشغيل", "destinations": ["operations", "communications", "workflow", "automation", "followups"]},
     {"id": "management", "label": "الإدارة", "destinations": ["finance", "command", "risk"]},
     {"id": "intelligence", "label": "الذكاء والمعرفة", "destinations": ["insights", "knowledge", "copilot"]}
   ],
@@ -33,6 +33,7 @@
     {"id":"people","label":"الأشخاص والمحامون","kind":"launcher_destination","route":"/app/people","availability":"presentation_until_phase6","maxActionsFromHome":2},
     {"id":"documents","label":"الوثائق والتقارير","kind":"launcher_destination","route":"/app/documents","availability":"presentation_until_phase10","maxActionsFromHome":2},
     {"id":"operations","label":"مركز العمليات","kind":"launcher_destination","route":"/app/operations","availability":"presentation_until_phase8","maxActionsFromHome":2},
+    {"id":"communications","label":"الاتصالات","kind":"launcher_destination","route":"/app/communications","availability":"live","maxActionsFromHome":2},
     {"id":"workflow","label":"سير العمل","kind":"launcher_destination","route":"/app/workflow","availability":"presentation_until_phase8","maxActionsFromHome":2},
     {"id":"automation","label":"الأتمتة","kind":"launcher_destination","route":"/app/automation","availability":"presentation_until_phase8","maxActionsFromHome":2},
     {"id":"followups","label":"المتابعات والإشعارات","kind":"launcher_destination","route":"/app/followups","availability":"presentation_until_phase11","maxActionsFromHome":2},
@@ -85,7 +86,11 @@
       "تنبؤ": "insights",
       "معرفة": "knowledge",
       "قانون": "knowledge",
-      "تشريع": "knowledge"
+      "تشريع": "knowledge",
+      "اتصالات": "communications",
+      "رسائل": "communications",
+      "واتساب": "communications",
+      "بريد": "communications"
     },
     "lockedDestinationBehavior": "Show truthful availability/phase state; never fabricate records or actions."
   },
@@ -103,6 +108,7 @@
     "Today owns the operational queue, not duplicate master-record implementations.",
     "More is the explicit product map for secondary domains.",
     "Finance, Operations and Command each have one canonical destination; shell/domain duplicates are forbidden.",
+    "Communications is one canonical live destination under Operations at /app/communications; message-channel aliases must resolve to it rather than create parallel inbox homes.",
     "Business Intelligence has one canonical destination at /app/insights; Finance and Risk may link to it but may not duplicate its home.",
     "A normal domain screen never exposes the full 12-domain rail."
   ],
