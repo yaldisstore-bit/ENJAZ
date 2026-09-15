@@ -39,9 +39,15 @@ export interface EnjazWorkspaceDataLayer {
   readonly importJobs: ReadRepository<'import_jobs'>;
 }
 
+export interface EnjazRpcResult<T = unknown> {
+  readonly data: T | null;
+  readonly error: unknown | null;
+}
+
 export interface EnjazDataLayerFactory {
   resolveWorkspaceId(userId: string): Promise<string | null>;
   forWorkspace(workspaceId: string): EnjazWorkspaceDataLayer;
+  rpc?<T = unknown>(functionName: string, args?: Record<string, unknown>): Promise<EnjazRpcResult<T>>;
   edge?(functionName: string, init?: RequestInit): Promise<Response>;
 }
 
@@ -84,6 +90,10 @@ export function createEnjazDataLayerFactory(client: EnjazSupabaseClient): EnjazD
         auditEvents: createReadRepository(gateway, scope, 'audit_events'),
         importJobs: createReadRepository(gateway, scope, 'import_jobs'),
       });
+    },
+    async rpc<T = unknown>(functionName: string, args: Record<string, unknown> = {}): Promise<EnjazRpcResult<T>> {
+      const result = await client.rpc(functionName, args);
+      return Object.freeze({ data: result.data as T | null, error: result.error ?? null });
     },
     edge(functionName: string, init?: RequestInit) {
       return client.edge(functionName, init);

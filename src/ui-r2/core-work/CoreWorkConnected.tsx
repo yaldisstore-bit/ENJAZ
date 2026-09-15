@@ -8,6 +8,7 @@ import { useTransactionLifecycle } from '../../features/transactions/useTransact
 import { getRelatedContacts, type TransactionEditorField } from '../../features/transactions/transactionEditorModel.ts';
 import type { TransactionLifecycleAction } from '../../features/transactions/transactionLifecycleModel.ts';
 import { ConnectedGovernmentProcedurePanel } from '../workflow/GovernmentProcedurePanel.tsx';
+import { CommunicationsHubConnected } from '../communications/CommunicationsHubConnected.tsx';
 import type { R2DestinationId } from '../architecture/navigation-contract.ts';
 
 type Navigate = (id: R2DestinationId) => void;
@@ -140,6 +141,7 @@ export function ConnectedCoreWorkRouter(context: ConnectedContext): ReactNode | 
   if (destinationId === 'transactions') return <ConnectedTransactions navigate={navigate} openTransaction={openTransaction} />;
   if (destinationId === 'today') return <ConnectedToday />;
   if (destinationId === 'followups') return <ConnectedToday followupsOnly />;
+  if (destinationId === 'communications') return <CommunicationsHubConnected />;
   if (destinationId === 'create') return <ConnectedCreate navigate={navigate} />;
   if (destinationId === 'transactions.detail') return <Connected360 transactionId={transactionId} navigate={navigate} />;
   if (destinationId === 'transactions.editor') return <ConnectedEditor transactionId={transactionId} openTransaction={openTransaction} navigate={navigate} />;

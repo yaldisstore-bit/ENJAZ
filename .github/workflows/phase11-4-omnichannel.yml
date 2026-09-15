@@ -2,7 +2,7 @@ name: ENJAZ Phase 11.4 — Omnichannel Communications M4 Gate
 
 on:
   push:
-    branches: [phase11-4-omnichannel-authority, phase11-4-omnichannel-data-model, phase11-4c-governed-actions]
+    branches: [phase11-4-omnichannel-authority, phase11-4-omnichannel-data-model, phase11-4c-governed-actions, phase11-4d-unified-communications]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   authority:
-    name: Canonical communications / transport / governed provider gateway / M10 lock
+    name: Canonical communications / transport / governed provider gateway / unified experience / M10 lock
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -52,12 +52,24 @@ jobs:
           fi
       - name: Phase 11.4-B data model destruction tests
         run: node --test tests/omnichannelDataModel.test.mjs
-      - name: Phase 11.4-C governed actions / provider gateway audit
-        run: node scripts/phase11-4c-governed-actions-audit.mjs
+      - name: Phase 11.4-C exact lifecycle audit when C is current
+        shell: bash
+        run: |
+          if node -e "const s=require('./docs/PHASE11_4_STATE.json');process.exit(s.currentSlice==='11.4-C'?0:1)"; then
+            node scripts/phase11-4c-governed-actions-audit.mjs
+          else
+            echo '11.4-C exact lifecycle audit is superseded by the active D audit; C provider destruction tests remain mandatory.'
+          fi
       - name: Phase 11.4-C provider cryptography / normalization destruction tests
         run: node --experimental-strip-types --test tests/omnichannelProviderGateway.test.ts
       - name: Phase 11.4-C Edge gateway syntax
         run: node --experimental-strip-types --check supabase/functions/enjaz-communications/index.ts && node --experimental-strip-types --check supabase/functions/enjaz-communications/providerCore.ts
+      - name: Phase 11.4-D authenticated staff Edge syntax
+        run: node --experimental-strip-types --check supabase/functions/enjaz-communications-user/index.ts
+      - name: Phase 11.4-D unified communications authority audit
+        run: node scripts/phase11-4d-unified-communications-audit.mjs
+      - name: Phase 11.4-D communications service and dispatch bridge tests
+        run: node --experimental-strip-types --test tests/communicationsHubService.test.ts tests/communicationsDispatchBridge.test.ts
       - name: Roadmap lifecycle audit
         run: npm run audit:roadmap
       - name: Preserve canonical database baseline integrity
