@@ -51,7 +51,7 @@ jobs:
       - name: Phase 11.3-C governed client action audit
         run: node scripts/phase11-3c-client-actions-audit.mjs
       - name: Phase 11.3-C governed client action destruction tests
-        run: node --experimental-strip-types --test tests/clientPortalActions.test.ts && node --test tests/clientPortalActionsDatabase.test.mjs tests/clientPortalGovernedDocumentActions.test.mjs
+        run: node --experimental-strip-types --test tests/clientPortalActions.test.ts && node --test tests/clientPortalActionsDatabase.test.mjs tests/clientPortalGovernedDocumentActions.test.mjs tests/clientPortalGovernedDocumentActionsHardening.test.mjs
       - name: Roadmap lifecycle audit
         run: npm run audit:roadmap
       - name: Preserve canonical database baseline integrity
