@@ -184,7 +184,7 @@ export function createSchedulingCommandGateway(client: EnjazSupabaseClient, time
   const bCall = async (name: string, input: BCommandInput, args: Readonly<Record<string, unknown>>) => parseCalendarEventResult(await call(name, { ...commandIds(input), ...args }));
 
   return Object.freeze({
-    async mutateCalendarState(input) {
+    async mutateCalendarState(input: CalendarStateMutationInput) {
       const action = input.action;
       if (action !== 'complete' && action !== 'cancel') return fail('calendar lifecycle action', 'DATA_VALIDATION_FAILED');
       const reason = input.reason?.trim() ? text(input.reason, 'scheduling reason', 1200) : null;
@@ -194,7 +194,7 @@ export function createSchedulingCommandGateway(client: EnjazSupabaseClient, time
         p_expected_version: positive(input.expectedVersion, 'expected version'), p_action: action, p_reason: reason,
       }));
     },
-    async mutateRenewalState(input) {
+    async mutateRenewalState(input: RenewalStateMutationInput) {
       const action = input.action;
       if (action !== 'complete' && action !== 'cancel') return fail('renewal lifecycle action', 'DATA_VALIDATION_FAILED');
       const reason = input.reason?.trim() ? text(input.reason, 'scheduling reason', 1200) : null;
@@ -204,14 +204,14 @@ export function createSchedulingCommandGateway(client: EnjazSupabaseClient, time
         p_expected_version: positive(input.expectedVersion, 'expected version'), p_action: action, p_reason: reason,
       }));
     },
-    async checkCalendarEventStaffConflicts(input) {
+    async checkCalendarEventStaffConflicts(input: CheckCalendarEventStaffConflictsInput) {
       return parseConflictResult(await call('check_calendar_event_staff_conflicts_v1', {
         p_workspace_id: uuid(input.workspaceId, 'workspace id'), p_starts_at: instant(input.startsAt, 'calendar start', 'DATA_VALIDATION_FAILED'),
         p_ends_at: optInstant(input.endsAt, 'calendar end', 'DATA_VALIDATION_FAILED'), p_staff_member_ids: uuidList(input.staffMemberIds),
         p_exclude_event_id: optUuid(input.excludeEventId, 'excluded event id'),
       }));
     },
-    async createCalendarEvent(input) {
+    async createCalendarEvent(input: CreateCalendarEventInput) {
       return bCall('create_calendar_event_v1', input, {
         p_title: text(input.title, 'calendar title', 320), p_event_type: text(input.eventType, 'event type', 120),
         p_starts_at: instant(input.startsAt, 'calendar start', 'DATA_VALIDATION_FAILED'), p_ends_at: optInstant(input.endsAt, 'calendar end', 'DATA_VALIDATION_FAILED'),
@@ -219,31 +219,31 @@ export function createSchedulingCommandGateway(client: EnjazSupabaseClient, time
         p_workflow_instance_id: optUuid(input.workflowInstanceId, 'workflow id'), p_staff_member_ids: uuidList(input.staffMemberIds), p_note: optText(input.note, 'calendar note', 4000),
       });
     },
-    async updateCalendarEventMetadata(input) {
+    async updateCalendarEventMetadata(input: UpdateCalendarEventMetadataInput) {
       return bCall('update_calendar_event_metadata_v1', input, {
         p_expected_version: positive(input.expectedVersion, 'expected version'), p_title: text(input.title, 'calendar title', 320), p_event_type: text(input.eventType, 'event type', 120),
         p_transaction_id: optUuid(input.transactionId, 'transaction id'), p_company_id: optUuid(input.companyId, 'company id'), p_contact_id: optUuid(input.contactId, 'contact id'),
         p_workflow_instance_id: optUuid(input.workflowInstanceId, 'workflow id'), p_note: optText(input.note, 'calendar note', 4000),
       });
     },
-    async rescheduleCalendarEvent(input) {
+    async rescheduleCalendarEvent(input: RescheduleCalendarEventInput) {
       return bCall('reschedule_calendar_event_v1', input, {
         p_expected_version: positive(input.expectedVersion, 'expected version'), p_starts_at: instant(input.startsAt, 'calendar start', 'DATA_VALIDATION_FAILED'),
         p_ends_at: optInstant(input.endsAt, 'calendar end', 'DATA_VALIDATION_FAILED'), p_reason: text(input.reason, 'reschedule reason', 1200),
       });
     },
-    async setCalendarEventStaff(input) {
+    async setCalendarEventStaff(input: SetCalendarEventStaffInput) {
       return bCall('set_calendar_event_staff_v1', input, {
         p_expected_version: positive(input.expectedVersion, 'expected version'), p_staff_member_ids: uuidList(input.staffMemberIds), p_reason: optText(input.reason, 'staff reason', 1200),
       });
     },
-    async setCalendarEventConfirmation(input) {
+    async setCalendarEventConfirmation(input: SetCalendarEventConfirmationInput) {
       if (input.status !== 'confirmed' && input.status !== 'declined') return fail('confirmation status', 'DATA_VALIDATION_FAILED');
       return bCall('set_calendar_event_confirmation_v1', input, {
         p_expected_version: positive(input.expectedVersion, 'expected version'), p_confirmation_status: input.status, p_response_id: optUuid(input.responseId, 'portal response id'),
       });
     },
-    async recordCalendarEventAttendance(input) {
+    async recordCalendarEventAttendance(input: RecordCalendarEventAttendanceInput) {
       if (input.outcome !== 'attended' && input.outcome !== 'missed') return fail('attendance outcome', 'DATA_VALIDATION_FAILED');
       return bCall('record_calendar_event_attendance_v1', input, {
         p_expected_version: positive(input.expectedVersion, 'expected version'), p_outcome: input.outcome, p_note: optText(input.note, 'attendance note', 1200),
