@@ -24,6 +24,7 @@ export interface DailyWorkItem {
   readonly score: number;
   readonly completable: boolean;
   readonly snoozable: boolean;
+  readonly sourceVersion?: number | null;
 }
 
 export interface DailyWorkSummary {
@@ -57,6 +58,12 @@ export interface DailyWorkSource {
 function safeDate(value: string): Date | null {
   const date = new Date(value);
   return Number.isFinite(date.getTime()) ? date : null;
+}
+
+function governedSourceVersion(row: unknown): number | null {
+  if (!row || typeof row !== 'object' || Array.isArray(row)) return null;
+  const value = (row as Readonly<Record<string, unknown>>).version;
+  return typeof value === 'number' && Number.isSafeInteger(value) && value > 0 ? value : null;
 }
 
 function dateOnly(value: string): Date | null {
@@ -241,6 +248,7 @@ export function buildDailyWorkSnapshot(source: DailyWorkSource, now: Date = new 
     if (!due || due.getTime() > calendarHorizon) continue;
     const bucket = dueBucket(due, now);
     const presentation = stateForDue(bucket);
+    const sourceVersion = governedSourceVersion(row);
     candidates.push(freezeItem({
       id: `calendar:${row.id}`,
       sourceId: row.id,
@@ -255,8 +263,9 @@ export function buildDailyWorkSnapshot(source: DailyWorkSource, now: Date = new 
       transactionId: row.transaction_id,
       companyId: row.company_id,
       score: presentation.baseScore + 4,
-      completable: true,
+      completable: sourceVersion !== null,
       snoozable: false,
+      sourceVersion,
     }));
   }
 
@@ -269,6 +278,7 @@ export function buildDailyWorkSnapshot(source: DailyWorkSource, now: Date = new 
     if (!due || due.getTime() > renewalHorizon) continue;
     const bucket = dueBucket(due, now);
     const presentation = stateForDue(bucket);
+    const sourceVersion = governedSourceVersion(row);
     candidates.push(freezeItem({
       id: `renewal:${row.id}`,
       sourceId: row.id,
@@ -283,8 +293,9 @@ export function buildDailyWorkSnapshot(source: DailyWorkSource, now: Date = new 
       transactionId: row.transaction_id,
       companyId: row.company_id,
       score: presentation.baseScore + 7,
-      completable: true,
+      completable: sourceVersion !== null,
       snoozable: false,
+      sourceVersion,
     }));
   }
 
