@@ -3,25 +3,49 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const migrationPath='database/migrations/phase_11_4_omnichannel_conversation_transport.sql';
+const paths={
+  authority:'database/migrations/phase_11_4_omnichannel_conversation_transport.sql',
+  browserDeny:'database/migrations/phase_11_4_omnichannel_browser_deny_hardening.sql',
+  performance:'database/migrations/phase_11_4_omnichannel_performance_hardening.sql',
+  direction:'database/migrations/phase_11_4_omnichannel_transport_direction_hardening.sql',
+  probe:'database/migrations/phase_11_4_live_conversation_transport_probe.sql',
+};
 const statePath='docs/PHASE11_4_STATE.json';
-const migration=fs.readFileSync(path.join(root,migrationPath),'utf8');
-const state=JSON.parse(fs.readFileSync(path.join(root,statePath),'utf8'));
+const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
+const migration=read(paths.authority);
+const browserDeny=read(paths.browserDeny);
+const performance=read(paths.performance);
+const direction=read(paths.direction);
+const probe=read(paths.probe);
+const state=JSON.parse(read(statePath));
 const errors=[];
 const req=(condition,message)=>{if(!condition)errors.push(message)};
-const has=(pattern)=>pattern.test(migration);
+const has=(text,pattern)=>pattern.test(text);
 
 req(state.phase==='11.4'&&state.systemId==='M4'&&state.status==='IN_PROGRESS','Phase 11.4 / M4 must remain active');
+req(state.phase11_4aMergeCommit==='30a9fe04f9173f5bb4f5593e82f1843e994c49e9','11.4-A merge lineage drifted');
+req(state.currentSliceBaseCommit===state.phase11_4aMergeCommit,'11.4-B must branch from certified 11.4-A merge');
+req(state.mode==='CONVERSATION_TRANSPORT_DATA_MODEL_REAL_CLOUD_VERIFIED','11.4-B mode must record Real Cloud verification');
 req(state.currentSlice==='11.4-B','Phase 11.4 current slice must be 11.4-B');
 req(state.currentSliceName==='Conversation & Transport Data Model','11.4-B slice name drifted');
 req(state.databaseAuthorityExtensionApplied===true,'11.4-B requires applied database authority extension evidence');
-req(state.databaseAuthorityMigrationPath===migrationPath,'11.4-B migration path drifted');
+req(state.databaseAuthorityMigrationPath===paths.authority,'11.4-B authority migration path drifted');
+req(state.databaseBrowserDenyHardeningPath===paths.browserDeny,'11.4-B browser deny hardening path drifted');
+req(state.databasePerformanceHardeningPath===paths.performance,'11.4-B performance hardening path drifted');
+req(state.databaseTransportDirectionHardeningPath===paths.direction,'11.4-B direction hardening path drifted');
+req(state.databaseLiveProbePath===paths.probe,'11.4-B live probe path drifted');
+req(state.realCloudDatabaseVerification==='PASS'&&state.realCloudDatabaseProbeZeroResidue===true,'11.4-B Real Cloud database evidence must PASS with zero residue');
+req(state.durableWriteRoundTripVerification==='PASS_DATABASE_PROBE','11.4-B durable database round trip must PASS');
+req(state.permissionMatrixVerification==='PASS_BACKEND_ONLY_DIRECT_BROWSER_DENY','11.4-B browser authority boundary must PASS');
+req(state.supabaseM4SecurityAdvisorRlsNoPolicyFindings===0,'M4 must have zero RLS-no-policy advisor findings');
+req(state.supabaseM4UnindexedForeignKeys===0,'M4 must have zero unindexed foreign keys');
+req(state.supabaseM4ForbiddenSecretOrRawEndpointColumns===0,'M4 must have zero secret/raw endpoint columns');
 req(state.phase11_5Allowed===false&&state.successorStatus==='LOCKED','Phase 11.5 must remain locked');
 
-req(!has(/create\s+table\s+public\.communications\b/i),'11.4-B must evolve canonical communications in-place, never create a shadow replacement');
-req(has(/alter\s+table\s+public\.communications[\s\S]*add\s+column\s+conversation_id\s+uuid/i),'canonical communications must gain conversation grouping');
-req(has(/add\s+column\s+link_status\s+text\s+not\s+null\s+default\s+'unmatched'/i),'canonical communications must preserve fail-closed link state');
-req(has(/add\s+column\s+link_version\s+integer\s+not\s+null\s+default\s+1/i),'canonical communications relink concurrency version is required');
+req(!has(migration,/create\s+table\s+public\.communications\b/i),'11.4-B must evolve canonical communications in-place, never create a shadow replacement');
+req(has(migration,/alter\s+table\s+public\.communications[\s\S]*add\s+column\s+conversation_id\s+uuid/i),'canonical communications must gain conversation grouping');
+req(has(migration,/add\s+column\s+link_status\s+text\s+not\s+null\s+default\s+'unmatched'/i),'canonical communications must preserve fail-closed link state');
+req(has(migration,/add\s+column\s+link_version\s+integer\s+not\s+null\s+default\s+1/i),'canonical communications relink concurrency version is required');
 for(const channel of ['sms','whatsapp','client_portal']) req(migration.includes(`'${channel}'`),`canonical channel ${channel} is missing`);
 
 const tables=[
@@ -29,31 +53,58 @@ const tables=[
   'communication_channel_consents','communication_transport_attempts','communication_transport_events','communication_relink_events',
 ];
 for(const table of tables){
-  req(has(new RegExp(`create\\s+table\\s+public\\.${table}\\b`,'i')),`${table} table is missing`);
-  req(has(new RegExp(`alter\\s+table\\s+public\\.${table}\\s+enable\\s+row\\s+level\\s+security`,'i')),`${table} must enable RLS`);
+  req(has(migration,new RegExp(`create\\s+table\\s+public\\.${table}\\b`,'i')),`${table} table is missing`);
+  req(has(migration,new RegExp(`alter\\s+table\\s+public\\.${table}\\s+enable\\s+row\\s+level\\s+security`,'i')),`${table} must enable RLS`);
+  req(has(browserDeny,new RegExp(`create\\s+policy\\s+${table}_browser_deny[\\s\\S]*?on\\s+public\\.${table}[\\s\\S]*?as\\s+restrictive\\s+for\\s+all\\s+to\\s+anon\\s*,\\s*authenticated[\\s\\S]*?using\\s*\\(false\\)\\s+with\\s+check\\s*\\(false\\)`,'i')),`${table} restrictive browser-deny policy is missing`);
 }
+req(has(browserDeny,/create\s+policy\s+communications_m4_browser_deny[\s\S]*?on\s+public\.communications[\s\S]*?as\s+restrictive\s+for\s+all\s+to\s+anon\s*,\s*authenticated[\s\S]*?using\s*\(false\)\s+with\s+check\s*\(false\)/i),'canonical communications restrictive browser-deny policy is missing');
 
-req(has(/communication_transport_attempts_outbound_idempotency_key[\s\S]*workspace_id\s*,\s*provider_account_id\s*,\s*idempotency_key/i),'outbound idempotency unique index is missing');
-req(has(/communication_transport_attempts_provider_message_key[\s\S]*workspace_id\s*,\s*provider_account_id\s*,\s*provider_message_id/i),'provider message retry dedupe unique index is missing');
-req(has(/communication_transport_events_provider_event_key\s+unique\s*\(\s*workspace_id\s*,\s*provider_account_id\s*,\s*provider_event_id\s*\)/i),'provider event replay dedupe constraint is missing');
-req(has(/direction='incoming'[\s\S]*provider_message_id\s+is\s+not\s+null[\s\S]*direction='outgoing'[\s\S]*idempotency_key\s+is\s+not\s+null/i),'inbound/outbound identity fail-closed constraint is missing');
-req(has(/validate_communication_transport_scope_v1/i)&&has(/ENJAZ_COMMUNICATION_TRANSPORT_CHANNEL_MISMATCH/i),'provider-account/canonical-channel scope guard is missing');
+req(has(migration,/communication_transport_attempts_outbound_idempotency_key[\s\S]*workspace_id\s*,\s*provider_account_id\s*,\s*idempotency_key/i),'outbound idempotency unique index is missing');
+req(has(migration,/communication_transport_attempts_provider_message_key[\s\S]*workspace_id\s*,\s*provider_account_id\s*,\s*provider_message_id/i),'provider message retry dedupe unique index is missing');
+req(has(migration,/communication_transport_events_provider_event_key\s+unique\s*\(\s*workspace_id\s*,\s*provider_account_id\s*,\s*provider_event_id\s*\)/i),'provider event replay dedupe constraint is missing');
+req(has(migration,/direction='incoming'[\s\S]*provider_message_id\s+is\s+not\s+null[\s\S]*direction='outgoing'[\s\S]*idempotency_key\s+is\s+not\s+null/i),'inbound/outbound identity fail-closed constraint is missing');
+req(has(migration,/ENJAZ_COMMUNICATION_TRANSPORT_CHANNEL_MISMATCH/i),'provider-account/canonical-channel scope guard is missing');
+req(has(direction,/ENJAZ_COMMUNICATION_TRANSPORT_DIRECTION_MISMATCH/i)&&has(direction,/v_communication_direction<>new\.direction/i),'canonical/transport direction guard is missing');
 
-req(has(/endpoint_fingerprint\s+text\s+not\s+null\s+check\s*\(\s*endpoint_fingerprint\s*~\s*'\^\[a-f0-9\]\{64\}\$'/i),'opaque HMAC endpoint fingerprint contract is missing');
-req(has(/fingerprint_scheme\s+text\s+not\s+null\s+default\s+'hmac-sha256-v1'/i),'endpoint fingerprint scheme is missing');
-req(!has(/^\s*(?:provider_)?(?:access_token|refresh_token|api_key|webhook_secret|signing_secret|raw_webhook_payload|raw_provider_headers)\s+/im),'provider secret/raw payload columns are forbidden');
-req(!has(/\b(endpoint|email_address|phone_number|raw_endpoint)\s+text\b/i),'raw communication endpoints must not be duplicated into M4 matching authority');
+req(has(migration,/endpoint_fingerprint\s+text\s+not\s+null\s+check\s*\(\s*endpoint_fingerprint\s*~\s*'\^\[a-f0-9\]\{64\}\$'/i),'opaque HMAC endpoint fingerprint contract is missing');
+req(has(migration,/fingerprint_scheme\s+text\s+not\s+null\s+default\s+'hmac-sha256-v1'/i),'endpoint fingerprint scheme is missing');
+req(!has(migration,/^\s*(?:provider_)?(?:access_token|refresh_token|api_key|webhook_secret|signing_secret|raw_webhook_payload|raw_provider_headers)\s+/im),'provider secret/raw payload columns are forbidden');
+req(!has(migration,/\b(email_address|phone_number|raw_endpoint)\s+text\b/i),'raw communication endpoints must not be duplicated into M4 matching authority');
+req(has(performance,/communication_endpoint_bindings_exact_target_key[\s\S]*nulls\s+not\s+distinct/i),'exact endpoint-target binding dedupe hardening is missing');
 
-req(has(/communication_transport_events_append_only[\s\S]*reject_communication_evidence_mutation_v1/i),'transport events must be append-only');
-req(has(/communication_relink_events_append_only[\s\S]*reject_communication_evidence_mutation_v1/i),'relink evidence must be append-only');
-req(has(/resulting_version\s+integer\s+not\s+null\s+check\s*\(\s*resulting_version\s*=\s*expected_version\s*\+\s*1\s*\)/i),'relink evidence must prove optimistic version transition');
+req(has(migration,/communication_transport_events_append_only[\s\S]*reject_communication_evidence_mutation_v1/i),'transport events must be append-only');
+req(has(migration,/communication_relink_events_append_only[\s\S]*reject_communication_evidence_mutation_v1/i),'relink evidence must be append-only');
+req(has(migration,/resulting_version\s+integer\s+not\s+null\s+check\s*\(\s*resulting_version\s*=\s*expected_version\s*\+\s*1\s*\)/i),'relink evidence must prove optimistic version transition');
 
-req(has(/revoke\s+all\s+on\s+table[\s\S]*communication_relink_events[\s\S]*from\s+public\s*,\s*anon\s*,\s*authenticated/i),'support tables must be explicitly revoked from browser roles');
-req(has(/revoke\s+all\s+on\s+table\s+public\.communications\s+from\s+public\s*,\s*anon\s*,\s*authenticated/i),'canonical communications must remain non-direct-browser authority');
-req(!has(/grant\s+(?:all|select|insert|update|delete)[\s\S]{0,250}\bto\s+(?:anon|authenticated)\b/i),'11.4-B must not grant direct browser DML/read authority');
-req(has(/grant\s+select\s*,\s*insert\s*,\s*update\s+on\s+table\s+public\.communications\s+to\s+service_role/i),'canonical communications must explicitly grant governed server authority');
-req(has(/grant\s+select\s*,\s*insert\s+on\s+table[\s\S]*communication_transport_events[\s\S]*communication_relink_events[\s\S]*to\s+service_role/i),'append-only evidence requires explicit server insert/read authority');
-req(has(/revoke\s+update\s*,\s*delete\s+on\s+table\s+public\.communication_transport_events\s*,\s*public\.communication_relink_events\s+from\s+service_role/i),'append-only evidence must deny server update/delete');
+req(has(migration,/revoke\s+all\s+on\s+table[\s\S]*communication_relink_events[\s\S]*from\s+public\s*,\s*anon\s*,\s*authenticated/i),'support tables must be explicitly revoked from browser roles');
+req(has(migration,/revoke\s+all\s+on\s+table\s+public\.communications\s+from\s+public\s*,\s*anon\s*,\s*authenticated/i),'canonical communications must remain non-direct-browser authority');
+req(!has(migration,/grant\s+(?:all|select|insert|update|delete)[\s\S]{0,250}\bto\s+(?:anon|authenticated)\b/i),'11.4-B must not grant direct browser DML/read authority');
+req(has(migration,/grant\s+select\s*,\s*insert\s*,\s*update\s+on\s+table\s+public\.communications\s+to\s+service_role/i),'canonical communications must explicitly grant governed server authority');
+req(has(migration,/grant\s+select\s*,\s*insert\s+on\s+table[\s\S]*communication_transport_events[\s\S]*communication_relink_events[\s\S]*to\s+service_role/i),'append-only evidence requires explicit server insert/read authority');
+req(has(migration,/revoke\s+update\s*,\s*delete\s+on\s+table\s+public\.communication_transport_events\s*,\s*public\.communication_relink_events\s+from\s+service_role/i),'append-only evidence must deny server update/delete');
+
+const requiredPerformanceIndexes=[
+  'communication_channel_consents_updated_by_fk_idx','communication_conversations_created_by_fk_idx',
+  'communication_endpoint_bindings_company_fk_idx','communication_endpoint_bindings_transaction_fk_idx',
+  'communication_endpoint_bindings_created_by_fk_idx','communication_provider_accounts_created_by_fk_idx',
+  'communication_relink_events_old_conversation_fk_idx','communication_relink_events_new_conversation_fk_idx',
+  'communication_relink_events_old_company_fk_idx','communication_relink_events_new_company_fk_idx',
+  'communication_relink_events_old_contact_fk_idx','communication_relink_events_new_contact_fk_idx',
+  'communication_relink_events_old_transaction_fk_idx','communication_relink_events_new_transaction_fk_idx',
+  'communication_transport_events_attempt_fk_idx',
+];
+for(const indexName of requiredPerformanceIndexes) req(performance.includes(indexName),`performance hardening index ${indexName} is missing`);
+
+for(const marker of [
+  'ENJAZ_PHASE114B_OUTBOUND_DEDUPE_FAILED','ENJAZ_PHASE114B_INBOUND_DEDUPE_FAILED',
+  'ENJAZ_PHASE114B_CHANNEL_GUARD_FAILED','ENJAZ_PHASE114B_DIRECTION_GUARD_FAILED',
+  'ENJAZ_PHASE114B_EVENT_REPLAY_GUARD_FAILED','ENJAZ_PHASE114B_EVENT_APPEND_ONLY_FAILED',
+  'ENJAZ_PHASE114B_RELINK_APPEND_ONLY_FAILED','ENJAZ_PHASE114B_EXACT_BINDING_DEDUPE_FAILED',
+  'ENJAZ_PHASE114B_CONSENT_IDENTITY_FAILED','ENJAZ_PHASE114B_CROSS_WORKSPACE_FK_FAILED',
+  'ENJAZ_PHASE114B_PROBE_RESIDUE',
+]) req(probe.includes(marker),`Real Cloud destructive probe marker ${marker} is missing`);
+req(has(probe,/disable\s+trigger\s+communication_transport_events_append_only[\s\S]*enable\s+trigger\s+communication_transport_events_append_only/i),'probe must re-enable transport append-only trigger after privileged cleanup');
+req(has(probe,/disable\s+trigger\s+communication_relink_events_append_only[\s\S]*enable\s+trigger\s+communication_relink_events_append_only/i),'probe must re-enable relink append-only trigger after privileged cleanup');
 
 if(errors.length){
   console.error(`ENJAZ PHASE 11.4-B DATA MODEL AUDIT FAIL (${errors.length})`);
