@@ -38,12 +38,16 @@ jobs:
           python-version: '3.13'
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Phase 11.5-A scheduling authority audit
+      - name: Phase 11.5-A scheduling authority preservation audit
         run: node scripts/phase11-5a-scheduling-authority-audit.mjs
       - name: Phase 11.5-A scheduling authority destruction tests
         run: node --experimental-strip-types --test tests/schedulingAuthority.test.ts
-      - name: Phase 11.5-A governed runtime command tests
-        run: node --experimental-strip-types --test tests/schedulingCommands.test.ts tests/dailyWorkService.test.ts tests/dailyWork.test.ts
+      - name: Phase 11.5-B appointments / conflicts / history audit
+        run: node scripts/phase11-5b-appointments-conflict-audit.mjs
+      - name: Phase 11.5 cumulative scheduling gateway tests
+        run: node --experimental-strip-types --test tests/schedulingCommands.test.ts
+      - name: Preserve Daily Work scheduling composition
+        run: node --experimental-strip-types --test tests/dailyWorkService.test.ts tests/dailyWork.test.ts
       - name: Preserve Phase 11.2 Universal Inbox authority composition
         run: node scripts/phase11-2-universal-inbox-audit.mjs
       - name: Preserve Phase 11.4 formal closure
