@@ -7,6 +7,7 @@ const errors = [];
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8');
 const assert = (condition, message) => { if (!condition) errors.push(message); };
 const sha40 = (value) => typeof value === 'string' && /^[0-9a-f]{40}$/i.test(value);
+const positiveRunId = (value) => Number.isSafeInteger(value) && value > 0;
 
 const state = JSON.parse(read('docs/PHASE11_2_STATE.json'));
 const predecessor = JSON.parse(read('docs/PHASE11_1_STATE.json'));
@@ -26,7 +27,9 @@ const migrationText = fs.existsSync(migrationsDir)
   ? fs.readdirSync(migrationsDir).filter((name) => name.endsWith('.sql')).map((name) => fs.readFileSync(path.join(migrationsDir, name), 'utf8')).join('\n')
   : '';
 
-assert(state.phase === '11.2' && state.status === 'IN_PROGRESS', 'Phase 11.2 must remain IN_PROGRESS during implementation');
+const implementationMode = state.status === 'IN_PROGRESS' && state.mode !== 'CLOSED_CERTIFIED';
+const closedCertifiedMode = state.status === 'CLOSED' && state.mode === 'CLOSED_CERTIFIED';
+assert(implementationMode || closedCertifiedMode, 'Phase 11.2 state must be either implementation IN_PROGRESS or formally CLOSED_CERTIFIED');
 assert(state.baseCommit === '6c15d3db7c6c45ea9ee3db2f4e0fe6f1c78e33a7', 'Phase 11.2 base commit drifted');
 assert(predecessor.phase === '11.1' && predecessor.status === 'CLOSED' && predecessor.exitGatePassed === true, 'Phase 11.1 predecessor is not formally closed');
 assert(state.predecessorClosureEvidence === 'docs/PHASE11_1_CLOSURE.md', 'Phase 11.1 closure evidence is not linked');
@@ -37,7 +40,6 @@ assert(state.notificationProvenanceMergeRequired === true && state.deterministic
 assert(state.sourceOwnedMutationRequired === true, 'source-owned mutations must remain authoritative');
 assert(state.crossWorkspaceCompositionAllowed === false, 'cross-workspace composition must remain forbidden');
 assert(state.notificationLifecycleMayMutateBusinessFact === false, 'notification lifecycle must not mutate business facts');
-assert(state.phase11_3Allowed === false && state.successorStatus === 'LOCKED', 'Phase 11.3 must remain locked');
 assert(state.javascriptBudgetBytes === 670000 && state.totalJavascriptBudgetBytes === 760000 && state.cssBudgetBytes === 180000 && state.budgetIncreaseAllowed === false, 'frozen budgets changed');
 assert(state.authorityContractAdded === true && state.destructionTestsAdded === true && state.serviceTestsAdded === true && state.phaseGateAdded === true, 'Phase 11.2 foundation/service tracking is incomplete');
 assert(state.runtimeIntegrationAdded === true && state.runtimeIntegrationPath === 'src/features/daily-work/universalInboxService.ts', 'runtime integration is not recorded');
@@ -45,12 +47,37 @@ assert(state.uiIntegrationAdded === true && state.uiIntegrationPath === 'src/ui-
 assert(state.browserHarnessAdded === true && state.browserGateAdded === true && state.browserSpecPath === 'tests-external/phase11-2-universal-inbox-live.spec.cjs', 'Phase 11.2 browser certification tracking is incomplete');
 assert(state.databaseAuthorityExtensionRequired === false && state.databaseAuthorityExtensionApplied === false, 'Phase 11.2 must not invent new persistence without an explicit authority need');
 
+if (implementationMode) {
+  assert(state.phase11_3Allowed === false && state.successorStatus === 'LOCKED', 'Phase 11.3 must remain locked during Phase 11.2 implementation');
+  assert(state.exitGatePassed === false, 'Phase 11.2 exit gate cannot pass while implementation remains in progress');
+}
+
+if (closedCertifiedMode) {
+  assert(state.pullRequestNumber === 164 && state.pullRequestMerged === true, 'formal closure requires merged implementation PR #164');
+  assert(sha40(state.certifiedBranchHead), 'formal closure is missing the certified branch head');
+  assert(positiveRunId(state.phaseGateRunId), 'formal closure is missing the final Phase 11.2 gate run');
+  assert(positiveRunId(state.phaseBrowserFinalRunId), 'formal closure is missing the final-head Phase 11.2 browser run');
+  assert(sha40(state.canonicalMergeCommit), 'formal closure is missing the canonical implementation merge');
+  assert(state.exactMainVerification === 'PASS' && sha40(state.exactMainVerifiedCommit), 'formal closure requires exact-main PASS on an exact commit');
+  assert(positiveRunId(state.exactMainQualityRunId), 'formal closure is missing exact-main Quality Gate evidence');
+  assert(positiveRunId(state.exactMainBrowserRunId), 'formal closure is missing exact-main Real Browser evidence');
+  assert(positiveRunId(state.exactMainUiGovernanceRunId), 'formal closure is missing exact-main UI Governance evidence');
+  assert(positiveRunId(state.exactMainConstitutionRunId), 'formal closure is missing exact-main Constitution evidence');
+  assert(positiveRunId(state.exactMainZeroEscapeRunId), 'formal closure is missing exact-main Zero-Escape evidence');
+  assert(state.pagesPreviewVerification === 'PASS' && positiveRunId(state.pagesPreviewRunId), 'formal closure requires Pages Preview PASS');
+  assert(state.liveExternalVerification === 'PASS' && positiveRunId(state.liveExternalRunId), 'formal closure requires Live External PASS');
+  assert(state.closureEvidence === 'docs/PHASE11_2_CLOSURE.md' && fs.existsSync(path.join(root, state.closureEvidence)), 'formal closure evidence document is missing');
+  assert(state.knownCriticalBlockers === 0 && state.knownHighBlockers === 0 && state.knownFunctionalBlockers === 0, 'formal closure requires zero known blockers');
+  assert(state.exitGatePassed === true, 'formal closure requires a passed exit gate');
+  assert(state.phase11_3Allowed === true && state.successorStatus === 'AUTHORIZED_NEXT', 'formal closure must explicitly authorize Phase 11.3');
+}
+
 if (state.phaseGateVerification === 'PASS') {
-  assert(Number.isSafeInteger(state.phaseGateRunId) && state.phaseGateRunId > 0, 'Phase 11.2 PASS gate is missing a run id');
+  assert(positiveRunId(state.phaseGateRunId), 'Phase 11.2 PASS gate is missing a run id');
   assert(sha40(state.phaseGateVerifiedCommit), 'Phase 11.2 PASS gate is missing an exact verified commit');
 }
 if (state.realBrowserVerification === 'PASS') {
-  assert(Number.isSafeInteger(state.realBrowserRunId) && state.realBrowserRunId > 0, 'Real Browser PASS is missing a run id');
+  assert(positiveRunId(state.realBrowserRunId), 'Real Browser PASS is missing a run id');
   assert(sha40(state.realBrowserVerifiedCommit), 'Real Browser PASS is missing an exact verified commit');
   assert(Number.isSafeInteger(state.realBrowserArtifactId) && state.realBrowserArtifactId > 0, 'Real Browser PASS is missing an artifact id');
   assert(typeof state.realBrowserArtifactDigest === 'string' && /^sha256:[0-9a-f]{64}$/i.test(state.realBrowserArtifactDigest), 'Real Browser PASS is missing a valid artifact digest');
@@ -96,5 +123,5 @@ if (errors.length) {
   for (const error of errors) console.error(`- ${error}`);
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 11.2 UNIVERSAL INBOX AUDIT PASS — source-owned work + certified notification attention composition, production Today integration, service coverage, deterministic dedupe, dedicated 320px browser certificate and no shadow inbox persistence.');
+  console.log('ENJAZ PHASE 11.2 UNIVERSAL INBOX AUDIT PASS — source-owned work + certified notification attention composition, production Today integration, service coverage, deterministic dedupe, dedicated 320px browser certificate, closure-aware successor governance and no shadow inbox persistence.');
 }
