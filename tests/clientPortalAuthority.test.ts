@@ -4,6 +4,7 @@ import {
   CLIENT_SAFE_COMPANY_FIELDS,
   CLIENT_SAFE_DOCUMENT_FIELDS,
   CLIENT_SAFE_RECEIPT_FIELDS,
+  CLIENT_SAFE_REQUEST_FIELDS,
   CLIENT_SAFE_TRANSACTION_FIELDS,
   assertClientSafeProjection,
   buildClientPortalAccessIndex,
@@ -154,6 +155,16 @@ test('receipt projection excludes staff-only finance metadata',()=>{
   assert.doesNotThrow(()=>assertClientSafeProjection(['paymentId','receiptRef','amount','method','paidAt','status'],CLIENT_SAFE_RECEIPT_FIELDS));
   for(const field of ['note','cashboxId','createdBy','engagementId','reversalReason','metadata']){
     assert.throws(()=>assertClientSafeProjection(['paymentId',field],CLIENT_SAFE_RECEIPT_FIELDS),/forbidden field/);
+  }
+});
+
+test('request projection exposes action queue only and hides authority/audit metadata',()=>{
+  assert.doesNotThrow(()=>assertClientSafeProjection(
+    ['id','transactionId','requestType','title','instructions','dueAt','status','resourceShareId','createdAt','updatedAt'],
+    CLIENT_SAFE_REQUEST_FIELDS,
+  ));
+  for(const field of ['requiredPermission','createdBy','revokedAt','revokedBy','version','auditDetails','internalNote','amount']){
+    assert.throws(()=>assertClientSafeProjection(['id',field],CLIENT_SAFE_REQUEST_FIELDS),/forbidden field/);
   }
 });
 

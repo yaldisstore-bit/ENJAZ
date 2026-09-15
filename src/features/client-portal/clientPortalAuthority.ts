@@ -116,6 +116,22 @@ export const CLIENT_SAFE_RECEIPT_FIELDS = Object.freeze([
   'receiptVersion',
 ] as const);
 
+// Requests are portal-native interaction facts. The client receives only the
+// action queue contract; required permission, staff actor, revocation provenance
+// and internal audit metadata stay server-side.
+export const CLIENT_SAFE_REQUEST_FIELDS = Object.freeze([
+  'id',
+  'transactionId',
+  'requestType',
+  'title',
+  'instructions',
+  'dueAt',
+  'status',
+  'resourceShareId',
+  'createdAt',
+  'updatedAt',
+] as const);
+
 function validInstant(value: string | null): number | null {
   if (value === null) return null;
   const instant = Date.parse(value);

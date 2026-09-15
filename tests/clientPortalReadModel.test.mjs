@@ -4,9 +4,13 @@ import fs from 'node:fs';
 
 const sql=fs.readFileSync(new URL('../database/migrations/phase_11_3_client_safe_read_model.sql',import.meta.url),'utf8');
 const hardening=fs.readFileSync(new URL('../database/migrations/phase_11_3_client_safe_read_model_hardening.sql',import.meta.url),'utf8');
+const requests=fs.readFileSync(new URL('../database/migrations/phase_11_3_client_portal_requests_read_model.sql',import.meta.url),'utf8');
 const start=sql.indexOf('create or replace function private.get_client_portal_read_model_v1_impl');
 const end=sql.indexOf('create or replace function public.get_client_portal_read_model_v1',start);
 const model=sql.slice(start,end);
+const finalStart=requests.indexOf('create or replace function private.get_client_portal_read_model_v2_impl');
+const finalEnd=requests.indexOf('create or replace function public.get_client_portal_read_model_v1',finalStart);
+const finalModel=requests.slice(finalStart,finalEnd);
 
 const has=(source,value)=>assert.ok(source.includes(value),`missing contract: ${value}`);
 
@@ -50,9 +54,12 @@ test('read model never joins internal transaction operations or risk/intelligenc
   for(const forbidden of ['transaction_notes','transaction_routes','transaction_followups','transaction_blockers','risk_signals','intelligence_snapshots']) assert.equal(model.includes(forbidden),false,forbidden);
 });
 
-test('requests fail closed until a governed request source exists',()=>{
+test('foundation placeholder is replaced by the governed request source in the final wrapper',()=>{
   has(model,"'requests','[]'::jsonb");
   has(model,"'requestProjectionStatus','PENDING_GOVERNED_CLIENT_REQUEST_SOURCE'");
+  has(finalModel,'from public.client_portal_requests r');
+  has(finalModel,"jsonb_set(v_base,'{requests}',v_requests,true) - 'requestProjectionStatus'");
+  assert.equal(finalModel.includes('PENDING_GOVERNED_CLIENT_REQUEST_SOURCE'),false);
 });
 
 test('direct resource-share table browser access is closed',()=>{
