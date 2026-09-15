@@ -47,7 +47,7 @@ export interface EnjazRpcResult<T = unknown> {
 export interface EnjazDataLayerFactory {
   resolveWorkspaceId(userId: string): Promise<string | null>;
   forWorkspace(workspaceId: string): EnjazWorkspaceDataLayer;
-  rpc<T = unknown>(functionName: string, args?: Record<string, unknown>): Promise<EnjazRpcResult<T>>;
+  rpc?<T = unknown>(functionName: string, args?: Record<string, unknown>): Promise<EnjazRpcResult<T>>;
   edge?(functionName: string, init?: RequestInit): Promise<Response>;
 }
 
