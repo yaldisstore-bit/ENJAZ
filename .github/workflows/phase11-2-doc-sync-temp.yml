@@ -80,3 +80,5 @@ jobs:
           git diff --cached --check
           git commit -m 'docs: reconcile current position through Phase 11.2 closure'
           git push origin HEAD:phase11-2-formal-closure
+
+# one-shot sync trigger
