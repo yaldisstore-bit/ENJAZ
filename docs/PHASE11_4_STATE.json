@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "phase": "11.4",
   "name": "Omnichannel Communications Hub — M4",
   "status": "IN_PROGRESS",
@@ -19,6 +19,13 @@
   "systemName": "Omnichannel Communications Hub",
   "systemStatus": "ACTIVE",
   "canonicalCommunicationAuthority": "communications",
+  "canonicalMessageContentAuthority": "communications",
+  "canonicalMessageSubjectColumn": "subject",
+  "canonicalMessageBodyColumn": "body_text",
+  "summaryRole": "SHORT_PREVIEW_SEARCH_ONLY",
+  "providerRawHtmlCanonicalAllowed": false,
+  "contentMutableBeforeTransport": true,
+  "contentImmutableAfterTransport": true,
   "conversationAuthority": "communication_conversations",
   "providerAccountIdentityAuthority": "communication_provider_accounts",
   "endpointBindingAuthority": "communication_endpoint_bindings",
@@ -97,7 +104,9 @@
   "databaseBrowserDenyHardeningPath": "database/migrations/phase_11_4_omnichannel_browser_deny_hardening.sql",
   "databasePerformanceHardeningPath": "database/migrations/phase_11_4_omnichannel_performance_hardening.sql",
   "databaseTransportDirectionHardeningPath": "database/migrations/phase_11_4_omnichannel_transport_direction_hardening.sql",
+  "databaseCanonicalContentHardeningPath": "database/migrations/phase_11_4_omnichannel_canonical_content_hardening.sql",
   "databaseLiveProbePath": "database/migrations/phase_11_4_live_conversation_transport_probe.sql",
+  "databaseCanonicalContentLiveProbePath": "database/migrations/phase_11_4_live_canonical_content_probe.sql",
   "databaseAuthorityTables": [
     "communication_conversations",
     "communication_provider_accounts",
@@ -110,7 +119,9 @@
   "canonicalCommunicationColumnsAdded": [
     "conversation_id",
     "link_status",
-    "link_version"
+    "link_version",
+    "subject",
+    "body_text"
   ],
   "canonicalProviderChannelsAdded": [
     "sms",
@@ -119,6 +130,8 @@
   ],
   "realCloudDatabaseVerification": "PASS",
   "realCloudDatabaseProbeZeroResidue": true,
+  "realCloudCanonicalContentVerification": "PASS",
+  "realCloudCanonicalContentProbeZeroResidue": true,
   "realCloudDatabaseVerifiedScenarios": [
     "explicit service-role and browser privilege boundary",
     "eight restrictive browser-deny RLS policies",
@@ -133,6 +146,13 @@
     "different endpoint targets remain representable for review",
     "channel consent identity uniqueness",
     "cross-workspace composite FK rejection",
+    "canonical body longer than legacy summary limit",
+    "draft content editable before transport",
+    "canonical body immutable after transport",
+    "canonical subject immutable after transport",
+    "canonical summary immutable after transport",
+    "canonical metadata immutable after transport",
+    "governed relink state remains separate from content immutability",
     "zero probe residue"
   ],
   "supabasePhase114BMigrationsApplied": [
@@ -140,7 +160,9 @@
     "phase_11_4_omnichannel_browser_deny_hardening",
     "phase_11_4_omnichannel_performance_hardening",
     "phase_11_4_omnichannel_transport_direction_hardening",
-    "phase_11_4_live_conversation_transport_probe"
+    "phase_11_4_live_conversation_transport_probe",
+    "phase_11_4_omnichannel_canonical_content_hardening",
+    "phase_11_4_live_canonical_content_probe"
   ],
   "supabaseM4SecurityAdvisorRlsNoPolicyFindings": 0,
   "supabaseM4UnindexedForeignKeys": 0,
@@ -156,7 +178,7 @@
   "durableWriteRoundTripVerification": "PASS_DATABASE_PROBE",
   "permissionMatrixVerification": "PASS_BACKEND_ONLY_DIRECT_BROWSER_DENY",
   "realBrowserMobileVerification": "PENDING",
-  "failureConflictRecoveryVerification": "PARTIAL_DATABASE_DEDUPE_AND_CONFLICT_PASS",
+  "failureConflictRecoveryVerification": "PARTIAL_DATABASE_DEDUPE_CONFLICT_AND_CONTENT_IMMUTABILITY_PASS",
   "auditReconciliationVerification": "PENDING_GOVERNED_ACTIONS",
   "deployedLiveCriticalPathVerification": "PENDING",
   "postMergeRecertification": "PENDING",
