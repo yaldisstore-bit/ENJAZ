@@ -65,9 +65,20 @@ const commands: NotificationCommandGateway = Object.freeze({
   async mutateFollowup() { throw new Error('Follow-up mutation is not part of this composition certificate'); },
 });
 
+const schedulingUnavailable = async (): Promise<never> => {
+  throw new Error('Scheduling mutation is not part of this Phase 11.2 composition certificate');
+};
+
 const schedulingCommands: SchedulingCommandGateway = Object.freeze({
-  async mutateCalendarState() { throw new Error('Scheduling mutation is not part of this Phase 11.2 composition certificate'); },
-  async mutateRenewalState() { throw new Error('Scheduling mutation is not part of this Phase 11.2 composition certificate'); },
+  mutateCalendarState: schedulingUnavailable,
+  mutateRenewalState: schedulingUnavailable,
+  checkCalendarEventStaffConflicts: schedulingUnavailable,
+  createCalendarEvent: schedulingUnavailable,
+  updateCalendarEventMetadata: schedulingUnavailable,
+  rescheduleCalendarEvent: schedulingUnavailable,
+  setCalendarEventStaff: schedulingUnavailable,
+  setCalendarEventConfirmation: schedulingUnavailable,
+  recordCalendarEventAttendance: schedulingUnavailable,
 });
 
 function BrowserApp() {
