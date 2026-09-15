@@ -66,6 +66,16 @@ Deno.serve(async req=>{
       const expected=claim(prepared.data);stage='signed_upload';const signed=await admin.storage.from(BUCKET).createSignedUploadUrl(expected.path,{upsert:false});if(signed.error||!signed.data)throw signed.error??new Error('SIGNED_UPLOAD_UNAVAILABLE');return out(200,{ok:true,signedUrl:signed.data.signedUrl,expiresInSeconds:7200});
     }
 
+    if(action==='portal-prepare'){
+      stage='portal_prepare_rpc';
+      const checksum=typeof body.checksum==='string'&&body.checksum.trim()?body.checksum.trim().toLowerCase():null;
+      if(checksum!==null&&!/^[0-9a-f]{64}$/.test(checksum))return out(400,{ok:false,error:'CHECKSUM_INVALID'});
+      const workspaceId=uid(body.workspaceId),requestId=uid(body.requestId),operationId=uid(body.operationId);
+      const prepared=await userClient.rpc('prepare_client_portal_requested_document_v1',{p_workspace_id:workspaceId,p_request_id:requestId,p_operation_id:operationId,p_title:txt(body.title,320),p_original_file_name:txt(body.fileName,240),p_mime_type:txt(body.mimeType,160),p_byte_size:Number(body.byteSize),p_document_type:typeof body.documentType==='string'&&body.documentType.trim()?body.documentType.trim():null,p_checksum:checksum});
+      if(prepared.error)throw prepared.error;
+      const expected=claim(prepared.data);stage='portal_signed_upload';const signed=await admin.storage.from(BUCKET).createSignedUploadUrl(expected.path,{upsert:false});if(signed.error||!signed.data)throw signed.error??new Error('SIGNED_UPLOAD_UNAVAILABLE');return out(200,{ok:true,signedUrl:signed.data.signedUrl,expiresInSeconds:7200,operationId,requestId});
+    }
+
     if(action==='acknowledge'){
       const operationId=uid(body.operationId);stage='claim_rpc';const claimed=await userClient.rpc('get_document_upload_claim_v2',{p_operation_id:operationId});if(claimed.error)throw claimed.error;const expected=claim(claimed.data);
       if(expected.state==='acknowledged'){
@@ -78,6 +88,22 @@ Deno.serve(async req=>{
       if(!actualMime||actualMime!==expected.mimeType){await fail(admin,operationId,'STORAGE_MIME_MISMATCH',expected.path);return out(409,{ok:false,error:'STORAGE_MIME_MISMATCH'})}
       stage='binary_inspection';let checksum:string;try{checksum=await inspectStoredBinary(admin,expected)}catch(error){const code=error instanceof Error?error.message:'BINARY_INSPECTION_FAILED';await fail(admin,operationId,code,expected.path);return out(409,{ok:false,error:code})}
       stage='ack_rpc';const acknowledged=await admin.rpc('acknowledge_document_upload_v2',{p_operation_id:operationId,p_storage_path:expected.path,p_actual_byte_size:actualSize,p_actual_mime_type:actualMime,p_actual_checksum:checksum});if(acknowledged.error)throw acknowledged.error;return out(200,{ok:true,ack:acknowledged.data});
+    }
+
+    if(action==='portal-acknowledge'){
+      const operationId=uid(body.operationId),workspaceId=uid(body.workspaceId);stage='portal_claim_rpc';const claimed=await userClient.rpc('get_client_portal_document_upload_claim_v1',{p_operation_id:operationId});if(claimed.error)throw claimed.error;const expected=claim(claimed.data);
+      if(expected.state==='acknowledged'){
+        if(!expected.checksum)return out(409,{ok:false,error:'ACKNOWLEDGED_CHECKSUM_MISSING'});
+        stage='portal_ack_replay_rpc';const replay=await admin.rpc('acknowledge_document_upload_v2',{p_operation_id:operationId,p_storage_path:expected.path,p_actual_byte_size:expected.byteSize,p_actual_mime_type:expected.mimeType,p_actual_checksum:expected.checksum});if(replay.error)throw replay.error;
+        stage='portal_complete_replay_rpc';const completed=await userClient.rpc('complete_client_portal_requested_document_v1',{p_workspace_id:workspaceId,p_operation_id:operationId});if(completed.error)throw completed.error;return out(200,{ok:true,ack:replay.data,portal:completed.data});
+      }
+      stage='portal_storage_info';const info=await admin.storage.from(BUCKET).info(expected.path);if(info.error||!info.data)return out(409,{ok:false,error:'STORAGE_OBJECT_NOT_FOUND'});
+      const actualSize=objectSize(info.data),actualMime=objectMime(info.data)?.toLowerCase()??null;
+      if(!Number.isSafeInteger(actualSize)||actualSize!==expected.byteSize){await fail(admin,operationId,'STORAGE_SIZE_MISMATCH',expected.path);return out(409,{ok:false,error:'STORAGE_SIZE_MISMATCH'})}
+      if(!actualMime||actualMime!==expected.mimeType){await fail(admin,operationId,'STORAGE_MIME_MISMATCH',expected.path);return out(409,{ok:false,error:'STORAGE_MIME_MISMATCH'})}
+      stage='portal_binary_inspection';let checksum:string;try{checksum=await inspectStoredBinary(admin,expected)}catch(error){const code=error instanceof Error?error.message:'BINARY_INSPECTION_FAILED';await fail(admin,operationId,code,expected.path);return out(409,{ok:false,error:code})}
+      stage='portal_ack_rpc';const acknowledged=await admin.rpc('acknowledge_document_upload_v2',{p_operation_id:operationId,p_storage_path:expected.path,p_actual_byte_size:actualSize,p_actual_mime_type:actualMime,p_actual_checksum:checksum});if(acknowledged.error)throw acknowledged.error;
+      stage='portal_complete_rpc';const completed=await userClient.rpc('complete_client_portal_requested_document_v1',{p_workspace_id:workspaceId,p_operation_id:operationId});if(completed.error)throw completed.error;return out(200,{ok:true,ack:acknowledged.data,portal:completed.data});
     }
 
     if(action==='download'){
