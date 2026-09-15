@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   CLIENT_SAFE_COMPANY_FIELDS,
+  CLIENT_SAFE_DOCUMENT_FIELDS,
+  CLIENT_SAFE_RECEIPT_FIELDS,
+  CLIENT_SAFE_TRANSACTION_FIELDS,
   assertClientSafeProjection,
   buildClientPortalAccessIndex,
   canPerformChildAction,
@@ -126,10 +129,32 @@ test('internal domains remain categorically forbidden',()=>{
   assert.equal(clientPortalDomainIsAlwaysForbidden('client_safe_transaction_summary'),false);
 });
 
-test('client safe projection allowlist rejects internal fields',()=>{
+test('client-safe company projection rejects internal fields',()=>{
   assert.doesNotThrow(()=>assertClientSafeProjection(['id','legalName','status'],CLIENT_SAFE_COMPANY_FIELDS));
   assert.throws(()=>assertClientSafeProjection(['id','internalNotes'],CLIENT_SAFE_COMPANY_FIELDS),/forbidden field/);
   assert.throws(()=>assertClientSafeProjection(['id','riskScore'],CLIENT_SAFE_COMPANY_FIELDS),/forbidden field/);
+});
+
+test('transaction projection uses canonical transaction fields and rejects invented/internal fields',()=>{
+  assert.doesNotThrow(()=>assertClientSafeProjection(['id','companyId','type','status','completedAt'],CLIENT_SAFE_TRANSACTION_FIELDS));
+  assert.throws(()=>assertClientSafeProjection(['id','title'],CLIENT_SAFE_TRANSACTION_FIELDS),/forbidden field/);
+  assert.throws(()=>assertClientSafeProjection(['id','referenceNumber'],CLIENT_SAFE_TRANSACTION_FIELDS),/forbidden field/);
+  assert.throws(()=>assertClientSafeProjection(['id','priority'],CLIENT_SAFE_TRANSACTION_FIELDS),/forbidden field/);
+  assert.throws(()=>assertClientSafeProjection(['id','currentFee'],CLIENT_SAFE_TRANSACTION_FIELDS),/forbidden field/);
+});
+
+test('document projection never exposes storage, checksum or OCR intelligence',()=>{
+  assert.doesNotThrow(()=>assertClientSafeProjection(['id','transactionId','title','status'],CLIENT_SAFE_DOCUMENT_FIELDS));
+  for(const field of ['storagePath','checksum','ocrText','extractedFields','classification','confidence']){
+    assert.throws(()=>assertClientSafeProjection(['id',field],CLIENT_SAFE_DOCUMENT_FIELDS),/forbidden field/);
+  }
+});
+
+test('receipt projection excludes staff-only finance metadata',()=>{
+  assert.doesNotThrow(()=>assertClientSafeProjection(['paymentId','receiptRef','amount','method','paidAt','status'],CLIENT_SAFE_RECEIPT_FIELDS));
+  for(const field of ['note','cashboxId','createdBy','engagementId','reversalReason','metadata']){
+    assert.throws(()=>assertClientSafeProjection(['paymentId',field],CLIENT_SAFE_RECEIPT_FIELDS),/forbidden field/);
+  }
 });
 
 test('authority contract has no user_metadata or workspace membership inference input',()=>{
