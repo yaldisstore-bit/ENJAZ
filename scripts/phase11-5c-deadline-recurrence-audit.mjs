@@ -16,13 +16,23 @@ const errors = [];
 const req = (value, message) => { if (!value) errors.push(message); };
 const has = (source, marker, label) => req(source.includes(marker), `${label} missing marker: ${marker}`);
 const lacks = (source, marker, label) => req(!source.includes(marker), `${label} forbidden marker present: ${marker}`);
+const allowedSlices = new Set(['11.5-C', '11.5-D']);
+const cIsCurrent = state.currentSlice === '11.5-C';
 
 req(state.phase === '11.5' && state.systemId === 'M10' && state.systemStatus === 'ACTIVE', '11.5/M10 identity invalid');
-req(state.status === 'IN_PROGRESS' && state.currentSlice === '11.5-C', '11.5-C must be the active slice');
-req(state.currentSliceBaseCommit === 'c74803ed0ebdf5218052f446540c0f8a422430b1', '11.5-C must retain certified 11.5-B merge SHA');
+req(state.status === 'IN_PROGRESS' && allowedSlices.has(state.currentSlice), '11.5 must remain active on C/D');
 req(state.phase11_5bStatus === 'CLOSED' && state.phase11_5bExitGatePassed === true && state.phase11_5bPostMergeRecertification === 'PASS_EXACT_MAIN_SHA', '11.5-B certification must remain preserved');
 req(state.phase11_6Allowed === false && state.successorStatus === 'LOCKED', '11.6 must remain locked');
-req(state.exitGatePassed === false, 'Phase 11.5 cannot close during C');
+req(state.exitGatePassed === false, 'Phase 11.5 cannot close before D certification');
+if (cIsCurrent) {
+  req(state.currentSliceBaseCommit === 'c74803ed0ebdf5218052f446540c0f8a422430b1', '11.5-C must retain certified 11.5-B merge SHA while C is current');
+} else {
+  req(state.phase11_5cStatus === 'CLOSED', '11.5-C must be CLOSED before D');
+  req(state.phase11_5cExitGatePassed === true, '11.5-C exit gate must remain passed on D');
+  req(state.phase11_5cPostMergeRecertification === 'PASS_EXACT_MAIN_SHA', '11.5-C exact-main recertification must remain preserved');
+  req(state.phase11_5cFinalMergeCommit === '928142cf11fd41075c6d4ad8c6ec5cc517913861', '11.5-C final certified merge lineage drifted');
+  req(state.currentSliceBaseCommit === '928142cf11fd41075c6d4ad8c6ec5cc517913861', '11.5-D must start from the certified 11.5-C final main SHA');
+}
 
 for (const [field, expected] of [
   ['renewalAuthority', 'renewals'],
@@ -126,5 +136,5 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 11.5-C DEADLINE/RECURRENCE AUDIT PASS — workflow-derived provenance, anchored recurrence, SLA/overdue state, existing notification/follow-up reuse, explicit human miss review, retry safety and authenticated zero-residue proof are preserved; 11.6 remains locked.');
+  console.log(`ENJAZ PHASE 11.5-C DEADLINE/RECURRENCE AUDIT PASS — certified C authority is preserved while ${state.currentSlice} is active; 11.6 remains locked.`);
 }
