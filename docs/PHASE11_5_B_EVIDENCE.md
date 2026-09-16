@@ -1,8 +1,12 @@
 # Phase 11.5-B — Appointments, Staff Assignment, Conflicts & History — Evidence
 
-**Status:** SOURCE CANDIDATE CERTIFIED / PR merge and exact-main post-merge recertification pending  
+**Status:** CLOSED / merged and exact-main post-merge recertified  
 **Certified predecessor:** Phase 11.5-A at main SHA `2e85c9f8fa9066ab75bae3dbf6ecdcef02917530`  
+**Merged PR:** #184  
+**Merged candidate head:** `fcbb28f4a5a615c861783c64e5e1ff8ca4b2bf42`  
+**Exact main merge SHA:** `c74803ed0ebdf5218052f446540c0f8a422430b1`  
 **Major system:** M10 — Scheduling, Appointments & Deadline Engine  
+**Authorized next slice:** 11.5-C — Deadline, Recurrence, Reminder & Escalation Engine  
 **Successor:** Phase 11.6 remains LOCKED
 
 ## Authority result
@@ -80,7 +84,7 @@ Authenticated browser lifecycle writes remain closed:
 
 ## Runtime gateway
 
-`src/features/scheduling/schedulingCommands.ts` now exposes and strictly validates:
+`src/features/scheduling/schedulingCommands.ts` exposes and strictly validates:
 
 - `checkCalendarEventStaffConflicts`;
 - `createCalendarEvent`;
@@ -93,16 +97,15 @@ Authenticated browser lifecycle writes remain closed:
 
 The gateway accepts only the governed response schemas `enjaz.scheduling-calendar-event.v2` and `enjaz.scheduling-conflict.v1`; malformed/shadow responses fail closed. Staff IDs are UUID-validated, deduplicated and sorted before RPC dispatch.
 
-`tests/schedulingCommands.test.ts` contains B-specific RPC/payload/parser/fail-closed coverage. On exact source SHA `276e2deb0106d32d64bdcade9fd0fe13ecd6a59d`, M10 run `35070167273` passed all 13 gateway tests together with the A preservation tests, Daily Work composition, database audit/selftest, secrets audit, TypeScript, build, frozen budgets and dependency audit.
+`tests/schedulingCommands.test.ts` contains B-specific RPC/payload/parser/fail-closed coverage. Exact-main M10 run `35071028233` passed all **13/13** scheduling gateway tests together with the A preservation tests, Daily Work composition, database audit/selftest, secrets audit, TypeScript, build, frozen budgets and dependency audit.
 
 ## Source CI certification
 
-The exact source SHA `276e2deb0106d32d64bdcade9fd0fe13ecd6a59d` was certified before this evidence-only update:
+The implementation source SHA `276e2deb0106d32d64bdcade9fd0fe13ecd6a59d` was certified before the evidence commits:
 
 - M10 run `35070167273` — PASS;
 - Project Quality Constitution run `35070167107` — PASS;
 - Roadmap Amendment run `35070167228` — PASS;
-- failed workflow count on the exact SHA — **0** across these required source gates;
 - scheduling gateway tests — **13/13 PASS**;
 - frozen production total JavaScript — **757,790 / 760,000 bytes**;
 - budget margin — **2,210 bytes**;
@@ -111,7 +114,21 @@ The exact source SHA `276e2deb0106d32d64bdcade9fd0fe13ecd6a59d` was certified be
 - budget cap was **not increased**;
 - npm high-severity audit — **0 vulnerabilities**.
 
-The current branch head after State/Evidence recording must still pass the same source gates before the PR is opened. The recorded source SHA is therefore evidence basis, not a substitute for final-head CI.
+The final PR head `fcbb28f4a5a615c861783c64e5e1ff8ca4b2bf42` also passed final-head certification before merge, including M10 run #51, Project Quality Constitution and Roadmap Amendment gates.
+
+## Exact-main post-merge recertification
+
+PR #184 merged to exact main SHA `c74803ed0ebdf5218052f446540c0f8a422430b1`. The exact merged SHA was then recertified:
+
+- M10 run `35071028233` — PASS;
+- Quality Gate run `35071028471` — PASS;
+- Project Quality Constitution run `35071028661` — PASS;
+- Roadmap Amendment run `35071028261` — PASS;
+- Real Browser Acceptance run `35071028226` — PASS;
+- GitHub Pages build/deployment run `35071027429` — PASS;
+- failed workflow count observed across the checked exact-main workflow set — **0**.
+
+Real Browser completed both destruction waves and the production bridge checks for Auth/Home/Executive/Account, Smart Risk, Search + Saved Views, Corporate Governance / Company 360, and Regulatory Knowledge without failure.
 
 ## Advisor result
 
@@ -135,7 +152,7 @@ After the authenticated destructive probe, explicit residue verification returne
 
 ## What this evidence does NOT claim
 
-This slice does **not** yet claim:
+This slice does **not** claim:
 
 - a fresh-workspace bootstrap certificate for all of Phase 11.5;
 - durable cross-session write/read certification;
@@ -146,8 +163,8 @@ This slice does **not** yet claim:
 
 Those final-system requirements remain assigned to Phase 11.5-D unless a later governed slice explicitly certifies them sooner.
 
-## Current exit condition
+## Exit condition
 
-11.5-B remains open until the final branch head passes all B source gates, the PR is merged, and the exact merged `main` SHA passes post-merge M10/Quality/Real Browser/Pages recertification with zero critical/high/functional blockers.
+Phase 11.5-B is **CLOSED**. Its source candidate, PR merge, exact-main M10/Quality/Constitution/Roadmap/Real Browser/Pages recertification, advisor delta, and Real Cloud zero-residue evidence are all recorded.
 
-**Phase 11.6 remains LOCKED.**
+The only authorized progression is **11.5-C — Deadline, Recurrence, Reminder & Escalation Engine**. Phase 11.5 remains overall **IN_PROGRESS**, and **Phase 11.6 remains LOCKED**.
