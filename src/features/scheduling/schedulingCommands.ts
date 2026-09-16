@@ -44,6 +44,8 @@ type RpcClientLike = { rpc(name: string, args: Readonly<Record<string, unknown>>
 type BCommandInput = CreateCalendarEventInput | UpdateCalendarEventMetadataInput | RescheduleCalendarEventInput | SetCalendarEventStaffInput | SetCalendarEventConfirmationInput | RecordCalendarEventAttendanceInput;
 type FailureCode = 'DATA_VALIDATION_FAILED' | 'DATA_OPERATION_FAILED';
 
+const V = 'DATA_VALIDATION_FAILED' as const;
+const O = 'DATA_OPERATION_FAILED' as const;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const CALENDAR_STATUSES = ['scheduled', 'completed', 'cancelled'] as const;
 const RENEWAL_STATUSES = ['active', 'completed', 'cancelled'] as const;
@@ -54,27 +56,27 @@ const ATTENDANCE_OUTCOMES = ['attended', 'missed', 'cancelled'] as const;
 const INVALID = 'Invalid scheduling value';
 
 function fail(code: FailureCode): never { throw new DataAccessError(INVALID, code); }
-function uuid(value: unknown, code: FailureCode = 'DATA_VALIDATION_FAILED'): string {
+function uuid(value: unknown, code: FailureCode = V): string {
   if (typeof value !== 'string' || !UUID.test(value.trim())) return fail(code);
   return value.trim().toLowerCase();
 }
-function optUuid(value: unknown, code: FailureCode = 'DATA_VALIDATION_FAILED'): string | null {
+function optUuid(value: unknown, code: FailureCode = V): string | null {
   return value === null || value === undefined || value === '' ? null : uuid(value, code);
 }
-function uuidList(value: readonly string[] | undefined, code: FailureCode = 'DATA_VALIDATION_FAILED'): readonly string[] {
+function uuidList(value: readonly string[] | undefined, code: FailureCode = V): readonly string[] {
   if (value === undefined) return Object.freeze([]);
   if (!Array.isArray(value)) return fail(code);
   return Object.freeze([...new Set(value.map((entry) => uuid(entry, code)))].sort());
 }
-function positive(value: unknown, code: FailureCode = 'DATA_VALIDATION_FAILED'): number {
+function positive(value: unknown, code: FailureCode = V): number {
   if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 1) return fail(code);
   return value;
 }
-function text(value: unknown, max: number, code: FailureCode = 'DATA_VALIDATION_FAILED'): string {
-  if (typeof value !== 'string' || !value.trim() || value.length > max || (code === 'DATA_VALIDATION_FAILED' && /[\u0000\r\n]/u.test(value))) return fail(code);
+function text(value: unknown, max: number, code: FailureCode = V): string {
+  if (typeof value !== 'string' || !value.trim() || value.length > max || (code === V && /[\u0000\r\n]/u.test(value))) return fail(code);
   return value.trim();
 }
-function optText(value: unknown, max: number, code: FailureCode = 'DATA_VALIDATION_FAILED'): string | null {
+function optText(value: unknown, max: number, code: FailureCode = V): string | null {
   return value === null || value === undefined || (typeof value === 'string' && !value.trim()) ? null : text(value, max, code);
 }
 function instant(value: unknown, code: FailureCode): string {
@@ -85,20 +87,20 @@ function optInstant(value: unknown, code: FailureCode): string | null {
   return value === null || value === undefined || value === '' ? null : instant(value, code);
 }
 function record(value: unknown): Readonly<Record<string, unknown>> {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return fail('DATA_OPERATION_FAILED');
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return fail(O);
   return value as Readonly<Record<string, unknown>>;
 }
 function bool(value: unknown): boolean {
-  if (typeof value !== 'boolean') return fail('DATA_OPERATION_FAILED');
+  if (typeof value !== 'boolean') return fail(O);
   return value;
 }
 function oneOf<T extends string>(value: unknown, allowed: readonly T[]): T {
-  const parsed = text(value, 40, 'DATA_OPERATION_FAILED');
-  if (!allowed.includes(parsed as T)) return fail('DATA_OPERATION_FAILED');
+  const parsed = text(value, 40, O);
+  if (!allowed.includes(parsed as T)) return fail(O);
   return parsed as T;
 }
 function date(value: unknown): string {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return fail('DATA_OPERATION_FAILED');
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return fail(O);
   return value;
 }
 function commandIds(input: BCommandInput) {
@@ -108,52 +110,52 @@ function commandIds(input: BCommandInput) {
 function parseCalendarResult(value: unknown): CalendarStateMutationResult {
   const row = record(value);
   return Object.freeze({
-    id: uuid(row.id, 'DATA_OPERATION_FAILED'), workspaceId: uuid(row.workspaceId, 'DATA_OPERATION_FAILED'),
-    status: oneOf(row.status, CALENDAR_STATUSES), startsAt: instant(row.startsAt, 'DATA_OPERATION_FAILED'),
-    endsAt: optInstant(row.endsAt, 'DATA_OPERATION_FAILED'), version: positive(row.version, 'DATA_OPERATION_FAILED'),
-    updatedAt: instant(row.updatedAt, 'DATA_OPERATION_FAILED'), wasDuplicate: bool(row.wasDuplicate),
+    id: uuid(row.id, O), workspaceId: uuid(row.workspaceId, O),
+    status: oneOf(row.status, CALENDAR_STATUSES), startsAt: instant(row.startsAt, O),
+    endsAt: optInstant(row.endsAt, O), version: positive(row.version, O),
+    updatedAt: instant(row.updatedAt, O), wasDuplicate: bool(row.wasDuplicate),
   });
 }
 function parseRenewalResult(value: unknown): RenewalStateMutationResult {
   const row = record(value);
   return Object.freeze({
-    id: uuid(row.id, 'DATA_OPERATION_FAILED'), workspaceId: uuid(row.workspaceId, 'DATA_OPERATION_FAILED'),
+    id: uuid(row.id, O), workspaceId: uuid(row.workspaceId, O),
     status: oneOf(row.status, RENEWAL_STATUSES), dueDate: date(row.dueDate),
-    lastCompletedAt: optInstant(row.lastCompletedAt, 'DATA_OPERATION_FAILED'), version: positive(row.version, 'DATA_OPERATION_FAILED'),
-    updatedAt: instant(row.updatedAt, 'DATA_OPERATION_FAILED'), wasDuplicate: bool(row.wasDuplicate),
+    lastCompletedAt: optInstant(row.lastCompletedAt, O), version: positive(row.version, O),
+    updatedAt: instant(row.updatedAt, O), wasDuplicate: bool(row.wasDuplicate),
   });
 }
 function parseCalendarEventResult(value: unknown): CalendarEventMutationResult {
   const row = record(value);
-  if (row.schema !== 'enjaz.scheduling-calendar-event.v2') return fail('DATA_OPERATION_FAILED');
+  if (row.schema !== 'enjaz.scheduling-calendar-event.v2') return fail(O);
   const source = row.confirmationSource == null ? null : oneOf(row.confirmationSource, CONFIRMATION_SOURCES);
   const attendance = row.attendanceOutcome == null ? null : oneOf(row.attendanceOutcome, ATTENDANCE_OUTCOMES);
   return Object.freeze({
-    id: uuid(row.id, 'DATA_OPERATION_FAILED'), workspaceId: uuid(row.workspaceId, 'DATA_OPERATION_FAILED'),
-    transactionId: optUuid(row.transactionId, 'DATA_OPERATION_FAILED'), companyId: optUuid(row.companyId, 'DATA_OPERATION_FAILED'),
-    contactId: optUuid(row.contactId, 'DATA_OPERATION_FAILED'), workflowInstanceId: optUuid(row.workflowInstanceId, 'DATA_OPERATION_FAILED'),
-    title: text(row.title, 320, 'DATA_OPERATION_FAILED'), eventType: text(row.eventType, 120, 'DATA_OPERATION_FAILED'),
-    startsAt: instant(row.startsAt, 'DATA_OPERATION_FAILED'), endsAt: optInstant(row.endsAt, 'DATA_OPERATION_FAILED'),
-    status: oneOf(row.status, CALENDAR_STATUSES), note: optText(row.note, 4000, 'DATA_OPERATION_FAILED'),
-    staffMemberIds: uuidList(row.staffMemberIds as readonly string[] | undefined, 'DATA_OPERATION_FAILED'), confirmationStatus: oneOf(row.confirmationStatus, CONFIRMATION_STATUSES),
-    confirmationAt: optInstant(row.confirmationAt, 'DATA_OPERATION_FAILED'), confirmationSource: source,
-    confirmationResponseId: optUuid(row.confirmationResponseId, 'DATA_OPERATION_FAILED'), attendanceOutcome: attendance,
-    attendanceRecordedAt: optInstant(row.attendanceRecordedAt, 'DATA_OPERATION_FAILED'), version: positive(row.version, 'DATA_OPERATION_FAILED'),
-    updatedAt: instant(row.updatedAt, 'DATA_OPERATION_FAILED'), wasDuplicate: bool(row.wasDuplicate),
+    id: uuid(row.id, O), workspaceId: uuid(row.workspaceId, O),
+    transactionId: optUuid(row.transactionId, O), companyId: optUuid(row.companyId, O),
+    contactId: optUuid(row.contactId, O), workflowInstanceId: optUuid(row.workflowInstanceId, O),
+    title: text(row.title, 320, O), eventType: text(row.eventType, 120, O),
+    startsAt: instant(row.startsAt, O), endsAt: optInstant(row.endsAt, O),
+    status: oneOf(row.status, CALENDAR_STATUSES), note: optText(row.note, 4000, O),
+    staffMemberIds: uuidList(row.staffMemberIds as readonly string[] | undefined, O), confirmationStatus: oneOf(row.confirmationStatus, CONFIRMATION_STATUSES),
+    confirmationAt: optInstant(row.confirmationAt, O), confirmationSource: source,
+    confirmationResponseId: optUuid(row.confirmationResponseId, O), attendanceOutcome: attendance,
+    attendanceRecordedAt: optInstant(row.attendanceRecordedAt, O), version: positive(row.version, O),
+    updatedAt: instant(row.updatedAt, O), wasDuplicate: bool(row.wasDuplicate),
     ...(row.changed === undefined ? {} : { changed: bool(row.changed) }),
   });
 }
 function parseConflictItem(value: unknown): CalendarConflictItem {
   const row = record(value);
-  return Object.freeze({ eventId: uuid(row.eventId, 'DATA_OPERATION_FAILED'), organizationMemberId: uuid(row.organizationMemberId, 'DATA_OPERATION_FAILED'), startsAt: instant(row.startsAt, 'DATA_OPERATION_FAILED'), endsAt: optInstant(row.endsAt, 'DATA_OPERATION_FAILED') });
+  return Object.freeze({ eventId: uuid(row.eventId, O), organizationMemberId: uuid(row.organizationMemberId, O), startsAt: instant(row.startsAt, O), endsAt: optInstant(row.endsAt, O) });
 }
 function conflictArray(value: unknown): readonly CalendarConflictItem[] {
-  if (!Array.isArray(value)) return fail('DATA_OPERATION_FAILED');
+  if (!Array.isArray(value)) return fail(O);
   return Object.freeze(value.map(parseConflictItem));
 }
 function parseConflictResult(value: unknown): CalendarConflictResult {
   const row = record(value);
-  if (row.schema !== 'enjaz.scheduling-conflict.v1') return fail('DATA_OPERATION_FAILED');
+  if (row.schema !== 'enjaz.scheduling-conflict.v1') return fail(O);
   return Object.freeze({ state: oneOf(row.state, CONFLICT_STATES), conflicts: conflictArray(row.conflicts), unknownRanges: conflictArray(row.unknownRanges) });
 }
 
@@ -179,9 +181,9 @@ export function createSchedulingCommandGateway(client: EnjazSupabaseClient, time
   return Object.freeze({
     async mutateCalendarState(input: CalendarStateMutationInput) {
       const action = input.action;
-      if (action !== 'complete' && action !== 'cancel') return fail('DATA_VALIDATION_FAILED');
+      if (action !== 'complete' && action !== 'cancel') return fail(V);
       const reason = input.reason?.trim() ? text(input.reason, 1200) : null;
-      if (action === 'cancel' && !reason) throw new DataAccessError('Cancellation reason is required', 'DATA_VALIDATION_FAILED');
+      if (action === 'cancel' && !reason) throw new DataAccessError('Cancellation reason is required', V);
       return parseCalendarResult(await call('mutate_calendar_event_state_v1', {
         p_workspace_id: uuid(input.workspaceId), p_event_id: uuid(input.eventId), p_operation_id: uuid(input.operationId),
         p_expected_version: positive(input.expectedVersion), p_action: action, p_reason: reason,
@@ -189,9 +191,9 @@ export function createSchedulingCommandGateway(client: EnjazSupabaseClient, time
     },
     async mutateRenewalState(input: RenewalStateMutationInput) {
       const action = input.action;
-      if (action !== 'complete' && action !== 'cancel') return fail('DATA_VALIDATION_FAILED');
+      if (action !== 'complete' && action !== 'cancel') return fail(V);
       const reason = input.reason?.trim() ? text(input.reason, 1200) : null;
-      if (action === 'cancel' && !reason) throw new DataAccessError('Cancellation reason is required', 'DATA_VALIDATION_FAILED');
+      if (action === 'cancel' && !reason) throw new DataAccessError('Cancellation reason is required', V);
       return parseRenewalResult(await call('mutate_renewal_state_v1', {
         p_workspace_id: uuid(input.workspaceId), p_renewal_id: uuid(input.renewalId), p_operation_id: uuid(input.operationId),
         p_expected_version: positive(input.expectedVersion), p_action: action, p_reason: reason,
@@ -199,14 +201,14 @@ export function createSchedulingCommandGateway(client: EnjazSupabaseClient, time
     },
     async checkCalendarEventStaffConflicts(input: CheckCalendarEventStaffConflictsInput) {
       return parseConflictResult(await call('check_calendar_event_staff_conflicts_v1', {
-        p_workspace_id: uuid(input.workspaceId), p_starts_at: instant(input.startsAt, 'DATA_VALIDATION_FAILED'),
-        p_ends_at: optInstant(input.endsAt, 'DATA_VALIDATION_FAILED'), p_staff_member_ids: uuidList(input.staffMemberIds), p_exclude_event_id: optUuid(input.excludeEventId),
+        p_workspace_id: uuid(input.workspaceId), p_starts_at: instant(input.startsAt, V),
+        p_ends_at: optInstant(input.endsAt, V), p_staff_member_ids: uuidList(input.staffMemberIds), p_exclude_event_id: optUuid(input.excludeEventId),
       }));
     },
     async createCalendarEvent(input: CreateCalendarEventInput) {
       return bCall('create_calendar_event_v1', input, {
-        p_title: text(input.title, 320), p_event_type: text(input.eventType, 120), p_starts_at: instant(input.startsAt, 'DATA_VALIDATION_FAILED'),
-        p_ends_at: optInstant(input.endsAt, 'DATA_VALIDATION_FAILED'), p_transaction_id: optUuid(input.transactionId), p_company_id: optUuid(input.companyId), p_contact_id: optUuid(input.contactId),
+        p_title: text(input.title, 320), p_event_type: text(input.eventType, 120), p_starts_at: instant(input.startsAt, V),
+        p_ends_at: optInstant(input.endsAt, V), p_transaction_id: optUuid(input.transactionId), p_company_id: optUuid(input.companyId), p_contact_id: optUuid(input.contactId),
         p_workflow_instance_id: optUuid(input.workflowInstanceId), p_staff_member_ids: uuidList(input.staffMemberIds), p_note: optText(input.note, 4000),
       });
     },
@@ -218,19 +220,19 @@ export function createSchedulingCommandGateway(client: EnjazSupabaseClient, time
     },
     async rescheduleCalendarEvent(input: RescheduleCalendarEventInput) {
       return bCall('reschedule_calendar_event_v1', input, {
-        p_expected_version: positive(input.expectedVersion), p_starts_at: instant(input.startsAt, 'DATA_VALIDATION_FAILED'),
-        p_ends_at: optInstant(input.endsAt, 'DATA_VALIDATION_FAILED'), p_reason: text(input.reason, 1200),
+        p_expected_version: positive(input.expectedVersion), p_starts_at: instant(input.startsAt, V),
+        p_ends_at: optInstant(input.endsAt, V), p_reason: text(input.reason, 1200),
       });
     },
     async setCalendarEventStaff(input: SetCalendarEventStaffInput) {
       return bCall('set_calendar_event_staff_v1', input, { p_expected_version: positive(input.expectedVersion), p_staff_member_ids: uuidList(input.staffMemberIds), p_reason: optText(input.reason, 1200) });
     },
     async setCalendarEventConfirmation(input: SetCalendarEventConfirmationInput) {
-      if (input.status !== 'confirmed' && input.status !== 'declined') return fail('DATA_VALIDATION_FAILED');
+      if (input.status !== 'confirmed' && input.status !== 'declined') return fail(V);
       return bCall('set_calendar_event_confirmation_v1', input, { p_expected_version: positive(input.expectedVersion), p_confirmation_status: input.status, p_response_id: optUuid(input.responseId) });
     },
     async recordCalendarEventAttendance(input: RecordCalendarEventAttendanceInput) {
-      if (input.outcome !== 'attended' && input.outcome !== 'missed') return fail('DATA_VALIDATION_FAILED');
+      if (input.outcome !== 'attended' && input.outcome !== 'missed') return fail(V);
       return bCall('record_calendar_event_attendance_v1', input, { p_expected_version: positive(input.expectedVersion), p_outcome: input.outcome, p_note: optText(input.note, 1200) });
     },
   });
