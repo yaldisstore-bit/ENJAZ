@@ -258,7 +258,13 @@
   "phase11_5cNewSecurityAdvisorFindings": 0,
   "phase11_5cNewUnindexedForeignKeys": 0,
   "phase11_5cAdvisorVerification": "PASS_NO_NEW_SECURITY_FINDINGS_NO_NEW_UNINDEXED_FOREIGN_KEYS",
-  "phase11_5cCandidateReady": false,
-  "phase11_5cExitGatePassed": false,
-  "phase11_5cExitBlocker": "PENDING_PR_AND_POST_MERGE_RECERTIFICATION"
+  "phase11_5cLastCertifiedSourceSha": "5d4296ac882c714bfc73cff0097ff96c8888c660",
+  "phase11_5cSourceCertification": "PASS_EXACT_SOURCE_SHA",
+  "phase11_5cM10Run": 35136101712,
+  "phase11_5cQualityRun": 35136101798,
+  "phase11_5cRoadmapRun": 35136101711,
+  "phase11_5cSourceFailureCount": 0,
+  "phase11_5cCandidateReady": true,
+  "phase11_5cExitGatePassed": true,
+  "phase11_5cExitBlocker": null
 }
