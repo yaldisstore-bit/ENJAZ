@@ -93,19 +93,21 @@ Authenticated browser lifecycle writes remain closed:
 
 The gateway accepts only the governed response schemas `enjaz.scheduling-calendar-event.v2` and `enjaz.scheduling-conflict.v1`; malformed/shadow responses fail closed. Staff IDs are UUID-validated, deduplicated and sorted before RPC dispatch.
 
-`tests/schedulingCommands.test.ts` contains B-specific RPC/payload/parser/fail-closed coverage. On exact source SHA `d72cd2d26d24e280a910f6bde264552bbefdac8b`, M10 run `35026665288` passed all 13 gateway tests together with the A preservation tests, Daily Work composition, database audit/selftest, secrets audit, TypeScript, build and dependency audit.
+`tests/schedulingCommands.test.ts` contains B-specific RPC/payload/parser/fail-closed coverage. On exact source SHA `276e2deb0106d32d64bdcade9fd0fe13ecd6a59d`, M10 run `35070167273` passed all 13 gateway tests together with the A preservation tests, Daily Work composition, database audit/selftest, secrets audit, TypeScript, build, frozen budgets and dependency audit.
 
 ## Source CI certification
 
-The exact source SHA `d72cd2d26d24e280a910f6bde264552bbefdac8b` was certified before this evidence-only update:
+The exact source SHA `276e2deb0106d32d64bdcade9fd0fe13ecd6a59d` was certified before this evidence-only update:
 
-- M10 run `35026665288` — PASS;
-- Project Quality Constitution run `35026665314` — PASS;
-- Roadmap Amendment run `35026665322` — PASS;
-- failed workflow count on the exact SHA — **0**;
+- M10 run `35070167273` — PASS;
+- Project Quality Constitution run `35070167107` — PASS;
+- Roadmap Amendment run `35070167228` — PASS;
+- failed workflow count on the exact SHA — **0** across these required source gates;
 - scheduling gateway tests — **13/13 PASS**;
-- frozen production total JavaScript — **759,027 / 760,000 bytes**;
-- budget margin — **973 bytes**;
+- frozen production total JavaScript — **757,790 / 760,000 bytes**;
+- budget margin — **2,210 bytes**;
+- initial JavaScript — **430,513 / 670,000 bytes**;
+- largest lazy JavaScript chunk — **65,463 / 140,000 bytes**;
 - budget cap was **not increased**;
 - npm high-severity audit — **0 vulnerabilities**.
 
