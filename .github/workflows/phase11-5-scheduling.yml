@@ -48,6 +48,8 @@ jobs:
         run: node scripts/phase11-5c-deadline-recurrence-audit.mjs
       - name: Phase 11.5-C deadline / recurrence functional contract tests
         run: node --experimental-strip-types --test tests/schedulingDeadlineRecurrence.test.ts
+      - name: Phase 11.5-D unified calendar opening / certification contract
+        run: node scripts/phase11-5d-unified-calendar-certification-audit.mjs
       - name: Phase 11.5 cumulative scheduling gateway tests
         run: node --experimental-strip-types --test tests/schedulingCommands.test.ts
       - name: Preserve Daily Work scheduling composition
