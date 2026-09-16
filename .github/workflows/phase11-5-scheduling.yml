@@ -44,6 +44,8 @@ jobs:
         run: node --experimental-strip-types --test tests/schedulingAuthority.test.ts
       - name: Phase 11.5-B appointments / conflicts / history audit
         run: node scripts/phase11-5b-appointments-conflict-audit.mjs
+      - name: Phase 11.5-C deadline / recurrence / reminder / escalation audit
+        run: node scripts/phase11-5c-deadline-recurrence-audit.mjs
       - name: Phase 11.5 cumulative scheduling gateway tests
         run: node --experimental-strip-types --test tests/schedulingCommands.test.ts
       - name: Preserve Daily Work scheduling composition
