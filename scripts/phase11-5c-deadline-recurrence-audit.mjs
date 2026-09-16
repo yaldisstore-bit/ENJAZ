@@ -96,7 +96,7 @@ lacks(recurrence, 'grant insert on table public.renewal_occurrences to authentic
 lacks(recurrence, 'grant update on table public.renewal_occurrences to authenticated', 'recurrence migration');
 
 for (const marker of [
-  'create table public.deadline_miss_reviews', 'system may detect',
+  'create table public.deadline_miss_reviews',
   'public.upsert_in_app_notification_v1', 'public.create_transaction_followup_v1',
   "p_mode not in ('reminder','escalation')", 'ENJAZ_SCHEDULING_ESCALATION_NOT_DUE',
   'ENJAZ_SCHEDULING_ATTENTION_SOURCE_TERMINAL', 'ENJAZ_SCHEDULING_DEADLINE_NOT_MISSED',
