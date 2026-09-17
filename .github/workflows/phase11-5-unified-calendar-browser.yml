@@ -30,9 +30,12 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Preserve M10 authority and 11.5-D implementation contract
         run: |
-          npm run audit:phase11-5
+          node scripts/phase11-5a-scheduling-authority-audit.mjs
+          node scripts/phase11-5b-appointments-conflict-audit.mjs
+          node scripts/phase11-5c-deadline-recurrence-audit.mjs
+          node scripts/phase11-5d-unified-calendar-certification-audit.mjs
           node scripts/phase11-5d-unified-calendar-experience-audit.mjs
-          node --experimental-strip-types --test tests/unifiedCalendar.test.ts tests/schedulingCommands.test.ts
+          node --experimental-strip-types --test tests/schedulingAuthority.test.ts tests/schedulingDeadlineRecurrence.test.ts tests/unifiedCalendar.test.ts tests/schedulingCommands.test.ts
           npm run typecheck
       - name: Build canonical production and frozen budgets
         run: |
