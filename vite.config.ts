@@ -36,7 +36,7 @@ export default defineConfig({
     reportCompressedSize: true,
     rolldownOptions: {
       preserveEntrySignatures: false,
-      optimization: { inlineConst: true },
+      optimization: { inlineConst: true, pifeForModuleWrappers: false },
       output: {
         minify: { compress: { maxIterations: 5 }, mangle: true, codegen: true },
         comments: { legal: true, annotation: false, jsdoc: false },
