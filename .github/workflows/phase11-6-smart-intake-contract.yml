@@ -41,7 +41,7 @@ jobs:
       - name: Phase 11.6-B authority audit
         run: node scripts/phase11-6b-intake-followup-audit.mjs
       - name: Database integrity
-        run: npm run audit:database
+        run: npm run db:audit && npm run db:audit:selftest
       - name: Roadmap integrity
         run: npm run audit:roadmap
       - name: TypeScript
