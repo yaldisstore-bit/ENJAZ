@@ -2,7 +2,7 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 🟡 IN PROGRESS — 11.6-B CLOSED / 11.6-C AUTHORIZED_NEXT**  
+الحالة الرسمية: **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 🟡 IN PROGRESS — 11.6-C CONTRACT APPROVAL / RENEWAL**  
 آخر شريحة مغلقة: **Phase 11.6-B — Intake Follow-up & Client Information Loop ✅ CLOSED / REAL CLOUD CERTIFIED**  
 المرحلة اللاحقة: **Phase 11.7 — Communication Zero-Escape Gate — LOCKED**.
 
@@ -52,12 +52,12 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 11.3 — Client Portal — M3: ✅ CLOSED + published authenticated portal certificate + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 11.4 — Omnichannel Communications Hub — M4: ✅ CLOSED + Real Cloud + exact-main + Real Browser + governance certified.**
 - **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10: ✅ CLOSED + authenticated Real Cloud + dedicated 5-width Chromium + exact-main cumulative gates + frozen-budget certification.**
-- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: 🟡 IN PROGRESS — 11.6-B ✅ CLOSED / 11.6-C AUTHORIZED_NEXT.**
+- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: 🟡 IN PROGRESS — 11.6-C CONTRACT APPROVAL / RENEWAL.**
 
 ## Phase 11.6 — الحالة الحالية
 
 - formal base: `14a670e8dd2d892a7039fd7a52437a8c6274aa2a` — Phase 11.5 closure merge.
-- current implementation branch: `phase11-6b-intake-followup-client-loop`.
+- current implementation branch: `phase11-6c-contract-approval-retainer-communication`.
 - 11.6-A — Authority & boundary contract: **CLOSED / exact-main recertified**.
 - 11.6-B — Intake follow-up & client information loop: **CLOSED / CERTIFIED**.
 - 11.6-B Real Cloud SQL lineage: `20260917222114` / `20260917222123` / `20260917222446` / probe `20260917222519` — **PASS**.
@@ -65,7 +65,9 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - B-caused security advisor delta: **0**; B-related performance advisor findings: **0**.
 - canonical M17 truth remains `intake_forms` / `intake_links` / `intake_submissions`; follow-up remains bridge evidence only and never auto-approves intake.
 - secure-link follow-up remains information-only; document requests remain delegated to Client Portal/M3.
-- 11.6-C — Contract approval, retainer renewal & communication evidence: **AUTHORIZED_NEXT** after B closure merges to canonical `main`.
+- 11.6-C — Contract approval, retainer renewal & communication evidence: **IN PROGRESS** from merged B base `314ff5a297420b4842a0bba78c3575d84e85c707`.
+- C1 source work: M16 revision `version`, idempotent transition receipts, governed `transition_engagement_contract_revision_v2`, legacy browser v1 transition revoked in source, and UI/gateway expected-version wiring.
+- 11.6-D — Unified experience & certification: **LOCKED** until C closes.
 - Phase 11.7: **LOCKED** until the full Phase 11.6 exit gate passes.
 - frozen budgets remain **670000 initial JS / 760000 total JS / 180000 CSS**؛ no cap increase authorized.
 - B closure evidence: [`docs/PHASE11_6B_CLOSURE.md`](docs/PHASE11_6B_CLOSURE.md).
