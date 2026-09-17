@@ -98,8 +98,8 @@ for(const marker of [
   'grant execute on function private.get_public_intake_followup_capability_v1(text) to anon,authenticated',
   'grant execute on function private.save_public_intake_followup_capability_v1(text,jsonb,boolean) to anon,authenticated'
 ])has(hardening,marker,'B3 advisor hardening');
-req(/create\s+or\s+replace\s+function\s+public\.get_public_intake_followup_v1\s*\(p_token\s+text\)[\s\S]*?security\s+invoker/i.test(hardening),'final public get follow-up must be SECURITY INVOKER');
-req(/create\s+or\s+replace\s+function\s+public\.save_public_intake_followup_v1\s*\([\s\S]*?security\s+invoker/i.test(hardening),'final public save follow-up must be SECURITY INVOKER');
+has(hardening,"create or replace function public.get_public_intake_followup_v1(p_token text)\nreturns jsonb language sql volatile security invoker",'final public get follow-up SECURITY INVOKER');
+has(hardening,"create or replace function public.save_public_intake_followup_v1(\n  p_token text,p_patch jsonb,p_finalize boolean\n) returns jsonb language sql volatile security invoker",'final public save follow-up SECURITY INVOKER');
 lacks(hardening,'grant execute on all functions in schema private to anon','B3 advisor hardening');
 
 for(const marker of [
