@@ -61,7 +61,7 @@ test('destruction: removing effective contract gate is detected',()=>assert.ok(v
 test('destruction: removing renewal expected version is detected',()=>assert.ok(violations(sql.replace('v_renewal.version<>p_expected_renewal_version','false')).includes('renewal-stale-guard')));
 test('destruction: decoupling due date from contract expiry is detected',()=>assert.ok(violations(sql.replace('due_date=v_revision.expires_on','due_date=v_renewal.due_date')).includes('expiry-derived-due-date')));
 test('destruction: arbitrary communication source is detected',()=>assert.ok(violations(sql.replace("v_communication.metadata->>'source'<>'governed_outbound'","false")).includes('m4-governed-source-required')));
-test('destruction: bypassing M4 command evidence is detected',()=>assert.ok(violations(sql.replace('public.communication_outbound_commands','public.communications')).includes('m4-command-required')));
+test('destruction: bypassing M4 command evidence is detected',()=>assert.ok(violations(sql.replaceAll('public.communication_outbound_commands','public.communications')).includes('m4-command-required')));
 test('destruction: direct communication insert is detected',()=>{
   const marker="select * into v_command\n  from public.communication_outbound_commands c";
   const mutated=sql.replace(marker,"insert into public.communications(workspace_id,channel,direction,summary,occurred_at) values(p_workspace_id,'message','outgoing','bad',now());\n\n  select * into v_command\n  from public.communication_outbound_commands c");
