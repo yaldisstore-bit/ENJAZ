@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10 ✅ CLOSED / CERTIFIED — AUTHENTICATED REAL-CLOUD + EXACT-MAIN + REAL-BROWSER + ZERO-ESCAPE**  
-آخر مرحلة مغلقة: **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10 ✅ CLOSED**  
-المرحلة التالية: **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 — AUTHORIZED NEXT**.
+الحالة الرسمية: **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 🟡 IN PROGRESS — 11.6-A AUTHORITY FREEZE**  
+آخر مرحلة مغلقة: **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10 ✅ CLOSED / CERTIFIED**  
+المرحلة اللاحقة: **Phase 11.7 — Communication Zero-Escape Gate — LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -52,7 +52,26 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 11.3 — Client Portal — M3: ✅ CLOSED + published authenticated portal certificate + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 11.4 — Omnichannel Communications Hub — M4: ✅ CLOSED + Real Cloud + exact-main + Real Browser + governance certified.**
 - **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10: ✅ CLOSED + authenticated Real Cloud + dedicated 5-width Chromium + exact-main cumulative gates + frozen-budget certification.**
-- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: AUTHORIZED NEXT.**
+- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: 🟡 IN PROGRESS — 11.6-A AUTHORITY FREEZE.**
+
+## Phase 11.6 — الحالة الحالية
+
+- formal base: `14a670e8dd2d892a7039fd7a52437a8c6274aa2a` — Phase 11.5 closure merge.
+- current branch: `phase11-6-smart-intake-contract-communication`.
+- current slice: **11.6-A — Authority & boundary contract**.
+- M17 canonical authorities remain `intake_forms` / `intake_links` / `intake_submissions`; public intake remains **non-authoritative until governed review**.
+- M16 canonical contract authority remains `engagement_contract_revisions` over `commercial_engagements` + Document Factory/Vault.
+- canonical renewal authority remains `renewals`; canonical business communication authority remains `communications`.
+- Client Portal approval response remains decision evidence only and may not directly mutate contract truth.
+- authority contract: `src/features/intake-contract-communication/intakeContractCommunicationAuthority.ts`.
+- destructive authority tests: `tests/intakeContractCommunicationAuthority.test.ts`.
+- fail-closed audit: `scripts/phase11-6a-intake-contract-authority-audit.mjs`.
+- dedicated CI gate: `.github/workflows/phase11-6-smart-intake-contract.yml`.
+- frozen budgets remain **670000 initial JS / 760000 total JS / 180000 CSS**؛ no cap increase authorized.
+- Real Cloud / Real Browser / durable-write / permission-matrix / post-merge certification: **PENDING later 11.6 slices**.
+- Phase 11.7: **LOCKED** until full deployed-live Phase 11.6 exit gate passes.
+- kickoff: [`docs/PHASE11_6_KICKOFF.md`](docs/PHASE11_6_KICKOFF.md).
+- lifecycle state: [`docs/PHASE11_6_STATE.json`](docs/PHASE11_6_STATE.json).
 
 ## Phase 11.5 — دليل الإغلاق الحالي
 
@@ -75,7 +94,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
 - closure evidence: [`docs/PHASE11_5_CLOSURE.md`](docs/PHASE11_5_CLOSURE.md).
 - **M10 يبقى ACTIVE كنظام كبير؛ إغلاق 11.5 لا يعني global M10 closure.**
-- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: AUTHORIZED NEXT.**
+- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: OPEN / IN PROGRESS.**
 
 ## Phase 11.4 — دليل الإغلاق المحفوظ
 
@@ -83,7 +102,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - implementation PR #179 + IA correction PR #180: **MERGED**.
 - exact certified main before closure: `8d0be4ede228954f06c32833c524d2df7f737b39`.
 - authority, governed actions, unified communications experience, provider boundary, fresh-workspace behavior and cumulative browser reality: **CERTIFIED**.
-- M4 remains operationally **ACTIVE**; phase closure does not imply global major-system closure.
+- M4 remains operationally **ACTIVE**؛ phase closure does not imply global major-system closure.
 - closure evidence: [`docs/PHASE11_4_CLOSURE.md`](docs/PHASE11_4_CLOSURE.md).
 
 ## Phase 11.3 — دليل الإغلاق المحفوظ
@@ -167,7 +186,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - Product / UI/UX / Engineering / Certification: **PASS / PASS / PASS / PASS**.
 - unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
 - لم تُضف 9.7 feature authority أو DB table أو write RPC ولم ترفع أي budget.
-- Phase 10.1 كانت successor التاريخية المباشرة؛ وقد أغلقت منذ ذلك الحين، والتسلسل الحالي وصل إلى **11.5 CLOSED**.
+- Phase 10.1 كانت successor التاريخية المباشرة؛ وقد أغلقت منذ ذلك الحين، والتسلسل الحالي وصل إلى **11.6 IN PROGRESS**.
 
 ## Phase 9.6 — دليل الإغلاق
 
@@ -250,8 +269,8 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 13. **M13 — Business Intelligence & Forecasting Center** — `ACTIVE`; Phase 9 anchor CLOSED، Phase 15 remains open.
 14. **M14 — Backup, Restore & Workspace Portability** — `PLANNED`.
 15. **M15 — Multi-Branch, Departments & Team Operating Model** — `ACTIVE`.
-16. **M16 — Engagements, Contracts & Retainers** — `ACTIVE`؛ Phase 7 finance/commercial and Phase 10 document anchors are certified; Phase 11.6 communication/renewal anchor is next.
-17. **M17 — Smart Intake Forms & Secure Submission Links** — `ACTIVE`؛ Phase 11.6 is the next authorized roadmap anchor.
+16. **M16 — Engagements, Contracts & Retainers** — `ACTIVE`؛ Phase 7 finance/commercial and Phase 10 document anchors are certified; Phase 11.6 communication/renewal anchor is **IN PROGRESS**.
+17. **M17 — Smart Intake Forms & Secure Submission Links** — `ACTIVE`؛ Phase 8.4 anchor is certified and Phase 11.6 authority-composition anchor is **IN PROGRESS**.
 18. **M18 — Process Mining & Predictive Operations** — `ACTIVE`; Phase 9.6 anchor CLOSED، Phase 15 remains open، `closureEvidence=null`.
 
 لا يتم ترقية أي M-system إلى `CLOSED` لمجرد نجاح مرحلة واحدة؛ الاستثناء الوحيد هو عندما تُثبت جميع anchors الخاصة به وشهادة `ZERO_ESCAPE_V1` المستقلة كما حدث لـM2.
@@ -285,6 +304,8 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - [`docs/PHASE11_4_CLOSURE.md`](docs/PHASE11_4_CLOSURE.md)
 - [`docs/PHASE11_5_STATE.json`](docs/PHASE11_5_STATE.json)
 - [`docs/PHASE11_5_CLOSURE.md`](docs/PHASE11_5_CLOSURE.md)
+- [`docs/PHASE11_6_KICKOFF.md`](docs/PHASE11_6_KICKOFF.md)
+- [`docs/PHASE11_6_STATE.json`](docs/PHASE11_6_STATE.json)
 - [`docs/M2_ZERO_ESCAPE_CLOSURE.json`](docs/M2_ZERO_ESCAPE_CLOSURE.json)
 
 ## قوانين الانتقال
@@ -297,4 +318,4 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - لا يُسمح لأي intelligence layer باختلاق business/financial/process facts من بيانات ناقصة.
 - forecast/prediction لا يصبح source truth، ولا AI/editorial output يصبح authoritative fact بلا عقد سلطة مستقل.
 - سقف JavaScript startup يبقى **670000 bytes**، والإجمالي **760000 bytes**، وCSS **180000 bytes** بلا waiver أو feature cut.
-- **Phase 11.5 مغلقة ومصدقة؛ Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 هي المرحلة التالية المصرح بها فقط.**
+- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 مفتوحة الآن في 11.6-A؛ Phase 11.7 تبقى LOCKED حتى الإغلاق deployed-live الكامل.**
