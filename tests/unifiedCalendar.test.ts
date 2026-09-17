@@ -30,7 +30,8 @@ test('loads v2 through governed RPC and preserves filter arguments',async()=>{
   assert.equal(seenArgs?.p_company_id,COMPANY);
   assert.equal(seenArgs?.p_transaction_id,TX);
   assert.equal(result.workspaceTimezone,'Asia/Baghdad');
-  assert.equal(result.items[0]?.version,3);
+  assert.equal(result.items[0]?.attendanceOutcome,null);
+  assert.equal(result.items[0]?.confirmationStatus,'confirmed');
 });
 
 test('rejects malformed or downgraded calendar schemas',()=>{
