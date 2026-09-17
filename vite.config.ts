@@ -35,10 +35,9 @@ export default defineConfig({
     manifest: true,
     reportCompressedSize: true,
     rolldownOptions: {
-      preserveEntrySignatures: false,
-      optimization: { inlineConst: true, pifeForModuleWrappers: false },
+      optimization: { inlineConst: { mode: 'smart', pass: 3 } },
       output: {
-        minify: { compress: { maxIterations: 5 }, mangle: true, codegen: true },
+        minify: true,
         comments: { legal: true, annotation: false, jsdoc: false },
         codeSplitting: {
           groups: [
