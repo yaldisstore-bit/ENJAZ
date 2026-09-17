@@ -17,6 +17,7 @@ export type R2DestinationId =
   | 'people'
   | 'documents'
   | 'operations'
+  | 'calendar'
   | 'communications'
   | 'workflow'
   | 'automation'
@@ -111,6 +112,7 @@ const R2_DESTINATION_ROWS = [
   ['people', 'الأشخاص والمحامون', 7, 'people', 4, 2],
   ['documents', 'الوثائق والتقارير', 7, 'documents', 0, 2],
   ['operations', 'مركز العمليات', 7, 'operations', 6, 2],
+  ['calendar', 'التقويم والمواعيد', 7, 'calendar', 0, 2],
   ['communications', 'الاتصالات', 7, 'communications', 0, 2],
   ['workflow', 'سير العمل', 7, 'workflow', 6, 2],
   ['automation', 'الأتمتة', 7, 'automation', 0, 2],
@@ -148,7 +150,7 @@ export interface R2LauncherGroup {
 type LauncherRow = readonly [R2LauncherGroupId, string, readonly R2DestinationId[]];
 const R2_LAUNCHER_ROWS = [
   ['records', 'السجلات', ['companies', 'people', 'documents']],
-  ['operations_group', 'التشغيل', ['operations', 'communications', 'workflow', 'automation', 'followups']],
+  ['operations_group', 'التشغيل', ['operations', 'calendar', 'communications', 'workflow', 'automation', 'followups']],
   ['management', 'الإدارة', ['finance', 'command', 'risk']],
   ['intelligence', 'الذكاء والمعرفة', ['insights', 'knowledge', 'copilot']],
 ] as const satisfies readonly LauncherRow[];
@@ -169,6 +171,9 @@ export const R2_SEARCH_ALIASES = {
   معرفة: 'knowledge',
   قانون: 'knowledge',
   تشريع: 'knowledge',
+  تقويم: 'calendar',
+  مواعيد: 'calendar',
+  موعد: 'calendar',
   اتصالات: 'communications',
   رسائل: 'communications',
   واتساب: 'communications',

@@ -22,9 +22,37 @@ function renderedModuleProbe(): Plugin {
   };
 }
 
+const PORTAL_CLASS_MAP = [
+  ['cp-button--secondary','q0'],['cp-button--primary','q1'],['cp-button--danger','q2'],
+  ['cp-topbar__actions','q3'],['cp-topbar__brand','q4'],['cp-request__action','q5'],
+  ['cp-request__head','q6'],['cp-entry__card','q7'],['cp-auth__brand','q8'],
+  ['cp-auth__card','q9'],['cp-auth__form','qa'],['cp-hero__metric','qb'],
+  ['cp-request__done','qc'],['cp-link-button','qd'],['cp-action-row','qe'],
+  ['cp-invitations','qf'],['cp-invitation','qg'],['cp-icon-button','qh'],
+  ['cp-doc-icon','qi'],['cp-loading','qj'],['cp-topbar','qk'],['cp-section','ql'],
+  ['cp-record','qm'],['cp-kicker','qn'],['cp-button','qo'],['cp-entry','qp'],
+  ['cp-shell','qq'],['cp-main','qr'],['cp-hero','qs'],['cp-stats','qt'],
+  ['cp-file','qu'],['cp-mark','qv'],['cp-muted','qw'],['cp-list','qx'],
+  ['cp-chip','qy'],['cp-status--open','qz'],['cp-status--done','r0'],['cp-status','r1'],
+  ['cp-skeleton','r2'],['cp-notice--','r3'],['cp-notice','r4'],['cp-auth','r5'],
+] as const;
+
+function compactClientPortalClasses(): Plugin {
+  return {
+    name: 'enjaz-client-portal-class-minifier',
+    apply: 'build',
+    renderChunk(code) {
+      if (!code.includes('cp-')) return null;
+      let compacted = code;
+      for (const [source, target] of PORTAL_CLASS_MAP) compacted = compacted.replaceAll(source, target);
+      return compacted === code ? null : { code: compacted, map: null };
+    },
+  };
+}
+
 export default defineConfig({
   resolve: { alias: { 'react': 'preact/compat', 'react-dom': 'preact/compat', 'react-dom/test-utils': 'preact/test-utils', 'react/jsx-runtime': 'preact/jsx-runtime', 'react/jsx-dev-runtime': 'preact/jsx-dev-runtime' } },
-  plugins: [react(), renderedModuleProbe()],
+  plugins: [react(), compactClientPortalClasses(), renderedModuleProbe()],
   server: { host: '127.0.0.1', port: 5173, strictPort: true },
   preview: { host: '127.0.0.1', port: 4173, strictPort: true },
   build: {
@@ -38,6 +66,7 @@ export default defineConfig({
       optimization: { inlineConst: true },
       output: {
         minify: true,
+        comments: { legal: true, annotation: false, jsdoc: false },
         codeSplitting: {
           groups: [
             { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|react-router|scheduler)([\\/]|$)/, priority: 30 },
