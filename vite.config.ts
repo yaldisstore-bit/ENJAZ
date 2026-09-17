@@ -37,7 +37,7 @@ export default defineConfig({
     rolldownOptions: {
       optimization: { inlineConst: true },
       output: {
-        minify: true,
+        minify: { compress: { maxIterations: 5 }, mangle: true, codegen: true },
         comments: { legal: true, annotation: false, jsdoc: false },
         codeSplitting: {
           groups: [
