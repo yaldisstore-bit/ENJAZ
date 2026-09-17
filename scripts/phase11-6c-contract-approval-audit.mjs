@@ -16,6 +16,7 @@ const c3Migration=read('database/migrations/phase_11_6_contract_renewal_communic
 const c3Gateway=read('src/features/intake-contract-communication/contractRenewalCommunicationCommands.ts');
 const c3GatewayTests=read('tests/contractRenewalCommunicationCommands.test.ts');
 const c3SourceTests=read('tests/contractRenewalCommunicationSource.test.mjs');
+const c3LiveProbe=read('database/migrations/phase_11_6_live_contract_renewal_communication_probe.sql');
 const gateway=read('src/features/engagements/engagementContractCommands.ts');
 const panel=read('src/ui-r2/documents/EngagementContractPanel.tsx');
 const tests=read('tests/contractTransitionConcurrencySource.test.mjs');
@@ -42,8 +43,18 @@ for(const f of ['phase11_6cClientDecisionPermissionMatrix','phase11_6cClientDeci
 req(state.phase11_6cClientDecisionZeroResidue===true,'C2 zero residue must be verified');
 req(state.phase11_6cSecurityAdvisorPostC2Total===65&&state.phase11_6cPerformanceAdvisorPostC2Total===81&&state.phase11_6cUnindexedForeignKeysPostC2===28&&state.phase11_6cC2NewSecurityAdvisorFindings===0&&state.phase11_6cC2NewPerformanceAdvisorFindings===0,'C2 advisor certificate invalid');
 req(state.phase11_6cRenewalProvenanceAdded===true&&state.phase11_6cCommunicationEvidenceBridgeAdded===true,'C3 renewal/M4 evidence source must be recorded');
-req(state.phase11_6cC3Status==='IN_PROGRESS'&&state.phase11_6cC3ExitGatePassed===false,'C3 cannot be pre-closed');
-req(state.phase11_6cRenewalCommunicationMigrationApplied===false&&state.phase11_6cRenewalCommunicationMigrationVersion===null&&state.phase11_6cRenewalCommunicationRealCloudVerification==='PENDING','C3 Real Cloud cannot be pre-claimed before source gate/application');
+req(['IN_PROGRESS','CLOSED'].includes(state.phase11_6cC3Status),'C3 lifecycle status invalid');
+if(state.phase11_6cC3Status==='CLOSED'){
+  req(state.phase11_6cC3ExitGatePassed===true,'C3 CLOSED requires its exit gate');
+  req(state.phase11_6cRenewalCommunicationMigrationApplied===true&&state.phase11_6cRenewalCommunicationMigrationVersion==='20260917235138','C3 migration lineage invalid');
+  req(state.phase11_6cRenewalCommunicationRealCloudProbeApplied===true&&state.phase11_6cRenewalCommunicationRealCloudProbeMigrationVersion==='20260917235645'&&state.phase11_6cRenewalCommunicationRealCloudVerification==='PASS_C3','C3 Real Cloud probe lineage invalid');
+  for(const f of ['phase11_6cC3PermissionMatrix','phase11_6cC3CanonicalRenewalProvenance','phase11_6cC3StaleConflict','phase11_6cC3IdempotencyConflict','phase11_6cC3CompanyScopeMismatch','phase11_6cC3M4GovernedEvidence','phase11_6cC3M4MissingCommandFailClosed','phase11_6cC3UngovernedSourceFailClosed','phase11_6cC3WorkspaceIsolation','phase11_6cC3AuditReconciliation'])req(state[f]==='PASS',`C3 Real Cloud proof missing: ${f}`);
+  req(state.phase11_6cC3ZeroResidue===true,'C3 zero residue must be verified');
+  req(state.phase11_6cSecurityAdvisorPostC3Total===65&&state.phase11_6cPerformanceAdvisorPostC3Total===80&&state.phase11_6cUnindexedForeignKeysPostC3===28&&state.phase11_6cC3NewSecurityAdvisorFindings===0&&state.phase11_6cC3NewPerformanceAdvisorFindings===0,'C3 advisor certificate invalid');
+}else{
+  req(state.phase11_6cC3ExitGatePassed===false,'C3 IN_PROGRESS cannot have passed exit gate');
+  req(state.phase11_6cRenewalCommunicationMigrationApplied===false&&state.phase11_6cRenewalCommunicationMigrationVersion===null&&state.phase11_6cRenewalCommunicationRealCloudVerification==='PENDING','C3 Real Cloud cannot be pre-claimed before source gate/application');
+}
 req(state.phase11_6cC1Status==='CLOSED'&&state.phase11_6cC1ExitGatePassed===true,'C1 must be Real Cloud certified before C2');
 req(state.phase11_6cMigrationApplied===true&&state.phase11_6cMigrationVersion==='20260917225607','C1 migration lineage invalid');
 req(state.phase11_6cAdvisorHardeningApplied===true&&state.phase11_6cAdvisorHardeningMigrationVersion==='20260917230127','C1 advisor hardening lineage invalid');
@@ -168,6 +179,15 @@ for(const marker of [
   'invalid ids and versions fail before network',
   'duplicate renewal bind and communication evidence are preserved'
 ])has(c3GatewayTests,marker,'C3 gateway tests');
+for(const marker of [
+  'P116C3_STALE_RENEWAL_ACCEPTED','P116C3_BIND_REPLAY_CONFLICT_ACCEPTED','P116C3_COMPANY_MISMATCH_ACCEPTED',
+  'prepare_communication_outbound_v1','__ENJAZ_P116C3_GOVERNED_OUTBOUND__',
+  'P116C3_MISSING_M4_COMMAND_ACCEPTED','P116C3_UNGOVERNED_SOURCE_ACCEPTED',
+  'P116C3_EVIDENCE_REPLAY_CONFLICT_ACCEPTED','P116C3_OUTSIDER_BIND_ACCEPTED','P116C3_OUTSIDER_EVIDENCE_ACCEPTED',
+  'C3 attributable audit reconciliation incomplete','rollback to savepoint p116c3_fixture','C3 SAVEPOINT rollback left residue'
+])has(c3LiveProbe,marker,'C3 Real Cloud probe');
+req(state.phase11_6cRenewalCommunicationRealCloudProbePath==='database/migrations/phase_11_6_live_contract_renewal_communication_probe.sql','C3 Real Cloud probe path drifted');
+
 for(const marker of [
   '11.6-C3 renewal provenance and M4 evidence preserve canonical owners',
   'destruction: shadow renewal table is detected',
