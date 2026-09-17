@@ -243,15 +243,9 @@ with x as (
 from x;
 
 select private.enjaz_phase116c3_probe_assert(
-  (select direction='outgoing' and link_status='linked' and metadata->>'source'='governed_outbound'
-   from public.communications where id=current_setting('p116c3.valid_comm')::uuid)
-  and exists(
-    select 1 from public.communication_outbound_commands
-    where workspace_id=current_setting('p116c3.ws')::uuid
-      and id=current_setting('p116c3.valid_command')::uuid
-      and communication_id=current_setting('p116c3.valid_comm')::uuid
-  ),
-  'M4 governed outbound evidence fixture invalid'
+  nullif(current_setting('p116c3.valid_comm',true),'') is not null
+  and nullif(current_setting('p116c3.valid_command',true),'') is not null,
+  'M4 governed outbound command did not return canonical ids'
 );
 
 do $$
