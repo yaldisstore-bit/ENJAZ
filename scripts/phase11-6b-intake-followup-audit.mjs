@@ -38,6 +38,8 @@ has(bridge,"extensions.digest(convert_to(p_token,'UTF8'),'sha256')",'bridge');
 has(bridge,'token_hash text','bridge');
 lacks(bridge,'token text not null','bridge');
 has(bridge,'intake_followup_requests_one_open_per_submission','bridge');
+has(bridge,'constraint intake_followup_requests_mode_binding_check check','bridge');
+lacks(bridge,'constraint intake_followup_requests_mode_check check','bridge duplicate auto-check name');
 has(bridge,"p_mode='secure_link' and p_request_kind<>'information'",'bridge');
 has(bridge,'ENJAZ_INTAKE_FOLLOWUP_DOCUMENT_REQUIRES_PORTAL','bridge');
 has(bridge,'public.save_client_portal_request_v1(','bridge');
