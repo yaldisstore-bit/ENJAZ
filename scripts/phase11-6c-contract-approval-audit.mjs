@@ -7,6 +7,10 @@ const scope=read('docs/PHASE11_6C_CONTRACT_APPROVAL_SCOPE.md');
 const migration=read('database/migrations/phase_11_6_contract_transition_concurrency_hardening.sql');
 const advisorHardening=read('database/migrations/phase_11_6_contract_transition_advisor_hardening.sql');
 const liveProbe=read('database/migrations/phase_11_6_live_contract_transition_probe.sql');
+const c2Migration=read('database/migrations/phase_11_6_contract_client_approval_bridge.sql');
+const c2Gateway=read('src/features/intake-contract-communication/contractApprovalCommands.ts');
+const c2GatewayTests=read('tests/contractApprovalCommands.test.ts');
+const c2SourceTests=read('tests/contractApprovalBridgeSource.test.mjs');
 const gateway=read('src/features/engagements/engagementContractCommands.ts');
 const panel=read('src/ui-r2/documents/EngagementContractPanel.tsx');
 const tests=read('tests/contractTransitionConcurrencySource.test.mjs');
@@ -25,7 +29,9 @@ req(state.phase11_6dAllowed===false&&state.phase11_7Allowed===false&&state.succe
 req(state.phase11_6cScopePath==='docs/PHASE11_6C_CONTRACT_APPROVAL_SCOPE.md','11.6-C scope path drifted');
 req(state.phase11_6cM16VersionedTransitionAdded===true,'C1 M16 versioned transition source not recorded');
 req(state.phase11_6cM16LegacyTransitionBrowserAllowed===false,'Legacy unversioned M16 browser transition must remain forbidden');
-req(state.phase11_6cClientDecisionBridgeAdded===false&&state.phase11_6cRenewalProvenanceAdded===false&&state.phase11_6cCommunicationEvidenceBridgeAdded===false,'C2/C3 cannot be pre-claimed during C1');
+req(state.phase11_6cClientDecisionBridgeAdded===true,'C2 client decision bridge source must be recorded');
+req(state.phase11_6cClientDecisionMigrationApplied===false&&state.phase11_6cClientDecisionMigrationVersion===null&&state.phase11_6cClientDecisionRealCloudVerification==='PENDING','C2 Real Cloud cannot be pre-claimed before source gate/application');
+req(state.phase11_6cRenewalProvenanceAdded===false&&state.phase11_6cCommunicationEvidenceBridgeAdded===false,'C3 cannot be pre-claimed during C2');
 req(state.phase11_6cC1Status==='CLOSED'&&state.phase11_6cC1ExitGatePassed===true,'C1 must be Real Cloud certified before C2');
 req(state.phase11_6cMigrationApplied===true&&state.phase11_6cMigrationVersion==='20260917225607','C1 migration lineage invalid');
 req(state.phase11_6cAdvisorHardeningApplied===true&&state.phase11_6cAdvisorHardeningMigrationVersion==='20260917230127','C1 advisor hardening lineage invalid');
@@ -82,6 +88,43 @@ has(panel,'operationId:crypto.randomUUID()','contract panel');
 has(panel,'expectedVersion:r.version','contract panel');
 
 for(const marker of [
+  'create table private.contract_approval_bridge_bindings',
+  'revision_version_at_issue integer not null',
+  'private.bind_client_contract_approval_v1_impl',
+  'private.reconcile_client_contract_approval_v1_impl',
+  "v_request.request_type<>'approval'",
+  "v_request.required_permission<>'approve_document'",
+  "v_request.status<>'fulfilled'",
+  "v_response.decision not in ('approved','rejected')",
+  "v_to_status:=case when v_response.decision='approved' then 'approved' else 'draft' end",
+  'public.transition_engagement_contract_revision_v2(',
+  'ENJAZ_CONTRACT_APPROVAL_REVISION_STALE',
+  'ENJAZ_CONTRACT_APPROVAL_RECONCILE_CONFLICT',
+  'ENJAZ_CONTRACT_APPROVAL_OPERATION_CONFLICT',
+  'engagement.contract.client_decision.reconciled'
+])has(c2Migration,marker,'C2 bridge migration');
+lacks(c2Migration,'update public.engagement_contract_revisions','C2 bridge migration');
+lacks(c2Migration,'create table public.contract_approval_bridge','C2 bridge migration');
+for(const marker of [
+  "'bind_client_contract_approval_v1'","'reconcile_client_contract_approval_v1'",
+  'p_expected_revision_version:ver(input.expectedRevisionVersion)',
+  'p_operation_id:id(input.operationId)'
+])has(c2Gateway,marker,'C2 gateway');
+for(const marker of [
+  'bind uses only governed C2 RPC with expected revision version',
+  'reconcile carries response, operation and expected version to governed RPC',
+  'rejected client decision can only parse as M16 draft return',
+  'invalid ids and versions fail before network'
+])has(c2GatewayTests,marker,'C2 gateway tests');
+for(const marker of [
+  '11.6-C2 bridge preserves M3 decision evidence and M16 owner truth',
+  'destruction: direct contract mutation is detected',
+  'destruction: removing fulfilled request gate is detected',
+  'destruction: removing draft provenance is detected',
+  'destruction: public reconcile SECURITY DEFINER is detected'
+])has(c2SourceTests,marker,'C2 source tests');
+
+for(const marker of [
   '11.6-C1 versioned M16 transition source contract is clean',
   'destruction: removing operation id is detected',
   'destruction: removing expected version is detected',
@@ -95,5 +138,5 @@ if(errors.length){
   errors.forEach(e=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.6-C C1 AUDIT PASS — source + authenticated Real Cloud + advisor/zero-residue evidence are certified; legacy browser transition is revoked; B closure is preserved; C2/C3/D remain governed.');
+  console.log('ENJAZ PHASE 11.6-C AUDIT PASS — C1 is Real Cloud certified; C2 source preserves M3 decision evidence and routes contract truth only through M16 v2; C3/D remain locked.');
 }
