@@ -48,7 +48,7 @@ create table private.intake_followup_requests (
   constraint intake_followup_requests_portal_request_fk foreign key(workspace_id,portal_request_id)
     references public.client_portal_requests(workspace_id,id) on delete restrict,
   constraint intake_followup_requests_idempotency_key unique(workspace_id,idempotency_key),
-  constraint intake_followup_requests_mode_check check (
+  constraint intake_followup_requests_mode_binding_check check (
     (mode='secure_link' and request_kind='information' and token_hash is not null
       and portal_principal_id is null and portal_transaction_id is null and portal_request_id is null and portal_request_version_at_issue is null)
     or
