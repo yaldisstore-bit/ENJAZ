@@ -6,6 +6,7 @@ const state=json('docs/PHASE11_6_STATE.json');
 const scope=read('docs/PHASE11_6B_INTAKE_FOLLOWUP_SCOPE.md');
 const bridge=read('database/migrations/phase_11_6_intake_followup_bridge.sql');
 const capability=read('database/migrations/phase_11_6_intake_followup_public_capability.sql');
+const hardening=read('database/migrations/phase_11_6_intake_followup_advisor_hardening.sql');
 const gateway=read('src/features/intake-contract-communication/intakeFollowupCommands.ts');
 const tests=read('tests/intakeFollowupCommands.test.ts');
 const probe=read('database/migrations/phase_11_6_live_intake_followup_probe.sql');
@@ -72,14 +73,26 @@ for(const marker of [
   'revoke all on function private.get_public_intake_followup_v1_impl(text) from public,anon,authenticated,service_role',
   'revoke all on function private.save_public_intake_followup_v1_impl(text,jsonb,boolean) from public,anon,authenticated,service_role',
 ])has(capability,marker,'PostgREST/capability hardening');
-req(/create\s+function\s+public\.get_public_intake_followup_v1\s*\(p_token\s+text\)[\s\S]*?security\s+definer/i.test(capability),'public get follow-up must remain explicit security definer capability');
-req(/create\s+function\s+public\.save_public_intake_followup_v1\s*\(p_token\s+text\s*,\s*p_patch\s+jsonb\s*,\s*p_finalize\s+boolean\)[\s\S]*?security\s+definer/i.test(capability),'public save follow-up must remain explicit security definer capability');
 for(const marker of [
   'public.issue_intake_followup_v1(uuid,uuid,integer,text,text,jsonb,text,text,integer,uuid,uuid,uuid,uuid) to authenticated',
   'public.reconcile_portal_intake_followup_v1(uuid,uuid,integer,integer,jsonb) to authenticated',
   'public.revoke_intake_followup_v1(uuid,uuid,integer,text) to authenticated',
 ])has(capability,marker,'authenticated staff façade grants');
-lacks(capability,'grant usage on schema private to anon','PostgREST/capability hardening');
+lacks(capability,'grant usage on schema private to anon','B2 bootstrap capability');
+
+req(state.phase11_6bAdvisorHardeningMigrationPath==='database/migrations/phase_11_6_intake_followup_advisor_hardening.sql','B advisor hardening path drifted');
+for(const marker of [
+  'intake_followup_requests_portal_principal_fk_idx','intake_followup_requests_requested_by_fk_idx',
+  'private.get_public_intake_followup_capability_v1','private.save_public_intake_followup_capability_v1',
+  "private.enforce_intake_followup_rate_v1(p_token,'view')",
+  "case when coalesce(p_finalize,false) then 'submit' else 'save_draft' end",
+  'grant usage on schema private to anon',
+  'grant execute on function private.get_public_intake_followup_capability_v1(text) to anon,authenticated',
+  'grant execute on function private.save_public_intake_followup_capability_v1(text,jsonb,boolean) to anon,authenticated'
+])has(hardening,marker,'B3 advisor hardening');
+req(/create\s+or\s+replace\s+function\s+public\.get_public_intake_followup_v1\s*\(p_token\s+text\)[\s\S]*?security\s+invoker/i.test(hardening),'final public get follow-up must be SECURITY INVOKER');
+req(/create\s+or\s+replace\s+function\s+public\.save_public_intake_followup_v1\s*\([\s\S]*?security\s+invoker/i.test(hardening),'final public save follow-up must be SECURITY INVOKER');
+lacks(hardening,'grant execute on all functions in schema private to anon','B3 advisor hardening');
 
 for(const marker of [
   "'issue_intake_followup_v1'","'get_public_intake_followup_v1'","'save_public_intake_followup_v1'",
