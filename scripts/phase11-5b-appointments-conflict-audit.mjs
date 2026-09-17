@@ -17,11 +17,13 @@ const has = (source, marker, label) => req(source.includes(marker), `${label} mi
 const lacks = (source, marker, label) => req(!source.includes(marker), `${label} forbidden marker present: ${marker}`);
 const allowedSlices = new Set(['11.5-B', '11.5-C', '11.5-D']);
 const bIsCurrent = state.currentSlice === '11.5-B';
+const phaseClosed = state.status === 'CLOSED';
 
 req(state.phase === '11.5' && state.systemId === 'M10' && state.systemStatus === 'ACTIVE', '11.5/M10 identity invalid');
-req(state.status === 'IN_PROGRESS' && allowedSlices.has(state.currentSlice), '11.5 must remain active on B/C/D');
+req(['IN_PROGRESS','CLOSED'].includes(state.status) && allowedSlices.has(state.currentSlice), '11.5 must remain on a valid B/C/D lifecycle state');
 req(state.phase11_5aExitGatePassed === true && state.phase11_5aPostMergeRecertification === 'PASS_EXACT_MAIN_SHA', '11.5-A exact-main certification must remain preserved');
-req(state.phase11_6Allowed === false && state.successorStatus === 'LOCKED', '11.6 must remain locked');
+if (phaseClosed) req(state.phase11_6Allowed === true && state.successorStatus === 'AUTHORIZED_NEXT', 'closed 11.5 must authorize only 11.6');
+else req(state.phase11_6Allowed === false && state.successorStatus === 'LOCKED', '11.6 must remain locked while 11.5 is open');
 if (bIsCurrent) {
   req(state.currentSliceBaseCommit === '2e85c9f8fa9066ab75bae3dbf6ecdcef02917530', '11.5-B must retain certified 11.5-A base SHA while B is current');
   req(state.phase11_5bExitGatePassed === false && state.exitGatePassed === false, '11.5-B cannot be pre-closed while B is current');
@@ -31,6 +33,7 @@ if (bIsCurrent) {
   req(state.phase11_5bPostMergeRecertification === 'PASS_EXACT_MAIN_SHA', '11.5-B exact-main recertification must remain preserved');
   req(state.phase11_5bMergeCommit === 'c74803ed0ebdf5218052f446540c0f8a422430b1', '11.5-B merge lineage drifted');
 }
+if (phaseClosed) req(state.exitGatePassed === true, 'closed Phase 11.5 must retain a passed overall exit gate');
 
 for (const [field, expected] of [
   ['calendarEventAuthority', 'calendar_events'],
@@ -103,6 +106,8 @@ if (errors.length) {
   console.error(`ENJAZ PHASE 11.5-B APPOINTMENT/CONFLICT AUDIT FAIL (${errors.length})`);
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
+} else if (phaseClosed) {
+  console.log('ENJAZ PHASE 11.5-B APPOINTMENT/CONFLICT AUDIT PASS — B authority and conflict/history evidence remain certified under formal Phase 11.5 closure; 11.6 is the only authorized successor.');
 } else {
   console.log(`ENJAZ PHASE 11.5-B APPOINTMENT/CONFLICT AUDIT PASS — B authority remains certified while ${state.currentSlice} is active; 11.6 remains locked.`);
 }
