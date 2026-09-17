@@ -5,6 +5,8 @@ const json=(p)=>JSON.parse(read(p));
 const state=json('docs/PHASE11_6_STATE.json');
 const scope=read('docs/PHASE11_6C_CONTRACT_APPROVAL_SCOPE.md');
 const migration=read('database/migrations/phase_11_6_contract_transition_concurrency_hardening.sql');
+const advisorHardening=read('database/migrations/phase_11_6_contract_transition_advisor_hardening.sql');
+const liveProbe=read('database/migrations/phase_11_6_live_contract_transition_probe.sql');
 const gateway=read('src/features/engagements/engagementContractCommands.ts');
 const panel=read('src/ui-r2/documents/EngagementContractPanel.tsx');
 const tests=read('tests/contractTransitionConcurrencySource.test.mjs');
@@ -24,7 +26,14 @@ req(state.phase11_6cScopePath==='docs/PHASE11_6C_CONTRACT_APPROVAL_SCOPE.md','11
 req(state.phase11_6cM16VersionedTransitionAdded===true,'C1 M16 versioned transition source not recorded');
 req(state.phase11_6cM16LegacyTransitionBrowserAllowed===false,'Legacy unversioned M16 browser transition must remain forbidden');
 req(state.phase11_6cClientDecisionBridgeAdded===false&&state.phase11_6cRenewalProvenanceAdded===false&&state.phase11_6cCommunicationEvidenceBridgeAdded===false,'C2/C3 cannot be pre-claimed during C1');
-req(state.phase11_6cMigrationApplied===false&&state.phase11_6cMigrationVersion===null,'C1 migration cannot be pre-claimed before Real Cloud application');
+req(state.phase11_6cC1Status==='CLOSED'&&state.phase11_6cC1ExitGatePassed===true,'C1 must be Real Cloud certified before C2');
+req(state.phase11_6cMigrationApplied===true&&state.phase11_6cMigrationVersion==='20260917225607','C1 migration lineage invalid');
+req(state.phase11_6cAdvisorHardeningApplied===true&&state.phase11_6cAdvisorHardeningMigrationVersion==='20260917230127','C1 advisor hardening lineage invalid');
+req(state.phase11_6cRealCloudProbeApplied===true&&state.phase11_6cRealCloudProbeMigrationVersion==='20260917230406','C1 Real Cloud probe lineage invalid');
+req(state.phase11_6cRealCloudVerification==='PASS_C1'&&state.phase11_6cPermissionMatrix==='PASS_C1'&&state.phase11_6cConflictRecovery==='PASS_C1'&&state.phase11_6cAuditReconciliation==='PASS_C1','C1 Real Cloud proof state invalid');
+req(state.phase11_6cZeroResidueVerified===true,'C1 zero residue must be verified');
+req(state.phase11_6cSecurityAdvisorBaselineTotal===66&&state.phase11_6cSecurityAdvisorPostC1Total===65&&state.phase11_6cNewSecurityAdvisorFindings===0,'C1 security advisor certificate invalid');
+req(state.phase11_6cPerformanceAdvisorBaselineTotal===81&&state.phase11_6cPerformanceAdvisorPostC1Total===81&&state.phase11_6cUnindexedForeignKeysBaseline===28&&state.phase11_6cUnindexedForeignKeysPostC1===28&&state.phase11_6cNewPerformanceAdvisorFindings===0,'C1 performance advisor certificate invalid');
 
 for(const marker of [
   'C1 — M16 transition concurrency & retry hardening',
@@ -51,6 +60,16 @@ for(const marker of [
 ])has(migration,marker,'C1 migration');
 lacks(migration,'create table public.engagement_contract_transition_receipts','C1 migration');
 lacks(migration,'grant execute on function public.transition_engagement_contract_revision_v1','C1 migration');
+for(const marker of [
+  'engagement_contract_transition_receipts_actor_fk_idx',
+  'private.engagement_contract_transition_receipts(actor_user_id)'
+])has(advisorHardening,marker,'C1 advisor hardening');
+for(const marker of [
+  'P116C1_FAILED','legacy v1 transition still executable','governed v2 transition not executable',
+  'exact replay was not idempotent','P116C1_IDEMPOTENCY_CONFLICT_NOT_REJECTED','P116C1_STALE_NOT_REJECTED',
+  'private transition receipts direct read grant leak','P116C1_CROSS_WORKSPACE_NOT_REJECTED',
+  'transition receipt count invalid after privileged verification','receipt residue','revision residue','engagement residue','audit residue'
+])has(liveProbe,marker,'C1 Real Cloud probe');
 
 for(const marker of [
   'version: number;','operationId: string;','expectedVersion: number;',
@@ -76,5 +95,5 @@ if(errors.length){
   errors.forEach(e=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.6-C C1 AUDIT PASS — M16 transition is versioned/idempotent in source, legacy browser transition is revoked, B closure is preserved, and C2/C3/D remain locked.');
+  console.log('ENJAZ PHASE 11.6-C C1 AUDIT PASS — source + authenticated Real Cloud + advisor/zero-residue evidence are certified; legacy browser transition is revoked; B closure is preserved; C2/C3/D remain governed.');
 }
