@@ -97,7 +97,29 @@ async function cleanupAll(){
       if(error)throw error;
       if((data??[]).length)throw new Error('workspace residue remains');
     }
-    const submissionIds=Object.values(fixtureIds).filter((v,k)=>false);
+    for(const [table,id] of [
+      ['intake_submissions',fixtureIds.secureSubmissionId],
+      ['intake_submissions',fixtureIds.revokeSubmissionId],
+      ['intake_submissions',fixtureIds.portalSubmissionId],
+      ['intake_submissions',fixtureIds.unboundSubmissionId],
+      ['intake_submissions',fixtureIds.crossSubmissionId],
+      ['client_portal_principals',fixtureIds.principalId],
+    ]){
+      if(!id)continue;
+      const{data,error}=await admin.from(table).select('id').eq('id',id);
+      if(error)throw error;
+      if((data??[]).length)throw new Error(`${table} fixture residue remains`);
+    }
+    if(fixtureIds.portalRequestId){
+      const{data,error}=await admin.from('client_portal_requests').select('id').eq('id',fixtureIds.portalRequestId);
+      if(error)throw error;
+      if((data??[]).length)throw new Error('client_portal_requests fixture residue remains');
+    }
+    if(fixtureIds.messageId){
+      const{data,error}=await admin.from('client_portal_messages').select('id').eq('id',fixtureIds.messageId);
+      if(error)throw error;
+      if((data??[]).length)throw new Error('client_portal_messages fixture residue remains');
+    }
     const marked=await admin.auth.admin.listUsers({page:1,perPage:1000});
     if(marked.error)throw marked.error;
     if((marked.data?.users??[]).some(user=>user.user_metadata?.enjaz_test_marker===MARKER))throw new Error('auth-user residue remains');
@@ -223,6 +245,7 @@ try{
   assertRpcError(cross.error,'ENJAZ_CRM_WORKSPACE_FORBIDDEN','cross_workspace_staff_issue_denied');
 
   const portalRequestId=uuid(),portalKey=uuid();
+  fixtureIds.portalRequestId=portalRequestId;
   const portalIssue=await staff.client.rpc('issue_intake_followup_v1',{
     p_workspace_id:staffWorkspace,p_submission_id:portalSubmissionId,p_expected_submission_version:1,
     p_mode:'client_portal',p_request_kind:'information',p_requested_fields:['email'],
@@ -243,6 +266,7 @@ try{
   assertRpcError(unbound.error,'ENJAZ_INTAKE_FOLLOWUP_PORTAL_TRANSACTION_UNBOUND','unbound_portal_transaction_denied');
 
   const messageId=uuid();
+  fixtureIds.messageId=messageId;
   const clientMessage=await client.client.rpc('send_client_portal_message_v1',{
     p_workspace_id:staffWorkspace,p_transaction_id:txId,p_request_id:portalRequestId,p_message_id:messageId,p_body:'البريد الصحيح portal116b@example.com'
   });
