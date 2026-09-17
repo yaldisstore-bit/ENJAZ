@@ -35,7 +35,6 @@ export default defineConfig({
     manifest: true,
     reportCompressedSize: true,
     rolldownOptions: {
-      preserveEntrySignatures: false,
       optimization: { inlineConst: true },
       output: {
         minify: true,
