@@ -10,9 +10,10 @@ const InsightsPortal = lazy(() => import('../intelligence/LiveBusinessIntelligen
 const DocumentsPortal = lazy(() => import('../documents/LiveDocumentVaultPortal.tsx').then((module) => ({ default: module.LiveDocumentVaultPortal })));
 const EngagementContractsPortal = lazy(() => import('../documents/LiveEngagementContractsPortal.tsx').then((module) => ({ default: module.LiveEngagementContractsPortal })));
 const NotificationsPortal = lazy(() => import('../notifications/LiveNotificationsProductionPortal.tsx').then((module) => ({ default: module.LiveNotificationsProductionPortal })));
+const CalendarPortal = lazy(() => import('../calendar/LiveUnifiedCalendarProductionPortal.tsx').then((module) => ({ default: module.LiveUnifiedCalendarProductionPortal })));
 const SHELL = '.r2-shell[data-r2-runtime-mode="live"][data-destination]';
 
-type LazyDestination = 'companies' | 'people' | 'finance' | 'risk' | 'insights' | 'knowledge' | 'documents' | 'today.notifications' | null;
+type LazyDestination = 'companies' | 'people' | 'finance' | 'risk' | 'insights' | 'knowledge' | 'documents' | 'today.notifications' | 'calendar' | null;
 type Props = Readonly<{
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
   regulatoryWorkspace: Promise<string | null>;
@@ -32,7 +33,7 @@ export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorks
     const sync = () => {
       const value = shell.dataset.destination;
       setDestination(
-        value === 'companies' || value === 'people' || value === 'finance' || value === 'risk' || value === 'insights' || value === 'knowledge' || value === 'documents' || value === 'today.notifications'
+        value === 'companies' || value === 'people' || value === 'finance' || value === 'risk' || value === 'insights' || value === 'knowledge' || value === 'documents' || value === 'today.notifications' || value === 'calendar'
           ? value
           : null,
       );
@@ -46,6 +47,7 @@ export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorks
   if (!destination) return null;
   return <Suspense fallback={null}>
     {destination === 'today.notifications' ? <NotificationsPortal />
+      : destination === 'calendar' ? <CalendarPortal workspace={documentWorkspace} />
       : destination === 'companies' ? <CompaniesPortal />
       : destination === 'people' ? <PeoplePortal />
       : destination === 'finance' || destination === 'risk' ? <FinancePortal />
