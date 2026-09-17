@@ -161,8 +161,8 @@
   "phase11_6cStatus": "IN_PROGRESS",
   "phase11_6cScopePath": "docs/PHASE11_6C_CONTRACT_APPROVAL_SCOPE.md",
   "phase11_6cBaseCommit": "314ff5a297420b4842a0bba78c3575d84e85c707",
-  "phase11_6cM16VersionedTransitionAdded": false,
-  "phase11_6cM16LegacyTransitionBrowserAllowed": true,
+  "phase11_6cM16VersionedTransitionAdded": true,
+  "phase11_6cM16LegacyTransitionBrowserAllowed": false,
   "phase11_6cClientDecisionBridgeAdded": false,
   "phase11_6cRenewalProvenanceAdded": false,
   "phase11_6cCommunicationEvidenceBridgeAdded": false,
@@ -175,5 +175,10 @@
   "phase11_6cNewSecurityAdvisorFindings": null,
   "phase11_6cNewPerformanceAdvisorFindings": null,
   "phase11_6cExitGatePassed": false,
-  "phase11_6dAllowed": false
+  "phase11_6dAllowed": false,
+  "phase11_6cContractTransitionMigrationPath": "database/migrations/phase_11_6_contract_transition_concurrency_hardening.sql",
+  "phase11_6cContractTransitionTestsPath": "tests/contractTransitionConcurrencySource.test.mjs",
+  "phase11_6cContractGatewayPath": "src/features/engagements/engagementContractCommands.ts",
+  "phase11_6cContractPanelPath": "src/ui-r2/documents/EngagementContractPanel.tsx",
+  "phase11_6cMigrationVersion": null
 }
