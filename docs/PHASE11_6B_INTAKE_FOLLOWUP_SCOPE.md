@@ -1,9 +1,9 @@
 # Phase 11.6-B — Intake follow-up & client information loop
 
-**Status:** IN PROGRESS  
+**Status:** CLOSED / CERTIFIED  
 **Base:** `d44b27411f3b994eb79f9e75ea0f8c15984c0412`  
 **Predecessor slice:** 11.6-A — merged / exact-main recertified  
-**Successor slice:** 11.6-C — LOCKED  
+**Successor slice:** 11.6-C — AUTHORIZED_NEXT  
 **Phase 11.7:** LOCKED
 
 ## Product objective
@@ -48,4 +48,4 @@ Allow staff to request missing intake information or client documents without cr
 
 ## Real Cloud gate required before B can close
 
-11.6-B remains open until authenticated Real Cloud proves fresh setup, secure capability issuance/retry, scoped draft/final response, stale rejection, expiry/revocation, one-open-follow-up rule, Portal request delegation/evidence reconciliation, workspace isolation, direct-write denial, audit evidence and cleanup/zero-residue. Security/performance advisors must be compared before/after; new findings caused by B are not accepted silently.
+11.6-B closed after authenticated Real Cloud proved fresh setup, secure capability issuance/retry, scoped draft/final response, stale rejection, expiry/revocation, one-open-follow-up rule, Portal request delegation/evidence reconciliation, workspace isolation, direct-write denial, audit evidence and cleanup/zero-residue. Security/performance advisors were compared before/after; B introduced zero new security findings and zero B-related performance findings. Formal evidence: `docs/PHASE11_6B_CLOSURE.md`.
