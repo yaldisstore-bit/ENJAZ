@@ -89,7 +89,7 @@ function parseReconcile(v:unknown):ClientContractApprovalReconcileResult{
 export function createContractApprovalGateway(client:EnjazSupabaseClient,timeoutMs=TIMEOUT):ContractApprovalGateway{
   if(!Number.isSafeInteger(timeoutMs)||timeoutMs<1||timeoutMs>120000)throw new Error('Invalid contract approval timeout');
   const c=client as unknown as RpcLike;
-  return Object.freeze({
+  const gateway:ContractApprovalGateway={
     async bind(input){
       return parseBinding(await rpc(c,'bind_client_contract_approval_v1',{
         p_workspace_id:id(input.workspaceId),
@@ -107,5 +107,6 @@ export function createContractApprovalGateway(client:EnjazSupabaseClient,timeout
         p_expected_revision_version:ver(input.expectedRevisionVersion),
       },timeoutMs));
     },
-  });
+  };
+  return Object.freeze(gateway);
 }
