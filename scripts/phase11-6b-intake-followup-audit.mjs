@@ -36,7 +36,7 @@ has(bridge,'token_hash text','bridge');
 lacks(bridge,'token text not null','bridge');
 has(bridge,'intake_followup_requests_one_open_per_submission','bridge');
 has(bridge,"p_mode='secure_link' and p_request_kind<>'information'",'bridge');
-has(bridge,"ENJAZ_INTAKE_FOLLOWUP_DOCUMENT_REQUIRES_PORTAL",'bridge');
+has(bridge,'ENJAZ_INTAKE_FOLLOWUP_DOCUMENT_REQUIRES_PORTAL','bridge');
 has(bridge,'public.save_client_portal_request_v1(','bridge');
 has(bridge,'private.revoke_client_portal_request_v1_impl(','bridge');
 has(bridge,'l.converted_transaction_id=p_portal_transaction_id','bridge');
@@ -48,19 +48,30 @@ has(bridge,'v_submission.version<>v_row.expected_submission_version','bridge');
 has(bridge,'set answers=answers||v_patch,version=version+1','bridge');
 lacks(bridge,"set status='approved'",'bridge');
 lacks(bridge,'review_intake_submission_v1','bridge must not replace final review owner');
-has(bridge,"'intake.followup.requested'",'bridge audit');
-has(bridge,"'intake.followup.responded'",'bridge audit');
-has(bridge,"'intake.followup.portal_reconciled'",'bridge audit');
-has(bridge,"'intake.followup.revoked'",'bridge audit');
-has(bridge,'security invoker','staff public façades');
+for(const marker of ["'intake.followup.requested'","'intake.followup.responded'","'intake.followup.portal_reconciled'","'intake.followup.revoked'"])has(bridge,marker,'bridge audit');
 
 for(const marker of [
-  'alter function public.get_public_intake_followup_v1(text) security definer',
-  'alter function public.save_public_intake_followup_v1(text,jsonb,boolean) security definer',
+  'create function public.issue_intake_followup_v1(',
+  'p_workspace_id uuid',
+  'p_submission_id uuid',
+  'p_expected_submission_version integer',
+  'create function public.get_public_intake_followup_v1(p_token text)',
+  'create function public.save_public_intake_followup_v1(p_token text,p_patch jsonb,p_finalize boolean)',
+  'create function public.reconcile_portal_intake_followup_v1(',
+  'p_expected_followup_version integer',
+  'p_answer_patch jsonb',
+  'create function public.revoke_intake_followup_v1(',
+  'p_expected_version integer,p_reason text',
+  "returns jsonb language sql volatile security definer set search_path=''",
   'revoke all on function private.get_public_intake_followup_v1_impl(text) from public,anon,authenticated,service_role',
   'revoke all on function private.save_public_intake_followup_v1_impl(text,jsonb,boolean) from public,anon,authenticated,service_role',
-])has(capability,marker,'public capability hardening');
-lacks(capability,'grant usage on schema private to anon','public capability hardening');
+])has(capability,marker,'PostgREST/capability hardening');
+for(const marker of [
+  'public.issue_intake_followup_v1(uuid,uuid,integer,text,text,jsonb,text,text,integer,uuid,uuid,uuid,uuid) to authenticated',
+  'public.reconcile_portal_intake_followup_v1(uuid,uuid,integer,integer,jsonb) to authenticated',
+  'public.revoke_intake_followup_v1(uuid,uuid,integer,text) to authenticated',
+])has(capability,marker,'authenticated staff façade grants');
+lacks(capability,'grant usage on schema private to anon','PostgREST/capability hardening');
 
 for(const marker of [
   "'issue_intake_followup_v1'","'get_public_intake_followup_v1'","'save_public_intake_followup_v1'",
@@ -69,4 +80,4 @@ for(const marker of [
 ])has(gateway,marker,'B gateway');
 for(const marker of ['destruction: secure-link document follow-up','portal mode requires principal transaction and request binding','issue response cannot mix secure token and portal request authority','public read requires explicit non-authoritative follow-up contract'])has(tests,marker,'B gateway tests');
 
-if(errors.length){console.error(`ENJAZ PHASE 11.6-B INTAKE FOLLOW-UP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ PHASE 11.6-B INTAKE FOLLOW-UP AUDIT PASS — one canonical intake submission, HMAC capability, Portal delegation/evidence, stale/idempotent/revocation boundaries and successor locks are intact.');
+if(errors.length){console.error(`ENJAZ PHASE 11.6-B INTAKE FOLLOW-UP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ PHASE 11.6-B INTAKE FOLLOW-UP AUDIT PASS — one canonical intake submission, named PostgREST RPCs, HMAC capability, Portal delegation/evidence, stale/idempotent/revocation boundaries and successor locks are intact.');
