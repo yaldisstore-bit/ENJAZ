@@ -81,6 +81,14 @@ for(const marker of [
 lacks(capability,'grant usage on schema private to anon','B2 bootstrap capability');
 
 req(state.phase11_6bAdvisorHardeningMigrationPath==='database/migrations/phase_11_6_intake_followup_advisor_hardening.sql','B advisor hardening path drifted');
+req(state.phase11_6bMigrationApplied===true&&state.phase11_6bMigrationVersion==='20260917222114','B1 Real Cloud migration evidence missing');
+req(state.phase11_6bPublicCapabilityApplied===true&&state.phase11_6bPublicCapabilityMigrationVersion==='20260917222123','B2 Real Cloud migration evidence missing');
+req(state.phase11_6bAdvisorHardeningApplied===true&&state.phase11_6bAdvisorHardeningMigrationVersion==='20260917222446','B3 Real Cloud advisor hardening evidence missing');
+req(state.phase11_6bSqlProbeApplied===true&&state.phase11_6bSqlProbeMigrationVersion==='20260917222519','B SQL Real Cloud probe evidence missing');
+req(state.phase11_6bZeroResidueVerified===true,'B SQL probe zero-residue evidence missing');
+req(state.phase11_6bNewSecurityAdvisorFindings===0&&state.phase11_6bNewPerformanceAdvisorFindings===0,'B introduced advisor findings');
+req(state.phase11_6bSecurityAdvisorBaselineTotal===66&&state.phase11_6bSecurityAdvisorPostProbeTotal===66,'B security advisor baseline drifted');
+req(state.phase11_6bPerformanceAdvisorBRelatedFindings===0,'B-related performance advisor findings must remain zero');
 for(const marker of [
   'intake_followup_requests_portal_principal_fk_idx','intake_followup_requests_requested_by_fk_idx',
   'private.get_public_intake_followup_capability_v1','private.save_public_intake_followup_capability_v1',
@@ -110,7 +118,7 @@ for(const marker of [
 req(state.phase11_6bSqlProbePath==='database/migrations/phase_11_6_live_intake_followup_probe.sql','B SQL probe path drifted');
 req(state.phase11_6bRealCloudCertificateScriptPath==='scripts/phase11-6b-real-cloud-e2e.mjs','B Real Cloud certifier path drifted');
 req(state.phase11_6bRealCloudCertificateWorkflowPath==='.github/workflows/phase11-6b-real-cloud-e2e.yml','B Real Cloud workflow path drifted');
-req(state.phase11_6bRealCloudCertificateStatus==='ARMED_PENDING_MIGRATION','B Real Cloud certificate must remain armed/pending until database migration evidence exists');
+req(['ARMED_PENDING_API_CERTIFICATE','PASS'].includes(state.phase11_6bRealCloudCertificateStatus),'B Real Cloud certificate lifecycle status invalid after SQL proof');
 for(const marker of [
   "schema:'enjaz.phase11-6b-real-cloud-e2e.v1'","const PROJECT_REF='juzxriirhkuzviwnhkbd'",
   "user_metadata:{enjaz_test_marker:MARKER}","'issue_intake_followup_v1'","'get_public_intake_followup_v1'",
