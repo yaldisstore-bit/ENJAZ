@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 11.1 — Notifications & Follow-ups ✅ CLOSED + REAL-CLOUD / FINAL-HEAD / EXACT-MAIN / REAL-BROWSER / PAGES / LIVE-EXTERNAL CERTIFIED**  
-آخر مرحلة مغلقة: **Phase 11.1 — Notifications & Follow-ups ✅ CLOSED**  
-المرحلة التالية: **Phase 11.2 — Universal Inbox Integration — AUTHORIZED NEXT**.
+الحالة الرسمية: **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10 ✅ CLOSED / CERTIFIED — AUTHENTICATED REAL-CLOUD + EXACT-MAIN + REAL-BROWSER + ZERO-ESCAPE**  
+آخر مرحلة مغلقة: **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10 ✅ CLOSED**  
+المرحلة التالية: **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 — AUTHORIZED NEXT**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -14,7 +14,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 
 **Product → UI/UX → Engineering → Certification**
 
-لا تُغلق أي مرحلة ولا يُفتح successor إلا عندما تصبح المسارات الأربعة `PASS`. الواجهة يجب أن تبقى premium وموحدة وArabic/RTL/mobile-first، والكود typed/modular/maintainable، ومصدر الحقيقة وصلاحياته حقيقيان، والإغلاق يحتاج Real Cloud + Real Browser + deployed-live evidence. سقف الأداء حارس جودة وليس مبررًا لحذف ميزة أو إضعاف UX.
+لا تُغلق أي مرحلة ولا يُفتح successor إلا عندما تصبح المسارات الأربعة `PASS`. الواجهة يجب أن تبقى premium وموحدة وArabic/RTL/mobile-first، والكود typed/modular/maintainable، ومصدر الحقيقة وصلاحياته حقيقيان، والإغلاق يحتاج Real Cloud + Real Browser + deployed-live evidence عند انطباقه. سقف الأداء حارس جودة وليس مبررًا لحذف ميزة أو إضعاف UX.
 
 ## التطبيق الحقيقي
 
@@ -48,9 +48,61 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 10.5 — Engagement/Contract Document Layer — M16: ✅ CLOSED + authenticated Real Cloud + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 10.6 — Documents Zero-Escape Gate: ✅ CLOSED + destructive Real Cloud + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 11.1 — Notifications & Follow-ups: ✅ CLOSED + authenticated Real Cloud + final-head Phase Gate + Real Browser + exact-main cumulative gates + Pages + Live External certified.**
-- **Phase 11.2 — Universal Inbox Integration: AUTHORIZED NEXT.**
+- **Phase 11.2 — Universal Inbox Integration: ✅ CLOSED + dedicated Real Browser + exact-main cumulative gates + Pages + Live External certified.**
+- **Phase 11.3 — Client Portal — M3: ✅ CLOSED + published authenticated portal certificate + exact-main + Real Browser + Pages + Live External certified.**
+- **Phase 11.4 — Omnichannel Communications Hub — M4: ✅ CLOSED + Real Cloud + exact-main + Real Browser + governance certified.**
+- **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10: ✅ CLOSED + authenticated Real Cloud + dedicated 5-width Chromium + exact-main cumulative gates + frozen-budget certification.**
+- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: AUTHORIZED NEXT.**
 
-## Phase 11.1 — دليل الإغلاق الحالي
+## Phase 11.5 — دليل الإغلاق الحالي
+
+- implementation PR #188: **MERGED**.
+- implementation head: `be77cce36f81a6a219b9047596e7e0fdf8117bd4`.
+- exact certified implementation merge/main: `160a1d9ddba5244ab7f7a4fd74350273a081217e`.
+- exact-main Phase 11.5 M10 Gate `35271956713`: **PASS**.
+- exact-main Quality Gate `35271956704`: **PASS**.
+- exact-main UI/UX Governance `35271956678`: **PASS**.
+- exact-main Project Quality Constitution `35271956620`: **PASS**.
+- exact-main cumulative Real Browser Acceptance `35271956676`: **PASS**.
+- exact-main Major Systems Zero-Escape `35271956707`: **PASS**.
+- dedicated Unified Calendar Chromium certificate: **PASS** على **1280 / 430 / 390 / 360 / 320**؛ artifact `10518323894`.
+- authenticated Real Cloud durable setup migration `20260917202954`: **PASS**.
+- authenticated Real Cloud recovery/cleanup migration `20260917203153`: **PASS**.
+- fresh workspace + governed create + durable event/receipt/audit round-trip + workspace isolation + direct-write denial + conflict fail-closed + stale rejection + valid recovery: **VERIFIED**.
+- final Real Cloud cleanup: **ZERO RESIDUE** في فئات الاختبار الثماني.
+- calendar export boundary: **one-way ICS `METHOD:PUBLISH` only**؛ لا inbound calendar authority.
+- final total JS: **759,198 / 760,000 bytes**؛ margin **802 bytes**؛ no cap increase / no feature cut.
+- unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
+- closure evidence: [`docs/PHASE11_5_CLOSURE.md`](docs/PHASE11_5_CLOSURE.md).
+- **M10 يبقى ACTIVE كنظام كبير؛ إغلاق 11.5 لا يعني global M10 closure.**
+- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: AUTHORIZED NEXT.**
+
+## Phase 11.4 — دليل الإغلاق المحفوظ
+
+- Omnichannel Communications Hub — M4: **CLOSED / CERTIFIED**.
+- implementation PR #179 + IA correction PR #180: **MERGED**.
+- exact certified main before closure: `8d0be4ede228954f06c32833c524d2df7f737b39`.
+- authority, governed actions, unified communications experience, provider boundary, fresh-workspace behavior and cumulative browser reality: **CERTIFIED**.
+- M4 remains operationally **ACTIVE**; phase closure does not imply global major-system closure.
+- closure evidence: [`docs/PHASE11_4_CLOSURE.md`](docs/PHASE11_4_CLOSURE.md).
+
+## Phase 11.3 — دليل الإغلاق المحفوظ
+
+- Client Portal — M3: **CLOSED / CERTIFIED**.
+- implementation PR #173 + published-certificate correction PR #174: **MERGED**.
+- exact certified main: `f99d5a4a3eff8aefc7346ebb2a8e74f8a3de2fe8`.
+- authenticated published Client Portal certificate + 1280 / 430 / 390 / 360 / 320 + Pages + Live External: **PASS**.
+- closure evidence: [`docs/PHASE11_3_CLOSURE.md`](docs/PHASE11_3_CLOSURE.md).
+
+## Phase 11.2 — دليل الإغلاق المحفوظ
+
+- Universal Inbox Integration: **CLOSED / CERTIFIED**.
+- implementation PR #164: **MERGED**.
+- post-merge certified main: `101d6f161b36e97143c7205c60755e5532a80ce7`.
+- dedicated Real Browser + exact-main cumulative Quality/UI/Constitution/Zero-Escape + Pages + Live External: **PASS**.
+- closure evidence: [`docs/PHASE11_2_CLOSURE.md`](docs/PHASE11_2_CLOSURE.md).
+
+## Phase 11.1 — دليل الإغلاق المحفوظ
 
 - implementation PR #163: **MERGED** → `1b010149be704e323abae5caba26bd3461af9b95`.
 - final certified branch head `1398efcd82cc1fa3b0fa73401b7dc96d17f2b202`.
@@ -65,7 +117,6 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - Live External `34890919578`: **PASS**.
 - unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
 - closure evidence: [`docs/PHASE11_1_CLOSURE.md`](docs/PHASE11_1_CLOSURE.md).
-- **Phase 11.2 — Universal Inbox Integration: AUTHORIZED NEXT.**
 
 ## Phase 10.6 — دليل الإغلاق المحفوظ
 
@@ -116,7 +167,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - Product / UI/UX / Engineering / Certification: **PASS / PASS / PASS / PASS**.
 - unresolved / critical / high / functional blockers: **0 / 0 / 0 / 0**.
 - لم تُضف 9.7 feature authority أو DB table أو write RPC ولم ترفع أي budget.
-- Phase 10.1 كانت successor التاريخية المباشرة؛ وقد أغلقت منذ ذلك الحين، والتسلسل الحالي وصل إلى **11.1 CLOSED**.
+- Phase 10.1 كانت successor التاريخية المباشرة؛ وقد أغلقت منذ ذلك الحين، والتسلسل الحالي وصل إلى **11.5 CLOSED**.
 
 ## Phase 9.6 — دليل الإغلاق
 
@@ -186,21 +237,21 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 
 1. **M1 — Government Procedure Operating System** — `CLOSURE_CANDIDATE`.
 2. **M2 — Corporate Governance & Ownership Engine** — `CLOSED` تحت `ZERO_ESCAPE_V1`؛ evidence: `docs/M2_ZERO_ESCAPE_CLOSURE.json`.
-3. **M3 — Client Portal** — `PLANNED`.
-4. **M4 — Omnichannel Communications Hub** — `PLANNED`.
+3. **M3 — Client Portal** — `ACTIVE`؛ Phase 11.3 anchor CLOSED/certified، ولا يُفهم من ذلك global major-system closure إلا بعقده المستقل.
+4. **M4 — Omnichannel Communications Hub** — `ACTIVE`؛ Phase 11.4 anchor CLOSED/certified.
 5. **M5 — ENJAZ Field Operations / Runner Mode** — `CLOSURE_CANDIDATE`.
 6. **M6 — Service Catalog, CRM & Commercial Intake** — `CLOSURE_CANDIDATE`.
 7. **M7 — Document Factory & Official Form Engine** — `ACTIVE`؛ Phase 10 anchors including the 10.6 deployed-live Zero-Escape evidence are certified, while global major-system closure still requires its independent `ZERO_ESCAPE_V1` decision.
 8. **M8 — Regulatory / Knowledge Base Engine** — `ACTIVE`; Phase 12 remains open.
 9. **M9 — Agentic ENJAZ Copilot** — `PLANNED`.
-10. **M10 — Scheduling, Appointments & Deadline Engine** — `PLANNED`.
+10. **M10 — Scheduling, Appointments & Deadline Engine** — `ACTIVE`؛ Phase 11.5 anchor CLOSED/certified مع بقاء global M10 closure خاضعًا لسياسة major-system المستقلة.
 11. **M11 — Integration Platform / API / Webhooks** — `PLANNED`.
 12. **M12 — Compliance, Audit & Evidence Center** — `PLANNED`.
 13. **M13 — Business Intelligence & Forecasting Center** — `ACTIVE`; Phase 9 anchor CLOSED، Phase 15 remains open.
 14. **M14 — Backup, Restore & Workspace Portability** — `PLANNED`.
 15. **M15 — Multi-Branch, Departments & Team Operating Model** — `ACTIVE`.
-16. **M16 — Engagements, Contracts & Retainers** — `ACTIVE`؛ Phase 7 finance/commercial and Phase 10 document anchors are certified; Phase 11 communications/renewals anchor remains open.
-17. **M17 — Smart Intake Forms & Secure Submission Links** — `ACTIVE`.
+16. **M16 — Engagements, Contracts & Retainers** — `ACTIVE`؛ Phase 7 finance/commercial and Phase 10 document anchors are certified; Phase 11.6 communication/renewal anchor is next.
+17. **M17 — Smart Intake Forms & Secure Submission Links** — `ACTIVE`؛ Phase 11.6 is the next authorized roadmap anchor.
 18. **M18 — Process Mining & Predictive Operations** — `ACTIVE`; Phase 9.6 anchor CLOSED، Phase 15 remains open، `closureEvidence=null`.
 
 لا يتم ترقية أي M-system إلى `CLOSED` لمجرد نجاح مرحلة واحدة؛ الاستثناء الوحيد هو عندما تُثبت جميع anchors الخاصة به وشهادة `ZERO_ESCAPE_V1` المستقلة كما حدث لـM2.
@@ -226,11 +277,19 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - [`docs/PHASE10_6_CLOSURE.md`](docs/PHASE10_6_CLOSURE.md)
 - [`docs/PHASE11_1_STATE.json`](docs/PHASE11_1_STATE.json)
 - [`docs/PHASE11_1_CLOSURE.md`](docs/PHASE11_1_CLOSURE.md)
+- [`docs/PHASE11_2_STATE.json`](docs/PHASE11_2_STATE.json)
+- [`docs/PHASE11_2_CLOSURE.md`](docs/PHASE11_2_CLOSURE.md)
+- [`docs/PHASE11_3_STATE.json`](docs/PHASE11_3_STATE.json)
+- [`docs/PHASE11_3_CLOSURE.md`](docs/PHASE11_3_CLOSURE.md)
+- [`docs/PHASE11_4_STATE.json`](docs/PHASE11_4_STATE.json)
+- [`docs/PHASE11_4_CLOSURE.md`](docs/PHASE11_4_CLOSURE.md)
+- [`docs/PHASE11_5_STATE.json`](docs/PHASE11_5_STATE.json)
+- [`docs/PHASE11_5_CLOSURE.md`](docs/PHASE11_5_CLOSURE.md)
 - [`docs/M2_ZERO_ESCAPE_CLOSURE.json`](docs/M2_ZERO_ESCAPE_CLOSURE.json)
 
 ## قوانين الانتقال
 
-- لا يبدأ successor قبل إغلاق predecessor وإعادة تصديقه على `main` والنشر.
+- لا يبدأ successor قبل إغلاق predecessor وإعادة تصديقه على `main` والنشر عندما يكون النشر جزءًا من عقد المرحلة.
 - لا تُغلق أي مرحلة ما لم تكن Product / UI/UX / Engineering / Certification كلها `PASS`.
 - كل bug حقيقي يحصل على regression guard دائم.
 - Gate Escape يعيد فتح مسار التصديق المتأثر بدل تجاهله.
@@ -238,4 +297,4 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - لا يُسمح لأي intelligence layer باختلاق business/financial/process facts من بيانات ناقصة.
 - forecast/prediction لا يصبح source truth، ولا AI/editorial output يصبح authoritative fact بلا عقد سلطة مستقل.
 - سقف JavaScript startup يبقى **670000 bytes**، والإجمالي **760000 bytes**، وCSS **180000 bytes** بلا waiver أو feature cut.
-- **Phase 11.1 مغلقة ومصدقة؛ Phase 11.2 — Universal Inbox Integration هي المرحلة التالية المصرح بها فقط.**
+- **Phase 11.5 مغلقة ومصدقة؛ Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 هي المرحلة التالية المصرح بها فقط.**
