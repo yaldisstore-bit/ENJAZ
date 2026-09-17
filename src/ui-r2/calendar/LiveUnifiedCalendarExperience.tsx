@@ -2,7 +2,7 @@ import { useEffect,useState } from 'react';
 import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
 import { buildUnifiedCalendarIcs,loadUnifiedCalendar,shiftUnifiedCalendarAnchor,type UnifiedCalendarAuthority,type UnifiedCalendarItem,type UnifiedCalendarSnapshot,type UnifiedCalendarView } from '../../features/scheduling/unifiedCalendar.ts';
 
-type Props=Readonly<{workspace:Promise<string|null>}>,Option=readonly [string,string];
+type Props=Readonly<{workspace:Promise<string|null>}>;type Option=readonly [string,string];
 const VIEWS:readonly [UnifiedCalendarView,string][]=[['day','يوم'],['week','أسبوع'],['month','شهر'],['agenda','أجندة']];
 const SOURCES:readonly [UnifiedCalendarAuthority,string][]=[['all','كل المصادر'],['appointment','المواعيد'],['renewal','التجديدات'],['workflow_deadline','مهل سير العمل']];
 const BTN='r2-action r2-action--secondary',LABEL:Record<string,string>={appointment:'موعد',renewal:'تجديد',workflow_deadline:'مهلة سير عمل'},short=(v:string)=>`${v.slice(0,8)}…`,unique=(v:readonly Option[])=>[...new Map(v)];
