@@ -78,20 +78,31 @@ export function LiveUnifiedCalendarExperience({workspace}:Props){
     try{await work();setNotice({kind:'ok',text:success});reload()}catch(error){setNotice({kind:'error',text:actionError(error)});reload()}finally{setBusyId(null)}
   };
   const attendance=(item:UnifiedCalendarItem,outcome:'attended'|'missed')=>{
-    if(!workspaceId||!item.version)return;
-    void runAction(item,()=>commands.recordCalendarEventAttendance({workspaceId,eventId:item.id,operationId:crypto.randomUUID(),expectedVersion:item.version,outcome}),outcome==='attended'?'تم تسجيل الحضور.':'تم تسجيل عدم الحضور.');
+    const activeWorkspaceId=workspaceId;
+    const expectedVersion=item.version;
+    if(!activeWorkspaceId||expectedVersion===null)return;
+    void runAction(item,()=>commands.recordCalendarEventAttendance({workspaceId:activeWorkspaceId,eventId:item.id,operationId:crypto.randomUUID(),expectedVersion,outcome}),outcome==='attended'?'تم تسجيل الحضور.':'تم تسجيل عدم الحضور.');
   };
   const openReschedule=(item:UnifiedCalendarItem)=>{if(!snapshot||!item.startsAt)return;setEditing(item);setRescheduleLocal(localInputForInstant(item.startsAt,snapshot.workspaceTimezone));setRescheduleReason('');setNotice(null)};
   const submitReschedule=()=>{
-    if(!workspaceId||!snapshot||!editing||!editing.version||!editing.startsAt||!rescheduleLocal||!rescheduleReason.trim())return;
-    void runAction(editing,async()=>{
-      if(editing.staffMemberIds.length===0)throw new Error('لا يمكن اعتماد إعادة الجدولة دون تعيين موظف صريح؛ فحص التعارض يفشل مغلقًا.');
-      const startsAt=workspaceLocalDateTimeToInstant(rescheduleLocal,snapshot.workspaceTimezone);
-      const oldStart=Date.parse(editing.startsAt),oldEnd=editing.endsAt?Date.parse(editing.endsAt):oldStart;
+    const activeWorkspaceId=workspaceId;
+    const activeSnapshot=snapshot;
+    const item=editing;
+    const expectedVersion=item?.version??null;
+    const originalStartsAt=item?.startsAt??null;
+    const originalEndsAt=item?.endsAt??null;
+    const localValue=rescheduleLocal;
+    const reason=rescheduleReason.trim();
+    if(!activeWorkspaceId||!activeSnapshot||!item||expectedVersion===null||!originalStartsAt||!localValue||!reason)return;
+    const workspaceTimezone=activeSnapshot.workspaceTimezone;
+    void runAction(item,async()=>{
+      if(item.staffMemberIds.length===0)throw new Error('لا يمكن اعتماد إعادة الجدولة دون تعيين موظف صريح؛ فحص التعارض يفشل مغلقًا.');
+      const startsAt=workspaceLocalDateTimeToInstant(localValue,workspaceTimezone);
+      const oldStart=Date.parse(originalStartsAt),oldEnd=originalEndsAt?Date.parse(originalEndsAt):oldStart;
       const duration=Math.max(0,oldEnd-oldStart),endsAt=duration>0?new Date(Date.parse(startsAt)+duration).toISOString():null;
-      const conflict=await commands.checkCalendarEventStaffConflicts({workspaceId,startsAt,endsAt,staffMemberIds:editing.staffMemberIds,excludeEventId:editing.id});
+      const conflict=await commands.checkCalendarEventStaffConflicts({workspaceId:activeWorkspaceId,startsAt,endsAt,staffMemberIds:item.staffMemberIds,excludeEventId:item.id});
       if(conflict.state!=='clear')throw new Error(conflict.state==='conflict'?'يوجد تعارض فعلي مع موعد آخر للموظف.':'تعذر إثبات خلو الفترة من التعارض؛ أوقفت إنجاز إعادة الجدولة.');
-      await commands.rescheduleCalendarEvent({workspaceId,eventId:editing.id,operationId:crypto.randomUUID(),expectedVersion:editing.version,startsAt,endsAt,reason:rescheduleReason.trim()});
+      await commands.rescheduleCalendarEvent({workspaceId:activeWorkspaceId,eventId:item.id,operationId:crypto.randomUUID(),expectedVersion,startsAt,endsAt,reason});
       setEditing(null);setRescheduleReason('');
     },'تمت إعادة الجدولة بعد فحص التعارض.');
   };
