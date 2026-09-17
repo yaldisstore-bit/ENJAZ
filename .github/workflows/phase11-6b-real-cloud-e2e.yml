@@ -1,0 +1,56 @@
+name: ENJAZ Phase 11.6-B — Real Cloud Intake Follow-up Certificate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase11-6b-real-cloud
+  cancel-in-progress: false
+
+jobs:
+  real-cloud-intake-followup:
+    name: Secure bearer / Client Portal / isolation / audit / zero residue
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+      SUPABASE_SECRET_KEY: ${{ secrets.ENJAZ_SUPABASE_SECRET_KEY }}
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Require server-only Supabase credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_SECRET_KEY" || { echo 'ENJAZ_SUPABASE_SECRET_KEY is missing'; exit 1; }
+          case "$SUPABASE_SECRET_KEY" in
+            sb_publishable_*) echo 'Secret is not privileged'; exit 1 ;;
+          esac
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Static guard for Phase 11.6-B Real Cloud certifier
+        run: |
+          node --check scripts/phase11-6b-real-cloud-e2e.mjs
+          if grep -Eq 'sb_secret_[A-Za-z0-9_-]+' scripts/phase11-6b-real-cloud-e2e.mjs; then
+            echo 'Privileged Supabase secret literal detected in source'
+            exit 1
+          fi
+      - name: Run authenticated Phase 11.6-B Real Cloud certificate
+        run: node scripts/phase11-6b-real-cloud-e2e.mjs
+      - name: Upload sanitized Real Cloud evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase11-6b-real-cloud-evidence-${{ github.sha }}
+          path: artifacts/phase11-6b-real-cloud/evidence.json
+          if-no-files-found: error
+          retention-days: 14
