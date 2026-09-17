@@ -17,8 +17,18 @@
   "nextSlice": "11.6-C",
   "nextSliceName": "Contract approval, retainer renewal & communication evidence",
   "systems": [
-    {"id":"M17","name":"Smart Intake Forms & Secure Submission Links","status":"ACTIVE","globalClosureAllowed":false},
-    {"id":"M16","name":"Engagements, Contracts & Retainers","status":"ACTIVE","globalClosureAllowed":false}
+    {
+      "id": "M17",
+      "name": "Smart Intake Forms & Secure Submission Links",
+      "status": "ACTIVE",
+      "globalClosureAllowed": false
+    },
+    {
+      "id": "M16",
+      "name": "Engagements, Contracts & Retainers",
+      "status": "ACTIVE",
+      "globalClosureAllowed": false
+    }
   ],
   "intakeFormAuthority": "intake_forms",
   "intakeLinkAuthority": "intake_links",
@@ -121,5 +131,9 @@
   "phase11_7Allowed": false,
   "nextPhase": "11.7",
   "nextPhaseName": "Communication Zero-Escape Gate",
-  "successorStatus": "LOCKED"
+  "successorStatus": "LOCKED",
+  "phase11_6bSqlProbePath": "database/migrations/phase_11_6_live_intake_followup_probe.sql",
+  "phase11_6bRealCloudCertificateScriptPath": "scripts/phase11-6b-real-cloud-e2e.mjs",
+  "phase11_6bRealCloudCertificateWorkflowPath": ".github/workflows/phase11-6b-real-cloud-e2e.yml",
+  "phase11_6bRealCloudCertificateStatus": "ARMED_PENDING_MIGRATION"
 }
