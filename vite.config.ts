@@ -38,6 +38,7 @@ export default defineConfig({
       optimization: { inlineConst: true },
       output: {
         minify: true,
+        comments: { legal: true, annotation: false, jsdoc: false },
         codeSplitting: {
           groups: [
             { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|react-router|scheduler)([\\/]|$)/, priority: 30 },
