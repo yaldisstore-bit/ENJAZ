@@ -14,6 +14,8 @@ on:
       - 'tests/intakeFollowupCommands.test.ts'
       - 'tests/intakeFollowupBridgeSource.test.mjs'
       - 'tests/contractTransitionConcurrencySource.test.mjs'
+      - 'tests/contractApprovalCommands.test.ts'
+      - 'tests/contractApprovalBridgeSource.test.mjs'
       - 'scripts/phase11-6a-intake-contract-authority-audit.mjs'
       - 'scripts/phase11-6b-intake-followup-audit.mjs'
       - 'scripts/phase11-6b-real-cloud-e2e.mjs'
@@ -51,6 +53,10 @@ jobs:
         run: node scripts/phase11-6b-intake-followup-audit.mjs
       - name: Phase 11.6-C1 M16 transition destructive source tests
         run: node --test tests/contractTransitionConcurrencySource.test.mjs
+      - name: Phase 11.6-C2 contract approval gateway tests
+        run: node --experimental-strip-types --test tests/contractApprovalCommands.test.ts
+      - name: Phase 11.6-C2 client decision destructive source tests
+        run: node --test tests/contractApprovalBridgeSource.test.mjs
       - name: Phase 11.6-C authority audit
         run: node scripts/phase11-6c-contract-approval-audit.mjs
       - name: Database integrity
