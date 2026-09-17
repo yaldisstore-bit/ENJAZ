@@ -20,7 +20,13 @@ function violations(b=bridge,c=capability){const out=[];
   req(b.includes('v_submission.version<>p_expected_submission_version')&&b.includes('v_submission.version<>v_row.expected_submission_version'),'stale-version-fail-closed');
   req(b.includes("p_mode='secure_link' and p_request_kind<>'information'")&&b.includes('ENJAZ_INTAKE_FOLLOWUP_DOCUMENT_REQUIRES_PORTAL'),'secure-document-forbidden');
   req(!b.includes("set status='approved'")&&!b.includes('review_intake_submission_v1'),'final-review-owner-preserved');
-  req(c.includes('public.get_public_intake_followup_v1(text) security definer')&&c.includes('public.save_public_intake_followup_v1(text,jsonb,boolean) security definer'),'explicit-public-capability');
+  req(/create\s+function\s+public\.issue_intake_followup_v1\s*\([\s\S]*?p_workspace_id\s+uuid[\s\S]*?p_submission_id\s+uuid[\s\S]*?p_expected_submission_version\s+integer[\s\S]*?security\s+invoker/i.test(c),'named-staff-issue-rpc');
+  req(/create\s+function\s+public\.get_public_intake_followup_v1\s*\(p_token\s+text\)[\s\S]*?security\s+definer/i.test(c),'named-public-get-capability');
+  req(/create\s+function\s+public\.save_public_intake_followup_v1\s*\(p_token\s+text\s*,\s*p_patch\s+jsonb\s*,\s*p_finalize\s+boolean\)[\s\S]*?security\s+definer/i.test(c),'named-public-save-capability');
+  req(/create\s+function\s+public\.reconcile_portal_intake_followup_v1\s*\([\s\S]*?p_expected_followup_version\s+integer[\s\S]*?p_expected_submission_version\s+integer[\s\S]*?p_answer_patch\s+jsonb[\s\S]*?security\s+invoker/i.test(c),'named-staff-reconcile-rpc');
+  req(/create\s+function\s+public\.revoke_intake_followup_v1\s*\([\s\S]*?p_expected_version\s+integer[\s\S]*?p_reason\s+text[\s\S]*?security\s+invoker/i.test(c),'named-staff-revoke-rpc');
+  req(c.includes('revoke all on function private.get_public_intake_followup_v1_impl(text) from public,anon,authenticated,service_role'),'private-public-get-impl-hidden');
+  req(c.includes('revoke all on function private.save_public_intake_followup_v1_impl(text,jsonb,boolean) from public,anon,authenticated,service_role'),'private-public-save-impl-hidden');
   req(!c.includes('grant usage on schema private to anon'),'private-schema-not-exposed');
   return out;
 }
@@ -33,4 +39,5 @@ test('destruction: direct Client Portal request write is detected',()=>assert.ok
 test('destruction: removing intake→transaction binding is detected',()=>assert.ok(violations(bridge.replace('l.converted_transaction_id=p_portal_transaction_id','true')).includes('portal-transaction-bound-to-intake-lead')));
 test('destruction: removing fulfilled/evidence gate is detected',()=>assert.ok(violations(bridge.replace("v_request.status<>'fulfilled'","false").replace('ENJAZ_INTAKE_FOLLOWUP_PORTAL_RESPONSE_MISSING','BROKEN_PORTAL_RESPONSE_MISSING')).includes('portal-evidence-required')));
 test('destruction: opening secure-link document upload is detected',()=>assert.ok(violations(bridge.replace("p_mode='secure_link' and p_request_kind<>'information'","false")).includes('secure-document-forbidden')));
-test('destruction: weakening public capability boundary is detected',()=>assert.ok(violations(bridge,capability.replace('public.get_public_intake_followup_v1(text) security definer','public.get_public_intake_followup_v1(text) security invoker')).includes('explicit-public-capability')));
+test('destruction: weakening public get capability is detected',()=>assert.ok(violations(bridge,capability.replace(/(create\s+function\s+public\.get_public_intake_followup_v1\s*\(p_token\s+text\)[\s\S]*?)security\s+definer/i,'$1security invoker')).includes('named-public-get-capability')));
+test('destruction: unnamed staff issue RPC is detected',()=>assert.ok(violations(bridge,capability.replace('p_workspace_id uuid','uuid')).includes('named-staff-issue-rpc')));
