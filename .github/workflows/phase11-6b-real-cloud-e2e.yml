@@ -1,6 +1,12 @@
 name: ENJAZ Phase 11.6-B — Real Cloud Intake Follow-up Certificate
 
 on:
+  push:
+    branches:
+      - phase11-6b-intake-followup-client-loop
+    paths:
+      - scripts/phase11-6b-real-cloud-e2e.mjs
+      - .github/workflows/phase11-6b-real-cloud-e2e.yml
   workflow_dispatch:
 
 permissions:
