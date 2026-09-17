@@ -4,6 +4,7 @@ const read=(p)=>fs.readFileSync(new URL(p,root),'utf8');
 const json=(p)=>JSON.parse(read(p));
 const state=json('docs/PHASE11_6_STATE.json');
 const scope=read('docs/PHASE11_6B_INTAKE_FOLLOWUP_SCOPE.md');
+const closure=read('docs/PHASE11_6B_CLOSURE.md');
 const bridge=read('database/migrations/phase_11_6_intake_followup_bridge.sql');
 const capability=read('database/migrations/phase_11_6_intake_followup_public_capability.sql');
 const hardening=read('database/migrations/phase_11_6_intake_followup_advisor_hardening.sql');
@@ -20,12 +21,25 @@ const lacks=(s,m,l)=>req(!s.includes(m),`${l} forbidden marker present: ${m}`);
 req(state.phase==='11.6'&&state.status==='IN_PROGRESS'&&state.currentSlice==='11.6-B','11.6-B lifecycle identity invalid');
 req(state.phase11_6aStatus==='CLOSED'&&state.phase11_6aExitGatePassed===true&&state.phase11_6aPostMergeRecertification==='PASS_EXACT_MAIN_SHA','11.6-A exact-main predecessor evidence must remain preserved');
 req(state.phase11_6aMergeCommit==='d44b27411f3b994eb79f9e75ea0f8c15984c0412','11.6-B base lineage drifted');
-req(state.phase11_6bStatus==='IN_PROGRESS'&&state.phase11_6bExitGatePassed===false,'11.6-B cannot be pre-closed');
-req(state.phase11_6cAllowed===false&&state.phase11_7Allowed===false&&state.successorStatus==='LOCKED','11.6-C/11.7 must remain locked while B is open');
+req(state.phase11_6bStatus==='CLOSED'&&state.phase11_6bExitGatePassed===true&&state.phase11_6bClosureDecision==='PASS','11.6-B formal closure evidence invalid');
+req(state.phase11_6cAllowed===true&&state.phase11_7Allowed===false&&state.successorStatus==='LOCKED','11.6-C must be authorized while Phase 11.7 remains locked');
 for(const f of ['phase11_6bShadowSubmissionAllowed','phase11_6bSecureLinkDocumentUploadAllowed','phase11_6bRawCapabilityTokenPersistenceAllowed'])req(state[f]===false,`B fail-closed state drifted: ${f}`);
 for(const f of ['phase11_6bCanonicalSubmissionAuthorityPreserved','phase11_6bPortalAuthorityDelegated','phase11_6bPortalTransactionMustBindToIntakeLead','phase11_6bOneOpenFollowupPerSubmission'])req(state[f]===true,`B authority state drifted: ${f}`);
 
 for(const marker of ['same `intake_submissions.answers`','document follow-up requires Client Portal mode','HMAC-SHA256','exactly one open follow-up','Portal reconcile before request fulfillment/evidence'])has(scope,marker,'B scope');
+for(const marker of [
+  'Status:** CLOSED / CERTIFIED','35282048301','32 product checks','10522619346',
+  'sha256:bed199614124e82ddaed6448dd2d05f866f07557ceabe29633f04395d5f21f62',
+  '20260917222114','20260917222123','20260917222446','20260917222519',
+  'zero B-caused security delta','new B-caused performance advisor findings: **0**','11.6-C becomes `AUTHORIZED_NEXT`'
+])has(closure,marker,'B closure');
+req(state.phase11_6bClosureEvidencePath==='docs/PHASE11_6B_CLOSURE.md','B closure evidence path drifted');
+req(state.phase11_6bRealCloudVerification==='PASS'&&state.phase11_6bRealCloudCertificateStatus==='PASS','B Real Cloud certificate must be PASS before closure');
+req(state.phase11_6bFreshWorkspaceBootstrap==='PASS'&&state.phase11_6bDurableWriteRoundTrip==='PASS','B fresh/durable Real Cloud proof missing');
+for(const f of ['phase11_6bPermissionMatrix','phase11_6bExpiryRevocationRecovery','phase11_6bPortalEvidenceReconciliation','phase11_6bWorkspaceIsolation','phase11_6bDirectWriteDenial','phase11_6bAuditReconciliation'])req(state[f]==='PASS',`B closure proof missing: ${f}`);
+req(state.phase11_6bRealCloudCertificateRunId===35282048301&&state.phase11_6bRealCloudCertificateChecks===32,'B Real Cloud run/check count drifted');
+req(state.phase11_6bRealCloudEvidenceArtifactId===10522619346,'B Real Cloud evidence artifact drifted');
+req(state.phase11_6bRealCloudEvidenceDigest==='sha256:bed199614124e82ddaed6448dd2d05f866f07557ceabe29633f04395d5f21f62','B Real Cloud artifact digest drifted');
 
 has(bridge,'create table private.intake_followup_requests','bridge');
 lacks(bridge,'create table public.intake_followup','bridge');
