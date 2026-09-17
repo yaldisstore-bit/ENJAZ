@@ -18,12 +18,18 @@ const has = (source, marker, label) => req(source.includes(marker), `${label} mi
 const lacks = (source, marker, label) => req(!source.includes(marker), `${label} forbidden marker present: ${marker}`);
 const allowedSlices = new Set(['11.5-C', '11.5-D']);
 const cIsCurrent = state.currentSlice === '11.5-C';
+const phaseClosed = state.status === 'CLOSED';
 
 req(state.phase === '11.5' && state.systemId === 'M10' && state.systemStatus === 'ACTIVE', '11.5/M10 identity invalid');
-req(state.status === 'IN_PROGRESS' && allowedSlices.has(state.currentSlice), '11.5 must remain active on C/D');
+req(['IN_PROGRESS','CLOSED'].includes(state.status) && allowedSlices.has(state.currentSlice), '11.5 must remain on a valid C/D lifecycle state');
 req(state.phase11_5bStatus === 'CLOSED' && state.phase11_5bExitGatePassed === true && state.phase11_5bPostMergeRecertification === 'PASS_EXACT_MAIN_SHA', '11.5-B certification must remain preserved');
-req(state.phase11_6Allowed === false && state.successorStatus === 'LOCKED', '11.6 must remain locked');
-req(state.exitGatePassed === false, 'Phase 11.5 cannot close before D certification');
+if (phaseClosed) {
+  req(state.phase11_6Allowed === true && state.successorStatus === 'AUTHORIZED_NEXT', 'closed 11.5 must authorize only 11.6');
+  req(state.exitGatePassed === true, 'closed Phase 11.5 must retain a passed overall exit gate');
+} else {
+  req(state.phase11_6Allowed === false && state.successorStatus === 'LOCKED', '11.6 must remain locked while 11.5 is open');
+  req(state.exitGatePassed === false, 'open Phase 11.5 cannot close before D certification');
+}
 if (cIsCurrent) {
   req(state.currentSliceBaseCommit === 'c74803ed0ebdf5218052f446540c0f8a422430b1', '11.5-C must retain certified 11.5-B merge SHA while C is current');
 } else {
@@ -135,6 +141,8 @@ if (errors.length) {
   console.error(`ENJAZ PHASE 11.5-C DEADLINE/RECURRENCE AUDIT FAIL (${errors.length})`);
   errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
+} else if (phaseClosed) {
+  console.log('ENJAZ PHASE 11.5-C DEADLINE/RECURRENCE AUDIT PASS — C authority and deadline/recurrence evidence remain certified under formal Phase 11.5 closure; 11.6 is the only authorized successor.');
 } else {
   console.log(`ENJAZ PHASE 11.5-C DEADLINE/RECURRENCE AUDIT PASS — certified C authority is preserved while ${state.currentSlice} is active; 11.6 remains locked.`);
 }
