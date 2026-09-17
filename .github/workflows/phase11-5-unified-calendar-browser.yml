@@ -1,0 +1,72 @@
+name: ENJAZ Phase 11.5 — Unified Calendar Real Browser
+
+on:
+  push:
+    branches:
+      - 'phase11-5d-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase11-5-unified-calendar-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unified-calendar-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Preserve M10 authority and 11.5-D implementation contract
+        run: |
+          npm run audit:phase11-5
+          node scripts/phase11-5d-unified-calendar-experience-audit.mjs
+          node --experimental-strip-types --test tests/unifiedCalendar.test.ts tests/schedulingCommands.test.ts
+          npm run typecheck
+      - name: Build canonical production and frozen budgets
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
+      - name: Dependency high-severity audit
+        run: npm audit --audit-level=high
+      - name: Build dedicated Phase 11.5-D browser harness
+        run: npx vite build --config vite.phase11-5-browser.config.ts --base=/
+      - name: Install pinned Chromium tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start Phase 11.5-D browser harness
+        run: |
+          nohup npx vite preview --config vite.phase11-5-browser.config.ts --host 127.0.0.1 --port 4195 > /tmp/enjaz-phase11-5-browser.log 2>&1 &
+          for i in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4195/phase11-5-calendar-browser.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase11-5-browser.log
+          exit 1
+      - name: Day / Week / Month / Agenda / filters / ICS / offline / RTL multi-width certificate
+        env:
+          R2_PHASE115_BASE_URL: http://127.0.0.1:4195/phase11-5-calendar-browser.html
+        run: npx playwright test tests-external/phase11-5-unified-calendar-live.spec.cjs --reporter=line --workers=1
+      - name: Upload Phase 11.5-D browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase11-5-unified-calendar-browser-${{ github.sha }}
+          path: |
+            artifacts/phase11-5-unified-calendar/
+            test-results/
+            /tmp/enjaz-phase11-5-browser.log
+          if-no-files-found: ignore
+          retention-days: 14
