@@ -137,9 +137,8 @@ select private.enjaz_phase116c1_probe_assert(
   'second governed transition invalid'
 );
 select private.enjaz_phase116c1_probe_assert(
-  (select count(*)=2 from private.engagement_contract_transition_receipts
-   where workspace_id=current_setting('p116c1.ws')::uuid and revision_id=current_setting('p116c1.revision')::uuid),
-  'transition receipt count invalid'
+  not has_table_privilege('authenticated','private.engagement_contract_transition_receipts','SELECT'),
+  'private transition receipts direct read grant leak'
 );
 
 do $$
@@ -167,6 +166,12 @@ exception when others then
 end $$;
 
 reset role;
+
+select private.enjaz_phase116c1_probe_assert(
+  (select count(*)=2 from private.engagement_contract_transition_receipts
+   where workspace_id=current_setting('p116c1.ws')::uuid and revision_id=current_setting('p116c1.revision')::uuid),
+  'transition receipt count invalid after privileged verification'
+);
 
 select private.enjaz_phase116c1_probe_assert(
   (select count(*)>=4 from public.audit_events
