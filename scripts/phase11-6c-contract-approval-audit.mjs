@@ -8,6 +8,7 @@ const migration=read('database/migrations/phase_11_6_contract_transition_concurr
 const advisorHardening=read('database/migrations/phase_11_6_contract_transition_advisor_hardening.sql');
 const liveProbe=read('database/migrations/phase_11_6_live_contract_transition_probe.sql');
 const c2Migration=read('database/migrations/phase_11_6_contract_client_approval_bridge.sql');
+const c2LiveProbe=read('database/migrations/phase_11_6_live_contract_client_approval_probe.sql');
 const c2Gateway=read('src/features/intake-contract-communication/contractApprovalCommands.ts');
 const c2GatewayTests=read('tests/contractApprovalCommands.test.ts');
 const c2SourceTests=read('tests/contractApprovalBridgeSource.test.mjs');
@@ -30,8 +31,13 @@ req(state.phase11_6cScopePath==='docs/PHASE11_6C_CONTRACT_APPROVAL_SCOPE.md','11
 req(state.phase11_6cM16VersionedTransitionAdded===true,'C1 M16 versioned transition source not recorded');
 req(state.phase11_6cM16LegacyTransitionBrowserAllowed===false,'Legacy unversioned M16 browser transition must remain forbidden');
 req(state.phase11_6cClientDecisionBridgeAdded===true,'C2 client decision bridge source must be recorded');
-req(state.phase11_6cClientDecisionMigrationApplied===false&&state.phase11_6cClientDecisionMigrationVersion===null&&state.phase11_6cClientDecisionRealCloudVerification==='PENDING','C2 Real Cloud cannot be pre-claimed before source gate/application');
-req(state.phase11_6cRenewalProvenanceAdded===false&&state.phase11_6cCommunicationEvidenceBridgeAdded===false,'C3 cannot be pre-claimed during C2');
+req(state.phase11_6cC2Status==='CLOSED'&&state.phase11_6cC2ExitGatePassed===true,'C2 must be Real Cloud certified before C3');
+req(state.phase11_6cClientDecisionMigrationApplied===true&&state.phase11_6cClientDecisionMigrationVersion==='20260917231342','C2 migration lineage invalid');
+req(state.phase11_6cClientDecisionRealCloudProbeApplied===true&&state.phase11_6cClientDecisionRealCloudProbeMigrationVersion==='20260917231857'&&state.phase11_6cClientDecisionRealCloudVerification==='PASS_C2','C2 Real Cloud probe lineage invalid');
+for(const f of ['phase11_6cClientDecisionPermissionMatrix','phase11_6cClientDecisionApprovedPath','phase11_6cClientDecisionRejectedPath','phase11_6cClientDecisionStaleConflict','phase11_6cClientDecisionOperationConflict','phase11_6cClientDecisionRevokedExpired','phase11_6cClientDecisionCrossEngagement','phase11_6cClientDecisionOwnerBoundary','phase11_6cClientDecisionAuditReconciliation'])req(state[f]==='PASS',`C2 Real Cloud proof missing: ${f}`);
+req(state.phase11_6cClientDecisionZeroResidue===true,'C2 zero residue must be verified');
+req(state.phase11_6cSecurityAdvisorPostC2Total===65&&state.phase11_6cPerformanceAdvisorPostC2Total===81&&state.phase11_6cUnindexedForeignKeysPostC2===28&&state.phase11_6cC2NewSecurityAdvisorFindings===0&&state.phase11_6cC2NewPerformanceAdvisorFindings===0,'C2 advisor certificate invalid');
+req(state.phase11_6cRenewalProvenanceAdded===false&&state.phase11_6cCommunicationEvidenceBridgeAdded===false,'C3 cannot be pre-claimed before source exists');
 req(state.phase11_6cC1Status==='CLOSED'&&state.phase11_6cC1ExitGatePassed===true,'C1 must be Real Cloud certified before C2');
 req(state.phase11_6cMigrationApplied===true&&state.phase11_6cMigrationVersion==='20260917225607','C1 migration lineage invalid');
 req(state.phase11_6cAdvisorHardeningApplied===true&&state.phase11_6cAdvisorHardeningMigrationVersion==='20260917230127','C1 advisor hardening lineage invalid');
@@ -106,6 +112,14 @@ for(const marker of [
 lacks(c2Migration,'update public.engagement_contract_revisions','C2 bridge migration');
 lacks(c2Migration,'create table public.contract_approval_bridge','C2 bridge migration');
 for(const marker of [
+  'P116C2_FAILED','p116c2_fixture','P116C2_REVOKED_BIND_ACCEPTED','P116C2_EXPIRED_BIND_ACCEPTED',
+  'P116C2_UNBOUND_ENGAGEMENT_ACCEPTED','P116C2_CLIENT_BIND_ACCEPTED','P116C2_CLIENT_RECONCILE_ACCEPTED',
+  'P116C2_STALE_RECONCILE_ACCEPTED','P116C2_OPERATION_CONFLICT_ACCEPTED',
+  'approved decision did not feed exact M16 transition',
+  'rejected decision did not return M16 revision to draft',
+  'C2 SAVEPOINT rollback left residue','C2 audit residue remains after SAVEPOINT rollback'
+])has(c2LiveProbe,marker,'C2 Real Cloud probe');
+for(const marker of [
   "'bind_client_contract_approval_v1'","'reconcile_client_contract_approval_v1'",
   'p_expected_revision_version:ver(input.expectedRevisionVersion)',
   'p_operation_id:id(input.operationId)'
@@ -138,5 +152,5 @@ if(errors.length){
   errors.forEach(e=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.6-C AUDIT PASS — C1 is Real Cloud certified; C2 source preserves M3 decision evidence and routes contract truth only through M16 v2; C3/D remain locked.');
+  console.log('ENJAZ PHASE 11.6-C AUDIT PASS — C1/C2 are authenticated Real Cloud certified with zero residue/advisor regression; M3 remains decision evidence and M16 remains contract truth; C3 is active while 11.6-D stays locked.');
 }
