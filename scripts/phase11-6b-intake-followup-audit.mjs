@@ -51,21 +51,24 @@ lacks(bridge,'review_intake_submission_v1','bridge must not replace final review
 for(const marker of ["'intake.followup.requested'","'intake.followup.responded'","'intake.followup.portal_reconciled'","'intake.followup.revoked'"])has(bridge,marker,'bridge audit');
 
 for(const marker of [
+  'create or replace function private.enforce_intake_followup_rate_v1(p_token text,p_event_type text)',
+  'private.enforce_public_intake_rate_v1(v_link_id,p_event_type)',
+  "private.enforce_intake_followup_rate_v1(p_token,'view')",
+  "case when coalesce(p_finalize,false) then 'submit' else 'save_draft' end",
   'create function public.issue_intake_followup_v1(',
-  'p_workspace_id uuid',
-  'p_submission_id uuid',
-  'p_expected_submission_version integer',
+  'p_workspace_id uuid','p_submission_id uuid','p_expected_submission_version integer',
   'create function public.get_public_intake_followup_v1(p_token text)',
   'create function public.save_public_intake_followup_v1(p_token text,p_patch jsonb,p_finalize boolean)',
   'create function public.reconcile_portal_intake_followup_v1(',
-  'p_expected_followup_version integer',
-  'p_answer_patch jsonb',
+  'p_expected_followup_version integer','p_answer_patch jsonb',
   'create function public.revoke_intake_followup_v1(',
   'p_expected_version integer,p_reason text',
-  "returns jsonb language sql volatile security definer set search_path=''",
+  'revoke all on function private.enforce_intake_followup_rate_v1(text,text) from public,anon,authenticated,service_role',
   'revoke all on function private.get_public_intake_followup_v1_impl(text) from public,anon,authenticated,service_role',
   'revoke all on function private.save_public_intake_followup_v1_impl(text,jsonb,boolean) from public,anon,authenticated,service_role',
 ])has(capability,marker,'PostgREST/capability hardening');
+req(/create\s+function\s+public\.get_public_intake_followup_v1\s*\(p_token\s+text\)[\s\S]*?security\s+definer/i.test(capability),'public get follow-up must remain explicit security definer capability');
+req(/create\s+function\s+public\.save_public_intake_followup_v1\s*\(p_token\s+text\s*,\s*p_patch\s+jsonb\s*,\s*p_finalize\s+boolean\)[\s\S]*?security\s+definer/i.test(capability),'public save follow-up must remain explicit security definer capability');
 for(const marker of [
   'public.issue_intake_followup_v1(uuid,uuid,integer,text,text,jsonb,text,text,integer,uuid,uuid,uuid,uuid) to authenticated',
   'public.reconcile_portal_intake_followup_v1(uuid,uuid,integer,integer,jsonb) to authenticated',
@@ -80,4 +83,4 @@ for(const marker of [
 ])has(gateway,marker,'B gateway');
 for(const marker of ['destruction: secure-link document follow-up','portal mode requires principal transaction and request binding','issue response cannot mix secure token and portal request authority','public read requires explicit non-authoritative follow-up contract'])has(tests,marker,'B gateway tests');
 
-if(errors.length){console.error(`ENJAZ PHASE 11.6-B INTAKE FOLLOW-UP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ PHASE 11.6-B INTAKE FOLLOW-UP AUDIT PASS — one canonical intake submission, named PostgREST RPCs, HMAC capability, Portal delegation/evidence, stale/idempotent/revocation boundaries and successor locks are intact.');
+if(errors.length){console.error(`ENJAZ PHASE 11.6-B INTAKE FOLLOW-UP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ PHASE 11.6-B INTAKE FOLLOW-UP AUDIT PASS — canonical submission, named RPCs, HMAC capability, inherited M17 rate limiting, Portal delegation/evidence and successor locks are intact.');
