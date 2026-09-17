@@ -12,6 +12,8 @@ function violations(b=bridge,c=capability){const out=[];
   req(b.includes('extensions.gen_random_bytes(32)')&&b.includes('extensions.hmac('),'hmac-secret-capability');
   req(b.includes('token_hash text')&&!/\btoken\s+text\s+not\s+null/i.test(b),'no-raw-token-column');
   req(b.includes('intake_followup_requests_one_open_per_submission'),'one-open-followup');
+  req(b.includes('constraint intake_followup_requests_mode_binding_check check'),'mode-binding-check-name');
+  req(!b.includes('constraint intake_followup_requests_mode_check check'),'no-duplicate-mode-constraint-name');
   req(b.includes('public.save_client_portal_request_v1('),'portal-owning-create-command');
   req(b.includes('private.revoke_client_portal_request_v1_impl('),'portal-owning-revoke-command');
   req(!/insert\s+into\s+public\.client_portal_requests/i.test(b)&&!/update\s+public\.client_portal_requests/i.test(b),'no-direct-portal-request-write');
@@ -36,6 +38,7 @@ function violations(b=bridge,c=capability){const out=[];
 
 test('11.6-B final source contract is clean',()=>assert.deepEqual(violations(),[]));
 test('destruction: public shadow follow-up table is detected',()=>assert.ok(violations(bridge.replace('create table private.intake_followup_requests','create table public.intake_followup_requests')).includes('private-evidence-store')));
+test('destruction: duplicate PostgreSQL auto-check constraint name is detected',()=>assert.ok(violations(bridge.replace('constraint intake_followup_requests_mode_binding_check check','constraint intake_followup_requests_mode_check check')).includes('no-duplicate-mode-constraint-name')));
 test('destruction: removal of HMAC capability is detected',()=>assert.ok(violations(bridge.replace('extensions.hmac(','extensions.digest(')).includes('hmac-secret-capability')));
 test('destruction: raw capability persistence is detected',()=>assert.ok(violations(bridge.replace('token_hash text','token text not null,\n  token_hash text')).includes('no-raw-token-column')));
 test('destruction: direct Client Portal request write is detected',()=>assert.ok(violations(`${bridge}\nupdate public.client_portal_requests set status='open';`).includes('no-direct-portal-request-write')));
