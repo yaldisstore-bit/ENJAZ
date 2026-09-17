@@ -1,0 +1,36 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const root=new URL('../',import.meta.url);
+const bridge=fs.readFileSync(new URL('database/migrations/phase_11_6_intake_followup_bridge.sql',root),'utf8');
+const capability=fs.readFileSync(new URL('database/migrations/phase_11_6_intake_followup_public_capability.sql',root),'utf8');
+
+function violations(b=bridge,c=capability){const out=[];
+  const req=(ok,name)=>{if(!ok)out.push(name)};
+  req(b.includes('create table private.intake_followup_requests'),'private-evidence-store');
+  req(!/create\s+table\s+public\.intake_followup/i.test(b),'no-public-shadow-followup');
+  req(b.includes('extensions.gen_random_bytes(32)')&&b.includes('extensions.hmac('),'hmac-secret-capability');
+  req(b.includes('token_hash text')&&!/\btoken\s+text\s+not\s+null/i.test(b),'no-raw-token-column');
+  req(b.includes('intake_followup_requests_one_open_per_submission'),'one-open-followup');
+  req(b.includes('public.save_client_portal_request_v1('),'portal-owning-create-command');
+  req(b.includes('private.revoke_client_portal_request_v1_impl('),'portal-owning-revoke-command');
+  req(!/insert\s+into\s+public\.client_portal_requests/i.test(b)&&!/update\s+public\.client_portal_requests/i.test(b),'no-direct-portal-request-write');
+  req(b.includes('l.converted_transaction_id=p_portal_transaction_id'),'portal-transaction-bound-to-intake-lead');
+  req(b.includes("v_request.status<>'fulfilled'")&&b.includes('ENJAZ_INTAKE_FOLLOWUP_PORTAL_RESPONSE_MISSING'),'portal-evidence-required');
+  req(b.includes('v_submission.version<>p_expected_submission_version')&&b.includes('v_submission.version<>v_row.expected_submission_version'),'stale-version-fail-closed');
+  req(b.includes("p_mode='secure_link' and p_request_kind<>'information'")&&b.includes('ENJAZ_INTAKE_FOLLOWUP_DOCUMENT_REQUIRES_PORTAL'),'secure-document-forbidden');
+  req(!b.includes("set status='approved'")&&!b.includes('review_intake_submission_v1'),'final-review-owner-preserved');
+  req(c.includes('public.get_public_intake_followup_v1(text) security definer')&&c.includes('public.save_public_intake_followup_v1(text,jsonb,boolean) security definer'),'explicit-public-capability');
+  req(!c.includes('grant usage on schema private to anon'),'private-schema-not-exposed');
+  return out;
+}
+
+test('11.6-B final source contract is clean',()=>assert.deepEqual(violations(),[]));
+test('destruction: public shadow follow-up table is detected',()=>assert.ok(violations(bridge.replace('create table private.intake_followup_requests','create table public.intake_followup_requests')).includes('private-evidence-store')));
+test('destruction: removal of HMAC capability is detected',()=>assert.ok(violations(bridge.replace('extensions.hmac(','extensions.digest(')).includes('hmac-secret-capability')));
+test('destruction: raw capability persistence is detected',()=>assert.ok(violations(bridge.replace('token_hash text','token text not null,\n  token_hash text')).includes('no-raw-token-column')));
+test('destruction: direct Client Portal request write is detected',()=>assert.ok(violations(`${bridge}\nupdate public.client_portal_requests set status='open';`).includes('no-direct-portal-request-write')));
+test('destruction: removing intake→transaction binding is detected',()=>assert.ok(violations(bridge.replace('l.converted_transaction_id=p_portal_transaction_id','true')).includes('portal-transaction-bound-to-intake-lead')));
+test('destruction: removing fulfilled/evidence gate is detected',()=>assert.ok(violations(bridge.replace("v_request.status<>'fulfilled'","false").replace('ENJAZ_INTAKE_FOLLOWUP_PORTAL_RESPONSE_MISSING','BROKEN_PORTAL_RESPONSE_MISSING')).includes('portal-evidence-required')));
+test('destruction: opening secure-link document upload is detected',()=>assert.ok(violations(bridge.replace("p_mode='secure_link' and p_request_kind<>'information'","false")).includes('secure-document-forbidden')));
+test('destruction: weakening public capability boundary is detected',()=>assert.ok(violations(bridge,capability.replace('public.get_public_intake_followup_v1(text) security definer','public.get_public_intake_followup_v1(text) security invoker')).includes('explicit-public-capability')));
