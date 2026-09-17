@@ -319,7 +319,7 @@ begin
   );
   raise exception 'P116C3_OUTSIDER_EVIDENCE_ACCEPTED';
 exception when others then
-  if sqlerrm not like '%ENJAZ_COMMUNICATION_OWNER_REQUIRED%' then raise; end if;
+  if sqlerrm not like '%ENJAZ_COMMUNICATION_WORKSPACE_FORBIDDEN%' then raise; end if;
 end $$;
 
 reset role;
