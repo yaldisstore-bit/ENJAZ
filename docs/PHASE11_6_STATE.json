@@ -135,5 +135,8 @@
   "phase11_6bSqlProbePath": "database/migrations/phase_11_6_live_intake_followup_probe.sql",
   "phase11_6bRealCloudCertificateScriptPath": "scripts/phase11-6b-real-cloud-e2e.mjs",
   "phase11_6bRealCloudCertificateWorkflowPath": ".github/workflows/phase11-6b-real-cloud-e2e.yml",
-  "phase11_6bRealCloudCertificateStatus": "ARMED_PENDING_MIGRATION"
+  "phase11_6bRealCloudCertificateStatus": "ARMED_PENDING_MIGRATION",
+  "phase11_6bAdvisorHardeningMigrationPath": "database/migrations/phase_11_6_intake_followup_advisor_hardening.sql",
+  "phase11_6bAdvisorHardeningApplied": false,
+  "phase11_6bAdvisorHardeningMigrationVersion": null
 }
