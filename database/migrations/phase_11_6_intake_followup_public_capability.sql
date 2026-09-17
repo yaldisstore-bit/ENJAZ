@@ -1,7 +1,18 @@
--- ENJAZ Phase 11.6-B — PostgREST RPC signatures + public secure-link capability boundary
--- The base migration creates the owning implementations and fail-closed façades.
--- This migration recreates public façades with explicit parameter names required by PostgREST.
+-- ENJAZ Phase 11.6-B — PostgREST signatures + rate-limited public capability boundary
 begin;
+
+create or replace function private.enforce_intake_followup_rate_v1(p_token text,p_event_type text)
+returns void language plpgsql volatile security definer set search_path='' as $$
+declare v_followup private.intake_followup_requests%rowtype; v_link_id uuid;
+begin
+  v_followup:=private.require_live_intake_followup_v1(p_token);
+  select s.link_id into v_link_id
+  from public.intake_submissions s
+  where s.workspace_id=v_followup.workspace_id and s.id=v_followup.submission_id;
+  if v_link_id is null then raise no_data_found using message='ENJAZ_INTAKE_FOLLOWUP_LINK_MISSING'; end if;
+  perform private.enforce_public_intake_rate_v1(v_link_id,p_event_type);
+end; $$;
+revoke all on function private.enforce_intake_followup_rate_v1(text,text) from public,anon,authenticated,service_role;
 
 drop function public.issue_intake_followup_v1(uuid,uuid,integer,text,text,jsonb,text,text,integer,uuid,uuid,uuid,uuid);
 drop function public.get_public_intake_followup_v1(text);
@@ -31,14 +42,18 @@ create function public.issue_intake_followup_v1(
 $$;
 
 create function public.get_public_intake_followup_v1(p_token text)
-returns jsonb language sql volatile security definer set search_path='' as $$
-  select private.get_public_intake_followup_v1_impl(p_token);
-$$;
+returns jsonb language plpgsql volatile security definer set search_path='' as $$
+begin
+  perform private.enforce_intake_followup_rate_v1(p_token,'view');
+  return private.get_public_intake_followup_v1_impl(p_token);
+end; $$;
 
 create function public.save_public_intake_followup_v1(p_token text,p_patch jsonb,p_finalize boolean)
-returns jsonb language sql volatile security definer set search_path='' as $$
-  select private.save_public_intake_followup_v1_impl(p_token,p_patch,p_finalize);
-$$;
+returns jsonb language plpgsql volatile security definer set search_path='' as $$
+begin
+  perform private.enforce_intake_followup_rate_v1(p_token,case when coalesce(p_finalize,false) then 'submit' else 'save_draft' end);
+  return private.save_public_intake_followup_v1_impl(p_token,p_patch,p_finalize);
+end; $$;
 
 create function public.reconcile_portal_intake_followup_v1(
   p_workspace_id uuid,
@@ -58,11 +73,11 @@ create function public.revoke_intake_followup_v1(
   select private.revoke_intake_followup_v1_impl(p_workspace_id,p_followup_id,p_expected_version,p_reason);
 $$;
 
--- Anonymous capability is exposed only by the two token-bound public definer façades.
+-- No browser role executes private capability implementations directly.
 revoke all on function private.get_public_intake_followup_v1_impl(text) from public,anon,authenticated,service_role;
 revoke all on function private.save_public_intake_followup_v1_impl(text,jsonb,boolean) from public,anon,authenticated,service_role;
 
--- Staff/browser commands remain SECURITY INVOKER and authenticated-only.
+-- Staff commands remain SECURITY INVOKER and authenticated-only.
 revoke all on function public.issue_intake_followup_v1(uuid,uuid,integer,text,text,jsonb,text,text,integer,uuid,uuid,uuid,uuid) from public,anon,service_role;
 grant execute on function public.issue_intake_followup_v1(uuid,uuid,integer,text,text,jsonb,text,text,integer,uuid,uuid,uuid,uuid) to authenticated;
 revoke all on function public.reconcile_portal_intake_followup_v1(uuid,uuid,integer,integer,jsonb) from public,anon,service_role;
@@ -70,6 +85,7 @@ grant execute on function public.reconcile_portal_intake_followup_v1(uuid,uuid,i
 revoke all on function public.revoke_intake_followup_v1(uuid,uuid,integer,text) from public,anon,service_role;
 grant execute on function public.revoke_intake_followup_v1(uuid,uuid,integer,text) to authenticated;
 
+-- Token capability is intentionally public to anon/authenticated, but requires a valid bearer and is rate-limited.
 revoke all on function public.get_public_intake_followup_v1(text) from public,service_role;
 grant execute on function public.get_public_intake_followup_v1(text) to anon,authenticated;
 revoke all on function public.save_public_intake_followup_v1(text,jsonb,boolean) from public,service_role;
