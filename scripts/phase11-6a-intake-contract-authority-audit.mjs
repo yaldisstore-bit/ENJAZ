@@ -15,9 +15,19 @@ const has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 
 req(predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true&&predecessor.phase11_6Allowed===true,'Phase 11.6 requires formally closed/authorized Phase 11.5');
 req(predecessor.nextPhase==='11.6'&&['AUTHORIZED','AUTHORIZED_NEXT'].includes(predecessor.successorStatus),'Phase 11.5 successor must authorize 11.6');
-req(state.phase==='11.6'&&state.status==='IN_PROGRESS'&&state.mode==='AUTHORITY_FREEZE','Phase 11.6 must open in authority-freeze mode');
+req(state.phase==='11.6'&&state.status==='IN_PROGRESS','Phase 11.6 lifecycle must remain IN_PROGRESS until its own exit gate closes');
 req(state.baseCommit==='14a670e8dd2d892a7039fd7a52437a8c6274aa2a','Phase 11.6 base must remain formal Phase 11.5 closure SHA');
-req(state.currentSlice==='11.6-A'&&state.exitGatePassed===false&&state.phase11_7Allowed===false&&state.successorStatus==='LOCKED','11.6-A must keep 11.7 locked');
+
+if(state.currentSlice==='11.6-A'){
+  req(state.mode==='AUTHORITY_FREEZE','Open 11.6-A must remain in authority-freeze mode');
+  req(state.exitGatePassed===false,'Open 11.6-A cannot pre-pass the Phase 11.6 exit gate');
+}else{
+  req(['11.6-B','11.6-C','11.6-D'].includes(state.currentSlice),'Only a governed Phase 11.6 successor slice may follow 11.6-A');
+  req(state.phase11_6aStatus==='CLOSED'&&state.phase11_6aExitGatePassed===true,'Successor slice requires formally closed 11.6-A evidence');
+  req(state.phase11_6aMergeCommit==='d44b27411f3b994eb79f9e75ea0f8c15984c0412','11.6-A canonical merge lineage drifted');
+  req(state.phase11_6aPostMergeRecertification==='PASS_EXACT_MAIN_SHA','Successor slice requires exact-main 11.6-A recertification');
+}
+req(state.phase11_7Allowed===false&&state.successorStatus==='LOCKED','Phase 11.7 must remain locked while Phase 11.6 is IN_PROGRESS');
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false,'Phase 11.6 frozen budgets drifted');
 
 for(const [id,name] of [['M17','Smart Intake Forms & Secure Submission Links'],['M16','Engagements, Contracts & Retainers']]){
@@ -74,4 +84,4 @@ if(errors.length){
   console.error(`ENJAZ PHASE 11.6-A AUTHORITY AUDIT FAIL (${errors.length})`);
   errors.forEach((e)=>console.error(`- ${e}`));
   process.exitCode=1;
-}else console.log('ENJAZ PHASE 11.6-A AUTHORITY AUDIT PASS — M17/M16/M3/M4/M10 authorities remain canonical; public intake and client decisions are evidence/input only; 11.7 stays locked.');
+}else console.log('ENJAZ PHASE 11.6-A AUTHORITY AUDIT PASS — A is either the active authority freeze or a preserved exact-main predecessor; M17/M16/M3/M4/M10 authorities remain canonical and 11.7 stays locked.');
