@@ -52,12 +52,13 @@ for(const marker of ['workspaceLocalDateTimeToInstant','businessDateForInstant',
 for(const marker of [
   "['day','يوم']","['week','أسبوع']","['month','شهر']","['agenda','أجندة']",
   'navigator.onLine','recordCalendarEventAttendance','checkCalendarEventStaffConflicts','rescheduleCalendarEvent',
-  'لا يمكن اعتماد إعادة الجدولة دون تعيين موظف صريح','buildUnifiedCalendarIcs',
+  'لا يمكن إعادة الجدولة دون موظف معيّن صراحةً','data-calendar-offline="true"','buildUnifiedCalendarIcs',
 ])has(ui,marker,'unified calendar UX');
+req(!ui.includes("import './calendar.css'"),'calendar must reuse frozen R2 surfaces instead of adding calendar-only CSS');
 for(const marker of ["useLiveRecordsPortal('calendar'",'LiveUnifiedCalendarExperience'])has(portal,marker,'calendar production portal');
 for(const marker of ["| 'calendar'","['calendar', 'التقويم والمواعيد'","['operations', 'calendar'","تقويم: 'calendar'","مواعيد: 'calendar'"])has(nav,marker,'calendar navigation');
 for(const marker of ["import('../calendar/LiveUnifiedCalendarProductionPortal.tsx')","value === 'calendar'","destination === 'calendar'"])has(lazy,marker,'lazy calendar portal');
 for(const marker of ['workspace local appointment time uses workspace timezone','calendar export is one-way ICS evidence','rejects malformed or downgraded calendar schemas'])has(tests,marker,'unified calendar tests');
 
 if(errors.length){console.error(`ENJAZ PHASE 11.5-D UNIFIED CALENDAR IMPLEMENTATION FAIL (${errors.length})`);for(const error of errors)console.error(`- ${error}`);process.exitCode=1}
-else console.log('ENJAZ PHASE 11.5-D UNIFIED CALENDAR IMPLEMENTATION PASS — canonical sources only, workspace-timezone boundaries, four views, governed conflict/attendance/reschedule UX, offline fail-closed state and one-way calendar export are wired.');
+else console.log('ENJAZ PHASE 11.5-D UNIFIED CALENDAR IMPLEMENTATION PASS — canonical sources only, workspace-timezone boundaries, four views, governed conflict/attendance/reschedule UX, offline fail-closed state, R2 surface reuse and one-way calendar export are wired.');
