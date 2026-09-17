@@ -164,8 +164,8 @@
   "phase11_6cM16VersionedTransitionAdded": true,
   "phase11_6cM16LegacyTransitionBrowserAllowed": false,
   "phase11_6cClientDecisionBridgeAdded": true,
-  "phase11_6cRenewalProvenanceAdded": false,
-  "phase11_6cCommunicationEvidenceBridgeAdded": false,
+  "phase11_6cRenewalProvenanceAdded": true,
+  "phase11_6cCommunicationEvidenceBridgeAdded": true,
   "phase11_6cMigrationApplied": true,
   "phase11_6cRealCloudVerification": "PASS_C1",
   "phase11_6cPermissionMatrix": "PASS_C1",
@@ -228,5 +228,14 @@
   "phase11_6cC2NewPerformanceAdvisorFindings": 0,
   "phase11_6cC2SourceGateRunId": 35285792722,
   "phase11_6cC2ProbeSourceGateRunId": 35286127205,
-  "phase11_6cC2SourceGate": "PASS"
+  "phase11_6cC2SourceGate": "PASS",
+  "phase11_6cRenewalCommunicationMigrationPath": "database/migrations/phase_11_6_contract_renewal_communication_evidence.sql",
+  "phase11_6cRenewalCommunicationGatewayPath": "src/features/intake-contract-communication/contractRenewalCommunicationCommands.ts",
+  "phase11_6cRenewalCommunicationGatewayTestsPath": "tests/contractRenewalCommunicationCommands.test.ts",
+  "phase11_6cRenewalCommunicationDestructionTestsPath": "tests/contractRenewalCommunicationSource.test.mjs",
+  "phase11_6cRenewalCommunicationMigrationApplied": false,
+  "phase11_6cRenewalCommunicationMigrationVersion": null,
+  "phase11_6cRenewalCommunicationRealCloudVerification": "PENDING",
+  "phase11_6cC3Status": "IN_PROGRESS",
+  "phase11_6cC3ExitGatePassed": false
 }
