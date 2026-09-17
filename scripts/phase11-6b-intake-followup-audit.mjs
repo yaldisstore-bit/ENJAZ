@@ -88,8 +88,8 @@ for(const marker of ['destruction: secure-link document follow-up','portal mode 
 
 for(const marker of [
   'set local role authenticated','set local role anon','P116B_PRIVATE_DIRECT_INSERT_NOT_BLOCKED',
-  'P116B_CROSS_WORKSPACE_SUBMISSION_NOT_REJECTED','P116B_SECURE_RETRY_NOT_IDEMPOTENT',
-  'P116B_PORTAL_TRANSACTION_UNBOUND_NOT_REJECTED','P116B_WORKSPACE_RESIDUE'
+  'P116B_CROSS_WORKSPACE_NOT_REJECTED','P116B_IDEMPOTENT_RETRY_FAILED',
+  'P116B_UNBOUND_PORTAL_NOT_REJECTED','P116B_WORKSPACE_RESIDUE'
 ])has(probe,marker,'B SQL Real Cloud probe');
 
 req(state.phase11_6bSqlProbePath==='database/migrations/phase_11_6_live_intake_followup_probe.sql','B SQL probe path drifted');
