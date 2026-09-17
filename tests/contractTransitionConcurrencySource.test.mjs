@@ -19,8 +19,7 @@ function violations(s=sql,g=gateway,p=panel){
   req(s.includes('v_receipt.response_payload')&&s.includes("'wasDuplicate',true"),'idempotent-replay');
   req(s.includes('public.transition_engagement_contract_revision_v1('),'canonical-v1-owner-reused');
   req(/create or replace function public\.transition_engagement_contract_revision_v2\([\s\S]*?security invoker/i.test(s),'public-v2-invoker');
-  req(s.includes('revoke all on function public.transition_engagement_contract_revision_v1(')
-    &&s.includes('from public,anon,authenticated,service_role'),'legacy-v1-browser-revoked');
+  req(s.includes("revoke all on function public.transition_engagement_contract_revision_v1(\n  uuid,uuid,text,uuid,uuid,date,date,jsonb,text\n) from public,anon,authenticated,service_role;"),'legacy-v1-browser-revoked');
   req(!/update\s+public\.engagement_contract_revisions[\s\S]*?set\s+status/i.test(s.split('create or replace function private.transition_engagement_contract_revision_v2_impl')[1]??''),'v2-no-shadow-direct-status-write');
   req(g.includes("transition_engagement_contract_revision_v2"),'gateway-v2-rpc');
   req(g.includes('operationId: string;')&&g.includes('expectedVersion: number;'),'gateway-operation-version-contract');
@@ -32,7 +31,7 @@ function violations(s=sql,g=gateway,p=panel){
 
 test('11.6-C1 versioned M16 transition source contract is clean',()=>assert.deepEqual(violations(),[]));
 test('destruction: removing operation id is detected',()=>assert.ok(violations(sql.replace("create or replace function public.transition_engagement_contract_revision_v2(\n  p_workspace_id uuid,\n  p_revision_id uuid,\n  p_operation_id uuid,","create or replace function public.transition_engagement_contract_revision_v2(\n  p_workspace_id uuid,\n  p_revision_id uuid,\n  uuid,")).includes('v2-operation-version-input')));
-test('destruction: removing expected version is detected',()=>assert.ok(violations(sql.replace("  p_operation_id uuid,\n  p_expected_version integer,\n  p_to_status text,","  p_operation_id uuid,\n  integer,\n  p_to_status text,")).includes('v2-operation-version-input')));
+test('destruction: removing expected version is detected',()=>assert.ok(violations(sql.replace("create or replace function public.transition_engagement_contract_revision_v2(\n  p_workspace_id uuid,\n  p_revision_id uuid,\n  p_operation_id uuid,\n  p_expected_version integer,","create or replace function public.transition_engagement_contract_revision_v2(\n  p_workspace_id uuid,\n  p_revision_id uuid,\n  p_operation_id uuid,\n  integer,")).includes('v2-operation-version-input')));
 test('destruction: stale guard removal is detected',()=>assert.ok(violations(sql.replace('ENJAZ_CONTRACT_TRANSITION_STALE','BROKEN_STALE')).includes('stale-fail-closed')));
 test('destruction: idempotency conflict removal is detected',()=>assert.ok(violations(sql.replace('ENJAZ_CONTRACT_TRANSITION_IDEMPOTENCY_CONFLICT','BROKEN_IDEMPOTENCY')).includes('idempotency-conflict')));
 test('destruction: legacy v1 browser grant is detected',()=>assert.ok(violations(sql.replace("revoke all on function public.transition_engagement_contract_revision_v1(\n  uuid,uuid,text,uuid,uuid,date,date,jsonb,text\n) from public,anon,authenticated,service_role;","revoke all on function public.transition_engagement_contract_revision_v1(\n  uuid,uuid,text,uuid,uuid,date,date,jsonb,text\n) from public,anon,service_role;")).includes('legacy-v1-browser-revoked')));
