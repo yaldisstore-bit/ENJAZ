@@ -4,8 +4,9 @@ import fs from 'node:fs';
 const root=new URL('../',import.meta.url);
 const bridge=fs.readFileSync(new URL('database/migrations/phase_11_6_intake_followup_bridge.sql',root),'utf8');
 const capability=fs.readFileSync(new URL('database/migrations/phase_11_6_intake_followup_public_capability.sql',root),'utf8');
+const hardening=fs.readFileSync(new URL('database/migrations/phase_11_6_intake_followup_advisor_hardening.sql',root),'utf8');
 
-function violations(b=bridge,c=capability){const out=[];
+function violations(b=bridge,c=capability,h=hardening){const out=[];
   const req=(ok,name)=>{if(!ok)out.push(name)};
   req(b.includes('create table private.intake_followup_requests'),'private-evidence-store');
   req(!/create\s+table\s+public\.intake_followup/i.test(b),'no-public-shadow-followup');
@@ -22,17 +23,24 @@ function violations(b=bridge,c=capability){const out=[];
   req(b.includes('v_submission.version<>p_expected_submission_version')&&b.includes('v_submission.version<>v_row.expected_submission_version'),'stale-version-fail-closed');
   req(b.includes("p_mode='secure_link' and p_request_kind<>'information'")&&b.includes('ENJAZ_INTAKE_FOLLOWUP_DOCUMENT_REQUIRES_PORTAL'),'secure-document-forbidden');
   req(!b.includes("set status='approved'")&&!b.includes('review_intake_submission_v1'),'final-review-owner-preserved');
+
   req(c.includes('private.enforce_public_intake_rate_v1(v_link_id,p_event_type)'),'reuse-m17-rate-limiter');
-  req(c.includes("private.enforce_intake_followup_rate_v1(p_token,'view')")&&c.includes("case when coalesce(p_finalize,false) then 'submit' else 'save_draft' end"),'public-capability-rate-guard');
   req(/create\s+function\s+public\.issue_intake_followup_v1\s*\([\s\S]*?p_workspace_id\s+uuid[\s\S]*?p_submission_id\s+uuid[\s\S]*?p_expected_submission_version\s+integer[\s\S]*?security\s+invoker/i.test(c),'named-staff-issue-rpc');
-  req(/create\s+function\s+public\.get_public_intake_followup_v1\s*\(p_token\s+text\)\s*returns\s+jsonb\s+language\s+plpgsql\s+volatile\s+security\s+definer/i.test(c),'named-public-get-capability');
-  req(/create\s+function\s+public\.save_public_intake_followup_v1\s*\(p_token\s+text\s*,\s*p_patch\s+jsonb\s*,\s*p_finalize\s+boolean\)\s*returns\s+jsonb\s+language\s+plpgsql\s+volatile\s+security\s+definer/i.test(c),'named-public-save-capability');
   req(/create\s+function\s+public\.reconcile_portal_intake_followup_v1\s*\([\s\S]*?p_expected_followup_version\s+integer[\s\S]*?p_expected_submission_version\s+integer[\s\S]*?p_answer_patch\s+jsonb[\s\S]*?security\s+invoker/i.test(c),'named-staff-reconcile-rpc');
   req(/create\s+function\s+public\.revoke_intake_followup_v1\s*\([\s\S]*?p_expected_version\s+integer[\s\S]*?p_reason\s+text[\s\S]*?security\s+invoker/i.test(c),'named-staff-revoke-rpc');
-  req(c.includes('revoke all on function private.enforce_intake_followup_rate_v1(text,text) from public,anon,authenticated,service_role'),'private-rate-helper-hidden');
-  req(c.includes('revoke all on function private.get_public_intake_followup_v1_impl(text) from public,anon,authenticated,service_role'),'private-public-get-impl-hidden');
-  req(c.includes('revoke all on function private.save_public_intake_followup_v1_impl(text,jsonb,boolean) from public,anon,authenticated,service_role'),'private-public-save-impl-hidden');
-  req(!c.includes('grant usage on schema private to anon'),'private-schema-not-exposed');
+
+  req(h.includes('intake_followup_requests_portal_principal_fk_idx')&&h.includes('intake_followup_requests_requested_by_fk_idx'),'advisor-fk-index-hardening');
+  req(/create\s+or\s+replace\s+function\s+private\.get_public_intake_followup_capability_v1\s*\(p_token\s+text\)[\s\S]*?security\s+definer/i.test(h),'private-get-capability-definer');
+  req(/create\s+or\s+replace\s+function\s+private\.save_public_intake_followup_capability_v1\s*\([\s\S]*?security\s+definer/i.test(h),'private-save-capability-definer');
+  req(h.includes("private.enforce_intake_followup_rate_v1(p_token,'view')")&&h.includes("case when coalesce(p_finalize,false) then 'submit' else 'save_draft' end"),'private-capability-rate-guard');
+  req(/create\s+or\s+replace\s+function\s+public\.get_public_intake_followup_v1\s*\(p_token\s+text\)[\s\S]*?security\s+invoker/i.test(h),'final-public-get-invoker');
+  req(/create\s+or\s+replace\s+function\s+public\.save_public_intake_followup_v1\s*\([\s\S]*?security\s+invoker/i.test(h),'final-public-save-invoker');
+  req(h.includes('grant usage on schema private to anon'),'anon-private-usage-explicit');
+  req(h.includes('grant execute on function private.get_public_intake_followup_capability_v1(text) to anon,authenticated'),'anon-get-capability-only');
+  req(h.includes('grant execute on function private.save_public_intake_followup_capability_v1(text,jsonb,boolean) to anon,authenticated'),'anon-save-capability-only');
+  req(!/grant\s+execute\s+on\s+all\s+functions\s+in\s+schema\s+private\s+to\s+anon/i.test(h),'no-broad-private-anon-execute');
+  req(h.includes('revoke all on function private.get_public_intake_followup_v1_impl(text)')&&h.includes('revoke all on function private.save_public_intake_followup_v1_impl(text,jsonb,boolean)'),'base-public-impls-hidden');
+  req(h.includes('revoke all on function private.enforce_intake_followup_rate_v1(text,text)'),'rate-helper-hidden');
   return out;
 }
 
@@ -45,6 +53,8 @@ test('destruction: direct Client Portal request write is detected',()=>assert.ok
 test('destruction: removing intake→transaction binding is detected',()=>assert.ok(violations(bridge.replace('l.converted_transaction_id=p_portal_transaction_id','true')).includes('portal-transaction-bound-to-intake-lead')));
 test('destruction: removing fulfilled/evidence gate is detected',()=>assert.ok(violations(bridge.replace("v_request.status<>'fulfilled'","false").replace('ENJAZ_INTAKE_FOLLOWUP_PORTAL_RESPONSE_MISSING','BROKEN_PORTAL_RESPONSE_MISSING')).includes('portal-evidence-required')));
 test('destruction: opening secure-link document upload is detected',()=>assert.ok(violations(bridge.replace("p_mode='secure_link' and p_request_kind<>'information'","false")).includes('secure-document-forbidden')));
-test('destruction: removing inherited M17 rate limiter is detected',()=>assert.ok(violations(bridge,capability.replace('private.enforce_public_intake_rate_v1(v_link_id,p_event_type)','null')).includes('reuse-m17-rate-limiter')));
-test('destruction: weakening public get capability is detected',()=>assert.ok(violations(bridge,capability.replace(/(create\s+function\s+public\.get_public_intake_followup_v1\s*\(p_token\s+text\)\s*returns\s+jsonb\s+language\s+plpgsql\s+volatile\s+)security\s+definer/i,'$1security invoker')).includes('named-public-get-capability')));
+test('destruction: removing inherited M17 limiter is detected',()=>assert.ok(violations(bridge,capability.replace('private.enforce_public_intake_rate_v1(v_link_id,p_event_type)','null')).includes('reuse-m17-rate-limiter')));
+test('destruction: removing final capability rate guard is detected',()=>assert.ok(violations(bridge,capability,hardening.replace("private.enforce_intake_followup_rate_v1(p_token,'view')","null")).includes('private-capability-rate-guard')));
+test('destruction: public get returning to SECURITY DEFINER is detected',()=>assert.ok(violations(bridge,capability,hardening.replace(/(create\s+or\s+replace\s+function\s+public\.get_public_intake_followup_v1\s*\(p_token\s+text\)[\s\S]*?)security\s+invoker/i,'$1security definer')).includes('final-public-get-invoker')));
+test('destruction: broad anon execute on private schema is detected',()=>assert.ok(violations(bridge,capability,`${hardening}\ngrant execute on all functions in schema private to anon;`).includes('no-broad-private-anon-execute')));
 test('destruction: unnamed staff issue RPC is detected',()=>assert.ok(violations(bridge,capability.replace('p_workspace_id uuid','uuid')).includes('named-staff-issue-rpc')));
