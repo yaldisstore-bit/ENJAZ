@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { EnjazDataLayerFactory } from '../src/data/createDataLayer.ts';
+import { businessDateForInstant, enumerateBusinessDates, localInputForInstant, workspaceLocalDateTimeToInstant } from '../src/features/scheduling/calendarTime.ts';
 import { buildUnifiedCalendarIcs, loadUnifiedCalendar, parseUnifiedCalendarSnapshot, shiftUnifiedCalendarAnchor } from '../src/features/scheduling/unifiedCalendar.ts';
 
 const WORKSPACE='11111111-1111-4111-8111-111111111111';
@@ -42,6 +43,14 @@ test('date navigation is date-only and independent of device timezone',()=>{
   assert.equal(shiftUnifiedCalendarAnchor('2026-09-17','week',-1),'2026-09-10');
   assert.equal(shiftUnifiedCalendarAnchor('2026-09-17','month',1),'2026-10-01');
   assert.equal(shiftUnifiedCalendarAnchor('2026-09-17','agenda',1),'2026-12-16');
+  assert.deepEqual(enumerateBusinessDates('2026-09-29','2026-10-02'),['2026-09-29','2026-09-30','2026-10-01']);
+});
+
+test('workspace local appointment time uses workspace timezone, never device timezone',()=>{
+  const instant=workspaceLocalDateTimeToInstant('2026-09-17T11:30','Asia/Baghdad');
+  assert.equal(instant,'2026-09-17T08:30:00.000Z');
+  assert.equal(localInputForInstant(instant,'Asia/Baghdad'),'2026-09-17T11:30');
+  assert.equal(businessDateForInstant('2026-09-16T22:30:00Z','Asia/Baghdad'),'2026-09-17');
 });
 
 test('calendar export is one-way ICS evidence and never becomes scheduling authority',()=>{
