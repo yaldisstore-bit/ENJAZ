@@ -42,7 +42,7 @@ req(!/create\s+table/i.test(boundary),'11.5-D timezone boundary must not create 
 
 for(const marker of [
   "factory.rpc('list_unified_calendar_v2'",
-  "'day' | 'week' | 'month' | 'agenda'",
+  "UnifiedCalendarView='day'|'week'|'month'|'agenda'",
   'buildUnifiedCalendarIcs',
   "'METHOD:PUBLISH'",
   'X-ENJAZ-AUTHORITY',
@@ -64,4 +64,4 @@ for(const marker of ["import('../calendar/LiveUnifiedCalendarProductionPortal.ts
 for(const marker of ['workspace local appointment time uses workspace timezone','calendar export is one-way ICS evidence','rejects malformed or downgraded calendar schemas'])has(tests,marker,'unified calendar tests');
 
 if(errors.length){console.error(`ENJAZ PHASE 11.5-D UNIFIED CALENDAR IMPLEMENTATION FAIL (${errors.length})`);for(const error of errors)console.error(`- ${error}`);process.exitCode=1}
-else console.log('ENJAZ PHASE 11.5-D UNIFIED CALENDAR IMPLEMENTATION PASS — canonical read projection, workspace-timezone boundaries, four views, governed M10 writes preserved outside D, offline state, R2 surface reuse and one-way calendar export are wired.');
+else console.log('ENJAZ PHASE 11.5-D UNIFIED CALENDAR IMPLEMENTATION PASS — canonical read projection, workspace-timezone boundaries, four views, governed M10 writes preserved outside D, offline state, lean browser contract, R2 surface reuse and one-way calendar export are wired.');
