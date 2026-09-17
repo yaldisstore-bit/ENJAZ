@@ -38,6 +38,7 @@ export default defineConfig({
       optimization: { inlineConst: true },
       output: {
         minify: true,
+        topLevelVar: true,
         comments: { legal: true, annotation: false, jsdoc: false },
         codeSplitting: {
           groups: [
