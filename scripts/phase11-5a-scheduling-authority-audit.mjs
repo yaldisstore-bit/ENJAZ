@@ -25,12 +25,14 @@ const has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 const lacks=(s,m,l)=>req(!s.includes(m),`${l} forbidden marker present: ${m}`);
 const allowedSlices=new Set(['11.5-A','11.5-B','11.5-C','11.5-D']);
 const aIsCurrent=state.currentSlice==='11.5-A';
+const phaseClosed=state.status==='CLOSED';
 
 req(predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true&&predecessor.phase11_5Allowed===true,'Phase 11.4 must remain formally CLOSED and authorize 11.5');
 req(state.phase==='11.5'&&state.systemId==='M10'&&state.systemStatus==='ACTIVE','11.5/M10 lifecycle identity invalid');
-req(state.status==='IN_PROGRESS'&&allowedSlices.has(state.currentSlice),'11.5 must remain IN_PROGRESS on an authorized delivery slice');
+req(['IN_PROGRESS','CLOSED'].includes(state.status)&&allowedSlices.has(state.currentSlice),'11.5 must remain on a valid delivery/closure lifecycle state');
 req(state.baseCommit==='0850de9e274a18ddb49d319677890a4e59ea7226','11.5 must retain its certified Phase 11.4 opening lineage');
-req(state.phase11_6Allowed===false&&state.nextPhase==='11.6'&&state.successorStatus==='LOCKED','11.6 must remain locked');
+if(phaseClosed) req(state.phase11_6Allowed===true&&state.nextPhase==='11.6'&&state.successorStatus==='AUTHORIZED_NEXT','closed 11.5 must authorize only 11.6');
+else req(state.phase11_6Allowed===false&&state.nextPhase==='11.6'&&state.successorStatus==='LOCKED','11.6 must remain locked while 11.5 is open');
 
 for(const [field,value] of [
   ['calendarEventAuthority','calendar_events'],
@@ -77,7 +79,8 @@ req(state.calendarDirectAuthenticatedInsertAllowed===false&&state.calendarDirect
 req(state.calendarAuthenticatedSelectAllowed===true&&state.renewalAuthenticatedSelectAllowed===true,'authorized scheduling reads must remain available');
 req(state.permissionMatrixVerification==='PASS_DIRECT_TABLE_WRITE_BLOCKED_GOVERNED_RPC_ALLOWED','permission matrix evidence missing');
 req(state.phase11_5aLockdownCandidateReady===true,'lockdown candidate must retain Real Cloud proof');
-req(state.exitGatePassed===false,'overall Phase 11.5 cannot close before slices B-D');
+if(phaseClosed) req(state.exitGatePassed===true,'closed Phase 11.5 must retain a passed overall exit gate');
+else req(state.exitGatePassed===false,'open Phase 11.5 cannot close before all slices certify');
 
 if(aIsCurrent){
   req(state.phase11_5aExitGatePassed===false,'11.5-A cannot be marked closed while it is still the current slice');
@@ -205,6 +208,8 @@ if(errors.length){
   console.error(`ENJAZ PHASE 11.5-A AUTHORITY AUDIT FAIL (${errors.length})`);
   errors.forEach(e=>console.error(`- ${e}`));
   process.exitCode=1;
+}else if(phaseClosed){
+  console.log('ENJAZ PHASE 11.5-A PRESERVATION AUDIT PASS — A authority and lockdown evidence remain certified under formal Phase 11.5 closure; 11.6 is the only authorized successor.');
 }else{
   console.log(aIsCurrent
     ? 'ENJAZ PHASE 11.5-A AUTHORITY AUDIT PASS — lockdown candidate remains correctly open pending exact-main recertification.'
