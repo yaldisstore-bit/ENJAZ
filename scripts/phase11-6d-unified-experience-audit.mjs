@@ -35,6 +35,18 @@ if(state.phase11_6dUnifiedReadModelAdded===true){
 }
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false,'frozen budgets drifted');
 if(state.phase11_6dUnifiedExperienceImplemented===true){
+  req(state.phase11_6dRealBrowserVerification==='PASS_1280_430_390_360_320','D3 five-width browser certificate missing');
+  req(state.phase11_6dRealBrowserRunId===35314058289&&state.phase11_6dRealBrowserRunNumber===11&&state.phase11_6dRealBrowserHead==='f0339676c21b5cf1e6da0d154f7f6e8379a830e5'&&state.phase11_6dRealBrowserChecks===7,'D3 browser run lineage invalid');
+  req(state.phase11_6dRealBrowserArtifactId===10533698463&&state.phase11_6dRealBrowserArtifactDigest==='sha256:55ee78d43135d949779f09d59b57fa08fc19fede3328d03736868d0b356cf2b5','D3 browser artifact certificate invalid');
+  req(state.phase11_6dRealCloudVerification==='PASS'&&state.realCloudAuthenticatedVerification==='PASS_11_6D_FINAL','D4 Real Cloud certificate missing');
+  req(state.phase11_6dRealCloudRunId===35313859136&&state.phase11_6dRealCloudRunNumber===1&&state.phase11_6dRealCloudHead==='ed580e348356ebc7ef36474f8d73d19f03bd4134'&&state.phase11_6dRealCloudChecks===12,'D4 Real Cloud run lineage invalid');
+  req(state.phase11_6dRealCloudArtifactId===10534297950&&state.phase11_6dRealCloudArtifactDigest==='sha256:e43fae747f6c1ac63d7be596ed6c92ba76e1b9b9179a9cd410f6bff6f3b7557d','D4 Real Cloud artifact certificate invalid');
+  for(const f of ['phase11_6dRealCloudFreshWorkspace','phase11_6dRealCloudDurableProjectionRoundTrip','phase11_6dRealCloudAnonDenied','phase11_6dRealCloudWorkspaceIsolation','phase11_6dRealCloudStaleExposure','phase11_6dRealCloudStaleRecovery','phase11_6dRealCloudRevokedTruth','phase11_6dRealCloudTerminalFilter'])req(state[f]==='PASS',`D4 proof missing: ${f}`);
+  req(state.phase11_6dRealCloudZeroResidue===true&&state.phase11_6dRealCloudExternalResidueCheck==='PASS','D4 zero-residue certificate invalid');
+  req(state.phase11_6dSecurityAdvisorPostD4Total===65&&state.phase11_6dPerformanceAdvisorPostD4Total===80&&state.phase11_6dUnindexedForeignKeysPostD4===28&&state.phase11_6dD4NewSecurityAdvisorFindings===0&&state.phase11_6dD4NewPerformanceAdvisorFindings===0,'D4 advisor certificate invalid');
+  req(state.phase11_6dInitialJavascriptBytes===430928&&state.phase11_6dTotalJavascriptBytes===759521&&state.phase11_6dCssBytes===179989&&state.phase11_6dJavascriptMarginBytes===479&&state.phase11_6dBudgetVerification==='PASS_FROZEN_CAPS_NO_INCREASE','D frozen budget certificate invalid');
+}
+if(state.phase11_6dUnifiedExperienceImplemented===true){
   req(state.phase11_6dRealBrowserVerification==='PASS_1280_430_390_360_320','implemented D requires five-width browser PASS');
   req(state.phase11_6dRealBrowserRunId===35314058289&&state.phase11_6dRealBrowserRunNumber===11&&state.phase11_6dRealBrowserHead==='f0339676c21b5cf1e6da0d154f7f6e8379a830e5'&&state.phase11_6dRealBrowserChecks===7,'D3 browser certificate lineage invalid');
   req(state.phase11_6dRealCloudVerification==='PASS','implemented D requires Real Cloud PASS');
