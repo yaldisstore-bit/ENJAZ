@@ -44,9 +44,10 @@ req(!fs.existsSync(new URL('supabase/functions/enjaz-legacy-intake',root)),'13.1
 has(roadmap,'## 13.1 — Read-only Legacy Snapshot Intake — IN_PROGRESS','roadmap');
 has(roadmap,'Phase 13.2 — Normalize & Map remains **LOCKED**','roadmap');
 has(readme,'Phase 13.1 — Read-only Legacy Snapshot Intake','README');
-if(state.currentSlice==='A2_QUARANTINE_REVIEW_MANIFEST'){
+if(['A2_QUARANTINE_REVIEW_MANIFEST','A3_DESTRUCTION_AND_CLOSURE_READINESS'].includes(state.currentSlice)){
   has(readme,'A1 CERTIFIED 10/10','README');
-  has(readme,'A2 QUARANTINE REVIEW MANIFEST','README');
+  if(state.currentSlice==='A2_QUARANTINE_REVIEW_MANIFEST') has(readme,'A2 QUARANTINE REVIEW MANIFEST','README');
+  if(state.currentSlice==='A3_DESTRUCTION_AND_CLOSURE_READINESS') has(readme,'A3 DESTRUCTION & CLOSURE READINESS','README');
 }else{
   has(readme,'A1 READ-ONLY CONTRACT','README');
 }
