@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "phase": "12.5",
+  "name": "AI Zero-Escape & Safety Gate",
+  "status": "IN_PROGRESS",
+  "mode": "DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY",
+  "baseCommit": "e3f38a28db5bc423e73551af79ce210c54dfda03",
+  "implementationBranch": "phase12-5-ai-zero-escape",
+  "predecessor": {
+    "phase": "12.4",
+    "requiredStatus": "CLOSED",
+    "requiredAuthorization": "phase12_5Allowed=true",
+    "closureEvidence": "docs/PHASE12_4_CLOSURE.md",
+    "formalClosureCommit": "e3f38a28db5bc423e73551af79ce210c54dfda03"
+  },
+  "successorPhase": "13.1",
+  "successorName": "Read-only Legacy Snapshot Intake",
+  "successorStatus": "LOCKED",
+  "phase13_1Allowed": false,
+  "newFeatureAuthorityAllowed": false,
+  "newDatabaseTablesAllowed": false,
+  "newWriteRpcAuthorityAllowed": false,
+  "newProviderAuthorityAllowed": false,
+  "newClientUiAllowed": false,
+  "budgetIncreaseAllowed": false,
+  "javascriptBudgetBytes": 670000,
+  "totalJavascriptBudgetBytes": 760000,
+  "cssBudgetBytes": 180000,
+  "systemsUnderGate": [
+    "M8",
+    "M9"
+  ],
+  "destructionDimensions": [
+    "hallucination_missing_data",
+    "prompt_injection",
+    "permission_escape",
+    "malicious_regulatory_content",
+    "structured_output_regression",
+    "approval_tool_bypass",
+    "provider_outage_recovery"
+  ],
+  "inheritedAuthority": {
+    "m8": {
+      "phase9Foundation": "docs/PHASE9_4_CLOSURE.md",
+      "phase12Assistance": "docs/PHASE12_4_CLOSURE.md",
+      "officialTruthAuthority": "PHASE9_4_M8_ONLY",
+      "aiOutputAuthoritative": false,
+      "editorialOutputAuthoritative": false,
+      "directRegulatoryMutationAllowed": false,
+      "serviceRoleRegulatoryReadsAllowed": false,
+      "ambiguousAsOfBehavior": "FAIL_CLOSED",
+      "missingAuthorityBehavior": "FAIL_CLOSED_NO_FABRICATION"
+    },
+    "m9": {
+      "phase12Agentic": "docs/PHASE12_3_CLOSURE.md",
+      "genericExecuteAllowed": false,
+      "genericWriteToolAllowed": false,
+      "explicitApprovalRequired": true,
+      "proposalDigestBindingRequired": true,
+      "approvalSingleUseRequired": true,
+      "domainRevalidationRequired": true,
+      "serviceRoleBusinessReadsAllowed": false,
+      "providerConfigured": false
+    }
+  },
+  "systemEvidence": {
+    "M8": {
+      "status": "PENDING",
+      "requiredProperty": "hallucination_prompt_injection_permission_malicious_content_binding_and_outage_safety",
+      "globalClosureEvidence": "docs/M8_ZERO_ESCAPE_CLOSURE.json"
+    },
+    "M9": {
+      "status": "PENDING",
+      "requiredProperty": "approval_tool_bypass_prompt_injection_permission_structured_output_and_outage_safety",
+      "globalClosureEvidence": "docs/M9_ZERO_ESCAPE_CLOSURE.json"
+    }
+  },
+  "zeroEscapeLaw": {
+    "individualSystemEvidenceRequired": true,
+    "branchCiAloneCanCloseSystem": false,
+    "realCloudRequired": true,
+    "authorizedUnauthorizedJourneysRequired": true,
+    "realBrowserRequired": true,
+    "deployedLiveRequired": true,
+    "exactMergedShaRequired": true,
+    "postMergeRecertificationRequired": true,
+    "zeroCriticalHighFunctionalBlockersRequired": true
+  },
+  "openingWave": "W1_STATIC_AND_CONTRACT_DESTRUCTION",
+  "openingWaveStatus": "IN_PROGRESS",
+  "kickoffEvidence": "docs/PHASE12_5_KICKOFF.md",
+  "auditPath": "scripts/phase12-5-ai-zero-escape-audit.mjs",
+  "destructionTestPath": "tests/phase12-5-ai-zero-escape.test.ts",
+  "workflowPath": ".github/workflows/phase12-5-ai-zero-escape.yml",
+  "realCloudVerification": "PENDING",
+  "realBrowserVerification": "PENDING",
+  "deployedLiveVerification": "PENDING",
+  "pullRequestGate": "PENDING",
+  "postMergeRecertification": "PENDING",
+  "exitGatePassed": false,
+  "closureDecision": "PENDING",
+  "knownCriticalDefects": 0,
+  "knownHighDefects": 0,
+  "knownFunctionalBlockers": 0,
+  "closureEvidence": null
+}
