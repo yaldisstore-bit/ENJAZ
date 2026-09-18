@@ -5,7 +5,7 @@ import {LEGACY_SNAPSHOT_SCHEMA} from '../src/features/import/legacySnapshotContr
 import {LEGACY_MAPPING_PLAN_SCHEMA,buildLegacyMappingPreview,parseLegacyMappingPlan} from '../src/features/import/legacyMappingContract.ts';
 
 const state=JSON.parse(fs.readFileSync('docs/PHASE13_2_STATE.json','utf8'));
-const snapshot=()=>({
+const snapshot=():any=>({
  schema:LEGACY_SNAPSHOT_SCHEMA,snapshotId:'legacy-13-2-a1',source:{system:'legacy-office-app',exportId:'batch-132'},capturedAt:'2026-09-19T00:00:00Z',
  records:[
   {type:'company',id:'c1',fields:{name:'  شركة قديمة  ',capital:'100000000',ignored:'يبقى خارج الخريطة'},links:[]},
