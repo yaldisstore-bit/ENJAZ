@@ -109,7 +109,7 @@ async function runM10(){
  const newStart=new Date(start.getTime()+86400000),newEnd=new Date(end.getTime()+86400000);
  const recovered=await staff.client.rpc('reschedule_calendar_event_v1',{p_workspace_id:ws,p_event_id:event,p_operation_id:uuid(),p_expected_version:1,p_starts_at:newStart.toISOString(),p_ends_at:newEnd.toISOString(),p_reason:'Recover with current version'});
  if(recovered.error)throw recovered.error;
- assert(recovered.data?.version===2&&recovered.data?.startsAt===newStart.toISOString(),'M10','stale_recovery_committed');
+ assert(recovered.data?.version===2&&Date.parse(String(recovered.data?.startsAt??''))===newStart.getTime(),'M10','stale_recovery_committed');
 
  const anchor=newStart.toISOString().slice(0,10);
  const view=await staff.client.rpc('list_unified_calendar_v2',{p_workspace_id:ws,p_anchor_date:anchor,p_view:'day',p_source:'appointment',p_staff_member_id:member,p_company_id:null,p_transaction_id:null,p_limit:100});
