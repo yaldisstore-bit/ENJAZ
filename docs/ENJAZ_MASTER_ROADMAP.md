@@ -430,7 +430,8 @@ AI is allowed only after authoritative business domains and permission boundarie
 ## 12.4 — Regulatory Knowledge Assistance — M8 — IN_PROGRESS
 - Retrieve/version regulatory sources and distinguish source text, structured facts and AI interpretation.
 - Phase 12 must consume the authority contract established by Phase 9.4 rather than creating a second source of regulatory truth.
-- **A1 — Grounded Regulatory Assistance Contract: IN_PROGRESS** — exact Phase 12.3 closure base `cc01d06be81be27e614d80c9edaa86bdf4e79634`; read-only `answer` contract with explicit `asOf`, exact source-version/hash/provenance citations, fail-closed ambiguity/missing-authority behavior, and hard separation of authoritative official text/structured facts from non-authoritative interpretation. No DB/Edge/UI/provider delta.
+- **A1 — Grounded Regulatory Assistance Contract: CERTIFIED** — exact Phase 12.3 closure base `cc01d06be81be27e614d80c9edaa86bdf4e79634`; read-only `answer` contract with explicit `asOf`, exact source-version/hash/provenance citations, fail-closed ambiguity/missing-authority behavior, and hard separation of authoritative official text/structured facts from non-authoritative interpretation. No DB/Edge/UI/provider delta; source Gate #3 / `35379162122`: **PASS** (7/7 A1 tests), frozen build **431032 / 759568 JS + 179989 CSS**.
+- **A2 — Authenticated M8 Retrieval Edge: IN_PROGRESS** — caller-JWT-only retrieval through existing `search_regulatory_knowledge_v1` + `get_regulatory_knowledge_entry_v1`; no service role, no regulatory mutation, no new DB authority.
 
 ## 12.5 — AI Zero-Escape & Safety Gate
 - Hallucination/missing-data resistance, prompt injection, permission attacks, malicious documents, structured-output regression, tool approval and provider outage recovery.
