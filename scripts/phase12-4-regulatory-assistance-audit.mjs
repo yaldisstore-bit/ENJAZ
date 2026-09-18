@@ -73,7 +73,7 @@ if(['A2_AUTHENTICATED_M8_RETRIEVAL_EDGE','A3_SEARCH_ENTRY_BINDING_HARDENING'].in
   for(const marker of ['caller JWT is mandatory','no service-role/secret key is used','search_regulatory_knowledge_v1','get_regulatory_knowledge_entry_v1','exact official version'])has(a2Kickoff,marker,'12.4 A2 kickoff');
   req(state.a2EdgeAuthority==='CALLER_JWT_ONLY'&&state.a2ServiceRoleAllowed===false&&state.a2DatabaseMigrationRequired===false,'12.4 A2 authority state drifted');
   req(state.a2VerifyJwtRequired===true&&state.a2DirectTableAccessAllowed===false&&state.a2MutationRpcAllowed===false,'12.4 A2 Edge restrictions drifted');
-  for(const marker of ["userClient.auth.getUser(token)","userClient.rpc('search_regulatory_knowledge_v1'","userClient.rpc('get_regulatory_knowledge_entry_v1'","p_as_of:parsed.asOf","official.versionId!==ref.versionId","buildRegulatoryAssistanceResult(parsed,entries)"])has(edge,marker,'12.4 A2 Edge');
+  for(const marker of ["userClient.auth.getUser(token)","userClient.rpc('search_regulatory_knowledge_v1'","userClient.rpc('get_regulatory_knowledge_entry_v1'","p_as_of:parsed.asOf","assertRegulatoryEntryMatchesSearchReference(response.data,ref,parsed)","buildRegulatoryAssistanceResult(parsed,entries)"])has(edge,marker,'12.4 A2 Edge');
   req(!/SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEY|SUPABASE_SECRET_KEYS|serviceKey\(|\badmin\b/.test(edge),'12.4 A2 service-role/admin authority forbidden');
   req(!/\.from\(/.test(edge),'12.4 A2 direct table access forbidden');
   req(!/OPENAI_API_KEY|ANTHROPIC_API_KEY|@ai-sdk\/|generateText|streamText|responses\.create/.test(edge),'12.4 A2 provider path forbidden');
@@ -90,7 +90,7 @@ if(['A2_AUTHENTICATED_M8_RETRIEVAL_EDGE','A3_SEARCH_ENTRY_BINDING_HARDENING'].in
 
 if(state.slice==='A3_SEARCH_ENTRY_BINDING_HARDENING'){
   has(roadmap,'**A3 — Search↔Entry Binding Hardening: IN_PROGRESS**','roadmap');
-  for(const marker of ['Search↔Entry Binding Hardening','sourceId','versionId','sourceHash','scope','rollback-only','Phase 12.5 remains **LOCKED**'])has(a3Kickoff,marker,'12.4 A3 kickoff');
+  for(const marker of ['Search↔Entry Binding Hardening','sourceId','versionId','sourceHash','scope','rollback-only','Phase 12.5 remains LOCKED.'])has(a3Kickoff,marker,'12.4 A3 kickoff');
   req(state.a2FinalSourceGateVerification==='PASS'&&state.a2FinalSourceGateRunId===35380605634&&state.a2FinalSourceGateRunNumber===7&&state.a2FinalSourceGateHead==='0b0c61ce3399713b86dd768cdf5550304e2eede5','12.4 A2 final certification gate drifted');
   req(state.a3Status==='IN_PROGRESS'&&state.a3SearchRootBindingRequired===true&&state.a3ScopeWorkspaceShapeRequired===true&&state.a3UnconfiguredEntryAfterSearchAllowed===false,'12.4 A3 state contract drifted');
   req(state.a3DatabaseMigrationRequired===false&&state.a3PermanentFixtureSeedingAllowed===false&&state.a3PopulatedLiveHttpJourneyClaimed===false,'12.4 A3 must not invent DB authority or fake live truth');
