@@ -24,6 +24,7 @@ test('A3 DB source rejects client permission/write preclaims',()=>{
 });
 test('A3 DB source rejects duplicate IDs existing targets and relation drift',()=>{
   has('ENJAZ_LEGACY_IMPORT_SOURCE_KEY_DUPLICATE');has('ENJAZ_LEGACY_IMPORT_TARGET_ID_DUPLICATE');has('ENJAZ_LEGACY_IMPORT_TARGET_ALREADY_EXISTS');
+  has('ENJAZ_LEGACY_IMPORT_SOURCE_ALREADY_IMPORTED');
   has('ENJAZ_LEGACY_IMPORT_RELATION_ENDPOINT_INVALID');has('ENJAZ_LEGACY_IMPORT_RELATION_AUTHORITY_INVALID');has('ENJAZ_LEGACY_IMPORT_TRANSACTION_COMPANY_REQUIRED');
 });
 test('A3 DB source uses transaction-scoped advisory idempotency with changed-payload conflict',()=>{
@@ -45,4 +46,11 @@ test('A3 DB source is atomic by one RPC and never updates existing target rows',
 test('A3 DB source grants only authenticated execution and keeps public/anon revoked',()=>{
   has('revoke all on function public.execute_legacy_ordered_import_v1(uuid,uuid,text,jsonb) from public,anon');
   has('grant execute on function public.execute_legacy_ordered_import_v1(uuid,uuid,text,jsonb) to authenticated');
+});
+
+test('A3 DB source enforces JSON field types instead of implicit scalar-to-text coercion',()=>{
+  has("jsonb_typeof(v_fields->'display_name')<>'string'");
+  has("jsonb_typeof(v_fields->'legal_name')<>'string'");
+  has("jsonb_typeof(v_fields->'type')<>'string'");
+  has("jsonb_typeof(v_fields->'current_fee')<>'number'");
 });
