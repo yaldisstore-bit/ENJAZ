@@ -13,12 +13,11 @@ const P='55555555-5555-4555-8555-555555555555';
 const E='66666666-6666-4666-8666-666666666666';
 const WHEN='2099-09-19T09:30:00.000Z';
 
-test('12.3 A3-C extends allowlist by self reminder only',()=>{
-  assert.deepEqual(AGENT_ACTION_OPERATIONS,[
-    'prepare_followup_snooze','execute_followup_snooze',
-    'prepare_followup_create','execute_followup_create',
-    'prepare_schedule_reminder','execute_schedule_reminder',
-  ]);
+test('12.3 A3-C reminder operations remain preserved inside the expanded A3 allowlist',()=>{
+  for(const op of ['prepare_schedule_reminder','execute_schedule_reminder'] as const){
+    assert.ok(AGENT_ACTION_OPERATIONS.includes(op));
+  }
+  assert.equal(AGENT_ACTION_OPERATIONS.filter(x=>x.includes('schedule_reminder')).length,2);
 });
 
 test('12.3 A3-C reminder digest binds source, operation id and exact time',async()=>{
