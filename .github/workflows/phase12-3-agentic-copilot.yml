@@ -1,0 +1,74 @@
+name: ENJAZ Phase 12.3 — Agentic Copilot A1 Gate
+
+on:
+  push:
+    branches:
+      - main
+      - phase12-3-agentic-copilot
+    paths:
+      - 'docs/PHASE12_3_*.md'
+      - 'docs/PHASE12_3_*.json'
+      - 'supabase/functions/enjaz-copilot-agent/**'
+      - 'scripts/phase12-3-*'
+      - 'tests/phase12-3-*'
+      - '.github/workflows/phase12-3-agentic-copilot.yml'
+      - 'README.md'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+  pull_request:
+    paths:
+      - 'docs/PHASE12_3_*.md'
+      - 'docs/PHASE12_3_*.json'
+      - 'supabase/functions/enjaz-copilot-agent/**'
+      - 'scripts/phase12-3-*'
+      - 'tests/phase12-3-*'
+      - '.github/workflows/phase12-3-agentic-copilot.yml'
+      - 'README.md'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+
+permissions:
+  contents: read
+
+jobs:
+  phase12-3-a1:
+    name: Plan Contract / Destruction / Predecessor Preservation / Frozen Budgets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 12.3 A1 lifecycle and authority audit
+        run: node scripts/phase12-3-agentic-copilot-audit.mjs
+      - name: Phase 12.3 A1 lifecycle tests
+        run: node --test tests/phase12-3-agentic-copilot.test.mjs
+      - name: Phase 12.3 A1 agent plan core tests
+        run: node --experimental-strip-types --test tests/phase12-3-agentic-copilot-core.test.ts
+      - name: Phase 12.3 A1 source destruction tests
+        run: node --test tests/phase12-3-agentic-copilot-source.test.mjs
+      - name: Preserve certified Phase 12.2 contextual assistance
+        run: |
+          node scripts/phase12-2-contextual-assistance-audit.mjs
+          node --test tests/phase12-2-contextual-assistance.test.mjs
+          node --experimental-strip-types --test tests/phase12-2-contextual-assistance-core.test.ts
+          node --test tests/phase12-2-contextual-assistance-source.test.mjs
+          node --test tests/phase12-2-contextual-assistance-ui.test.mjs
+      - name: Database and roadmap integrity
+        run: |
+          python3 database/scripts/audit_schema.py
+          python3 database/scripts/audit_selftest.py
+          node scripts/roadmap-audit.mjs
+      - name: Secrets and TypeScript
+        run: |
+          node scripts/secret-audit.mjs
+          npm run typecheck
+      - name: Production build and frozen client budgets
+        run: |
+          npm run build
+          node scripts/dist-budget-audit.mjs
