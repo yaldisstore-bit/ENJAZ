@@ -1,7 +1,8 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import {createClient} from 'npm:@supabase/supabase-js@2.114.0';
 import {
-  REGULATORY_ASSISTANCE_SCHEMA,buildRegulatoryAssistanceResult,parseRegulatoryAssistanceRequest,successEnvelope,
+  REGULATORY_ASSISTANCE_SCHEMA,assertRegulatoryEntryMatchesSearchReference,buildRegulatoryAssistanceResult,
+  parseRegulatoryAssistanceRequest,parseRegulatorySearchEvidence,successEnvelope,
   type RegulatoryAssistanceRequest,
 } from './core.ts';
 
@@ -11,9 +12,6 @@ const cors={
   'Access-Control-Allow-Methods':'POST,OPTIONS',
   'Cache-Control':'no-store',
 };
-type J=Record<string,unknown>;
-const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 function json(status:number,body:unknown){return new Response(JSON.stringify(body),{status,headers:{...cors,'Content-Type':'application/json; charset=utf-8'}})}
 function publicKey(){
   const modern=Deno.env.get('SUPABASE_PUBLISHABLE_KEYS');
@@ -21,10 +19,6 @@ function publicKey(){
   const direct=Deno.env.get('SUPABASE_PUBLISHABLE_KEY')||Deno.env.get('SUPABASE_ANON_KEY');
   if(direct)return direct;
   throw new Error('SERVER_PUBLIC_KEY_UNAVAILABLE');
-}
-function record(value:unknown,label:string):J{
-  if(!value||typeof value!=='object'||Array.isArray(value))throw new Error(label+'_INVALID');
-  return value as J;
 }
 function text(value:unknown){return typeof value==='string'?value:''}
 function errorEnvelope(requestId:string|null,code:string,message:string){
@@ -46,7 +40,7 @@ function statusFor(code:string){
   if(code==='AUTH_REQUIRED'||code==='AUTH_INVALID')return 401;
   if(code==='ENJAZ_REGULATORY_WORKSPACE_ACCESS_DENIED')return 403;
   if(code==='ENJAZ_REGULATORY_SOURCE_NOT_FOUND')return 404;
-  if(code==='ENJAZ_REGULATORY_ASOF_AMBIGUOUS'||code==='REGULATORY_VERSION_BINDING_CONFLICT')return 409;
+  if(code==='ENJAZ_REGULATORY_ASOF_AMBIGUOUS'||code==='REGULATORY_VERSION_BINDING_CONFLICT'||code==='REGULATORY_SEARCH_VERSION_AMBIGUOUS'||code==='REGULATORY_SEARCH_DUPLICATE_SOURCE'||code==='REGULATORY_SEARCH_ENTRY_MISSING'||code==='REGULATORY_SOURCE_BINDING_CONFLICT'||code==='REGULATORY_SEARCH_WORKSPACE_MISMATCH'||code==='REGULATORY_SEARCH_ASOF_MISMATCH'||code==='REGULATORY_SEARCH_SCOPE_WORKSPACE_MISMATCH')return 409;
   if(code==='ENJAZ_REGULATORY_SEARCH_INPUT_INVALID'||code.endsWith('_INVALID')||code==='REQUEST_FIELD_FORBIDDEN'||code==='OPERATION_FORBIDDEN')return 400;
   return 500;
 }
@@ -58,7 +52,14 @@ function messageFor(code:string){
     case 'ENJAZ_REGULATORY_SEARCH_INPUT_INVALID':return 'Regulatory search input is invalid.';
     case 'ENJAZ_REGULATORY_ASOF_AMBIGUOUS':return 'Regulatory authority is ambiguous for the requested as-of date.';
     case 'ENJAZ_REGULATORY_SOURCE_NOT_FOUND':return 'Regulatory source was not found.';
-    case 'REGULATORY_VERSION_BINDING_CONFLICT':return 'Regulatory source version changed between search and retrieval.';
+    case 'REGULATORY_VERSION_BINDING_CONFLICT':
+    case 'REGULATORY_SEARCH_VERSION_AMBIGUOUS':
+    case 'REGULATORY_SEARCH_DUPLICATE_SOURCE':
+    case 'REGULATORY_SEARCH_ENTRY_MISSING':
+    case 'REGULATORY_SOURCE_BINDING_CONFLICT':
+    case 'REGULATORY_SEARCH_WORKSPACE_MISMATCH':
+    case 'REGULATORY_SEARCH_ASOF_MISMATCH':
+    case 'REGULATORY_SEARCH_SCOPE_WORKSPACE_MISMATCH':return 'Regulatory source binding changed during retrieval.';
     default:return 'Regulatory assistance could not be completed.';
   }
 }
@@ -90,14 +91,7 @@ Deno.serve(async(req:Request)=>{
       const code=databaseCode(search.error);
       return json(statusFor(code),errorEnvelope(parsed.requestId,code,messageFor(code)));
     }
-    const root=record(search.data,'REGULATORY_SEARCH');
-    if(root.schema!=='enjaz.regulatory-knowledge.search.v1'||!Array.isArray(root.items))throw new Error('REGULATORY_SEARCH_RESPONSE_INVALID');
-    const refs=root.items.map((value)=>{
-      const item=record(value,'REGULATORY_SEARCH_ITEM');
-      const sourceId=text(item.sourceId),versionId=text(item.versionId);
-      if(item.authoritative!==true||!UUID.test(sourceId)||!UUID.test(versionId)||item.asOf!==parsed!.asOf)throw new Error('REGULATORY_SEARCH_RESPONSE_INVALID');
-      return Object.freeze({sourceId,versionId});
-    });
+    const refs=parseRegulatorySearchEvidence(search.data,parsed);
 
     const entries:unknown[]=[];
     for(const ref of refs){
@@ -108,9 +102,7 @@ Deno.serve(async(req:Request)=>{
         const code=databaseCode(response.error);
         return json(statusFor(code),errorEnvelope(parsed.requestId,code,messageFor(code)));
       }
-      const entry=record(response.data,'REGULATORY_ENTRY');
-      const official=entry.configured===true?record(entry.official,'REGULATORY_OFFICIAL'):null;
-      if(official&&official.versionId!==ref.versionId)throw new Error('REGULATORY_VERSION_BINDING_CONFLICT');
+      assertRegulatoryEntryMatchesSearchReference(response.data,ref,parsed);
       entries.push(response.data);
     }
 
@@ -120,7 +112,9 @@ Deno.serve(async(req:Request)=>{
     const raw=error instanceof Error?error.message:'REGULATORY_ASSISTANCE_FAILED';
     const known=new Set([
       'REQUEST_INVALID','REQUEST_FIELD_FORBIDDEN','WORKSPACE_ID_INVALID','REQUEST_ID_INVALID','OPERATION_FORBIDDEN','QUERY_INVALID','AS_OF_INVALID','LIMIT_INVALID',
-      'REGULATORY_SEARCH_RESPONSE_INVALID','REGULATORY_ENTRY_INVALID','REGULATORY_ENTRY_SCHEMA_INVALID','REGULATORY_ENTRY_WORKSPACE_INVALID','REGULATORY_ENTRY_AS_OF_INVALID',
+      'REGULATORY_SEARCH_RESPONSE_INVALID','REGULATORY_SEARCH_SCHEMA_INVALID','REGULATORY_SEARCH_ITEMS_INVALID','REGULATORY_SEARCH_ITEM_INVALID',
+      'REGULATORY_SEARCH_WORKSPACE_MISMATCH','REGULATORY_SEARCH_ASOF_MISMATCH','REGULATORY_SEARCH_SCOPE_WORKSPACE_MISMATCH','REGULATORY_SEARCH_VERSION_AMBIGUOUS','REGULATORY_SEARCH_DUPLICATE_SOURCE',
+      'REGULATORY_SEARCH_ENTRY_MISSING','REGULATORY_SOURCE_BINDING_CONFLICT','REGULATORY_ENTRY_INVALID','REGULATORY_ENTRY_SCHEMA_INVALID','REGULATORY_ENTRY_WORKSPACE_INVALID','REGULATORY_ENTRY_AS_OF_INVALID',
       'REGULATORY_WORKSPACE_MISMATCH','REGULATORY_ASOF_MISMATCH','REGULATORY_ASOF_AMBIGUOUS','REGULATORY_VERSION_BINDING_CONFLICT'
     ]);
     const code=known.has(raw)?raw:'REGULATORY_ASSISTANCE_FAILED';
