@@ -39,7 +39,7 @@ test('13.1 lifecycle starts from exact 12.5 closure and keeps 13.2 locked',()=>{
 
 test('13.1 accepts opaque Arabic legacy fields without mapping',()=>{
   const {snapshot,inventory}=intakeLegacySnapshot(base());
-  assert.equal(snapshot.records[0].fields.name,'شركة قديمة');
+  assert.equal(snapshot.records[0]!.fields.name,'شركة قديمة');
   assert.equal(inventory.authoritative,false);
   assert.equal(inventory.readOnly,true);
   assert.equal(inventory.mappingPerformed,false);
