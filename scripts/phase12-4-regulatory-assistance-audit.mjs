@@ -19,7 +19,7 @@ req(state.phase==='12.4'&&state.name==='Regulatory Knowledge Assistance'&&state.
 req(state.baseCommit==='cc01d06be81be27e614d80c9edaa86bdf4e79634','12.4 base must be exact final 12.3 closure merge');
 req(state.predecessorClosureMergeCommit===state.baseCommit,'12.4 predecessor lineage drifted');
 req(state.successorPhase==='12.5'&&state.successorStatus==='LOCKED'&&state.phase12_5Allowed===false,'12.5 must remain locked');
-req(state.slice==='A1_GROUNDED_REGULATORY_ASSISTANCE_CONTRACT','12.4 opening slice drifted');
+req(['A1_GROUNDED_REGULATORY_ASSISTANCE_CONTRACT','A2_AUTHENTICATED_M8_RETRIEVAL_EDGE'].includes(state.slice),'12.4 current slice drifted');
 
 req(m8.phase==='9.4'&&m8.status==='CLOSED'&&m8.majorSystem?.id==='M8'&&m8.majorSystem?.status==='ACTIVE','Phase 9.4 M8 foundation must remain closed/active');
 req(m8.majorSystem?.anchors?.join(',')==='9,12'&&m8.majorSystem?.globalClosureAllowed===false,'M8 anchor/global closure law drifted');
@@ -38,6 +38,9 @@ req(state.ambiguousAsOfBehavior==='FAIL_CLOSED'&&state.missingAuthorityBehavior=
 req(state.generationMode==='DETERMINISTIC_REGULATORY_GROUNDING_V1','12.4 A1 generation mode drifted');
 req(JSON.stringify(state.openingOperations)===JSON.stringify(['answer']),'12.4 A1 operation registry drifted');
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000,'frozen client ceilings drifted');
+req(state.a1Certification==='PASS_GROUNDED_REGULATORY_ASSISTANCE_CONTRACT'&&state.a1CertificationStatus==='CERTIFIED','12.4 A1 certification missing');
+req(state.a1SourceGateVerification==='PASS'&&state.a1SourceGateRunId===35379162122&&state.a1SourceGateRunNumber===3&&state.a1SourceGateHead==='da314e4eb25be023260f8d43619337d2e3cf643c','12.4 A1 source certificate drifted');
+req(state.a1CoreTests===7&&state.a1CoreTestFailures===0&&state.a1BudgetVerification==='PASS_FROZEN_CAPS','12.4 A1 test/budget certificate drifted');
 
 for(const marker of ['Status:** CLOSED / CERTIFIED','0353e15d0e8299ba5410d6fff5bf540b41b90443','Phase 12.4 — Regulatory Knowledge Assistance — M8 is now **AUTHORIZED_NEXT**'])has(closure,marker,'12.3 closure');
 for(const marker of ['Status: **CLOSED','official-global ingestion remains **SERVICE_ROLE_ONLY**','editorial interpretation and AI summaries remain permanently **NON-AUTHORITATIVE**','M8 remains `ACTIVE`'])has(m8Closure,marker,'Phase 9.4 M8 closure');
@@ -59,7 +62,8 @@ req(!/\.from\(|\.rpc\(/.test(core),'12.4 A1 pure core may not read tables or cal
 req(!/\b(insert into|update\s+public\.|delete from|service_role)\b/i.test(core),'12.4 A1 source/mutation/service-role escape forbidden');
 
 has(roadmap,'## 12.4 — Regulatory Knowledge Assistance — M8 — IN_PROGRESS','roadmap');
-has(roadmap,'**A1 — Grounded Regulatory Assistance Contract: IN_PROGRESS**','roadmap');
+has(roadmap,'**A1 — Grounded Regulatory Assistance Contract: CERTIFIED**','roadmap');
+if(state.slice==='A2_AUTHENTICATED_M8_RETRIEVAL_EDGE')has(roadmap,'**A2 — Authenticated M8 Retrieval Edge: IN_PROGRESS**','roadmap');
 
 if(errors.length){console.error(`ENJAZ PHASE 12.4 A1 AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error('- '+e));process.exit(1)}
 console.log('ENJAZ PHASE 12.4 A1 REGULATORY ASSISTANCE AUDIT PASS — exact 12.3 closure lineage, Phase 9.4 M8 truth reused without shadow authority, explicit asOf/version/hash/provenance grounding, non-authoritative interpretation, no provider/persistence/UI/Edge/DB delta, frozen budgets preserved, and 12.5 locked.');
