@@ -32,7 +32,9 @@ test('A3 DB source uses transaction-scoped advisory idempotency with changed-pay
   has('ENJAZ_LEGACY_IMPORT_IDEMPOTENCY_CONFLICT');has("'wasDuplicate',true");no(/on\s+conflict/i,'no upsert');
 });
 test('A3 DB source imports only contacts then companies then transactions',()=>{
-  const c=sql.indexOf("targetTable'='contacts'"),co=sql.indexOf("targetTable'='companies'"),t=sql.indexOf("targetTable'='transactions'");
+  const c=sql.indexOf("where value->>'targetTable'='contacts' order by value->>'sourceKey'");
+  const co=sql.indexOf("where value->>'targetTable'='companies' order by value->>'sourceKey'");
+  const t=sql.indexOf("where value->>'targetTable'='transactions' order by value->>'sourceKey'");
   assert.ok(c>=0&&co>c&&t>co);has("legacy_source");has("'phase13.3'");
 });
 test('A3 DB source assigns only certified relationships after dependencies exist',()=>{
