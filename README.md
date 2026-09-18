@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 11.7 — Communication Zero-Escape Gate 🟡 IN PROGRESS — DESTRUCTION & CLOSURE EVIDENCE ONLY**  
-آخر مرحلة مغلقة: **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 ✅ CLOSED / POST-CLOSURE EXACT-MAIN + PAGES + LIVE EXTERNAL CERTIFIED**  
-المرحلة اللاحقة: **Phase 12.1 — Copilot Foundation — LOCKED**.
+الحالة الرسمية: **Phase 11.7 — Communication Zero-Escape Gate ✅ CLOSED / REAL CLOUD + EXACT-MAIN + PAGES + LIVE EXTERNAL CERTIFIED**  
+آخر مرحلة مغلقة: **Phase 11.7 — Communication Zero-Escape Gate ✅ CLOSED / ZERO-ESCAPE CERTIFIED**  
+المرحلة اللاحقة: **Phase 12.1 — Copilot Foundation — AUTHORIZED_NEXT**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -53,21 +53,23 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 11.4 — Omnichannel Communications Hub — M4: ✅ CLOSED + Real Cloud + exact-main + Real Browser + governance certified.**
 - **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10: ✅ CLOSED + authenticated Real Cloud + dedicated 5-width Chromium + exact-main cumulative gates + frozen-budget certification.**
 - **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: ✅ CLOSED + Real Cloud + five-width Chromium + post-closure exact-main + Pages + Live External certified.**
-- **Phase 11.7 — Communication Zero-Escape Gate: 🟡 IN PROGRESS — M3/M4/M10 + Phase-11 M16/M17 destruction evidence; Phase 12.1 LOCKED.**
+- **Phase 11.7 — Communication Zero-Escape Gate: ✅ CLOSED — M3/M4/M10 + Phase-11 M16/M17 individual Real Cloud, PR gate, exact-main Real Browser, Pages and Live External certified.**
 
 ## Phase 11.7 — الحالة الحالية
 
 - formal base: `5c4b1bfa4cda339fbbd96b7d3bbf938ef560f98a` — Phase 11.6 final closure merge.
-- branch: `phase11-7-communication-zero-escape`.
-- mode: **DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY**؛ no new feature authority / DB table / write RPC / shadow truth store.
-- systems under gate: **M3 / M4 / M10 / M16 Phase-11 / M17 Phase-11**; all remain ACTIVE at opening.
-- roadmap destruction dimensions: **large counts / stale targets / duplicate events / revoked links / unauthorized portal access / delivery failure / timezone boundaries / archived relations**.
-- opening source gate #2 / `35316622618`: **PASS**; opening destruction wave **8/8 PASS**; Roadmap #1437 **PASS**.
-- Real Cloud Wave 1: **PENDING** — M3 pinned to published exact-closure #148; fresh M4/M10 + re-run M16/M17 certificates prepared.
-- Phase 11.6 post-closure exact-main baseline: **35/35 SUCCESS**؛ Quality #1695, Real Browser #1611, Major Systems #812, Roadmap #1434, Pages #1538, Live External #1214.
-- frozen budgets: **670000 initial JS / 760000 total JS / 180000 CSS**؛ no cap increase / no feature cut.
-- Phase 12.1 — Copilot Foundation: **LOCKED** until full 11.7 Zero-Escape + Real Cloud + Real Browser + deployed-live + post-merge certification passes.
+- implementation branch: `phase11-7-communication-zero-escape`; final closure branch: `phase11-7-final-closure`.
+- formal base: `5c4b1bfa4cda339fbbd96b7d3bbf938ef560f98a`; implementation merge: `21bce9a1a94c0ffcef90a5c9b1de4cecbd31b819`.
+- mode remained **DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY**؛ no new feature authority / DB table / write RPC / shadow truth store.
+- systems certified: **M3 / M4 / M10 / M16 Phase-11 / M17 Phase-11**.
+- opening destruction wave: **8/8 PASS** across large counts / stale targets / duplicate events / revoked links / unauthorized portal access / delivery failure / timezone boundaries / archived relations.
+- Real Cloud Wave 1 #13 / `35320196712`: **PASS / ZERO RESIDUE**؛ M10 stale hardening migration `20260918073107`, 9/9 hardened and 0 retryable stale conflicts remaining.
+- PR #195: Phase 11.7 Gate #21, Quality #1696, Major Systems #813, Roadmap #1456, Constitution #2171, Real Browser #1612 — **PASS**.
+- exact-main merge `21bce9a1a94c0ffcef90a5c9b1de4cecbd31b819`: **35/35 SUCCESS**؛ Quality #1697, Real Browser #1613, Major Systems #814, Roadmap #1457, Pages #1540, Live External #1216.
+- final frozen build: **430928 / 670000 initial JS, 759521 / 760000 total JS, 179989 / 180000 CSS**؛ no cap increase / no feature cut.
+- Phase 12.1 — Copilot Foundation: **AUTHORIZED_NEXT** only from the final merged 11.7 closure.
 - kickoff: [`docs/PHASE11_7_KICKOFF.md`](docs/PHASE11_7_KICKOFF.md).
+- closure evidence: [`docs/PHASE11_7_CLOSURE.md`](docs/PHASE11_7_CLOSURE.md).
 - lifecycle state: [`docs/PHASE11_7_STATE.json`](docs/PHASE11_7_STATE.json).
 
 ## Phase 11.6 — دليل الإغلاق الحالي
