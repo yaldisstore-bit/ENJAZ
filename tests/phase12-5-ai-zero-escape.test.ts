@@ -80,7 +80,8 @@ test('12.5 M9 action allowlist stays exact and generic execute is absent',()=>{
     'prepare_document_request','execute_document_request',
     'prepare_document_draft','execute_document_draft'
   ]);
-  assert.equal(AGENT_ACTION_OPERATIONS.some(x=>x==='execute'||x==='execute_sql'||x==='execute_rpc'),false);
+  const operationNames:readonly string[]=AGENT_ACTION_OPERATIONS;
+  assert.equal(operationNames.includes('execute')||operationNames.includes('execute_sql')||operationNames.includes('execute_rpc'),false);
 });
 
 test('12.5 M9 prepare cannot inject approval or finalization fields',()=>{
@@ -152,12 +153,12 @@ test('12.5 malicious regulatory source text cannot become authority instructions
       sourceLocator:'official-test',publisher:'جهة رسمية',sourceUrl:'https://example.gov.iq/test',retrievedOn:'2026-09-18'}
   };
   const result=buildRegulatoryAssistanceResult(req,[entry]);
-  assert.equal(result.officialSourceText[0].authoritative,true);
+  assert.equal(result.officialSourceText[0]!.authoritative,true);
   assert.equal(result.interpretation.authoritative,false);
   assert.equal(result.grounding.providerUsed,false);
   assert.equal(result.grounding.exactVersionBinding,true);
   assert.equal(result.grounding.sourceHashBinding,true);
-  assert.equal(result.citations[0].sourceHash,H);
+  assert.equal(result.citations[0]!.sourceHash,H);
 });
 
 test('12.5 M8 Edge stays caller-JWT read-only with exactly two read RPC families',()=>{
