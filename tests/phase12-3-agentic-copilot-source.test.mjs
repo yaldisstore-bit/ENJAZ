@@ -32,7 +32,8 @@ test('12.3 A1 execution lock survives A2 database activation',()=>{
  assert.equal(state.directBusinessTableWritesAllowed,false);
  assert.equal(state.genericWriteToolAllowed,false);
  assert.equal(state.executionClaimAllowed,false);
- assert.equal(state.edgeAgentDeployed,false);
+ assert.equal(state.edgeAgentDeployed,true);
+ assert.equal(state.edgeAgentVerifyJwt,true);
  assert.equal(state.databaseAgentMigrationApplied,true);
 });
 
