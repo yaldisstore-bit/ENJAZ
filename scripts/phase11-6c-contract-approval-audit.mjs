@@ -4,6 +4,7 @@ const read=(p)=>fs.readFileSync(new URL(p,root),'utf8');
 const json=(p)=>JSON.parse(read(p));
 const state=json('docs/PHASE11_6_STATE.json');
 const scope=read('docs/PHASE11_6C_CONTRACT_APPROVAL_SCOPE.md');
+const closure=read('docs/PHASE11_6C_CLOSURE.md');
 const migration=read('database/migrations/phase_11_6_contract_transition_concurrency_hardening.sql');
 const advisorHardening=read('database/migrations/phase_11_6_contract_transition_advisor_hardening.sql');
 const liveProbe=read('database/migrations/phase_11_6_live_contract_transition_probe.sql');
@@ -30,8 +31,17 @@ req(state.mode==='CONTRACT_APPROVAL_RETAINER_COMMUNICATION','11.6-C mode drifted
 req(state.currentSliceBaseCommit==='314ff5a297420b4842a0bba78c3575d84e85c707','11.6-C must start from merged 11.6-B closure');
 req(state.phase11_6bStatus==='CLOSED'&&state.phase11_6bExitGatePassed===true&&state.phase11_6bClosureDecision==='PASS','11.6-C requires certified B predecessor');
 req(state.phase11_6bMergeCommit==='314ff5a297420b4842a0bba78c3575d84e85c707','11.6-B merge lineage drifted');
-req(state.phase11_6cStatus==='IN_PROGRESS'&&state.phase11_6cExitGatePassed===false,'11.6-C cannot be pre-closed');
-req(state.phase11_6dAllowed===false&&state.phase11_7Allowed===false&&state.successorStatus==='LOCKED','11.6-D/11.7 must remain locked while C is open');
+req(['IN_PROGRESS','CLOSED'].includes(state.phase11_6cStatus),'11.6-C lifecycle status invalid');
+if(state.phase11_6cStatus==='CLOSED'){
+  req(state.phase11_6cExitGatePassed===true&&state.phase11_6cClosureDecision==='PASS','11.6-C CLOSED requires PASS exit decision');
+  req(state.phase11_6dAllowed===true&&state.phase11_7Allowed===false&&state.successorStatus==='LOCKED','11.6-D must be authorized while 11.7 remains locked');
+  req(state.phase11_6cClosureEvidencePath==='docs/PHASE11_6C_CLOSURE.md','11.6-C closure evidence path drifted');
+  req(state.phase11_6cPreClosureGate==='PASS'&&state.phase11_6cPreClosureGateRunId===35289132165&&state.phase11_6cPreClosureGateRunNumber===66&&state.phase11_6cPreClosureGateHead==='8645c2d14e319659ff7312f969258481a66993ba','11.6-C pre-closure gate certificate invalid');
+  req(state.phase11_6cRealBrowserVerification==='PASS'&&state.phase11_6cRealBrowserRunId===35289132333&&state.phase11_6cRealBrowserRunNumber===1569,'11.6-C Real Browser certificate invalid');
+}else{
+  req(state.phase11_6cExitGatePassed===false,'11.6-C IN_PROGRESS cannot have passed exit gate');
+  req(state.phase11_6dAllowed===false&&state.phase11_7Allowed===false&&state.successorStatus==='LOCKED','11.6-D/11.7 must remain locked while C is open');
+}
 req(state.phase11_6cScopePath==='docs/PHASE11_6C_CONTRACT_APPROVAL_SCOPE.md','11.6-C scope path drifted');
 req(state.phase11_6cM16VersionedTransitionAdded===true,'C1 M16 versioned transition source not recorded');
 req(state.phase11_6cM16LegacyTransitionBrowserAllowed===false,'Legacy unversioned M16 browser transition must remain forbidden');
@@ -63,6 +73,14 @@ req(state.phase11_6cRealCloudVerification==='PASS_C1'&&state.phase11_6cPermissio
 req(state.phase11_6cZeroResidueVerified===true,'C1 zero residue must be verified');
 req(state.phase11_6cSecurityAdvisorBaselineTotal===66&&state.phase11_6cSecurityAdvisorPostC1Total===65&&state.phase11_6cNewSecurityAdvisorFindings===0,'C1 security advisor certificate invalid');
 req(state.phase11_6cPerformanceAdvisorBaselineTotal===81&&state.phase11_6cPerformanceAdvisorPostC1Total===81&&state.phase11_6cUnindexedForeignKeysBaseline===28&&state.phase11_6cUnindexedForeignKeysPostC1===28&&state.phase11_6cNewPerformanceAdvisorFindings===0,'C1 performance advisor certificate invalid');
+
+if(state.phase11_6cStatus==='CLOSED'){
+  for(const marker of [
+    'Status:** CLOSED / CERTIFIED','20260917225607','20260917231342','20260917235138','20260917235645',
+    '35289132165','35289132333','security findings: **65**','performance findings: **80**',
+    'C3 new security advisor findings: **0**','11.6-D becomes `AUTHORIZED_NEXT`'
+  ])has(closure,marker,'C closure');
+}
 
 for(const marker of [
   'C1 — M16 transition concurrency & retry hardening',
