@@ -26,6 +26,17 @@ req(state.requestIdempotencyRequired===true&&state.rateLimitPerMinute===20&&stat
 req(state.structuredOutputSchema==='enjaz.copilot.foundation.v1','structured output schema drifted');
 req(state.clientUiAdded===false&&state.newClientCssAllowed===false,'12.1 must remain server-first');
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false,'frozen client budgets drifted');
+if(state.databaseFoundationApplied===true||state.edgeFoundationDeployed===true){
+ req(state.databaseFoundationApplied===true&&state.databaseFoundationMigrationPath==='database/migrations/phase_12_1_copilot_foundation.sql'&&state.databaseFoundationMigrationVersion==='20260918085157','12.1 DB foundation certificate invalid');
+ req(state.edgeFoundationDeployed===true&&state.edgeFoundationSlug==='enjaz-copilot-foundation'&&state.edgeFoundationId==='491c6155-c658-4d2e-9082-1b34be44234c'&&state.edgeFoundationVersion===1&&state.edgeFoundationVerifyJwt===true,'12.1 Edge foundation certificate invalid');
+ req(state.edgeFoundationDigest==='sha256:d9148cf4aa3ab9ecee78b797c84a5dd3545bb9bf4fe61ac52e59e3ace58ccbe9','12.1 Edge digest drifted');
+ req(state.sourceGateVerification==='PASS'&&state.sourceGateRunId===35326765691&&state.sourceGateRunNumber===13&&state.sourceGateHead==='6c2b5b299d383159d4b1688838d2cac548da861c','12.1 source gate certificate invalid');
+ req(state.realCloudVerification==='PASS'&&state.realCloudRunId===35326789332&&state.realCloudRunNumber===1&&state.realCloudHead==='8a9469011aef8917b0aede7972b82b25ab288c84','12.1 Real Cloud lineage invalid');
+ req(state.realCloudArtifactId===10539376257&&state.realCloudArtifactDigest==='sha256:ed1c22fd81fd0ab5129ec18cf49dd9caef7e2d7138b6acb73b5e877972d8fcce','12.1 Real Cloud artifact invalid');
+ for(const k of ['permissionMatrixVerification','rateLimitVerification','idempotencyVerification','providerFailureIsolationVerification','tracePrivacyVerification','zeroResidueVerification'])req(state[k]==='PASS',`12.1 foundation verification missing: ${k}`);
+ req(state.securityAdvisorBaselineTotal===65&&state.securityAdvisorPostFoundationTotal===65&&state.newSecurityAdvisorFindings===0,'12.1 security advisor certificate invalid');
+ req(state.performanceAdvisorBaselineTotal===75&&state.performanceAdvisorPostFoundationTotal===75&&state.unindexedForeignKeysBaseline===28&&state.unindexedForeignKeysPostFoundation===28&&state.newPerformanceAdvisorFindings===0,'12.1 performance advisor certificate invalid');
+}
 
 const deps={...(pkg.dependencies??{}),...(pkg.devDependencies??{})};
 for(const name of Object.keys(deps))req(name!=='ai'&&!name.startsWith('@ai-sdk/'),'12.1 may not add AI SDK/provider packages before a provider-backed phase is authorized');
