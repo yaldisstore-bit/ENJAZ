@@ -20,13 +20,14 @@ const names=[
 test('11.7 hardens exactly the known M10 stale-conflict functions',()=>{
   for(const name of names)assert.match(sql,new RegExp(name));
   assert.equal(names.length,9);
-  assert.match(sql,/v_old_pattern constant text := 'raise\\\\s\+serialization_failure/);
+  assert.match(sql,/v_old_compact constant text := 'raise serialization_failure using message=''ENJAZ_SCHEDULING_STALE_VERSION''';/);
+  assert.match(sql,/v_old_spaced constant text := 'raise serialization_failure using message = ''ENJAZ_SCHEDULING_STALE_VERSION''';/);
   assert.match(sql,/v_new constant text := 'raise object_not_in_prerequisite_state using message=''ENJAZ_SCHEDULING_STALE_VERSION''';/);
   assert.match(sql,/ENJAZ_117_M10_RETRYABLE_STALE_REMAINS/);
 });
 
 test('11.7 migration preserves the business error while removing retryable SQLSTATE from active definitions',()=>{
-  assert.match(sql,/regexp_replace\(v_def,v_old_pattern,v_new,'g'\)/);
+  assert.match(sql,/replace\(replace\(v_def,v_old_compact,v_new\),v_old_spaced,v_new\)/);
   assert.match(sql,/pg_get_functiondef\(p\.oid\) like '%raise serialization_failure using message=''ENJAZ_SCHEDULING_STALE_VERSION''%'/);
   assert.match(sql,/if v_remaining<>0 then/);
 });
