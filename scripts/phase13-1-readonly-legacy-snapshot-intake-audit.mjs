@@ -45,9 +45,10 @@ has(roadmap,'## 13.1 — Read-only Legacy Snapshot Intake — IN_PROGRESS','road
 has(roadmap,'Phase 13.2 — Normalize & Map remains **LOCKED**','roadmap');
 has(readme,'Phase 13.1 — Read-only Legacy Snapshot Intake','README');
 if(['A2_QUARANTINE_REVIEW_MANIFEST','A3_DESTRUCTION_AND_CLOSURE_READINESS'].includes(state.currentSlice)){
-  has(readme,'A1 CERTIFIED 10/10','README');
-  if(state.currentSlice==='A2_QUARANTINE_REVIEW_MANIFEST') has(readme,'A2 QUARANTINE REVIEW MANIFEST','README');
-  if(state.currentSlice==='A3_DESTRUCTION_AND_CLOSURE_READINESS') has(readme,'A3 DESTRUCTION & CLOSURE READINESS','README');
+  has(readme,'A1: **CERTIFIED**','README');
+  has(readme,'tests **10/10**','README');
+  if(state.currentSlice==='A2_QUARANTINE_REVIEW_MANIFEST') has(readme,'A2: **IN PROGRESS — Quarantine Review Manifest**','README');
+  if(state.currentSlice==='A3_DESTRUCTION_AND_CLOSURE_READINESS') has(readme,'A3: **IN PROGRESS — Destruction & Closure Readiness**','README');
 }else{
   has(readme,'A1 READ-ONLY CONTRACT','README');
 }
