@@ -54,7 +54,7 @@ jobs:
         run: node --experimental-strip-types --test tests/phase13-3-ordered-import.test.ts
       - name: Preserve Phase 13.1 + 13.2 contracts
         run: |
-          node scripts/phase13-1-legacy-snapshot-audit.mjs
+          node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
           node scripts/phase13-2-normalize-map-audit.mjs
           node --experimental-strip-types --test tests/phase13-2-normalize-map.test.ts
           node --experimental-strip-types --test tests/phase13-2-relationship-preview.test.ts
