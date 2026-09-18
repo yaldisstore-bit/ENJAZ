@@ -330,5 +330,17 @@
   "phase11_6dTotalJavascriptBytes": 759521,
   "phase11_6dCssBytes": 179989,
   "phase11_6dJavascriptMarginBytes": 479,
-  "phase11_6dBudgetVerification": "PASS_FROZEN_CAPS_NO_INCREASE"
+  "phase11_6dBudgetVerification": "PASS_FROZEN_CAPS_NO_INCREASE",
+  "phase11_6dRealBrowserArtifactId": 10533698463,
+  "phase11_6dRealBrowserArtifactDigest": "sha256:55ee78d43135d949779f09d59b57fa08fc19fede3328d03736868d0b356cf2b5",
+  "phase11_6dRealCloudArtifactId": 10534297950,
+  "phase11_6dRealCloudArtifactDigest": "sha256:e43fae747f6c1ac63d7be596ed6c92ba76e1b9b9179a9cd410f6bff6f3b7557d",
+  "phase11_6dRealCloudFreshWorkspace": "PASS",
+  "phase11_6dRealCloudDurableProjectionRoundTrip": "PASS",
+  "phase11_6dRealCloudAnonDenied": "PASS",
+  "phase11_6dRealCloudWorkspaceIsolation": "PASS",
+  "phase11_6dRealCloudStaleExposure": "PASS",
+  "phase11_6dRealCloudStaleRecovery": "PASS",
+  "phase11_6dRealCloudRevokedTruth": "PASS",
+  "phase11_6dRealCloudTerminalFilter": "PASS"
 }
