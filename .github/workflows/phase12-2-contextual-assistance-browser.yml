@@ -1,0 +1,78 @@
+name: ENJAZ Phase 12.2 — Contextual Assistance Real Browser
+
+on:
+  push:
+    branches:
+      - main
+      - phase12-2-contextual-assistance
+    paths:
+      - 'src/ui-r2/copilot/**'
+      - 'src/ui-r2/phase12-2-browser-main.tsx'
+      - 'tests-external/phase12-2-contextual-assistance.spec.cjs'
+      - 'phase12-2-browser.html'
+      - 'vite.phase12-2-browser.config.ts'
+      - '.github/workflows/phase12-2-contextual-assistance-browser.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/ui-r2/copilot/**'
+      - 'src/ui-r2/phase12-2-browser-main.tsx'
+      - 'tests-external/phase12-2-contextual-assistance.spec.cjs'
+      - 'phase12-2-browser.html'
+      - 'vite.phase12-2-browser.config.ts'
+      - '.github/workflows/phase12-2-contextual-assistance-browser.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase122-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-browser:
+    name: Real Chromium / 1280 + 430 + 390 + 360 + 320
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Phase 12.2 UI/source contract
+        run: |
+          node --test tests/phase12-2-contextual-assistance-ui.test.mjs
+          node scripts/phase12-2-contextual-assistance-audit.mjs
+      - name: Build isolated Phase 12.2 browser harness
+        run: npx vite build --config vite.phase12-2-browser.config.ts
+      - name: Install pinned browser tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated Phase 12.2 browser harness
+        run: |
+          nohup npx vite preview --config vite.phase12-2-browser.config.ts --host 127.0.0.1 --port 4197 > /tmp/enjaz-phase12-2-browser.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4197/phase12-2-browser.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase12-2-browser.log
+          exit 1
+      - name: Phase 12.2 contextual assistance responsive journey
+        env:
+          R2_PHASE122_BASE_URL: http://127.0.0.1:4197/
+        run: npx playwright test tests-external/phase12-2-contextual-assistance.spec.cjs --reporter=line --workers=1
+      - name: Upload browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12-2-contextual-assistance-browser-${{ github.sha }}
+          path: |
+            artifacts/phase12-2-contextual-assistance
+            test-results
+            /tmp/enjaz-phase12-2-browser.log
+          if-no-files-found: ignore
+          retention-days: 14
