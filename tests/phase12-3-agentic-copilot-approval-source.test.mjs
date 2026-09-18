@@ -22,5 +22,7 @@ test('12.3 A2 approval core is hash-only and execution locked',()=>{
   assert.equal(state.executionClaimAllowed,true);
   assert.equal(state.sensitiveMutationExecutionAllowed,false);
   assert.equal(state.a3Certification,'PASS_FOLLOWUP_SNOOZE_REAL_CLOUD');
-  assert.equal(state.authorizedActionAdapters.length,3);
+  assert.equal(state.a3CCertification,'PASS_SELF_REMINDER_REAL_CLOUD');
+  assert.equal(state.authorizedActionAdapters.length,4);
+  assert.deepEqual(state.authorizedActionAdapters,['followup.snooze','followup.create','reminder.schedule','document.request']);
 });
