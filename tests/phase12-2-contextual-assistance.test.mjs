@@ -14,15 +14,25 @@ test('12.2 starts only from the certified 12.1 closure',()=>{
   assert.equal(state.predecessorClosureMergeCommit,'47ac47ce131dec324f3a34f450a2e6bafd025b29');
 });
 
-test('12.2 lifecycle keeps 12.3 locked while implementation is in progress',()=>{
+test('12.2 lifecycle authorizes 12.3 only after formal closure',()=>{
   assert.equal(state.phase,'12.2');
-  assert.equal(state.status,'IN_PROGRESS');
   assert.equal(state.successorPhase,'12.3');
-  assert.equal(state.successorStatus,'LOCKED');
-  assert.equal(state.phase12_3Allowed,false);
-  assert.equal(state.exitGatePassed,false);
-  assert.equal(state.closureDecision,'PENDING');
   assert.match(kickoff,/Phase 12\.3 — Agentic ENJAZ Copilot remains LOCKED/);
+  if(state.status==='IN_PROGRESS'){
+    assert.equal(state.successorStatus,'LOCKED');
+    assert.equal(state.phase12_3Allowed,false);
+    assert.equal(state.exitGatePassed,false);
+    assert.equal(state.closureDecision,'PENDING');
+  }else{
+    assert.equal(state.status,'CLOSED');
+    assert.equal(state.successorStatus,'AUTHORIZED_NEXT');
+    assert.equal(state.phase12_3Allowed,true);
+    assert.equal(state.exitGatePassed,true);
+    assert.equal(state.closureDecision,'PASS');
+    assert.equal(state.postMergeTotalWorkflowCount,40);
+    assert.equal(state.postMergeTotalSuccessCount,40);
+    assert.equal(state.finalTotalJavascriptBytes,759985);
+  }
 });
 
 test('12.2 authority is read-only, cited and non-persistent',()=>{
@@ -45,7 +55,7 @@ test('12.2 preserves frozen client ceilings while activating the lazy live UI wi
   assert.equal(state.cssBudgetBytes,180000);
   assert.equal(state.budgetIncreaseAllowed,false);
   assert.equal(state.clientUiAdded,true);
-  assert.equal(state.clientUiStatus,'LIVE_LAZY_PENDING_CERTIFICATION');
+  assert.ok(['LIVE_LAZY_PENDING_CERTIFICATION','LIVE_LAZY_CERTIFIED'].includes(state.clientUiStatus));
   assert.equal(state.clientUiRoute,'/app/copilot');
   assert.equal(state.newClientCssAdded,false);
 });

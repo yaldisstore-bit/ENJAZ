@@ -8,21 +8,36 @@ const migration=read('database/migrations/phase_12_2_contextual_assistance.sql')
 const edge=read('supabase/functions/enjaz-copilot-context/index.ts');
 const core=read('supabase/functions/enjaz-copilot-context/core.ts');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
+const closure=fs.existsSync('docs/PHASE12_2_CLOSURE.md')?read('docs/PHASE12_2_CLOSURE.md'):'';
 
 const errors=[],req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 
 req(prev.status==='CLOSED'&&prev.closureDecision==='PASS'&&prev.phase12_2Allowed===true,'12.1 predecessor is not formally closed/authorized');
-req(state.phase==='12.2'&&state.name==='Contextual Assistance'&&state.status==='IN_PROGRESS','12.2 lifecycle identity invalid');
+req(state.phase==='12.2'&&state.name==='Contextual Assistance'&&['IN_PROGRESS','CLOSED'].includes(state.status),'12.2 lifecycle identity invalid');
 req(state.baseCommit==='47ac47ce131dec324f3a34f450a2e6bafd025b29','12.2 base must be exact formal 12.1 closure');
 req(state.predecessorClosureMergeCommit===state.baseCommit,'12.2 predecessor lineage drifted');
-req(state.successorPhase==='12.3'&&state.successorStatus==='LOCKED'&&state.phase12_3Allowed===false,'12.3 must remain locked');
+req(state.successorPhase==='12.3','12.3 successor identity drifted');
+if(state.status==='IN_PROGRESS')req(state.successorStatus==='LOCKED'&&state.phase12_3Allowed===false,'12.3 must remain locked while 12.2 is open');
+else{
+ req(state.successorStatus==='AUTHORIZED_NEXT'&&state.phase12_3Allowed===true,'closed 12.2 must authorize only 12.3');
+ req(state.closureDecision==='PASS'&&state.closureEvidence==='docs/PHASE12_2_CLOSURE.md'&&closure.length>0,'12.2 formal closure evidence missing');
+ for(const key of ['realCloudVerification','pagesVerification','liveExternalVerification','pullRequestGate','postMergeRecertification'])req(state[key]==='PASS',`closed 12.2 missing PASS: ${key}`);
+ req(state.sourceGateVerification==='PASS'&&state.realBrowserVerification==='PASS_EXACT_MAIN_AND_DEDICATED','12.2 exact-main source/browser certificate missing');
+ req(state.exitGatePassed===true&&state.knownCriticalDefects===0&&state.knownHighDefects===0&&state.knownFunctionalBlockers===0,'12.2 defect/exit certificate invalid');
+ req(state.implementationPullRequest===199&&state.implementationHead==='0804208c9a496c4d3a56d62bf37b69eee1252cda'&&state.implementationMergeCommit==='10592bbd0d91684970d5074719871039892d4667','12.2 implementation lineage invalid');
+ req(state.pullRequestWorkflowCount===80&&state.pullRequestSuccessCount===79&&state.pullRequestSkippedCount===1&&state.pullRequestFailureCount===0,'12.2 PR inventory invalid');
+ req(state.postMergeMainSha==='10592bbd0d91684970d5074719871039892d4667'&&state.postMergeTotalWorkflowCount===40&&state.postMergeTotalSuccessCount===40&&state.postMergeTotalFailureCount===0&&state.postMergeTotalQueuedCount===0&&state.postMergeTotalInProgressCount===0,'12.2 exact-main inventory invalid');
+ req(state.pagesRunId===35354625461&&state.liveExternalRunId===35354692230&&state.postMergePublishedPortalRunId===35354692236,'12.2 deployed-live lineage invalid');
+ req(state.finalInitialJavascriptBytes===431246&&state.finalTotalJavascriptBytes===759985&&state.finalCssBytes===179989&&state.finalTotalJavascriptMarginBytes===15,'12.2 published budget certificate invalid');
+ req(state.finalBudgetVerification==='PASS_FROZEN_CAPS_PUBLISHED_LIVE','12.2 final budget status invalid');
+}
 req(JSON.stringify(state.contextualOperations)===JSON.stringify(['search','summarize','compare','draft','explain']),'12.2 operation registry drifted');
 req(state.authoritativeContextSource==='global_search_v1'&&state.authoritativeContextSourceSchema==='enjaz.global-search-result.v1','12.2 authority source drifted');
 for(const key of ['businessMutationToolsAllowed','directBusinessTableWritesAllowed','serviceRoleBusinessReadsAllowed','browserProviderCallsAllowed','browserSecretCredentialsAllowed','rawPromptPersistenceAllowed','rawQueryPersistenceAllowed','rawModelOutputPersistenceAllowed','responsePersistenceAllowed','budgetIncreaseAllowed'])req(state[key]===false,`${key} must remain false`);
 req(state.requestIdempotencyRequired===true&&state.rateLimitPerMinute===20&&state.traceEvidencePrivate===true&&state.workspacePermissionRequired===true,'12.1 safety boundary not preserved');
 req(state.citationsRequired===true&&state.provenanceRequired===true,'12.2 grounding requirements must remain enabled');
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000,'frozen client budgets drifted');
-req(state.clientUiAdded===true&&state.clientUiStatus==='LIVE_LAZY_PENDING_CERTIFICATION'&&state.newClientCssAdded===false,'12.2 live UI state invalid');
+req(state.clientUiAdded===true&&['LIVE_LAZY_PENDING_CERTIFICATION','LIVE_LAZY_CERTIFIED'].includes(state.clientUiStatus)&&state.newClientCssAdded===false,'12.2 live UI state invalid');
 const portal=read('src/ui-r2/copilot/LiveCopilotPortal.tsx'),lazy=read('src/ui-r2/runtime/LazyLiveProductionPortals.tsx'),production=read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
 for(const marker of ['data-copilot-stage="12.2"','data-copilot-authority="read-only-context"','crypto.randomUUID()','enjaz.copilot.context.v1'])has(portal,marker,'12.2 live portal');
 for(const marker of ["import('../copilot/LiveCopilotPortal.tsx')",'setDestination(shell.dataset.destination)',"destination === 'copilot'"])has(lazy,marker,'12.2 lazy runtime');
@@ -34,6 +49,8 @@ for(const marker of [
   'search','summarize','compare','draft','explain','fresh_on_replay',
   '**Phase 12.3 — Agentic ENJAZ Copilot remains LOCKED.**'
 ])has(kickoff,marker,'12.2 kickoff');
+
+if(state.status==='CLOSED')for(const marker of ['Status:** CLOSED / CERTIFIED','10592bbd0d91684970d5074719871039892d4667','35354476447','35354476403','35354625461','35354692230','workflows: **40**','Phase 12.3 — Agentic ENJAZ Copilot is now **AUTHORIZED_NEXT**'])has(closure,marker,'12.2 closure');
 
 for(const marker of [
   'copilot_request_traces_operation_check',

@@ -398,13 +398,19 @@ Phase 8 expands workflow UI into the main operational operating system of ENJAZ.
 
 AI is allowed only after authoritative business domains and permission boundaries are stable.
 
-## 12.1 — Copilot Foundation
+## 12.1 — Copilot Foundation ✅ CLOSED
 - Tool/data boundaries, workspace/permission enforcement, structured outputs, rate limiting, tracing and provider failure isolation.
+- Formal closure: `docs/PHASE12_1_CLOSURE.md`.
 
-## 12.2 — Contextual Assistance
+## 12.2 — Contextual Assistance ✅ CLOSED
 - Search, summarize, compare, draft and explain authoritative ENJAZ information with citations/provenance where applicable.
+- Certified read-only authority over `global_search_v1`; no business mutation tools, service-role business reads or raw prompt/query/answer persistence.
+- Implementation PR #199 merged to `10592bbd0d91684970d5074719871039892d4667`.
+- exact-main: **40/40 SUCCESS**; Phase Gate #81, dedicated/cumulative Real Browser, Pages #1567, Live External #1241 and Real Cloud #3: **PASS**.
+- published `/live/` total JS **759985 / 760000**, CSS **179989 / 180000**; no cap increase / no feature cut.
+- Formal closure: `docs/PHASE12_2_CLOSURE.md`.
 
-## 12.3 — Agentic ENJAZ Copilot — M9
+## 12.3 — Agentic ENJAZ Copilot — M9 — AUTHORIZED_NEXT
 - Plan multi-step work and propose actions across ENJAZ tools.
 - Sensitive mutations require explicit user approval and domain-service validation.
 - Agent cannot bypass RLS, workflow/legal transitions, finance rules or document approval state.
@@ -583,25 +589,13 @@ This snapshot is retained only as satisfied transition history. It no longer def
 
 # Current position — canonical reconciled state
 
-- Phases 0–8 ✅ CLOSED / canonically recertified where required.
-- **Phase 9.1 — Smart Risk Engine ✅ CLOSED + post-merge recertified**
-- **Phase 9.2 — Smart Saved Views & Cross-domain Search Intelligence ✅ CLOSED + post-merge recertified**
-- **Phase 9.3 — Corporate Governance & Ownership Engine — M2 ✅ CLOSED + post-merge recertified**
-- **Phase 9.4 — Regulatory / Knowledge Base Engine — M8 ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified**; M8 remains `ACTIVE` for Phase 12.
-- **Phase 9.5 — Business Intelligence & Forecasting Center — M13 ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified**; M13 remains `ACTIVE` for Phase 15.
-- **Phase 9.6 — Process Mining & Predictive Operations — M18 ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified**; M18 remains `ACTIVE` for Phase 15.
-- **Phase 9.7 — Intelligence Zero-Escape Gate ✅ CLOSED + exact-main + Real Browser + Pages + Live External certified**.
-- Phase 9.7 implementation main: `e8992650afb7bd3bd5c47770d0b2d752cdd0488e`; exact-main **31/31 SUCCESS**; failure/queued/in-progress **0/0/0**.
-- Phase 9.7 gate `34708680263`, Real Browser `34708680233`, Pages build `34708679838`, Pages Preview `34708710217`, Live External `34708764814`: **SUCCESS**.
-- **M2 — Corporate Governance & Ownership Engine: `CLOSED` under `ZERO_ESCAPE_V1`** with `docs/M2_ZERO_ESCAPE_CLOSURE.json`.
-- **M8 is `ACTIVE`** for Phase 12; **M13 and M18 are `ACTIVE`** for Phase 15.
-- **Phase 10.1 — Document Vault ✅ CLOSED.**
-- **Phase 10.2 — Document Intelligence / OCR ✅ CLOSED.**
-- **Phase 10.3 — Document Factory & Official Form Engine — M7 ✅ CLOSED.**
-- **Phase 10.4 — Reports & PDF ✅ CLOSED.**
-- **Phase 10.5 — Engagement/Contract Document Layer — M16 ✅ CLOSED.**
-- **Phase 10.6 — Documents Zero-Escape Gate ✅ CLOSED + destructive Real Cloud + exact-main + Real Browser + Pages + Live External certified.**
-- **Phase 11.1 — Notifications & Follow-ups: AUTHORIZED NEXT.**
+- Phases 0–11.7 ✅ CLOSED / canonically recertified where required.
+- **Phase 12.1 — Copilot Foundation ✅ CLOSED + Real Cloud + exact-main + Pages + Live External certified.**
+- **Phase 12.2 — Contextual Assistance ✅ CLOSED + authenticated Real Cloud + dedicated/cumulative Real Browser + exact-main 40/40 + Pages + Live External certified.**
+- Phase 12.2 formal implementation merge: `10592bbd0d91684970d5074719871039892d4667`.
+- Phase 12.2 published `/live/` budget: **431246 / 670000 initial JS; 759985 / 760000 total JS; 179989 / 180000 CSS**.
+- **Phase 12.3 — Agentic ENJAZ Copilot — M9: AUTHORIZED_NEXT.**
+- M8 remains `ACTIVE` because Phase 12.4 is still a governing anchor; M13/M18 remain `ACTIVE` for Phase 15.
 - startup JavaScript hard ceiling remains **670000 bytes**; total JavaScript **760000 bytes**; CSS **180000 bytes**.
 
 ---
@@ -652,7 +646,7 @@ The current reconciliation preserves all historical closure authority while auth
 11. the 18 major product systems remain governed by independent `ZERO_ESCAPE_V1` closure law;
 12. M8/M13/M18 are not falsely globally closed because their later anchors remain open;
 13. current state documents, README, this roadmap and machine-readable system registry agree that Phases 10.1–10.6 are closed and certified;
-14. **Phase 11.1 — Notifications & Follow-ups is the sole authorized successor**;
-15. **Phase 11.2+ remains locked** until each predecessor closes under its own required evidence.
+14. Phase 12.1 and Phase 12.2 are now formally CLOSED with Real Cloud, exact-main, Real Browser, Pages and Live External evidence;
+15. **Phase 12.3 — Agentic ENJAZ Copilot — M9 is the sole authorized successor**; later Phase 12 work remains locked until each predecessor closes under its own required evidence.
 
 It does **not** silently reopen prior phases, falsely close a major M-system from phase CI alone, weaken RLS/provenance/event-lineage boundaries, raise performance ceilings, or authorize work beyond Phase 11.1.
