@@ -1,0 +1,61 @@
+name: ENJAZ Phase 12.3 — Agentic Copilot A3-A Real Cloud
+
+on:
+  push:
+    branches:
+      - phase12-3-agentic-copilot
+    paths:
+      - 'scripts/phase12-3-a3-real-cloud-e2e.mjs'
+      - '.github/workflows/phase12-3-a3-real-cloud-e2e.yml'
+      - 'docs/PHASE12_3_STATE.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase123-a3-real-cloud
+  cancel-in-progress: false
+
+jobs:
+  real-cloud:
+    name: Approved Follow-up Snooze / Atomic Consumption / Replay / Rollback / Zero Residue
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+      SUPABASE_SECRET_KEY: ${{ secrets.ENJAZ_SUPABASE_SECRET_KEY }}
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Require server-only Supabase credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_SECRET_KEY"
+          case "$SUPABASE_SECRET_KEY" in sb_publishable_*) exit 1 ;; esac
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Static A3-A Real Cloud guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check scripts/phase12-3-a3-real-cloud-e2e.mjs
+          node --test tests/phase12-3-agentic-copilot-edge-source.test.mjs
+          node --experimental-strip-types --test tests/phase12-3-agentic-copilot-action-core.test.ts
+          if grep -Eq 'sb_secret_[A-Za-z0-9_-]+' scripts/phase12-3-a3-real-cloud-e2e.mjs; then exit 1; fi
+      - name: Run fresh authenticated A3-A action evidence
+        run: node scripts/phase12-3-a3-real-cloud-e2e.mjs
+      - name: Upload sanitized A3-A evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12-3-a3-real-cloud-${{ github.sha }}
+          path: artifacts/phase12-3-a3-real-cloud/evidence.json
+          if-no-files-found: error
+          retention-days: 14
