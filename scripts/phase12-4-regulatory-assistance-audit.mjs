@@ -10,6 +10,8 @@ const closure=read('docs/PHASE12_3_CLOSURE.md');
 const m8Closure=read('docs/PHASE9_4_CLOSURE.md');
 const core=read('supabase/functions/enjaz-regulatory-assistant/core.ts');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
+const a2Kickoff=fs.existsSync('docs/PHASE12_4_A2_KICKOFF.md')?read('docs/PHASE12_4_A2_KICKOFF.md'):'';
+const edge=fs.existsSync('supabase/functions/enjaz-regulatory-assistant/index.ts')?read('supabase/functions/enjaz-regulatory-assistant/index.ts'):'';
 
 const errors=[],req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 const m8Registry=registry.systems?.find?.(x=>x.id==='M8');
@@ -63,7 +65,17 @@ req(!/\b(insert into|update\s+public\.|delete from|service_role)\b/i.test(core),
 
 has(roadmap,'## 12.4 — Regulatory Knowledge Assistance — M8 — IN_PROGRESS','roadmap');
 has(roadmap,'**A1 — Grounded Regulatory Assistance Contract: CERTIFIED**','roadmap');
-if(state.slice==='A2_AUTHENTICATED_M8_RETRIEVAL_EDGE')has(roadmap,'**A2 — Authenticated M8 Retrieval Edge: IN_PROGRESS**','roadmap');
+if(state.slice==='A2_AUTHENTICATED_M8_RETRIEVAL_EDGE'){
+  has(roadmap,'**A2 — Authenticated M8 Retrieval Edge: IN_PROGRESS**','roadmap');
+  for(const marker of ['caller JWT is mandatory','no service-role/secret key is used','search_regulatory_knowledge_v1','get_regulatory_knowledge_entry_v1','exact official version'])has(a2Kickoff,marker,'12.4 A2 kickoff');
+  req(state.a2EdgeAuthority==='CALLER_JWT_ONLY'&&state.a2ServiceRoleAllowed===false&&state.a2DatabaseMigrationRequired===false,'12.4 A2 authority state drifted');
+  req(state.a2VerifyJwtRequired===true&&state.a2DirectTableAccessAllowed===false&&state.a2MutationRpcAllowed===false,'12.4 A2 Edge restrictions drifted');
+  for(const marker of ["userClient.auth.getUser(token)","userClient.rpc('search_regulatory_knowledge_v1'","userClient.rpc('get_regulatory_knowledge_entry_v1'","p_as_of:parsed.asOf","official.versionId!==ref.versionId","buildRegulatoryAssistanceResult(parsed,entries)"])has(edge,marker,'12.4 A2 Edge');
+  req(!/SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEY|SUPABASE_SECRET_KEYS|serviceKey\(|\badmin\b/.test(edge),'12.4 A2 service-role/admin authority forbidden');
+  req(!/\.from\(/.test(edge),'12.4 A2 direct table access forbidden');
+  req(!/OPENAI_API_KEY|ANTHROPIC_API_KEY|@ai-sdk\/|generateText|streamText|responses\.create/.test(edge),'12.4 A2 provider path forbidden');
+  req(!/save_regulatory|insert_regulatory|update_regulatory|delete_regulatory|ingest_regulatory|create_regulatory/i.test(edge),'12.4 A2 regulatory mutation path forbidden');
+}
 
 if(errors.length){console.error(`ENJAZ PHASE 12.4 A1 AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error('- '+e));process.exit(1)}
 console.log('ENJAZ PHASE 12.4 A1 REGULATORY ASSISTANCE AUDIT PASS — exact 12.3 closure lineage, Phase 9.4 M8 truth reused without shadow authority, explicit asOf/version/hash/provenance grounding, non-authoritative interpretation, no provider/persistence/UI/Edge/DB delta, frozen budgets preserved, and 12.5 locked.');
