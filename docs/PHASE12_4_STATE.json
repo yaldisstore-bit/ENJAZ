@@ -4,7 +4,7 @@
   "majorSystem": "M8",
   "status": "IN_PROGRESS",
   "mode": "REGULATORY_KNOWLEDGE_ASSISTANCE",
-  "slice": "A2_AUTHENTICATED_M8_RETRIEVAL_EDGE",
+  "slice": "A3_SEARCH_ENTRY_BINDING_HARDENING",
   "baseCommit": "cc01d06be81be27e614d80c9edaa86bdf4e79634",
   "predecessorPhase": "12.3",
   "predecessorStatus": "CLOSED",
@@ -140,5 +140,28 @@
   "a2CertificationCommitSourceGateRunId": 35380350980,
   "a2CertificationCommitSourceGateRunNumber": 5,
   "a2CertificationCommitSourceGateHead": "93c2e3937d88f515ffb4290a0d6a0530974b98a9",
-  "a2CertificationCommitSourceGateVerification": "PASS"
+  "a2CertificationCommitSourceGateVerification": "PASS",
+  "a2FinalSourceGateRunId": 35380605634,
+  "a2FinalSourceGateRunNumber": 7,
+  "a2FinalSourceGateHead": "0b0c61ce3399713b86dd768cdf5550304e2eede5",
+  "a2FinalSourceGateVerification": "PASS",
+  "a3Status": "IN_PROGRESS",
+  "a3KickoffEvidence": "docs/PHASE12_4_A3_KICKOFF.md",
+  "a3BindingFields": [
+    "workspaceId",
+    "asOf",
+    "sourceId",
+    "versionId",
+    "sourceHash",
+    "scope"
+  ],
+  "a3SearchRootBindingRequired": true,
+  "a3ScopeWorkspaceShapeRequired": true,
+  "a3UnconfiguredEntryAfterSearchAllowed": false,
+  "a3DatabaseMigrationRequired": false,
+  "a3PermanentFixtureSeedingAllowed": false,
+  "a3PopulatedLiveHttpJourneyClaimed": false,
+  "a3SourceGateVerification": "PENDING",
+  "a3EdgeDeployed": false,
+  "a3RealCloudVerification": "PENDING"
 }
