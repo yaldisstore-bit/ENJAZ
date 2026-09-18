@@ -1,0 +1,24 @@
+import fs from 'node:fs';
+const root=new URL('../',import.meta.url),read=p=>fs.readFileSync(new URL(p,root),'utf8'),json=p=>JSON.parse(read(p)),exists=p=>fs.existsSync(new URL(p,root));
+const state=json('docs/PHASE13_3_STATE.json'),p132=json('docs/PHASE13_2_STATE.json'),closure=read('docs/PHASE13_2_CLOSURE.md'),kickoff=read('docs/PHASE13_3_KICKOFF.md'),source=read('src/features/import/legacyOrderedImportContract.ts'),tests=read('tests/phase13-3-ordered-import.test.ts'),roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md'),readme=read('README.md'),errors=[];
+const req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
+req(p132.status==='CLOSED'&&p132.closureDecision==='PASS'&&p132.phase13_3Allowed===true&&p132.successorStatus==='AUTHORIZED_NEXT','13.3 predecessor authorization invalid');
+has(closure,'Phase 13.3 — Ordered Import is now AUTHORIZED_NEXT','13.2 closure');
+req(state.phase==='13.3'&&state.name==='Ordered Import'&&state.status==='IN_PROGRESS'&&state.mode==='DETERMINISTIC_ORDERED_IMPORT_PLANNING','13.3 lifecycle identity invalid');
+req(state.baseCommit==='501f5eaad31ba13b3e81d8acd28add4a631ac6bd'&&state.predecessorClosureMergeCommit===state.baseCommit,'13.3 exact final 13.2 closure base invalid');
+req(state.successorPhase==='13.4'&&state.successorStatus==='LOCKED'&&state.phase13_4Allowed===false,'13.4 must remain locked in 13.3 A1');
+req(state.currentSlice==='A1_DETERMINISTIC_ORDERED_IMPORT_PLAN'&&state.a1Status==='IN_PROGRESS','13.3 A1 lifecycle invalid');
+req(state.orderedImportPlanningAllowed===true&&state.phase13_2MappingReuseRequired===true&&state.explicitMappingOnly===true,'13.3 planning authority drifted');
+for(const k of ['orderedImportExecutionAllowed','importExecutionAllowed','persistenceAllowed','databaseWritesAllowed','targetEnjazMutationAllowed','generatedTargetIdsAllowed','foreignKeyAssignmentAllowed','idempotencyBindingAllowed','rollbackExecutionAllowed','newDatabaseTablesAllowed','newWriteRpcAuthorityAllowed','edgeFunctionAdded','clientUiAdded','unknownConceptAutoMappingAllowed'])req(state[k]===false,`${k} must remain false in 13.3 A1`);
+req(state.targetTablesA1?.join(',')==='contacts,companies,transactions'&&state.stageOrderA1?.join(',')==='contacts,companies,transactions','13.3 A1 order scope drifted');
+req(state.reviewRequiredRecordsBlockPlan===true&&state.unresolvedRelationshipsBlockPlan===true&&state.deterministicReplayRequired===true,'13.3 A1 fail-closed/determinism law drifted');
+req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false,'13.3 frozen budget law drifted');
+for(const marker of ['LEGACY_ORDERED_IMPORT_PLAN_SCHEMA','LEGACY_ORDERED_IMPORT_UNMAPPED_TYPES','LEGACY_ORDERED_IMPORT_DUPLICATE_KEYS','LEGACY_ORDERED_IMPORT_DANGLING_LINKS','LEGACY_ORDERED_IMPORT_UNMAPPED_RELATIONSHIPS','LEGACY_ORDERED_IMPORT_DEPENDENCY_ORDER_INVALID','eligibleForA2Binding:true','importExecutionAllowed:false','foreignKeyAssignmentPerformed:false'])has(source,marker,'A1 source');
+for(const marker of ['contacts then companies then transactions','fails closed on an unmapped legacy type','fails closed on duplicate legacy keys','fails closed on dangling links','fails closed on undeclared relationship vocabulary','replay is byte-for-byte deterministic','does not mutate snapshot'])has(tests,marker,'A1 tests');
+for(const marker of ['contacts','companies','transactions','A1 does not generate target IDs or idempotency keys','Phase 13.4 — Reconciliation remains LOCKED'])has(kickoff,marker,'A1 kickoff');
+has(readme,'Phase 13.3 — Ordered Import 🟡 IN PROGRESS / A1','README');
+has(roadmap,'## 13.3 — Ordered Import — IN_PROGRESS / A1','roadmap');
+req(!exists('database/migrations/phase_13_3_ordered_import.sql'),'13.3 A1 must not add database migration');
+req(!exists('supabase/functions/enjaz-legacy-import/index.ts'),'13.3 A1 must not add import Edge Function');
+if(errors.length){console.error(`ENJAZ PHASE 13.3 A1 AUDIT FAIL (${errors.length})`);errors.forEach(x=>console.error('- '+x));process.exit(1)}
+console.log('ENJAZ PHASE 13.3 A1 AUDIT PASS — deterministic ordered-import plan only; no IDs/FKs/persistence/write execution; Phase 13.4 locked.');

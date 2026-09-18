@@ -184,4 +184,16 @@ if(exists('docs/PHASE13_2_STATE.json')){
   req(p132.javascriptBudgetBytes===670000&&p132.totalJavascriptBudgetBytes===760000&&p132.cssBudgetBytes===180000&&p132.budgetIncreaseAllowed===false,'Phase 13.2 budget law drifted');
 }
 
+if(exists('docs/PHASE13_3_STATE.json')){
+  const p133=json('docs/PHASE13_3_STATE.json'),p132=json('docs/PHASE13_2_STATE.json');
+  req(p132.status==='CLOSED'&&p132.closureDecision==='PASS'&&p132.phase13_3Allowed===true&&p132.successorStatus==='AUTHORIZED_NEXT','Phase 13.3 requires formal Phase 13.2 authorization');
+  req(p133.phase==='13.3'&&p133.status==='IN_PROGRESS'&&p133.mode==='DETERMINISTIC_ORDERED_IMPORT_PLANNING','Phase 13.3 lifecycle invalid');
+  req(p133.baseCommit==='501f5eaad31ba13b3e81d8acd28add4a631ac6bd'&&p133.predecessorClosureMergeCommit===p133.baseCommit,'Phase 13.3 exact final 13.2 closure base drifted');
+  req(p133.successorPhase==='13.4'&&p133.successorStatus==='LOCKED'&&p133.phase13_4Allowed===false,'Open Phase 13.3 must keep 13.4 locked');
+  req(p133.currentSlice==='A1_DETERMINISTIC_ORDERED_IMPORT_PLAN'&&p133.orderedImportPlanningAllowed===true&&p133.orderedImportExecutionAllowed===false,'Phase 13.3 A1 planning law drifted');
+  for(const k of ['importExecutionAllowed','persistenceAllowed','databaseWritesAllowed','targetEnjazMutationAllowed','generatedTargetIdsAllowed','foreignKeyAssignmentAllowed','idempotencyBindingAllowed','rollbackExecutionAllowed','newDatabaseTablesAllowed','newWriteRpcAuthorityAllowed','edgeFunctionAdded','clientUiAdded','unknownConceptAutoMappingAllowed'])req(p133[k]===false,`Phase 13.3 A1 ${k} must remain false`);
+  req(p133.stageOrderA1?.join(',')==='contacts,companies,transactions'&&p133.targetTablesA1?.join(',')==='contacts,companies,transactions','Phase 13.3 A1 stage order drifted');
+  req(p133.javascriptBudgetBytes===670000&&p133.totalJavascriptBudgetBytes===760000&&p133.cssBudgetBytes===180000&&p133.budgetIncreaseAllowed===false,'Phase 13.3 budget law drifted');
+}
+
 if(errors.length){console.error(`ENJAZ ROADMAP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.7 lifecycle is Zero-Escape governed; M2 may close only with machine evidence; M3, M4 and M10 activate only through formal Phase 11 predecessor authority; M9 activates only through formal Phase 12.2 authority and open M9 keeps Phase 12.4 locked; M8/M13/M18 remain ACTIVE for later anchors; M7 and M16 activation are locked to formal predecessor authority, and M16 cannot globally close in Phase 10.5.');

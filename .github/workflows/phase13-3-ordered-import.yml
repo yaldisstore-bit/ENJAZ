@@ -1,0 +1,77 @@
+name: ENJAZ Phase 13.3 — Ordered Import Gate
+
+on:
+  push:
+    branches:
+      - phase13-3-ordered-import
+      - main
+    paths:
+      - 'docs/PHASE13_3_*'
+      - 'src/features/import/legacyOrderedImportContract.ts'
+      - 'src/features/import/legacyMappingContract.ts'
+      - 'src/features/import/legacySnapshotContract.ts'
+      - 'tests/phase13-3-*'
+      - 'scripts/phase13-3-*'
+      - 'scripts/roadmap-audit.mjs'
+      - '.github/workflows/phase13-3-ordered-import.yml'
+      - 'README.md'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase133-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase13-3:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 13.3 A1 lifecycle + authority audit
+        run: node scripts/phase13-3-ordered-import-audit.mjs
+      - name: Phase 13.3 A1 ordered-import planning tests
+        run: node --experimental-strip-types --test tests/phase13-3-ordered-import.test.ts
+      - name: Preserve Phase 13.1 + 13.2 contracts
+        run: |
+          node scripts/phase13-1-legacy-snapshot-audit.mjs
+          node scripts/phase13-2-normalize-map-audit.mjs
+          node --experimental-strip-types --test tests/phase13-2-normalize-map.test.ts
+          node --experimental-strip-types --test tests/phase13-2-relationship-preview.test.ts
+          node --experimental-strip-types --test tests/phase13-2-destruction.test.ts
+      - name: Full functional regression
+        run: npm run test:functional
+      - name: Database + roadmap + major-system governance
+        run: |
+          npm run db:audit
+          npm run db:audit:selftest
+          npm run audit:roadmap
+          node scripts/major-systems-zero-escape-audit.mjs
+      - name: Secrets + TypeScript
+        run: |
+          npm run audit:secrets
+          npm run typecheck
+      - name: Production build + frozen budgets
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
