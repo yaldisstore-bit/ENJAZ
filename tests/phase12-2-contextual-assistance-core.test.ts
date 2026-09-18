@@ -44,8 +44,10 @@ test('12.2 search result exposes authoritative citations and non-authoritative a
   const result=buildContextResult(request,parseSearchReferences(refs),[],true);
   assert.equal(CONTEXT_SCHEMA,'enjaz.copilot.context.v1');
   assert.equal(result.citations.length,2);
-  assert.equal(result.citations[0].citationId,'S1');
-  assert.equal(result.citations[0].authoritative,true);
+  const first=result.citations.at(0);
+  assert.ok(first);
+  assert.equal(first.citationId,'S1');
+  assert.equal(first.authoritative,true);
   assert.equal(result.grounding.providerUsed,false);
   assert.equal(result.grounding.nonAuthoritativeAssistance,true);
   assert.equal(result.grounding.readSemantics,'fresh_on_replay');
