@@ -21,6 +21,7 @@ const a3bEvidence=read('docs/PHASE12_3_A3B_EVIDENCE.md');
 const createMigration=read('database/migrations/phase_12_3_agentic_action_followup_create.sql');
 const a3c=read('docs/PHASE12_3_A3C_KICKOFF.md');
 const reminderMigration=read('database/migrations/phase_12_3_agentic_action_schedule_reminder.sql');
+const reminderSnapshotRpcHardening=read('database/migrations/phase_12_3_agentic_schedule_snapshot_rpc_name_hardening.sql');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 
 const errors=[],req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
@@ -153,6 +154,8 @@ for(const marker of ['33/33 PASS','business fields cannot be injected into the e
 for(const marker of ['reminder.schedule','recipient is hard-locked','auth.uid()','dispatch_scheduling_attention_v1','Phase 12.4 remains LOCKED'])has(a3c,marker,'12.3 A3-C kickoff');
 for(const marker of ['private.copilot_schedule_reminder_hash_v1',"action_kind='reminder.schedule'",'private.copilot_execute_schedule_reminder_v1_impl','public.dispatch_scheduling_attention_v1(', "v_actor,'reminder',v_row.action_scheduled_for,null,null",'grant execute on function public.copilot_execute_schedule_reminder_v1(uuid,uuid,text,uuid)'])has(reminderMigration,marker,'12.3 A3-C migration');
 req(!/\b(post_payment_v1|reverse_payment_v1|send_client_portal_message_v1|mutate_transaction_workflow)\b/.test(reminderMigration),'12.3 A3-C migration has unauthorized adapter');
+for(const marker of ['create or replace function public.get_scheduling_deadline_snapshot_v1(','p_workspace_id uuid','p_as_of timestamptz','private.get_scheduling_deadline_snapshot_v1_impl(p_workspace_id,p_as_of)','grant execute on function public.get_scheduling_deadline_snapshot_v1(uuid,timestamptz)'])has(reminderSnapshotRpcHardening,marker,'12.3 A3-C snapshot RPC hardening');
+req(!/\b(insert into|update\s+public\.|delete from)\b/i.test(reminderSnapshotRpcHardening),'12.3 A3-C snapshot RPC hardening may not mutate business rows');
 
 has(roadmap,'## 12.3 — Agentic ENJAZ Copilot — M9','roadmap');
 has(roadmap,'Sensitive mutations require explicit user approval and domain-service validation.','roadmap');

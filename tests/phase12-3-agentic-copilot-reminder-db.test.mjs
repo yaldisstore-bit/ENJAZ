@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const sql=fs.readFileSync('database/migrations/phase_12_3_agentic_action_schedule_reminder.sql','utf8');
+const snapshotRpc=fs.readFileSync('database/migrations/phase_12_3_agentic_schedule_snapshot_rpc_name_hardening.sql','utf8');
 
 test('12.3 A3-C stores exact reminder semantics and recomputes digest',()=>{
   for(const marker of [
@@ -35,4 +36,17 @@ test('12.3 A3-C has no escalation, follow-up side effect or unrelated authority'
   assert.match(domainCall,/v_actor,'reminder',v_row\.action_scheduled_for,null,null/);
   assert.doesNotMatch(domainCall,/escalation/);
   assert.doesNotMatch(sql,/\b(post_payment_v1|reverse_payment_v1|send_client_portal_message_v1|mutate_transaction_workflow)\b/);
+});
+
+
+test('12.3 A3-C M10 snapshot wrapper exposes stable named RPC arguments',()=>{
+  for(const marker of [
+    'create or replace function public.get_scheduling_deadline_snapshot_v1(',
+    'p_workspace_id uuid',
+    'p_as_of timestamptz',
+    'private.get_scheduling_deadline_snapshot_v1_impl(p_workspace_id,p_as_of)',
+    'from public,anon,service_role',
+    'to authenticated',
+  ]) assert.ok(snapshotRpc.includes(marker),marker);
+  assert.doesNotMatch(snapshotRpc,/\b(insert into|update\s+public\.|delete from)\b/i);
 });
