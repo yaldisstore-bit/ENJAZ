@@ -1,3 +1,4 @@
+// A3-C Real Cloud lineage: snapshot RPC named-argument hardening is source-controlled before this probe rerun.
 import {createClient} from '@supabase/supabase-js';
 import {mkdir,writeFile} from 'node:fs/promises';
 import crypto from 'node:crypto';
