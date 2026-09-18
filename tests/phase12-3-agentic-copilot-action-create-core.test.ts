@@ -13,10 +13,10 @@ const P='55555555-5555-4555-8555-555555555555';
 const E='66666666-6666-4666-8666-666666666666';
 const DUE='2099-09-19T12:30:00.000Z';
 
-test('12.3 A3-B extends allowlist by followup create only',()=>{
-  assert.deepEqual(AGENT_ACTION_OPERATIONS,[
-    'prepare_followup_snooze','execute_followup_snooze','prepare_followup_create','execute_followup_create',
-  ]);
+test('12.3 A3-B followup create operations remain preserved inside the expanded A3 allowlist',()=>{
+  assert.ok(AGENT_ACTION_OPERATIONS.includes('prepare_followup_create'));
+  assert.ok(AGENT_ACTION_OPERATIONS.includes('execute_followup_create'));
+  assert.equal(AGENT_ACTION_OPERATIONS.filter(x=>x.includes('followup_create')).length,2);
 });
 
 test('12.3 A3-B nested title hash binds exact unicode content without delimiter ambiguity',async()=>{
