@@ -300,5 +300,15 @@
   "phase11_6dUnindexedForeignKeysPostD1": 28,
   "phase11_6dD1NewSecurityAdvisorFindings": 0,
   "phase11_6dD1NewPerformanceAdvisorFindings": 0,
-  "phase11_6dD1PermissionMatrix": "PASS"
+  "phase11_6dD1PermissionMatrix": "PASS",
+  "phase11_6dDisplayProjectionMigrationPath": "database/migrations/phase_11_6_unified_intake_contract_attention_display.sql",
+  "phase11_6dDisplayProjectionMigrationApplied": true,
+  "phase11_6dDisplayProjectionMigrationVersion": "20260918060452",
+  "phase11_6dDisplayProjectionPermissionMatrix": "PASS_AUTHENTICATED_ONLY_PUBLIC_FACADE",
+  "phase11_6dDisplayProjectionMarkers": "PASS_KIND_ATTENTION_OWNER_PATH",
+  "phase11_6dSecurityAdvisorPostD2Total": 65,
+  "phase11_6dPerformanceAdvisorPostD2Total": 80,
+  "phase11_6dUnindexedForeignKeysPostD2": 28,
+  "phase11_6dD2NewSecurityAdvisorFindings": 0,
+  "phase11_6dD2NewPerformanceAdvisorFindings": 0
 }
