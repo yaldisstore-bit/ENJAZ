@@ -38,7 +38,8 @@ function databaseCode(error:unknown){
     'ENJAZ_REGULATORY_WORKSPACE_ACCESS_DENIED','ENJAZ_REGULATORY_SEARCH_INPUT_INVALID',
     'ENJAZ_REGULATORY_ASOF_AMBIGUOUS','ENJAZ_REGULATORY_SOURCE_NOT_FOUND'
   ])if(message.includes(code))return code;
-  if(message.includes('INSUFFICIENT')||message.includes('PERMISSION'))return 'ENJAZ_REGULATORY_WORKSPACE_ACCESS_DENIED';
+  if(message.includes('ENJAZ_ORG_WORKSPACE_FORBIDDEN')||message.includes('ENJAZ_ORG_OWNER_REQUIRED')||message.includes('INSUFFICIENT')||message.includes('PERMISSION'))return 'ENJAZ_REGULATORY_WORKSPACE_ACCESS_DENIED';
+  if(message.includes('ENJAZ_ORG_AUTH_REQUIRED'))return 'AUTH_INVALID';
   return 'REGULATORY_SOURCE_UNAVAILABLE';
 }
 function statusFor(code:string){
