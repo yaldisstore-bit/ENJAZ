@@ -246,6 +246,8 @@ const regulatoryKnowledge: RegulatoryKnowledgeGateway = Object.freeze({
   },
 });
 
+const copilotInvoke = async () => new Response(JSON.stringify({schema:'enjaz.copilot.context.v1',ok:false,error:{message:'Copilot network is disabled in the production bridge harness.'}}),{status:503,headers:{'Content-Type':'application/json'}});
+
 const documentVault: DocumentVaultGateway = Object.freeze({
   async list(workspaceId: string) { return Object.freeze({ workspaceId, total: 0, offset: 0, limit: 100, documents: Object.freeze([]) }); },
   async detail() { throw new Error('No document exists in production bridge harness'); },
@@ -259,6 +261,6 @@ if (!rootElement) throw new Error('R2 production test root is missing');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, notificationCommands, schedulingCommands, searchIntelligence, regulatoryKnowledge, documentVault }} />
+    <UiR2ProductionRoot resources={{ authGateway, dataFactory, financeCommands, governanceCommands, workflowCommands, automationCommands, fieldOperationsCommands, notificationCommands, schedulingCommands, searchIntelligence, regulatoryKnowledge, copilotInvoke, documentVault }} />
   </StrictMode>,
 );

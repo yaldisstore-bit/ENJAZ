@@ -10,6 +10,7 @@ const center=read('src/ui-r2/intelligence/ProcessIntelligenceCenter.tsx');
 const business=read('src/ui-r2/intelligence/BusinessIntelligenceCenter.tsx');
 const lazy=read('src/ui-r2/runtime/LazyLiveProductionPortals.tsx');
 const portal=read('src/ui-r2/intelligence/LiveBusinessIntelligencePortal.tsx');
+const portalHook=read('src/ui-r2/runtime/useLiveRecordsPortal.ts');
 const root=read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
 const context=read('src/features/process-intelligence/ProcessMiningHistoryContext.tsx');
 const runtime=read('src/features/process-intelligence/processMiningRuntime.ts');
@@ -29,7 +30,8 @@ test('9.6 ui 02 — process view is a secondary deep-link query, not state-only 
 
 test('9.6 ui 03 — Phase 9.5 lazy portal contract remains textually intact',()=>{
  assert.match(lazy,/LiveBusinessIntelligencePortal/);assert.match(lazy,/destination === 'insights' \? <InsightsPortal \/>/);
- assert.match(portal,/shell\.dataset\.destination==='insights'/);assert.match(portal,/createPortal\(<BusinessIntelligenceCenter\/>/);
+ assert.match(portal,/useLiveRecordsPortal\('insights'\)/);assert.match(portal,/createPortal\(<BusinessIntelligenceCenter\/>/);
+ assert.match(portalHook,/data-r2-runtime-mode=live/);assert.match(portalHook,/\.dataset\.destination===destination/);
  assert.doesNotMatch(lazy,/ProcessIntelligenceCenter/);assert.doesNotMatch(portal,/ProcessIntelligenceCenter/);
 });
 

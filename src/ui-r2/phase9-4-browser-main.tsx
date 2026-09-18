@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import { StrictMode, useLayoutEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { RegulatoryKnowledgeEntry, RegulatoryKnowledgeGateway, RegulatoryKnowledgeSearchItem } from '../features/regulatory/regulatoryKnowledgeCommands.ts';
 import { LiveRegulatoryKnowledgePortal } from './regulatory/LiveRegulatoryKnowledgePortal.tsx';
@@ -34,6 +34,5 @@ const gateway:RegulatoryKnowledgeGateway={
 
 declare global{interface Window{__ENJAZ_PHASE94_BROWSER__?:typeof browserState}}
 window.__ENJAZ_PHASE94_BROWSER__=browserState;
-const root=document.getElementById('phase94-browser-root');
-if(!root)throw new Error('Phase 9.4 browser root missing');
-createRoot(root).render(<StrictMode><div className="ez-r2-root r2-shell" data-r2-runtime-mode="live" data-destination="knowledge"><main id="r2-main" className="r2-shell__main" aria-label="مركز المعرفة التنظيمية"><div className="r2-screen" data-regulatory-runtime-target="phase9.4" aria-hidden="true"/></main><LiveRegulatoryKnowledgePortal gateway={gateway} workspace={Promise.resolve(W)}/></div></StrictMode>);
+function Harness(){const[ready,setReady]=useState(false);useLayoutEffect(()=>setReady(true),[]);return <div className="ez-r2-root r2-shell" data-r2-runtime-mode="live" data-destination="knowledge"><main id="r2-main" className="r2-shell__main" aria-label="مركز المعرفة التنظيمية"><div className="r2-screen" data-regulatory-runtime-target="phase9.4" aria-hidden="true"/></main>{ready?<LiveRegulatoryKnowledgePortal gateway={gateway} workspace={Promise.resolve(W)}/>:null}</div>}
+const root=document.getElementById('phase94-browser-root');if(!root)throw new Error('Phase 9.4 browser root missing');createRoot(root).render(<StrictMode><Harness/></StrictMode>);

@@ -26,6 +26,7 @@ const navigation=read('src/ui-r2/architecture/navigation-contract.ts');
 const liveRoot=read('src/ui-r2/runtime/UiR2LiveRoot.tsx');
 const lazy=read('src/ui-r2/runtime/LazyLiveProductionPortals.tsx');
 const portal=read('src/ui-r2/intelligence/LiveBusinessIntelligencePortal.tsx');
+const portalHook=read('src/ui-r2/runtime/useLiveRecordsPortal.ts');
 const center=read('src/ui-r2/intelligence/BusinessIntelligenceCenter.tsx');
 const kickoff=read('docs/PHASE9_5_KICKOFF.md');
 const openLifecycle=p95.status==='IN_PROGRESS';
@@ -67,7 +68,8 @@ for(const m of ['set local role authenticated','ENJAZ_P95_PROBE: outsider RLS le
 for(const m of ["'insights'",'مركز ذكاء الأعمال',"['insights', 'knowledge', 'copilot']",'تحليلات','مؤشرات','تنبؤ'])marker(navigation,m,'navigation');
 for(const m of ['InsightsTarget',"destinationId==='insights'",'data-business-intelligence-runtime-target="phase9.5"'])marker(liveRoot,m,'live root');
 for(const m of ['LiveBusinessIntelligencePortal',"destination === 'insights' ? <InsightsPortal />"])marker(lazy,m,'lazy runtime');
-for(const m of ["shell.dataset.destination==='insights'",'createPortal(<BusinessIntelligenceCenter/>'])marker(portal,m,'BI portal');
+for(const m of ["useLiveRecordsPortal('insights'",'createPortal(<BusinessIntelligenceCenter/>'])marker(portal,m,'BI portal');
+for(const m of ['data-r2-runtime-mode=live','.dataset.destination===destination','p.hidden=true','p.hidden=false'])marker(portalHook,m,'shared live portal boundary');
 for(const m of ['loadBusinessIntelligence({dataFactory,fieldOperations},userId)','data-phase9-5-runtime="business-intelligence"','data-bi-authority="read-only-derived"','data-bi-provenance="required"','الاتجاهات المرصودة','data-bi-trend-point','مرصود من التاريخ الفعلي','اتجاهي','عينات غير كافية','سلامة المصدر'])marker(center,m,'BI center');
 for(const m of ['data-bi-trend','trendPointCount','الاتجاهات المرصودة'])marker(browserSpec,m,'Real Browser spec');
 for(const width of [1280,430,390,360,320])marker(browserSpec,`width: ${width}`,'Real Browser viewports');

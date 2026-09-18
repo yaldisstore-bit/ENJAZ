@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 12.1 — Copilot Foundation ✅ CLOSED / REAL CLOUD + EXACT-MAIN + PAGES + LIVE EXTERNAL CERTIFIED**  
-آخر مرحلة مغلقة: **Phase 12.1 — Copilot Foundation ✅ CLOSED / SERVER-SIDE FOUNDATION CERTIFIED**  
-المرحلة اللاحقة: **Phase 12.2 — Contextual Assistance — AUTHORIZED_NEXT**.
+الحالة الرسمية: **Phase 12.2 — Contextual Assistance 🟡 IN PROGRESS / SERVER-FIRST**  
+آخر مرحلة مغلقة: **Phase 12.1 — Copilot Foundation ✅ CLOSED / REAL CLOUD + EXACT-MAIN + PAGES + LIVE EXTERNAL CERTIFIED**  
+المرحلة اللاحقة: **Phase 12.3 — Agentic ENJAZ Copilot — LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -55,6 +55,23 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: ✅ CLOSED + Real Cloud + five-width Chromium + post-closure exact-main + Pages + Live External certified.**
 - **Phase 11.7 — Communication Zero-Escape Gate: ✅ CLOSED — M3/M4/M10 + Phase-11 M16/M17 individual Real Cloud, PR gate, exact-main Real Browser, Pages and Live External certified.**
 - **Phase 12.1 — Copilot Foundation: ✅ CLOSED — private quota/trace evidence + service-only RPC + JWT Edge v1 + Real Cloud + PR + exact-main + Real Browser + Pages + Live External certified.**
+- **Phase 12.2 — Contextual Assistance: 🟡 IN PROGRESS — permission-scoped authoritative context + citations/provenance + read-only assistance; 12.3 remains locked.**
+
+## Phase 12.2 — العمل الحالي
+
+- exact base: `47ac47ce131dec324f3a34f450a2e6bafd025b29` — final merged Phase 12.1 closure.
+- implementation branch: `phase12-2-contextual-assistance`.
+- mode: **CONTEXTUAL_ASSISTANCE**؛ server-first and read-only.
+- authoritative source: certified `global_search_v1` read model through the authenticated user boundary.
+- operations: `search` / `summarize` / `compare` / `draft` / `explain`.
+- response schema: `enjaz.copilot.context.v1` with citations/provenance and explicit non-authoritative assistance status.
+- opening generation mode: **DETERMINISTIC_GROUNDED_V1**؛ no external provider required and no provider/browser secret path.
+- service role is limited to Copilot trace/quota evidence; it is forbidden from reading business context.
+- raw prompt/query/answer persistence: **FORBIDDEN**.
+- direct business writes / agentic actions: **FORBIDDEN**؛ Phase 12.3 remains **LOCKED**.
+- existing client ceilings remain **670000 initial JS / 760000 total JS / 180000 CSS**; opening slice adds no new client CSS/UI.
+- kickoff: [`docs/PHASE12_2_KICKOFF.md`](docs/PHASE12_2_KICKOFF.md).
+- lifecycle state: [`docs/PHASE12_2_STATE.json`](docs/PHASE12_2_STATE.json).
 
 ## Phase 12.1 — دليل الإغلاق الحالي
 
@@ -72,7 +89,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - exact-main `450e87cfbdfe0a6ac00330efe0893941c5fdf946`: **36/36 SUCCESS**؛ Phase 12.1 #21, Quality #1702, Real Browser #1618, Major Systems #819, Roadmap #1491, Constitution #2206, Pages #1545, Live External #1221.
 - client/UI delta: **0**؛ frozen build remains **430928 / 670000 initial JS, 759521 / 760000 total JS, 179989 / 180000 CSS**.
 - known Critical / High / functional blockers: **0 / 0 / 0**.
-- Phase 12.2 — Contextual Assistance: **AUTHORIZED_NEXT** only from the final merged 12.1 closure.
+- Phase 12.2 — Contextual Assistance: **IN_PROGRESS** from the final merged 12.1 closure; Phase 12.3 remains locked.
 - kickoff: [`docs/PHASE12_1_KICKOFF.md`](docs/PHASE12_1_KICKOFF.md).
 - closure evidence: [`docs/PHASE12_1_CLOSURE.md`](docs/PHASE12_1_CLOSURE.md).
 - lifecycle state: [`docs/PHASE12_1_STATE.json`](docs/PHASE12_1_STATE.json).
@@ -88,7 +105,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - PR #195: Phase 11.7 Gate #21, Quality #1696, Major Systems #813, Roadmap #1456, Constitution #2171, Real Browser #1612 — **PASS**.
 - exact-main merge `21bce9a1a94c0ffcef90a5c9b1de4cecbd31b819`: **35/35 SUCCESS**؛ Quality #1697, Real Browser #1613, Major Systems #814, Roadmap #1457, Pages #1540, Live External #1216.
 - final frozen build: **430928 / 670000 initial JS, 759521 / 760000 total JS, 179989 / 180000 CSS**؛ no cap increase / no feature cut.
-- Phase 12.1 — Copilot Foundation opened from final merged 11.7 closure `8b8d8a678ce98e12b1c6ab170e571bf8f0185e04` and is now **CLOSED / CERTIFIED**; Phase 12.2 is AUTHORIZED_NEXT.
+- Phase 12.1 — Copilot Foundation opened from final merged 11.7 closure `8b8d8a678ce98e12b1c6ab170e571bf8f0185e04` and is now **CLOSED / CERTIFIED**; Phase 12.2 has since started from its final formal closure.
 - kickoff: [`docs/PHASE11_7_KICKOFF.md`](docs/PHASE11_7_KICKOFF.md).
 - closure evidence: [`docs/PHASE11_7_CLOSURE.md`](docs/PHASE11_7_CLOSURE.md).
 - lifecycle state: [`docs/PHASE11_7_STATE.json`](docs/PHASE11_7_STATE.json).
@@ -366,4 +383,4 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - لا يُسمح لأي intelligence layer باختلاق business/financial/process facts من بيانات ناقصة.
 - forecast/prediction لا يصبح source truth، ولا AI/editorial output يصبح authoritative fact بلا عقد سلطة مستقل.
 - سقف JavaScript startup يبقى **670000 bytes**، والإجمالي **760000 bytes**، وCSS **180000 bytes** بلا waiver أو feature cut.
-- **Phase 12.1 — Copilot Foundation مغلقة ومصدقة؛ Phase 12.2 — Contextual Assistance هي successor الوحيدة AUTHORIZED_NEXT، مع بقاء agentic business mutations مقفلة حتى عقدها اللاحق.**
+- **Phase 12.1 — Copilot Foundation مغلقة ومصدقة؛ Phase 12.2 — Contextual Assistance قيد التنفيذ حاليًا؛ Phase 12.3 — Agentic ENJAZ Copilot تبقى LOCKED، ولا توجد business mutations في 12.2.**
