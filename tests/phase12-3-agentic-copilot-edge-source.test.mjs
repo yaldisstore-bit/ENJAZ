@@ -43,3 +43,13 @@ test('12.3 A3-C Edge hard-locks self recipient and reminder mode',()=>{
   assert.doesNotMatch(edge,/p_recipient_user_id:/);
   assert.doesNotMatch(edge,/p_mode:/);
 });
+
+
+test('12.3 A3-C prepare fails closed for terminal or non-upcoming scheduling sources',()=>{
+  for(const marker of [
+    "sourceState==='completed_on_time'||sourceState==='completed_late'",
+    "ENJAZ_SCHEDULING_ATTENTION_SOURCE_TERMINAL",
+    "sourceState!=='upcoming'&&sourceState!=='due_today'",
+    "ACTION_SCHEDULED_FOR_INVALID",
+  ]) assert.ok(edge.includes(marker),marker);
+});

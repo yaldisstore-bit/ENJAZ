@@ -273,6 +273,13 @@ Deno.serve(async(req:Request)=>{
         :(Array.isArray(data.renewalOccurrences)?data.renewalOccurrences:[]);
       const source=rows.find(v=>v&&typeof v==='object'&&!Array.isArray(v)&&text((v as J).id)===action.sourceId) as J|undefined;
       if(!source)throw new Error('ENJAZ_COPILOT_REMINDER_SOURCE_NOT_FOUND');
+      const sourceState=text(source.state);
+      if(sourceState==='completed_on_time'||sourceState==='completed_late'){
+        throw new Error('ENJAZ_SCHEDULING_ATTENTION_SOURCE_TERMINAL');
+      }
+      if(sourceState!=='upcoming'&&sourceState!=='due_today'){
+        throw new Error('ACTION_SCHEDULED_FOR_INVALID');
+      }
       const cutoffAt=text(source.cutoffAt);
       if(!cutoffAt||!Number.isFinite(Date.parse(cutoffAt))||Date.parse(action.scheduledFor)>=Date.parse(cutoffAt)){
         throw new Error('ACTION_SCHEDULED_FOR_INVALID');
