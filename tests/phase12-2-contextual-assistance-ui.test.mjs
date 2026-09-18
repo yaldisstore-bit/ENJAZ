@@ -9,7 +9,7 @@ const live=fs.readFileSync('src/ui-r2/runtime/UiR2LiveRoot.tsx','utf8');
 
 test('12.2 UI activates Copilot only through a lazy live portal',()=>{
  assert.match(lazy,/lazy\(\(\) => import\('\.\.\/copilot\/LiveCopilotPortal\.tsx'\)/);
- assert.match(lazy,/value === 'copilot'/);
+ assert.match(lazy,/setDestination\(shell\.dataset\.destination\)/);
  assert.match(lazy,/destination === 'copilot' \? <CopilotPortal workspace=\{documentWorkspace\} invoke=\{copilotInvoke\} \/>/);
  assert.doesNotMatch(root,/LiveCopilotPortal|\.\.\/copilot\//);
  assert.match(live,/data-live-deferred="true"/);
