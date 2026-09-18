@@ -133,7 +133,7 @@ async function run(){
     workspaceId:ws,requestId:prepareId,operation:'prepare_schedule_reminder',
     sourceKind:'renewal_occurrence',sourceId:primary.occurrenceId,operationId,scheduledFor
   });
-  assert(prepared.status===200&&prepared.data?.schema==='enjaz.copilot.agent.action.v1','reminder_prepare_structured_success');
+  assert(prepared.status===200&&prepared.data?.schema==='enjaz.copilot.agent.action.v1','reminder_prepare_structured_success',String(prepared.status)+':'+String(prepared.data?.error?.code??'NO_CODE'));
   const proposal=prepared.data?.result;
   assert(proposal?.status==='pending_approval'&&proposal?.action?.kind==='reminder.schedule','reminder_prepare_is_approval_gated');
   assert(proposal?.action?.sourceKind==='renewal_occurrence'&&proposal?.action?.sourceId===primary.occurrenceId,'reminder_exact_source_bound');
