@@ -12,8 +12,15 @@ const errors=[];
 const req=(v,m)=>{if(!v)errors.push(m)};
 const has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 
-req(state.currentSlice==='A3_DESTRUCTION_AND_CLOSURE_READINESS'&&state.a3Status==='IN_PROGRESS','13.1 A3 lifecycle invalid');
+req(state.currentSlice==='A3_DESTRUCTION_AND_CLOSURE_READINESS'&&['IN_PROGRESS','CERTIFIED'].includes(state.a3Status),'13.1 A3 lifecycle invalid');
 req(state.a3Mode==='DESTRUCTION_AND_CLOSURE_READINESS_ONLY'&&state.a3NewFeatureAuthorityAllowed===false,'A3 may not add feature authority');
+if(state.a3Status==='CERTIFIED'){
+  req(state.a3GateRunId===35395953023&&state.a3GateRunNumber===10&&state.a3GateHead==='95de7aa74272c7bb9278e7385ae8ed695527dd13','A3 source-gate lineage drifted');
+  req(state.a3TestCount===13&&state.a3PassCount===13&&state.a3FailCount===0,'A3 destruction test certificate drifted');
+  req(state.a3FunctionalTestCount===219&&state.a3FunctionalPassCount===219&&state.a3DbSelftestCount===25&&state.a3DbSelftestPassCount===25,'A3 regression certificate drifted');
+  req(state.a3InitialJavascriptBytes===431032&&state.a3TotalJavascriptBytes===759568&&state.a3CssBytes===179989,'A3 budget certificate drifted');
+  req(state.sourceGateVerification==='PASS_A1_A2_A3'&&state.implementationPrReady===true&&state.pullRequestGate==='PENDING','A3 certified state must be PR-ready only');
+}
 req(state.a2Status==='CERTIFIED'&&state.a2GateRunId===35395538307&&state.a2GateRunNumber===5&&state.a2GateHead==='b63ce1c5591d7ff9f54bb69efcabbe685cdef95f','A2 certificate drifted');
 req(state.a2TestCount===10&&state.a2PassCount===10&&state.a2FailCount===0,'A2 tests drifted');
 req(state.a2FunctionalTestCount===219&&state.a2FunctionalPassCount===219&&state.a2DbSelftestCount===25&&state.a2DbSelftestPassCount===25,'A2 regression certificate drifted');

@@ -159,8 +159,11 @@ if(exists('docs/PHASE13_1_STATE.json')){
   }
   if(p131State.currentSlice==='A3_DESTRUCTION_AND_CLOSURE_READINESS'){
     req(p131State.a2Status==='CERTIFIED'&&p131State.a2GateRunId===35395538307&&p131State.a2PassCount===10&&p131State.a2FailCount===0,'Phase 13.1 A2 certificate drifted');
-    req(p131State.a3Status==='IN_PROGRESS'&&p131State.a3Mode==='DESTRUCTION_AND_CLOSURE_READINESS_ONLY'&&p131State.a3NewFeatureAuthorityAllowed===false,'Phase 13.1 A3 lifecycle/authority drifted');
+    req(['IN_PROGRESS','CERTIFIED'].includes(p131State.a3Status)&&p131State.a3Mode==='DESTRUCTION_AND_CLOSURE_READINESS_ONLY'&&p131State.a3NewFeatureAuthorityAllowed===false,'Phase 13.1 A3 lifecycle/authority drifted');
     req(p131State.utf8ByteAccountingRequired===true&&p131State.deterministicReplayRequired===true&&p131State.mutationTrapVerificationRequired===true,'Phase 13.1 A3 hardening drifted');
+    if(p131State.a3Status==='CERTIFIED'){
+      req(p131State.a3GateRunId===35395953023&&p131State.a3PassCount===13&&p131State.a3FailCount===0&&p131State.implementationPrReady===true,'Phase 13.1 A3 certificate/PR-readiness drifted');
+    }
   }
 }
 

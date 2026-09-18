@@ -42,7 +42,7 @@
   "totalJavascriptBudgetBytes": 760000,
   "cssBudgetBytes": 180000,
   "budgetIncreaseAllowed": false,
-  "sourceGateVerification": "PASS_A1_A2",
+  "sourceGateVerification": "PASS_A1_A2_A3",
   "realCloudVerification": "NOT_REQUIRED_A1_NO_PERSISTENCE",
   "realBrowserVerification": "NOT_REQUIRED_A1_NO_CLIENT_DELTA",
   "pagesVerification": "NOT_REQUIRED_A1_NO_CLIENT_DELTA",
@@ -55,10 +55,10 @@
   "closureEvidence": null,
   "projectQualityConstitution": {
     "tracks": {
-      "product": "IN_PROGRESS",
+      "product": "PASS_SOURCE_SCOPE",
       "uiUx": "PASS_NO_CLIENT_DELTA",
-      "engineering": "IN_PROGRESS",
-      "certification": "IN_PROGRESS"
+      "engineering": "PASS_SOURCE_GATE",
+      "certification": "IN_PROGRESS_PR_AND_EXACT_MAIN"
     },
     "decision": "IN_PROGRESS"
   },
@@ -101,10 +101,26 @@
   "a2InitialJavascriptBytes": 431032,
   "a2TotalJavascriptBytes": 759568,
   "a2CssBytes": 179989,
-  "a3Status": "IN_PROGRESS",
+  "a3Status": "CERTIFIED",
   "a3Mode": "DESTRUCTION_AND_CLOSURE_READINESS_ONLY",
   "a3NewFeatureAuthorityAllowed": false,
   "utf8ByteAccountingRequired": true,
   "deterministicReplayRequired": true,
-  "mutationTrapVerificationRequired": true
+  "mutationTrapVerificationRequired": true,
+  "a3GateRunId": 35395953023,
+  "a3GateRunNumber": 10,
+  "a3GateHead": "95de7aa74272c7bb9278e7385ae8ed695527dd13",
+  "a3TestCount": 13,
+  "a3PassCount": 13,
+  "a3FailCount": 0,
+  "a3FunctionalTestCount": 219,
+  "a3FunctionalPassCount": 219,
+  "a3DbSelftestCount": 25,
+  "a3DbSelftestPassCount": 25,
+  "a3InitialJavascriptBytes": 431032,
+  "a3TotalJavascriptBytes": 759568,
+  "a3CssBytes": 179989,
+  "implementationPrReady": true,
+  "pullRequestGate": "PENDING",
+  "postMergeRecertification": "PENDING"
 }
