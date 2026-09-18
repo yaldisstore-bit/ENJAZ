@@ -37,6 +37,8 @@ jobs:
         run: node scripts/phase11-7-communication-zero-escape-audit.mjs
       - name: Phase 11.7 opening destruction wave
         run: node --experimental-strip-types --test tests/phase11-7-communication-zero-escape.test.ts
+      - name: Phase 11.7 M10 stale SQLSTATE hardening regression
+        run: node --test tests/phase11-7-m10-stale-sqlstate.test.mjs
       - name: Preserve M3 Client Portal authority
         run: |
           node --experimental-strip-types --test tests/clientPortalAuthority.test.ts
