@@ -56,6 +56,8 @@ jobs:
         run: node --experimental-strip-types --test tests/phase13-3-ordered-import-binding.test.ts
       - name: Phase 13.3 A3 source execution-boundary tests
         run: node --experimental-strip-types --test tests/phase13-3-ordered-import-execution.test.ts
+      - name: Phase 13.3 A3 database authority source tests
+        run: node --test tests/phase13-3-ordered-import-db-source.test.mjs
       - name: Preserve Phase 13.1 + 13.2 contracts
         run: |
           node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs

@@ -73,7 +73,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - fixed dependency order: **contacts → companies → transactions**.
 - blocks unmapped types, duplicate keys, dangling links, undeclared/quarantined relationships and any `reviewRequired` record.
 - A2 binds caller-supplied target UUIDs + workspace/batch/idempotency in memory and resolves relationship IDs, but performs **no FK assignment / permission claim / server idempotency reservation / write execution**.
-- A3 is now **IN PROGRESS**: strict execution-manifest parser + non-executed RPC envelope source boundary added; DB/write/Edge authority remains disabled until source gate + database + Real Cloud certification.
+- A3 is now **IN PROGRESS**: strict execution-manifest parser + non-executed RPC envelope **CERTIFIED** at Gate #13; A3 DB authority source now uses existing `import_jobs` ledger with owner-auth, atomic RPC and no upsert; live DB authority remains disabled until source gate + Real Cloud certification.
 - Phase 13.4 — Reconciliation: **LOCKED**.
 - state: [`docs/PHASE13_3_STATE.json`](docs/PHASE13_3_STATE.json).
 - kickoff: [`docs/PHASE13_3_KICKOFF.md`](docs/PHASE13_3_KICKOFF.md).
