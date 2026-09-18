@@ -39,6 +39,6 @@ test('destruction: execute operation is detected',()=>{
 });
 
 test('destruction: generic execution authority is detected',()=>{
- const mutated=core.replace('genericWriteToolAllowed:false','genericWriteToolAllowed:true');
+ const mutated=core.replaceAll('genericWriteToolAllowed:false','genericWriteToolAllowed:true');
  assert.ok(violations(mutated).includes('generic-write-disabled'));
 });
