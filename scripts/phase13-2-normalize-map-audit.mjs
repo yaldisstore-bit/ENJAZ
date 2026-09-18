@@ -8,7 +8,7 @@ req(state.phase==='13.2'&&state.name==='Normalize & Map'&&state.status==='IN_PRO
 req(state.baseCommit==='aa8e402eeb6ed03bee9fb446bc2c741da37df7dc'&&state.predecessorClosureMergeCommit===state.baseCommit,'13.2 exact base lineage invalid');
 req(state.successorPhase==='13.3'&&state.successorStatus==='LOCKED'&&state.phase13_3Allowed===false,'13.3 must remain locked');
 req(state.mappingAllowed===true&&state.normalizationAllowed===true&&state.mappingMustBeExplicit===true&&state.mappingInferenceAllowed===false&&state.unknownConceptAutoMappingAllowed===false,'13.2 explicit mapping authority drifted');
-for(const k of ['persistenceAllowed','databaseWritesAllowed','newDatabaseTablesAllowed','newWriteRpcAuthorityAllowed','edgeFunctionAdded','clientUiAdded','orderedImportAllowed','importExecutionAllowed','targetEnjazMutationAllowed','relationshipMappingAllowed','targetAuthorityAssigned'])req(state[k]===false,`${k} must remain false in A1`);
+for(const k of ['persistenceAllowed','databaseWritesAllowed','newDatabaseTablesAllowed','newWriteRpcAuthorityAllowed','edgeFunctionAdded','clientUiAdded','orderedImportAllowed','importExecutionAllowed','targetEnjazMutationAllowed','targetAuthorityAssigned'])req(state[k]===false,`${k} must remain false through A2`);
 req(state.mappingPreviewInMemoryOnly===true&&state.unknownConceptPolicy==='QUARANTINE_REVIEWABLE_NO_GUESS','13.2 A1 quarantine/preview law drifted');
 req(state.targetTablesA1?.join(',')==='companies,contacts,transactions','13.2 A1 target scope drifted');
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false,'13.2 budget law drifted');
@@ -28,5 +28,5 @@ for(const marker of ['Every mapped source field and target field must be named e
 has(roadmap,'## 13.2 — Normalize & Map — IN_PROGRESS / A2 EXPLICIT RELATIONSHIP PREVIEW','roadmap');has(readme,'Phase 13.2 — Normalize & Map 🟡 IN PROGRESS — A2 EXPLICIT RELATIONSHIP PREVIEW','README');
 req(!exists('database/migrations/phase_13_2_normalize_map.sql'),'13.2 A1 must not add database migration');
 req(!exists('supabase/functions/enjaz-legacy-import/index.ts'),'13.2 A1 must not add import Edge Function');
-if(errors.length){console.error(`ENJAZ PHASE 13.2 A1 AUDIT FAIL (${errors.length})`);errors.forEach(x=>console.error('- '+x));process.exit(1)}
-console.log('ENJAZ PHASE 13.2 A1 AUDIT PASS — explicit reviewable mapping preview only; no inference/persistence/write/import/relationship/UI authority; Phase 13.3 locked.');
+if(errors.length){console.error(`ENJAZ PHASE 13.2 A1+A2 AUDIT FAIL (${errors.length})`);errors.forEach(x=>console.error('- '+x));process.exit(1)}
+console.log('ENJAZ PHASE 13.2 A1+A2 AUDIT PASS — explicit field + relationship preview only; no inference/FK-ID assignment/persistence/write/import/UI authority; Phase 13.3 locked.');
