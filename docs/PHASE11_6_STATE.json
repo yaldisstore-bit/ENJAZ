@@ -270,7 +270,7 @@
   "phase11_6cPostMergeRecertification": "PASS_EXACT_MAIN_SHA",
   "phase11_6dOpenedFromMainSha": "ea6d7bdedaa2a714c7ec34ebf444d06e0875b06b",
   "phase11_6dStatus": "IN_PROGRESS",
-  "phase11_6dUnifiedReadModelAdded": false,
+  "phase11_6dUnifiedReadModelAdded": true,
   "phase11_6dUnifiedExperienceImplemented": false,
   "phase11_6dProjectionOnly": true,
   "phase11_6dNewCssAllowed": false,
@@ -288,5 +288,17 @@
   "phase11_6cPostMergeMajorSystemsRunId": 35312002091,
   "phase11_6cPostMergePagesRunId": 35312053231,
   "phase11_6cPostMergeLiveExternalRunId": 35312111384,
-  "phase11_6cPostMergeRoadmapRunId": 35312021107
+  "phase11_6cPostMergeRoadmapRunId": 35312021107,
+  "phase11_6dUnifiedReadModelMigrationPath": "database/migrations/phase_11_6_unified_intake_contract_attention.sql",
+  "phase11_6dUnifiedReadModelMigrationApplied": true,
+  "phase11_6dUnifiedReadModelMigrationVersion": "20260918055120",
+  "phase11_6dSecurityAdvisorBaselineTotal": 65,
+  "phase11_6dSecurityAdvisorPostD1Total": 65,
+  "phase11_6dPerformanceAdvisorBaselineTotal": 80,
+  "phase11_6dPerformanceAdvisorPostD1Total": 80,
+  "phase11_6dUnindexedForeignKeysBaseline": 28,
+  "phase11_6dUnindexedForeignKeysPostD1": 28,
+  "phase11_6dD1NewSecurityAdvisorFindings": 0,
+  "phase11_6dD1NewPerformanceAdvisorFindings": 0,
+  "phase11_6dD1PermissionMatrix": "PASS"
 }
