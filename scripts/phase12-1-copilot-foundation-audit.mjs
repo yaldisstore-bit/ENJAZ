@@ -5,7 +5,8 @@ const read=p=>fs.readFileSync(new URL(p,root),'utf8');
 const json=p=>JSON.parse(read(p));
 const state=json('docs/PHASE12_1_STATE.json');
 const kickoff=read('docs/PHASE12_1_KICKOFF.md');
-const closure=read('docs/PHASE11_7_CLOSURE.md');
+const predecessorClosure=read('docs/PHASE11_7_CLOSURE.md');
+const phaseClosure=fs.existsSync(new URL('docs/PHASE12_1_CLOSURE.md',root))?read('docs/PHASE12_1_CLOSURE.md'):'';
 const phaseClosure=fs.existsSync(new URL('docs/PHASE12_1_CLOSURE.md',root))?read('docs/PHASE12_1_CLOSURE.md'):'';
 const pkg=json('package.json');
 const errors=[];
@@ -51,6 +52,11 @@ if(state.status==='IN_PROGRESS'){
  for(const k of ['realCloudVerification','permissionMatrixVerification','rateLimitVerification','idempotencyVerification','providerFailureIsolationVerification','tracePrivacyVerification','zeroResidueVerification','pullRequestGate','postMergeRecertification'])req(state[k]==='PASS',`closed 12.1 missing PASS: ${k}`);
  req(state.phase12_2Allowed===true&&state.successorStatus==='AUTHORIZED_NEXT','closed 12.1 may authorize only 12.2');
  req(state.closureDecision==='PASS'&&state.closureEvidence==='docs/PHASE12_1_CLOSURE.md'&&phaseClosure.length>0,'12.1 formal closure evidence missing');
+ req(state.implementationPullRequest===197&&state.implementationMergeCommit==='450e87cfbdfe0a6ac00330efe0893941c5fdf946','12.1 implementation merge lineage invalid');
+ req(state.postMergeMainSha===state.implementationMergeCommit&&state.postMergeMainWorkflowCount===36&&state.postMergeMainSuccessCount===36&&state.postMergeMainFailureCount===0&&state.postMergeMainQueuedCount===0&&state.postMergeMainInProgressCount===0,'12.1 exact-main inventory invalid');
+ req(state.postMergePhaseGateRunId===35328193218&&state.postMergeQualityRunId===35328193531&&state.postMergeRealBrowserRunId===35328193444&&state.postMergeMajorSystemsRunId===35328193575&&state.pagesRunId===35328300430&&state.liveExternalRunId===35328354120,'12.1 critical post-merge run lineage invalid');
+ for(const marker of ['Status:** CLOSED / CERTIFIED','450e87cfbdfe0a6ac00330efe0893941c5fdf946','workflows: **36**','759,521 / 760,000','Phase 12.2 — Contextual Assistance is now **AUTHORIZED_NEXT**'])has(phaseClosure,marker,'12.1 closure');
+ req(state.closureDecision==='PASS'&&state.closureEvidence==='docs/PHASE12_1_CLOSURE.md'&&phaseClosure.length>0,'12.1 formal closure evidence missing');
  req(state.implementationPullRequest===197&&state.implementationHead==='6e989503a301368dc68192570a9816ebea5ad2d4'&&state.implementationMergeCommit==='450e87cfbdfe0a6ac00330efe0893941c5fdf946','12.1 implementation lineage invalid');
  req(state.pullRequestGateRunId===35327572351&&state.pullRequestGateRunNumber===20&&state.pullRequestQualityRunId===35327572883&&state.pullRequestMajorSystemsRunId===35327574302&&state.pullRequestRoadmapRunId===35327574197&&state.pullRequestConstitutionRunId===35327573076&&state.pullRequestRealBrowserRunId===35327572130&&state.pullRequestRealBrowserAttempt===2,'12.1 PR certificate invalid');
  req(state.pullRequestWorkflowCount===76&&state.pullRequestSuccessCount===75&&state.pullRequestSkippedCount===1&&state.pullRequestFailureCount===0,'12.1 PR inventory invalid');
@@ -76,7 +82,7 @@ for(const marker of [
  'Status:** CLOSED / CERTIFIED',
  '21bce9a1a94c0ffcef90a5c9b1de4cecbd31b819',
  'Phase 12.1 — Copilot Foundation is now **AUTHORIZED_NEXT**'
-])has(closure,marker,'11.7 closure');
+])has(predecessorClosure,marker,'11.7 closure');
 
 if(state.status==='CLOSED')for(const marker of [
  'Status:** CLOSED / CERTIFIED',
