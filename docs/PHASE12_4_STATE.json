@@ -136,5 +136,9 @@
   "a2Certification": "PASS_AUTHENTICATED_M8_RETRIEVAL_REAL_CLOUD",
   "a2CertificationStatus": "CERTIFIED",
   "a2Evidence": "docs/PHASE12_4_A2_EVIDENCE.md",
-  "a2CertifiedAt": "2026-09-18T18:26:34Z"
+  "a2CertifiedAt": "2026-09-18T18:26:34Z",
+  "a2CertificationCommitSourceGateRunId": 35380350980,
+  "a2CertificationCommitSourceGateRunNumber": 5,
+  "a2CertificationCommitSourceGateHead": "93c2e3937d88f515ffb4290a0d6a0530974b98a9",
+  "a2CertificationCommitSourceGateVerification": "PASS"
 }
