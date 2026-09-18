@@ -116,7 +116,8 @@ const lazyRouterMounted = productionRoot.includes("import { LazyLiveProductionPo
   && productionRoot.includes('regulatoryWorkspace={workspace}');
 const lazyFinanceMount = lazyRouterMounted
   && lazyPortals.includes("import('../finance/LiveFinanceProductionPortal.tsx')")
-  && lazyPortals.includes('module.LiveFinanceProductionPortal')
+  && lazyPortals.includes("named(()=>import('../finance/LiveFinanceProductionPortal.tsx')")
+  && lazyPortals.includes("'LiveFinanceProductionPortal'")
   && lazyPortals.includes("value === 'finance' || value === 'risk'")
   && lazyPortals.includes("destination === 'finance' || destination === 'risk' ? <FinancePortal />");
 if (!productionRoot.includes('<LiveFinanceProductionPortal />') && !lazyFinanceMount) errors.push('production runtime must mount the live finance portal directly or through the verified lazy production-portal router');
