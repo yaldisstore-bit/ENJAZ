@@ -418,6 +418,7 @@ AI is allowed only after authoritative business domains and permission boundarie
 - A1 remains deliberately proposal-only: no execute operation, no generic write tool, no direct business-table write, no service-role business read, no client UI delta and no new database/Edge deployment authority.
 - **A2 — Approval Binding Contract: CERTIFIED** with final source Gate #12 + Real Cloud #2 PASS.
 - **A3-A — Action-Specific Execution / `followup.snooze`: CERTIFIED** — source Gate #17 + destructive Real Cloud #2 (**32/32**) + zero residue; action digest is independently recomputed in PostgreSQL and execution atomically consumes the approved proposal while delegating to the existing follow-up domain RPC. No generic execution exists.
+- **A3-B — `followup.create`: IN_PROGRESS** — adds only governed follow-up creation through existing `create_transaction_followup_v1`, with nested title SHA-256 binding and the same explicit approval / atomic consumption law.
 
 ## 12.4 — Regulatory Knowledge Assistance — M8
 - Retrieve/version regulatory sources and distinguish source text, structured facts and AI interpretation.
@@ -598,7 +599,7 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - **Phase 12.2 — Contextual Assistance ✅ CLOSED + authenticated Real Cloud + dedicated/cumulative Real Browser + exact-main 40/40 + Pages + Live External certified.**
 - Phase 12.2 formal implementation merge: `10592bbd0d91684970d5074719871039892d4667`.
 - Phase 12.2 published `/live/` budget: **431246 / 670000 initial JS; 759985 / 760000 total JS; 179989 / 180000 CSS**.
-- **Phase 12.3 — Agentic ENJAZ Copilot — M9: IN_PROGRESS; A1 + A2 + A3-A PASS. Further action adapters remain separately gated.**
+- **Phase 12.3 — Agentic ENJAZ Copilot — M9: IN_PROGRESS; A1 + A2 + A3-A PASS, A3-B `followup.create` current slice.**
 - M8 remains `ACTIVE` because Phase 12.4 is still a governing anchor; M13/M18 remain `ACTIVE` for Phase 15.
 - startup JavaScript hard ceiling remains **670000 bytes**; total JavaScript **760000 bytes**; CSS **180000 bytes**.
 

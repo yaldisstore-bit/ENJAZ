@@ -10,7 +10,7 @@ import {
 } from './approval.ts';
 import {
   AGENT_ACTION_SCHEMA,actionProposalHash,actionTracePayloadHash,isAgentActionOperation,parseAgentActionRequest,
-  parseExecutionResult,preparedActionResult,type AgentActionRequest,
+  parseExecutionResult,preparedCreateActionResult,preparedSnoozeActionResult,type AgentActionRequest,
 } from './action.ts';
 
 const cors={
@@ -61,6 +61,8 @@ const DB_CODES=[
   'ENJAZ_COPILOT_ACTION_APPROVAL_REQUIRED','ENJAZ_COPILOT_EXECUTION_REPLAY_CONFLICT','ENJAZ_COPILOT_ACTION_SNOOZE_STALE',
   'ENJAZ_COPILOT_ACTION_SNOOZE_INVALID','ENJAZ_FOLLOWUP_AUTH_REQUIRED','ENJAZ_FOLLOWUP_WORKSPACE_FORBIDDEN',
   'ENJAZ_FOLLOWUP_NOT_FOUND','ENJAZ_FOLLOWUP_TERMINAL_FINAL','ENJAZ_FOLLOWUP_SNOOZE_NOT_FUTURE',
+  'ENJAZ_FOLLOWUP_TRANSACTION_INVALID','ENJAZ_FOLLOWUP_ID_REQUIRED','ENJAZ_FOLLOWUP_TITLE_INVALID','ENJAZ_FOLLOWUP_DUE_AT_REQUIRED','ENJAZ_FOLLOWUP_IDEMPOTENCY_CONFLICT',
+  'ENJAZ_COPILOT_ACTION_TITLE_INVALID','ENJAZ_COPILOT_ACTION_DUE_AT_INVALID','ENJAZ_COPILOT_ACTION_DUE_AT_STALE',
 ] as const;
 function dbCode(error:unknown){
   const message=errorText(error);
@@ -94,6 +96,8 @@ function safeError(code:string){
     ENJAZ_COPILOT_ACTION_SNOOZE_STALE:'Approved snooze time is no longer in the future.',
     ENJAZ_FOLLOWUP_NOT_FOUND:'The approved follow-up no longer exists.',
     ENJAZ_FOLLOWUP_TERMINAL_FINAL:'The approved follow-up is already terminal.',
+    ENJAZ_FOLLOWUP_TRANSACTION_INVALID:'The approved transaction is not available in this workspace.',
+    ENJAZ_COPILOT_ACTION_DUE_AT_STALE:'The approved follow-up due time is no longer in the future.',
     ENJAZ_COPILOT_RATE_LIMITED:'Copilot request limit reached.',
     CONTEXT_SOURCE_FORBIDDEN:'Authoritative ENJAZ context is not available to this user.',
     CONTEXT_SOURCE_UNAVAILABLE:'Authoritative ENJAZ context is temporarily unavailable.',
@@ -105,7 +109,8 @@ function safeError(code:string){
     'PROPOSAL_HASH_INVALID','APPROVAL_DECISION_INVALID','ENJAZ_COPILOT_APPROVAL_EXPIRY_INVALID',
     'ENJAZ_COPILOT_APPROVAL_DECISION_INVALID','ENJAZ_COPILOT_PROPOSAL_HASH_INVALID',
     'ACTION_REQUEST_INVALID','ACTION_FIELD_FORBIDDEN','ACTION_OPERATION_FORBIDDEN','ACTION_SNOOZE_INVALID',
-    'FOLLOWUP_ID_INVALID','PROPOSAL_ID_INVALID','EXECUTION_KEY_INVALID','ENJAZ_COPILOT_ACTION_SNOOZE_INVALID',
+    'FOLLOWUP_ID_INVALID','TRANSACTION_ID_INVALID','PROPOSAL_ID_INVALID','EXECUTION_KEY_INVALID','ENJAZ_COPILOT_ACTION_SNOOZE_INVALID',
+    'ACTION_TITLE_INVALID','ACTION_DUE_AT_INVALID','ENJAZ_COPILOT_ACTION_TITLE_INVALID','ENJAZ_COPILOT_ACTION_DUE_AT_INVALID',
   ]);
   if(messages[code])return {code,retryable,message:messages[code]};
   if(validation.has(code))return {code,retryable:false,message:'Agentic Copilot request is invalid.'};
@@ -115,7 +120,7 @@ function httpStatus(code:string){
   if(code==='AUTH_REQUIRED'||code==='AUTH_INVALID'||code==='ENJAZ_FOLLOWUP_AUTH_REQUIRED')return 401;
   if(code==='ENJAZ_COPILOT_WORKSPACE_FORBIDDEN'||code==='ENJAZ_COPILOT_PROPOSAL_ACTOR_FORBIDDEN'||code==='ENJAZ_FOLLOWUP_WORKSPACE_FORBIDDEN'||code==='CONTEXT_SOURCE_FORBIDDEN')return 403;
   if(code==='ENJAZ_COPILOT_PROPOSAL_NOT_FOUND'||code==='ENJAZ_FOLLOWUP_NOT_FOUND')return 404;
-  if(code==='ENJAZ_COPILOT_APPROVAL_EXPIRED'||code==='ENJAZ_COPILOT_ACTION_SNOOZE_STALE')return 410;
+  if(code==='ENJAZ_COPILOT_APPROVAL_EXPIRED'||code==='ENJAZ_COPILOT_ACTION_SNOOZE_STALE'||code==='ENJAZ_COPILOT_ACTION_DUE_AT_STALE')return 410;
   if(code==='ENJAZ_COPILOT_RATE_LIMITED')return 429;
   if(code.includes('CONFLICT')||code==='ENJAZ_COPILOT_ACTION_APPROVAL_REQUIRED'||code==='ENJAZ_FOLLOWUP_TERMINAL_FINAL')return 409;
   if(code==='CONTEXT_SOURCE_UNAVAILABLE')return 503;
@@ -170,7 +175,7 @@ Deno.serve(async(req:Request)=>{
     const workspaceId=action?.workspaceId??approval?.workspaceId??plan!.workspaceId;
     const requestId=action?.requestId??approval?.requestId??plan!.requestId;
 
-    const begin=await admin.rpc('copilot_begin_request_v4',{
+    const begin=await admin.rpc('copilot_begin_request_v5',{
       p_workspace_id:workspaceId,p_actor_user_id:actorId,p_request_id:requestId,
       p_operation:traceOperation,p_payload_hash:payloadHash,p_limit:20,
     });
@@ -209,11 +214,39 @@ Deno.serve(async(req:Request)=>{
       const row=record(registered.data);
       const proposalId=uuidOrNull(row.proposalId),storedHash=text(row.proposalHash),storedExpiry=text(row.expiresAt);
       if(!proposalId||storedHash!==proposalHash||!storedExpiry||row.actionKind!=='followup.snooze'||text(row.targetId)!==action.followupId)throw new Error('COPILOT_ACTION_EVIDENCE_INVALID');
-      const result=preparedActionResult({
+      const result=preparedSnoozeActionResult({
         proposalId,proposalHash:storedHash,expiresAt:storedExpiry,replayed:row.replayed===true,
         followupId:action.followupId,snoozedUntil:action.snoozedUntil,
       });
       await finish('completed',null,{resultKind:'action_proposal',actionKind:'followup.snooze',providerUsed:false});
+      return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
+    }
+
+    if(action?.operation==='prepare_followup_create'){
+      const target=await userClient.from('transactions')
+        .select('id,workspace_id,deleted_at')
+        .eq('workspace_id',action.workspaceId).eq('id',action.transactionId).maybeSingle();
+      if(target.error)throw new Error(sourceCode(target.error));
+      if(!target.data||target.data.deleted_at)throw new Error('ENJAZ_FOLLOWUP_TRANSACTION_INVALID');
+
+      const proposalHash=await actionProposalHash(action);
+      const expiresAt=new Date(Date.now()+10*60*1000).toISOString();
+      const registered=await admin.rpc('copilot_register_followup_create_proposal_v1',{
+        p_workspace_id:action.workspaceId,p_actor_user_id:actorId,p_request_id:action.requestId,
+        p_proposal_hash:proposalHash,p_transaction_id:action.transactionId,p_followup_id:action.followupId,
+        p_title:action.title,p_due_at:action.dueAt,p_expires_at:expiresAt,
+      });
+      if(registered.error)throw new Error(dbCode(registered.error));
+      const row=record(registered.data);
+      const proposalId=uuidOrNull(row.proposalId),storedHash=text(row.proposalHash),storedExpiry=text(row.expiresAt);
+      if(!proposalId||storedHash!==proposalHash||!storedExpiry||row.actionKind!=='followup.create'
+        ||text(row.targetId)!==action.followupId||text(row.transactionId)!==action.transactionId
+        ||text(row.title)!==action.title)throw new Error('COPILOT_ACTION_EVIDENCE_INVALID');
+      const result=preparedCreateActionResult({
+        proposalId,proposalHash:storedHash,expiresAt:storedExpiry,replayed:row.replayed===true,
+        transactionId:action.transactionId,followupId:action.followupId,title:action.title,dueAt:action.dueAt,
+      });
+      await finish('completed',null,{resultKind:'action_proposal',actionKind:'followup.create',providerUsed:false});
       return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
     }
 
@@ -225,6 +258,17 @@ Deno.serve(async(req:Request)=>{
       if(executed.error)throw new Error(dbCode(executed.error));
       const result=parseExecutionResult(executed.data);
       await finish('completed',null,{resultKind:'action_execution',actionKind:'followup.snooze',providerUsed:false,replayed:result.replayed});
+      return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
+    }
+
+    if(action?.operation==='execute_followup_create'){
+      const executed=await userClient.rpc('copilot_execute_followup_create_v1',{
+        p_workspace_id:action.workspaceId,p_proposal_id:action.proposalId,
+        p_proposal_hash:action.proposalHash,p_execution_key:action.executionKey,
+      });
+      if(executed.error)throw new Error(dbCode(executed.error));
+      const result=parseExecutionResult(executed.data);
+      await finish('completed',null,{resultKind:'action_execution',actionKind:'followup.create',providerUsed:false,replayed:result.replayed});
       return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
     }
 

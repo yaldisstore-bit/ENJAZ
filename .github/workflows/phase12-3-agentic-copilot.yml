@@ -1,4 +1,4 @@
-name: ENJAZ Phase 12.3 — Agentic Copilot A3-A Gate
+name: ENJAZ Phase 12.3 — Agentic Copilot A3-B Gate
 
 on:
   push:
@@ -12,6 +12,7 @@ on:
       - 'database/migrations/phase_12_3_agentic_approval_binding.sql'
       - 'database/migrations/phase_12_3_agentic_approval_fk_index_hardening.sql'
       - 'database/migrations/phase_12_3_agentic_action_followup_snooze.sql'
+      - 'database/migrations/phase_12_3_agentic_action_followup_create.sql'
       - 'scripts/phase12-3-*'
       - 'tests/phase12-3-*'
       - '.github/workflows/phase12-3-agentic-copilot.yml'
@@ -27,6 +28,7 @@ on:
       - 'database/migrations/phase_12_3_agentic_approval_binding.sql'
       - 'database/migrations/phase_12_3_agentic_approval_fk_index_hardening.sql'
       - 'database/migrations/phase_12_3_agentic_action_followup_snooze.sql'
+      - 'database/migrations/phase_12_3_agentic_action_followup_create.sql'
       - 'scripts/phase12-3-*'
       - 'tests/phase12-3-*'
       - '.github/workflows/phase12-3-agentic-copilot.yml'
@@ -40,7 +42,7 @@ permissions:
 
 jobs:
   phase12-3-a1:
-    name: A1+A2 Preservation / A3-A Follow-up Snooze / Destruction / Frozen Budgets
+    name: A1+A2+A3-A Preservation / A3-B Follow-up Create / Destruction / Frozen Budgets
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -74,6 +76,10 @@ jobs:
         run: node --experimental-strip-types --test tests/phase12-3-agentic-copilot-action-core.test.ts
       - name: Phase 12.3 A3-A database authority tests
         run: node --test tests/phase12-3-agentic-copilot-action-db.test.mjs
+      - name: Phase 12.3 A3-B action create core tests
+        run: node --experimental-strip-types --test tests/phase12-3-agentic-copilot-action-create-core.test.ts
+      - name: Phase 12.3 A3-B action create database tests
+        run: node --test tests/phase12-3-agentic-copilot-action-create-db.test.mjs
       - name: Preserve certified Phase 12.2 contextual assistance
         run: |
           node scripts/phase12-2-contextual-assistance-audit.mjs

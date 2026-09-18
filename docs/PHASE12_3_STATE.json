@@ -4,7 +4,7 @@
   "majorSystem": "M9",
   "status": "IN_PROGRESS",
   "mode": "AGENTIC_COPILOT",
-  "slice": "A3A_FOLLOWUP_SNOOZE_ACTION",
+  "slice": "A3B_FOLLOWUP_CREATE_ACTION",
   "baseCommit": "00470d129693fdf1362becbc7d95f54560f79481",
   "predecessorPhase": "12.2",
   "predecessorStatus": "CLOSED",
@@ -55,8 +55,8 @@
   "budgetIncreaseAllowed": false,
   "kickoffEvidence": "docs/PHASE12_3_KICKOFF.md",
   "planCorePath": "supabase/functions/enjaz-copilot-agent/core.ts",
-  "sourceGateVerification": "PASS_A3A_CERTIFIED",
-  "realCloudVerification": "PASS_A3A_32_OF_32_ZERO_RESIDUE",
+  "sourceGateVerification": "PENDING_A3B",
+  "realCloudVerification": "PENDING_A3B",
   "realBrowserVerification": "NOT_REQUIRED_NO_CLIENT_DELTA_A2",
   "pagesVerification": "PENDING_LATER",
   "liveExternalVerification": "PENDING_LATER",
@@ -140,11 +140,14 @@
   "genericExecuteOperationAllowed": false,
   "lowRiskMutationExecutionAllowed": true,
   "authorizedActionAdapters": [
-    "followup.snooze"
+    "followup.snooze",
+    "followup.create"
   ],
   "actionOperations": [
     "prepare_followup_snooze",
-    "execute_followup_snooze"
+    "execute_followup_snooze",
+    "prepare_followup_create",
+    "execute_followup_create"
   ],
   "actionProposalDigestDatabaseRecomputed": true,
   "actionExecutionPayloadCarriesBusinessFields": false,
@@ -195,5 +198,15 @@
   "a3CertificationCommitRealCloudRunId": 35364548285,
   "a3CertificationCommitRealCloudRunNumber": 3,
   "a3CertificationCommitRealCloudVerification": "PASS",
-  "a3CertificationCommitZeroResidue": true
+  "a3CertificationCommitZeroResidue": true,
+  "a3AGovernanceRecordingHead": "58349438c8b2bc09e24aea8138ae6103435ae7e4",
+  "a3AGovernanceRecordingGateRunId": 35364672800,
+  "a3AGovernanceRecordingGateRunNumber": 19,
+  "a3AGovernanceRecordingVerification": "PASS",
+  "a3BKickoffEvidence": "docs/PHASE12_3_A3B_KICKOFF.md",
+  "a3BDatabaseMigrationPath": "database/migrations/phase_12_3_agentic_action_followup_create.sql",
+  "a3BSourceGateVerification": "PENDING",
+  "a3BDatabaseMigrationApplied": false,
+  "a3BEdgeDeployed": false,
+  "a3BRealCloudVerification": "PENDING"
 }
