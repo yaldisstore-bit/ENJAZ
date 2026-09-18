@@ -38,8 +38,14 @@ export type TransitionEngagementContractRevisionInput = Readonly<{
   note?: string | null;
 }>;
 
+export type UnifiedAttentionItem = Readonly<{
+  id:string; title:string; kindLabel:string; attentionLabel:string; stale:boolean;
+  dueAt:string|null; decisionLabel:string|null; communicationEvidence:boolean; ownerPath:'/app/documents'|'/app/calendar'|null;
+}>;
+
 export interface EngagementContractGateway {
   list(workspaceId: string, engagementId?: string | null): Promise<readonly EngagementContractRuntimeRevision[]>;
+  listAttention(workspaceId:string):Promise<readonly UnifiedAttentionItem[]>;
   create(input: CreateEngagementContractRevisionInput): Promise<EngagementContractRuntimeRevision>;
   transition(input: TransitionEngagementContractRevisionInput): Promise<EngagementContractRuntimeRevision>;
 }
@@ -109,6 +115,17 @@ function revisionNumber(value: unknown): number {
   return positiveInteger(value, 'contract revision number');
 }
 
+function parseAttentionItem(value:unknown):UnifiedAttentionItem{
+  const r=record(value,'attention item'),dueAt=nullableText(r.dueAt,'attention due',64),decisionLabel=nullableText(r.decisionLabel,'decision label',40),ownerPath=nullableText(r.ownerPath,'attention owner path',40);
+  if(typeof r.stale!=='boolean'||typeof r.communicationEvidence!=='boolean'||(ownerPath!==null&&ownerPath!=='/app/documents'&&ownerPath!=='/app/calendar'))throw new DataAccessError('Invalid attention projection','DATA_OPERATION_FAILED');
+  return Object.freeze({id:requireUuid(r.id,'attention id'),title:requireText(r.title,'attention title'),kindLabel:requireText(r.kindLabel,'attention kind',80),attentionLabel:requireText(r.attentionLabel,'attention label',80),stale:r.stale,dueAt,decisionLabel,communicationEvidence:r.communicationEvidence,ownerPath});
+}
+function parseAttention(value:unknown):readonly UnifiedAttentionItem[]{
+  const r=record(value,'attention projection');
+  if(r.schema!=='enjaz.intake-contract-attention.v1')throw new DataAccessError('Invalid attention projection','DATA_OPERATION_FAILED');
+  return Object.freeze(rows(r.items,'attention items').map(parseAttentionItem));
+}
+
 function parseRevision(row: Readonly<Record<string, unknown>>): EngagementContractRuntimeRevision {
   const revision = validateEngagementContractRevision({
     workspaceId: requireUuid(row.workspace_id ?? row.workspaceId, 'workspace id'),
@@ -154,14 +171,14 @@ export function createEngagementContractGateway(client: EnjazSupabaseClient, tim
     }
   };
 
-  const call = async (name: string, args: Readonly<Record<string, unknown>>): Promise<unknown> => {
+  const call = async (name: string, args: Readonly<Record<string, unknown>>, write = true): Promise<unknown> => {
     try {
       const result = await wait(Promise.resolve(rpc.rpc(name, args)));
       if (result.error) throw normalizeDataFailure(result.error);
       return result.data;
     } catch (error) {
       if (error instanceof DataAccessError) throw error;
-      throw normalizeThrownDataFailure(error, 'write');
+      throw normalizeThrownDataFailure(error, write ? 'write' : 'read');
     }
   };
 
@@ -198,6 +215,10 @@ export function createEngagementContractGateway(client: EnjazSupabaseClient, tim
         if (error instanceof DataAccessError) throw error;
         throw normalizeThrownDataFailure(error, 'read');
       }
+    },
+
+    async listAttention(workspaceId:string){
+      return parseAttention(await call('list_unified_intake_contract_attention_v1',{p_workspace_id:requireUuid(workspaceId,'workspace id'),p_kind:'all',p_include_terminal:true,p_limit:200},false));
     },
 
     async create(input: CreateEngagementContractRevisionInput) {

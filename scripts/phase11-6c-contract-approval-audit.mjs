@@ -26,9 +26,14 @@ const req=(v,m)=>{if(!v)errors.push(m)};
 const has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 const lacks=(s,m,l)=>req(!s.includes(m),`${l} forbidden marker present: ${m}`);
 
-req(state.phase==='11.6'&&state.status==='IN_PROGRESS'&&state.currentSlice==='11.6-C','11.6-C lifecycle identity invalid');
-req(state.mode==='CONTRACT_APPROVAL_RETAINER_COMMUNICATION','11.6-C mode drifted');
-req(state.currentSliceBaseCommit==='314ff5a297420b4842a0bba78c3575d84e85c707','11.6-C must start from merged 11.6-B closure');
+req(state.phase==='11.6'&&state.status==='IN_PROGRESS'&&['11.6-C','11.6-D'].includes(state.currentSlice),'11.6-C closure must remain valid through governed successor D');
+if(state.currentSlice==='11.6-C'){
+  req(state.mode==='CONTRACT_APPROVAL_RETAINER_COMMUNICATION','11.6-C mode drifted');
+  req(state.currentSliceBaseCommit==='314ff5a297420b4842a0bba78c3575d84e85c707','11.6-C must start from merged 11.6-B closure');
+}else{
+  req(state.mode==='UNIFIED_EXPERIENCE_CERTIFICATION','11.6-D successor mode drifted');
+  req(state.currentSliceBaseCommit==='ea6d7bdedaa2a714c7ec34ebf444d06e0875b06b'&&state.phase11_6cMergeCommit==='ea6d7bdedaa2a714c7ec34ebf444d06e0875b06b','11.6-D must start from exact merged C closure');
+}
 req(state.phase11_6bStatus==='CLOSED'&&state.phase11_6bExitGatePassed===true&&state.phase11_6bClosureDecision==='PASS','11.6-C requires certified B predecessor');
 req(state.phase11_6bMergeCommit==='314ff5a297420b4842a0bba78c3575d84e85c707','11.6-B merge lineage drifted');
 req(['IN_PROGRESS','CLOSED'].includes(state.phase11_6cStatus),'11.6-C lifecycle status invalid');

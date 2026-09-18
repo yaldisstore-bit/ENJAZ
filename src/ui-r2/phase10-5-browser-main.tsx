@@ -2,7 +2,7 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import type {DocumentFactoryDraft,DocumentFactoryGateway} from '../features/documents/documentFactoryCommands.ts';
 import {assertEngagementContractTransition,type EngagementContractStatus} from '../features/engagements/engagementContract.ts';
-import type {CreateEngagementContractRevisionInput,EngagementContractGateway,EngagementContractRuntimeRevision,TransitionEngagementContractRevisionInput} from '../features/engagements/engagementContractCommands.ts';
+import type {CreateEngagementContractRevisionInput,EngagementContractGateway,EngagementContractRuntimeRevision,TransitionEngagementContractRevisionInput,UnifiedAttentionItem} from '../features/engagements/engagementContractCommands.ts';
 import {FinanceCommandProvider} from '../features/finance/FinanceCommandContext.tsx';
 import type {FinanceCommandGateway,FinanceEngagementContext,FinancePaymentContext} from '../features/finance/financeCommands.ts';
 import {EngagementContractPanel} from './documents/EngagementContractPanel.tsx';
@@ -69,6 +69,12 @@ const documentFactoryGateway={
   async listDrafts(workspaceId:string){if(workspaceId!==W)throw new Error('WORKSPACE_FORBIDDEN');await pause(10);return Object.freeze([finalDraft])},
 } as unknown as DocumentFactoryGateway;
 
+const attentionFailure=new URLSearchParams(location.search).get('attention')==='fail';
+const attentionItems=Object.freeze<readonly UnifiedAttentionItem[]>([
+  Object.freeze({id:'99999999-9999-4999-8999-999999999991',title:'استكمال بيانات الموكل',kindLabel:'استكمال بيانات',attentionLabel:'بانتظار الطرف الخارجي',stale:false,dueAt:'2026-09-20T12:00:00Z',decisionLabel:null,communicationEvidence:false,ownerPath:null}),
+  Object.freeze({id:'99999999-9999-4999-8999-999999999992',title:'قرار العميل على نسخة العقد',kindLabel:'قرار عميل',attentionLabel:'يتطلب إجراء',stale:true,dueAt:'2026-09-18T14:00:00Z',decisionLabel:'موافقة',communicationEvidence:false,ownerPath:'/app/documents'}),
+  Object.freeze({id:'99999999-9999-4999-8999-999999999993',title:'تجديد عقد الخدمات',kindLabel:'تجديد عقد',attentionLabel:'متأخر',stale:false,dueAt:'2026-09-17',decisionLabel:null,communicationEvidence:true,ownerPath:'/app/calendar'}),
+]);
 let revisions:EngagementContractRuntimeRevision[]=[];
 const transitionLog:Array<{from:EngagementContractStatus;to:EngagementContractStatus;documentId:string|null;documentVersionId:string|null}>=[];
 
@@ -82,6 +88,7 @@ function createRuntimeRevision(input:CreateEngagementContractRevisionInput):Enga
 }
 
 const contractGateway:EngagementContractGateway={
+  async listAttention(workspaceId){if(workspaceId!==W)throw new Error('WORKSPACE_FORBIDDEN');if(attentionFailure)throw new Error('ATTENTION_READ_FAILED');return attentionItems},
   async list(workspaceId,engagementId=null){if(workspaceId!==W)throw new Error('WORKSPACE_FORBIDDEN');await pause(10);return Object.freeze(revisions.filter(r=>!engagementId||r.engagementId===engagementId).slice().sort((a,b)=>b.revision-a.revision))},
   async create(input){await pause(15);const existing=revisions.find(r=>r.engagementId===input.engagementId&&r.draftId===input.draftId&&r.status!=='superseded');if(existing)return existing;const next=createRuntimeRevision(input);revisions=[next,...revisions];return next},
   async transition(input:TransitionEngagementContractRevisionInput){await pause(15);if(input.workspaceId!==W)throw new Error('WORKSPACE_FORBIDDEN');const current=revisions.find(r=>r.id===input.revisionId);if(!current)throw new Error('CONTRACT_NOT_FOUND');if(input.expectedVersion!==current.version)throw new Error('CONTRACT_STALE');if(!input.operationId)throw new Error('CONTRACT_OPERATION_REQUIRED');assertEngagementContractTransition(current.status,input.toStatus);let documentId=current.documentId,documentVersionId=current.documentVersionId,signedAt=current.signedAt,effectiveOn=current.effectiveOn,expiresOn=current.expiresOn,signatureProvenance=current.signatureProvenance,terminationNote=current.terminationNote;

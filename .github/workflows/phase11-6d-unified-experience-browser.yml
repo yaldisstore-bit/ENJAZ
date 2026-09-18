@@ -1,0 +1,81 @@
+name: ENJAZ Phase 11.6-D — Unified Attention Real Browser
+
+on:
+  push:
+    branches:
+      - 'phase11-6d-*'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/PHASE11_6*'
+      - 'database/migrations/phase_11_6_unified_intake_contract_attention*'
+      - 'src/features/engagements/engagementContractCommands.ts'
+      - 'src/ui-r2/documents/EngagementContractPanel.tsx'
+      - 'src/ui-r2/phase10-5-browser-main.tsx'
+      - 'tests/unifiedIntakeContractAttention*'
+      - 'tests-external/phase11-6d-unified-attention-live.spec.cjs'
+      - 'scripts/phase11-6d-unified-experience-audit.mjs'
+      - '.github/workflows/phase11-6d-unified-experience-browser.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase11-6d-unified-attention-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase11-6d-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Preserve D authority and projection contracts
+        run: |
+          node scripts/phase11-6a-intake-contract-authority-audit.mjs
+          node scripts/phase11-6c-contract-approval-audit.mjs
+          node scripts/phase11-6d-unified-experience-audit.mjs
+          node --experimental-strip-types --test tests/unifiedIntakeContractAttention.test.ts
+          node --test tests/unifiedIntakeContractAttentionSource.test.mjs
+          npm run typecheck
+      - name: Build canonical production under frozen budgets
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
+      - name: Build isolated D browser harness
+        run: npx vite build --config vite.phase10-5-browser.config.ts --base=/
+      - name: Install pinned Chromium tooling
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start isolated D browser harness
+        run: |
+          nohup npx vite preview --config vite.phase10-5-browser.config.ts --host 127.0.0.1 --port 4186 > /tmp/enjaz-phase11-6d-browser.log 2>&1 &
+          for i in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4186/phase10-5-browser.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-phase11-6d-browser.log
+          exit 1
+      - name: Unified attention / offline / failure / RTL five-width certificate
+        env:
+          R2_PHASE116D_BASE_URL: http://127.0.0.1:4186/
+        run: npx playwright test tests-external/phase11-6d-unified-attention-live.spec.cjs --reporter=line --workers=1
+      - name: Upload D browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase11-6d-unified-attention-browser-${{ github.sha }}
+          path: |
+            artifacts/phase11-6d-unified-attention/
+            test-results/
+            /tmp/enjaz-phase11-6d-browser.log
+          if-no-files-found: ignore
+          retention-days: 14
