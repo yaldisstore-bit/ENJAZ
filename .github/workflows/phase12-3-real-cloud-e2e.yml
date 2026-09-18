@@ -7,7 +7,6 @@ on:
     paths:
       - 'scripts/phase12-3-real-cloud-e2e.mjs'
       - 'supabase/functions/enjaz-copilot-agent/**'
-      - 'docs/PHASE12_3_STATE.json'
       - '.github/workflows/phase12-3-real-cloud-e2e.yml'
   workflow_dispatch:
 
