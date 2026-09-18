@@ -123,7 +123,7 @@ for(const marker of [
   'grant execute on function public.copilot_execute_followup_snooze_v1(uuid,uuid,text,uuid)'
 ])has(actionMigration,marker,'12.3 A3-A migration');
 req(!/\b(post_payment_v1|reverse_payment_v1|archive_document_v1|generate_document_draft_v1|send_client_portal_message_v1)\b/.test(actionMigration),'12.3 A3-A migration has unauthorized business adapter');
-for(const marker of ['followup.snooze','execution request does not contain the target follow-up','same transaction','Phase 12.4 remains LOCKED'])has(a3,marker,'12.3 A3-A kickoff');
+for(const marker of ['followup.snooze','execution request does not contain the target follow-up','inside one transaction','Phase 12.4 remains LOCKED'])has(a3,marker,'12.3 A3-A kickoff');
 
 has(roadmap,'## 12.3 — Agentic ENJAZ Copilot — M9','roadmap');
 has(roadmap,'Sensitive mutations require explicit user approval and domain-service validation.','roadmap');
