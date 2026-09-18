@@ -10,6 +10,9 @@ on:
       - 'docs/PHASE12_2_*.json'
       - 'database/migrations/phase_12_2_*'
       - 'supabase/functions/enjaz-copilot-context/**'
+      - 'src/ui-r2/copilot/**'
+      - 'src/ui-r2/runtime/LazyLiveProductionPortals.tsx'
+      - 'src/ui-r2/runtime/UiR2ProductionRoot.tsx'
       - 'scripts/phase12-2-*'
       - 'tests/phase12-2-*'
       - '.github/workflows/phase12-2-contextual-assistance.yml'
@@ -21,6 +24,9 @@ on:
       - 'docs/PHASE12_2_*.json'
       - 'database/migrations/phase_12_2_*'
       - 'supabase/functions/enjaz-copilot-context/**'
+      - 'src/ui-r2/copilot/**'
+      - 'src/ui-r2/runtime/LazyLiveProductionPortals.tsx'
+      - 'src/ui-r2/runtime/UiR2ProductionRoot.tsx'
       - 'scripts/phase12-2-*'
       - 'tests/phase12-2-*'
       - '.github/workflows/phase12-2-contextual-assistance.yml'
@@ -54,6 +60,8 @@ jobs:
         run: node --experimental-strip-types --test tests/phase12-2-contextual-assistance-core.test.ts
       - name: Phase 12.2 source destruction tests
         run: node --test tests/phase12-2-contextual-assistance-source.test.mjs
+      - name: Phase 12.2 live UI authority tests
+        run: node --test tests/phase12-2-contextual-assistance-ui.test.mjs
       - name: Preserve certified Phase 12.1 foundation
         run: |
           node scripts/phase12-1-copilot-foundation-audit.mjs
