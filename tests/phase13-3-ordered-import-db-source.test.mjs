@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const sql=fs.readFileSync('database/migrations/phase_13_3_ordered_import_execution.sql','utf8');
-const has=(m:string)=>assert.ok(sql.includes(m),m);
-const no=(re:RegExp,label:string)=>assert.equal(re.test(sql),false,label);
+const has=(m)=>assert.ok(sql.includes(m),m);
+const no=(re,label)=>assert.equal(re.test(sql),false,label);
 
 test('A3 DB source uses existing import_jobs ledger and creates no table',()=>{
   has('public.import_jobs');no(/create\s+table/i,'no new table');
