@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const sql=fs.readFileSync('database/migrations/phase_13_3_ordered_import_execution.sql','utf8');
+const baseSql=fs.readFileSync('database/migrations/phase_13_3_ordered_import_execution.sql','utf8');
+const hardeningSql=fs.readFileSync('database/migrations/phase_13_3_ordered_import_replay_hardening.sql','utf8');
+const sql=hardeningSql;
 const has=(m)=>assert.ok(sql.includes(m),m);
 const no=(re,label)=>assert.equal(re.test(sql),false,label);
 
