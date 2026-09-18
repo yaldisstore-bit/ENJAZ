@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const root=new URL('../',import.meta.url);
-const sql=fs.readFileSync(new URL('database/migrations/phase_11_6_unified_intake_contract_attention.sql',root),'utf8');
+const sql=fs.readFileSync(new URL('database/migrations/phase_11_6_unified_intake_contract_attention_display.sql',root),'utf8');
 
 function violations(s=sql){
   const out=[];const req=(ok,name)=>{if(!ok)out.push(name)};
