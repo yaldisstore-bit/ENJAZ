@@ -48,6 +48,10 @@ jobs:
         run: node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
       - name: Phase 13.1 A1 destruction tests
         run: node --experimental-strip-types --test tests/phase13-1-legacy-snapshot-intake.test.ts
+      - name: Phase 13.1 A2 quarantine review audit
+        run: node scripts/phase13-1-legacy-snapshot-review-audit.mjs
+      - name: Phase 13.1 A2 quarantine review tests
+        run: node --experimental-strip-types --test tests/phase13-1-legacy-snapshot-review.test.ts
       - name: Preserve Phase 12.5 formal closure
         run: node scripts/phase12-5-ai-zero-escape-audit.mjs
       - name: Full functional regression

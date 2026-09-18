@@ -454,12 +454,13 @@ AI is allowed only after authoritative business domains and permission boundarie
 # Phase 13 — Legacy Import & Reconciliation
 
 ## 13.1 — Read-only Legacy Snapshot Intake — IN_PROGRESS
-- **A1 — Read-only Snapshot Contract + Structural Inventory: IN_PROGRESS**
 - exact base: `a7a17d6309e43cff68968be33deecbdac57ed4ed` — final merged Phase 12.5 closure.
-- bounded opaque snapshot intake only; legacy snapshot is not authoritative ENJAZ truth.
-- deterministic type counts, duplicate `type:id` keys and dangling-link inventory are allowed.
-- mapping, normalization, repair/deduplication, ordered import, target writes, DB migration, write RPC, Edge authority and client UI are forbidden in A1.
-- unknown concepts remain reviewable/quarantined; no guessed M1–M18 target is allowed.
+- **A1 — Read-only Snapshot Contract + Structural Inventory: CERTIFIED** — Gate #3 / `35393731218`; **10/10 PASS**, functional **219/219**, DB self-test **25/25**, frozen build **431032 / 759568 JS + 179989 CSS**.
+- **A2 — Quarantine Review Manifest: IN_PROGRESS** — exact caller-declared legacy labels only; no case folding, normalization or alias inference.
+- recognized types remain review-only and receive no target system/entity.
+- undeclared observed types are `QUARANTINED_UNKNOWN`.
+- duplicate record keys and dangling links are carried forward as explicit review issues; no repair occurs.
+- mapping, normalization, ordered import, target writes, DB migration, write RPC, Edge authority and client UI remain forbidden.
 - Phase 13.2 — Normalize & Map remains **LOCKED**.
 
 ## 13.2 — Normalize & Map

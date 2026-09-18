@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.1 — Read-only Legacy Snapshot Intake 🟡 IN PROGRESS / A1 READ-ONLY CONTRACT**  
+الحالة الرسمية: **Phase 13.1 — Read-only Legacy Snapshot Intake 🟡 IN PROGRESS / A1 CERTIFIED + A2 QUARANTINE REVIEW**  
 آخر مرحلة مغلقة: **Phase 12.5 — AI Zero-Escape & Safety Gate ✅ CLOSED / EXACT-MAIN + DEPLOYED-LIVE CERTIFIED**  
-المرحلة الحالية: **Phase 13.1 — Read-only Legacy Snapshot Intake — A1 STRUCTURAL INTAKE**؛ Phase 13.2 remains **LOCKED**.
+المرحلة الحالية: **Phase 13.1 — Read-only Legacy Snapshot Intake — A2 QUARANTINE REVIEW MANIFEST**؛ Phase 13.2 remains **LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -59,18 +59,23 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 12.3 — Agentic ENJAZ Copilot — M9: ✅ CLOSED — A1/A2/A3-A/A3-B/A3-C/A3-D/A3-E certified; approval-gated action-specific execution + Real Cloud + PR 78/78 + exact-main 38/38 + Pages + Live External certified.**
 - **Phase 12.4 — Regulatory Knowledge Assistance — M8: ✅ CLOSED — A1/A2/A3 certified؛ caller-JWT M8 retrieval Edge v3; exact search↔entry binding; Real Cloud zero mutation/residue; PR 86/86 + exact-main 38/38 + Phase 9.4 Regulatory + Real Browser + Pages + Live External certified.**
 - **Phase 12.5 — AI Zero-Escape & Safety Gate: ✅ CLOSED — W1 16/16 + W2 71/71 + PR 80/80 + exact-main 39/39 + Real Browser + Pages + Live External; M8/M9 CLOSED under ZERO_ESCAPE_V1.**
-- **Phase 13.1 — Read-only Legacy Snapshot Intake: 🟡 IN PROGRESS — A1 bounded snapshot contract + structural inventory; no mapping/normalization/persistence/import authority; 13.2 LOCKED.**
+- **Phase 13.1 — Read-only Legacy Snapshot Intake: 🟡 IN PROGRESS — A1 CERTIFIED 10/10; A2 exact-label quarantine review in progress; no target mapping/normalization/persistence/import authority; 13.2 LOCKED.**
 
 ## Phase 13.1 — العمل الحالي
 
 - exact base: `a7a17d6309e43cff68968be33deecbdac57ed4ed` — final merged Phase 12.5 closure.
 - branch: `phase13-1-readonly-legacy-snapshot-intake`.
-- A1: **read-only snapshot contract + structural inventory**.
-- allowed: validation, type counts, duplicate detection, dangling-link detection, review/quarantine signal.
-- forbidden: mapping, normalization, deduplication repair, ordered import, DB writes, new tables/write RPCs, Edge authority, client UI.
+- A1: **CERTIFIED** — Gate #3 / `35393731218`; tests **10/10**, functional **219/219**, DB self-test **25/25**.
+- A1 frozen build: **431032 / 670000 initial JS; 759568 / 760000 total JS; 179989 / 180000 CSS**.
+- A2: **IN PROGRESS — Quarantine Review Manifest**.
+- exact caller-declared legacy labels only; no case-folding/alias inference.
+- recognized types remain review-only with `targetSystem=null` / `targetEntity=null`.
+- unknown types → **QUARANTINED_UNKNOWN**; duplicate/dangling issues remain review evidence.
+- forbidden: mapping, normalization, repair, ordered import, DB writes, new tables/write RPCs, Edge authority, client UI.
 - Phase 13.2 — Normalize & Map: **LOCKED**.
 - state: [`docs/PHASE13_1_STATE.json`](docs/PHASE13_1_STATE.json).
-- kickoff: [`docs/PHASE13_1_KICKOFF.md`](docs/PHASE13_1_KICKOFF.md).
+- A1 kickoff: [`docs/PHASE13_1_KICKOFF.md`](docs/PHASE13_1_KICKOFF.md).
+- A2 kickoff: [`docs/PHASE13_1_A2_KICKOFF.md`](docs/PHASE13_1_A2_KICKOFF.md).
 
 ## Phase 12.5 — دليل الإغلاق الحالي
 

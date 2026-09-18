@@ -42,7 +42,7 @@
   "totalJavascriptBudgetBytes": 760000,
   "cssBudgetBytes": 180000,
   "budgetIncreaseAllowed": false,
-  "sourceGateVerification": "PENDING",
+  "sourceGateVerification": "PASS_A1",
   "realCloudVerification": "NOT_REQUIRED_A1_NO_PERSISTENCE",
   "realBrowserVerification": "NOT_REQUIRED_A1_NO_CLIENT_DELTA",
   "pagesVerification": "NOT_REQUIRED_A1_NO_CLIENT_DELTA",
@@ -58,8 +58,34 @@
       "product": "IN_PROGRESS",
       "uiUx": "PASS_NO_CLIENT_DELTA",
       "engineering": "IN_PROGRESS",
-      "certification": "NOT_STARTED"
+      "certification": "IN_PROGRESS"
     },
     "decision": "IN_PROGRESS"
-  }
+  },
+  "currentSlice": "A2_QUARANTINE_REVIEW_MANIFEST",
+  "a1Status": "CERTIFIED",
+  "a1GateRunId": 35393731218,
+  "a1GateRunNumber": 3,
+  "a1GateHead": "c3d6a12fdb2ce227568f0fbcb8ff79844368cc77",
+  "a1TestCount": 10,
+  "a1PassCount": 10,
+  "a1FailCount": 0,
+  "a1FunctionalTestCount": 219,
+  "a1FunctionalPassCount": 219,
+  "a1DbSelftestCount": 25,
+  "a1DbSelftestPassCount": 25,
+  "a1InitialJavascriptBytes": 431032,
+  "a1TotalJavascriptBytes": 759568,
+  "a1CssBytes": 179989,
+  "a2Status": "IN_PROGRESS",
+  "reviewManifestSchema": "enjaz.legacy.snapshot.review.v1",
+  "recognizedLegacyTypeAuthority": "EXPLICIT_CALLER_ALLOWLIST_EXACT_MATCH",
+  "typeAliasInferenceAllowed": false,
+  "typeNameNormalizationAllowed": false,
+  "targetAuthorityAssignmentAllowed": false,
+  "reviewIssueCodes": [
+    "UNKNOWN_LEGACY_TYPE",
+    "DUPLICATE_RECORD_KEY",
+    "DANGLING_LINK"
+  ]
 }
