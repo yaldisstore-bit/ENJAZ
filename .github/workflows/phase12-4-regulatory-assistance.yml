@@ -1,0 +1,79 @@
+name: ENJAZ Phase 12.4 — Regulatory Knowledge Assistance A1 Gate
+
+on:
+  push:
+    branches:
+      - phase12-4-regulatory-knowledge-assistance
+    paths:
+      - 'docs/PHASE12_4_KICKOFF.md'
+      - 'docs/PHASE12_4_STATE.json'
+      - 'docs/PHASE12_3_STATE.json'
+      - 'docs/PHASE12_3_CLOSURE.md'
+      - 'docs/PHASE9_4_STATE.json'
+      - 'docs/PHASE9_4_CLOSURE.md'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+      - 'docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json'
+      - 'README.md'
+      - 'supabase/functions/enjaz-regulatory-assistant/**'
+      - 'tests/phase12-4-regulatory-assistance-core.test.ts'
+      - 'scripts/phase12-4-regulatory-assistance-audit.mjs'
+      - '.github/workflows/phase12-4-regulatory-assistance.yml'
+  pull_request:
+    paths:
+      - 'docs/PHASE12_4_KICKOFF.md'
+      - 'docs/PHASE12_4_STATE.json'
+      - 'docs/PHASE12_3_STATE.json'
+      - 'docs/PHASE12_3_CLOSURE.md'
+      - 'docs/PHASE9_4_STATE.json'
+      - 'docs/PHASE9_4_CLOSURE.md'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+      - 'docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json'
+      - 'README.md'
+      - 'supabase/functions/enjaz-regulatory-assistant/**'
+      - 'tests/phase12-4-regulatory-assistance-core.test.ts'
+      - 'scripts/phase12-4-regulatory-assistance-audit.mjs'
+      - '.github/workflows/phase12-4-regulatory-assistance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase124-regulatory-assistance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  a1:
+    name: Exact 12.3 Closure / M8 Reuse / Authority Separation / Fail-Closed / Frozen Budgets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 12.4 A1 zero-shadow-authority audit
+        run: node scripts/phase12-4-regulatory-assistance-audit.mjs
+      - name: Phase 12.4 A1 contract and destruction tests
+        run: node --experimental-strip-types --test tests/phase12-4-regulatory-assistance-core.test.ts
+      - name: Preserve Phase 9.4 M8 runtime authority
+        run: |
+          node --experimental-strip-types --test tests/phase9-4-regulatory-runtime.test.ts
+          node scripts/phase9-4-regulatory-knowledge-audit.mjs
+      - name: Preserve formally closed Phase 12.3 boundary
+        run: |
+          node --test tests/phase12-3-agentic-copilot.test.mjs
+          node scripts/phase12-3-agentic-copilot-audit.mjs
+      - name: Roadmap and secret governance
+        run: |
+          npm run audit:roadmap
+          npm run audit:secrets
+      - name: TypeScript and production build
+        run: |
+          npm run typecheck
+          npm run build
+      - name: Frozen production budgets
+        run: npm run audit:dist:budget

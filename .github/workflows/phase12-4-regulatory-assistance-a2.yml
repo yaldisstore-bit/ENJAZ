@@ -1,0 +1,63 @@
+name: ENJAZ Phase 12.4 — Regulatory Knowledge Assistance A2 Gate
+
+on:
+  push:
+    branches:
+      - phase12-4-regulatory-knowledge-assistance
+    paths:
+      - 'docs/PHASE12_4_STATE.json'
+      - 'docs/PHASE12_4_A2_KICKOFF.md'
+      - 'supabase/functions/enjaz-regulatory-assistant/index.ts'
+      - 'supabase/functions/enjaz-regulatory-assistant/core.ts'
+      - 'tests/phase12-4-regulatory-assistance-core.test.ts'
+      - 'tests/phase12-4-regulatory-assistance-edge-source.test.mjs'
+      - 'scripts/phase12-4-regulatory-assistance-audit.mjs'
+      - '.github/workflows/phase12-4-regulatory-assistance-a2.yml'
+  pull_request:
+    paths:
+      - 'docs/PHASE12_4_STATE.json'
+      - 'docs/PHASE12_4_A2_KICKOFF.md'
+      - 'supabase/functions/enjaz-regulatory-assistant/index.ts'
+      - 'supabase/functions/enjaz-regulatory-assistant/core.ts'
+      - 'tests/phase12-4-regulatory-assistance-core.test.ts'
+      - 'tests/phase12-4-regulatory-assistance-edge-source.test.mjs'
+      - 'scripts/phase12-4-regulatory-assistance-audit.mjs'
+      - '.github/workflows/phase12-4-regulatory-assistance-a2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase124-regulatory-assistance-a2-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  a2:
+    name: A1 Preservation / Caller JWT / M8 Exact Version / No Service Role / Frozen Budgets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 12.4 lifecycle and authority audit
+        run: node scripts/phase12-4-regulatory-assistance-audit.mjs
+      - name: Preserve A1 grounded contract
+        run: node --experimental-strip-types --test tests/phase12-4-regulatory-assistance-core.test.ts
+      - name: A2 Edge source authority
+        run: node --test tests/phase12-4-regulatory-assistance-edge-source.test.mjs
+      - name: Preserve Phase 9.4 runtime authority
+        run: |
+          node --experimental-strip-types --test tests/phase9-4-regulatory-runtime.test.ts
+          node scripts/phase9-4-regulatory-knowledge-audit.mjs
+      - name: TypeScript and production build
+        run: |
+          npm run typecheck
+          npm run build
+      - name: Frozen production budgets
+        run: npm run audit:dist:budget

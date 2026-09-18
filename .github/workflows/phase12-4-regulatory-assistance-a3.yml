@@ -1,0 +1,73 @@
+name: ENJAZ Phase 12.4 — Regulatory Knowledge Assistance A3 Gate
+
+on:
+  push:
+    branches:
+      - phase12-4-regulatory-knowledge-assistance
+    paths:
+      - 'docs/PHASE12_4_STATE.json'
+      - 'docs/PHASE12_4_A3_KICKOFF.md'
+      - 'docs/PHASE12_4_A2_EVIDENCE.md'
+      - 'supabase/functions/enjaz-regulatory-assistant/index.ts'
+      - 'supabase/functions/enjaz-regulatory-assistant/core.ts'
+      - 'tests/phase12-4-regulatory-assistance-binding.test.ts'
+      - 'tests/phase12-4-regulatory-assistance-core.test.ts'
+      - 'tests/phase12-4-regulatory-assistance-edge-source.test.mjs'
+      - 'scripts/phase12-4-regulatory-assistance-audit.mjs'
+      - 'database/migrations/phase_9_4_runtime_authenticated_behavioral_probe.sql'
+      - '.github/workflows/phase12-4-regulatory-assistance-a3.yml'
+  pull_request:
+    paths:
+      - 'docs/PHASE12_4_STATE.json'
+      - 'docs/PHASE12_4_A3_KICKOFF.md'
+      - 'docs/PHASE12_4_A2_EVIDENCE.md'
+      - 'supabase/functions/enjaz-regulatory-assistant/index.ts'
+      - 'supabase/functions/enjaz-regulatory-assistant/core.ts'
+      - 'tests/phase12-4-regulatory-assistance-binding.test.ts'
+      - 'tests/phase12-4-regulatory-assistance-core.test.ts'
+      - 'tests/phase12-4-regulatory-assistance-edge-source.test.mjs'
+      - 'scripts/phase12-4-regulatory-assistance-audit.mjs'
+      - 'database/migrations/phase_9_4_runtime_authenticated_behavioral_probe.sql'
+      - '.github/workflows/phase12-4-regulatory-assistance-a3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase124-regulatory-assistance-a3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  a3:
+    name: A1+A2 Preservation / Search↔Entry Binding / M8 Positive Probe Preservation / Frozen Budgets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 12.4 lifecycle and authority audit
+        run: node scripts/phase12-4-regulatory-assistance-audit.mjs
+      - name: Preserve A1 grounded contract
+        run: node --experimental-strip-types --test tests/phase12-4-regulatory-assistance-core.test.ts
+      - name: Preserve A2 caller-JWT Edge source authority
+        run: node --test tests/phase12-4-regulatory-assistance-edge-source.test.mjs
+      - name: A3 adversarial search-entry binding
+        run: node --experimental-strip-types --test tests/phase12-4-regulatory-assistance-binding.test.ts
+      - name: Preserve Phase 9.4 positive M8 runtime authority and rollback probe contract
+        run: |
+          node --experimental-strip-types --test tests/phase9-4-regulatory-runtime.test.ts
+          node scripts/phase9-4-regulatory-knowledge-audit.mjs
+          grep -F "ENJAZ_P94_RUNTIME_PROBE_ROLLBACK" database/migrations/phase_9_4_runtime_authenticated_behavioral_probe.sql
+          grep -F "residue after rollback" database/migrations/phase_9_4_runtime_authenticated_behavioral_probe.sql
+      - name: TypeScript and production build
+        run: |
+          npm run typecheck
+          npm run build
+      - name: Frozen production budgets
+        run: npm run audit:dist:budget
