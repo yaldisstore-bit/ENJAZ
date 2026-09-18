@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   AGENT_ACTION_SCHEMA,AGENT_ACTION_OPERATIONS,actionProposalHash,actionTracePayloadHash,
-  followupSnoozeCanonical,parseAgentActionRequest,preparedActionResult,
+  followupSnoozeCanonical,parseAgentActionRequest,preparedSnoozeActionResult,
 } from '../supabase/functions/enjaz-copilot-agent/action.ts';
 
 const W='11111111-1111-4111-8111-111111111111';
@@ -12,9 +12,11 @@ const P='44444444-4444-4444-8444-444444444444';
 const E='55555555-5555-4555-8555-555555555555';
 const FUTURE='2099-09-18T16:30:00.000Z';
 
-test('12.3 A3-A exposes only followup snooze prepare/execute operations',()=>{
+test('12.3 A3-A snooze operations remain preserved inside the expanded A3 allowlist',()=>{
   assert.equal(AGENT_ACTION_SCHEMA,'enjaz.copilot.agent.action.v1');
-  assert.deepEqual(AGENT_ACTION_OPERATIONS,['prepare_followup_snooze','execute_followup_snooze']);
+  assert.ok(AGENT_ACTION_OPERATIONS.includes('prepare_followup_snooze'));
+  assert.ok(AGENT_ACTION_OPERATIONS.includes('execute_followup_snooze'));
+  assert.equal(AGENT_ACTION_OPERATIONS.filter(x=>x.includes('snooze')).length,2);
 });
 
 test('12.3 A3-A canonical action hash binds exact target and timestamp',async()=>{
@@ -38,7 +40,7 @@ test('12.3 A3-A execute request cannot carry action fields',async()=>{
 });
 
 test('12.3 A3-A prepared action remains approval-gated',()=>{
-  const result=preparedActionResult({proposalId:P,proposalHash:'b'.repeat(64),expiresAt:FUTURE,replayed:false,followupId:F,snoozedUntil:FUTURE});
+  const result=preparedSnoozeActionResult({proposalId:P,proposalHash:'b'.repeat(64),expiresAt:FUTURE,replayed:false,followupId:F,snoozedUntil:FUTURE});
   assert.equal(result.status,'pending_approval');
   assert.equal(result.action.kind,'followup.snooze');
   assert.equal(result.executionAllowed,false);
