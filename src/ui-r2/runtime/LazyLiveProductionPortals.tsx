@@ -2,15 +2,16 @@ import { lazy, Suspense, useLayoutEffect, useState } from 'react';
 import type { RegulatoryKnowledgeGateway } from '../../features/regulatory/regulatoryKnowledgeCommands.ts';
 import type { DocumentFactoryFactory, DocumentIntelligenceFactory, DocumentVaultFactory, EngagementContractFactory } from './UiR2ProductionRoot.tsx';
 
-const CompaniesPortal = lazy(() => import('../records/LiveCompaniesProductionPortal.tsx').then((module) => ({ default: module.LiveCompaniesProductionPortal })));
-const PeoplePortal = lazy(() => import('../records/LivePeopleProductionPortal.tsx').then((module) => ({ default: module.LivePeopleProductionPortal })));
-const FinancePortal = lazy(() => import('../finance/LiveFinanceProductionPortal.tsx').then((module) => ({ default: module.LiveFinanceProductionPortal })));
-const KnowledgePortal = lazy(() => import('../regulatory/LiveRegulatoryKnowledgePortal.tsx').then((module) => ({ default: module.LiveRegulatoryKnowledgePortal })));
-const InsightsPortal = lazy(() => import('../intelligence/LiveBusinessIntelligencePortal.tsx').then((module) => ({ default: module.LiveBusinessIntelligencePortal })));
-const DocumentsPortal = lazy(() => import('../documents/LiveDocumentVaultPortal.tsx').then((module) => ({ default: module.LiveDocumentVaultPortal })));
-const EngagementContractsPortal = lazy(() => import('../documents/LiveEngagementContractsPortal.tsx').then((module) => ({ default: module.LiveEngagementContractsPortal })));
-const NotificationsPortal = lazy(() => import('../notifications/LiveNotificationsProductionPortal.tsx').then((module) => ({ default: module.LiveNotificationsProductionPortal })));
-const CalendarPortal = lazy(() => import('../calendar/LiveUnifiedCalendarProductionPortal.tsx').then((module) => ({ default: module.LiveUnifiedCalendarProductionPortal })));
+const named=(load:()=>Promise<any>,key:string)=>lazy(()=>load().then(module=>({default:module[key]})));
+const CompaniesPortal=named(()=>import('../records/LiveCompaniesProductionPortal.tsx'),'LiveCompaniesProductionPortal');
+const PeoplePortal=named(()=>import('../records/LivePeopleProductionPortal.tsx'),'LivePeopleProductionPortal');
+const FinancePortal=named(()=>import('../finance/LiveFinanceProductionPortal.tsx'),'LiveFinanceProductionPortal');
+const KnowledgePortal=named(()=>import('../regulatory/LiveRegulatoryKnowledgePortal.tsx'),'LiveRegulatoryKnowledgePortal');
+const InsightsPortal=named(()=>import('../intelligence/LiveBusinessIntelligencePortal.tsx'),'LiveBusinessIntelligencePortal');
+const DocumentsPortal=named(()=>import('../documents/LiveDocumentVaultPortal.tsx'),'LiveDocumentVaultPortal');
+const EngagementContractsPortal=named(()=>import('../documents/LiveEngagementContractsPortal.tsx'),'LiveEngagementContractsPortal');
+const NotificationsPortal=named(()=>import('../notifications/LiveNotificationsProductionPortal.tsx'),'LiveNotificationsProductionPortal');
+const CalendarPortal=named(()=>import('../calendar/LiveUnifiedCalendarProductionPortal.tsx'),'LiveUnifiedCalendarProductionPortal');
 const CopilotPortal = lazy(() => import('../copilot/LiveCopilotPortal.tsx').then((module) => ({ default: module.LiveCopilotPortal })));
 const SHELL = '.r2-shell[data-r2-runtime-mode="live"][data-destination]';
 
