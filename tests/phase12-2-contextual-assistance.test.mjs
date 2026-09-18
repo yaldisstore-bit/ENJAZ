@@ -39,11 +39,13 @@ test('12.2 authority is read-only, cited and non-persistent',()=>{
   assert.equal(state.provenanceRequired,true);
 });
 
-test('12.2 preserves frozen client ceilings and adds no opening-slice UI/CSS',()=>{
+test('12.2 preserves frozen client ceilings while activating the lazy live UI without new CSS',()=>{
   assert.equal(state.javascriptBudgetBytes,670000);
   assert.equal(state.totalJavascriptBudgetBytes,760000);
   assert.equal(state.cssBudgetBytes,180000);
   assert.equal(state.budgetIncreaseAllowed,false);
-  assert.equal(state.clientUiAdded,false);
+  assert.equal(state.clientUiAdded,true);
+  assert.equal(state.clientUiStatus,'LIVE_LAZY_PENDING_CERTIFICATION');
+  assert.equal(state.clientUiRoute,'/app/copilot');
   assert.equal(state.newClientCssAdded,false);
 });
