@@ -14,6 +14,7 @@ const a2Kickoff=fs.existsSync('docs/PHASE12_4_A2_KICKOFF.md')?read('docs/PHASE12
 const a2Evidence=fs.existsSync('docs/PHASE12_4_A2_EVIDENCE.md')?read('docs/PHASE12_4_A2_EVIDENCE.md'):'';
 const edge=fs.existsSync('supabase/functions/enjaz-regulatory-assistant/index.ts')?read('supabase/functions/enjaz-regulatory-assistant/index.ts'):'';
 const a3Kickoff=fs.existsSync('docs/PHASE12_4_A3_KICKOFF.md')?read('docs/PHASE12_4_A3_KICKOFF.md'):'';
+const a3Evidence=fs.existsSync('docs/PHASE12_4_A3_EVIDENCE.md')?read('docs/PHASE12_4_A3_EVIDENCE.md'):'';
 
 const errors=[],req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 const m8Registry=registry.systems?.find?.(x=>x.id==='M8');
@@ -89,10 +90,10 @@ if(['A2_AUTHENTICATED_M8_RETRIEVAL_EDGE','A3_SEARCH_ENTRY_BINDING_HARDENING'].in
 }
 
 if(state.slice==='A3_SEARCH_ENTRY_BINDING_HARDENING'){
-  has(roadmap,'**A3 — Search↔Entry Binding Hardening: IN_PROGRESS**','roadmap');
+  if(state.a3Status==='CERTIFIED')has(roadmap,'**A3 — Search↔Entry Binding Hardening: CERTIFIED**','roadmap'); else has(roadmap,'**A3 — Search↔Entry Binding Hardening: IN_PROGRESS**','roadmap');
   for(const marker of ['Search↔Entry Binding Hardening','sourceId','versionId','sourceHash','scope','rollback-only','Phase 12.5 remains LOCKED.'])has(a3Kickoff,marker,'12.4 A3 kickoff');
   req(state.a2FinalSourceGateVerification==='PASS'&&state.a2FinalSourceGateRunId===35380605634&&state.a2FinalSourceGateRunNumber===7&&state.a2FinalSourceGateHead==='0b0c61ce3399713b86dd768cdf5550304e2eede5','12.4 A2 final certification gate drifted');
-  req(state.a3Status==='IN_PROGRESS'&&state.a3SearchRootBindingRequired===true&&state.a3ScopeWorkspaceShapeRequired===true&&state.a3UnconfiguredEntryAfterSearchAllowed===false,'12.4 A3 state contract drifted');
+  req(['IN_PROGRESS','CERTIFIED'].includes(state.a3Status)&&state.a3SearchRootBindingRequired===true&&state.a3ScopeWorkspaceShapeRequired===true&&state.a3UnconfiguredEntryAfterSearchAllowed===false,'12.4 A3 state contract drifted');
   req(state.a3DatabaseMigrationRequired===false&&state.a3PermanentFixtureSeedingAllowed===false&&state.a3PopulatedLiveHttpJourneyClaimed===false,'12.4 A3 must not invent DB authority or fake live truth');
   req(JSON.stringify(state.a3BindingFields)===JSON.stringify(['workspaceId','asOf','sourceId','versionId','sourceHash','scope']),'12.4 A3 binding allowlist drifted');
   for(const marker of [
@@ -101,6 +102,17 @@ if(state.slice==='A3_SEARCH_ENTRY_BINDING_HARDENING'){
     'assertRegulatoryEntryMatchesSearchReference','REGULATORY_SEARCH_ENTRY_MISSING','REGULATORY_SOURCE_BINDING_CONFLICT'
   ])has(core,marker,'12.4 A3 core binding');
   for(const marker of ['parseRegulatorySearchEvidence(search.data,parsed)','assertRegulatoryEntryMatchesSearchReference(response.data,ref,parsed)'])has(edge,marker,'12.4 A3 Edge binding');
+  if(state.a3Status==='CERTIFIED'){
+    req(state.a3Certification==='PASS_SEARCH_ENTRY_BINDING_HARDENING'&&state.a3CertificationStatus==='CERTIFIED','12.4 A3 certification missing');
+    req(state.a3SourceGateVerification==='PASS'&&state.a3SourceGateRunId===35381052846&&state.a3SourceGateRunNumber===3&&state.a3SourceGateHead==='d70fc17539885c2c45a35023a2b40769492f0edc','12.4 A3 source certificate drifted');
+    req(state.a3BindingTests===8&&state.a3BindingTestFailures===0&&state.a3Phase94RuntimePreservation==='PASS'&&state.a3Phase94RollbackProbeContractPreservation==='PASS','12.4 A3 binding/preservation certificate drifted');
+    req(state.a3EdgeDeployed===true&&state.a3EdgeVersion===3&&state.a3EdgeVerifyJwt===true&&state.a3EdgeDeploymentDigest==='6b6f3c5d00c8db41ad06c7a3e4ee7e1ee702c3f25c369fd1477fe9ed56bcc8d9','12.4 A3 live Edge certificate drifted');
+    req(state.a3RealCloudVerification==='PASS'&&state.a3RealCloudRunId===35381162760&&state.a3RealCloudRunNumber===1&&state.a3RealCloudChecks===18&&state.a3RealCloudFailureCount===0,'12.4 A3 Real Cloud certificate drifted');
+    req(state.a3RealCloudZeroRegulatoryMutation===true&&state.a3RealCloudZeroResidue===true,'12.4 A3 zero-mutation/residue certificate drifted');
+    req(state.a3LiveM8SourceCount===0&&state.a3LiveM8VersionCount===0&&state.a3LiveM8DerivedArtifactCount===0&&state.a3PopulatedLiveHttpJourneyClaimed===false,'12.4 A3 empty-live-store truth claim drifted');
+    req(state.a3RealCloudArtifactId===10562785271&&state.a3RealCloudArtifactDigest==='sha256:ba4d51d43e7c3024c36c631e8a1ec89562131a0bc0be1e42e8423287da59c888','12.4 A3 artifact evidence drifted');
+    for(const marker of ['8/8 A3 adversarial binding tests','version: **3**','18/18 PASS','cleanup: **PASS**','populated-source HTTP journey is **not claimed**','Phase 12.5 remains **LOCKED**'])has(a3Evidence,marker,'12.4 A3 evidence');
+  }
 }
 
 if(errors.length){console.error(`ENJAZ PHASE 12.4 A1 AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error('- '+e));process.exit(1)}
