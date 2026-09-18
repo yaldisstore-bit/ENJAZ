@@ -71,6 +71,8 @@ jobs:
         run: node --test tests/contractRenewalCommunicationSource.test.mjs
       - name: Phase 11.6-C authority audit
         run: node scripts/phase11-6c-contract-approval-audit.mjs
+      - name: Phase 11.6-D unified attention destructive source tests
+        run: node --test tests/unifiedIntakeContractAttentionSource.test.mjs
       - name: Phase 11.6-D unified experience lifecycle audit
         run: node scripts/phase11-6d-unified-experience-audit.mjs
       - name: Database integrity
