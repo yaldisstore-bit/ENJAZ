@@ -189,5 +189,9 @@
   "a3Certification": "PASS_SEARCH_ENTRY_BINDING_HARDENING",
   "a3CertificationStatus": "CERTIFIED",
   "a3Evidence": "docs/PHASE12_4_A3_EVIDENCE.md",
-  "a3CertifiedAt": "2026-09-18T18:36:50Z"
+  "a3CertifiedAt": "2026-09-18T18:36:50Z",
+  "a3CertificationCommitSourceGateRunId": 35381351939,
+  "a3CertificationCommitSourceGateRunNumber": 5,
+  "a3CertificationCommitSourceGateHead": "977f0fb3f5a5468e926203ff964c98998eaa7e70",
+  "a3CertificationCommitSourceGateVerification": "PASS"
 }
