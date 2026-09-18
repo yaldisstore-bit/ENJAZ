@@ -8,6 +8,7 @@ const registry=JSON.parse(read('docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json'));
 const kickoff=read('docs/PHASE12_4_KICKOFF.md');
 const closure=read('docs/PHASE12_3_CLOSURE.md');
 const m8Closure=read('docs/PHASE9_4_CLOSURE.md');
+const phase124Closure=fs.existsSync('docs/PHASE12_4_CLOSURE.md')?read('docs/PHASE12_4_CLOSURE.md'):'';
 const core=read('supabase/functions/enjaz-regulatory-assistant/core.ts');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 const a2Kickoff=fs.existsSync('docs/PHASE12_4_A2_KICKOFF.md')?read('docs/PHASE12_4_A2_KICKOFF.md'):'';
@@ -20,10 +21,12 @@ const errors=[],req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m)
 const m8Registry=registry.systems?.find?.(x=>x.id==='M8');
 
 req(prev.phase==='12.3'&&prev.status==='CLOSED'&&prev.closureDecision==='PASS'&&prev.phase12_4Allowed===true,'12.3 predecessor is not formally closed/authorized');
-req(state.phase==='12.4'&&state.name==='Regulatory Knowledge Assistance'&&state.majorSystem==='M8'&&state.status==='IN_PROGRESS','12.4 lifecycle identity invalid');
+req(state.phase==='12.4'&&state.name==='Regulatory Knowledge Assistance'&&state.majorSystem==='M8'&&['IN_PROGRESS','CLOSED'].includes(state.status),'12.4 lifecycle identity invalid');
 req(state.baseCommit==='cc01d06be81be27e614d80c9edaa86bdf4e79634','12.4 base must be exact final 12.3 closure merge');
 req(state.predecessorClosureMergeCommit===state.baseCommit,'12.4 predecessor lineage drifted');
-req(state.successorPhase==='12.5'&&state.successorStatus==='LOCKED'&&state.phase12_5Allowed===false,'12.5 must remain locked');
+req(state.successorPhase==='12.5','12.5 successor identity drifted');
+if(state.status==='IN_PROGRESS')req(state.successorStatus==='LOCKED'&&state.phase12_5Allowed===false,'12.5 must remain locked while 12.4 is open');
+else req(state.successorStatus==='AUTHORIZED_NEXT'&&state.phase12_5Allowed===true,'closed 12.4 may authorize only 12.5');
 req(['A1_GROUNDED_REGULATORY_ASSISTANCE_CONTRACT','A2_AUTHENTICATED_M8_RETRIEVAL_EDGE','A3_SEARCH_ENTRY_BINDING_HARDENING'].includes(state.slice),'12.4 current slice drifted');
 
 req(m8.phase==='9.4'&&m8.status==='CLOSED'&&m8.majorSystem?.id==='M8'&&m8.majorSystem?.status==='ACTIVE','Phase 9.4 M8 foundation must remain closed/active');
@@ -67,7 +70,7 @@ req(!/OPENAI_API_KEY|ANTHROPIC_API_KEY|@ai-sdk\/|generateText|streamText|respons
 req(!/\.from\(|\.rpc\(/.test(core),'12.4 A1 pure core may not read tables or call RPCs');
 req(!/\b(insert into|update\s+public\.|delete from|service_role)\b/i.test(core),'12.4 A1 source/mutation/service-role escape forbidden');
 
-has(roadmap,'## 12.4 — Regulatory Knowledge Assistance — M8 — IN_PROGRESS','roadmap');
+if(state.status==='IN_PROGRESS')has(roadmap,'## 12.4 — Regulatory Knowledge Assistance — M8 — IN_PROGRESS','roadmap'); else has(roadmap,'## 12.4 — Regulatory Knowledge Assistance — M8 ✅ CLOSED','roadmap');
 has(roadmap,'**A1 — Grounded Regulatory Assistance Contract: CERTIFIED**','roadmap');
 if(['A2_AUTHENTICATED_M8_RETRIEVAL_EDGE','A3_SEARCH_ENTRY_BINDING_HARDENING'].includes(state.slice)){
   if(state.a2Status==='CERTIFIED')has(roadmap,'**A2 — Authenticated M8 Retrieval Edge: CERTIFIED**','roadmap'); else has(roadmap,'**A2 — Authenticated M8 Retrieval Edge: IN_PROGRESS**','roadmap');
@@ -115,5 +118,23 @@ if(state.slice==='A3_SEARCH_ENTRY_BINDING_HARDENING'){
   }
 }
 
+if(state.status==='CLOSED'){
+  req(state.closureDecision==='PASS'&&state.exitGatePassed===true&&state.closureEvidence==='docs/PHASE12_4_CLOSURE.md'&&phase124Closure.length>0,'12.4 formal closure evidence missing');
+  req(state.sourceGateVerification==='PASS_PR_A1_A2_A3'&&state.realCloudVerification==='PASS_A2_A3'&&state.realBrowserVerification==='PASS_EXACT_MAIN_CUMULATIVE','12.4 final source/cloud/browser certificate missing');
+  req(state.pagesVerification==='PASS'&&state.liveExternalVerification==='PASS','12.4 deployed-live certificate missing');
+  req(state.knownCriticalDefects===0&&state.knownHighDefects===0&&state.knownFunctionalBlockers===0,'12.4 defect ledger not clean');
+  req(state.implementationPullRequest===203&&state.implementationHead==='940862eb22d9876038958942475f90b7179ab6f5'&&state.implementationMergeCommit==='974ff00abab45bfa6615b39cd4c31e0b20b7dfa0','12.4 implementation lineage invalid');
+  req(state.pullRequestWorkflowCount===86&&state.pullRequestSuccessCount===85&&state.pullRequestSkippedCount===1&&state.pullRequestFailureCount===0,'12.4 PR inventory invalid');
+  req(state.pullRequestA1GateRunId===35383132904&&state.pullRequestA2GateRunId===35383132829&&state.pullRequestA3GateRunId===35383133541,'12.4 PR source gate lineage invalid');
+  req(state.pullRequestPhase94RegulatoryRunId===35383132884&&state.pullRequestRealBrowserRunId===35383132517,'12.4 PR regulatory/browser lineage invalid');
+  req(state.postMergeMainSha==='974ff00abab45bfa6615b39cd4c31e0b20b7dfa0'&&state.postMergeTotalWorkflowCount===38&&state.postMergeTotalSuccessCount===38&&state.postMergeTotalFailureCount===0&&state.postMergeTotalQueuedCount===0&&state.postMergeTotalInProgressCount===0,'12.4 exact-main inventory invalid');
+  req(state.postMergePhase94RegulatoryRunId===35383591750&&state.postMergeCumulativeRealBrowserRunId===35383591860&&state.postMergeZeroEscapeRunId===35383591949,'12.4 exact-main regulatory/browser/zero-escape lineage invalid');
+  req(state.postMergePagesPreviewRunId===35383653660&&state.postMergeLiveExternalRunId===35383771057&&state.postMergePublishedPortalRunId===35383770968,'12.4 published-live lineage invalid');
+  req(state.finalInitialJavascriptBytes===431246&&state.finalTotalJavascriptBytes===759985&&state.finalCssBytes===179989&&state.finalTotalJavascriptMarginBytes===15,'12.4 published budget certificate invalid');
+  req(state.finalBudgetVerification==='PASS_FROZEN_CAPS_PUBLISHED_LIVE','12.4 final budget status invalid');
+  req(state.m8GlobalStatus==='ACTIVE'&&state.m8GlobalClosureAllowed===false&&m8Registry?.status==='ACTIVE'&&m8Registry?.closureEvidence===null,'12.4 must not prematurely globally close M8 before 12.5');
+  for(const marker of ['Status:** CLOSED / CERTIFIED','974ff00abab45bfa6615b39cd4c31e0b20b7dfa0','86/86 completed = 85 success + 1 expected skipped; 0 failures','workflows: **38**','Phase 12.5 — AI Zero-Escape & Safety Gate is now **AUTHORIZED_NEXT**'])has(phase124Closure,marker,'12.4 closure');
+}
+
 if(errors.length){console.error(`ENJAZ PHASE 12.4 A1 AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error('- '+e));process.exit(1)}
-console.log('ENJAZ PHASE 12.4 REGULATORY ASSISTANCE AUDIT PASS — A1+A2 preserved; current slice keeps Phase 9.4 M8 as the only truth authority, caller-JWT retrieval is certified, search↔entry binding is fail-closed where enabled, no shadow authority/provider/persistence/UI/DB delta exists, frozen budgets are preserved, and 12.5 remains locked.');
+console.log(state.status==='CLOSED'?'ENJAZ PHASE 12.4 FORMAL CLOSURE AUDIT PASS — A1/A2/A3 certified, PR + exact-main + published-live evidence locked, M8 remains ACTIVE pending 12.5, and 12.5 is authorized next.':'ENJAZ PHASE 12.4 REGULATORY ASSISTANCE AUDIT PASS — A1+A2 preserved; current slice keeps Phase 9.4 M8 as the only truth authority, caller-JWT retrieval is certified, search↔entry binding is fail-closed where enabled, no shadow authority/provider/persistence/UI/DB delta exists, frozen budgets are preserved, and 12.5 remains locked.');

@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 12.4 — Regulatory Knowledge Assistance — M8 🟡 IN_PROGRESS / A1 + A2 + A3 CERTIFIED**  
-آخر مرحلة مغلقة: **Phase 12.3 — Agentic ENJAZ Copilot ✅ CLOSED / REAL CLOUD + EXACT-MAIN + PAGES + LIVE EXTERNAL CERTIFIED**  
-المرحلة الحالية: **Phase 12.4 — A1 grounded contract + A2 authenticated M8 retrieval + A3 exact search↔entry binding are certified؛ Phase 9.4 / M8 remains the sole regulatory truth authority؛ Phase 12.5 remains LOCKED**.
+الحالة الرسمية: **Phase 12.4 — Regulatory Knowledge Assistance — M8 ✅ CLOSED / REAL CLOUD + EXACT-MAIN + PAGES + LIVE EXTERNAL CERTIFIED**  
+آخر مرحلة مغلقة: **Phase 12.4 — Regulatory Knowledge Assistance ✅ CLOSED / PHASE 9.4 M8 AUTHORITY PRESERVED**  
+المرحلة اللاحقة: **Phase 12.5 — AI Zero-Escape & Safety Gate — AUTHORIZED_NEXT**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -57,7 +57,29 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 12.1 — Copilot Foundation: ✅ CLOSED — private quota/trace evidence + service-only RPC + JWT Edge v1 + Real Cloud + PR + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 12.2 — Contextual Assistance: ✅ CLOSED — permission-scoped authoritative context + citations/provenance + read-only assistance + Real Cloud + exact-main + Pages + Live External certified.**
 - **Phase 12.3 — Agentic ENJAZ Copilot — M9: ✅ CLOSED — A1/A2/A3-A/A3-B/A3-C/A3-D/A3-E certified; approval-gated action-specific execution + Real Cloud + PR 78/78 + exact-main 38/38 + Pages + Live External certified.**
-- **Phase 12.4 — Regulatory Knowledge Assistance — M8: 🟡 IN_PROGRESS — A1/A2/A3 certified؛ caller-JWT M8 retrieval Edge v3; exact workspace/asOf/sourceId/versionId/sourceHash/scope binding; empty-store Real Cloud fail-closed + zero mutation/residue; no shadow regulatory truth/provider/UI/DB delta.**
+- **Phase 12.4 — Regulatory Knowledge Assistance — M8: ✅ CLOSED — A1/A2/A3 certified؛ caller-JWT M8 retrieval Edge v3; exact search↔entry binding; Real Cloud zero mutation/residue; PR 86/86 + exact-main 38/38 + Phase 9.4 Regulatory + Real Browser + Pages + Live External certified. M8 remains ACTIVE pending 12.5 Zero-Escape evidence.**
+
+## Phase 12.4 — دليل الإغلاق الحالي
+
+- exact base: `cc01d06be81be27e614d80c9edaa86bdf4e79634` — final merged Phase 12.3 closure.
+- implementation branch: `phase12-4-regulatory-knowledge-assistance`; final closure branch: `phase12-4-final-closure`.
+- implementation PR #203؛ head `940862eb22d9876038958942475f90b7179ab6f5`؛ merge `974ff00abab45bfa6615b39cd4c31e0b20b7dfa0`.
+- A1 Grounded Regulatory Assistance: **CERTIFIED**؛ explicit `asOf` + exact version/hash/provenance + fail-closed/no-fabrication.
+- A2 caller-JWT M8 retrieval: **CERTIFIED**؛ `search_regulatory_knowledge_v1` + `get_regulatory_knowledge_entry_v1` only; Real Cloud 18/18, zero mutation/residue.
+- A3 search↔entry binding: **CERTIFIED**؛ workspace/asOf/sourceId/versionId/sourceHash/scope locked; Edge v3 / `verify_jwt=true`; Real Cloud 18/18.
+- final Edge digest: `6b6f3c5d00c8db41ad06c7a3e4ee7e1ee702c3f25c369fd1477fe9ed56bcc8d9`.
+- shadow regulatory truth / direct table access / source mutation / service-role regulatory reads / provider path / generated interpretation persistence: **FORBIDDEN**.
+- PR #203 inventory: **86/86 completed؛ 85 success + 1 skipped؛ 0 failures**.
+- exact-main `974ff00abab45bfa6615b39cd4c31e0b20b7dfa0`: **38/38 SUCCESS**.
+- Phase 9.4 Regulatory #787 / `35383591750`, Real Browser #1679 / `35383591860`, Intelligence Zero-Escape #663 / `35383591949`: **PASS**.
+- Pages build/deploy #197 / `35383590500`, Pages Preview #1581 / `35383653660`, Live External #1254 / `35383771057`, Published Client Portal #188 / `35383770968`: **PASS**.
+- published /live budget: **431246 / 670000 initial JS, 759985 / 760000 total JS, 179989 / 180000 CSS**؛ no cap increase / no feature cut / no Phase 12.4 client UI delta.
+- known Critical / High / functional blockers: **0 / 0 / 0**.
+- M8 remains **ACTIVE** pending Phase 12.5 independent AI Zero-Escape/safety evidence; 12.4 closure does not prematurely globally close M8.
+- Phase 12.5 — AI Zero-Escape & Safety Gate: **AUTHORIZED_NEXT**.
+- kickoff: [`docs/PHASE12_4_KICKOFF.md`](docs/PHASE12_4_KICKOFF.md).
+- closure evidence: [`docs/PHASE12_4_CLOSURE.md`](docs/PHASE12_4_CLOSURE.md).
+- lifecycle state: [`docs/PHASE12_4_STATE.json`](docs/PHASE12_4_STATE.json).
 
 ## Phase 12.3 — دليل الإغلاق الحالي
 
@@ -74,7 +96,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - Pages build/deploy #195 / `35376656184`, Pages Preview #1577 / `35376728160`, Live External #1250 / `35376825938`, Published Client Portal #184 / `35376825862`: **PASS**.
 - published /live budget: **431246 / 670000 initial JS, 759985 / 760000 total JS, 179989 / 180000 CSS**؛ no cap increase / no feature cut / no Phase 12.3 client UI delta.
 - known Critical / High / functional blockers: **0 / 0 / 0**.
-- Phase 12.4 — Regulatory Knowledge Assistance — M8: **IN_PROGRESS / A1+A2+A3 CERTIFIED** from exact 12.3 closure `cc01d06be81be27e614d80c9edaa86bdf4e79634`; Edge v3 + A3 binding Gate #5 + Real Cloud 18/18; Phase 12.5 remains locked.
+- Phase 12.4 — Regulatory Knowledge Assistance — M8: **CLOSED / CERTIFIED**; implementation merge `974ff00abab45bfa6615b39cd4c31e0b20b7dfa0`; Phase 12.5 is now **AUTHORIZED_NEXT**.
 - kickoff: [`docs/PHASE12_3_KICKOFF.md`](docs/PHASE12_3_KICKOFF.md).
 - closure evidence: [`docs/PHASE12_3_CLOSURE.md`](docs/PHASE12_3_CLOSURE.md).
 - lifecycle state: [`docs/PHASE12_3_STATE.json`](docs/PHASE12_3_STATE.json).

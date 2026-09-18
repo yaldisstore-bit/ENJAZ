@@ -18,7 +18,7 @@
 > - Zero-Escape closure governance merged on canonical `main`
 > - Phase 9.4 M8, Phase 9.5 M13 and Phase 9.6 M18 Phase-9 anchors are formally closed with exact-main, Real Browser, Real Cloud where applicable, Pages and deployed-live certification
 > - Phase 9.7 Intelligence Zero-Escape is formally closed against merged implementation `e8992650afb7bd3bd5c47770d0b2d752cdd0488e`; M2 is globally `CLOSED` under `ZERO_ESCAPE_V1`, while M8/M13/M18 remain `ACTIVE` for later governing anchors
-> - **Phase 12.2 — Contextual Assistance is formally CLOSED and certified; Phase 12.3 — Agentic ENJAZ Copilot — M9 is now IN_PROGRESS, while Phase 12.4 remains LOCKED.**
+> - **Phase 12.4 — Regulatory Knowledge Assistance — M8 is formally CLOSED and certified; Phase 12.5 — AI Zero-Escape & Safety Gate is AUTHORIZED_NEXT. M8 remains ACTIVE until the Phase 12.5 system-level safety/Zero-Escape evidence is complete.**
 
 ---
 
@@ -427,14 +427,19 @@ AI is allowed only after authoritative business domains and permission boundarie
 - published `/live/` total JS **759985 / 760000**, CSS **179989 / 180000**; no cap increase / no feature cut / no Phase 12.3 client UI delta.
 - Formal closure: `docs/PHASE12_3_CLOSURE.md`.
 
-## 12.4 — Regulatory Knowledge Assistance — M8 — IN_PROGRESS
+## 12.4 — Regulatory Knowledge Assistance — M8 ✅ CLOSED
 - Retrieve/version regulatory sources and distinguish source text, structured facts and AI interpretation.
 - Phase 12 must consume the authority contract established by Phase 9.4 rather than creating a second source of regulatory truth.
 - **A1 — Grounded Regulatory Assistance Contract: CERTIFIED** — exact Phase 12.3 closure base `cc01d06be81be27e614d80c9edaa86bdf4e79634`; read-only `answer` contract with explicit `asOf`, exact source-version/hash/provenance citations, fail-closed ambiguity/missing-authority behavior, and hard separation of authoritative official text/structured facts from non-authoritative interpretation. No DB/Edge/UI/provider delta; source Gate #3 / `35379162122`: **PASS** (7/7 A1 tests), frozen build **431032 / 759568 JS + 179989 CSS**.
 - **A2 — Authenticated M8 Retrieval Edge: CERTIFIED** — caller-JWT-only retrieval through existing `search_regulatory_knowledge_v1` + `get_regulatory_knowledge_entry_v1`; Edge v2 / `verify_jwt=true`; final Source Gate #7 PASS; Real Cloud #2 **18/18 PASS** with empty-store fail-closed/no-fabrication, cross-workspace denial, zero regulatory mutation and zero residue; no service role, no regulatory mutation and no new DB authority.
 - **A3 — Search↔Entry Binding Hardening: CERTIFIED** — A3 Gate #3 PASS (8/8 adversarial binding tests + Phase 9.4 runtime/rollback-contract preservation); Edge v3 / `verify_jwt=true`; Real Cloud #1 **18/18 PASS** after redeploy with zero regulatory mutation and zero residue. Search↔entry is bound across workspace/asOf/sourceId/versionId/sourceHash/scope; no permanent fake regulatory truth was seeded and no populated live HTTP journey is claimed while M8 is empty.
+- Implementation PR #203 merged to `974ff00abab45bfa6615b39cd4c31e0b20b7dfa0` after **86/86** PR workflows completed (85 success + 1 expected skipped; 0 failures).
+- exact-main: **38/38 SUCCESS**; Phase 9.4 Regulatory Gate #787, cumulative Real Browser #1679, Intelligence Zero-Escape #663, Pages #1581, Live External #1254 and Published Client Portal #188: **PASS**.
+- published `/live/` total JS **759985 / 760000**, CSS **179989 / 180000**; no cap increase / no feature cut / no Phase 12.4 client UI delta.
+- Phase 12.4 closes the Phase-12 assistance anchor but **M8 remains ACTIVE** until Phase 12.5 supplies its independent AI Zero-Escape/safety evidence.
+- Formal closure: `docs/PHASE12_4_CLOSURE.md`.
 
-## 12.5 — AI Zero-Escape & Safety Gate
+## 12.5 — AI Zero-Escape & Safety Gate — AUTHORIZED_NEXT
 - Hallucination/missing-data resistance, prompt injection, permission attacks, malicious documents, structured-output regression, tool approval and provider outage recovery.
 - M9/M8 AI portions require real authorized/unauthorized journeys.
 
@@ -612,8 +617,11 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - **Phase 12.3 — Agentic ENJAZ Copilot — M9 ✅ CLOSED + A1/A2/A3-A/A3-B/A3-C/A3-D/A3-E Real Cloud + PR 78/78 + exact-main 38/38 + Pages + Live External certified.**
 - Phase 12.3 formal implementation merge: `0353e15d0e8299ba5410d6fff5bf540b41b90443`.
 - Phase 12.3 published `/live/` budget: **431246 / 670000 initial JS; 759985 / 760000 total JS; 179989 / 180000 CSS**.
-- **Phase 12.4 — Regulatory Knowledge Assistance — M8: IN_PROGRESS / A1 Grounded Regulatory Assistance Contract.**
-- M8 remains `ACTIVE` because Phase 12.4 is still a governing anchor; M13/M18 remain `ACTIVE` for Phase 15.
+- **Phase 12.4 — Regulatory Knowledge Assistance — M8 ✅ CLOSED + A1/A2/A3 + authenticated Real Cloud + PR 86/86 + exact-main 38/38 + Phase 9.4 Regulatory + Real Browser + Pages + Live External certified.**
+- Phase 12.4 formal implementation merge: `974ff00abab45bfa6615b39cd4c31e0b20b7dfa0`.
+- Phase 12.4 published `/live/` budget: **431246 / 670000 initial JS; 759985 / 760000 total JS; 179989 / 180000 CSS**.
+- **Phase 12.5 — AI Zero-Escape & Safety Gate: AUTHORIZED_NEXT.**
+- M8 remains `ACTIVE` pending Phase 12.5 independent Zero-Escape closure evidence; M13/M18 remain `ACTIVE` for Phase 15.
 - startup JavaScript hard ceiling remains **670000 bytes**; total JavaScript **760000 bytes**; CSS **180000 bytes**.
 
 ---
