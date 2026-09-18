@@ -1,0 +1,63 @@
+name: ENJAZ Phase 13.3 — Ordered Import Real Cloud
+
+on:
+  push:
+    branches:
+      - phase13-3-ordered-import
+    paths:
+      - 'scripts/phase13-3-real-cloud-e2e.mjs'
+      - 'database/migrations/phase_13_3_ordered_import_execution.sql'
+      - 'database/migrations/phase_13_3_ordered_import_replay_hardening.sql'
+      - 'docs/PHASE13_3_STATE.json'
+      - '.github/workflows/phase13-3-real-cloud-e2e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase133-real-cloud
+  cancel-in-progress: false
+
+jobs:
+  real-cloud:
+    name: Auth / Ordered Writes / Replay / Conflict / Atomic Rollback / Zero Residue
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+      SUPABASE_SECRET_KEY: ${{ secrets.ENJAZ_SUPABASE_SECRET_KEY }}
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Require server-only Supabase credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_SECRET_KEY"
+          case "$SUPABASE_SECRET_KEY" in sb_publishable_*) exit 1 ;; esac
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Static Real Cloud guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check scripts/phase13-3-real-cloud-e2e.mjs
+          node --test tests/phase13-3-ordered-import-db-source.test.mjs
+          if grep -Eq 'sb_secret_[A-Za-z0-9_-]+' scripts/phase13-3-real-cloud-e2e.mjs; then exit 1; fi
+      - name: Run fresh authenticated Phase 13.3 ordered-import evidence
+        run: node scripts/phase13-3-real-cloud-e2e.mjs
+      - name: Upload sanitized Phase 13.3 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase13-3-real-cloud-${{ github.sha }}
+          path: artifacts/phase13-3-real-cloud/evidence.json
+          if-no-files-found: error
+          retention-days: 14
