@@ -1,6 +1,6 @@
 import { createPortal } from 'react-dom';
 import { ConnectedPeople } from './ConnectedPeople.tsx';
-import { useLiveRecordsPortal } from './LiveCompaniesProductionPortal.tsx';
+import { useLiveRecordsPortal } from '../runtime/useLiveRecordsPortal.ts';
 import './people.css';
 
 const PEOPLE_SHELL = '.r2-shell[data-r2-runtime-mode="live"][data-destination]';
