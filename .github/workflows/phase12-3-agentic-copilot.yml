@@ -35,6 +35,8 @@ on:
       - 'database/migrations/phase_12_3_agentic_action_followup_create.sql'
       - 'database/migrations/phase_12_3_agentic_action_schedule_reminder.sql'
       - 'database/migrations/phase_12_3_agentic_schedule_snapshot_rpc_name_hardening.sql'
+      - 'database/migrations/phase_12_3_agentic_action_document_request.sql'
+      - 'database/migrations/phase_12_3_agentic_action_document_draft.sql'
       - 'scripts/phase12-3-*'
       - 'tests/phase12-3-*'
       - '.github/workflows/phase12-3-agentic-copilot.yml'
