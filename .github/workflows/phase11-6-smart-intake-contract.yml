@@ -9,6 +9,8 @@ on:
       - 'src/features/intake-contract-communication/**'
       - 'src/features/engagements/engagementContractCommands.ts'
       - 'src/ui-r2/documents/EngagementContractPanel.tsx'
+      - 'src/ui-r2/documents/LiveEngagementContractsPortal.tsx'
+      - 'src/ui-r2/documents/UnifiedIntakeContractAttention.tsx'
       - 'src/ui-r2/phase10-5-browser-main.tsx'
       - 'tests/intakeContractCommunicationAuthority.test.ts'
       - 'tests/intakeFollowupCommands.test.ts'
@@ -18,11 +20,15 @@ on:
       - 'tests/contractApprovalBridgeSource.test.mjs'
       - 'tests/contractRenewalCommunicationCommands.test.ts'
       - 'tests/contractRenewalCommunicationSource.test.mjs'
+      - 'tests/unifiedIntakeContractAttention.test.ts'
+      - 'tests/unifiedIntakeContractAttentionSource.test.mjs'
       - 'scripts/phase11-6a-intake-contract-authority-audit.mjs'
       - 'scripts/phase11-6b-intake-followup-audit.mjs'
       - 'scripts/phase11-6b-real-cloud-e2e.mjs'
       - 'scripts/phase11-6c-contract-approval-audit.mjs'
+      - 'scripts/phase11-6d-unified-experience-audit.mjs'
       - '.github/workflows/phase11-6b-real-cloud-e2e.yml'
+      - '.github/workflows/phase11-6d-unified-experience-browser.yml'
       - '.github/workflows/phase11-6-smart-intake-contract.yml'
       - 'README.md'
   workflow_dispatch:
@@ -65,6 +71,8 @@ jobs:
         run: node --test tests/contractRenewalCommunicationSource.test.mjs
       - name: Phase 11.6-C authority audit
         run: node scripts/phase11-6c-contract-approval-audit.mjs
+      - name: Phase 11.6-D unified experience lifecycle audit
+        run: node scripts/phase11-6d-unified-experience-audit.mjs
       - name: Database integrity
         run: npm run db:audit && npm run db:audit:selftest
       - name: Roadmap integrity
