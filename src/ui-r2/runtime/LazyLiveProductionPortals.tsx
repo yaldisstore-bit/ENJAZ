@@ -15,7 +15,6 @@ const CalendarPortal=named(()=>import('../calendar/LiveUnifiedCalendarProduction
 const CopilotPortal = lazy(() => import('../copilot/LiveCopilotPortal.tsx').then((module) => ({ default: module.LiveCopilotPortal })));
 const SHELL = '.r2-shell[data-r2-runtime-mode="live"][data-destination]';
 
-type LazyDestination = 'companies' | 'people' | 'finance' | 'risk' | 'insights' | 'knowledge' | 'documents' | 'today.notifications' | 'calendar' | 'copilot' | null;
 type Props = Readonly<{
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
   regulatoryWorkspace: Promise<string | null>;
@@ -28,19 +27,12 @@ type Props = Readonly<{
 }>;
 
 export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorkspace, documentVaultFactory, documentIntelligenceFactory, documentFactoryFactory, engagementContractFactory, documentWorkspace, copilotInvoke }: Props) {
-  const [destination, setDestination] = useState<LazyDestination>(null);
+  const [destination, setDestination] = useState<string>();
 
   useLayoutEffect(() => {
     const shell = document.querySelector<HTMLElement>(SHELL);
     if (!shell) return;
-    const sync = () => {
-      const value = shell.dataset.destination;
-      setDestination(
-        value === 'companies' || value === 'people' || value === 'finance' || value === 'risk' || value === 'insights' || value === 'knowledge' || value === 'documents' || value === 'today.notifications' || value === 'calendar' || value === 'copilot'
-          ? value
-          : null,
-      );
-    };
+    const sync=()=>setDestination(shell.dataset.destination);
     sync();
     const observer = new MutationObserver(sync);
     observer.observe(shell, { attributes: true, attributeFilter: ['data-destination'] });
