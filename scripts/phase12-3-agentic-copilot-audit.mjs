@@ -4,7 +4,8 @@ const read=p=>fs.readFileSync(p,'utf8');
 const state=JSON.parse(read('docs/PHASE12_3_STATE.json'));
 const prev=JSON.parse(read('docs/PHASE12_2_STATE.json'));
 const kickoff=read('docs/PHASE12_3_KICKOFF.md');
-const closure=read('docs/PHASE12_2_CLOSURE.md');
+const predecessorClosure=read('docs/PHASE12_2_CLOSURE.md');
+const phaseClosure=fs.existsSync('docs/PHASE12_3_CLOSURE.md')?read('docs/PHASE12_3_CLOSURE.md'):'';
 const core=read('supabase/functions/enjaz-copilot-agent/core.ts');
 const approval=read('supabase/functions/enjaz-copilot-agent/approval.ts');
 const a2=read('docs/PHASE12_3_A2_KICKOFF.md');
@@ -34,7 +35,7 @@ const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 const errors=[],req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 
 req(prev.status==='CLOSED'&&prev.closureDecision==='PASS'&&prev.phase12_3Allowed===true,'12.2 predecessor is not formally closed/authorized');
-req(state.phase==='12.3'&&state.name==='Agentic ENJAZ Copilot'&&state.majorSystem==='M9'&&state.status==='IN_PROGRESS','12.3 identity invalid');
+req(state.phase==='12.3'&&state.name==='Agentic ENJAZ Copilot'&&state.majorSystem==='M9'&&['IN_PROGRESS','CLOSED'].includes(state.status),'12.3 identity invalid');
 req(state.baseCommit==='00470d129693fdf1362becbc7d95f54560f79481','12.3 base must be exact final 12.2 closure merge');
 req(state.predecessorClosureMergeCommit===state.baseCommit,'12.3 predecessor lineage drifted');
 req(state.slice==='A3E_DOCUMENT_DRAFT_ACTION','12.3 current slice must be A3-E document draft');
@@ -52,7 +53,25 @@ req(state.a3FinalSourceGateVerification==='PASS'&&state.a3FinalSourceGateRunId==
 req(state.a3RealCloudVerification==='PASS'&&state.a3RealCloudRunId===35364334463&&state.a3RealCloudChecks===32&&state.a3RealCloudFailureCount===0,'12.3 A3-A Real Cloud evidence drifted');
 req(state.a3RealCloudZeroResidue===true&&state.a3RealCloudAtomicRollbackVerified===true&&state.a3RealCloudSingleUseReplayVerified===true&&state.a3RealCloudCrossWorkspaceZeroMutation===true,'12.3 A3-A destructive guarantees drifted');
 req(state.a1Certification==='PASS_PLAN_PROPOSAL_CONTRACT'&&state.a1SourceGateVerification==='PASS','12.3 A1 certification must remain preserved');
-req(state.successorPhase==='12.4'&&state.successorStatus==='LOCKED'&&state.phase12_4Allowed===false,'12.4 must remain locked');
+req(state.successorPhase==='12.4','12.4 successor identity drifted');
+if(state.status==='IN_PROGRESS')req(state.successorStatus==='LOCKED'&&state.phase12_4Allowed===false,'12.4 must remain locked while 12.3 is open');
+else{
+  req(state.successorStatus==='AUTHORIZED_NEXT'&&state.phase12_4Allowed===true,'closed 12.3 must authorize only 12.4');
+  req(state.closureDecision==='PASS'&&state.exitGatePassed===true&&state.closureEvidence==='docs/PHASE12_3_CLOSURE.md'&&phaseClosure.length>0,'12.3 formal closure evidence missing');
+  req(state.sourceGateVerification==='PASS'&&state.realCloudVerification==='PASS'&&state.realBrowserVerification==='PASS_CUMULATIVE_NO_CLIENT_DELTA','12.3 closure source/cloud/browser certificate missing');
+  req(state.pagesVerification==='PASS'&&state.liveExternalVerification==='PASS'&&state.pullRequestGate==='PASS'&&state.postMergeRecertification==='PASS','12.3 deployed/PR/exact-main closure certificate missing');
+  req(state.knownCriticalDefects===0&&state.knownHighDefects===0&&state.knownFunctionalBlockers===0,'12.3 defect certificate invalid');
+  req(state.implementationPullRequest===201&&state.implementationHead==='b2d58c1dc13786fcbace27090fe0a50d1412248a'&&state.implementationMergeCommit==='0353e15d0e8299ba5410d6fff5bf540b41b90443','12.3 implementation lineage invalid');
+  req(state.pullRequestWorkflowCount===78&&state.pullRequestSuccessCount===77&&state.pullRequestSkippedCount===1&&state.pullRequestFailureCount===0,'12.3 PR inventory invalid');
+  req(state.pullRequestGateRunId===35376038846&&state.pullRequestQualityRunId===35376038723&&state.pullRequestMajorSystemsRunId===35376039179&&state.pullRequestRoadmapRunId===35376038729&&state.pullRequestConstitutionRunId===35376039095&&state.pullRequestRealBrowserRunId===35376038813,'12.3 PR critical-run lineage invalid');
+  req(state.postMergeMainSha==='0353e15d0e8299ba5410d6fff5bf540b41b90443'&&state.postMergeTotalWorkflowCount===38&&state.postMergeTotalSuccessCount===38&&state.postMergeTotalFailureCount===0&&state.postMergeTotalQueuedCount===0&&state.postMergeTotalInProgressCount===0,'12.3 exact-main inventory invalid');
+  req(state.postMergePhaseGateRunId===35376657653&&state.postMergeQualityRunId===35376657720&&state.postMergeMajorSystemsRunId===35376657813&&state.postMergeRoadmapRunId===35376657805&&state.postMergeConstitutionRunId===35376657779&&state.postMergeCumulativeRealBrowserRunId===35376657907,'12.3 exact-main critical-run lineage invalid');
+  req(state.postMergeZeroEscapeRunId===35376657734&&state.postMergePagesDeploymentRunId===35376656184&&state.postMergePagesPreviewRunId===35376728160&&state.postMergeLiveExternalRunId===35376825938&&state.postMergePublishedPortalRunId===35376825862,'12.3 exact-main deployed lineage invalid');
+  req(state.canonicalInitialJavascriptBytes===431032&&state.canonicalTotalJavascriptBytes===759568&&state.canonicalCssBytes===179989&&state.canonicalTotalJavascriptMarginBytes===432,'12.3 canonical budget certificate invalid');
+  req(state.finalInitialJavascriptBytes===431246&&state.finalTotalJavascriptBytes===759985&&state.finalCssBytes===179989&&state.finalTotalJavascriptMarginBytes===15,'12.3 published budget certificate invalid');
+  req(state.finalBudgetVerification==='PASS_FROZEN_CAPS_PUBLISHED_LIVE_NO_PHASE12_3_CLIENT_DELTA','12.3 final budget status invalid');
+  for(const marker of ['Status:** CLOSED / CERTIFIED','Implementation PR:** #201','0353e15d0e8299ba5410d6fff5bf540b41b90443','38/38','Phase 12.4 — Regulatory Knowledge Assistance — M8 is now **AUTHORIZED_NEXT**'])has(phaseClosure,marker,'12.3 closure');
+}
 req(JSON.stringify(state.openingOperations)===JSON.stringify(['plan','propose']),'12.3 A1 operations drifted');
 
 for(const key of [
@@ -99,7 +118,7 @@ for(const marker of [
   'Status:** CLOSED / CERTIFIED',
   '10592bbd0d91684970d5074719871039892d4667',
   'Phase 12.3 — Agentic ENJAZ Copilot is now **AUTHORIZED_NEXT**'
-])has(closure,marker,'12.2 closure');
+])has(predecessorClosure,marker,'12.2 closure');
 
 for(const marker of [
   'PLAN / PROPOSE ONLY','No mutation execution is authorized','explicit user approval','domain validation',
@@ -206,4 +225,4 @@ has(roadmap,'## 12.3 — Agentic ENJAZ Copilot — M9','roadmap');
 has(roadmap,'Sensitive mutations require explicit user approval and domain-service validation.','roadmap');
 
 if(errors.length){console.error(errors.map(x=>`- ${x}`).join('\n'));process.exit(1)}
-console.log('ENJAZ PHASE 12.3 A3-E AGENTIC COPILOT AUDIT PASS — A1/A2/A3-A/A3-B/A3-C/A3-D certified; document.draft is the sole new A3-E adapter, review-required only through M7 generate_document_draft_v1, no generic/service-role business execution, frozen budgets preserved, and 12.4 locked.');
+console.log(state.status==='CLOSED'?'ENJAZ PHASE 12.3 FORMAL CLOSURE AUDIT PASS — A1/A2/A3-A/A3-B/A3-C/A3-D/A3-E certified; PR + exact-main + Pages + Live External evidence locked; 12.4 authorized next.':'ENJAZ PHASE 12.3 A3-E AGENTIC COPILOT AUDIT PASS — A1/A2/A3-A/A3-B/A3-C/A3-D certified; document.draft is the sole new A3-E adapter, review-required only through M7 generate_document_draft_v1, no generic/service-role business execution, frozen budgets preserved, and 12.4 locked.');
