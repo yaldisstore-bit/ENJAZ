@@ -22,7 +22,12 @@ for(const key of ['businessMutationToolsAllowed','directBusinessTableWritesAllow
 req(state.requestIdempotencyRequired===true&&state.rateLimitPerMinute===20&&state.traceEvidencePrivate===true&&state.workspacePermissionRequired===true,'12.1 safety boundary not preserved');
 req(state.citationsRequired===true&&state.provenanceRequired===true,'12.2 grounding requirements must remain enabled');
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000,'frozen client budgets drifted');
-req(state.clientUiAdded===false&&state.newClientCssAdded===false,'opening 12.2 slice must remain server-first');
+req(state.clientUiAdded===true&&state.clientUiStatus==='LIVE_LAZY_PENDING_CERTIFICATION'&&state.newClientCssAdded===false,'12.2 live UI state invalid');
+const portal=read('src/ui-r2/copilot/LiveCopilotPortal.tsx'),lazy=read('src/ui-r2/runtime/LazyLiveProductionPortals.tsx'),production=read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
+for(const marker of ['data-copilot-stage="12.2"','data-copilot-authority="read-only-context"','crypto.randomUUID()','enjaz.copilot.context.v1'])has(portal,marker,'12.2 live portal');
+for(const marker of ["import('../copilot/LiveCopilotPortal.tsx')","value === 'copilot'","destination === 'copilot'"])has(lazy,marker,'12.2 lazy runtime');
+has(production,"client.edge('enjaz-copilot-context'",'12.2 production edge binding');
+req(!/OPENAI_API_KEY|ANTHROPIC_API_KEY|SUPABASE_SECRET|service_role|generateText|streamText/.test(portal+production),'12.2 client surface contains forbidden authority/provider markers');
 
 for(const marker of [
   'global_search_v1','service role may manage Copilot trace evidence','must not be used to widen contextual business reads',
