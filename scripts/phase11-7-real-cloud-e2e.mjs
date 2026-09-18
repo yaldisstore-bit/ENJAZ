@@ -112,12 +112,12 @@ async function runM10(){
  assert(recovered.data?.version===2&&Date.parse(String(recovered.data?.startsAt??''))===newStart.getTime(),'M10','stale_recovery_committed');
 
  const anchor=newStart.toISOString().slice(0,10);
- const view=await staff.client.rpc('list_unified_calendar_v2',{p_workspace_id:ws,p_anchor_date:anchor,p_view:'day',p_source:'appointment',p_staff_member_id:member,p_company_id:null,p_transaction_id:null,p_limit:100});
+ const view=await staff.client.rpc('list_unified_calendar_v2',{p_workspace_id:ws,p_anchor_date:anchor,p_view:'day',p_authority:'appointment',p_staff_member_id:member,p_company_id:null,p_transaction_id:null,p_limit:100});
  if(view.error)throw view.error;
  const item=(view.data?.items??[]).find(x=>x.id===event);
  assert(view.data?.workspaceTimezone==='Asia/Baghdad'&&item?.authority==='calendar_events'&&item?.rescheduleCount===1,'M10','baghdad_timezone_durable_projection');
 
- const foreign=await outsider.client.rpc('list_unified_calendar_v2',{p_workspace_id:ws,p_anchor_date:anchor,p_view:'day',p_source:'all',p_staff_member_id:null,p_company_id:null,p_transaction_id:null,p_limit:100});
+ const foreign=await outsider.client.rpc('list_unified_calendar_v2',{p_workspace_id:ws,p_anchor_date:anchor,p_view:'day',p_authority:'all',p_staff_member_id:null,p_company_id:null,p_transaction_id:null,p_limit:100});
  assert(errHas(foreign.error,'ENJAZ_SCHEDULING_WORKSPACE_FORBIDDEN'),'M10','cross_workspace_calendar_denied',errText(foreign.error));
 
  const persisted=await admin.from('private.scheduling_command_receipts').select('operation_id').eq('workspace_id',ws).eq('operation_id',op);
