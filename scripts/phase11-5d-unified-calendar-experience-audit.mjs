@@ -60,7 +60,7 @@ for(const forbidden of ['useSchedulingCommandGateway','recordCalendarEventAttend
 req(!ui.includes("import './calendar.css'"),'calendar must reuse frozen R2 surfaces instead of adding calendar-only CSS');
 for(const marker of ["useLiveRecordsPortal('calendar'",'LiveUnifiedCalendarExperience'])has(portal,marker,'calendar production portal');
 for(const marker of ["| 'calendar'","['calendar', 'التقويم والمواعيد'","['operations', 'calendar'","تقويم: 'calendar'","مواعيد: 'calendar'"])has(nav,marker,'calendar navigation');
-for(const marker of ["import('../calendar/LiveUnifiedCalendarProductionPortal.tsx')","value === 'calendar'","destination === 'calendar'"])has(lazy,marker,'lazy calendar portal');
+for(const marker of ["import('../calendar/LiveUnifiedCalendarProductionPortal.tsx')",'setDestination(shell.dataset.destination)',"destination === 'calendar'"])has(lazy,marker,'lazy calendar portal');
 for(const marker of ['workspace local appointment time uses workspace timezone','calendar export is one-way ICS evidence','rejects malformed or downgraded calendar schemas'])has(tests,marker,'unified calendar tests');
 
 if(errors.length){console.error(`ENJAZ PHASE 11.5-D UNIFIED CALENDAR IMPLEMENTATION FAIL (${errors.length})`);for(const error of errors)console.error(`- ${error}`);process.exitCode=1}
