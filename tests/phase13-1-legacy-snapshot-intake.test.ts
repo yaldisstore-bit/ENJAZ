@@ -9,7 +9,7 @@ import {
 
 const state=JSON.parse(fs.readFileSync('docs/PHASE13_1_STATE.json','utf8'));
 
-const base=()=>({
+const base=():any=>({
   schema:LEGACY_SNAPSHOT_SCHEMA,
   snapshotId:'legacy-export-001',
   source:{system:'legacy-office-app',exportId:'batch-77'},
