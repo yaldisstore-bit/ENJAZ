@@ -1,0 +1,75 @@
+name: ENJAZ Phase 12.2 — Contextual Assistance Gate
+
+on:
+  push:
+    branches:
+      - main
+      - phase12-2-contextual-assistance
+    paths:
+      - 'docs/PHASE12_2_*.md'
+      - 'docs/PHASE12_2_*.json'
+      - 'database/migrations/phase_12_2_*'
+      - 'supabase/functions/enjaz-copilot-context/**'
+      - 'scripts/phase12-2-*'
+      - 'tests/phase12-2-*'
+      - '.github/workflows/phase12-2-contextual-assistance.yml'
+      - '.github/workflows/phase12-2-real-cloud-e2e.yml'
+      - 'README.md'
+  pull_request:
+    paths:
+      - 'docs/PHASE12_2_*.md'
+      - 'docs/PHASE12_2_*.json'
+      - 'database/migrations/phase_12_2_*'
+      - 'supabase/functions/enjaz-copilot-context/**'
+      - 'scripts/phase12-2-*'
+      - 'tests/phase12-2-*'
+      - '.github/workflows/phase12-2-contextual-assistance.yml'
+      - '.github/workflows/phase12-2-real-cloud-e2e.yml'
+      - 'README.md'
+
+permissions:
+  contents: read
+
+jobs:
+  phase12-2:
+    name: Authority / Grounding / Destruction / Build / Frozen Budgets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 12.2 lifecycle and authority audit
+        run: node scripts/phase12-2-contextual-assistance-audit.mjs
+      - name: Phase 12.2 lifecycle tests
+        run: node --test tests/phase12-2-contextual-assistance.test.mjs
+      - name: Phase 12.2 grounded core tests
+        run: node --experimental-strip-types --test tests/phase12-2-contextual-assistance-core.test.ts
+      - name: Phase 12.2 source destruction tests
+        run: node --test tests/phase12-2-contextual-assistance-source.test.mjs
+      - name: Preserve certified Phase 12.1 foundation
+        run: |
+          node scripts/phase12-1-copilot-foundation-audit.mjs
+          node --test tests/phase12-1-copilot-foundation.test.mjs
+          node --experimental-strip-types --test tests/phase12-1-copilot-foundation-core.test.ts
+          node --test tests/phase12-1-copilot-foundation-source.test.mjs
+      - name: Database and roadmap integrity
+        run: |
+          python3 database/scripts/audit_schema.py
+          python3 database/scripts/audit_selftest.py
+          node scripts/roadmap-audit.mjs
+      - name: Secrets and TypeScript
+        run: |
+          node scripts/secret-audit.mjs
+          npm run typecheck
+      - name: Production build and frozen client budgets
+        run: |
+          npm run build
+          node scripts/dist-budget-audit.mjs
