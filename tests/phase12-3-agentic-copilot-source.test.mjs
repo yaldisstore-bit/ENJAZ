@@ -26,7 +26,7 @@ test('12.3 A1 source contract passes',()=>assert.deepEqual(violations(),[]));
 
 test('12.3 A1 execution lock survives later action-specific slices',()=>{
  assert.equal(state.a1Certification,'PASS_PLAN_PROPOSAL_CONTRACT');
- assert.equal(state.slice,'A3D_DOCUMENT_REQUEST_ACTION');
+ assert.equal(state.slice,'A3E_DOCUMENT_DRAFT_ACTION');
  assert.equal(state.executeOperationAllowed,false);
  assert.equal(state.sensitiveMutationExecutionAllowed,false);
  assert.equal(state.directBusinessTableWritesAllowed,false);
