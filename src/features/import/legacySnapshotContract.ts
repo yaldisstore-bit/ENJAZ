@@ -70,6 +70,17 @@ const MAX_OBJECT_KEYS = 128;
 const MAX_ARRAY_ITEMS = 500;
 const MAX_DEPTH = 8;
 const MAX_STRING_LENGTH = 32768;
+const encoder = new TextEncoder();
+
+const utf8ByteLength = (value: unknown, code: string): number => {
+  let serialized: string;
+  try {
+    serialized = JSON.stringify(value);
+  } catch {
+    throw new LegacySnapshotContractError(code);
+  }
+  return encoder.encode(serialized).byteLength;
+};
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -140,8 +151,9 @@ const parseRecord = (value: unknown): LegacySnapshotRecord => {
   if (!isPlainObject(value)) throw new LegacySnapshotContractError('LEGACY_SNAPSHOT_RECORD_INVALID');
   exactKeys(value, ['type','id','fields','links'], 'LEGACY_SNAPSHOT_RECORD_FIELD_FORBIDDEN');
   if (!isPlainObject(value.fields)) throw new LegacySnapshotContractError('LEGACY_SNAPSHOT_FIELDS_INVALID');
-  const serialized = JSON.stringify(value);
-  if (serialized.length > MAX_RECORD_BYTES) throw new LegacySnapshotContractError('LEGACY_SNAPSHOT_RECORD_TOO_LARGE');
+  if (utf8ByteLength(value, 'LEGACY_SNAPSHOT_RECORD_INVALID') > MAX_RECORD_BYTES) {
+    throw new LegacySnapshotContractError('LEGACY_SNAPSHOT_RECORD_TOO_LARGE');
+  }
   const rawLinks = value.links ?? [];
   if (!Array.isArray(rawLinks) || rawLinks.length > MAX_LINKS_PER_RECORD) {
     throw new LegacySnapshotContractError('LEGACY_SNAPSHOT_LINKS_INVALID');
@@ -156,7 +168,9 @@ const parseRecord = (value: unknown): LegacySnapshotRecord => {
 
 export const parseLegacySnapshot = (value: unknown): LegacySnapshot => {
   if (!isPlainObject(value)) throw new LegacySnapshotContractError('LEGACY_SNAPSHOT_INVALID');
-  if (JSON.stringify(value).length > MAX_SNAPSHOT_BYTES) throw new LegacySnapshotContractError('LEGACY_SNAPSHOT_TOO_LARGE');
+  if (utf8ByteLength(value, 'LEGACY_SNAPSHOT_INVALID') > MAX_SNAPSHOT_BYTES) {
+    throw new LegacySnapshotContractError('LEGACY_SNAPSHOT_TOO_LARGE');
+  }
   exactKeys(value, ['schema','snapshotId','source','capturedAt','records'], 'LEGACY_SNAPSHOT_FIELD_FORBIDDEN');
   if (value.schema !== LEGACY_SNAPSHOT_SCHEMA) throw new LegacySnapshotContractError('LEGACY_SNAPSHOT_SCHEMA_INVALID');
   if (!isPlainObject(value.source)) throw new LegacySnapshotContractError('LEGACY_SNAPSHOT_SOURCE_INVALID');

@@ -150,10 +150,17 @@ if(exists('docs/PHASE13_1_STATE.json')){
   req(p131State.mappingAllowed===false&&p131State.normalizationAllowed===false&&p131State.orderedImportAllowed===false&&p131State.unknownConceptAutoMappingAllowed===false,'Phase 13.1 mapping/import law drifted');
   req(p131State.phase13_2Allowed===false&&p131State.successorPhase==='13.2'&&p131State.successorStatus==='LOCKED','Open Phase 13.1 must keep 13.2 locked');
   req(p131State.javascriptBudgetBytes===670000&&p131State.totalJavascriptBudgetBytes===760000&&p131State.cssBudgetBytes===180000&&p131State.budgetIncreaseAllowed===false,'Phase 13.1 budget law drifted');
-  if(p131State.currentSlice==='A2_QUARANTINE_REVIEW_MANIFEST'){
+  if(['A2_QUARANTINE_REVIEW_MANIFEST','A3_DESTRUCTION_AND_CLOSURE_READINESS'].includes(p131State.currentSlice)){
     req(p131State.a1Status==='CERTIFIED'&&p131State.a1GateRunId===35393731218&&p131State.a1PassCount===10&&p131State.a1FailCount===0,'Phase 13.1 A1 certificate drifted');
-    req(p131State.a2Status==='IN_PROGRESS'&&p131State.recognizedLegacyTypeAuthority==='EXPLICIT_CALLER_ALLOWLIST_EXACT_MATCH','Phase 13.1 A2 authority drifted');
-    req(p131State.typeAliasInferenceAllowed===false&&p131State.typeNameNormalizationAllowed===false&&p131State.targetAuthorityAssignmentAllowed===false,'Phase 13.1 A2 inference/target authority escaped');
+    req(p131State.recognizedLegacyTypeAuthority==='EXPLICIT_CALLER_ALLOWLIST_EXACT_MATCH'&&p131State.typeAliasInferenceAllowed===false&&p131State.typeNameNormalizationAllowed===false&&p131State.targetAuthorityAssignmentAllowed===false,'Phase 13.1 A2 authority drifted');
+  }
+  if(p131State.currentSlice==='A2_QUARANTINE_REVIEW_MANIFEST'){
+    req(p131State.a2Status==='IN_PROGRESS','Phase 13.1 A2 lifecycle drifted');
+  }
+  if(p131State.currentSlice==='A3_DESTRUCTION_AND_CLOSURE_READINESS'){
+    req(p131State.a2Status==='CERTIFIED'&&p131State.a2GateRunId===35395538307&&p131State.a2PassCount===10&&p131State.a2FailCount===0,'Phase 13.1 A2 certificate drifted');
+    req(p131State.a3Status==='IN_PROGRESS'&&p131State.a3Mode==='DESTRUCTION_AND_CLOSURE_READINESS_ONLY'&&p131State.a3NewFeatureAuthorityAllowed===false,'Phase 13.1 A3 lifecycle/authority drifted');
+    req(p131State.utf8ByteAccountingRequired===true&&p131State.deterministicReplayRequired===true&&p131State.mutationTrapVerificationRequired===true,'Phase 13.1 A3 hardening drifted');
   }
 }
 

@@ -456,10 +456,10 @@ AI is allowed only after authoritative business domains and permission boundarie
 ## 13.1 — Read-only Legacy Snapshot Intake — IN_PROGRESS
 - exact base: `a7a17d6309e43cff68968be33deecbdac57ed4ed` — final merged Phase 12.5 closure.
 - **A1 — Read-only Snapshot Contract + Structural Inventory: CERTIFIED** — Gate #3 / `35393731218`; **10/10 PASS**, functional **219/219**, DB self-test **25/25**, frozen build **431032 / 759568 JS + 179989 CSS**.
-- **A2 — Quarantine Review Manifest: IN_PROGRESS** — exact caller-declared legacy labels only; no case folding, normalization or alias inference.
-- recognized types remain review-only and receive no target system/entity.
-- undeclared observed types are `QUARANTINED_UNKNOWN`.
-- duplicate record keys and dangling links are carried forward as explicit review issues; no repair occurs.
+- **A2 — Quarantine Review Manifest: CERTIFIED** — Gate #5 / `35395538307`; **10/10 PASS**, functional **219/219**, DB self-test **25/25**, frozen build **431032 / 759568 JS + 179989 CSS**.
+- recognized types remain review-only and receive no target system/entity; undeclared observed types are `QUARANTINED_UNKNOWN`.
+- **A3 — Destruction & Closure Readiness: IN_PROGRESS** — real UTF-8 byte ceilings plus adversarial count/depth/array/object/target-field/duplicate/dangling/replay/mutation attacks.
+- A3 is destruction-only and adds no feature, DB, Edge, UI, mapping, normalization or import authority.
 - mapping, normalization, ordered import, target writes, DB migration, write RPC, Edge authority and client UI remain forbidden.
 - Phase 13.2 — Normalize & Map remains **LOCKED**.
 
