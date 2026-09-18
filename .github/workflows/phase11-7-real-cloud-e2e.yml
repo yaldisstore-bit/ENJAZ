@@ -6,6 +6,8 @@ on:
       - 'phase11-7-*'
     paths:
       - scripts/phase11-7-real-cloud-e2e.mjs
+      - database/migrations/phase_11_7_m10_stale_conflict_sqlstate_hardening.sql
+      - tests/phase11-7-m10-stale-sqlstate.test.mjs
       - scripts/phase11-6b-real-cloud-e2e.mjs
       - scripts/phase11-6d-real-cloud-e2e.mjs
       - .github/workflows/phase11-7-real-cloud-e2e.yml
