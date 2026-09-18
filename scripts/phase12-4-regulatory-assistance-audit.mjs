@@ -19,6 +19,8 @@ const a3Evidence=fs.existsSync('docs/PHASE12_4_A3_EVIDENCE.md')?read('docs/PHASE
 
 const errors=[],req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 const m8Registry=registry.systems?.find?.(x=>x.id==='M8');
+const p125=fs.existsSync('docs/PHASE12_5_STATE.json')?JSON.parse(read('docs/PHASE12_5_STATE.json')):null;
+const downstreamM8Closed=p125?.status==='CLOSED'&&p125?.closureDecision==='PASS'&&m8Registry?.status==='CLOSED'&&m8Registry?.closureEvidence==='docs/M8_ZERO_ESCAPE_CLOSURE.json'&&fs.existsSync('docs/M8_ZERO_ESCAPE_CLOSURE.json');
 
 req(prev.phase==='12.3'&&prev.status==='CLOSED'&&prev.closureDecision==='PASS'&&prev.phase12_4Allowed===true,'12.3 predecessor is not formally closed/authorized');
 req(state.phase==='12.4'&&state.name==='Regulatory Knowledge Assistance'&&state.majorSystem==='M8'&&['IN_PROGRESS','CLOSED'].includes(state.status),'12.4 lifecycle identity invalid');
@@ -36,7 +38,7 @@ req(m8.authority?.officialSourceProvenance==='REQUIRED','M8 provenance law drift
 req(m8.authority?.officialAndCuratedTruthMustRemainDistinct===true,'M8 official/curated separation drifted');
 req(m8.authority?.aiOutputAuthority==='NEVER_AUTHORITATIVE'&&m8.authority?.editorialInterpretationAuthority==='NEVER_AUTHORITATIVE','M8 interpretation authority drifted');
 req(m8.authority?.ambiguousAsOfResolution==='FAIL_CLOSED','M8 asOf ambiguity law drifted');
-req(m8Registry?.status==='ACTIVE'&&m8Registry?.anchors?.join(',')==='9,12'&&m8Registry?.closureEvidence===null,'M8 registry must remain ACTIVE through Phase 12 anchor');
+if(downstreamM8Closed) req(m8Registry?.anchors?.join(',')==='9,12','M8 closed anchors drifted'); else req(m8Registry?.status==='ACTIVE'&&m8Registry?.anchors?.join(',')==='9,12'&&m8Registry?.closureEvidence===null,'M8 registry must remain ACTIVE until Phase 12.5 closure');
 
 req(state.officialTruthAuthority==='PHASE9_4_M8_ONLY','12.4 created or lost regulatory truth authority');
 req(JSON.stringify(state.existingReadAuthorities)===JSON.stringify(['search_regulatory_knowledge_v1','get_regulatory_knowledge_entry_v1']),'12.4 read authority allowlist drifted');
@@ -132,7 +134,7 @@ if(state.status==='CLOSED'){
   req(state.postMergePagesPreviewRunId===35383653660&&state.postMergeLiveExternalRunId===35383771057&&state.postMergePublishedPortalRunId===35383770968,'12.4 published-live lineage invalid');
   req(state.finalInitialJavascriptBytes===431246&&state.finalTotalJavascriptBytes===759985&&state.finalCssBytes===179989&&state.finalTotalJavascriptMarginBytes===15,'12.4 published budget certificate invalid');
   req(state.finalBudgetVerification==='PASS_FROZEN_CAPS_PUBLISHED_LIVE','12.4 final budget status invalid');
-  req(state.m8GlobalStatus==='ACTIVE'&&state.m8GlobalClosureAllowed===false&&m8Registry?.status==='ACTIVE'&&m8Registry?.closureEvidence===null,'12.4 must not prematurely globally close M8 before 12.5');
+  req(state.m8GlobalStatus==='ACTIVE'&&state.m8GlobalClosureAllowed===false,'12.4 historical M8 law drifted'); if(!downstreamM8Closed) req(m8Registry?.status==='ACTIVE'&&m8Registry?.closureEvidence===null,'M8 cannot close before Phase 12.5');
   for(const marker of ['Status:** CLOSED / CERTIFIED','974ff00abab45bfa6615b39cd4c31e0b20b7dfa0','86/86 completed = 85 success + 1 expected skipped; 0 failures','workflows: **38**','Phase 12.5 — AI Zero-Escape & Safety Gate is now **AUTHORIZED_NEXT**'])has(phase124Closure,marker,'12.4 closure');
 }
 

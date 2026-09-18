@@ -46,10 +46,12 @@ for(const track of ['product','uiUx','engineering','certification']) must(state.
 
 const m2=registry.systems.find(x=>x.id==='M2');
 const m8=registry.systems.find(x=>x.id==='M8');
+const p125=exists('docs/PHASE12_5_STATE.json')?json('docs/PHASE12_5_STATE.json'):null;
+const downstreamM8Closed=p125?.status==='CLOSED'&&p125?.closureDecision==='PASS'&&m8?.status==='CLOSED'&&m8?.closureEvidence==='docs/M8_ZERO_ESCAPE_CLOSURE.json'&&exists(m8.closureEvidence);
 const m13=registry.systems.find(x=>x.id==='M13');
 const m18=registry.systems.find(x=>x.id==='M18');
 must(m2?.status==='CLOSED'&&m2?.anchors?.join(',')==='9'&&m2?.closureEvidence==='docs/M2_ZERO_ESCAPE_CLOSURE.json','M2 global closure registry drift');
-must(m8?.status==='ACTIVE'&&m8?.anchors?.join(',')==='9,12'&&m8?.closureEvidence===null,'M8 must remain active for Phase 12');
+if(downstreamM8Closed) must(m8?.anchors?.join(',')==='9,12','M8 closed anchors drifted'); else must(m8?.status==='ACTIVE'&&m8?.anchors?.join(',')==='9,12'&&m8?.closureEvidence===null,'M8 must remain active until Phase 12.5');
 must(m13?.status==='ACTIVE'&&m13?.anchors?.join(',')==='9,15'&&m13?.closureEvidence===null,'M13 must remain active for Phase 15');
 must(m18?.status==='ACTIVE'&&m18?.anchors?.join(',')==='9,15'&&m18?.closureEvidence===null,'M18 must remain active for Phase 15');
 

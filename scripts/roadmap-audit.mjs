@@ -40,9 +40,11 @@ if(m2?.status==='CLOSURE_CANDIDATE'){
     req(Array.isArray(e.workflowEvidence)&&e.workflowEvidence.length>0&&Array.isArray(e.liveEvidence)&&e.liveEvidence.length>0,'M2 CLOSED evidence arrays must remain populated');
   }
 }else req(false,'M2 must remain CLOSURE_CANDIDATE or validly CLOSED under ZERO_ESCAPE_V1');
-for(const id of ['M8','M13','M15','M17','M18'])req(major.systems.find(x=>x.id===id)?.status==='ACTIVE',`${id} must remain ACTIVE while governing anchors are open`);
+for(const id of ['M13','M15','M17','M18'])req(major.systems.find(x=>x.id===id)?.status==='ACTIVE',`${id} must remain ACTIVE while governing anchors are open`);
+const p125=exists('docs/PHASE12_5_STATE.json')?json('docs/PHASE12_5_STATE.json'):null;
+const phase125Closed=p125?.status==='CLOSED'&&p125?.closureDecision==='PASS'&&p125?.exitGatePassed===true;
 const m8=major.systems.find(x=>x.id==='M8'),m13=major.systems.find(x=>x.id==='M13'),m18=major.systems.find(x=>x.id==='M18');
-req(m8?.anchors?.join(',')==='9,12'&&m8?.closureEvidence===null,'M8 anchors/global closure drifted');
+if(phase125Closed) req(m8?.status==='CLOSED'&&m8?.anchors?.join(',')==='9,12'&&m8?.closureEvidence==='docs/M8_ZERO_ESCAPE_CLOSURE.json'&&exists(m8.closureEvidence),'M8 Phase 12.5 closure drifted'); else req(m8?.status==='ACTIVE'&&m8?.anchors?.join(',')==='9,12'&&m8?.closureEvidence===null,'M8 anchors/global closure drifted');
 req(m13?.anchors?.join(',')==='9,15'&&m13?.closureEvidence===null,'M13 anchors/global closure drifted');
 req(m18?.anchors?.join(',')==='9,15'&&m18?.closureEvidence===null,'M18 anchors/global closure drifted');
 for(const id of ['M11','M12','M14'])req(major.systems.find(x=>x.id===id)?.status==='PLANNED',`${id} must remain PLANNED`);
@@ -80,7 +82,7 @@ const m9=major.systems.find(x=>x.id==='M9');
 if(exists('docs/PHASE12_3_STATE.json')){
   const p122=closed('docs/PHASE12_2_STATE.json','Phase 12.2');
   const p123=json('docs/PHASE12_3_STATE.json');
-  req(m9?.status==='ACTIVE'&&m9?.anchors?.join(',')==='12'&&m9?.closureEvidence===null,'M9 must be ACTIVE with Phase 12 anchor and no premature closure evidence once Phase 12.3 opens');
+  if(phase125Closed) req(m9?.status==='CLOSED'&&m9?.anchors?.join(',')==='12'&&m9?.closureEvidence==='docs/M9_ZERO_ESCAPE_CLOSURE.json'&&exists(m9.closureEvidence),'M9 Phase 12.5 closure drifted'); else req(m9?.status==='ACTIVE'&&m9?.anchors?.join(',')==='12'&&m9?.closureEvidence===null,'M9 must remain ACTIVE until Phase 12.5 closure');
   req(p122?.phase12_3Allowed===true&&p122?.successorPhase==='12.3'&&p122?.successorStatus==='AUTHORIZED_NEXT','M9 activation requires formal Phase 12.2 authorization');
   req(p123.phase==='12.3'&&p123.majorSystem==='M9'&&p123.majorSystemStatus==='ACTIVE'&&['IN_PROGRESS','CLOSED'].includes(p123.status),'M9 ACTIVE requires a valid Phase 12.3 lifecycle state');
   if(p123.status==='IN_PROGRESS')req(p123.exitGatePassed===false&&p123.phase12_4Allowed===false&&p123.successorPhase==='12.4'&&p123.successorStatus==='LOCKED','Open Phase 12.3 must keep 12.4 locked');

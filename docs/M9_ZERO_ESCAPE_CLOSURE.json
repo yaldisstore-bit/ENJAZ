@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "gateProfile": "ZERO_ESCAPE_V1",
+  "status": "CLOSED",
+  "candidateHead": "6a8e4e4518e75be58d3e0f8c576db917e5b2cfb2",
+  "mergeCommit": "980d450da3dc9664a964e168e8bff91b025a35cc",
+  "unresolvedCriticalCount": 0,
+  "unresolvedHighCount": 0,
+  "unresolvedFunctionalBlockerCount": 0,
+  "preMergeDeterministic": "PASS",
+  "realCloudAuthenticated": "PASS",
+  "freshWorkspaceBootstrap": "PASS",
+  "durableWriteRoundTrip": "PASS",
+  "permissionMatrix": "PASS",
+  "realBrowserMobile": "PASS",
+  "failureConflictRecovery": "PASS",
+  "auditReconciliation": "PASS",
+  "deployedLiveCriticalPath": "PASS",
+  "postMergeRecertification": "PASS",
+  "notApplicableScenarios": [],
+  "escapedDefects": [],
+  "systemId": "M9",
+  "workflowEvidence": [
+    "Phase 12.3 A1/A2/A3-A..A3-E approval-gated action-specific execution certified",
+    "Phase 12.5 W1 16/16 PASS",
+    "Phase 12.5 W2 71/71 PASS including fresh M9 33/33 attack; zero mutation/residue",
+    "PR #205 80/80 completed; 79 success + 1 expected skipped; 0 failures",
+    "exact-main 980d450d: 39/39 SUCCESS; Real Browser #1683 PASS",
+    "Pages #199, Preview #1585, Live External #1258, Published Portal #192 PASS",
+    "live copilot Edge v10 verify_jwt=true; no provider/generic execute authority"
+  ],
+  "liveEvidence": [
+    "docs/PHASE12_3_CLOSURE.md",
+    "docs/PHASE12_5_W2_EVIDENCE.md",
+    "docs/PHASE12_5_CLOSURE.md",
+    "https://yaldisstore-bit.github.io/ENJAZ/live/"
+  ]
+}
