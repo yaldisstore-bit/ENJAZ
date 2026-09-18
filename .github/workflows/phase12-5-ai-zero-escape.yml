@@ -1,0 +1,75 @@
+name: ENJAZ Phase 12.5 — AI Zero-Escape & Safety Gate
+
+on:
+  push:
+    branches:
+      - phase12-5-ai-zero-escape
+      - main
+    paths:
+      - 'docs/PHASE12_5_STATE.json'
+      - 'docs/PHASE12_5_KICKOFF.md'
+      - 'docs/M8_ZERO_ESCAPE_CLOSURE.json'
+      - 'docs/M9_ZERO_ESCAPE_CLOSURE.json'
+      - 'docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json'
+      - 'supabase/functions/enjaz-copilot-agent/**'
+      - 'supabase/functions/enjaz-regulatory-assistant/**'
+      - 'tests/phase12-5-ai-zero-escape.test.ts'
+      - 'scripts/phase12-5-ai-zero-escape-audit.mjs'
+      - '.github/workflows/phase12-5-ai-zero-escape.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase125-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  zero-escape:
+    name: M8 + M9 / hallucination injection permission binding approval outage / frozen authority
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 12.5 lifecycle + frozen authority audit
+        run: node scripts/phase12-5-ai-zero-escape-audit.mjs
+      - name: Wave 1 AI safety destruction tests
+        run: node --experimental-strip-types --test tests/phase12-5-ai-zero-escape.test.ts
+      - name: Preserve Phase 12.3 M9 and Phase 12.4 M8 contracts
+        run: |
+          node scripts/phase12-3-agentic-copilot-audit.mjs
+          node scripts/phase12-4-regulatory-assistance-audit.mjs
+          node --experimental-strip-types --test tests/phase12-4-regulatory-assistance-core.test.ts
+          node --experimental-strip-types --test tests/phase12-4-regulatory-assistance-binding.test.ts
+      - name: Full functional regression
+        run: npm run test:functional
+      - name: Database + roadmap + major-system governance
+        run: |
+          npm run db:audit
+          npm run db:audit:selftest
+          npm run audit:roadmap
+          node scripts/major-systems-zero-escape-audit.mjs
+      - name: Secrets + TypeScript
+        run: |
+          npm run audit:secrets
+          npm run typecheck
+      - name: Production build + frozen budgets
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
