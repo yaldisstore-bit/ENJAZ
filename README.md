@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 ✅ CLOSED / EXACT-MAIN + PAGES + LIVE EXTERNAL CERTIFIED**  
-آخر شريحة مغلقة: **Phase 11.6-D — Unified Experience & Certification ✅ CLOSED / REAL CLOUD + FIVE-WIDTH CHROMIUM + DEPLOYED-LIVE CERTIFIED**  
-المرحلة اللاحقة: **Phase 11.7 — Communication Zero-Escape Gate — AUTHORIZED_NEXT**.
+الحالة الرسمية: **Phase 11.7 — Communication Zero-Escape Gate 🟡 IN PROGRESS — DESTRUCTION & CLOSURE EVIDENCE ONLY**  
+آخر مرحلة مغلقة: **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 ✅ CLOSED / POST-CLOSURE EXACT-MAIN + PAGES + LIVE EXTERNAL CERTIFIED**  
+المرحلة اللاحقة: **Phase 12.1 — Copilot Foundation — LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -52,9 +52,25 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 11.3 — Client Portal — M3: ✅ CLOSED + published authenticated portal certificate + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 11.4 — Omnichannel Communications Hub — M4: ✅ CLOSED + Real Cloud + exact-main + Real Browser + governance certified.**
 - **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10: ✅ CLOSED + authenticated Real Cloud + dedicated 5-width Chromium + exact-main cumulative gates + frozen-budget certification.**
-- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: ✅ CLOSED + Real Cloud + five-width Chromium + exact-main + Pages + Live External certified.**
+- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: ✅ CLOSED + Real Cloud + five-width Chromium + post-closure exact-main + Pages + Live External certified.**
+- **Phase 11.7 — Communication Zero-Escape Gate: 🟡 IN PROGRESS — M3/M4/M10 + Phase-11 M16/M17 destruction evidence; Phase 12.1 LOCKED.**
 
-## Phase 11.6 — الحالة الحالية
+## Phase 11.7 — الحالة الحالية
+
+- formal base: `5c4b1bfa4cda339fbbd96b7d3bbf938ef560f98a` — Phase 11.6 final closure merge.
+- branch: `phase11-7-communication-zero-escape`.
+- mode: **DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY**؛ no new feature authority / DB table / write RPC / shadow truth store.
+- systems under gate: **M3 / M4 / M10 / M16 Phase-11 / M17 Phase-11**; all remain ACTIVE at opening.
+- roadmap destruction dimensions: **large counts / stale targets / duplicate events / revoked links / unauthorized portal access / delivery failure / timezone boundaries / archived relations**.
+- opening source gate #2 / `35316622618`: **PASS**; opening destruction wave **8/8 PASS**; Roadmap #1437 **PASS**.
+- Real Cloud Wave 1: **PENDING** — M3 pinned to published exact-closure #148; fresh M4/M10 + re-run M16/M17 certificates prepared.
+- Phase 11.6 post-closure exact-main baseline: **35/35 SUCCESS**؛ Quality #1695, Real Browser #1611, Major Systems #812, Roadmap #1434, Pages #1538, Live External #1214.
+- frozen budgets: **670000 initial JS / 760000 total JS / 180000 CSS**؛ no cap increase / no feature cut.
+- Phase 12.1 — Copilot Foundation: **LOCKED** until full 11.7 Zero-Escape + Real Cloud + Real Browser + deployed-live + post-merge certification passes.
+- kickoff: [`docs/PHASE11_7_KICKOFF.md`](docs/PHASE11_7_KICKOFF.md).
+- lifecycle state: [`docs/PHASE11_7_STATE.json`](docs/PHASE11_7_STATE.json).
+
+## Phase 11.6 — دليل الإغلاق الحالي
 
 - formal base: `14a670e8dd2d892a7039fd7a52437a8c6274aa2a` — Phase 11.5 closure merge.
 - final closure branch: `phase11-6d-final-closure`; implementation merge: `c9b810f3e21a382b92b52e9a630556d2f6cac49f`.
@@ -273,8 +289,8 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 13. **M13 — Business Intelligence & Forecasting Center** — `ACTIVE`; Phase 9 anchor CLOSED، Phase 15 remains open.
 14. **M14 — Backup, Restore & Workspace Portability** — `PLANNED`.
 15. **M15 — Multi-Branch, Departments & Team Operating Model** — `ACTIVE`.
-16. **M16 — Engagements, Contracts & Retainers** — `ACTIVE`؛ Phase 7 finance/commercial and Phase 10 document anchors are certified; Phase 11.6 communication/renewal anchor is **IN PROGRESS**.
-17. **M17 — Smart Intake Forms & Secure Submission Links** — `ACTIVE`؛ Phase 8.4 anchor is certified and Phase 11.6 authority-composition anchor is **IN PROGRESS**.
+16. **M16 — Engagements, Contracts & Retainers** — `ACTIVE`؛ Phase 7/10/11 anchors are certified; Phase 11.7 now requires the independent Phase-11 Zero-Escape evidence before any global closure decision.
+17. **M17 — Smart Intake Forms & Secure Submission Links** — `ACTIVE`؛ Phase 8.4 and Phase 11.6 anchors are certified; Phase 11.7 now requires the independent Phase-11 Zero-Escape evidence before any global closure decision.
 18. **M18 — Process Mining & Predictive Operations** — `ACTIVE`; Phase 9.6 anchor CLOSED، Phase 15 remains open، `closureEvidence=null`.
 
 لا يتم ترقية أي M-system إلى `CLOSED` لمجرد نجاح مرحلة واحدة؛ الاستثناء الوحيد هو عندما تُثبت جميع anchors الخاصة به وشهادة `ZERO_ESCAPE_V1` المستقلة كما حدث لـM2.
@@ -310,6 +326,8 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - [`docs/PHASE11_5_CLOSURE.md`](docs/PHASE11_5_CLOSURE.md)
 - [`docs/PHASE11_6_KICKOFF.md`](docs/PHASE11_6_KICKOFF.md)
 - [`docs/PHASE11_6_STATE.json`](docs/PHASE11_6_STATE.json)
+- [`docs/PHASE11_7_KICKOFF.md`](docs/PHASE11_7_KICKOFF.md)
+- [`docs/PHASE11_7_STATE.json`](docs/PHASE11_7_STATE.json)
 - [`docs/M2_ZERO_ESCAPE_CLOSURE.json`](docs/M2_ZERO_ESCAPE_CLOSURE.json)
 
 ## قوانين الانتقال
@@ -322,4 +340,4 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - لا يُسمح لأي intelligence layer باختلاق business/financial/process facts من بيانات ناقصة.
 - forecast/prediction لا يصبح source truth، ولا AI/editorial output يصبح authoritative fact بلا عقد سلطة مستقل.
 - سقف JavaScript startup يبقى **670000 bytes**، والإجمالي **760000 bytes**، وCSS **180000 bytes** بلا waiver أو feature cut.
-- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 مفتوحة الآن بعد إغلاق 11.6-C؛ 11.6-D هي الشريحة التالية المصرح بها فقط، وPhase 11.7 تبقى LOCKED حتى الإغلاق deployed-live الكامل.**
+- **Phase 11.7 — Communication Zero-Escape Gate مفتوحة الآن من الإغلاق النهائي المصدق لـ11.6؛ Phase 12.1 — Copilot Foundation تبقى LOCKED حتى اكتمال Zero-Escape + deployed-live + post-merge evidence.**

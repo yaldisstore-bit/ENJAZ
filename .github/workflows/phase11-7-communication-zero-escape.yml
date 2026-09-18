@@ -1,0 +1,71 @@
+name: ENJAZ Phase 11.7 — Communication Zero-Escape Gate
+
+on:
+  push:
+    branches:
+      - 'phase11-7-*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase117-communication-zero-escape-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase11-7-zero-escape:
+    name: M3 M4 M10 M16 M17 / communication destruction / successor lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 11.7 lifecycle and authority freeze
+        run: node scripts/phase11-7-communication-zero-escape-audit.mjs
+      - name: Phase 11.7 opening destruction wave
+        run: node --experimental-strip-types --test tests/phase11-7-communication-zero-escape.test.ts
+      - name: Phase 11.7 M10 stale SQLSTATE hardening regression
+        run: node --test tests/phase11-7-m10-stale-sqlstate.test.mjs
+      - name: Preserve M3 Client Portal authority
+        run: |
+          node --experimental-strip-types --test tests/clientPortalAuthority.test.ts
+          node --test tests/clientPortalDatabaseAuthority.test.mjs
+          node --test tests/clientPortalDatabaseAuthorityHardening.test.mjs
+      - name: Preserve M4 Omnichannel authority
+        run: |
+          node --experimental-strip-types --test tests/omnichannelAuthority.test.ts
+          node --experimental-strip-types --test tests/communicationsDispatchBridge.test.ts
+      - name: Preserve M10 scheduling authority
+        run: |
+          node --experimental-strip-types --test tests/schedulingAuthority.test.ts
+          node --experimental-strip-types --test tests/unifiedCalendar.test.ts
+      - name: Preserve M16/M17 Phase-11 authority
+        run: |
+          node scripts/phase11-6a-intake-contract-authority-audit.mjs
+          node --experimental-strip-types --test tests/intakeContractCommunicationAuthority.test.ts
+          node --experimental-strip-types --test tests/intakeFollowupCommands.test.ts
+          node --experimental-strip-types --test tests/contractApprovalCommands.test.ts
+          node --experimental-strip-types --test tests/contractRenewalCommunicationCommands.test.ts
+      - name: Database, roadmap and major-system integrity
+        run: |
+          npm run db:audit
+          npm run db:audit:selftest
+          npm run audit:roadmap
+          node scripts/major-systems-zero-escape-audit.mjs
+      - name: Secrets and TypeScript
+        run: npm run audit:secrets && npm run typecheck
+      - name: Production build and frozen budgets
+        run: npm run build -- --base=/ && npm run audit:dist:budget
