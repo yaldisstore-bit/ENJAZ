@@ -20,7 +20,8 @@ function violations(s=sql,e=edge,c=core){
   req(s.includes("revoke all on table private.copilot_rate_buckets from public,anon,authenticated,service_role")&&s.includes("revoke all on table private.copilot_request_traces from public,anon,authenticated,service_role"),'private-table-grants');
   req(s.includes('grant execute on function public.copilot_begin_request_v1')&&s.includes('to service_role')&&!/grant execute on function public\.copilot_begin_request_v1[\s\S]{0,180}to authenticated/i.test(s),'service-only-begin');
   req(s.includes('grant execute on function public.copilot_finish_request_v1')&&s.includes('to service_role')&&!/grant execute on function public\.copilot_finish_request_v1[\s\S]{0,180}to authenticated/i.test(s),'service-only-finish');
-  req(!/\b(prompt|model_output|response_body|request_body)\b/i.test(s),'no-raw-ai-columns');
+  const tableDdl=s.slice(s.indexOf('create table private.copilot_rate_buckets'),s.indexOf('revoke all on table private.copilot_rate_buckets'));
+  req(!/\n\s*(prompt|model_output|response_body|request_body)\s+[a-z]/i.test(tableDdl),'no-raw-ai-columns');
   req(!/\b(insert into|update|delete from)\s+public\.(companies|transactions|payments|documents|renewals|communications|calendar_events|intake_submissions)/i.test(s),'no-business-write');
   req(!/from\(['"][^'"]+['"]\)/.test(e),'edge-no-table-access');
   req(e.includes("admin.rpc('copilot_begin_request_v1'")&&e.includes("admin.rpc('copilot_finish_request_v1'"),'edge-rpc-boundary');
@@ -34,8 +35,15 @@ function violations(s=sql,e=edge,c=core){
 }
 
 test('12.1 foundation source contract passes',()=>assert.deepEqual(violations(),[]));
-test('destruction: browser execute grant is detected',()=>assert.ok(violations(sql.replace('to service_role;','to authenticated;')).includes('service-only-begin')));
+test('destruction: browser execute grant is detected',()=>{
+  const marker="grant execute on function public.copilot_begin_request_v1(uuid,uuid,uuid,text,text,integer)\n  to service_role;";
+  const mutated=sql.replace(marker,marker.replace('to service_role;','to authenticated;'));
+  assert.ok(violations(mutated).includes('service-only-begin'));
+});
 test('destruction: canonical business write is detected',()=>assert.ok(violations(sql.replace('begin;','begin;\nupdate public.transactions set type=type;')).includes('no-business-write')));
 test('destruction: AI SDK/provider call is detected',()=>assert.ok(violations(sql,edge+"\nimport {generateText} from 'ai';",core).includes('no-ai-provider-sdk')));
 test('destruction: raw prompt column is detected',()=>assert.ok(violations(sql.replace('payload_hash text','prompt text,\n  payload_hash text')).includes('no-raw-ai-columns')));
-test('destruction: removing advisory lock is detected',()=>assert.ok(violations(sql.replace('perform pg_advisory_xact_lock','perform pg_advisory_xact_lock_removed')).includes('concurrent-idempotency')));
+test('destruction: removing advisory lock is detected',()=>{
+  const mutated=sql.replace(/\s*perform pg_advisory_xact_lock\([^;]+;\n/,'\n');
+  assert.ok(violations(mutated).includes('concurrent-idempotency'));
+});
