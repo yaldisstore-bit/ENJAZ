@@ -3,6 +3,7 @@ name: ENJAZ Phase 12.1 — Copilot Foundation Gate
 on:
   push:
     branches:
+      - main
       - phase12-1-copilot-foundation
     paths:
       - 'docs/PHASE12_1_*.md'
