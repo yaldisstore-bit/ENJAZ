@@ -24,9 +24,9 @@ function violations(c=core){
 
 test('12.3 A1 source contract passes',()=>assert.deepEqual(violations(),[]));
 
-test('12.3 A1 execution lock survives A2 database activation',()=>{
+test('12.3 A1 execution lock survives later action-specific slices',()=>{
  assert.equal(state.a1Certification,'PASS_PLAN_PROPOSAL_CONTRACT');
- assert.equal(state.slice,'A3C_SELF_REMINDER_ACTION');
+ assert.equal(state.slice,'A3D_DOCUMENT_REQUEST_ACTION');
  assert.equal(state.executeOperationAllowed,false);
  assert.equal(state.sensitiveMutationExecutionAllowed,false);
  assert.equal(state.directBusinessTableWritesAllowed,false);
@@ -35,6 +35,10 @@ test('12.3 A1 execution lock survives A2 database activation',()=>{
  assert.equal(state.edgeAgentDeployed,true);
  assert.equal(state.edgeAgentVerifyJwt,true);
  assert.equal(state.databaseAgentMigrationApplied,true);
+ assert.equal(state.a3CCertification,'PASS_SELF_REMINDER_REAL_CLOUD');
+ assert.equal(state.a3DRequestType,'DOCUMENT_ONLY');
+ assert.equal(state.a3DResourceShareAllowed,false);
+ assert.equal(state.a3DExistingRequestUpdateAllowed,false);
 });
 
 test('destruction: execute operation is detected',()=>{
