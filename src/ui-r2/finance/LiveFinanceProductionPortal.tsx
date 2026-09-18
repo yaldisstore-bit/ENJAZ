@@ -4,7 +4,7 @@ import { useDataLayerFactory } from '../../data/react/DataLayerContext.tsx';
 import { useFieldOperationsCommandGateway } from '../../features/field-operations/FieldOperationsCommandContext.tsx';
 import { loadSmartRisk } from '../../features/risk/riskService.ts';
 import { useCurrentUserId } from '../../shared/session/CurrentUserIdContext.tsx';
-import { useLiveRecordsPortal } from '../records/LiveCompaniesProductionPortal.tsx';
+import { useLiveRecordsPortal } from '../runtime/useLiveRecordsPortal.ts';
 import { ConnectedPhase72FinanceExperience } from './Phase72FinanceExperience.tsx';
 import { ConnectedPhase73FinancialIntelligenceExperience } from './Phase73FinancialIntelligenceExperience.tsx';
 import { ConnectedPhase74FinancialReportsExperience } from './Phase74FinancialReportsExperience.tsx';
