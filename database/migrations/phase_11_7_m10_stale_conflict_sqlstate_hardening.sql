@@ -11,7 +11,7 @@ declare
   v_oid regprocedure;
   v_def text;
   v_next text;
-  v_old constant text := 'raise serialization_failure using message=''ENJAZ_SCHEDULING_STALE_VERSION''';
+  v_old_pattern constant text := 'raise\\s+serialization_failure\\s+using\\s+message\\s*=\\s*''ENJAZ_SCHEDULING_STALE_VERSION''';
   v_new constant text := 'raise object_not_in_prerequisite_state using message=''ENJAZ_SCHEDULING_STALE_VERSION''';
 begin
   foreach v_sig in array array[
@@ -30,10 +30,10 @@ begin
       raise exception 'ENJAZ_117_M10_STALE_FUNCTION_MISSING:%',v_sig;
     end if;
     v_def := pg_get_functiondef(v_oid);
-    if position(v_old in v_def)=0 then
+    if v_def !~ v_old_pattern then
       raise exception 'ENJAZ_117_M10_STALE_SOURCE_DRIFT:%',v_sig;
     end if;
-    v_next := replace(v_def,v_old,v_new);
+    v_next := regexp_replace(v_def,v_old_pattern,v_new,'g');
     execute v_next;
   end loop;
 end
