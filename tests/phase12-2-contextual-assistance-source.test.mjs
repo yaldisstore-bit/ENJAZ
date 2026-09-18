@@ -16,7 +16,7 @@ function violations(s=sql,e=edge,c=core){
   req(s.includes('ENJAZ_COPILOT_IDEMPOTENCY_CONFLICT'),'idempotency-conflict');
   req(s.includes('grant execute on function public.copilot_begin_request_v2')&&s.includes('to service_role')&&!/grant execute on function public\.copilot_begin_request_v2[\s\S]{0,180}to authenticated/i.test(s),'service-only-begin-v2');
   req(!/\b(insert into|update|delete from)\s+public\.(companies|transactions|payments|documents|renewals|communications|calendar_events|intake_submissions|contacts|government_procedures)/i.test(s),'no-business-write-sql');
-  req(!/\n\s*(prompt|query|model_output|response_body|request_body|answer)\s+[a-z]/i.test(s.slice(0,s.indexOf('create or replace function'))),'no-raw-ai-columns');
+  req(!/\b(?:add\s+column\s+)?(prompt|query|model_output|response_body|request_body|answer)\s+(?:text|jsonb|varchar|character\s+varying)\b/i.test(s),'no-raw-ai-columns');
   req(e.includes("userClient.rpc('global_search_v1'"),'authenticated-context-read');
   req(!e.includes("admin.rpc('global_search_v1'"),'no-service-role-context-read');
   req(e.includes("admin.rpc('copilot_begin_request_v2'")&&e.includes("admin.rpc('copilot_finish_request_v1'"),'trace-rpc-boundary');
