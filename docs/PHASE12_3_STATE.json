@@ -4,7 +4,7 @@
   "majorSystem": "M9",
   "status": "IN_PROGRESS",
   "mode": "AGENTIC_COPILOT",
-  "slice": "A3C_SELF_REMINDER_ACTION",
+  "slice": "A3D_DOCUMENT_REQUEST_ACTION",
   "baseCommit": "00470d129693fdf1362becbc7d95f54560f79481",
   "predecessorPhase": "12.2",
   "predecessorStatus": "CLOSED",
@@ -55,8 +55,8 @@
   "budgetIncreaseAllowed": false,
   "kickoffEvidence": "docs/PHASE12_3_KICKOFF.md",
   "planCorePath": "supabase/functions/enjaz-copilot-agent/core.ts",
-  "sourceGateVerification": "PASS_A3C_CERTIFIED_SOURCE",
-  "realCloudVerification": "PASS_A3C_39_OF_39_ZERO_RESIDUE",
+  "sourceGateVerification": "PENDING_A3D",
+  "realCloudVerification": "PENDING_A3D",
   "realBrowserVerification": "NOT_REQUIRED_NO_CLIENT_DELTA_A2",
   "pagesVerification": "PENDING_LATER",
   "liveExternalVerification": "PENDING_LATER",
@@ -142,7 +142,8 @@
   "authorizedActionAdapters": [
     "followup.snooze",
     "followup.create",
-    "reminder.schedule"
+    "reminder.schedule",
+    "document.request"
   ],
   "actionOperations": [
     "prepare_followup_snooze",
@@ -150,7 +151,9 @@
     "prepare_followup_create",
     "execute_followup_create",
     "prepare_schedule_reminder",
-    "execute_schedule_reminder"
+    "execute_schedule_reminder",
+    "prepare_document_request",
+    "execute_document_request"
   ],
   "actionProposalDigestDatabaseRecomputed": true,
   "actionExecutionPayloadCarriesBusinessFields": false,
@@ -245,7 +248,8 @@
   "actionExecutionDomainAuthorities": [
     "mutate_transaction_followup_state_v1",
     "create_transaction_followup_v1",
-    "dispatch_scheduling_attention_v1"
+    "dispatch_scheduling_attention_v1",
+    "save_client_portal_request_v1"
   ],
   "a3CKickoffEvidence": "docs/PHASE12_3_A3C_KICKOFF.md",
   "a3CDatabaseMigrationPath": "database/migrations/phase_12_3_agentic_action_schedule_reminder.sql",
@@ -288,5 +292,16 @@
   "a3CCertificationStatus": "CERTIFIED",
   "a3CCertifiedSourceHead": "59f01ae9d0faa647a22133e9c39026dd650c29d0",
   "a3CEvidence": "docs/PHASE12_3_A3C_EVIDENCE.md",
-  "a3CCertifiedAt": "2026-09-18T16:28:49Z"
+  "a3CCertifiedAt": "2026-09-18T16:28:49Z",
+  "a3DKickoffEvidence": "docs/PHASE12_3_A3D_KICKOFF.md",
+  "a3DDatabaseMigrationPath": "database/migrations/phase_12_3_agentic_action_document_request.sql",
+  "a3DSourceGateVerification": "PENDING",
+  "a3DDatabaseMigrationApplied": false,
+  "a3DEdgeDeployed": false,
+  "a3DRealCloudVerification": "PENDING",
+  "a3DRequestType": "DOCUMENT_ONLY",
+  "a3DResourceShareAllowed": false,
+  "a3DExistingRequestUpdateAllowed": false,
+  "a3DReadAuthority": "get_client_portal_admin_authority_v1",
+  "a3DExecutionAuthority": "save_client_portal_request_v1"
 }

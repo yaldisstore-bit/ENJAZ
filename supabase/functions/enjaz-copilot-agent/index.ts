@@ -10,7 +10,7 @@ import {
 } from './approval.ts';
 import {
   AGENT_ACTION_SCHEMA,actionProposalHash,actionTracePayloadHash,isAgentActionOperation,parseAgentActionRequest,
-  parseExecutionResult,preparedCreateActionResult,preparedReminderActionResult,preparedSnoozeActionResult,type AgentActionRequest,
+  parseExecutionResult,preparedCreateActionResult,preparedDocumentRequestResult,preparedReminderActionResult,preparedSnoozeActionResult,type AgentActionRequest,
 } from './action.ts';
 
 const cors={
@@ -67,6 +67,14 @@ const DB_CODES=[
   'ENJAZ_SCHEDULING_ATTENTION_INVALID','ENJAZ_SCHEDULING_ATTENTION_RECIPIENT_INVALID','ENJAZ_SCHEDULING_DEADLINE_NOT_FOUND',
   'ENJAZ_SCHEDULING_RENEWAL_OCCURRENCE_NOT_FOUND','ENJAZ_SCHEDULING_ATTENTION_SOURCE_TERMINAL',
   'ENJAZ_SCHEDULING_REMINDER_SCHEDULE_INVALID','ENJAZ_SCHEDULING_IDEMPOTENCY_CONFLICT',
+  'ENJAZ_COPILOT_DOCUMENT_REQUEST_STALE',
+  'ENJAZ_PORTAL_AUTH_REQUIRED','ENJAZ_PORTAL_OWNER_REQUIRED','ENJAZ_PORTAL_WORKSPACE_FORBIDDEN',
+  'ENJAZ_PORTAL_PRINCIPAL_NOT_GRANTABLE','ENJAZ_PORTAL_REQUEST_PERMISSION_REQUIRED',
+  'ENJAZ_PORTAL_REQUEST_ID_INVALID','ENJAZ_PORTAL_REQUEST_TYPE_INVALID','ENJAZ_PORTAL_REQUEST_TITLE_INVALID',
+  'ENJAZ_PORTAL_REQUEST_INSTRUCTIONS_INVALID','ENJAZ_PORTAL_REQUEST_TRANSACTION_INVALID','ENJAZ_PORTAL_REQUEST_VALIDITY_INVALID',
+  'ENJAZ_PORTAL_REQUEST_ID_CONFLICT','ENJAZ_PORTAL_REQUEST_REVOKED','ENJAZ_PORTAL_REQUEST_NOT_OPEN',
+  'ENJAZ_PORTAL_REQUEST_CREATE_VERSION_INVALID','ENJAZ_PORTAL_REQUEST_EXPECTED_VERSION_REQUIRED','ENJAZ_PORTAL_REQUEST_STALE',
+  'ENJAZ_PORTAL_REQUEST_NOT_FOUND',
 ] as const;
 function dbCode(error:unknown){
   const message=errorText(error);
@@ -107,6 +115,10 @@ function safeError(code:string){
     ENJAZ_SCHEDULING_DEADLINE_NOT_FOUND:'The approved workflow deadline no longer exists.',
     ENJAZ_SCHEDULING_RENEWAL_OCCURRENCE_NOT_FOUND:'The approved renewal occurrence no longer exists.',
     ENJAZ_SCHEDULING_ATTENTION_SOURCE_TERMINAL:'The approved scheduling source is already terminal.',
+    ENJAZ_COPILOT_DOCUMENT_REQUEST_STALE:'The approved document request timing is no longer valid.',
+    ENJAZ_PORTAL_OWNER_REQUIRED:'Client portal owner authority is required.',
+    ENJAZ_PORTAL_REQUEST_PERMISSION_REQUIRED:'The portal principal no longer has document-request permission.',
+    ENJAZ_PORTAL_PRINCIPAL_NOT_GRANTABLE:'The portal principal is not eligible for this request.',
     ENJAZ_COPILOT_RATE_LIMITED:'Copilot request limit reached.',
     CONTEXT_SOURCE_FORBIDDEN:'Authoritative ENJAZ context is not available to this user.',
     CONTEXT_SOURCE_UNAVAILABLE:'Authoritative ENJAZ context is temporarily unavailable.',
@@ -123,18 +135,22 @@ function safeError(code:string){
     'ACTION_SOURCE_KIND_INVALID','SOURCE_ID_INVALID','OPERATION_ID_INVALID','ACTION_SCHEDULED_FOR_INVALID',
     'ENJAZ_COPILOT_REMINDER_SOURCE_KIND_INVALID','ENJAZ_COPILOT_REMINDER_SCHEDULE_INVALID',
     'ENJAZ_SCHEDULING_ATTENTION_INVALID','ENJAZ_SCHEDULING_ATTENTION_RECIPIENT_INVALID','ENJAZ_SCHEDULING_REMINDER_SCHEDULE_INVALID',
+    'PRINCIPAL_ID_INVALID','PORTAL_REQUEST_ID_INVALID','ACTION_INSTRUCTIONS_INVALID','ACTION_VALID_UNTIL_INVALID','ACTION_DOCUMENT_VALIDITY_INVALID',
+    'ENJAZ_PORTAL_REQUEST_ID_INVALID','ENJAZ_PORTAL_REQUEST_TYPE_INVALID','ENJAZ_PORTAL_REQUEST_TITLE_INVALID',
+    'ENJAZ_PORTAL_REQUEST_INSTRUCTIONS_INVALID','ENJAZ_PORTAL_REQUEST_TRANSACTION_INVALID','ENJAZ_PORTAL_REQUEST_VALIDITY_INVALID',
+    'ENJAZ_PORTAL_REQUEST_CREATE_VERSION_INVALID','ENJAZ_PORTAL_REQUEST_EXPECTED_VERSION_REQUIRED',
   ]);
   if(messages[code])return {code,retryable,message:messages[code]};
   if(validation.has(code))return {code,retryable:false,message:'Agentic Copilot request is invalid.'};
   return {code:'COPILOT_AGENT_FAILED',retryable:true,message:'Agentic Copilot could not complete the request.'};
 }
 function httpStatus(code:string){
-  if(code==='AUTH_REQUIRED'||code==='AUTH_INVALID'||code==='ENJAZ_FOLLOWUP_AUTH_REQUIRED')return 401;
-  if(code==='ENJAZ_COPILOT_WORKSPACE_FORBIDDEN'||code==='ENJAZ_COPILOT_PROPOSAL_ACTOR_FORBIDDEN'||code==='ENJAZ_FOLLOWUP_WORKSPACE_FORBIDDEN'||code==='CONTEXT_SOURCE_FORBIDDEN')return 403;
-  if(code==='ENJAZ_COPILOT_PROPOSAL_NOT_FOUND'||code==='ENJAZ_FOLLOWUP_NOT_FOUND'||code==='ENJAZ_COPILOT_REMINDER_SOURCE_NOT_FOUND'||code==='ENJAZ_SCHEDULING_DEADLINE_NOT_FOUND'||code==='ENJAZ_SCHEDULING_RENEWAL_OCCURRENCE_NOT_FOUND')return 404;
-  if(code==='ENJAZ_COPILOT_APPROVAL_EXPIRED'||code==='ENJAZ_COPILOT_ACTION_SNOOZE_STALE'||code==='ENJAZ_COPILOT_ACTION_DUE_AT_STALE'||code==='ENJAZ_COPILOT_REMINDER_SCHEDULE_STALE')return 410;
+  if(code==='AUTH_REQUIRED'||code==='AUTH_INVALID'||code==='ENJAZ_FOLLOWUP_AUTH_REQUIRED'||code==='ENJAZ_PORTAL_AUTH_REQUIRED')return 401;
+  if(code==='ENJAZ_COPILOT_WORKSPACE_FORBIDDEN'||code==='ENJAZ_COPILOT_PROPOSAL_ACTOR_FORBIDDEN'||code==='ENJAZ_FOLLOWUP_WORKSPACE_FORBIDDEN'||code==='ENJAZ_PORTAL_OWNER_REQUIRED'||code==='ENJAZ_PORTAL_WORKSPACE_FORBIDDEN'||code==='ENJAZ_PORTAL_PRINCIPAL_NOT_GRANTABLE'||code==='ENJAZ_PORTAL_REQUEST_PERMISSION_REQUIRED'||code==='CONTEXT_SOURCE_FORBIDDEN')return 403;
+  if(code==='ENJAZ_COPILOT_PROPOSAL_NOT_FOUND'||code==='ENJAZ_FOLLOWUP_NOT_FOUND'||code==='ENJAZ_COPILOT_REMINDER_SOURCE_NOT_FOUND'||code==='ENJAZ_SCHEDULING_DEADLINE_NOT_FOUND'||code==='ENJAZ_SCHEDULING_RENEWAL_OCCURRENCE_NOT_FOUND'||code==='ENJAZ_PORTAL_REQUEST_NOT_FOUND')return 404;
+  if(code==='ENJAZ_COPILOT_APPROVAL_EXPIRED'||code==='ENJAZ_COPILOT_ACTION_SNOOZE_STALE'||code==='ENJAZ_COPILOT_ACTION_DUE_AT_STALE'||code==='ENJAZ_COPILOT_REMINDER_SCHEDULE_STALE'||code==='ENJAZ_COPILOT_DOCUMENT_REQUEST_STALE')return 410;
   if(code==='ENJAZ_COPILOT_RATE_LIMITED')return 429;
-  if(code.includes('CONFLICT')||code==='ENJAZ_COPILOT_ACTION_APPROVAL_REQUIRED'||code==='ENJAZ_FOLLOWUP_TERMINAL_FINAL'||code==='ENJAZ_SCHEDULING_ATTENTION_SOURCE_TERMINAL')return 409;
+  if(code.includes('CONFLICT')||code==='ENJAZ_COPILOT_ACTION_APPROVAL_REQUIRED'||code==='ENJAZ_FOLLOWUP_TERMINAL_FINAL'||code==='ENJAZ_SCHEDULING_ATTENTION_SOURCE_TERMINAL'||code==='ENJAZ_PORTAL_REQUEST_REVOKED'||code==='ENJAZ_PORTAL_REQUEST_NOT_OPEN'||code==='ENJAZ_PORTAL_REQUEST_STALE')return 409;
   if(code==='CONTEXT_SOURCE_UNAVAILABLE')return 503;
   if(code.endsWith('_INVALID')||code.startsWith('REQUEST_')||code.startsWith('APPROVAL_')||code.startsWith('ACTION_')||code==='OPERATION_FORBIDDEN'||code==='GOAL_INVALID'||code==='CONTEXT_QUERY_INVALID'||code==='LIMIT_INVALID')return 400;
   return 500;
@@ -187,7 +203,7 @@ Deno.serve(async(req:Request)=>{
     const workspaceId=action?.workspaceId??approval?.workspaceId??plan!.workspaceId;
     const requestId=action?.requestId??approval?.requestId??plan!.requestId;
 
-    const begin=await admin.rpc('copilot_begin_request_v6',{
+    const begin=await admin.rpc('copilot_begin_request_v7',{
       p_workspace_id:workspaceId,p_actor_user_id:actorId,p_request_id:requestId,
       p_operation:traceOperation,p_payload_hash:payloadHash,p_limit:20,
     });
@@ -306,6 +322,55 @@ Deno.serve(async(req:Request)=>{
       return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
     }
 
+    if(action?.operation==='prepare_document_request'){
+      const authority=await userClient.rpc('get_client_portal_admin_authority_v1',{p_workspace_id:action.workspaceId});
+      if(authority.error)throw new Error(dbCode(authority.error));
+      const data=record(authority.data);
+      const principals=Array.isArray(data.principals)?data.principals:[];
+      const principal=principals.find(v=>v&&typeof v==='object'&&!Array.isArray(v)&&text((v as J).id)===action.principalId) as J|undefined;
+      if(!principal||text(principal.status)!=='active'||text(principal.revokedAt))throw new Error('ENJAZ_PORTAL_PRINCIPAL_NOT_GRANTABLE');
+
+      const now=Date.now();
+      const grants=Array.isArray(data.grants)?data.grants:[];
+      const allowed=grants.some(v=>{
+        if(!v||typeof v!=='object'||Array.isArray(v))return false;
+        const g=v as J,permissions=Array.isArray(g.permissions)?g.permissions:[];
+        const validFrom=text(g.validFrom),validUntil=text(g.validUntil);
+        return text(g.principalId)===action.principalId&&text(g.targetType)==='transaction'&&text(g.targetId)===action.transactionId
+          &&permissions.includes('upload_requested_document')&&!text(g.revokedAt)
+          &&Boolean(validFrom)&&Date.parse(validFrom)<=now&&(!validUntil||Date.parse(validUntil)>now);
+      });
+      if(!allowed)throw new Error('ENJAZ_PORTAL_REQUEST_PERMISSION_REQUIRED');
+
+      const target=await userClient.from('transactions')
+        .select('id,workspace_id,deleted_at')
+        .eq('workspace_id',action.workspaceId).eq('id',action.transactionId).maybeSingle();
+      if(target.error)throw new Error(sourceCode(target.error));
+      if(!target.data||target.data.deleted_at)throw new Error('ENJAZ_PORTAL_REQUEST_TRANSACTION_INVALID');
+
+      const proposalHash=await actionProposalHash(action);
+      const expiresAt=new Date(Date.now()+10*60*1000).toISOString();
+      const registered=await admin.rpc('copilot_register_document_request_proposal_v1',{
+        p_workspace_id:action.workspaceId,p_actor_user_id:actorId,p_request_id:action.requestId,
+        p_proposal_hash:proposalHash,p_principal_id:action.principalId,p_transaction_id:action.transactionId,
+        p_portal_request_id:action.portalRequestId,p_title:action.title,p_instructions:action.instructions,
+        p_due_at:action.dueAt,p_valid_until:action.validUntil,p_expires_at:expiresAt,
+      });
+      if(registered.error)throw new Error(dbCode(registered.error));
+      const row=record(registered.data);
+      const proposalId=uuidOrNull(row.proposalId),storedHash=text(row.proposalHash),storedExpiry=text(row.expiresAt);
+      if(!proposalId||storedHash!==proposalHash||!storedExpiry||row.actionKind!=='document.request'
+        ||text(row.targetId)!==action.portalRequestId||text(row.principalId)!==action.principalId
+        ||text(row.transactionId)!==action.transactionId||text(row.title)!==action.title)throw new Error('COPILOT_ACTION_EVIDENCE_INVALID');
+      const result=preparedDocumentRequestResult({
+        proposalId,proposalHash:storedHash,expiresAt:storedExpiry,replayed:row.replayed===true,
+        principalId:action.principalId,transactionId:action.transactionId,portalRequestId:action.portalRequestId,
+        title:action.title,instructions:action.instructions,dueAt:action.dueAt,validUntil:action.validUntil,
+      });
+      await finish('completed',null,{resultKind:'action_proposal',actionKind:'document.request',providerUsed:false,requestType:'document'});
+      return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
+    }
+
     if(action?.operation==='execute_followup_snooze'){
       const executed=await userClient.rpc('copilot_execute_followup_snooze_v1',{
         p_workspace_id:action.workspaceId,p_proposal_id:action.proposalId,
@@ -336,6 +401,17 @@ Deno.serve(async(req:Request)=>{
       if(executed.error)throw new Error(dbCode(executed.error));
       const result=parseExecutionResult(executed.data);
       await finish('completed',null,{resultKind:'action_execution',actionKind:'reminder.schedule',providerUsed:false,replayed:result.replayed,recipientScope:'self'});
+      return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
+    }
+
+    if(action?.operation==='execute_document_request'){
+      const executed=await userClient.rpc('copilot_execute_document_request_v1',{
+        p_workspace_id:action.workspaceId,p_proposal_id:action.proposalId,
+        p_proposal_hash:action.proposalHash,p_execution_key:action.executionKey,
+      });
+      if(executed.error)throw new Error(dbCode(executed.error));
+      const result=parseExecutionResult(executed.data);
+      await finish('completed',null,{resultKind:'action_execution',actionKind:'document.request',providerUsed:false,replayed:result.replayed,requestType:'document'});
       return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
     }
 
@@ -396,6 +472,7 @@ Deno.serve(async(req:Request)=>{
       'APPROVAL_DECISION_INVALID','ACTION_REQUEST_INVALID','ACTION_FIELD_FORBIDDEN','ACTION_OPERATION_FORBIDDEN',
       'ACTION_SNOOZE_INVALID','FOLLOWUP_ID_INVALID','TRANSACTION_ID_INVALID','PROPOSAL_ID_INVALID','EXECUTION_KEY_INVALID',
       'ACTION_TITLE_INVALID','ACTION_DUE_AT_INVALID','ACTION_SOURCE_KIND_INVALID','SOURCE_ID_INVALID','OPERATION_ID_INVALID','ACTION_SCHEDULED_FOR_INVALID',
+      'PRINCIPAL_ID_INVALID','PORTAL_REQUEST_ID_INVALID','ACTION_INSTRUCTIONS_INVALID','ACTION_VALID_UNTIL_INVALID','ACTION_DOCUMENT_VALIDITY_INVALID',
       'ENJAZ_COPILOT_REMINDER_SOURCE_NOT_FOUND',
     ]);
     const code=known.has(raw)?raw:'COPILOT_AGENT_FAILED';

@@ -1,4 +1,4 @@
-name: ENJAZ Phase 12.3 — Agentic Copilot A3-C Gate
+name: ENJAZ Phase 12.3 — Agentic Copilot A3-D Gate
 
 on:
   push:
@@ -15,6 +15,7 @@ on:
       - 'database/migrations/phase_12_3_agentic_action_followup_create.sql'
       - 'database/migrations/phase_12_3_agentic_action_schedule_reminder.sql'
       - 'database/migrations/phase_12_3_agentic_schedule_snapshot_rpc_name_hardening.sql'
+      - 'database/migrations/phase_12_3_agentic_action_document_request.sql'
       - 'scripts/phase12-3-*'
       - 'tests/phase12-3-*'
       - '.github/workflows/phase12-3-agentic-copilot.yml'
@@ -46,7 +47,7 @@ permissions:
 
 jobs:
   phase12-3-a1:
-    name: A1+A2+A3-A+A3-B Preservation / A3-C Self Reminder / Destruction / Frozen Budgets
+    name: A1+A2+A3-A+A3-B+A3-C Preservation / A3-D Document Request / Destruction / Frozen Budgets
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -88,6 +89,10 @@ jobs:
         run: node --experimental-strip-types --test tests/phase12-3-agentic-copilot-reminder-core.test.ts
       - name: Phase 12.3 A3-C reminder database tests
         run: node --test tests/phase12-3-agentic-copilot-reminder-db.test.mjs
+      - name: Phase 12.3 A3-D document request core tests
+        run: node --experimental-strip-types --test tests/phase12-3-agentic-copilot-document-request-core.test.ts
+      - name: Phase 12.3 A3-D document request database tests
+        run: node --test tests/phase12-3-agentic-copilot-document-request-db.test.mjs
       - name: Preserve certified Phase 12.2 contextual assistance
         run: |
           node scripts/phase12-2-contextual-assistance-audit.mjs
