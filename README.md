@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 12.3 — Agentic ENJAZ Copilot — M9 🟡 IN_PROGRESS / A1 PLAN-PROPOSAL GATE PASS**  
+الحالة الرسمية: **Phase 12.3 — Agentic ENJAZ Copilot — M9 🟡 IN_PROGRESS / A2 APPROVAL BINDING**  
 آخر مرحلة مغلقة: **Phase 12.2 — Contextual Assistance ✅ CLOSED / READ-ONLY GROUNDED ASSISTANCE CERTIFIED**  
-المرحلة الحالية: **Phase 12.3 — Agentic ENJAZ Copilot — A1 certified; Phase 12.4 remains LOCKED**.
+المرحلة الحالية: **Phase 12.3 — Agentic ENJAZ Copilot — A1 certified + A2 approval binding in progress; Phase 12.4 remains LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -56,7 +56,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 11.7 — Communication Zero-Escape Gate: ✅ CLOSED — M3/M4/M10 + Phase-11 M16/M17 individual Real Cloud, PR gate, exact-main Real Browser, Pages and Live External certified.**
 - **Phase 12.1 — Copilot Foundation: ✅ CLOSED — private quota/trace evidence + service-only RPC + JWT Edge v1 + Real Cloud + PR + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 12.2 — Contextual Assistance: ✅ CLOSED — permission-scoped authoritative context + citations/provenance + read-only assistance + Real Cloud + exact-main + Pages + Live External certified.**
-- **Phase 12.3 — Agentic ENJAZ Copilot — M9: 🟡 IN_PROGRESS — A1 deterministic grounded plan/proposal contract gate PASS; execution and sensitive mutations remain locked.**
+- **Phase 12.3 — Agentic ENJAZ Copilot — M9: 🟡 IN_PROGRESS — A1 deterministic plan/proposal certified; A2 digest-bound approval/expiry/replay contract in progress; execution and sensitive mutations remain locked.**
 
 ## Phase 12.2 — دليل الإغلاق الحالي
 
