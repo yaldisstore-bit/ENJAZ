@@ -59,7 +59,7 @@
   "databaseContextMigrationPath": "database/migrations/phase_12_2_contextual_assistance.sql",
   "databaseContextMigrationVersion": "20260918100940",
   "edgeContextSlug": "enjaz-copilot-context",
-  "sourceGateVerification": "PENDING",
+  "sourceGateVerification": "PASS",
   "realCloudVerification": "PENDING",
   "realBrowserVerification": "PENDING_NOT_REQUIRED_FOR_SERVER_OPENING_SLICE",
   "pagesVerification": "PENDING",
@@ -87,5 +87,13 @@
   "newPerformanceAdvisorFindings": 0,
   "clientUiStatus": "LIVE_LAZY_PENDING_CERTIFICATION",
   "clientUiPath": "src/ui-r2/copilot/LiveCopilotPortal.tsx",
-  "clientUiRoute": "/app/copilot"
+  "clientUiRoute": "/app/copilot",
+  "sourceGateRunId": 35340255904,
+  "sourceGateRunNumber": 48,
+  "sourceGateHead": "322d9ee2100846d8f2b1fdb872c3c5020380ba48",
+  "finalInitialJavascriptBytes": 431388,
+  "finalTotalJavascriptBytes": 759986,
+  "finalCssBytes": 179989,
+  "finalTotalJavascriptMarginBytes": 14,
+  "finalBudgetVerification": "PASS_FROZEN_CAPS_NO_INCREASE"
 }
