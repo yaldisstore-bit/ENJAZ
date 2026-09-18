@@ -60,9 +60,11 @@ if (lifecycleClosed) {
 }
 
 const m8 = major.systems?.find((system) => system.id === 'M8');
-requireValue(m8?.name === 'Regulatory / Knowledge Base Engine' && m8?.status === 'ACTIVE', 'M8 must remain ACTIVE because Phase 12 is still an open governing anchor');
+const p125 = exists('docs/PHASE12_5_STATE.json') ? json('docs/PHASE12_5_STATE.json') : null;
+const downstreamM8Closed = p125?.status === 'CLOSED' && p125?.closureDecision === 'PASS' && m8?.status === 'CLOSED' && m8?.closureEvidence === 'docs/M8_ZERO_ESCAPE_CLOSURE.json' && exists(m8.closureEvidence);
+requireValue(m8?.name === 'Regulatory / Knowledge Base Engine', 'M8 identity drifted');
 requireValue(Array.isArray(m8?.anchors) && m8.anchors.includes('9') && m8.anchors.includes('12'), 'M8 must preserve Phase 9 + Phase 12 anchors');
-requireValue(m8?.closureEvidence === null, 'Phase 9.4 closure must not fabricate global M8 closure before Phase 12');
+if(!downstreamM8Closed){requireValue(m8?.status === 'ACTIVE', 'M8 must remain ACTIVE until Phase 12.5 closure');requireValue(m8?.closureEvidence === null, 'M8 premature global closure');}
 
 for (const path of [
   'docs/PHASE9_4_STATE.json',
