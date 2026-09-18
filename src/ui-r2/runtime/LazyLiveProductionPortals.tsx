@@ -11,9 +11,10 @@ const DocumentsPortal = lazy(() => import('../documents/LiveDocumentVaultPortal.
 const EngagementContractsPortal = lazy(() => import('../documents/LiveEngagementContractsPortal.tsx').then((module) => ({ default: module.LiveEngagementContractsPortal })));
 const NotificationsPortal = lazy(() => import('../notifications/LiveNotificationsProductionPortal.tsx').then((module) => ({ default: module.LiveNotificationsProductionPortal })));
 const CalendarPortal = lazy(() => import('../calendar/LiveUnifiedCalendarProductionPortal.tsx').then((module) => ({ default: module.LiveUnifiedCalendarProductionPortal })));
+const CopilotPortal = lazy(() => import('../copilot/LiveCopilotPortal.tsx').then((module) => ({ default: module.LiveCopilotPortal })));
 const SHELL = '.r2-shell[data-r2-runtime-mode="live"][data-destination]';
 
-type LazyDestination = 'companies' | 'people' | 'finance' | 'risk' | 'insights' | 'knowledge' | 'documents' | 'today.notifications' | 'calendar' | null;
+type LazyDestination = 'companies' | 'people' | 'finance' | 'risk' | 'insights' | 'knowledge' | 'documents' | 'today.notifications' | 'calendar' | 'copilot' | null;
 type Props = Readonly<{
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
   regulatoryWorkspace: Promise<string | null>;
@@ -22,9 +23,10 @@ type Props = Readonly<{
   documentFactoryFactory: DocumentFactoryFactory | undefined;
   engagementContractFactory: EngagementContractFactory | undefined;
   documentWorkspace: Promise<string | null>;
+  copilotInvoke: (body: Readonly<Record<string, unknown>>) => Promise<Response>;
 }>;
 
-export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorkspace, documentVaultFactory, documentIntelligenceFactory, documentFactoryFactory, engagementContractFactory, documentWorkspace }: Props) {
+export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorkspace, documentVaultFactory, documentIntelligenceFactory, documentFactoryFactory, engagementContractFactory, documentWorkspace, copilotInvoke }: Props) {
   const [destination, setDestination] = useState<LazyDestination>(null);
 
   useLayoutEffect(() => {
@@ -33,7 +35,7 @@ export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorks
     const sync = () => {
       const value = shell.dataset.destination;
       setDestination(
-        value === 'companies' || value === 'people' || value === 'finance' || value === 'risk' || value === 'insights' || value === 'knowledge' || value === 'documents' || value === 'today.notifications' || value === 'calendar'
+        value === 'companies' || value === 'people' || value === 'finance' || value === 'risk' || value === 'insights' || value === 'knowledge' || value === 'documents' || value === 'today.notifications' || value === 'calendar' || value === 'copilot'
           ? value
           : null,
       );
@@ -53,6 +55,7 @@ export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorks
       : destination === 'finance' || destination === 'risk' ? <FinancePortal />
       : destination === 'insights' ? <InsightsPortal />
       : destination === 'knowledge' ? <KnowledgePortal gateway={regulatoryKnowledge} workspace={regulatoryWorkspace} />
+      : destination === 'copilot' ? <CopilotPortal workspace={documentWorkspace} invoke={copilotInvoke} />
       : destination === 'documents'
         ? <>
           {documentIntelligenceFactory || documentFactoryFactory
