@@ -14,6 +14,8 @@ on:
       - '.github/workflows/phase12-3-agentic-copilot.yml'
       - 'README.md'
       - 'docs/ENJAZ_MASTER_ROADMAP.md'
+      - 'docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json'
+      - 'scripts/roadmap-audit.mjs'
   pull_request:
     paths:
       - 'docs/PHASE12_3_*.md'
@@ -24,6 +26,8 @@ on:
       - '.github/workflows/phase12-3-agentic-copilot.yml'
       - 'README.md'
       - 'docs/ENJAZ_MASTER_ROADMAP.md'
+      - 'docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json'
+      - 'scripts/roadmap-audit.mjs'
 
 permissions:
   contents: read

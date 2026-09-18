@@ -18,7 +18,7 @@
 > - Zero-Escape closure governance merged on canonical `main`
 > - Phase 9.4 M8, Phase 9.5 M13 and Phase 9.6 M18 Phase-9 anchors are formally closed with exact-main, Real Browser, Real Cloud where applicable, Pages and deployed-live certification
 > - Phase 9.7 Intelligence Zero-Escape is formally closed against merged implementation `e8992650afb7bd3bd5c47770d0b2d752cdd0488e`; M2 is globally `CLOSED` under `ZERO_ESCAPE_V1`, while M8/M13/M18 remain `ACTIVE` for later governing anchors
-> - **Phases 10.1–10.6 are formally CLOSED and certified; Phase 11.1 — Notifications & Follow-ups is the sole authorized successor.**
+> - **Phase 12.2 — Contextual Assistance is formally CLOSED and certified; Phase 12.3 — Agentic ENJAZ Copilot — M9 is now IN_PROGRESS, while Phase 12.4 remains LOCKED.**
 
 ---
 
@@ -410,10 +410,12 @@ AI is allowed only after authoritative business domains and permission boundarie
 - published `/live/` total JS **759985 / 760000**, CSS **179989 / 180000**; no cap increase / no feature cut.
 - Formal closure: `docs/PHASE12_2_CLOSURE.md`.
 
-## 12.3 — Agentic ENJAZ Copilot — M9 — AUTHORIZED_NEXT
+## 12.3 — Agentic ENJAZ Copilot — M9 — IN_PROGRESS
 - Plan multi-step work and propose actions across ENJAZ tools.
 - Sensitive mutations require explicit user approval and domain-service validation.
 - Agent cannot bypass RLS, workflow/legal transitions, finance rules or document approval state.
+- Opening slice **A1 — Plan / Proposal Contract** is source-gate certified on branch head `6b9d7fdd03584b11069f2e141f83a169f0c2a2b6`; Phase 12.3 Gate run `35358806445` is **PASS**.
+- A1 remains deliberately proposal-only: no execute operation, no generic write tool, no direct business-table write, no service-role business read, no client UI delta and no new database/Edge deployment authority.
 
 ## 12.4 — Regulatory Knowledge Assistance — M8
 - Retrieve/version regulatory sources and distinguish source text, structured facts and AI interpretation.
@@ -594,7 +596,7 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - **Phase 12.2 — Contextual Assistance ✅ CLOSED + authenticated Real Cloud + dedicated/cumulative Real Browser + exact-main 40/40 + Pages + Live External certified.**
 - Phase 12.2 formal implementation merge: `10592bbd0d91684970d5074719871039892d4667`.
 - Phase 12.2 published `/live/` budget: **431246 / 670000 initial JS; 759985 / 760000 total JS; 179989 / 180000 CSS**.
-- **Phase 12.3 — Agentic ENJAZ Copilot — M9: AUTHORIZED_NEXT.**
+- **Phase 12.3 — Agentic ENJAZ Copilot — M9: IN_PROGRESS; A1 plan/proposal contract gate PASS.**
 - M8 remains `ACTIVE` because Phase 12.4 is still a governing anchor; M13/M18 remain `ACTIVE` for Phase 15.
 - startup JavaScript hard ceiling remains **670000 bytes**; total JavaScript **760000 bytes**; CSS **180000 bytes**.
 

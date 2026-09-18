@@ -55,7 +55,7 @@
   "budgetIncreaseAllowed": false,
   "kickoffEvidence": "docs/PHASE12_3_KICKOFF.md",
   "planCorePath": "supabase/functions/enjaz-copilot-agent/core.ts",
-  "sourceGateVerification": "PENDING",
+  "sourceGateVerification": "PASS",
   "realCloudVerification": "PENDING_NOT_YET_APPLICABLE_A1_CORE_ONLY",
   "realBrowserVerification": "NOT_REQUIRED_NO_CLIENT_DELTA_A1",
   "pagesVerification": "PENDING_LATER",
@@ -64,5 +64,11 @@
   "knownHighDefects": 0,
   "knownFunctionalBlockers": 0,
   "exitGatePassed": false,
-  "closureDecision": "PENDING"
+  "closureDecision": "PENDING",
+  "majorSystemStatus": "ACTIVE",
+  "sourceGateRunId": 35358806445,
+  "sourceGateRunNumber": 3,
+  "sourceGateHead": "6b9d7fdd03584b11069f2e141f83a169f0c2a2b6",
+  "a1Certification": "PASS_PLAN_PROPOSAL_CONTRACT",
+  "a1CertifiedAt": "2026-09-18T14:51:11Z"
 }
