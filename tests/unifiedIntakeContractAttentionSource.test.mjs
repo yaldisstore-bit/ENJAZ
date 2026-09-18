@@ -18,6 +18,7 @@ function violations(s=sql){
   req(impl.includes("s.version<>f.expected_submission_version"),'intake-stale-visible');
   req(impl.includes("cr.version<>b.revision_version_at_issue"),'approval-stale-visible');
   req(impl.includes("'ownerSurface','intake_review'")&&impl.includes("'ownerSurface','documents'")&&impl.includes("'ownerSurface','calendar'"),'owner-surfaces');
+  req(impl.includes("'kindLabel'")&&impl.includes("'attentionLabel'")&&impl.includes("'ownerPath'"),'display-projection');
   req(!/create\s+table/i.test(s),'no-shadow-table');
   req(!/\b(insert\s+into|update\s+public\.|update\s+private\.|delete\s+from)\b/i.test(impl),'read-only');
   req(!impl.includes('token_hash'),'no-capability-secret');
