@@ -35,7 +35,7 @@ req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760
 
 for(const marker of [
   'Status:** CLOSED / CERTIFIED',
-  '00470d129693fdf1362becbc7d95f54560f79481',
+  '10592bbd0d91684970d5074719871039892d4667',
   'Phase 12.3 — Agentic ENJAZ Copilot is now **AUTHORIZED_NEXT**'
 ])has(closure,marker,'12.2 closure');
 
