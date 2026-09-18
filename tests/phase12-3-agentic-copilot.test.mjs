@@ -14,9 +14,9 @@ test('12.3 starts only from final certified 12.2 closure',()=>{
   assert.equal(state.predecessorClosureMergeCommit,state.baseCommit);
 });
 
-test('12.3 A1/A2/A3-A/A3-B certification is preserved while A3-C adds self reminder only',()=>{
+test('12.3 A1/A2/A3-A/A3-B/A3-C certification is preserved while A3-D adds document request only',()=>{
   assert.equal(state.status,'IN_PROGRESS');
-  assert.equal(state.slice,'A3C_SELF_REMINDER_ACTION');
+  assert.equal(state.slice,'A3D_DOCUMENT_REQUEST_ACTION');
   assert.equal(state.a2Certification,'PASS_APPROVAL_BINDING_REAL_CLOUD');
   assert.equal(state.a2FinalSourceGateVerification,'PASS');
   assert.equal(state.a2FinalRealCloudVerification,'PASS');
@@ -37,10 +37,18 @@ test('12.3 A1/A2/A3-A/A3-B certification is preserved while A3-C adds self remin
   assert.equal(state.a3CertificationCommitRealCloudVerification,'PASS');
   assert.equal(state.a3BCertification,'PASS_FOLLOWUP_CREATE_REAL_CLOUD');
   assert.equal(state.a3BCertificationStatus,'CERTIFIED');
-  assert.deepEqual(state.authorizedActionAdapters,['followup.snooze','followup.create','reminder.schedule']);
+  assert.equal(state.a3CCertification,'PASS_SELF_REMINDER_REAL_CLOUD');
+  assert.equal(state.a3CCertificationStatus,'CERTIFIED');
+  assert.deepEqual(state.authorizedActionAdapters,['followup.snooze','followup.create','reminder.schedule','document.request']);
+  assert.deepEqual(state.actionExecutionDomainAuthorities,['mutate_transaction_followup_state_v1','create_transaction_followup_v1','dispatch_scheduling_attention_v1','save_client_portal_request_v1']);
   assert.equal(state.a3CRecipientScope,'SELF_ONLY');
   assert.equal(state.a3CMode,'REMINDER_ONLY');
   assert.equal(state.a3CFollowupSideEffectAllowed,false);
+  assert.equal(state.a3DRequestType,'DOCUMENT_ONLY');
+  assert.equal(state.a3DResourceShareAllowed,false);
+  assert.equal(state.a3DExistingRequestUpdateAllowed,false);
+  assert.equal(state.a3DReadAuthority,'get_client_portal_admin_authority_v1');
+  assert.equal(state.a3DExecutionAuthority,'save_client_portal_request_v1');
   assert.equal(state.directBusinessTableWritesAllowed,false);
   assert.equal(state.genericWriteToolAllowed,false);
   assert.equal(state.clientUiAdded,false);
