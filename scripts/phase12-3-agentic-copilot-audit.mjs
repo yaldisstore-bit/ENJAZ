@@ -20,6 +20,7 @@ const a3b=read('docs/PHASE12_3_A3B_KICKOFF.md');
 const a3bEvidence=read('docs/PHASE12_3_A3B_EVIDENCE.md');
 const createMigration=read('database/migrations/phase_12_3_agentic_action_followup_create.sql');
 const a3c=read('docs/PHASE12_3_A3C_KICKOFF.md');
+const a3cEvidence=read('docs/PHASE12_3_A3C_EVIDENCE.md');
 const reminderMigration=read('database/migrations/phase_12_3_agentic_action_schedule_reminder.sql');
 const reminderSnapshotRpcHardening=read('database/migrations/phase_12_3_agentic_schedule_snapshot_rpc_name_hardening.sql');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
@@ -59,6 +60,14 @@ req(JSON.stringify(state.authorizedActionAdapters)===JSON.stringify(['followup.s
 req(JSON.stringify(state.actionOperations)===JSON.stringify(['prepare_followup_snooze','execute_followup_snooze','prepare_followup_create','execute_followup_create','prepare_schedule_reminder','execute_schedule_reminder']),'12.3 A3-C operation allowlist drifted');
 req(state.a3BCertification==='PASS_FOLLOWUP_CREATE_REAL_CLOUD'&&state.a3BCertificationStatus==='CERTIFIED','12.3 A3-B certification must remain preserved');
 req(state.a3CRecipientScope==='SELF_ONLY'&&state.a3CMode==='REMINDER_ONLY'&&state.a3CFollowupSideEffectAllowed===false,'12.3 A3-C reminder restriction drifted');
+req(state.a3CCertification==='PASS_SELF_REMINDER_REAL_CLOUD'&&state.a3CCertificationStatus==='CERTIFIED','12.3 A3-C certification missing');
+req(state.a3CSourceGateVerification==='PASS'&&state.a3CSourceGateRunId===35368643670&&state.a3CSourceGateRunNumber===35&&state.a3CCertifiedSourceHead==='59f01ae9d0faa647a22133e9c39026dd650c29d0','12.3 A3-C source certification drifted');
+req(state.a3CDatabaseMigrationApplied===true&&state.a3CDatabaseMigrationVersion==='20260918161213'&&state.a3CSnapshotRpcHardeningApplied===true&&state.a3CSnapshotRpcHardeningMigrationVersion==='20260918162256','12.3 A3-C live migration lineage drifted');
+req(state.a3CHashCrossLanguageVerification==='PASS_bc76b355fda7e1286593802b9a6f08726ab8f6f3fe692a73be4f06a73a306645','12.3 A3-C hash evidence drifted');
+req(state.a3CEdgeDeployed===true&&state.a3CEdgeVersion===5&&state.a3CEdgeVerifyJwt===true&&state.a3CEdgeDeploymentDigest==='093487a817784a82649cb36c1aa45a33dfa238096bccda2e458c7d95a78c8b0e','12.3 A3-C Edge evidence drifted');
+req(state.a3CRealCloudVerification==='PASS'&&state.a3CRealCloudRunId===35368643760&&state.a3CRealCloudRunNumber===3&&state.a3CRealCloudChecks===39&&state.a3CRealCloudFailureCount===0,'12.3 A3-C Real Cloud evidence drifted');
+req(state.a3CRealCloudZeroResidue===true&&state.a3CRealCloudSelfRecipientVerified===true&&state.a3CRealCloudReminderOnlyVerified===true&&state.a3CRealCloudZeroFollowupSideEffect===true&&state.a3CRealCloudAtomicRollbackVerified===true&&state.a3CRealCloudSingleUseReplayVerified===true&&state.a3CRealCloudCrossWorkspaceZeroMutation===true,'12.3 A3-C destructive guarantees drifted');
+req(state.a3CSecurityAdvisorTotal===65&&state.a3CNewSecurityAdvisorFindings===0&&state.a3CUnindexedForeignKeys===28&&state.a3CNewPerformanceWarnFindings===0,'12.3 A3-C advisor evidence drifted');
 req(JSON.stringify(state.actionExecutionDomainAuthorities)===JSON.stringify(['mutate_transaction_followup_state_v1','create_transaction_followup_v1','dispatch_scheduling_attention_v1']),'12.3 A3-C domain authority allowlist drifted');
 req(state.actionProposalDigestDatabaseRecomputed===true&&state.actionExecutionPayloadCarriesBusinessFields===false&&state.actionExecutionAtomicConsumeAndDomainMutation===true,'12.3 A3-A binding/atomicity contract drifted');
 req(state.edgeAgentDeployed===true&&state.edgeAgentFunction==='enjaz-copilot-agent'&&state.edgeAgentVersion===1&&state.edgeAgentVerifyJwt===true,'12.3 A2 Edge deployment evidence drifted');
@@ -156,9 +165,10 @@ for(const marker of ['private.copilot_schedule_reminder_hash_v1',"action_kind='r
 req(!/\b(post_payment_v1|reverse_payment_v1|send_client_portal_message_v1|mutate_transaction_workflow)\b/.test(reminderMigration),'12.3 A3-C migration has unauthorized adapter');
 for(const marker of ['create or replace function public.get_scheduling_deadline_snapshot_v1(','p_workspace_id uuid','p_as_of timestamptz','private.get_scheduling_deadline_snapshot_v1_impl(p_workspace_id,p_as_of)','grant execute on function public.get_scheduling_deadline_snapshot_v1(uuid,timestamptz)'])has(reminderSnapshotRpcHardening,marker,'12.3 A3-C snapshot RPC hardening');
 req(!/\b(insert into|update\s+public\.|delete from)\b/i.test(reminderSnapshotRpcHardening),'12.3 A3-C snapshot RPC hardening may not mutate business rows');
+for(const marker of ['39/39 PASS','recipient injection is denied','exactly one canonical in-app notification is created','proposal consumption rolls back atomically','test auth users: **0**','Phase 12.4 remains **LOCKED**'])has(a3cEvidence,marker,'12.3 A3-C evidence');
 
 has(roadmap,'## 12.3 — Agentic ENJAZ Copilot — M9','roadmap');
 has(roadmap,'Sensitive mutations require explicit user approval and domain-service validation.','roadmap');
 
 if(errors.length){console.error(errors.map(x=>`- ${x}`).join('\n'));process.exit(1)}
-console.log('ENJAZ PHASE 12.3 A3-C AGENTIC COPILOT AUDIT PASS — A1/A2/A3-A/A3-B certified; followup.snooze + followup.create + self reminder.schedule only, DB-recomputed digests, atomic approval consumption + existing domain RPCs, no generic/service-role business execution, frozen budgets preserved, and 12.4 locked.');
+console.log('ENJAZ PHASE 12.3 A3-C AGENTIC COPILOT AUDIT PASS — A1/A2/A3-A/A3-B/A3-C certified; only followup.snooze + followup.create + self reminder.schedule authorized, DB-recomputed digests, atomic approval consumption + existing domain RPCs, no generic/service-role business execution, frozen budgets preserved, and 12.4 locked.');

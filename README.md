@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 12.3 — Agentic ENJAZ Copilot — M9 🟡 IN_PROGRESS / A3-A ACTION-SPECIFIC EXECUTION**  
+الحالة الرسمية: **Phase 12.3 — Agentic ENJAZ Copilot — M9 🟡 IN_PROGRESS / A3-C CERTIFIED ACTION-SPECIFIC EXECUTION**  
 آخر مرحلة مغلقة: **Phase 12.2 — Contextual Assistance ✅ CLOSED / READ-ONLY GROUNDED ASSISTANCE CERTIFIED**  
-المرحلة الحالية: **Phase 12.3 — Agentic ENJAZ Copilot — A1 + A2 certified; A3-A opens only followup.snooze under explicit approval; Phase 12.4 remains LOCKED**.
+المرحلة الحالية: **Phase 12.3 — Agentic ENJAZ Copilot — A1 + A2 + A3-A + A3-B + A3-C certified; only `followup.snooze`, `followup.create`, and self `reminder.schedule` are authorized under explicit approval; Phase 12.4 remains LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -56,7 +56,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 11.7 — Communication Zero-Escape Gate: ✅ CLOSED — M3/M4/M10 + Phase-11 M16/M17 individual Real Cloud, PR gate, exact-main Real Browser, Pages and Live External certified.**
 - **Phase 12.1 — Copilot Foundation: ✅ CLOSED — private quota/trace evidence + service-only RPC + JWT Edge v1 + Real Cloud + PR + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 12.2 — Contextual Assistance: ✅ CLOSED — permission-scoped authoritative context + citations/provenance + read-only assistance + Real Cloud + exact-main + Pages + Live External certified.**
-- **Phase 12.3 — Agentic ENJAZ Copilot — M9: 🟡 IN_PROGRESS — A1/A2/A3-A/A3-B certified; only `followup.snooze` and `followup.create` are executable under explicit approval; all other mutations remain locked.**
+- **Phase 12.3 — Agentic ENJAZ Copilot — M9: 🟡 IN_PROGRESS — A1/A2/A3-A/A3-B/A3-C certified; only `followup.snooze`, `followup.create`, and self `reminder.schedule` are executable under explicit approval; all other mutations remain locked.**
 
 ## Phase 12.2 — دليل الإغلاق الحالي
 
@@ -73,7 +73,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - Pages build/deploy #193 / `35354474720`, Pages Preview #1567 / `35354625461`, Live External #1241 / `35354692230`, Published Client Portal #175 / `35354692236`: **PASS**.
 - published /live budget: **431246 / 670000 initial JS, 759985 / 760000 total JS, 179989 / 180000 CSS**؛ no cap increase / no feature cut.
 - known Critical / High / functional blockers: **0 / 0 / 0**.
-- Phase 12.3 — Agentic ENJAZ Copilot: **AUTHORIZED_NEXT** only from the formal 12.2 closure; sensitive mutations still require explicit approval + domain validation.
+- Phase 12.3 — Agentic ENJAZ Copilot: **IN_PROGRESS** from the formal 12.2 closure; only certified action-specific adapters may execute, with explicit approval + domain validation.
 - kickoff: [`docs/PHASE12_2_KICKOFF.md`](docs/PHASE12_2_KICKOFF.md).
 - closure evidence: [`docs/PHASE12_2_CLOSURE.md`](docs/PHASE12_2_CLOSURE.md).
 - lifecycle state: [`docs/PHASE12_2_STATE.json`](docs/PHASE12_2_STATE.json).
@@ -94,7 +94,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - exact-main `450e87cfbdfe0a6ac00330efe0893941c5fdf946`: **36/36 SUCCESS**؛ Phase 12.1 #21, Quality #1702, Real Browser #1618, Major Systems #819, Roadmap #1491, Constitution #2206, Pages #1545, Live External #1221.
 - client/UI delta: **0**؛ frozen build remains **430928 / 670000 initial JS, 759521 / 760000 total JS, 179989 / 180000 CSS**.
 - known Critical / High / functional blockers: **0 / 0 / 0**.
-- Phase 12.2 — Contextual Assistance: **IN_PROGRESS** from the final merged 12.1 closure; Phase 12.3 remains locked.
+- Phase 12.2 — Contextual Assistance: **CLOSED / CERTIFIED**; Phase 12.3 is now the active successor.
 - kickoff: [`docs/PHASE12_1_KICKOFF.md`](docs/PHASE12_1_KICKOFF.md).
 - closure evidence: [`docs/PHASE12_1_CLOSURE.md`](docs/PHASE12_1_CLOSURE.md).
 - lifecycle state: [`docs/PHASE12_1_STATE.json`](docs/PHASE12_1_STATE.json).

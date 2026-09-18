@@ -419,7 +419,7 @@ AI is allowed only after authoritative business domains and permission boundarie
 - **A2 — Approval Binding Contract: CERTIFIED** with final source Gate #12 + Real Cloud #2 PASS.
 - **A3-A — Action-Specific Execution / `followup.snooze`: CERTIFIED** — source Gate #17 + destructive Real Cloud #2 (**32/32**) + zero residue; action digest is independently recomputed in PostgreSQL and execution atomically consumes the approved proposal while delegating to the existing follow-up domain RPC. No generic execution exists.
 - **A3-B — `followup.create`: CERTIFIED** — source Gate #26 + Real Cloud 33/33 PASS + zero residue; governed creation remains bound to existing `create_transaction_followup_v1` with nested title SHA-256 and atomic approval consumption.
-- **A3-C — self `reminder.schedule`: IN_PROGRESS** — adds only self-recipient reminder scheduling over existing `get_scheduling_deadline_snapshot_v1` + `dispatch_scheduling_attention_v1`; escalation, other recipients and optional follow-up side effects remain forbidden.
+- **A3-C — self `reminder.schedule`: CERTIFIED** — Gate #35 + Real Cloud #3 PASS (39/39); self-recipient reminder scheduling uses existing `get_scheduling_deadline_snapshot_v1` + `dispatch_scheduling_attention_v1`, with named RPC hardening, explicit approval, atomic consumption/rollback, zero follow-up side effects and zero residue.
 
 ## 12.4 — Regulatory Knowledge Assistance — M8
 - Retrieve/version regulatory sources and distinguish source text, structured facts and AI interpretation.
@@ -600,7 +600,7 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - **Phase 12.2 — Contextual Assistance ✅ CLOSED + authenticated Real Cloud + dedicated/cumulative Real Browser + exact-main 40/40 + Pages + Live External certified.**
 - Phase 12.2 formal implementation merge: `10592bbd0d91684970d5074719871039892d4667`.
 - Phase 12.2 published `/live/` budget: **431246 / 670000 initial JS; 759985 / 760000 total JS; 179989 / 180000 CSS**.
-- **Phase 12.3 — Agentic ENJAZ Copilot — M9: IN_PROGRESS; A1 + A2 + A3-A + A3-B PASS; A3-C self `reminder.schedule` is the current slice.**
+- **Phase 12.3 — Agentic ENJAZ Copilot — M9: IN_PROGRESS; A1 + A2 + A3-A + A3-B + A3-C PASS. Only `followup.snooze`, `followup.create`, and self `reminder.schedule` are currently authorized.**
 - M8 remains `ACTIVE` because Phase 12.4 is still a governing anchor; M13/M18 remain `ACTIVE` for Phase 15.
 - startup JavaScript hard ceiling remains **670000 bytes**; total JavaScript **760000 bytes**; CSS **180000 bytes**.
 
