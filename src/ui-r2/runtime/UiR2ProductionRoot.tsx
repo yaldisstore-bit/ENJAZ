@@ -111,7 +111,7 @@ function createProductionResources(): UiR2ProductionResources {
     schedulingCommands: createSchedulingCommandGateway(client),
     searchIntelligence: createSearchIntelligenceGateway(client),
     regulatoryKnowledge: createRegulatoryKnowledgeGateway(client),
-    copilotInvoke: (body) => client.edge('enjaz-copilot-context', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }),
+    copilotInvoke:body=>client.edge('enjaz-copilot-context',{method:'POST',body:JSON.stringify(body)}),
     documentVaultFactory,
     documentIntelligenceFactory,
     documentFactoryFactory,
@@ -162,7 +162,7 @@ function AuthenticatedR2Runtime({
   if (auth.status === 'anonymous' || !auth.user) return <R2AuthScreen service={auth.service} />;
   const recoveryMode = new URLSearchParams(window.location.search).get('auth') === 'update-password';
   if (recoveryMode) return <R2PasswordUpdateScreen service={auth.service} onDone={leaveRecoveryMode} />;
-  const signOut = async () => { await auth.service.signOut(); };
+  const signOut=()=>auth.service.signOut();
 
   return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><NotificationCommandProvider gateway={notificationCommands}><SchedulingCommandProvider gateway={schedulingCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
