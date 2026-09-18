@@ -24,7 +24,7 @@ req(state.a1InitialJavascriptBytes===431032&&state.a1TotalJavascriptBytes===7595
 req(state.reviewManifestSchema==='enjaz.legacy.snapshot.review.v1','A2 review schema drifted');
 req(state.recognizedLegacyTypeAuthority==='EXPLICIT_CALLER_ALLOWLIST_EXACT_MATCH','A2 recognition authority drifted');
 req(state.typeAliasInferenceAllowed===false&&state.typeNameNormalizationAllowed===false&&state.targetAuthorityAssignmentAllowed===false,'A2 must not infer aliases/normalize/assign targets');
-req(state.mappingAllowed===false&&state.normalizationAllowed===false&&state.persistenceAllowed===false&&state.orderedImportAllowed===false&&state.phase13_2Allowed===false,'A2 cannot gain mapping/persistence/import/successor authority');
+req(state.mappingAllowed===false&&state.normalizationAllowed===false&&state.persistenceAllowed===false&&state.orderedImportAllowed===false,'A2 cannot gain mapping/persistence/import authority');if(state.status==='CLOSED')req(state.phase13_2Allowed===true&&state.successorStatus==='AUTHORIZED_NEXT','closed 13.1 successor authorization invalid');else req(state.phase13_2Allowed===false,'open 13.1 cannot authorize 13.2');
 
 for(const marker of ['QUARANTINED_UNKNOWN','RECOGNIZED_FOR_REVIEW','targetSystem: null','targetEntity: null','mappingAllowed: false','targetAuthorityAssigned: false'])has(source,marker,'A2 source');
 for(const marker of ['does not case-fold','whitespace-normalized','never assigns an ENJAZ target','duplicate record keys'])has(tests,marker,'A2 tests');

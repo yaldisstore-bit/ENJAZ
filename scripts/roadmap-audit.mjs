@@ -144,11 +144,11 @@ if(exists('docs/PHASE13_1_STATE.json')){
   const p131State=json('docs/PHASE13_1_STATE.json');
   const p125ForPhase131=json('docs/PHASE12_5_STATE.json');
   req(p125ForPhase131.status==='CLOSED'&&p125ForPhase131.closureDecision==='PASS'&&p125ForPhase131.phase13_1Allowed===true,'Phase 13.1 requires formal Phase 12.5 authorization');
-  req(p131State.phase==='13.1'&&p131State.status==='IN_PROGRESS'&&p131State.mode==='READ_ONLY_LEGACY_SNAPSHOT_INTAKE','Phase 13.1 lifecycle invalid');
+  req(p131State.phase==='13.1'&&['IN_PROGRESS','CLOSED'].includes(p131State.status)&&p131State.mode==='READ_ONLY_LEGACY_SNAPSHOT_INTAKE','Phase 13.1 lifecycle invalid');
   req(p131State.baseCommit==='a7a17d6309e43cff68968be33deecbdac57ed4ed'&&p131State.predecessorClosureMergeCommit===p131State.baseCommit,'Phase 13.1 base/lineage drifted');
   req(p131State.readOnly===true&&p131State.persistenceAllowed===false&&p131State.databaseWritesAllowed===false&&p131State.targetEnjazMutationAllowed===false,'Phase 13.1 read-only authority drifted');
   req(p131State.mappingAllowed===false&&p131State.normalizationAllowed===false&&p131State.orderedImportAllowed===false&&p131State.unknownConceptAutoMappingAllowed===false,'Phase 13.1 mapping/import law drifted');
-  req(p131State.phase13_2Allowed===false&&p131State.successorPhase==='13.2'&&p131State.successorStatus==='LOCKED','Open Phase 13.1 must keep 13.2 locked');
+  if(p131State.status==='CLOSED')req(p131State.phase13_2Allowed===true&&p131State.successorPhase==='13.2'&&p131State.successorStatus==='AUTHORIZED_NEXT'&&p131State.exitGatePassed===true&&p131State.closureDecision==='PASS'&&exists(p131State.closureEvidence),'Closed Phase 13.1 must authorize only 13.2 with closure evidence');else req(p131State.phase13_2Allowed===false&&p131State.successorPhase==='13.2'&&p131State.successorStatus==='LOCKED','Open Phase 13.1 must keep 13.2 locked');
   req(p131State.javascriptBudgetBytes===670000&&p131State.totalJavascriptBudgetBytes===760000&&p131State.cssBudgetBytes===180000&&p131State.budgetIncreaseAllowed===false,'Phase 13.1 budget law drifted');
   if(['A2_QUARANTINE_REVIEW_MANIFEST','A3_DESTRUCTION_AND_CLOSURE_READINESS'].includes(p131State.currentSlice)){
     req(p131State.a1Status==='CERTIFIED'&&p131State.a1GateRunId===35393731218&&p131State.a1PassCount===10&&p131State.a1FailCount===0,'Phase 13.1 A1 certificate drifted');
