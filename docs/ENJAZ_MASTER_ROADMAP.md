@@ -465,7 +465,14 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Formal closure: `docs/PHASE13_1_CLOSURE.md`.
 - Phase 13.2 — Normalize & Map: **AUTHORIZED_NEXT**.
 
-## 13.2 — Normalize & Map
+## 13.2 — Normalize & Map — IN_PROGRESS / A1 EXPLICIT MAPPING CONTRACT
+- exact base: `aa8e402eeb6ed03bee9fb446bc2c741da37df7dc` — final Phase 13.1 closure.
+- A1 maps only explicit exact legacy types and explicit fields to a narrow preview scope: companies / contacts / transactions.
+- deterministic rules only: `identity_scalar`, `trim_text`, `strict_number`.
+- no fuzzy/alias/case inference; no silent field copy; unplanned types remain quarantined.
+- A1 cannot map relationships, assign target authority, persist snapshots, write ENJAZ data or execute import.
+- no DB migration / write RPC / Edge / UI delta / budget increase.
+- **Phase 13.3 — Ordered Import remains LOCKED.**
 ## 13.3 — Ordered Import
 ## 13.4 — Reconciliation
 ## 13.5 — Import Destruction Gate

@@ -167,4 +167,18 @@ if(exists('docs/PHASE13_1_STATE.json')){
   }
 }
 
+
+if(exists('docs/PHASE13_2_STATE.json')){
+  const p132=json('docs/PHASE13_2_STATE.json'),p131=json('docs/PHASE13_1_STATE.json');
+  req(p131.status==='CLOSED'&&p131.closureDecision==='PASS'&&p131.phase13_2Allowed===true&&p131.successorStatus==='AUTHORIZED_NEXT','Phase 13.2 requires formal Phase 13.1 authorization');
+  req(p132.phase==='13.2'&&p132.status==='IN_PROGRESS'&&p132.mode==='EXPLICIT_REVIEWABLE_NORMALIZE_AND_MAP','Phase 13.2 lifecycle invalid');
+  req(p132.baseCommit==='aa8e402eeb6ed03bee9fb446bc2c741da37df7dc'&&p132.predecessorClosureMergeCommit===p132.baseCommit,'Phase 13.2 exact base/lineage drifted');
+  req(p132.currentSlice==='A1_EXPLICIT_MAPPING_CONTRACT'&&p132.a1Status==='IN_PROGRESS','Phase 13.2 A1 lifecycle drifted');
+  req(p132.mappingAllowed===true&&p132.normalizationAllowed===true&&p132.mappingMustBeExplicit===true&&p132.mappingInferenceAllowed===false&&p132.unknownConceptAutoMappingAllowed===false,'Phase 13.2 mapping law drifted');
+  for(const k of ['persistenceAllowed','databaseWritesAllowed','newDatabaseTablesAllowed','newWriteRpcAuthorityAllowed','edgeFunctionAdded','clientUiAdded','orderedImportAllowed','importExecutionAllowed','targetEnjazMutationAllowed','relationshipMappingAllowed','targetAuthorityAssigned'])req(p132[k]===false,`Phase 13.2 A1 ${k} must remain false`);
+  req(p132.mappingPreviewInMemoryOnly===true&&p132.targetTablesA1?.join(',')==='companies,contacts,transactions','Phase 13.2 A1 preview scope drifted');
+  req(p132.successorPhase==='13.3'&&p132.successorStatus==='LOCKED'&&p132.phase13_3Allowed===false,'Open Phase 13.2 must keep 13.3 locked');
+  req(p132.javascriptBudgetBytes===670000&&p132.totalJavascriptBudgetBytes===760000&&p132.cssBudgetBytes===180000&&p132.budgetIncreaseAllowed===false,'Phase 13.2 budget law drifted');
+}
+
 if(errors.length){console.error(`ENJAZ ROADMAP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.7 lifecycle is Zero-Escape governed; M2 may close only with machine evidence; M3, M4 and M10 activate only through formal Phase 11 predecessor authority; M9 activates only through formal Phase 12.2 authority and open M9 keeps Phase 12.4 locked; M8/M13/M18 remain ACTIVE for later anchors; M7 and M16 activation are locked to formal predecessor authority, and M16 cannot globally close in Phase 10.5.');

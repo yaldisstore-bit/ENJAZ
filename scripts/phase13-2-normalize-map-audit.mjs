@@ -1,0 +1,23 @@
+import fs from 'node:fs';
+const root=new URL('../',import.meta.url),read=p=>fs.readFileSync(new URL(p,root),'utf8'),json=p=>JSON.parse(read(p)),exists=p=>fs.existsSync(new URL(p,root));
+const state=json('docs/PHASE13_2_STATE.json'),p131=json('docs/PHASE13_1_STATE.json'),closure=read('docs/PHASE13_1_CLOSURE.md'),kickoff=read('docs/PHASE13_2_KICKOFF.md'),source=read('src/features/import/legacyMappingContract.ts'),tests=read('tests/phase13-2-normalize-map.test.ts'),roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md'),readme=read('README.md'),errors=[];
+const req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
+req(p131.status==='CLOSED'&&p131.closureDecision==='PASS'&&p131.phase13_2Allowed===true&&p131.successorStatus==='AUTHORIZED_NEXT','13.2 predecessor authorization invalid');
+req(closure.includes('Phase 13.2 — Normalize & Map is now AUTHORIZED_NEXT'),'13.1 closure does not authorize 13.2');
+req(state.phase==='13.2'&&state.name==='Normalize & Map'&&state.status==='IN_PROGRESS'&&state.mode==='EXPLICIT_REVIEWABLE_NORMALIZE_AND_MAP','13.2 identity/lifecycle invalid');
+req(state.baseCommit==='aa8e402eeb6ed03bee9fb446bc2c741da37df7dc'&&state.predecessorClosureMergeCommit===state.baseCommit,'13.2 exact base lineage invalid');
+req(state.successorPhase==='13.3'&&state.successorStatus==='LOCKED'&&state.phase13_3Allowed===false,'13.3 must remain locked');
+req(state.mappingAllowed===true&&state.normalizationAllowed===true&&state.mappingMustBeExplicit===true&&state.mappingInferenceAllowed===false&&state.unknownConceptAutoMappingAllowed===false,'13.2 explicit mapping authority drifted');
+for(const k of ['persistenceAllowed','databaseWritesAllowed','newDatabaseTablesAllowed','newWriteRpcAuthorityAllowed','edgeFunctionAdded','clientUiAdded','orderedImportAllowed','importExecutionAllowed','targetEnjazMutationAllowed','relationshipMappingAllowed','targetAuthorityAssigned'])req(state[k]===false,`${k} must remain false in A1`);
+req(state.mappingPreviewInMemoryOnly===true&&state.unknownConceptPolicy==='QUARANTINE_REVIEWABLE_NO_GUESS','13.2 A1 quarantine/preview law drifted');
+req(state.targetTablesA1?.join(',')==='companies,contacts,transactions','13.2 A1 target scope drifted');
+req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false,'13.2 budget law drifted');
+req(state.exitGatePassed===false&&state.closureDecision==='PENDING'&&state.a1Status==='IN_PROGRESS','13.2 A1 cannot close the phase');
+for(const marker of ['LEGACY_MAPPING_PLAN_SCHEMA','LEGACY_MAPPING_PREVIEW_SCHEMA','identity_scalar','trim_text','strict_number','LEGACY_MAPPING_TARGET_FIELD_FORBIDDEN','QUARANTINED_UNMAPPED_TYPE','eligibleForOrderedImport:false','targetMutationAllowed:false'])has(source,marker,'mapping source');
+for(const marker of ['unmapped fields are never copied silently','authority-bearing target fields are forbidden','strict number rejects ambiguous formats','does not mutate snapshot or mapping plan','relationships are not mapped in A1'])has(tests,marker,'A1 tests');
+for(const marker of ['Every mapped source field and target field must be named explicitly','Unmapped source fields are ignored','Phase 13.3 — Ordered Import remains LOCKED'])has(kickoff,marker,'kickoff');
+has(roadmap,'## 13.2 — Normalize & Map — IN_PROGRESS / A1 EXPLICIT MAPPING CONTRACT','roadmap');has(readme,'Phase 13.2 — Normalize & Map 🟡 IN PROGRESS — A1 EXPLICIT MAPPING CONTRACT','README');
+req(!exists('database/migrations/phase_13_2_normalize_map.sql'),'13.2 A1 must not add database migration');
+req(!exists('supabase/functions/enjaz-legacy-import/index.ts'),'13.2 A1 must not add import Edge Function');
+if(errors.length){console.error(`ENJAZ PHASE 13.2 A1 AUDIT FAIL (${errors.length})`);errors.forEach(x=>console.error('- '+x));process.exit(1)}
+console.log('ENJAZ PHASE 13.2 A1 AUDIT PASS — explicit reviewable mapping preview only; no inference/persistence/write/import/relationship/UI authority; Phase 13.3 locked.');

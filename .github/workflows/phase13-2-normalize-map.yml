@@ -1,0 +1,59 @@
+name: ENJAZ Phase 13.2 — Normalize & Map Gate
+on:
+  push:
+    branches: [main, phase13-2-normalize-map]
+    paths:
+      - 'docs/PHASE13_2_*'
+      - 'src/features/import/legacyMappingContract.ts'
+      - 'scripts/phase13-2-*'
+      - 'tests/phase13-2-*'
+      - '.github/workflows/phase13-2-normalize-map.yml'
+      - 'README.md'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+      - 'scripts/roadmap-audit.mjs'
+  pull_request:
+    paths:
+      - 'docs/PHASE13_2_*'
+      - 'src/features/import/legacyMappingContract.ts'
+      - 'scripts/phase13-2-*'
+      - 'tests/phase13-2-*'
+      - '.github/workflows/phase13-2-normalize-map.yml'
+      - 'README.md'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+      - 'scripts/roadmap-audit.mjs'
+jobs:
+  phase13-2-a1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: {node-version: '24', cache: npm}
+      - uses: actions/setup-python@v7
+        with: {python-version: '3.12'}
+      - run: npm ci --no-audit --no-fund
+      - name: Phase 13.2 lifecycle / authority audit
+        run: node scripts/phase13-2-normalize-map-audit.mjs
+      - name: Phase 13.2 A1 explicit mapping tests
+        run: node --experimental-strip-types --test tests/phase13-2-normalize-map.test.ts
+      - name: Preserve Phase 13.1 formal closure
+        run: |
+          node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
+          node scripts/phase13-1-legacy-snapshot-review-audit.mjs
+          node scripts/phase13-1-legacy-snapshot-destruction-audit.mjs
+      - name: Full functional regression
+        run: npm run test:functional
+      - name: Database / roadmap / major-system integrity
+        run: |
+          npm run db:audit
+          npm run db:audit:selftest
+          npm run audit:roadmap
+          node scripts/major-systems-zero-escape-audit.mjs
+      - name: Secrets and TypeScript
+        run: |
+          npm run audit:secrets
+          npm run typecheck
+      - name: Production build and frozen budgets
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
