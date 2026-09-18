@@ -43,6 +43,10 @@ jobs:
         run: node scripts/phase12-1-copilot-foundation-audit.mjs
       - name: Phase 12.1 opening destruction tests
         run: node --test tests/phase12-1-copilot-foundation.test.mjs
+      - name: Phase 12.1 structured core tests
+        run: node --experimental-strip-types --test tests/phase12-1-copilot-foundation-core.test.ts
+      - name: Phase 12.1 source destruction tests
+        run: node --test tests/phase12-1-copilot-foundation-source.test.mjs
       - name: Preserve Phase 11.7 closure
         run: node scripts/phase11-7-communication-zero-escape-audit.mjs
       - name: Database and roadmap integrity
