@@ -267,7 +267,7 @@
   "phase11_6cRealBrowserRunId": 35289132333,
   "phase11_6cRealBrowserRunNumber": 1569,
   "phase11_6cMergeCommit": "ea6d7bdedaa2a714c7ec34ebf444d06e0875b06b",
-  "phase11_6cPostMergeRecertification": "PENDING_EXACT_MAIN",
+  "phase11_6cPostMergeRecertification": "PASS_EXACT_MAIN_SHA",
   "phase11_6dOpenedFromMainSha": "ea6d7bdedaa2a714c7ec34ebf444d06e0875b06b",
   "phase11_6dStatus": "IN_PROGRESS",
   "phase11_6dUnifiedReadModelAdded": false,
@@ -282,5 +282,11 @@
   "phase11_6dLiveExternalVerification": "PENDING",
   "phase11_6dPostMergeRecertification": "PENDING",
   "phase11_6dExitGatePassed": false,
-  "phase11_6dExitBlocker": "UNIFIED_EXPERIENCE_IMPLEMENTATION_AND_FINAL_CERTIFICATION_PENDING"
+  "phase11_6dExitBlocker": "UNIFIED_EXPERIENCE_IMPLEMENTATION_AND_FINAL_CERTIFICATION_PENDING",
+  "phase11_6cPostMergeQualityRunId": 35312001998,
+  "phase11_6cPostMergeRealBrowserRunId": 35312002076,
+  "phase11_6cPostMergeMajorSystemsRunId": 35312002091,
+  "phase11_6cPostMergePagesRunId": 35312053231,
+  "phase11_6cPostMergeLiveExternalRunId": 35312111384,
+  "phase11_6cPostMergeRoadmapRunId": 35312021107
 }
