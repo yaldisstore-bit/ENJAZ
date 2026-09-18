@@ -1,0 +1,64 @@
+name: ENJAZ Phase 12.5 — W2 Real Cloud AI Safety
+
+on:
+  push:
+    branches:
+      - phase12-5-ai-zero-escape
+    paths:
+      - 'scripts/phase12-5-w2-real-cloud-e2e.mjs'
+      - '.github/workflows/phase12-5-w2-real-cloud-e2e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase125-w2-real-cloud
+  cancel-in-progress: false
+
+jobs:
+  real-cloud:
+    name: Fresh Auth / M8 Injection+No-Fabrication / M9 Approval Bypass Replay / Zero Residue
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+      SUPABASE_SECRET_KEY: ${{ secrets.ENJAZ_SUPABASE_SECRET_KEY }}
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Require server-only setup credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_SECRET_KEY"
+          case "$SUPABASE_SECRET_KEY" in sb_publishable_*) exit 1 ;; esac
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Static Phase 12.5 safety guards
+        run: |
+          node scripts/phase12-5-ai-zero-escape-audit.mjs
+          node --experimental-strip-types --test tests/phase12-5-ai-zero-escape.test.ts
+          node --check scripts/phase12-5-w2-real-cloud-e2e.mjs
+      - name: W2 live overlay — injection / permission / no-provider fallback
+        run: node scripts/phase12-5-w2-real-cloud-e2e.mjs
+      - name: Fresh M8 live safety replay
+        run: node scripts/phase12-4-a2-real-cloud-e2e.mjs
+      - name: Fresh M9 approval-bypass / replay / rollback attack
+        run: node scripts/phase12-3-a3b-real-cloud-e2e.mjs
+      - name: Upload sanitized W2 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12-5-w2-real-cloud-${{ github.sha }}
+          path: |
+            artifacts/phase12-5-w2-real-cloud/evidence.json
+            artifacts/phase12-4-a2-real-cloud/evidence.json
+            artifacts/phase12-3-a3b-real-cloud/evidence.json
+          if-no-files-found: error
+          retention-days: 14

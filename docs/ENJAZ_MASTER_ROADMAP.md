@@ -439,9 +439,13 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Phase 12.4 closes the Phase-12 assistance anchor but **M8 remains ACTIVE** until Phase 12.5 supplies its independent AI Zero-Escape/safety evidence.
 - Formal closure: `docs/PHASE12_4_CLOSURE.md`.
 
-## 12.5 — AI Zero-Escape & Safety Gate — AUTHORIZED_NEXT
+## 12.5 — AI Zero-Escape & Safety Gate — IN_PROGRESS
 - Hallucination/missing-data resistance, prompt injection, permission attacks, malicious documents, structured-output regression, tool approval and provider outage recovery.
 - M9/M8 AI portions require real authorized/unauthorized journeys.
+- **W1 deterministic / contract destruction: PASS** — Gate #4 / `35386039196`; 16/16 safety tests + full regression + DB/roadmap/major-system governance + secrets + TypeScript + frozen build budgets.
+- **W2 authenticated Real Cloud: 71/71 PASS** — run #1 / `35386243846`; 20 Phase-12.5 overlay + 18 fresh M8 safety replay + 33 fresh M9 approval/replay/rollback attack; artifact `10563274638`, zero regulatory/foreign mutation and zero residue.
+- M8 and M9 remain **ACTIVE / REAL_CLOUD_PASS**, not globally CLOSED; PR, cumulative Real Browser, exact-main, deployed-live and independent `ZERO_ESCAPE_V1` machine evidence are still required.
+- Phase 13.1 remains **LOCKED**.
 
 ---
 
@@ -620,8 +624,8 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - **Phase 12.4 — Regulatory Knowledge Assistance — M8 ✅ CLOSED + A1/A2/A3 + authenticated Real Cloud + PR 86/86 + exact-main 38/38 + Phase 9.4 Regulatory + Real Browser + Pages + Live External certified.**
 - Phase 12.4 formal implementation merge: `974ff00abab45bfa6615b39cd4c31e0b20b7dfa0`.
 - Phase 12.4 published `/live/` budget: **431246 / 670000 initial JS; 759985 / 760000 total JS; 179989 / 180000 CSS**.
-- **Phase 12.5 — AI Zero-Escape & Safety Gate: AUTHORIZED_NEXT.**
-- M8 remains `ACTIVE` pending Phase 12.5 independent Zero-Escape closure evidence; M13/M18 remain `ACTIVE` for Phase 15.
+- **Phase 12.5 — AI Zero-Escape & Safety Gate: IN_PROGRESS — W1 PASS + W2 Real Cloud 71/71 PASS.**
+- M8 and M9 remain `ACTIVE` with Phase 12.5 `REAL_CLOUD_PASS`; both still require PR/browser/exact-main/deployed-live/`ZERO_ESCAPE_V1` closure evidence. M13/M18 remain `ACTIVE` for Phase 15.
 - startup JavaScript hard ceiling remains **670000 bytes**; total JavaScript **760000 bytes**; CSS **180000 bytes**.
 
 ---
@@ -657,7 +661,7 @@ The machine-readable authority remains `docs/ENJAZ_MAJOR_PRODUCT_SYSTEMS.json`; 
 
 This file is intentionally difficult to change by accident.
 
-The current reconciliation preserves all historical closure authority while authorizing only Phase 12.4 after the formally certified Phase 12.3 boundary closed:
+The current reconciliation preserves all historical closure authority while Phase 12.5 executes from the formally certified Phase 12.4 boundary:
 
 1. closed phases 0–8 remain closed and are not reopened;
 2. Phase 9.1 and 9.2 remain closed under their certified authority boundaries;
@@ -672,7 +676,7 @@ The current reconciliation preserves all historical closure authority while auth
 11. the 18 major product systems remain governed by independent `ZERO_ESCAPE_V1` closure law;
 12. M8/M13/M18 are not falsely globally closed because their later anchors remain open;
 13. current state documents, README, this roadmap and machine-readable system registry agree that Phases 10.1–10.6 are closed and certified;
-14. Phase 12.1, Phase 12.2 and Phase 12.3 are formally CLOSED with their required Real Cloud, exact-main, Real Browser, Pages and Live External evidence;
-15. **Phase 12.4 — Regulatory Knowledge Assistance — M8 is the sole authorized successor**; Phase 12.5 remains locked until 12.4 closes under its own required evidence.
+14. Phase 12.1, Phase 12.2, Phase 12.3 and Phase 12.4 are formally CLOSED with their required Real Cloud, exact-main, Real Browser, Pages and Live External evidence;
+15. **Phase 12.5 — AI Zero-Escape & Safety Gate is IN_PROGRESS** with W1 deterministic safety PASS and W2 authenticated Real Cloud 71/71 PASS; M8/M9 remain ACTIVE until independent Zero-Escape closure evidence is complete; Phase 13.1 remains locked.
 
-It does **not** silently reopen prior phases, falsely close a major M-system from phase CI alone, weaken RLS/provenance/event-lineage boundaries, raise performance ceilings, or authorize work beyond Phase 12.4.
+It does **not** silently reopen prior phases, falsely close M8/M9 from branch CI or Real Cloud alone, weaken RLS/provenance/event-lineage/approval boundaries, raise performance ceilings, or authorize Phase 13.1 before Phase 12.5 closes.

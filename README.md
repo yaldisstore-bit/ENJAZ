@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 12.4 — Regulatory Knowledge Assistance — M8 ✅ CLOSED / REAL CLOUD + EXACT-MAIN + PAGES + LIVE EXTERNAL CERTIFIED**  
+الحالة الرسمية: **Phase 12.5 — AI Zero-Escape & Safety Gate 🟡 IN_PROGRESS / W1 + W2 REAL CLOUD PASS**  
 آخر مرحلة مغلقة: **Phase 12.4 — Regulatory Knowledge Assistance ✅ CLOSED / PHASE 9.4 M8 AUTHORITY PRESERVED**  
-المرحلة اللاحقة: **Phase 12.5 — AI Zero-Escape & Safety Gate — AUTHORIZED_NEXT**.
+المرحلة الحالية: **Phase 12.5 — M8 + M9 Zero-Escape؛ W1 deterministic destruction PASS وW2 Real Cloud 71/71 PASS؛ Phase 13.1 remains LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -57,7 +57,24 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 12.1 — Copilot Foundation: ✅ CLOSED — private quota/trace evidence + service-only RPC + JWT Edge v1 + Real Cloud + PR + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 12.2 — Contextual Assistance: ✅ CLOSED — permission-scoped authoritative context + citations/provenance + read-only assistance + Real Cloud + exact-main + Pages + Live External certified.**
 - **Phase 12.3 — Agentic ENJAZ Copilot — M9: ✅ CLOSED — A1/A2/A3-A/A3-B/A3-C/A3-D/A3-E certified; approval-gated action-specific execution + Real Cloud + PR 78/78 + exact-main 38/38 + Pages + Live External certified.**
-- **Phase 12.4 — Regulatory Knowledge Assistance — M8: ✅ CLOSED — A1/A2/A3 certified؛ caller-JWT M8 retrieval Edge v3; exact search↔entry binding; Real Cloud zero mutation/residue; PR 86/86 + exact-main 38/38 + Phase 9.4 Regulatory + Real Browser + Pages + Live External certified. M8 remains ACTIVE pending 12.5 Zero-Escape evidence.**
+- **Phase 12.4 — Regulatory Knowledge Assistance — M8: ✅ CLOSED — A1/A2/A3 certified؛ caller-JWT M8 retrieval Edge v3; exact search↔entry binding; Real Cloud zero mutation/residue; PR 86/86 + exact-main 38/38 + Phase 9.4 Regulatory + Real Browser + Pages + Live External certified.**
+- **Phase 12.5 — AI Zero-Escape & Safety Gate: 🟡 IN_PROGRESS — W1 source/contract destruction PASS; W2 authenticated Real Cloud **71/71 PASS** (20 Phase-12.5 overlay + 18 fresh M8 + 33 fresh M9), zero regulatory/foreign mutation and zero residue; M8/M9 remain ACTIVE pending PR + Real Browser + exact-main + deployed-live + ZERO_ESCAPE_V1 closure evidence.**
+
+## Phase 12.5 — العمل الحالي
+
+- exact base: `e3f38a28db5bc423e73551af79ce210c54dfda03` — final merged Phase 12.4 closure.
+- implementation branch: `phase12-5-ai-zero-escape`.
+- mode: **DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY**؛ no new feature / DB table / write RPC / provider authority / client UI.
+- systems under gate: **M8 + M9**؛ neither may close from branch CI alone.
+- W1 Gate #4 / `35386039196`: **PASS** — 16/16 AI safety destruction tests + full functional regression + DB/roadmap/major-system governance + secrets + TypeScript + build/budgets.
+- W2 Real Cloud #1 / `35386243846`: **71/71 PASS**؛ artifact `10563274638` / `sha256:f538f24b8b32931f13654477861cffa2873a2cd56e2612347f4b7549f8d05fcd`.
+- W2 coverage: prompt injection / no-fabrication / no-provider fallback / cross-workspace denial / generic-execute denial / approval bypass / digest tamper / replay / atomic rollback / zero mutation / zero residue.
+- live M8 Edge remains v3 / JWT=true; live M9 Edge remains v10 / JWT=true; no redeploy or authority expansion was required.
+- M8 + M9 status: **REAL_CLOUD_PASS / still ACTIVE**؛ global closure waits for PR + cumulative Real Browser + exact-main + Pages/Live External + machine `ZERO_ESCAPE_V1` evidence.
+- Phase 13.1 — Read-only Legacy Snapshot Intake: **LOCKED**.
+- kickoff: [`docs/PHASE12_5_KICKOFF.md`](docs/PHASE12_5_KICKOFF.md).
+- W2 evidence: [`docs/PHASE12_5_W2_EVIDENCE.md`](docs/PHASE12_5_W2_EVIDENCE.md).
+- lifecycle state: [`docs/PHASE12_5_STATE.json`](docs/PHASE12_5_STATE.json).
 
 ## Phase 12.4 — دليل الإغلاق الحالي
 
@@ -436,4 +453,4 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - لا يُسمح لأي intelligence layer باختلاق business/financial/process facts من بيانات ناقصة.
 - forecast/prediction لا يصبح source truth، ولا AI/editorial output يصبح authoritative fact بلا عقد سلطة مستقل.
 - سقف JavaScript startup يبقى **670000 bytes**، والإجمالي **760000 bytes**، وCSS **180000 bytes** بلا waiver أو feature cut.
-- **Phase 12.3 — Agentic ENJAZ Copilot مغلقة ومصدقة؛ Phase 12.4 — Regulatory Knowledge Assistance — M8 هي AUTHORIZED_NEXT، مع بقاء Phase 12.5 AI Zero-Escape مقفلة حتى إغلاق predecessor.**
+- **Phase 12.4 — Regulatory Knowledge Assistance مغلقة ومصدقة؛ Phase 12.5 — AI Zero-Escape & Safety Gate قيد التنفيذ الآن على M8/M9، وPhase 13.1 تبقى LOCKED حتى اكتمال Zero-Escape + exact-main + deployed-live.**
