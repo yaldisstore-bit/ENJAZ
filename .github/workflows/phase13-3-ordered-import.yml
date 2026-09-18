@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - 'docs/PHASE13_3_*'
-      - 'src/features/import/legacyOrderedImportContract.ts'
+      - 'src/features/import/legacyOrderedImport*.ts'
       - 'src/features/import/legacyMappingContract.ts'
       - 'src/features/import/legacySnapshotContract.ts'
       - 'tests/phase13-3-*'
@@ -48,10 +48,12 @@ jobs:
           python-version: '3.12'
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Phase 13.3 A1 lifecycle + authority audit
+      - name: Phase 13.3 A1+A2 lifecycle + authority audit
         run: node scripts/phase13-3-ordered-import-audit.mjs
       - name: Phase 13.3 A1 ordered-import planning tests
         run: node --experimental-strip-types --test tests/phase13-3-ordered-import.test.ts
+      - name: Phase 13.3 A2 explicit binding tests
+        run: node --experimental-strip-types --test tests/phase13-3-ordered-import-binding.test.ts
       - name: Preserve Phase 13.1 + 13.2 contracts
         run: |
           node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
