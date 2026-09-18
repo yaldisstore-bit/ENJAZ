@@ -14,8 +14,8 @@ test('12.3 starts only from final certified 12.2 closure',()=>{
   assert.equal(state.predecessorClosureMergeCommit,state.baseCommit);
 });
 
-test('12.3 A1/A2/A3-A/A3-B/A3-C/A3-D certification is preserved while A3-E adds document draft only',()=>{
-  assert.equal(state.status,'IN_PROGRESS');
+test('12.3 A1/A2/A3-A/A3-B/A3-C/A3-D/A3-E certification is preserved through formal closure',()=>{
+  assert.ok(['IN_PROGRESS','CLOSED'].includes(state.status));
   assert.equal(state.slice,'A3E_DOCUMENT_DRAFT_ACTION');
   assert.equal(state.a2Certification,'PASS_APPROVAL_BINDING_REAL_CLOUD');
   assert.equal(state.a2FinalSourceGateVerification,'PASS');
@@ -24,8 +24,32 @@ test('12.3 A1/A2/A3-A/A3-B/A3-C/A3-D certification is preserved while A3-E adds 
   assert.equal(state.a1SourceGateVerification,'PASS');
   assert.equal(state.a1SourceGateHead,'a03379be95d702f1f8613f054d2e77d1c67a26b1');
   assert.equal(state.successorPhase,'12.4');
-  assert.equal(state.successorStatus,'LOCKED');
-  assert.equal(state.phase12_4Allowed,false);
+  if(state.status==='IN_PROGRESS'){
+    assert.equal(state.successorStatus,'LOCKED');
+    assert.equal(state.phase12_4Allowed,false);
+  }else{
+    assert.equal(state.successorStatus,'AUTHORIZED_NEXT');
+    assert.equal(state.phase12_4Allowed,true);
+    assert.equal(state.closureDecision,'PASS');
+    assert.equal(state.exitGatePassed,true);
+    assert.equal(state.closureEvidence,'docs/PHASE12_3_CLOSURE.md');
+    assert.equal(state.implementationPullRequest,201);
+    assert.equal(state.implementationHead,'b2d58c1dc13786fcbace27090fe0a50d1412248a');
+    assert.equal(state.implementationMergeCommit,'0353e15d0e8299ba5410d6fff5bf540b41b90443');
+    assert.equal(state.pullRequestWorkflowCount,78);
+    assert.equal(state.pullRequestSuccessCount,77);
+    assert.equal(state.pullRequestSkippedCount,1);
+    assert.equal(state.pullRequestFailureCount,0);
+    assert.equal(state.postMergeMainSha,'0353e15d0e8299ba5410d6fff5bf540b41b90443');
+    assert.equal(state.postMergeTotalWorkflowCount,38);
+    assert.equal(state.postMergeTotalSuccessCount,38);
+    assert.equal(state.postMergeTotalFailureCount,0);
+    assert.equal(state.postMergePagesPreviewRunId,35376728160);
+    assert.equal(state.postMergeLiveExternalRunId,35376825938);
+    assert.equal(state.postMergePublishedPortalRunId,35376825862);
+    assert.equal(state.finalTotalJavascriptBytes,759985);
+    assert.equal(state.finalCssBytes,179989);
+  }
   assert.deepEqual(state.openingOperations,['plan','propose']);
   assert.equal(state.executeOperationAllowed,false);
   assert.equal(state.genericExecuteOperationAllowed,false);
