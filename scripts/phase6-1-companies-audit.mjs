@@ -22,6 +22,7 @@ const paths = {
   connected: 'src/ui-r2/records/ConnectedCompanies.tsx',
   portal: 'src/ui-r2/records/LiveCompaniesProductionPortal.tsx',
   lazyPortals: 'src/ui-r2/runtime/LazyLiveProductionPortals.tsx',
+  portalHook: 'src/ui-r2/runtime/useLiveRecordsPortal.ts',
   records: 'src/ui-r2/records/RecordsRelationshipsExperience.tsx',
   production: 'src/ui-r2/runtime/UiR2ProductionRoot.tsx',
   liveRoot: 'src/ui-r2/runtime/UiR2LiveRoot.tsx',
@@ -47,6 +48,7 @@ const hooks = read(paths.hooks);
 const connected = read(paths.connected);
 const portal = read(paths.portal);
 const lazyPortals = read(paths.lazyPortals);
+const portalHook = read(paths.portalHook);
 const records = read(paths.records);
 const production = read(paths.production);
 const liveRoot = read(paths.liveRoot);
@@ -98,7 +100,9 @@ for (const marker of ['normalizeCompanySearch','buildCompanyListSnapshot','valid
 for (const marker of ['mutationInFlightRef','globalThis.crypto.randomUUID()','DATA_OUTCOME_UNKNOWN','useCompanyDirectory','useCompanyDetail','useCompanyEditor']) requireMarker(hooks, marker, 'company hooks');
 for (const marker of ['data-phase6-1="companies"','data-company-source="workspace"','بحث الشركات','ترتيب الشركات','تصفية الشركات','شركة جديدة','تعديل البيانات','buildCompany360Source','<Entity360Panel','<CompanyGovernancePanel','حوكمة 9.3 تدير الملكية','تغييره بعد التأسيس يتم من مركز الحوكمة فقط','أي نتيجة كتابة غير مؤكدة لا تُعرض كنجاح']) requireMarker(connected, marker, 'connected companies UI');
 for (const marker of ['عرض فقط في R2.0-6','لا تنفّذ إنشاءً أو تعديلًا أو رفع ملفات إنتاجية','data-records-domain="people"','data-records-domain="documents"']) requireMarker(records, marker, 'frozen records compatibility');
-for (const marker of ['createPortal','MutationObserver','data-r2-runtime-mode="live"','data-destination','data-records-stage="R2.0-6"','data-records-domain="companies"','<ConnectedCompanies />']) requireMarker(portal, marker, 'production Companies portal');
+for (const marker of ['createPortal',"useLiveRecordsPortal('companies'",'data-records-stage="R2.0-6"','data-records-domain="companies"','<ConnectedCompanies />']) requireMarker(portal, marker, 'production Companies portal');
+for (const marker of ['[data-r2-runtime-mode=live]','.dataset.destination===destination','useLayoutEffect','p.hidden=true','p.hidden=false']) requireMarker(portalHook, marker, 'shared live portal boundary');
+requireMarker(lazyPortals, 'MutationObserver', 'lazy Companies production router');
 for (const marker of ['<DataLayerProvider','<CurrentUserIdProvider','<UiR2LiveRoot','<LazyLiveProductionPortals',"import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';"]) requireMarker(production, marker, 'production Companies mount');
 for (const marker of ["import('../records/LiveCompaniesProductionPortal.tsx')",'module.LiveCompaniesProductionPortal',"destination === 'companies' ? <CompaniesPortal />"]) requireMarker(lazyPortals, marker, 'lazy Companies production router');
 requireMarker(liveRoot, 'data-r2-runtime-mode="live"', 'live-only production shell');
