@@ -16,6 +16,7 @@ const scheduling=read('src/features/scheduling/schedulingAuthority.ts');
 const intake=read('src/features/intake-contract-communication/intakeContractCommunicationAuthority.ts');
 const staleMigration=read('database/migrations/phase_11_7_m10_stale_conflict_sqlstate_hardening.sql');
 const realCloud=read('scripts/phase11-7-real-cloud-e2e.mjs');
+const closure=exists('docs/PHASE11_7_CLOSURE.md')?read('docs/PHASE11_7_CLOSURE.md'):'';
 
 const errors=[];
 const req=(v,m)=>{if(!v)errors.push(m)};
@@ -23,7 +24,7 @@ const has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 
 req(predecessor.phase==='11.6'&&predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true&&predecessor.phase11_7Allowed===true&&predecessor.successorStatus==='AUTHORIZED_NEXT','Phase 11.6 is not a closed/authorized predecessor');
 req(predecessor.phase11_6ClosureDecision==='PASS'&&predecessor.phase11_6ClosureEvidencePath==='docs/PHASE11_6_CLOSURE.md'&&exists('docs/PHASE11_6_CLOSURE.md'),'Phase 11.6 closure evidence missing');
-req(state.phase==='11.7'&&state.name==='Communication Zero-Escape Gate'&&state.status==='IN_PROGRESS','11.7 identity/lifecycle drift');
+req(state.phase==='11.7'&&state.name==='Communication Zero-Escape Gate'&&['IN_PROGRESS','CLOSED'].includes(state.status),'11.7 identity/lifecycle drift');
 req(state.baseCommit==='5c4b1bfa4cda339fbbd96b7d3bbf938ef560f98a'&&state.implementationBranch==='phase11-7-communication-zero-escape','11.7 exact base/branch drift');
 req(state.predecessor?.formalClosureCommit===state.baseCommit&&state.predecessor?.requiredAuthorization==='phase11_7Allowed=true','predecessor lineage drift');
 req(state.mode==='DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY','11.7 mode drift');
@@ -51,8 +52,35 @@ if(state.realCloudWave1Status==='PASS'){
   for(const key of systems)req(state.systemEvidence?.[key]?.status==='PENDING',`${key} must remain PENDING before Real Cloud wave 1`);
   req(state.realCloudVerification==='PENDING'&&state.permissionMatrixVerification==='PENDING','Real Cloud wave 1 cannot be pre-claimed');
 }
-req(state.exitGatePassed===false&&state.phase12_1Allowed===false&&state.nextPhase==='12.1'&&state.successorStatus==='LOCKED','Phase 12.1 must remain locked while 11.7 is open');
-for(const k of ['realBrowserVerification','pagesVerification','liveExternalVerification','pullRequestGate','postMergeRecertification'])req(state[k]==='PENDING',`premature 11.7 evidence: ${k}`);
+if(state.status==='IN_PROGRESS'){
+  req(state.exitGatePassed===false&&state.phase12_1Allowed===false&&state.nextPhase==='12.1'&&state.successorStatus==='LOCKED','Phase 12.1 must remain locked while 11.7 is open');
+  for(const k of ['realBrowserVerification','pagesVerification','liveExternalVerification','pullRequestGate','postMergeRecertification'])req(state[k]==='PENDING',`premature 11.7 evidence: ${k}`);
+}else{
+  req(state.exitGatePassed===true&&state.phase12_1Allowed===true&&state.nextPhase==='12.1'&&state.successorStatus==='AUTHORIZED_NEXT','closed 11.7 must authorize only Phase 12.1');
+  req(state.closureDecision==='PASS'&&state.closureEvidence==='docs/PHASE11_7_CLOSURE.md'&&closure.length>0,'11.7 closure evidence missing');
+  req(state.implementationPullRequest===195&&state.implementationMergeCommit==='21bce9a1a94c0ffcef90a5c9b1de4cecbd31b819','11.7 implementation merge lineage invalid');
+  req(state.pullRequestGate==='PASS'&&state.pullRequestGateRunId===35321019617&&state.pullRequestGateRunNumber===21&&state.pullRequestGateHead==='e0952baf79a15f666d39ffb91818f783693d4d21','11.7 PR gate certificate invalid');
+  req(state.realBrowserVerification==='PASS_EXACT_MAIN'&&state.realBrowserRunId===35321471242&&state.realBrowserRunNumber===1613&&state.realBrowserHead===state.implementationMergeCommit,'11.7 exact-main Real Browser certificate invalid');
+  req(state.pagesVerification==='PASS'&&state.pagesRunId===35321530024&&state.pagesRunNumber===1540&&state.pagesHead===state.implementationMergeCommit,'11.7 Pages certificate invalid');
+  req(state.liveExternalVerification==='PASS'&&state.liveExternalRunId===35321584658&&state.liveExternalRunNumber===1216&&state.liveExternalHead===state.implementationMergeCommit,'11.7 Live External certificate invalid');
+  req(state.postMergeRecertification==='PASS_EXACT_MAIN_DEPLOYED_LIVE'&&state.postMergeMainSha===state.implementationMergeCommit,'11.7 post-merge recertification invalid');
+  req(state.postMergeQualityRunId===35321471289&&state.postMergeMajorSystemsRunId===35321471247&&state.postMergeRoadmapRunId===35321471284,'11.7 exact-main critical run lineage invalid');
+  req(state.postMergeMainWorkflowCount===35&&state.postMergeMainSuccessCount===35&&state.postMergeMainFailureCount===0&&state.postMergeMainQueuedCount===0&&state.postMergeMainInProgressCount===0,'11.7 exact-main inventory invalid');
+  req(state.finalInitialJavascriptBytes===430928&&state.finalTotalJavascriptBytes===759521&&state.finalCssBytes===179989&&state.finalTotalJavascriptMarginBytes===479&&state.finalBudgetVerification==='PASS_FROZEN_CAPS_NO_INCREASE','11.7 final frozen budget certificate invalid');
+  for(const marker of [
+    'Status:** CLOSED / CERTIFIED',
+    '21bce9a1a94c0ffcef90a5c9b1de4cecbd31b819',
+    '20260918073107',
+    '35320196712',
+    '35321019617',
+    '35321471242',
+    '35321530024',
+    '35321584658',
+    '35',
+    '759,521 / 760,000',
+    'Phase 12.1 — Copilot Foundation is now **AUTHORIZED_NEXT**'
+  ])has(closure,marker,'11.7 closure');
+}
 req(state.openingDestructionTests==='PASS_8_OF_8'&&state.openingGateRunId===35316622618&&state.openingGateRunNumber===2&&state.openingGateHead==='390692c972833cbd016d5cb10d66d7119caf6d0b','opening destruction/gate certificate drift');
 req(state.openingRoadmapRunId===35316622551&&state.openingRoadmapRunNumber===1437&&state.openingRoadmapHead===state.openingGateHead,'opening roadmap certificate drift');
 req(state.realCloudWave1Script==='scripts/phase11-7-real-cloud-e2e.mjs'&&state.realCloudWave1Workflow==='.github/workflows/phase11-7-real-cloud-e2e.yml','Real Cloud wave-1 source lineage drift');
@@ -104,7 +132,9 @@ if(errors.length){
   errors.forEach((e)=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log(state.realCloudWave1Status==='PASS'
-    ? 'ENJAZ PHASE 11.7 COMMUNICATION ZERO-ESCAPE AUDIT PASS — individual M3/M4/M10/M16/M17 Real Cloud wave 1 is certified; destructive closure remains open and Phase 12.1 stays locked.'
-    : 'ENJAZ PHASE 11.7 COMMUNICATION ZERO-ESCAPE OPENING AUDIT PASS — exact closed 11.6 base, five active system boundaries, eight destruction dimensions, frozen budgets and Phase 12.1 lock are intact.');
+  console.log(state.status==='CLOSED'
+    ? 'ENJAZ PHASE 11.7 COMMUNICATION ZERO-ESCAPE FINAL CLOSURE PASS — Real Cloud, PR gate, exact-main Real Browser, Pages, Live External and zero-blocker evidence are certified; Phase 12.1 is AUTHORIZED_NEXT.'
+    : state.realCloudWave1Status==='PASS'
+      ? 'ENJAZ PHASE 11.7 COMMUNICATION ZERO-ESCAPE AUDIT PASS — individual M3/M4/M10/M16/M17 Real Cloud wave 1 is certified; destructive closure remains open and Phase 12.1 stays locked.'
+      : 'ENJAZ PHASE 11.7 COMMUNICATION ZERO-ESCAPE OPENING AUDIT PASS — exact closed 11.6 base, five active system boundaries, eight destruction dimensions, frozen budgets and Phase 12.1 lock are intact.');
 }
