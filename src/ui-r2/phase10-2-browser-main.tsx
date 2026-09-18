@@ -1,4 +1,4 @@
-import {StrictMode} from 'react';
+import {StrictMode,useLayoutEffect,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import type {EnjazDataLayerFactory} from '../data/createDataLayer.ts';
 import {DataLayerProvider} from '../data/react/DataLayerContext.tsx';
@@ -42,5 +42,5 @@ const factory={async resolveWorkspaceId(){return W},forWorkspace(){return{compan
 const browserState={get analyses(){return analyses.map(withStale)},get versions(){return versions[D]??[]},logs};
 declare global{interface Window{__ENJAZ_PHASE102_BROWSER__?:typeof browserState}}
 window.__ENJAZ_PHASE102_BROWSER__=browserState;
-const root=document.getElementById('phase102-browser-root');if(!root)throw new Error('Phase 10.2 browser root missing');
-createRoot(root).render(<StrictMode><DataLayerProvider factory={factory}><div className="ez-r2-root r2-shell" data-r2-runtime-mode="live" data-destination="documents"><main id="r2-main" className="r2-shell__main" aria-label="ذكاء الوثائق"><div className="r2-screen" data-records-stage="R2.0-6" data-records-domain="documents" aria-hidden="true"/></main><LiveDocumentVaultPortal factory={async()=>vaultGateway} intelligenceFactory={async()=>intelligenceGateway} workspace={Promise.resolve(W)}/></div></DataLayerProvider></StrictMode>);
+function Harness(){const[ready,setReady]=useState(false);useLayoutEffect(()=>setReady(true),[]);return <div className="ez-r2-root r2-shell" data-r2-runtime-mode="live" data-destination="documents"><main id="r2-main" className="r2-shell__main" aria-label="ذكاء الوثائق"><div className="r2-screen" data-records-stage="R2.0-6" data-records-domain="documents" aria-hidden="true"/></main>{ready?<LiveDocumentVaultPortal factory={async()=>vaultGateway} intelligenceFactory={async()=>intelligenceGateway} workspace={Promise.resolve(W)}/>:null}</div>}
+const root=document.getElementById('phase102-browser-root');if(!root)throw new Error('Phase 10.2 browser root missing');createRoot(root).render(<StrictMode><DataLayerProvider factory={factory}><Harness/></DataLayerProvider></StrictMode>);
