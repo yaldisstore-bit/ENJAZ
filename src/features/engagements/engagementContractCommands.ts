@@ -38,24 +38,14 @@ export type TransitionEngagementContractRevisionInput = Readonly<{
   note?: string | null;
 }>;
 
-export type UnifiedAttentionKind = 'intake_followup' | 'client_approval' | 'contract_renewal';
-export type UnifiedAttentionFilter = 'all' | UnifiedAttentionKind;
 export type UnifiedAttentionItem = Readonly<{
-  id:string; kind:UnifiedAttentionKind; title:string;
-  state:'open'|'responded'|'revoked'|'expired'|'awaiting_client'|'decision_ready'|'reconciled'|'active'|'completed'|'cancelled';
-  attentionState:'terminal'|'response_ready'|'waiting_external'|'action_required'|'conflict'|'overdue'|'due_today'|'upcoming';
-  stale:boolean; dueAt:string|null; decision:'approved'|'rejected'|null; communicationEvidence:boolean;
-  canonicalId:string; companyId:string|null; transactionId:string|null; contractRevisionId:string|null;
-  ownerSurface:'intake_review'|'documents'|'calendar'; sourceVersion:number; canonicalVersion:number;
-}>;
-export type UnifiedAttentionView = Readonly<{
-  schema:'enjaz.intake-contract-attention.v1'; workspaceId:string; workspaceTimezone:string;
-  kind:UnifiedAttentionFilter; includeTerminal:boolean; generatedAt:string; items:readonly UnifiedAttentionItem[];
+  id:string; title:string; kindLabel:string; attentionLabel:string; stale:boolean;
+  dueAt:string|null; decisionLabel:string|null; communicationEvidence:boolean; ownerPath:'/app/documents'|'/app/calendar'|null;
 }>;
 
 export interface EngagementContractGateway {
   list(workspaceId: string, engagementId?: string | null): Promise<readonly EngagementContractRuntimeRevision[]>;
-  listAttention(workspaceId:string,kind?:UnifiedAttentionFilter,includeTerminal?:boolean,limit?:number):Promise<UnifiedAttentionView>;
+  listAttention(workspaceId:string):Promise<readonly UnifiedAttentionItem[]>;
   create(input: CreateEngagementContractRevisionInput): Promise<EngagementContractRuntimeRevision>;
   transition(input: TransitionEngagementContractRevisionInput): Promise<EngagementContractRuntimeRevision>;
 }
@@ -69,11 +59,6 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const STATUSES: readonly EngagementContractStatus[] = Object.freeze([
   'draft','under_review','approved','signature_pending','signed','effective','expired','terminated','superseded',
 ]);
-const ATTENTION_KINDS=['intake_followup','client_approval','contract_renewal'] as const;
-const ATTENTION_FILTERS=['all',...ATTENTION_KINDS] as const;
-const ATTENTION_STATES=['open','responded','revoked','expired','awaiting_client','decision_ready','reconciled','active','completed','cancelled'] as const;
-const ATTENTION_LEVELS=['terminal','response_ready','waiting_external','action_required','conflict','overdue','due_today','upcoming'] as const;
-const ATTENTION_SURFACES=['intake_review','documents','calendar'] as const;
 
 function requireUuid(value: unknown, label: string): string {
   if (typeof value !== 'string' || !UUID.test(value.trim())) throw new DataAccessError(`Invalid ${label}`, 'DATA_VALIDATION_FAILED');
@@ -130,53 +115,15 @@ function revisionNumber(value: unknown): number {
   return positiveInteger(value, 'contract revision number');
 }
 
-function enumValue<T extends readonly string[]>(value:unknown,allowed:T,label:string):T[number]{
-  if(typeof value!=='string'||!(allowed as readonly string[]).includes(value))throw new DataAccessError(`Invalid ${label}`,'DATA_OPERATION_FAILED');
-  return value as T[number];
-}
-function strictBoolean(value:unknown,label:string):boolean{
-  if(typeof value!=='boolean')throw new DataAccessError(`Invalid ${label}`,'DATA_OPERATION_FAILED');
-  return value;
-}
-function attentionTime(value:unknown,label:string):string|null{
-  if(value===null)return null;
-  if(typeof value!=='string'||!Number.isFinite(Date.parse(value)))throw new DataAccessError(`Invalid ${label}`,'DATA_OPERATION_FAILED');
-  return value;
-}
 function parseAttentionItem(value:unknown):UnifiedAttentionItem{
-  const row=record(value,'unified attention item');
-  const decision=row.decision===null?null:enumValue(row.decision,['approved','rejected'] as const,'attention decision');
-  return Object.freeze({
-    id:requireUuid(row.id,'attention id'),
-    kind:enumValue(row.kind,ATTENTION_KINDS,'attention kind'),
-    title:requireText(row.title,'attention title'),
-    state:enumValue(row.state,ATTENTION_STATES,'attention state'),
-    attentionState:enumValue(row.attentionState,ATTENTION_LEVELS,'attention level'),
-    stale:strictBoolean(row.stale,'attention stale flag'),
-    dueAt:attentionTime(row.dueAt,'attention due time'),
-    decision,
-    communicationEvidence:strictBoolean(row.communicationEvidence,'communication evidence flag'),
-    canonicalId:requireUuid(row.canonicalId,'attention canonical id'),
-    companyId:nullableUuid(row.companyId,'attention company id'),
-    transactionId:nullableUuid(row.transactionId,'attention transaction id'),
-    contractRevisionId:nullableUuid(row.contractRevisionId,'attention contract revision id'),
-    ownerSurface:enumValue(row.ownerSurface,ATTENTION_SURFACES,'attention owner surface'),
-    sourceVersion:positiveInteger(row.sourceVersion,'attention source version'),
-    canonicalVersion:positiveInteger(row.canonicalVersion,'attention canonical version'),
-  });
+  const r=record(value,'attention item'),dueAt=nullableText(r.dueAt,'attention due',64),decisionLabel=nullableText(r.decisionLabel,'decision label',40),ownerPath=nullableText(r.ownerPath,'attention owner path',40);
+  if(typeof r.stale!=='boolean'||typeof r.communicationEvidence!=='boolean'||(ownerPath!==null&&ownerPath!=='/app/documents'&&ownerPath!=='/app/calendar'))throw new DataAccessError('Invalid attention projection','DATA_OPERATION_FAILED');
+  return Object.freeze({id:requireUuid(r.id,'attention id'),title:requireText(r.title,'attention title'),kindLabel:requireText(r.kindLabel,'attention kind',80),attentionLabel:requireText(r.attentionLabel,'attention label',80),stale:r.stale,dueAt,decisionLabel,communicationEvidence:r.communicationEvidence,ownerPath});
 }
-function parseAttentionView(value:unknown):UnifiedAttentionView{
-  const row=record(value,'unified attention view'),generatedAt=attentionTime(row.generatedAt,'attention generated time');
-  if(row.schema!=='enjaz.intake-contract-attention.v1'||generatedAt===null||typeof row.includeTerminal!=='boolean')throw new DataAccessError('Invalid unified attention view','DATA_OPERATION_FAILED');
-  return Object.freeze({
-    schema:'enjaz.intake-contract-attention.v1',
-    workspaceId:requireUuid(row.workspaceId,'attention workspace id'),
-    workspaceTimezone:requireText(row.workspaceTimezone,'workspace timezone',120),
-    kind:enumValue(row.kind,ATTENTION_FILTERS,'attention filter'),
-    includeTerminal:row.includeTerminal,
-    generatedAt,
-    items:Object.freeze(rows(row.items,'unified attention items').map(parseAttentionItem)),
-  });
+function parseAttention(value:unknown):readonly UnifiedAttentionItem[]{
+  const r=record(value,'attention projection');
+  if(r.schema!=='enjaz.intake-contract-attention.v1')throw new DataAccessError('Invalid attention projection','DATA_OPERATION_FAILED');
+  return Object.freeze(rows(r.items,'attention items').map(parseAttentionItem));
 }
 
 function parseRevision(row: Readonly<Record<string, unknown>>): EngagementContractRuntimeRevision {
@@ -270,10 +217,8 @@ export function createEngagementContractGateway(client: EnjazSupabaseClient, tim
       }
     },
 
-    async listAttention(workspaceId:string,kind:UnifiedAttentionFilter='all',includeTerminal=false,limit=200){
-      const ws=requireUuid(workspaceId,'workspace id');
-      if(!ATTENTION_FILTERS.includes(kind)||typeof includeTerminal!=='boolean'||!Number.isSafeInteger(limit)||limit<1||limit>500)throw new DataAccessError('Invalid unified attention request','DATA_VALIDATION_FAILED');
-      return parseAttentionView(await call('list_unified_intake_contract_attention_v1',{p_workspace_id:ws,p_kind:kind,p_include_terminal:includeTerminal,p_limit:limit},false));
+    async listAttention(workspaceId:string){
+      return parseAttention(await call('list_unified_intake_contract_attention_v1',{p_workspace_id:requireUuid(workspaceId,'workspace id'),p_kind:'all',p_include_terminal:true,p_limit:200},false));
     },
 
     async create(input: CreateEngagementContractRevisionInput) {
