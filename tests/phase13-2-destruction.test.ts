@@ -106,6 +106,6 @@ test('A3 source snapshot and plan remain byte-for-byte unchanged after destructi
 
 test('A3 never authorizes ordered import even for clean fully mapped preview',()=>{
  const p=buildLegacyMappingPreview(snapshot(),plan());
- assert.equal(p.eligibleForOrderedImport,false);assert.equal(p.writeAllowed,undefined);
+ assert.equal(p.eligibleForOrderedImport,false);assert.equal(Object.hasOwn(p,'writeAllowed'),false);
  assert.ok(p.records.every(x=>x.writeAllowed===false));assert.ok(p.relationshipIntents.every(x=>x.writeAllowed===false));
 });
