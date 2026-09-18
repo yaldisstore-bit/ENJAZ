@@ -111,9 +111,16 @@ function normalizeValue(value:LegacyJsonValue,rule:LegacyNormalizationRule):stri
   }
   if(typeof value==='number'){
     if(!Number.isFinite(value))throw new LegacyMappingContractError('LEGACY_MAPPING_NUMBER_INVALID');
+    const scaled=Math.round(value*100);
+    const tolerance=Number.EPSILON*Math.max(1,Math.abs(value))*8;
+    if(!Number.isSafeInteger(scaled)||Math.abs(value-scaled/100)>tolerance)throw new LegacyMappingContractError('LEGACY_MAPPING_NUMBER_PRECISION_UNSAFE');
     return value;
   }
-  if(typeof value!=='string'||value!==value.trim()||!/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/.test(value))throw new LegacyMappingContractError('LEGACY_MAPPING_NUMBER_INVALID');
+  if(typeof value!=='string'||value!==value.trim()||!/^-?(?:0|[1-9]\d*)(?:\.\d{1,2})?$/.test(value))throw new LegacyMappingContractError('LEGACY_MAPPING_NUMBER_INVALID');
+  const negative=value.startsWith('-'),unsigned=negative?value.slice(1):value;
+  const parts=unsigned.split('.'),whole=parts[0]??'0',fraction=(parts[1]??'').padEnd(2,'0');
+  const cents=BigInt(whole)*100n+BigInt(fraction||'0');
+  if(cents>BigInt(Number.MAX_SAFE_INTEGER))throw new LegacyMappingContractError('LEGACY_MAPPING_NUMBER_PRECISION_UNSAFE');
   const n=Number(value);
   if(!Number.isFinite(n))throw new LegacyMappingContractError('LEGACY_MAPPING_NUMBER_INVALID');
   return n;

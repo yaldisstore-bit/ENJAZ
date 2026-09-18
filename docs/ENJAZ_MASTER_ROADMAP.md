@@ -465,7 +465,7 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Formal closure: `docs/PHASE13_1_CLOSURE.md`.
 - Phase 13.2 — Normalize & Map: **AUTHORIZED_NEXT**.
 
-## 13.2 — Normalize & Map — IN_PROGRESS / A2 EXPLICIT RELATIONSHIP PREVIEW
+## 13.2 — Normalize & Map — IN_PROGRESS / A3 DESTRUCTION & CLOSURE READINESS
 - exact base: `aa8e402eeb6ed03bee9fb446bc2c741da37df7dc` — final Phase 13.1 closure.
 - A1 maps only explicit exact legacy types and explicit fields to a narrow preview scope: companies / contacts / transactions.
 - deterministic rules only: `identity_scalar`, `trim_text`, `strict_number`.

@@ -38,6 +38,10 @@ jobs:
         run: node --experimental-strip-types --test tests/phase13-2-normalize-map.test.ts
       - name: Phase 13.2 A2 explicit relationship preview tests
         run: node --experimental-strip-types --test tests/phase13-2-relationship-preview.test.ts
+      - name: Phase 13.2 A3 destruction audit
+        run: node scripts/phase13-2-destruction-audit.mjs
+      - name: Phase 13.2 A3 destruction tests
+        run: node --experimental-strip-types --test tests/phase13-2-destruction.test.ts
       - name: Preserve Phase 13.1 formal closure
         run: |
           node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs

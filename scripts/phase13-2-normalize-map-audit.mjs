@@ -16,9 +16,13 @@ req(state.exitGatePassed===false&&state.closureDecision==='PENDING','13.2 cannot
 req(state.a1Status==='CERTIFIED'&&state.a1GateRunId===35398804690&&state.a1GateRunNumber===2&&state.a1GateHead==='e7cb5d573e4ef679bf64eab257f49d46bea38383','13.2 A1 certificate invalid');
 req(state.a1TestCount===12&&state.a1PassCount===12&&state.a1FailCount===0&&state.a1FunctionalPassCount===219&&state.a1DbSelftestPassCount===25,'13.2 A1 counts invalid');
 req(state.a1InitialJavascriptBytes===431032&&state.a1TotalJavascriptBytes===759568&&state.a1CssBytes===179989,'13.2 A1 budget certificate invalid');
-req(state.currentSlice==='A2_EXPLICIT_RELATIONSHIP_PREVIEW'&&state.a2Status==='IN_PROGRESS','13.2 A2 lifecycle invalid');
+req(state.currentSlice==='A3_DESTRUCTION_AND_CLOSURE_READINESS'&&state.a2Status==='CERTIFIED'&&state.a3Status==='IN_PROGRESS','13.2 A2/A3 lifecycle invalid');
 req(state.relationshipMappingAllowed===true&&state.relationshipMappingMustBeExplicit===true&&state.relationshipInferenceAllowed===false&&state.relationshipPreviewInMemoryOnly===true,'13.2 A2 relationship law drifted');
 req(state.relationshipForeignKeyAssignmentAllowed===false&&state.generatedIdAuthorityAllowed===false,'13.2 A2 cannot assign FK or IDs');
+req(state.a2GateRunId===35399419189&&state.a2GateRunNumber===6&&state.a2GateHead==='f049451551ea5f4b4c7a8a626654011c91db7980','13.2 A2 certificate invalid');
+req(state.a2TestCount===10&&state.a2PassCount===10&&state.a2A1RegressionPassCount===12&&state.a2FunctionalPassCount===219&&state.a2DbSelftestPassCount===25,'13.2 A2 counts invalid');
+req(state.a2InitialJavascriptBytes===431032&&state.a2TotalJavascriptBytes===759568&&state.a2CssBytes===179989,'13.2 A2 budget certificate invalid');
+req(state.a3Mode==='DESTRUCTION_AND_CLOSURE_READINESS_ONLY'&&state.a3NewFeatureAuthorityAllowed===false&&state.precisionSafeNumberRequired===true&&state.deterministicReplayRequired===true,'13.2 A3 destruction law drifted');
 req(state.relationshipTargetFieldsA2?.join(',')==='transactions.company_id->companies,transactions.primary_contact_id->contacts,companies.primary_contact_id->contacts','13.2 A2 relationship target scope drifted');
 for(const marker of ['LEGACY_MAPPING_PLAN_SCHEMA','LEGACY_MAPPING_PREVIEW_SCHEMA','identity_scalar','trim_text','strict_number','LEGACY_MAPPING_TARGET_FIELD_FORBIDDEN','QUARANTINED_UNMAPPED_TYPE','eligibleForOrderedImport:false','targetMutationAllowed:false','LegacyRelationshipPreviewIntent','RESOLVED_RELATIONSHIP_PREVIEW','QUARANTINED_DANGLING_TARGET','foreignKeyAssignmentPerformed:false','idGenerationPerformed:false'])has(source,marker,'mapping source');
 for(const marker of ['unmapped fields are never copied silently','authority-bearing target fields are forbidden','strict number rejects ambiguous formats','does not mutate snapshot or mapping plan','relationships are not mapped in A1'])has(tests,marker,'A1 tests');
@@ -26,7 +30,8 @@ const a2tests=read('tests/phase13-2-relationship-preview.test.ts');
 for(const marker of ['resolves only explicitly declared safe relationship previews','does not case-fold or infer synonyms','dangling target remains quarantined','duplicate target makes the relationship ambiguous','does not mutate source snapshot or mapping plan'])has(a2tests,marker,'A2 tests');
 for(const marker of ['Every mapped source field and target field must be named explicitly','Unmapped source fields are ignored','Phase 13.3 — Ordered Import remains LOCKED'])has(kickoff,marker,'kickoff');
 for(const marker of ['transactions.company_id → companies','transactions.primary_contact_id → contacts','companies.primary_contact_id → contacts','foreignKeyAssigned=false','generatedTargetId=null'])has(a2doc,marker,'A2 evidence');
-has(roadmap,'## 13.2 — Normalize & Map — IN_PROGRESS / A2 EXPLICIT RELATIONSHIP PREVIEW','roadmap');has(readme,'Phase 13.2 — Normalize & Map 🟡 IN PROGRESS — A2 EXPLICIT RELATIONSHIP PREVIEW','README');
+const a3tests=read('tests/phase13-2-destruction.test.ts');for(const marker of ['beyond safe exact two-decimal boundary','hidden plan/type/field/relation control fields','replay is deterministic','never authorizes ordered import'])has(a3tests,marker,'A3 tests');
+has(roadmap,'## 13.2 — Normalize & Map — IN_PROGRESS / A3 DESTRUCTION & CLOSURE READINESS','roadmap');has(readme,'Phase 13.2 — Normalize & Map 🟡 IN PROGRESS — A3 DESTRUCTION & CLOSURE READINESS','README');
 req(!exists('database/migrations/phase_13_2_normalize_map.sql'),'13.2 A1 must not add database migration');
 req(!exists('supabase/functions/enjaz-legacy-import/index.ts'),'13.2 A1 must not add import Edge Function');
 if(errors.length){console.error(`ENJAZ PHASE 13.2 A1+A2 AUDIT FAIL (${errors.length})`);errors.forEach(x=>console.error('- '+x));process.exit(1)}
