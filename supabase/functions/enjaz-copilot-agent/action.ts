@@ -4,6 +4,7 @@ export const AGENT_ACTION_OPERATIONS=[
   'prepare_followup_create','execute_followup_create',
   'prepare_schedule_reminder','execute_schedule_reminder',
   'prepare_document_request','execute_document_request',
+  'prepare_document_draft','execute_document_draft',
 ] as const;
 export type AgentActionOperation=typeof AGENT_ACTION_OPERATIONS[number];
 
@@ -24,15 +25,23 @@ export type PrepareDocumentRequestRequest=Readonly<{
   workspaceId:string;requestId:string;operation:'prepare_document_request';
   principalId:string;transactionId:string;portalRequestId:string;title:string;instructions:string|null;dueAt:string;validUntil:string;
 }>;
+export type PrepareDocumentDraftRequest=Readonly<{
+  workspaceId:string;requestId:string;operation:'prepare_document_draft';
+  generationRequestId:string;templateVersionId:string;title:string;companyId:string|null;transactionId:string|null;
+}>;
 export type ExecuteFollowupActionRequest=Readonly<{
-  workspaceId:string;requestId:string;operation:'execute_followup_snooze'|'execute_followup_create'|'execute_schedule_reminder'|'execute_document_request';
+  workspaceId:string;requestId:string;operation:'execute_followup_snooze'|'execute_followup_create'|'execute_schedule_reminder'|'execute_document_request'|'execute_document_draft';
   proposalId:string;proposalHash:string;executionKey:string;
 }>;
-export type AgentActionRequest=PrepareFollowupSnoozeRequest|PrepareFollowupCreateRequest|PrepareScheduleReminderRequest|PrepareDocumentRequestRequest|ExecuteFollowupActionRequest;
+export type AgentActionRequest=PrepareFollowupSnoozeRequest|PrepareFollowupCreateRequest|PrepareScheduleReminderRequest|PrepareDocumentRequestRequest|PrepareDocumentDraftRequest|ExecuteFollowupActionRequest;
 
 function uuid(v:unknown,code:string){
   if(typeof v!=='string'||!UUID.test(v.trim()))throw new Error(code);
   return v.trim().toLowerCase();
+}
+function optionalUuid(v:unknown,code:string){
+  if(v===undefined||v===null)return null;
+  return uuid(v,code);
 }
 function exactKeys(row:Record<string,unknown>,allowed:readonly string[]){
   const set=new Set(allowed);
@@ -117,6 +126,17 @@ export function parseAgentActionRequest(value:unknown):AgentActionRequest{
     });
   }
 
+  if(row.operation==='prepare_document_draft'){
+    exactKeys(row,['workspaceId','requestId','operation','generationRequestId','templateVersionId','title','companyId','transactionId']);
+    const title=typeof row.title==='string'?row.title.trim():'';
+    if(title.length<1||title.length>320)throw new Error('ACTION_TITLE_INVALID');
+    return Object.freeze({
+      workspaceId:uuid(row.workspaceId,'WORKSPACE_ID_INVALID'),requestId:uuid(row.requestId,'REQUEST_ID_INVALID'),operation:'prepare_document_draft',
+      generationRequestId:uuid(row.generationRequestId,'GENERATION_REQUEST_ID_INVALID'),templateVersionId:uuid(row.templateVersionId,'TEMPLATE_VERSION_ID_INVALID'),title,
+      companyId:optionalUuid(row.companyId,'COMPANY_ID_INVALID'),transactionId:optionalUuid(row.transactionId,'TRANSACTION_ID_INVALID'),
+    });
+  }
+
   exactKeys(row,['workspaceId','requestId','operation','proposalId','proposalHash','executionKey']);
   if(typeof row.proposalHash!=='string'||!SHA256.test(row.proposalHash))throw new Error('PROPOSAL_HASH_INVALID');
   return Object.freeze({
@@ -155,15 +175,21 @@ export async function documentRequestCanonical(req:PrepareDocumentRequestRequest
   ].join('|');
 }
 
-export async function actionProposalHash(req:PrepareFollowupSnoozeRequest|PrepareFollowupCreateRequest|PrepareScheduleReminderRequest|PrepareDocumentRequestRequest){
+export async function documentDraftCanonical(req:PrepareDocumentDraftRequest){
+  const titleHash=await sha256Text(req.title);
+  return [AGENT_ACTION_SCHEMA,req.workspaceId,req.requestId,req.operation,req.generationRequestId,req.templateVersionId,titleHash,req.companyId??'',req.transactionId??''].join('|');
+}
+
+export async function actionProposalHash(req:PrepareFollowupSnoozeRequest|PrepareFollowupCreateRequest|PrepareScheduleReminderRequest|PrepareDocumentRequestRequest|PrepareDocumentDraftRequest){
   if(req.operation==='prepare_followup_snooze')return sha256Text(followupSnoozeCanonical(req));
   if(req.operation==='prepare_followup_create')return sha256Text(await followupCreateCanonical(req));
   if(req.operation==='prepare_schedule_reminder')return sha256Text(scheduleReminderCanonical(req));
-  return sha256Text(await documentRequestCanonical(req));
+  if(req.operation==='prepare_document_request')return sha256Text(await documentRequestCanonical(req));
+  return sha256Text(await documentDraftCanonical(req));
 }
 
 export async function actionTracePayloadHash(req:AgentActionRequest){
-  if(req.operation==='prepare_followup_snooze'||req.operation==='prepare_followup_create'||req.operation==='prepare_schedule_reminder'||req.operation==='prepare_document_request')return actionProposalHash(req);
+  if(req.operation==='prepare_followup_snooze'||req.operation==='prepare_followup_create'||req.operation==='prepare_schedule_reminder'||req.operation==='prepare_document_request'||req.operation==='prepare_document_draft')return actionProposalHash(req);
   return sha256Text([
     AGENT_ACTION_SCHEMA,req.workspaceId,req.requestId,req.operation,
     req.proposalId,req.proposalHash,req.executionKey,
@@ -227,13 +253,19 @@ export function preparedDocumentRequestResult(input:Readonly<{
   });
 }
 
+export function preparedDocumentDraftResult(input:Readonly<{proposalId:string;proposalHash:string;expiresAt:string;replayed:boolean;generationRequestId:string;templateVersionId:string;title:string;companyId:string|null;transactionId:string|null;}>){
+  return Object.freeze({schema:AGENT_ACTION_SCHEMA,status:'pending_approval' as const,proposalId:input.proposalId,proposalHash:input.proposalHash,expiresAt:input.expiresAt,replayed:input.replayed,
+    action:Object.freeze({kind:'document.draft' as const,generationRequestId:input.generationRequestId,templateVersionId:input.templateVersionId,title:input.title,companyId:input.companyId,transactionId:input.transactionId,contactId:null,ocrAnalysisId:null,outputStatus:'review_required' as const}),
+    explicitApprovalRequired:true as const,digestBound:true as const,executionAllowed:false as const,genericWriteToolAllowed:false as const});
+}
+
 export function parseExecutionResult(value:unknown){
   if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
   const row=value as Record<string,unknown>;
   if(row.schema!=='enjaz.copilot.agent.action-execution.v1')throw new Error('ACTION_EXECUTION_RESULT_INVALID');
   if(typeof row.proposalId!=='string'||!UUID.test(row.proposalId))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
   if(typeof row.proposalHash!=='string'||!SHA256.test(row.proposalHash))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
-  if(row.actionKind!=='followup.snooze'&&row.actionKind!=='followup.create'&&row.actionKind!=='reminder.schedule'&&row.actionKind!=='document.request')throw new Error('ACTION_EXECUTION_RESULT_INVALID');
+  if(row.actionKind!=='followup.snooze'&&row.actionKind!=='followup.create'&&row.actionKind!=='reminder.schedule'&&row.actionKind!=='document.request'&&row.actionKind!=='document.draft')throw new Error('ACTION_EXECUTION_RESULT_INVALID');
   if(typeof row.targetId!=='string'||!UUID.test(row.targetId))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
   if(typeof row.replayed!=='boolean'||!row.result||typeof row.result!=='object'||Array.isArray(row.result))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
 
@@ -241,6 +273,7 @@ export function parseExecutionResult(value:unknown){
   const create=row.actionKind==='followup.create';
   const reminder=row.actionKind==='reminder.schedule';
   const documentRequest=row.actionKind==='document.request';
+  const documentDraft=row.actionKind==='document.draft';
   if(snooze&&(typeof row.snoozedUntil!=='string'||!Number.isFinite(Date.parse(row.snoozedUntil))))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
   if(create&&(
     typeof row.transactionId!=='string'||!UUID.test(row.transactionId)
@@ -262,28 +295,36 @@ export function parseExecutionResult(value:unknown){
     ||row.requestType!=='document'||row.resourceShareId!==null
   ))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
 
+  if(documentDraft&&(
+    typeof row.templateVersionId!=='string'||!UUID.test(row.templateVersionId)||typeof row.title!=='string'||row.title.length<1||row.title.length>320
+    ||!(row.companyId===null||(typeof row.companyId==='string'&&UUID.test(row.companyId)))||!(row.transactionId===null||(typeof row.transactionId==='string'&&UUID.test(row.transactionId)))
+    ||row.contactId!==null||row.ocrAnalysisId!==null||row.draftStatus!=='review_required'
+  ))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
+
   const domainAuthority=snooze?'mutate_transaction_followup_state_v1'
-    :create?'create_transaction_followup_v1':reminder?'dispatch_scheduling_attention_v1':'save_client_portal_request_v1';
+    :create?'create_transaction_followup_v1':reminder?'dispatch_scheduling_attention_v1':documentRequest?'save_client_portal_request_v1':'generate_document_draft_v1';
   return Object.freeze({
     schema:row.schema as 'enjaz.copilot.agent.action-execution.v1',
     proposalId:row.proposalId,proposalHash:row.proposalHash,executionKey:String(row.executionKey??''),
-    actionKind:row.actionKind as 'followup.snooze'|'followup.create'|'reminder.schedule'|'document.request',
+    actionKind:row.actionKind as 'followup.snooze'|'followup.create'|'reminder.schedule'|'document.request'|'document.draft',
     targetId:row.targetId,
     snoozedUntil:snooze?new Date(String(row.snoozedUntil)).toISOString():null,
-    transactionId:(create||documentRequest)?String(row.transactionId):null,
-    title:(create||documentRequest)?String(row.title):null,
+    transactionId:(create||documentRequest)?String(row.transactionId):(documentDraft?(row.transactionId===null?null:String(row.transactionId)):null),
+    title:(create||documentRequest||documentDraft)?String(row.title):null,
     dueAt:(create||documentRequest)?new Date(String(row.dueAt)).toISOString():null,
     principalId:documentRequest?String(row.principalId):null,
     instructions:documentRequest?(row.instructions===null?null:String(row.instructions)):null,
     validUntil:documentRequest?new Date(String(row.validUntil)).toISOString():null,
     requestType:documentRequest?'document':null,
     resourceShareId:documentRequest?null:null,
+    generationRequestId:documentDraft?row.targetId:null,templateVersionId:documentDraft?String(row.templateVersionId):null,
+    companyId:documentDraft?(row.companyId===null?null:String(row.companyId)):null,contactId:documentDraft?null:null,ocrAnalysisId:documentDraft?null:null,draftStatus:documentDraft?'review_required':null,
     sourceKind:reminder?row.sourceKind as 'workflow_deadline'|'renewal_occurrence':null,
     operationId:reminder?String(row.operationId):null,
     scheduledFor:reminder?new Date(String(row.scheduledFor)).toISOString():null,
     result:row.result as Record<string,unknown>,replayed:row.replayed,
     atomicApprovalConsumption:true as const,
-    domainAuthority:domainAuthority as 'mutate_transaction_followup_state_v1'|'create_transaction_followup_v1'|'dispatch_scheduling_attention_v1'|'save_client_portal_request_v1',
+    domainAuthority:domainAuthority as 'mutate_transaction_followup_state_v1'|'create_transaction_followup_v1'|'dispatch_scheduling_attention_v1'|'save_client_portal_request_v1'|'generate_document_draft_v1',
     genericWriteToolAllowed:false as const,
   });
 }
