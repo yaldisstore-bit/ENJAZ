@@ -25,7 +25,7 @@ req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760
 req(state.clientUiAdded===true&&state.clientUiStatus==='LIVE_LAZY_PENDING_CERTIFICATION'&&state.newClientCssAdded===false,'12.2 live UI state invalid');
 const portal=read('src/ui-r2/copilot/LiveCopilotPortal.tsx'),lazy=read('src/ui-r2/runtime/LazyLiveProductionPortals.tsx'),production=read('src/ui-r2/runtime/UiR2ProductionRoot.tsx');
 for(const marker of ['data-copilot-stage="12.2"','data-copilot-authority="read-only-context"','crypto.randomUUID()','enjaz.copilot.context.v1'])has(portal,marker,'12.2 live portal');
-for(const marker of ["import('../copilot/LiveCopilotPortal.tsx')","value === 'copilot'","destination === 'copilot'"])has(lazy,marker,'12.2 lazy runtime');
+for(const marker of ["import('../copilot/LiveCopilotPortal.tsx')",'setDestination(shell.dataset.destination)',"destination === 'copilot'"])has(lazy,marker,'12.2 lazy runtime');
 has(production,"client.edge('enjaz-copilot-context'",'12.2 production edge binding');
 req(!/OPENAI_API_KEY|ANTHROPIC_API_KEY|SUPABASE_SECRET|service_role|generateText|streamText/.test(portal+production),'12.2 client surface contains forbidden authority/provider markers');
 
