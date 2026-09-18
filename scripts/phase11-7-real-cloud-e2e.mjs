@@ -79,8 +79,8 @@ async function runM4(){
  assert(errHas(foreign.error,'ENJAZ_COMMUNICATION_WORKSPACE_FORBIDDEN'),'M4','cross_workspace_command_denied',errText(foreign.error));
 
  const response=await fetch(`${url}/functions/v1/enjaz-communications?action=dispatch`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({workspaceId:ws,commandId:first.data.commandId})});
- const denied=await response.json().catch(()=>({}));
- assert(response.status===401&&denied?.error==='INTERNAL_AUTH_REQUIRED','M4','edge_dispatch_requires_internal_auth',`${response.status}:${String(denied?.error??'')}`);
+ const dispatchDenied=await response.json().catch(()=>({}));
+ assert(response.status===401&&dispatchDenied?.error==='INTERNAL_AUTH_REQUIRED','M4','edge_dispatch_requires_internal_auth',`${response.status}:${String(dispatchDenied?.error??'')}`);
  const after=await admin.from('communications').select('status').eq('id',first.data.communicationId).single();
  if(after.error)throw after.error;
  assert(after.data?.status==='queued','M4','unauthorized_dispatch_did_not_forge_delivery');
