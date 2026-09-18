@@ -14,9 +14,9 @@ test('12.3 starts only from final certified 12.2 closure',()=>{
   assert.equal(state.predecessorClosureMergeCommit,state.baseCommit);
 });
 
-test('12.3 A1/A2/A3-A/A3-B/A3-C certification is preserved while A3-D adds document request only',()=>{
+test('12.3 A1/A2/A3-A/A3-B/A3-C/A3-D certification is preserved while A3-E adds document draft only',()=>{
   assert.equal(state.status,'IN_PROGRESS');
-  assert.equal(state.slice,'A3D_DOCUMENT_REQUEST_ACTION');
+  assert.equal(state.slice,'A3E_DOCUMENT_DRAFT_ACTION');
   assert.equal(state.a2Certification,'PASS_APPROVAL_BINDING_REAL_CLOUD');
   assert.equal(state.a2FinalSourceGateVerification,'PASS');
   assert.equal(state.a2FinalRealCloudVerification,'PASS');
@@ -39,7 +39,7 @@ test('12.3 A1/A2/A3-A/A3-B/A3-C certification is preserved while A3-D adds docum
   assert.equal(state.a3BCertificationStatus,'CERTIFIED');
   assert.equal(state.a3CCertification,'PASS_SELF_REMINDER_REAL_CLOUD');
   assert.equal(state.a3CCertificationStatus,'CERTIFIED');
-  assert.deepEqual(state.authorizedActionAdapters,['followup.snooze','followup.create','reminder.schedule','document.request']);
+  assert.deepEqual(state.authorizedActionAdapters,['followup.snooze','followup.create','reminder.schedule','document.request','document.draft']);
   assert.deepEqual(state.actionExecutionDomainAuthorities,['mutate_transaction_followup_state_v1','create_transaction_followup_v1','dispatch_scheduling_attention_v1','save_client_portal_request_v1']);
   assert.equal(state.a3CRecipientScope,'SELF_ONLY');
   assert.equal(state.a3CMode,'REMINDER_ONLY');
@@ -55,6 +55,14 @@ test('12.3 A1/A2/A3-A/A3-B/A3-C certification is preserved while A3-D adds docum
   assert.equal(state.a3DRealCloudVerification,'PASS');
   assert.equal(state.a3DRealCloudChecks,44);
   assert.equal(state.a3DRealCloudZeroResidue,true);
+  assert.equal(state.a3EOutputStatus,'REVIEW_REQUIRED_ONLY');
+  assert.equal(state.a3EContactInputAllowed,false);
+  assert.equal(state.a3EOcrInputAllowed,false);
+  assert.equal(state.a3EReviewAllowed,false);
+  assert.equal(state.a3ERenderAllowed,false);
+  assert.equal(state.a3EFinalizeAllowed,false);
+  assert.equal(state.a3EReadAuthority,'get_document_factory_v1');
+  assert.equal(state.a3EExecutionAuthority,'generate_document_draft_v1');
   assert.equal(state.directBusinessTableWritesAllowed,false);
   assert.equal(state.genericWriteToolAllowed,false);
   assert.equal(state.clientUiAdded,false);
