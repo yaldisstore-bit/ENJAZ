@@ -15,6 +15,8 @@ const regulatoryCore=read('supabase/functions/enjaz-regulatory-assistant/core.ts
 const regulatoryEdge=read('supabase/functions/enjaz-regulatory-assistant/index.ts');
 const w2EvidencePath='docs/PHASE12_5_W2_EVIDENCE.md';
 const w2Evidence=fs.existsSync(w2EvidencePath)?read(w2EvidencePath):'';
+const phaseClosed=state.status==='CLOSED';
+const phaseClosure=fs.existsSync('docs/PHASE12_5_CLOSURE.md')?read('docs/PHASE12_5_CLOSURE.md'):'';
 
 const errors=[];
 const req=(v,m)=>{if(!v)errors.push(m)};
@@ -27,7 +29,7 @@ for(const script of [
 ])execFileSync(process.execPath,[script],{stdio:'inherit'});
 
 req(prev.status==='CLOSED'&&prev.closureDecision==='PASS'&&prev.phase12_5Allowed===true,'12.4 predecessor not formally closed/authorized');
-req(state.phase==='12.5'&&state.name==='AI Zero-Escape & Safety Gate'&&state.status==='IN_PROGRESS','12.5 identity invalid');
+req(state.phase==='12.5'&&state.name==='AI Zero-Escape & Safety Gate'&&['IN_PROGRESS','CLOSED'].includes(state.status),'12.5 identity invalid');
 req(state.baseCommit==='e3f38a28db5bc423e73551af79ce210c54dfda03','12.5 exact base drifted');
 req(state.predecessor?.formalClosureCommit===state.baseCommit&&state.predecessor?.closureEvidence==='docs/PHASE12_4_CLOSURE.md','12.5 predecessor lineage drifted');
 req(state.mode==='DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY','12.5 mode drifted');
@@ -35,11 +37,10 @@ for(const key of ['newFeatureAuthorityAllowed','newDatabaseTablesAllowed','newWr
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000,'frozen budgets drifted');
 req(JSON.stringify(state.systemsUnderGate)===JSON.stringify(['M8','M9']),'12.5 systems-under-gate drifted');
 req(JSON.stringify(state.destructionDimensions)===JSON.stringify(['hallucination_missing_data','prompt_injection','permission_escape','malicious_regulatory_content','structured_output_regression','approval_tool_bypass','provider_outage_recovery']),'12.5 destruction dimensions drifted');
-req(state.successorPhase==='13.1'&&state.successorStatus==='LOCKED'&&state.phase13_1Allowed===false,'13.1 must remain locked while 12.5 is open');
-req(state.exitGatePassed===false&&state.closureDecision==='PENDING','12.5 cannot close before final Zero-Escape evidence');
+if(phaseClosed){req(state.successorStatus==='AUTHORIZED_NEXT'&&state.phase13_1Allowed===true&&state.exitGatePassed===true&&state.closureDecision==='PASS'&&phaseClosure.length>0,'closed 12.5 evidence/authorization invalid')}else{req(state.successorStatus==='LOCKED'&&state.phase13_1Allowed===false&&state.exitGatePassed===false&&state.closureDecision==='PENDING','open 12.5 lifecycle invalid')}
 req(['IN_PROGRESS','PASS'].includes(state.openingWaveStatus),'12.5 opening wave status invalid');
 req(['PENDING','PASS_W2'].includes(state.realCloudVerification),'12.5 Real Cloud status invalid');
-req(state.realBrowserVerification==='PENDING'&&state.deployedLiveVerification==='PENDING','12.5 browser/deployed-live evidence prematurely claimed');
+if(phaseClosed)req(state.realBrowserVerification==='PASS'&&state.deployedLiveVerification==='PASS'&&state.pullRequestGate==='PASS'&&state.postMergeRecertification==='PASS','12.5 final certification incomplete');else req(state.realBrowserVerification==='PENDING'&&state.deployedLiveVerification==='PENDING','12.5 browser/deployed-live evidence prematurely claimed');
 if(state.realCloudVerification==='PASS_W2'){
   req(state.openingWaveStatus==='PASS','W2 PASS requires W1 PASS');
   req(state.w1GateRunId===35386039196&&state.w1GateRunNumber===4&&state.w1GateHead==='26b08f99d6a03304d256b06d4dbb7984906a452e','12.5 W1 gate evidence drifted');
@@ -48,7 +49,7 @@ if(state.realCloudVerification==='PASS_W2'){
   req(state.w2RealCloudArtifactId===10563274638&&state.w2RealCloudArtifactDigest==='sha256:f538f24b8b32931f13654477861cffa2873a2cd56e2612347f4b7549f8d05fcd','12.5 W2 artifact evidence drifted');
   req(state.w2OverlayChecks===20&&state.w2M8ReplayChecks===18&&state.w2M9ReplayChecks===33&&state.w2AggregateChecks===71&&state.w2FailureCount===0,'12.5 W2 check inventory drifted');
   req(state.w2ZeroRegulatoryMutation===true&&state.w2ZeroForeignBusinessMutation===true&&state.w2PromptInjectionResistance===true&&state.w2NoProviderFallback===true&&state.w2ApprovalBypassResistance===true&&state.w2ReplayRollbackVerified===true&&state.w2ZeroResidue===true,'12.5 W2 safety guarantees drifted');
-  req(state.systemEvidence?.M8?.status==='REAL_CLOUD_PASS'&&state.systemEvidence?.M9?.status==='REAL_CLOUD_PASS','12.5 W2 must upgrade M8/M9 only to REAL_CLOUD_PASS');
+  req(state.systemEvidence?.M8?.status===(phaseClosed?'CLOSED':'REAL_CLOUD_PASS')&&state.systemEvidence?.M9?.status===(phaseClosed?'CLOSED':'REAL_CLOUD_PASS'),'M8/M9 evidence status drifted');
   req(w2Evidence.length>0,'12.5 W2 evidence file missing');
   for(const marker of ['71/71 authenticated Real Cloud checks','Phase 12.5 overlay: **20 PASS**','fresh M8 replay: **18 PASS**','fresh M9 replay: **33 PASS**','Phase 13.1 remains LOCKED'])has(w2Evidence,marker,'12.5 W2 evidence');
 }
@@ -56,8 +57,7 @@ for(const key of ['knownCriticalDefects','knownHighDefects','knownFunctionalBloc
 
 const m8=registry.systems.find(x=>x.id==='M8');
 const m9=registry.systems.find(x=>x.id==='M9');
-req(m8?.status==='ACTIVE'&&m8?.anchors?.join(',')==='9,12'&&m8?.closureEvidence===null,'M8 cannot close before 12.5 independent evidence');
-req(m9?.status==='ACTIVE'&&m9?.anchors?.join(',')==='12'&&m9?.closureEvidence===null,'M9 cannot close before 12.5 independent evidence');
+if(phaseClosed){req(m8?.status==='CLOSED'&&m8?.closureEvidence==='docs/M8_ZERO_ESCAPE_CLOSURE.json','M8 closure drifted');req(m9?.status==='CLOSED'&&m9?.closureEvidence==='docs/M9_ZERO_ESCAPE_CLOSURE.json','M9 closure drifted');req(fs.existsSync(m8.closureEvidence)&&fs.existsSync(m9.closureEvidence),'machine closure evidence missing');req(state.pullRequestWorkflowCount===80&&state.pullRequestFailureCount===0&&state.postMergeMainWorkflowCount===39&&state.postMergeMainFailureCount===0,'closure inventory drifted');req(state.postMergeRealBrowserRunId===35387754425&&state.postMergeLiveExternalRunId===35387942109&&state.postMergePublishedPortalRunId===35387942126,'live evidence drifted')}else{req(m8?.status==='ACTIVE'&&m8?.closureEvidence===null,'M8 premature closure');req(m9?.status==='ACTIVE'&&m9?.closureEvidence===null,'M9 premature closure')}
 
 for(const marker of ['not a feature-delivery phase','hallucination / missing data','prompt injection','permission escape','malicious regulatory content','structured-output regression','approval/tool bypass','provider outage recovery','Phase 13.1 — Read-only Legacy Snapshot Intake — **LOCKED**'])has(kickoff,marker,'12.5 kickoff');
 
