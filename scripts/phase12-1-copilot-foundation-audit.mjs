@@ -54,7 +54,7 @@ for(const marker of [
 
 for(const marker of [
  'Status:** CLOSED / CERTIFIED',
- '8b8d8a678ce98e12b1c6ab170e571bf8f0185e04',
+ '21bce9a1a94c0ffcef90a5c9b1de4cecbd31b819',
  'Phase 12.1 — Copilot Foundation is now **AUTHORIZED_NEXT**'
 ])has(closure,marker,'11.7 closure');
 
