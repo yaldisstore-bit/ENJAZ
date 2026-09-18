@@ -19,14 +19,14 @@ if(state.a3Status==='CERTIFIED'){
   req(state.a3TestCount===13&&state.a3PassCount===13&&state.a3FailCount===0,'A3 destruction test certificate drifted');
   req(state.a3FunctionalTestCount===219&&state.a3FunctionalPassCount===219&&state.a3DbSelftestCount===25&&state.a3DbSelftestPassCount===25,'A3 regression certificate drifted');
   req(state.a3InitialJavascriptBytes===431032&&state.a3TotalJavascriptBytes===759568&&state.a3CssBytes===179989,'A3 budget certificate drifted');
-  req(state.sourceGateVerification==='PASS_A1_A2_A3'&&state.implementationPrReady===true&&state.pullRequestGate==='PENDING','A3 certified state must be PR-ready only');
+  req(state.sourceGateVerification==='PASS_A1_A2_A3'&&state.implementationPrReady===true,'A3 source certificate/PR readiness drifted');if(state.status==='CLOSED')req(state.pullRequestGate==='PASS'&&state.postMergeRecertification==='PASS','closed 13.1 requires PR/exact-main pass');else req(state.pullRequestGate==='PENDING','open A3 certified state must remain PR-pending');
 }
 req(state.a2Status==='CERTIFIED'&&state.a2GateRunId===35395538307&&state.a2GateRunNumber===5&&state.a2GateHead==='b63ce1c5591d7ff9f54bb69efcabbe685cdef95f','A2 certificate drifted');
 req(state.a2TestCount===10&&state.a2PassCount===10&&state.a2FailCount===0,'A2 tests drifted');
 req(state.a2FunctionalTestCount===219&&state.a2FunctionalPassCount===219&&state.a2DbSelftestCount===25&&state.a2DbSelftestPassCount===25,'A2 regression certificate drifted');
 req(state.a2InitialJavascriptBytes===431032&&state.a2TotalJavascriptBytes===759568&&state.a2CssBytes===179989,'A2 budget certificate drifted');
 req(state.utf8ByteAccountingRequired===true&&state.deterministicReplayRequired===true&&state.mutationTrapVerificationRequired===true,'A3 hardening requirements drifted');
-req(state.phase13_2Allowed===false&&state.successorStatus==='LOCKED'&&state.exitGatePassed===false&&state.closureDecision==='PENDING','A3 cannot close 13.1 or unlock 13.2');
+if(state.status==='CLOSED')req(state.phase13_2Allowed===true&&state.successorStatus==='AUTHORIZED_NEXT'&&state.exitGatePassed===true&&state.closureDecision==='PASS','closed 13.1 lifecycle invalid');else req(state.phase13_2Allowed===false&&state.successorStatus==='LOCKED'&&state.exitGatePassed===false&&state.closureDecision==='PENDING','A3 cannot close 13.1 or unlock 13.2 by itself');
 
 for(const marker of ['TextEncoder','utf8ByteLength','LEGACY_SNAPSHOT_RECORD_TOO_LARGE','LEGACY_SNAPSHOT_TOO_LARGE'])has(contract,marker,'contract');
 for(const marker of ['QUARANTINED_UNKNOWN','targetSystem:null','mappingAllowed:false'])has(review,marker,'review');
