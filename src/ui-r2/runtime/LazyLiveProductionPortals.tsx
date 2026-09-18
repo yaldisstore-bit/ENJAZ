@@ -58,13 +58,8 @@ export function LazyLiveProductionPortals({ regulatoryKnowledge, regulatoryWorks
       : destination === 'copilot' ? <CopilotPortal workspace={documentWorkspace} invoke={copilotInvoke} />
       : destination === 'documents'
         ? <>
-          {documentIntelligenceFactory || documentFactoryFactory
-            ? <DocumentsPortal factory={documentVaultFactory} intelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} workspace={documentWorkspace}/>
-            : <DocumentsPortal factory={documentVaultFactory} workspace={documentWorkspace}/>
-          }
-          {engagementContractFactory && documentFactoryFactory
-            ? <EngagementContractsPortal engagementContractFactory={engagementContractFactory} documentFactoryFactory={documentFactoryFactory} workspace={documentWorkspace}/>
-            : null}
+          <DocumentsPortal factory={documentVaultFactory} intelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} workspace={documentWorkspace}/>
+          {engagementContractFactory && documentFactoryFactory && <EngagementContractsPortal engagementContractFactory={engagementContractFactory} documentFactoryFactory={documentFactoryFactory} workspace={documentWorkspace}/>}
         </>
         : null}
   </Suspense>;
