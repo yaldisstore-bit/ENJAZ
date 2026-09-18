@@ -8,6 +8,7 @@ const ia=JSON.parse(read('docs/UI_UX_REBIRTH_2_0_INFORMATION_ARCHITECTURE.json')
 const root=read('src/ui-r2/runtime/UiR2LiveRoot.tsx');
 const lazy=read('src/ui-r2/runtime/LazyLiveProductionPortals.tsx');
 const portal=read('src/ui-r2/intelligence/LiveBusinessIntelligencePortal.tsx');
+const portalHook=read('src/ui-r2/runtime/useLiveRecordsPortal.ts');
 const center=read('src/ui-r2/intelligence/BusinessIntelligenceCenter.tsx');
 
 test('9.5 ui 01 — Business Intelligence owns one canonical live destination',()=>{
@@ -29,7 +30,8 @@ test('9.5 ui 03 — shell keeps insights lazy instead of inflating the initial p
 });
 
 test('9.5 ui 04 — live portal is destination-bound and replaces only the deferred target',()=>{
- assert.match(portal,/shell\.dataset\.destination==='insights'/);assert.match(portal,/createPortal\(<BusinessIntelligenceCenter\/>/);assert.match(portal,/data-live-deferred/);
+ assert.match(portal,/useLiveRecordsPortal\('insights'\)/);assert.match(portal,/createPortal\(<BusinessIntelligenceCenter\/>/);
+ assert.match(portalHook,/data-r2-runtime-mode=live/);assert.match(portalHook,/\.dataset\.destination===destination/);assert.match(portalHook,/data-live-deferred/);
 });
 
 test('9.5 ui 05 — center loads authoritative composition instead of embedding dashboard demo facts',()=>{
