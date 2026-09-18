@@ -14,6 +14,7 @@ const indexHardening=read('database/migrations/phase_12_3_agentic_approval_fk_in
 const edge=read('supabase/functions/enjaz-copilot-agent/index.ts');
 const action=read('supabase/functions/enjaz-copilot-agent/action.ts');
 const a3=read('docs/PHASE12_3_A3_KICKOFF.md');
+const a3Evidence=read('docs/PHASE12_3_A3_EVIDENCE.md');
 const actionMigration=read('database/migrations/phase_12_3_agentic_action_followup_snooze.sql');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 
@@ -25,6 +26,10 @@ req(state.baseCommit==='00470d129693fdf1362becbc7d95f54560f79481','12.3 base mus
 req(state.predecessorClosureMergeCommit===state.baseCommit,'12.3 predecessor lineage drifted');
 req(state.slice==='A3A_FOLLOWUP_SNOOZE_ACTION','12.3 current slice must be A3-A follow-up snooze');
 req(state.a2FinalSourceGateVerification==='PASS'&&state.a2FinalSourceGateRunId===35362458473&&state.a2FinalRealCloudVerification==='PASS'&&state.a2FinalRealCloudRunId===35362458544,'12.3 A2 final certification commit is not fully green');
+req(state.a3Certification==='PASS_FOLLOWUP_SNOOZE_REAL_CLOUD'&&state.a3CertificationStatus==='CERTIFIED','12.3 A3-A certification missing');
+req(state.a3FinalSourceGateVerification==='PASS'&&state.a3FinalSourceGateRunId===35364334584&&state.a3CertifiedSourceHead==='663c890aa4a9528af9ed977b0a6ce5d5b723a497','12.3 A3-A final source certification drifted');
+req(state.a3RealCloudVerification==='PASS'&&state.a3RealCloudRunId===35364334463&&state.a3RealCloudChecks===32&&state.a3RealCloudFailureCount===0,'12.3 A3-A Real Cloud evidence drifted');
+req(state.a3RealCloudZeroResidue===true&&state.a3RealCloudAtomicRollbackVerified===true&&state.a3RealCloudSingleUseReplayVerified===true&&state.a3RealCloudCrossWorkspaceZeroMutation===true,'12.3 A3-A destructive guarantees drifted');
 req(state.a1Certification==='PASS_PLAN_PROPOSAL_CONTRACT'&&state.a1SourceGateVerification==='PASS','12.3 A1 certification must remain preserved');
 req(state.successorPhase==='12.4'&&state.successorStatus==='LOCKED'&&state.phase12_4Allowed===false,'12.4 must remain locked');
 req(JSON.stringify(state.openingOperations)===JSON.stringify(['plan','propose']),'12.3 A1 operations drifted');
@@ -124,6 +129,7 @@ for(const marker of [
 ])has(actionMigration,marker,'12.3 A3-A migration');
 req(!/\b(post_payment_v1|reverse_payment_v1|archive_document_v1|generate_document_draft_v1|send_client_portal_message_v1)\b/.test(actionMigration),'12.3 A3-A migration has unauthorized business adapter');
 for(const marker of ['followup.snooze','execution request does not contain the target follow-up','inside one transaction','Phase 12.4 remains LOCKED'])has(a3,marker,'12.3 A3-A kickoff');
+for(const marker of ['32/32 PASS','execution before explicit approval is denied','proposal consumption is rolled back atomically','test auth users: **0**','Phase 12.4 remains LOCKED'])has(a3Evidence,marker,'12.3 A3-A evidence');
 
 has(roadmap,'## 12.3 — Agentic ENJAZ Copilot — M9','roadmap');
 has(roadmap,'Sensitive mutations require explicit user approval and domain-service validation.','roadmap');

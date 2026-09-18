@@ -7,7 +7,6 @@ on:
     paths:
       - 'scripts/phase12-3-a3-real-cloud-e2e.mjs'
       - '.github/workflows/phase12-3-a3-real-cloud-e2e.yml'
-      - 'docs/PHASE12_3_STATE.json'
   workflow_dispatch:
 
 permissions:
