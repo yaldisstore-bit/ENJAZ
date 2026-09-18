@@ -77,3 +77,10 @@ test('12.3 A3-D prepare mirrors M3 transaction grant floor',()=>{
     assert.ok(edge.includes(marker),marker);
   }
 });
+
+
+test('12.3 A3-D prepare follows canonical M3 shareable-principal status rule',()=>{
+  assert.doesNotMatch(edge,/principal\.status\)!=='active'/);
+  assert.match(edge,/text\(principal\.status\)==='revoked'\|\|text\(principal\.revokedAt\)/);
+  assert.match(edge,/code==='ENJAZ_PORTAL_SHARE_STAFF_COLLISION'.*return 400/s);
+});

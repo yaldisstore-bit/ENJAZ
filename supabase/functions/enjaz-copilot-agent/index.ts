@@ -155,7 +155,7 @@ function httpStatus(code:string){
   if(code==='ENJAZ_COPILOT_RATE_LIMITED')return 429;
   if(code.includes('CONFLICT')||code==='ENJAZ_COPILOT_ACTION_APPROVAL_REQUIRED'||code==='ENJAZ_FOLLOWUP_TERMINAL_FINAL'||code==='ENJAZ_SCHEDULING_ATTENTION_SOURCE_TERMINAL'||code==='ENJAZ_PORTAL_REQUEST_REVOKED'||code==='ENJAZ_PORTAL_REQUEST_NOT_OPEN'||code==='ENJAZ_PORTAL_REQUEST_STALE')return 409;
   if(code==='CONTEXT_SOURCE_UNAVAILABLE')return 503;
-  if(code.endsWith('_INVALID')||code.startsWith('REQUEST_')||code.startsWith('APPROVAL_')||code.startsWith('ACTION_')||code==='OPERATION_FORBIDDEN'||code==='GOAL_INVALID'||code==='CONTEXT_QUERY_INVALID'||code==='LIMIT_INVALID')return 400;
+  if(code.endsWith('_INVALID')||code==='ENJAZ_PORTAL_SHARE_STAFF_COLLISION'||code.startsWith('REQUEST_')||code.startsWith('APPROVAL_')||code.startsWith('ACTION_')||code==='OPERATION_FORBIDDEN'||code==='GOAL_INVALID'||code==='CONTEXT_QUERY_INVALID'||code==='LIMIT_INVALID')return 400;
   return 500;
 }
 function isApprovalBody(v:unknown){
@@ -331,7 +331,7 @@ Deno.serve(async(req:Request)=>{
       const data=record(authority.data);
       const principals=Array.isArray(data.principals)?data.principals:[];
       const principal=principals.find(v=>v&&typeof v==='object'&&!Array.isArray(v)&&text((v as J).id)===action.principalId) as J|undefined;
-      if(!principal||text(principal.status)!=='active'||text(principal.revokedAt))throw new Error('ENJAZ_PORTAL_PRINCIPAL_NOT_GRANTABLE');
+      if(!principal||text(principal.status)==='revoked'||text(principal.revokedAt))throw new Error('ENJAZ_PORTAL_SHARE_PRINCIPAL_INVALID');
 
       const now=Date.now();
       const grants=Array.isArray(data.grants)?data.grants:[];
