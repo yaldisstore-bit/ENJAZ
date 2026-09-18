@@ -5,11 +5,12 @@ const read=(p)=>fs.readFileSync(new URL(p,root),'utf8');
 const json=(p)=>JSON.parse(read(p));
 const state=json('docs/PHASE11_6_STATE.json');
 const scope=read('docs/PHASE11_6D_UNIFIED_EXPERIENCE_SCOPE.md');
+const closure=fs.existsSync(new URL('docs/PHASE11_6_CLOSURE.md',root))?read('docs/PHASE11_6_CLOSURE.md'):'';
 const errors=[];
 const req=(v,m)=>{if(!v)errors.push(m)};
 const has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 
-req(state.phase==='11.6'&&state.status==='IN_PROGRESS','11.6 must remain open during D certification');
+req(state.phase==='11.6'&&['IN_PROGRESS','CLOSED'].includes(state.status),'11.6 lifecycle status invalid');
 req(state.currentSlice==='11.6-D'&&state.currentSliceName==='Unified experience & certification','11.6-D must be the active final slice');
 req(state.mode==='UNIFIED_EXPERIENCE_CERTIFICATION','11.6-D mode drifted');
 req(state.currentSliceBaseCommit==='ea6d7bdedaa2a714c7ec34ebf444d06e0875b06b','11.6-D base must be exact merged C closure');
@@ -63,12 +64,19 @@ if(state.phase11_6dStatus==='IN_PROGRESS'){
   req(['PENDING_FRESH_WORKSPACE_DURABLE_WRITE_PERMISSION_CONFLICT_RECOVERY_ZERO_RESIDUE','PASS'].includes(state.phase11_6dRealCloudVerification),'D Real Cloud lifecycle invalid');
   req(['PENDING','PASS'].includes(state.phase11_6dPagesVerification)&&['PENDING','PASS'].includes(state.phase11_6dLiveExternalVerification),'D deployed-live lifecycle invalid');
 }else{
+  req(state.status==='CLOSED','closed D must close Phase 11.6 lifecycle');
   req(state.phase11_6dExitGatePassed===true&&state.exitGatePassed===true,'closed D must close Phase 11.6 exit gate');
   req(state.phase11_6dUnifiedReadModelAdded===true&&state.phase11_6dUnifiedExperienceImplemented===true,'closed D requires implementation');
   req(state.phase11_6dRealBrowserVerification==='PASS_1280_430_390_360_320','closed D requires five-width browser proof');
   req(state.phase11_6dRealCloudVerification==='PASS','closed D requires Real Cloud proof');
-  req(state.phase11_6dPagesVerification==='PASS'&&state.phase11_6dLiveExternalVerification==='PASS'&&state.phase11_6dPostMergeRecertification==='PASS','closed D requires deployed-live/post-merge proof');
-  req(state.phase11_7Allowed===true&&['AUTHORIZED','AUTHORIZED_NEXT'].includes(state.successorStatus),'closed Phase 11.6 may authorize only 11.7');
+  req(state.phase11_6dPagesVerification==='PASS'&&state.phase11_6dPagesRunId===35314650857&&state.phase11_6dPagesRunNumber===1534&&state.phase11_6dPagesRunAttempt===2&&state.phase11_6dPagesHead==='c9b810f3e21a382b92b52e9a630556d2f6cac49f','closed D requires exact Pages deploy proof');
+  req(state.phase11_6dLiveExternalVerification==='PASS'&&state.phase11_6dLiveExternalRunId===35314899155&&state.phase11_6dLiveExternalRunNumber===1211&&state.phase11_6dLiveExternalHead==='c9b810f3e21a382b92b52e9a630556d2f6cac49f','closed D requires exact Live External proof');
+  req(state.phase11_6dPostMergeRecertification==='PASS'&&state.phase11_6dPostMergeMainSha==='c9b810f3e21a382b92b52e9a630556d2f6cac49f','closed D requires exact-main recertification');
+  req(state.phase11_6dPostMergeQualityRunId===35314475585&&state.phase11_6dPostMergeRealBrowserRunId===35314475367&&state.phase11_6dPostMergeMajorSystemsRunId===35314475483&&state.phase11_6dPostMergeRoadmapRunId===35314475544,'closed D critical exact-main run lineage invalid');
+  req(state.phase11_6dPostMergeMainWorkflowTotal===40&&state.phase11_6dPostMergeMainWorkflowSuccess===35&&state.phase11_6dPostMergeMainWorkflowSkipped===5&&state.phase11_6dPostMergeMainWorkflowFailures===0&&state.phase11_6dPostMergeMainWorkflowQueued===0&&state.phase11_6dPostMergeMainWorkflowInProgress===0,'closed D exact-main inventory invalid');
+  req(state.phase11_6ClosureDecision==='PASS'&&state.phase11_6ClosureEvidencePath==='docs/PHASE11_6_CLOSURE.md','Phase 11.6 closure certificate missing');
+  req(state.phase11_7Allowed===true&&state.successorStatus==='AUTHORIZED_NEXT','closed Phase 11.6 must authorize only 11.7');
+  for(const marker of ['Status:** CLOSED / CERTIFIED','c9b810f3e21a382b92b52e9a630556d2f6cac49f','35314650857','35314899155','759,521 / 760,000','Phase 11.7 — Communication Zero-Escape Gate is now **AUTHORIZED_NEXT**'])has(closure,marker,'Phase 11.6 closure');
 }
 
 for(const marker of [
