@@ -68,7 +68,7 @@ req(!/\b(insert into|update\s+public\.|delete from|service_role)\b/i.test(core),
 has(roadmap,'## 12.4 — Regulatory Knowledge Assistance — M8 — IN_PROGRESS','roadmap');
 has(roadmap,'**A1 — Grounded Regulatory Assistance Contract: CERTIFIED**','roadmap');
 if(state.slice==='A2_AUTHENTICATED_M8_RETRIEVAL_EDGE'){
-  has(roadmap,'**A2 — Authenticated M8 Retrieval Edge: IN_PROGRESS**','roadmap');
+  if(state.a2Status==='CERTIFIED')has(roadmap,'**A2 — Authenticated M8 Retrieval Edge: CERTIFIED**','roadmap'); else has(roadmap,'**A2 — Authenticated M8 Retrieval Edge: IN_PROGRESS**','roadmap');
   for(const marker of ['caller JWT is mandatory','no service-role/secret key is used','search_regulatory_knowledge_v1','get_regulatory_knowledge_entry_v1','exact official version'])has(a2Kickoff,marker,'12.4 A2 kickoff');
   req(state.a2EdgeAuthority==='CALLER_JWT_ONLY'&&state.a2ServiceRoleAllowed===false&&state.a2DatabaseMigrationRequired===false,'12.4 A2 authority state drifted');
   req(state.a2VerifyJwtRequired===true&&state.a2DirectTableAccessAllowed===false&&state.a2MutationRpcAllowed===false,'12.4 A2 Edge restrictions drifted');
