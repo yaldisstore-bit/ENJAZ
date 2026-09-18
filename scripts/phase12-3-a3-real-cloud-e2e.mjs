@@ -51,7 +51,7 @@ async function fixture(ws,label){
   });if(x.error)throw x.error;fixtures.companies.push(companyId);
   x=await admin.from('transactions').insert({
     id:transactionId,workspace_id:ws,company_id:companyId,type:'A3 Agent Probe',department:'Copilot',
-    status:'active',priority:'normal',current_fee:0
+    status:'active',priority:'normal',current_fee:250000
   });if(x.error)throw x.error;fixtures.transactions.push(transactionId);
   x=await admin.from('transaction_followups').insert({
     id:followupId,workspace_id:ws,transaction_id:transactionId,title:`A3 ${label} follow-up`,
