@@ -17,6 +17,9 @@ req(state.phase11_6dOpenedFromMainSha===state.currentSliceBaseCommit,'D opening 
 req(state.nextSlice===null&&state.nextSliceName===null,'D is the final 11.6 slice and must not invent a successor slice');
 req(state.phase11_6cStatus==='CLOSED'&&state.phase11_6cExitGatePassed===true&&state.phase11_6cClosureDecision==='PASS','D requires formally closed C');
 req(state.phase11_6cMergeCommit==='ea6d7bdedaa2a714c7ec34ebf444d06e0875b06b','C merge lineage drifted');
+req(state.phase11_6cPostMergeRecertification==='PASS_EXACT_MAIN_SHA','D requires exact-main C recertification');
+req(state.phase11_6cPostMergeQualityRunId===35312001998&&state.phase11_6cPostMergeRealBrowserRunId===35312002076&&state.phase11_6cPostMergeMajorSystemsRunId===35312002091,'C exact-main core gate lineage invalid');
+req(state.phase11_6cPostMergePagesRunId===35312053231&&state.phase11_6cPostMergeLiveExternalRunId===35312111384,'C exact-main deployed-live lineage invalid');
 req(state.phase11_6dAllowed===true,'C closure must authorize D');
 req(['IN_PROGRESS','CLOSED'].includes(state.phase11_6dStatus),'D lifecycle status invalid');
 req(state.phase11_6dProjectionOnly===true,'D must remain projection-only');
