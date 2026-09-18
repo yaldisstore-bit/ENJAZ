@@ -55,8 +55,8 @@ test('12.5 M9 prompt injection remains bounded goal/context data',()=>{
   assert.equal(req.goal,injected);
   assert.deepEqual(AGENT_OPERATIONS,['plan','propose']);
   const plan=buildAgentPlan(req,[]);
-  assert.equal(plan.controls.executionAllowed,false);
-  assert.equal(plan.controls.genericWriteToolAllowed,false);
+  assert.equal(plan.proposal.executionAllowed,false);
+  assert.equal(plan.proposal.genericWriteToolAllowed,false);
   assert.equal(plan.grounding.providerUsed,false);
 });
 
