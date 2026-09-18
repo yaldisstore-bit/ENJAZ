@@ -1,0 +1,63 @@
+name: ENJAZ Phase 12.1 — Copilot Foundation Real Cloud
+
+on:
+  push:
+    branches:
+      - phase12-1-copilot-foundation
+    paths:
+      - 'scripts/phase12-1-real-cloud-e2e.mjs'
+      - 'database/migrations/phase_12_1_copilot_foundation.sql'
+      - 'supabase/functions/enjaz-copilot-foundation/**'
+      - 'docs/PHASE12_1_STATE.json'
+      - '.github/workflows/phase12-1-real-cloud-e2e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase121-real-cloud
+  cancel-in-progress: false
+
+jobs:
+  real-cloud:
+    name: Auth / Workspace / Idempotency / Rate Limit / Provider Isolation / Zero Residue
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+      SUPABASE_SECRET_KEY: ${{ secrets.ENJAZ_SUPABASE_SECRET_KEY }}
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Require server-only Supabase credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_SECRET_KEY"
+          case "$SUPABASE_SECRET_KEY" in sb_publishable_*) exit 1 ;; esac
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Static Real Cloud guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check scripts/phase12-1-real-cloud-e2e.mjs
+          node --test tests/phase12-1-copilot-foundation-source.test.mjs
+          if grep -Eq 'sb_secret_[A-Za-z0-9_-]+' scripts/phase12-1-real-cloud-e2e.mjs; then exit 1; fi
+      - name: Run fresh authenticated Copilot Foundation evidence
+        run: node scripts/phase12-1-real-cloud-e2e.mjs
+      - name: Upload sanitized 12.1 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12-1-real-cloud-${{ github.sha }}
+          path: artifacts/phase12-1-real-cloud/evidence.json
+          if-no-files-found: error
+          retention-days: 14

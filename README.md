@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 11.7 — Communication Zero-Escape Gate ✅ CLOSED / REAL CLOUD + EXACT-MAIN + PAGES + LIVE EXTERNAL CERTIFIED**  
+الحالة الرسمية: **Phase 12.1 — Copilot Foundation 🟡 IN PROGRESS — SERVER-SIDE FOUNDATION / REAL CLOUD CERTIFIED**  
 آخر مرحلة مغلقة: **Phase 11.7 — Communication Zero-Escape Gate ✅ CLOSED / ZERO-ESCAPE CERTIFIED**  
-المرحلة اللاحقة: **Phase 12.1 — Copilot Foundation — AUTHORIZED_NEXT**.
+المرحلة اللاحقة: **Phase 12.2 — Contextual Assistance — LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -54,8 +54,30 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10: ✅ CLOSED + authenticated Real Cloud + dedicated 5-width Chromium + exact-main cumulative gates + frozen-budget certification.**
 - **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: ✅ CLOSED + Real Cloud + five-width Chromium + post-closure exact-main + Pages + Live External certified.**
 - **Phase 11.7 — Communication Zero-Escape Gate: ✅ CLOSED — M3/M4/M10 + Phase-11 M16/M17 individual Real Cloud, PR gate, exact-main Real Browser, Pages and Live External certified.**
+- **Phase 12.1 — Copilot Foundation: 🟡 IN PROGRESS — private quota/trace evidence + service-only RPC + JWT Edge v1 + Real Cloud certified; PR/post-merge certification pending.**
 
-## Phase 11.7 — الحالة الحالية
+## Phase 12.1 — الحالة الحالية
+
+- exact base: `8b8d8a678ce98e12b1c6ab170e571bf8f0185e04` — final merged Phase 11.7 closure.
+- implementation branch: `phase12-1-copilot-foundation`.
+- mode: **COPILOT_FOUNDATION**؛ server-side foundation only، بدون contextual assistance وبدون agentic mutation authority.
+- DB foundation migration `20260918085157` — **APPLIED / PASS**.
+- private evidence: `private.copilot_rate_buckets` + `private.copilot_request_traces`؛ direct browser/service table reads denied.
+- service-only RPC boundary: `copilot_begin_request_v1` / `copilot_finish_request_v1`; authenticated/anon execution denied.
+- Edge Function `enjaz-copilot-foundation` v1 — **ACTIVE / verify_jwt=true**.
+- allowed operations فقط: `capabilities` + `provider_probe`; لا tool execution ولا business writes.
+- provider-backed assistance: **DISABLED**؛ `provider_probe` يرجع structured `PROVIDER_NOT_CONFIGURED` بدل اختلاق إجابة.
+- raw prompt / raw model output / secrets persistence: **FORBIDDEN**.
+- Real Cloud #1 / `35326789332`: **PASS / ZERO RESIDUE**؛ artifact `10539376257`.
+- Real Cloud verified: auth + workspace isolation + raw-field rejection + exact replay + replay conflict + rate-limit + next-window recovery + provider isolation + no canonical business writes.
+- advisors after exercised indexes: **Security 65 / Performance 75 / Unindexed FK 28**؛ 12.1-caused regressions: **0**.
+- client/UI delta: **0**؛ no AI SDK/provider package in browser، no new CSS، frozen budgets unchanged.
+- source gate #16 / `35327104996`: **PASS**؛ Constitution #2201 + Roadmap #1486: **PASS**.
+- Phase 12.2 — Contextual Assistance: **LOCKED** until PR + exact-main post-merge + deployed-live certification closes 12.1.
+- kickoff: [`docs/PHASE12_1_KICKOFF.md`](docs/PHASE12_1_KICKOFF.md).
+- lifecycle state: [`docs/PHASE12_1_STATE.json`](docs/PHASE12_1_STATE.json).
+
+## Phase 11.7 — دليل الإغلاق المحفوظ
 
 - formal base: `5c4b1bfa4cda339fbbd96b7d3bbf938ef560f98a` — Phase 11.6 final closure merge.
 - implementation branch: `phase11-7-communication-zero-escape`; final closure branch: `phase11-7-final-closure`.
@@ -67,7 +89,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - PR #195: Phase 11.7 Gate #21, Quality #1696, Major Systems #813, Roadmap #1456, Constitution #2171, Real Browser #1612 — **PASS**.
 - exact-main merge `21bce9a1a94c0ffcef90a5c9b1de4cecbd31b819`: **35/35 SUCCESS**؛ Quality #1697, Real Browser #1613, Major Systems #814, Roadmap #1457, Pages #1540, Live External #1216.
 - final frozen build: **430928 / 670000 initial JS, 759521 / 760000 total JS, 179989 / 180000 CSS**؛ no cap increase / no feature cut.
-- Phase 12.1 — Copilot Foundation: **AUTHORIZED_NEXT** only from the final merged 11.7 closure.
+- Phase 12.1 — Copilot Foundation: **OPEN / IN PROGRESS** from final merged 11.7 closure `8b8d8a678ce98e12b1c6ab170e571bf8f0185e04`; Phase 12.2 remains LOCKED.
 - kickoff: [`docs/PHASE11_7_KICKOFF.md`](docs/PHASE11_7_KICKOFF.md).
 - closure evidence: [`docs/PHASE11_7_CLOSURE.md`](docs/PHASE11_7_CLOSURE.md).
 - lifecycle state: [`docs/PHASE11_7_STATE.json`](docs/PHASE11_7_STATE.json).
