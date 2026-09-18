@@ -103,19 +103,36 @@ begin
        or exists(select 1 from public.transactions t where t.id=v_target_id)
     then raise unique_violation using message='ENJAZ_LEGACY_IMPORT_TARGET_ALREADY_EXISTS'; end if;
 
+    if exists(select 1 from public.contacts c where c.workspace_id=p_workspace_id and c.legacy_source='phase13.3' and c.legacy_id=v_source_key)
+       or exists(select 1 from public.companies c where c.workspace_id=p_workspace_id and c.legacy_source='phase13.3' and c.legacy_id=v_source_key)
+       or exists(select 1 from public.transactions t where t.workspace_id=p_workspace_id and t.legacy_source='phase13.3' and t.legacy_id=v_source_key)
+    then raise unique_violation using message='ENJAZ_LEGACY_IMPORT_SOURCE_ALREADY_IMPORTED'; end if;
+
     if v_target_table='contacts' then
       if (v_item->>'stage')::integer<>1 or exists(select 1 from jsonb_object_keys(v_fields) k where k not in ('display_name','contact_type','phone','email','notes'))
+         or jsonb_typeof(v_fields->'display_name')<>'string' or jsonb_typeof(v_fields->'contact_type')<>'string'
+         or (v_fields?'phone' and jsonb_typeof(v_fields->'phone') not in ('string','null'))
+         or (v_fields?'email' and jsonb_typeof(v_fields->'email') not in ('string','null'))
+         or (v_fields?'notes' and jsonb_typeof(v_fields->'notes') not in ('string','null'))
          or char_length(btrim(coalesce(v_fields->>'display_name',''))) not between 1 and 240
          or coalesce(v_fields->>'contact_type','') not in ('lawyer','client','representative','other')
       then raise invalid_parameter_value using message='ENJAZ_LEGACY_IMPORT_CONTACT_INVALID'; end if;
     elsif v_target_table='companies' then
       if (v_item->>'stage')::integer<>2 or exists(select 1 from jsonb_object_keys(v_fields) k where k not in ('legal_name','display_name','capital','address','activities','registration_number','legal_status'))
+         or jsonb_typeof(v_fields->'legal_name')<>'string'
+         or (v_fields?'display_name' and jsonb_typeof(v_fields->'display_name') not in ('string','null'))
+         or (v_fields?'address' and jsonb_typeof(v_fields->'address') not in ('string','null'))
+         or (v_fields?'activities' and jsonb_typeof(v_fields->'activities') not in ('string','null'))
+         or (v_fields?'registration_number' and jsonb_typeof(v_fields->'registration_number') not in ('string','null'))
+         or (v_fields?'legal_status' and jsonb_typeof(v_fields->'legal_status') not in ('string','null'))
          or char_length(btrim(coalesce(v_fields->>'legal_name',''))) not between 1 and 400
       then raise invalid_parameter_value using message='ENJAZ_LEGACY_IMPORT_COMPANY_INVALID'; end if;
       if v_fields?'capital' and (jsonb_typeof(v_fields->'capital')<>'number' or (v_fields->>'capital')::numeric<0 or v_fields->>'capital'!~'^\d+(?:\.\d{1,2})?$')
       then raise invalid_parameter_value using message='ENJAZ_LEGACY_IMPORT_COMPANY_CAPITAL_INVALID'; end if;
     else
       if (v_item->>'stage')::integer<>3 or exists(select 1 from jsonb_object_keys(v_fields) k where k not in ('type','department','current_fee'))
+         or jsonb_typeof(v_fields->'type')<>'string'
+         or (v_fields?'department' and jsonb_typeof(v_fields->'department') not in ('string','null'))
          or char_length(btrim(coalesce(v_fields->>'type',''))) not between 1 and 180
          or not (v_fields?'current_fee') or jsonb_typeof(v_fields->'current_fee')<>'number'
          or (v_fields->>'current_fee')::numeric<=0 or v_fields->>'current_fee'!~'^\d+(?:\.\d{1,2})?$'
