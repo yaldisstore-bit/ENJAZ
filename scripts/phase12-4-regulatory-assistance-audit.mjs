@@ -39,10 +39,10 @@ req(state.generationMode==='DETERMINISTIC_REGULATORY_GROUNDING_V1','12.4 A1 gene
 req(JSON.stringify(state.openingOperations)===JSON.stringify(['answer']),'12.4 A1 operation registry drifted');
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000,'frozen client ceilings drifted');
 
-for(const marker of ['Status:** CLOSED / CERTIFIED','cc01d06be81be27e614d80c9edaa86bdf4e79634','Phase 12.4 — Regulatory Knowledge Assistance — M8 is now **AUTHORIZED_NEXT**'])has(closure,marker,'12.3 closure');
+for(const marker of ['Status:** CLOSED / CERTIFIED','0353e15d0e8299ba5410d6fff5bf540b41b90443','Phase 12.4 — Regulatory Knowledge Assistance — M8 is now **AUTHORIZED_NEXT**'])has(closure,marker,'12.3 closure');
 for(const marker of ['Status: **CLOSED','official-global ingestion remains **SERVICE_ROLE_ONLY**','editorial interpretation and AI summaries remain permanently **NON-AUTHORITATIVE**','M8 remains `ACTIVE`'])has(m8Closure,marker,'Phase 9.4 M8 closure');
 
-for(const marker of ['A1 — Grounded Regulatory Assistance Contract','must not create a second regulatory source of truth','explicit ISO `asOf`','official source text','structured source facts','assistance / interpretation','Phase 12.5 — AI Zero-Escape & Safety Gate — **LOCKED**'])has(kickoff,marker,'12.4 kickoff');
+for(const marker of ['A1 — Grounded Regulatory Assistance Contract','second regulatory source of truth','explicit ISO `asOf`','official source text','structured source facts','assistance / interpretation','Phase 12.5 — AI Zero-Escape & Safety Gate — **LOCKED**'])has(kickoff,marker,'12.4 kickoff');
 
 for(const marker of [
   "REGULATORY_ASSISTANCE_SCHEMA='enjaz.regulatory.assistance.v1'",
