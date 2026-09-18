@@ -2,7 +2,7 @@ import { lazy, Suspense, useLayoutEffect, useState, type ComponentType } from 'r
 import type { RegulatoryKnowledgeGateway } from '../../features/regulatory/regulatoryKnowledgeCommands.ts';
 import type { DocumentFactoryFactory, DocumentIntelligenceFactory, DocumentVaultFactory, EngagementContractFactory } from './UiR2ProductionRoot.tsx';
 
-const named=<M,K extends keyof M>(load:()=>Promise<M>,key:K)=>lazy(()=>load().then(module=>({default:module[key] as Extract<M[K],ComponentType<any>>})));
+const named=<M,K extends keyof M>(load:()=>Promise<M>,key:K):any=>lazy(()=>load().then(module=>({default:module[key] as Extract<M[K],ComponentType<any>>})));
 const CompaniesPortal=named(()=>import('../records/LiveCompaniesProductionPortal.tsx'),'LiveCompaniesProductionPortal');
 const PeoplePortal=named(()=>import('../records/LivePeopleProductionPortal.tsx'),'LivePeopleProductionPortal');
 const FinancePortal=named(()=>import('../finance/LiveFinanceProductionPortal.tsx'),'LiveFinanceProductionPortal');
