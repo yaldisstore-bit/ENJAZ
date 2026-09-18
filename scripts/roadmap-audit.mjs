@@ -173,10 +173,11 @@ if(exists('docs/PHASE13_2_STATE.json')){
   req(p131.status==='CLOSED'&&p131.closureDecision==='PASS'&&p131.phase13_2Allowed===true&&p131.successorStatus==='AUTHORIZED_NEXT','Phase 13.2 requires formal Phase 13.1 authorization');
   req(p132.phase==='13.2'&&p132.status==='IN_PROGRESS'&&p132.mode==='EXPLICIT_REVIEWABLE_NORMALIZE_AND_MAP','Phase 13.2 lifecycle invalid');
   req(p132.baseCommit==='aa8e402eeb6ed03bee9fb446bc2c741da37df7dc'&&p132.predecessorClosureMergeCommit===p132.baseCommit,'Phase 13.2 exact base/lineage drifted');
-  req(p132.currentSlice==='A1_EXPLICIT_MAPPING_CONTRACT'&&p132.a1Status==='IN_PROGRESS','Phase 13.2 A1 lifecycle drifted');
+  req(p132.currentSlice==='A2_EXPLICIT_RELATIONSHIP_PREVIEW'&&p132.a1Status==='CERTIFIED'&&p132.a2Status==='IN_PROGRESS','Phase 13.2 A1/A2 lifecycle drifted');
   req(p132.mappingAllowed===true&&p132.normalizationAllowed===true&&p132.mappingMustBeExplicit===true&&p132.mappingInferenceAllowed===false&&p132.unknownConceptAutoMappingAllowed===false,'Phase 13.2 mapping law drifted');
-  for(const k of ['persistenceAllowed','databaseWritesAllowed','newDatabaseTablesAllowed','newWriteRpcAuthorityAllowed','edgeFunctionAdded','clientUiAdded','orderedImportAllowed','importExecutionAllowed','targetEnjazMutationAllowed','relationshipMappingAllowed','targetAuthorityAssigned'])req(p132[k]===false,`Phase 13.2 A1 ${k} must remain false`);
+  for(const k of ['persistenceAllowed','databaseWritesAllowed','newDatabaseTablesAllowed','newWriteRpcAuthorityAllowed','edgeFunctionAdded','clientUiAdded','orderedImportAllowed','importExecutionAllowed','targetEnjazMutationAllowed','targetAuthorityAssigned'])req(p132[k]===false,`Phase 13.2 through A2 ${k} must remain false`);
   req(p132.mappingPreviewInMemoryOnly===true&&p132.targetTablesA1?.join(',')==='companies,contacts,transactions','Phase 13.2 A1 preview scope drifted');
+   req(p132.relationshipMappingAllowed===true&&p132.relationshipMappingMustBeExplicit===true&&p132.relationshipInferenceAllowed===false&&p132.relationshipPreviewInMemoryOnly===true&&p132.relationshipForeignKeyAssignmentAllowed===false&&p132.generatedIdAuthorityAllowed===false,'Phase 13.2 A2 relationship preview law drifted');
   req(p132.successorPhase==='13.3'&&p132.successorStatus==='LOCKED'&&p132.phase13_3Allowed===false,'Open Phase 13.2 must keep 13.3 locked');
   req(p132.javascriptBudgetBytes===670000&&p132.totalJavascriptBudgetBytes===760000&&p132.cssBudgetBytes===180000&&p132.budgetIncreaseAllowed===false,'Phase 13.2 budget law drifted');
 }
