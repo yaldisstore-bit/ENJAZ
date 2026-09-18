@@ -120,9 +120,9 @@ async function runM10(){
  const foreign=await outsider.client.rpc('list_unified_calendar_v2',{p_workspace_id:ws,p_anchor_date:anchor,p_view:'day',p_authority:'all',p_staff_member_id:null,p_company_id:null,p_transaction_id:null,p_limit:100});
  assert(errHas(foreign.error,'ENJAZ_SCHEDULING_WORKSPACE_FORBIDDEN'),'M10','cross_workspace_calendar_denied',errText(foreign.error));
 
- const persisted=await admin.from('private.scheduling_command_receipts').select('operation_id').eq('workspace_id',ws).eq('operation_id',op);
- if(persisted.error)throw persisted.error;
- assert(persisted.data?.length===1,'M10','durable_command_receipt_single');
+ const audited=await admin.from('audit_events').select('id,details').eq('workspace_id',ws).eq('action','scheduling.calendar.created').eq('entity_id',event);
+ if(audited.error)throw audited.error;
+ assert(replay.data?.wasDuplicate===true&&audited.data?.length===1&&audited.data[0]?.details?.operationId===op,'M10','durable_receipt_single_audit');
 }
 
 async function cleanup(){
