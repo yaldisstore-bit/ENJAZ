@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const edge=fs.readFileSync('supabase/functions/enjaz-regulatory-assistant/index.ts','utf8');
+const core=fs.readFileSync('supabase/functions/enjaz-regulatory-assistant/core.ts','utf8');
 
 test('12.4 A2 Edge is caller-JWT-only with no service-role/admin authority',()=>{
   for(const marker of [
@@ -10,7 +11,7 @@ test('12.4 A2 Edge is caller-JWT-only with no service-role/admin authority',()=>
     "userClient.rpc('search_regulatory_knowledge_v1'",
     "userClient.rpc('get_regulatory_knowledge_entry_v1'",
     "p_as_of:parsed.asOf",
-    "official.versionId!==ref.versionId",
+    "assertRegulatoryEntryMatchesSearchReference(response.data,ref,parsed)",
     "buildRegulatoryAssistanceResult(parsed,entries)",
   ]) assert.ok(edge.includes(marker),marker);
   assert.doesNotMatch(edge,/SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEY|SUPABASE_SECRET_KEYS|serviceKey\(|\badmin\b/);
@@ -27,8 +28,10 @@ test('12.4 A2 search and entry retrieval remain explicit-asOf and exact-version 
   assert.match(edge,/search_regulatory_knowledge_v1/);
   assert.match(edge,/get_regulatory_knowledge_entry_v1/);
   assert.match(edge,/p_as_of:parsed\.asOf/g);
-  assert.match(edge,/REGULATORY_VERSION_BINDING_CONFLICT/);
-  assert.match(edge,/item\.authoritative!==true/);
+  assert.match(edge,/parseRegulatorySearchEvidence\(search\.data,parsed\)/);
+  assert.match(edge,/REGULATORY_SOURCE_BINDING_CONFLICT/);
+  assert.match(core,/item\.authoritative!==true/);
+  assert.match(core,/sourceHash!==ref\.sourceHash/);
 });
 
 test('12.4 A2 keeps authentication and workspace denial explicit',()=>{
