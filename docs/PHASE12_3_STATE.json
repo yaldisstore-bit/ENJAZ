@@ -187,5 +187,13 @@
   "a3RealCloudSingleUseReplayVerified": true,
   "a3RealCloudCrossWorkspaceZeroMutation": true,
   "a3Evidence": "docs/PHASE12_3_A3_EVIDENCE.md",
-  "a3CertifiedAt": "2026-09-18T15:45:50Z"
+  "a3CertifiedAt": "2026-09-18T15:45:50Z",
+  "a3CertificationCommitHead": "bcd3f559435d0921c6a734cbd1f54df4cb18faab",
+  "a3CertificationCommitSourceGateRunId": 35364548255,
+  "a3CertificationCommitSourceGateRunNumber": 18,
+  "a3CertificationCommitSourceGateVerification": "PASS",
+  "a3CertificationCommitRealCloudRunId": 35364548285,
+  "a3CertificationCommitRealCloudRunNumber": 3,
+  "a3CertificationCommitRealCloudVerification": "PASS",
+  "a3CertificationCommitZeroResidue": true
 }
