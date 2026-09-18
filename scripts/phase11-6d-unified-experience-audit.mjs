@@ -26,6 +26,13 @@ req(state.phase11_6dProjectionOnly===true,'D must remain projection-only');
 req(state.phase11_6dNewCssAllowed===false,'D cannot open new CSS budget');
 req(state.phase11_6dShadowStoreAllowed===false,'D cannot create a shadow store');
 req(state.phase11_6dDirectAuthorityWriteAllowed===false,'D cannot own direct authority writes');
+if(state.phase11_6dUnifiedReadModelAdded===true){
+  req(state.phase11_6dUnifiedReadModelMigrationPath==='database/migrations/phase_11_6_unified_intake_contract_attention.sql','D1 migration path drifted');
+  req(state.phase11_6dUnifiedReadModelMigrationApplied===true&&state.phase11_6dUnifiedReadModelMigrationVersion==='20260918055120','D1 Real Cloud migration lineage invalid');
+  req(state.phase11_6dSecurityAdvisorBaselineTotal===65&&state.phase11_6dSecurityAdvisorPostD1Total===65&&state.phase11_6dD1NewSecurityAdvisorFindings===0,'D1 security advisor certificate invalid');
+  req(state.phase11_6dPerformanceAdvisorBaselineTotal===80&&state.phase11_6dPerformanceAdvisorPostD1Total===80&&state.phase11_6dUnindexedForeignKeysBaseline===28&&state.phase11_6dUnindexedForeignKeysPostD1===28&&state.phase11_6dD1NewPerformanceAdvisorFindings===0,'D1 performance advisor certificate invalid');
+  req(state.phase11_6dD1PermissionMatrix==='PASS','D1 permission matrix missing');
+}
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false,'frozen budgets drifted');
 
 if(state.phase11_6dStatus==='IN_PROGRESS'){
@@ -51,7 +58,7 @@ for(const marker of [
   '**No new CSS file or CSS budget increase is allowed.**',
   '759488 total JS / 179989 CSS',
   '512 JS bytes / 11 CSS bytes',
-  'stale, revoked, offline, failure, conflict',
+  'Loading, empty, offline, failure, stale/conflict, revoked/expired and recovery states are explicit.',
   '1280 / 430 / 390 / 360 / 320',
   'Pages deployment',
   'Live External critical-path verification',
