@@ -78,8 +78,9 @@ async function runM4(){
  const foreign=await outsider.client.rpc('prepare_communication_outbound_v1',{...args,p_idempotency_key:'phase117-foreign'});
  assert(errHas(foreign.error,'ENJAZ_COMMUNICATION_WORKSPACE_FORBIDDEN'),'M4','cross_workspace_command_denied',errText(foreign.error));
 
- const response=await fetch(`${url}/functions/v1/enjaz-communications`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({workspaceId:ws,commandId:first.data.commandId})});
- assert(response.status===401,'M4','edge_dispatch_requires_internal_auth',String(response.status));
+ const response=await fetch(`${url}/functions/v1/enjaz-communications?action=dispatch`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({workspaceId:ws,commandId:first.data.commandId})});
+ const denied=await response.json().catch(()=>({}));
+ assert(response.status===401&&denied?.error==='INTERNAL_AUTH_REQUIRED','M4','edge_dispatch_requires_internal_auth',`${response.status}:${String(denied?.error??'')}`);
  const after=await admin.from('communications').select('status').eq('id',first.data.communicationId).single();
  if(after.error)throw after.error;
  assert(after.data?.status==='queued','M4','unauthorized_dispatch_did_not_forge_delivery');
