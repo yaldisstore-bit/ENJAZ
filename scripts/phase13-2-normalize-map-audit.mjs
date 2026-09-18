@@ -12,11 +12,20 @@ for(const k of ['persistenceAllowed','databaseWritesAllowed','newDatabaseTablesA
 req(state.mappingPreviewInMemoryOnly===true&&state.unknownConceptPolicy==='QUARANTINE_REVIEWABLE_NO_GUESS','13.2 A1 quarantine/preview law drifted');
 req(state.targetTablesA1?.join(',')==='companies,contacts,transactions','13.2 A1 target scope drifted');
 req(state.javascriptBudgetBytes===670000&&state.totalJavascriptBudgetBytes===760000&&state.cssBudgetBytes===180000&&state.budgetIncreaseAllowed===false,'13.2 budget law drifted');
-req(state.exitGatePassed===false&&state.closureDecision==='PENDING'&&state.a1Status==='IN_PROGRESS','13.2 A1 cannot close the phase');
-for(const marker of ['LEGACY_MAPPING_PLAN_SCHEMA','LEGACY_MAPPING_PREVIEW_SCHEMA','identity_scalar','trim_text','strict_number','LEGACY_MAPPING_TARGET_FIELD_FORBIDDEN','QUARANTINED_UNMAPPED_TYPE','eligibleForOrderedImport:false','targetMutationAllowed:false'])has(source,marker,'mapping source');
+req(state.exitGatePassed===false&&state.closureDecision==='PENDING','13.2 cannot close before final certification');
+req(state.a1Status==='CERTIFIED'&&state.a1GateRunId===35398804690&&state.a1GateRunNumber===2&&state.a1GateHead==='e7cb5d573e4ef679bf64eab257f49d46bea38383','13.2 A1 certificate invalid');
+req(state.a1TestCount===12&&state.a1PassCount===12&&state.a1FailCount===0&&state.a1FunctionalPassCount===219&&state.a1DbSelftestPassCount===25,'13.2 A1 counts invalid');
+req(state.a1InitialJavascriptBytes===431032&&state.a1TotalJavascriptBytes===759568&&state.a1CssBytes===179989,'13.2 A1 budget certificate invalid');
+req(state.currentSlice==='A2_EXPLICIT_RELATIONSHIP_PREVIEW'&&state.a2Status==='IN_PROGRESS','13.2 A2 lifecycle invalid');
+req(state.relationshipMappingAllowed===true&&state.relationshipMappingMustBeExplicit===true&&state.relationshipInferenceAllowed===false&&state.relationshipPreviewInMemoryOnly===true,'13.2 A2 relationship law drifted');
+req(state.relationshipForeignKeyAssignmentAllowed===false&&state.generatedIdAuthorityAllowed===false,'13.2 A2 cannot assign FK or IDs');
+req(state.relationshipTargetFieldsA2?.join(',')==='transactions.company_id->companies,transactions.primary_contact_id->contacts,companies.primary_contact_id->contacts','13.2 A2 relationship target scope drifted');
+for(const marker of ['LEGACY_MAPPING_PLAN_SCHEMA','LEGACY_MAPPING_PREVIEW_SCHEMA','identity_scalar','trim_text','strict_number','LEGACY_MAPPING_TARGET_FIELD_FORBIDDEN','QUARANTINED_UNMAPPED_TYPE','eligibleForOrderedImport:false','targetMutationAllowed:false','LegacyRelationshipPreviewIntent','RESOLVED_RELATIONSHIP_PREVIEW','QUARANTINED_DANGLING_TARGET','foreignKeyAssignmentPerformed:false','idGenerationPerformed:false'])has(source,marker,'mapping source');
 for(const marker of ['unmapped fields are never copied silently','authority-bearing target fields are forbidden','strict number rejects ambiguous formats','does not mutate snapshot or mapping plan','relationships are not mapped in A1'])has(tests,marker,'A1 tests');
+const a2tests=read('tests/phase13-2-relationship-preview.test.ts');
+for(const marker of ['resolves only explicitly declared safe relationship previews','does not case-fold or infer synonyms','dangling target remains quarantined','duplicate target makes the relationship ambiguous','does not mutate source snapshot or mapping plan'])has(a2tests,marker,'A2 tests');
 for(const marker of ['Every mapped source field and target field must be named explicitly','Unmapped source fields are ignored','Phase 13.3 — Ordered Import remains LOCKED'])has(kickoff,marker,'kickoff');
-has(roadmap,'## 13.2 — Normalize & Map — IN_PROGRESS / A1 EXPLICIT MAPPING CONTRACT','roadmap');has(readme,'Phase 13.2 — Normalize & Map 🟡 IN PROGRESS — A1 EXPLICIT MAPPING CONTRACT','README');
+has(roadmap,'## 13.2 — Normalize & Map — IN_PROGRESS / A2 EXPLICIT RELATIONSHIP PREVIEW','roadmap');has(readme,'Phase 13.2 — Normalize & Map 🟡 IN PROGRESS — A2 EXPLICIT RELATIONSHIP PREVIEW','README');
 req(!exists('database/migrations/phase_13_2_normalize_map.sql'),'13.2 A1 must not add database migration');
 req(!exists('supabase/functions/enjaz-legacy-import/index.ts'),'13.2 A1 must not add import Edge Function');
 if(errors.length){console.error(`ENJAZ PHASE 13.2 A1 AUDIT FAIL (${errors.length})`);errors.forEach(x=>console.error('- '+x));process.exit(1)}

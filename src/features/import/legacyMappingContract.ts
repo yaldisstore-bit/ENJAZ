@@ -16,10 +16,18 @@ export type LegacyTypeMapping={
   targetTable:LegacyMappingTargetTable;
   fieldMappings:LegacyFieldMapping[];
 };
+export type LegacyRelationshipTargetField='company_id'|'primary_contact_id';
+export type LegacyRelationshipMapping={
+  sourceLegacyType:string;
+  linkKind:string;
+  targetLegacyType:string;
+  targetField:LegacyRelationshipTargetField;
+};
 export type LegacyMappingPlan={
   schema:typeof LEGACY_MAPPING_PLAN_SCHEMA;
   planId:string;
   typeMappings:LegacyTypeMapping[];
+  relationshipMappings:LegacyRelationshipMapping[];
 };
 
 export type LegacyMappingPreviewRecord={
@@ -31,6 +39,20 @@ export type LegacyMappingPreviewRecord={
   reviewRequired:boolean;
   writeAllowed:false;
 };
+export type LegacyRelationshipPreviewIntent={
+  sourceKey:string;
+  targetKey:string;
+  linkKind:string;
+  sourceTargetTable:LegacyMappingTargetTable;
+  targetTargetTable:LegacyMappingTargetTable;
+  targetField:LegacyRelationshipTargetField;
+  disposition:'RESOLVED_RELATIONSHIP_PREVIEW'|'QUARANTINED_DANGLING_TARGET'|'QUARANTINED_DUPLICATE_SOURCE'|'QUARANTINED_DUPLICATE_TARGET';
+  reviewRequired:boolean;
+  foreignKeyAssigned:false;
+  generatedTargetId:null;
+  writeAllowed:false;
+};
+export type LegacyUnmappedRelationshipLink={sourceKey:string;kind:string;targetKey:string};
 export type LegacyMappingPreview={
   schema:typeof LEGACY_MAPPING_PREVIEW_SCHEMA;
   planId:string;
@@ -39,6 +61,8 @@ export type LegacyMappingPreview={
   duplicateRecordKeys:string[];
   danglingLinks:Array<{sourceKey:string;kind:string;targetKey:string}>;
   unmappedLegacyTypes:string[];
+  relationshipIntents:LegacyRelationshipPreviewIntent[];
+  unmappedRelationshipLinks:LegacyUnmappedRelationshipLink[];
   readOnly:true;
   mappingPerformed:true;
   normalizationPerformed:true;
@@ -46,7 +70,9 @@ export type LegacyMappingPreview={
   importExecutionAllowed:false;
   targetMutationAllowed:false;
   targetAuthorityAssigned:false;
-  relationshipMappingPerformed:false;
+  relationshipMappingPerformed:boolean;
+  foreignKeyAssignmentPerformed:false;
+  idGenerationPerformed:false;
   eligibleForOrderedImport:false;
 };
 
@@ -62,7 +88,12 @@ const TARGET_FIELDS:Readonly<Record<LegacyMappingTargetTable,readonly string[]>>
 });
 const TARGET_TABLES=new Set<LegacyMappingTargetTable>(['companies','contacts','transactions']);
 const RULES=new Set<LegacyNormalizationRule>(['identity_scalar','trim_text','strict_number']);
-const MAX_TYPE_MAPPINGS=50,MAX_FIELD_MAPPINGS=50;
+const RELATION_TARGETS=new Set([
+  'transactions->companies:company_id',
+  'transactions->contacts:primary_contact_id',
+  'companies->contacts:primary_contact_id',
+]);
+const MAX_TYPE_MAPPINGS=50,MAX_FIELD_MAPPINGS=50,MAX_RELATIONSHIP_MAPPINGS=50;
 
 const object=(v:unknown):v is Record<string,unknown>=>typeof v==='object'&&v!==null&&!Array.isArray(v);
 const exact=(v:Record<string,unknown>,allowed:readonly string[],code:string)=>{const a=new Set(allowed);for(const k of Object.keys(v))if(!a.has(k))throw new LegacyMappingContractError(code)};
@@ -90,7 +121,7 @@ function normalizeValue(value:LegacyJsonValue,rule:LegacyNormalizationRule):stri
 
 export function parseLegacyMappingPlan(value:unknown,snapshot:LegacySnapshot):LegacyMappingPlan{
   if(!object(value))throw new LegacyMappingContractError('LEGACY_MAPPING_PLAN_INVALID');
-  exact(value,['schema','planId','typeMappings'],'LEGACY_MAPPING_PLAN_FIELD_FORBIDDEN');
+  exact(value,['schema','planId','typeMappings','relationshipMappings'],'LEGACY_MAPPING_PLAN_FIELD_FORBIDDEN');
   if(value.schema!==LEGACY_MAPPING_PLAN_SCHEMA)throw new LegacyMappingContractError('LEGACY_MAPPING_PLAN_SCHEMA_INVALID');
   const planId=text(value.planId,'LEGACY_MAPPING_PLAN_ID_INVALID',256);
   if(!Array.isArray(value.typeMappings)||value.typeMappings.length>MAX_TYPE_MAPPINGS)throw new LegacyMappingContractError('LEGACY_MAPPING_TYPES_INVALID');
@@ -120,7 +151,28 @@ export function parseLegacyMappingPlan(value:unknown,snapshot:LegacySnapshot):Le
     }
     typeMappings.push({legacyType,targetTable,fieldMappings});
   }
-  return {schema:LEGACY_MAPPING_PLAN_SCHEMA,planId,typeMappings};
+  const relationshipMappings:LegacyRelationshipMapping[]=[];
+  const rawRelationships=value.relationshipMappings??[];
+  if(!Array.isArray(rawRelationships)||rawRelationships.length>MAX_RELATIONSHIP_MAPPINGS)throw new LegacyMappingContractError('LEGACY_RELATION_MAPPINGS_INVALID');
+  const typeByLegacy=new Map(typeMappings.map(item=>[item.legacyType,item] as const)),seenRelations=new Set<string>();
+  for(const raw of rawRelationships){
+    if(!object(raw))throw new LegacyMappingContractError('LEGACY_RELATION_MAPPING_INVALID');
+    exact(raw,['sourceLegacyType','linkKind','targetLegacyType','targetField'],'LEGACY_RELATION_MAPPING_FIELD_FORBIDDEN');
+    const sourceLegacyType=text(raw.sourceLegacyType,'LEGACY_RELATION_SOURCE_TYPE_INVALID',120);
+    const linkKind=text(raw.linkKind,'LEGACY_RELATION_KIND_INVALID',120);
+    const targetLegacyType=text(raw.targetLegacyType,'LEGACY_RELATION_TARGET_TYPE_INVALID',120);
+    const targetField=text(raw.targetField,'LEGACY_RELATION_TARGET_FIELD_INVALID',128) as LegacyRelationshipTargetField;
+    if(!observed.has(sourceLegacyType)||!observed.has(targetLegacyType))throw new LegacyMappingContractError('LEGACY_RELATION_TYPE_NOT_OBSERVED');
+    const sourceMapping=typeByLegacy.get(sourceLegacyType),targetMapping=typeByLegacy.get(targetLegacyType);
+    if(!sourceMapping||!targetMapping)throw new LegacyMappingContractError('LEGACY_RELATION_TYPE_MAPPING_REQUIRED');
+    const authorityKey=sourceMapping.targetTable+'->'+targetMapping.targetTable+':'+targetField;
+    if(!RELATION_TARGETS.has(authorityKey))throw new LegacyMappingContractError('LEGACY_RELATION_TARGET_FIELD_FORBIDDEN');
+    const relationKey=sourceLegacyType+'|'+linkKind+'|'+targetLegacyType;
+    if(seenRelations.has(relationKey))throw new LegacyMappingContractError('LEGACY_RELATION_MAPPING_DUPLICATE');
+    seenRelations.add(relationKey);
+    relationshipMappings.push({sourceLegacyType,linkKind,targetLegacyType,targetField});
+  }
+  return {schema:LEGACY_MAPPING_PLAN_SCHEMA,planId,typeMappings,relationshipMappings};
 }
 
 export function buildLegacyMappingPreview(snapshotValue:unknown,planValue:unknown):LegacyMappingPreview{
@@ -129,6 +181,33 @@ export function buildLegacyMappingPreview(snapshotValue:unknown,planValue:unknow
   const inventory=inspectLegacySnapshot(snapshot),byType=new Map(plan.typeMappings.map(m=>[m.legacyType,m] as const));
   const duplicateSet=new Set(inventory.duplicateRecordKeys);
   const danglingSources=new Set(inventory.danglingLinks.map(x=>x.sourceKey));
+  const recordCounts=new Map<string,number>();
+  for(const record of snapshot.records){const key=record.type+':'+record.id;recordCounts.set(key,(recordCounts.get(key)??0)+1)}
+  const relationshipByKey=new Map(plan.relationshipMappings.map(m=>[m.sourceLegacyType+'|'+m.linkKind+'|'+m.targetLegacyType,m] as const));
+  const relationshipIntents:LegacyRelationshipPreviewIntent[]=[];
+  const unmappedRelationshipLinks:LegacyUnmappedRelationshipLink[]=[];
+  const relationshipReviewSources=new Set<string>();
+  for(const record of snapshot.records){
+    const sourceKey=record.type+':'+record.id,sourceMapping=byType.get(record.type);
+    for(const link of record.links){
+      const targetKey=link.targetType+':'+link.targetId,relation=relationshipByKey.get(record.type+'|'+link.kind+'|'+link.targetType);
+      if(!relation){unmappedRelationshipLinks.push({sourceKey,kind:link.kind,targetKey});relationshipReviewSources.add(sourceKey);continue}
+      const targetMapping=byType.get(link.targetType);
+      if(!sourceMapping||!targetMapping)throw new LegacyMappingContractError('LEGACY_RELATION_TYPE_MAPPING_REQUIRED');
+      let disposition:LegacyRelationshipPreviewIntent['disposition']='RESOLVED_RELATIONSHIP_PREVIEW';
+      if((recordCounts.get(sourceKey)??0)>1)disposition='QUARANTINED_DUPLICATE_SOURCE';
+      else if((recordCounts.get(targetKey)??0)===0)disposition='QUARANTINED_DANGLING_TARGET';
+      else if((recordCounts.get(targetKey)??0)>1)disposition='QUARANTINED_DUPLICATE_TARGET';
+      const reviewRequired=disposition!=='RESOLVED_RELATIONSHIP_PREVIEW';
+      if(reviewRequired)relationshipReviewSources.add(sourceKey);
+      relationshipIntents.push({
+        sourceKey,targetKey,linkKind:link.kind,sourceTargetTable:sourceMapping.targetTable,targetTargetTable:targetMapping.targetTable,
+        targetField:relation.targetField,disposition,reviewRequired,foreignKeyAssigned:false,generatedTargetId:null,writeAllowed:false,
+      });
+    }
+  }
+  relationshipIntents.sort((a,b)=>a.sourceKey.localeCompare(b.sourceKey)||a.linkKind.localeCompare(b.linkKind)||a.targetKey.localeCompare(b.targetKey));
+  unmappedRelationshipLinks.sort((a,b)=>a.sourceKey.localeCompare(b.sourceKey)||a.kind.localeCompare(b.kind)||a.targetKey.localeCompare(b.targetKey));
   const unmapped=new Set<string>();
   const records:LegacyMappingPreviewRecord[]=snapshot.records.map(record=>{
     const sourceKey=`${record.type}:${record.id}`,mapping=byType.get(record.type);
@@ -138,13 +217,15 @@ export function buildLegacyMappingPreview(snapshotValue:unknown,planValue:unknow
       if(!(field.sourceField in record.fields))throw new LegacyMappingContractError('LEGACY_MAPPING_SOURCE_FIELD_MISSING');
       normalizedFields[field.targetField]=normalizeValue(record.fields[field.sourceField]!,field.normalize);
     }
-    return {sourceKey,legacyType:record.type,disposition:'MAPPED_PREVIEW',targetTable:mapping.targetTable,normalizedFields,reviewRequired:duplicateSet.has(sourceKey)||danglingSources.has(sourceKey),writeAllowed:false};
+    return {sourceKey,legacyType:record.type,disposition:'MAPPED_PREVIEW',targetTable:mapping.targetTable,normalizedFields,reviewRequired:duplicateSet.has(sourceKey)||danglingSources.has(sourceKey)||relationshipReviewSources.has(sourceKey),writeAllowed:false};
   });
   return {
     schema:LEGACY_MAPPING_PREVIEW_SCHEMA,planId:plan.planId,snapshotId:snapshot.snapshotId,records,
     duplicateRecordKeys:[...inventory.duplicateRecordKeys],danglingLinks:inventory.danglingLinks.map(x=>({...x})),
     unmappedLegacyTypes:[...unmapped].sort((a,b)=>a.localeCompare(b,'en')),
+    relationshipIntents,unmappedRelationshipLinks,
     readOnly:true,mappingPerformed:true,normalizationPerformed:true,persistencePerformed:false,importExecutionAllowed:false,
-    targetMutationAllowed:false,targetAuthorityAssigned:false,relationshipMappingPerformed:false,eligibleForOrderedImport:false,
+    targetMutationAllowed:false,targetAuthorityAssigned:false,relationshipMappingPerformed:plan.relationshipMappings.length>0,
+    foreignKeyAssignmentPerformed:false,idGenerationPerformed:false,eligibleForOrderedImport:false,
   };
 }
