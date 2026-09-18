@@ -104,7 +104,7 @@ for (const marker of ['createPortal',"useLiveRecordsPortal('companies'",'data-re
 for (const marker of ['[data-r2-runtime-mode=live]','.dataset.destination===destination','useLayoutEffect','p.hidden=true','p.hidden=false']) requireMarker(portalHook, marker, 'shared live portal boundary');
 requireMarker(lazyPortals, 'MutationObserver', 'lazy Companies production router');
 for (const marker of ['<DataLayerProvider','<CurrentUserIdProvider','<UiR2LiveRoot','<LazyLiveProductionPortals',"import { LazyLiveProductionPortals } from './LazyLiveProductionPortals.tsx';"]) requireMarker(production, marker, 'production Companies mount');
-for (const marker of ["import('../records/LiveCompaniesProductionPortal.tsx')",'module.LiveCompaniesProductionPortal',"destination === 'companies' ? <CompaniesPortal />"]) requireMarker(lazyPortals, marker, 'lazy Companies production router');
+for (const marker of ["named(()=>import('../records/LiveCompaniesProductionPortal.tsx')","'LiveCompaniesProductionPortal'","destination === 'companies' ? <CompaniesPortal />"]) requireMarker(lazyPortals, marker, 'lazy Companies production router');
 requireMarker(liveRoot, 'data-r2-runtime-mode="live"', 'live-only production shell');
 if (production.includes("from './UiR2Root.tsx'")) errors.push('production Companies mount must not import preview UiR2Root');
 if (liveRoot.includes('RecordsRelationshipsExperience')) errors.push('live-only production shell must not import records preview implementation');
