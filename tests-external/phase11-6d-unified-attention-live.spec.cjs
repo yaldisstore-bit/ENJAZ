@@ -9,11 +9,11 @@ fs.mkdirSync(evidence,{recursive:true});
 async function open(width,{offline=false,fail=false}={}){
   const browser=await chromium.launch({headless:true});
   const context=await browser.newContext({viewport:{width,height:width>800?900:844},locale:'ar-IQ'});
-  if(offline)await context.setOffline(true);
   const page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
   await page.goto(`${base}phase10-5-browser.html${fail?'?attention=fail':''}`,{waitUntil:'domcontentloaded'});
+  if(offline){await context.setOffline(true);await page.evaluate(()=>dispatchEvent(new Event('offline')));}
   const panel=page.locator('[data-phase11-6d="unified-attention"][data-projection-only="true"]');
   await expect(panel).toBeVisible();
   return{browser,context,page,panel,errors};
