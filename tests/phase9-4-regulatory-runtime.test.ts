@@ -70,8 +70,8 @@ test('9.4 runtime 06 — knowledge is live/lazy while the certified 9.1 risk bri
   const intelligenceGroup=navigation.match(/\['intelligence', 'الذكاء والمعرفة', \[([^\]]+)\]\]/)?.[1]??'';
   assert.match(intelligenceGroup,/'knowledge'/);assert.match(intelligenceGroup,/'copilot'/);
   assert.ok(intelligenceGroup.indexOf("'knowledge'")<intelligenceGroup.indexOf("'copilot'"),'knowledge must remain before copilot while certified successors may add destinations');
-  assert.match(lazy,/value === 'knowledge'/);assert.match(lazy,/destination === 'knowledge' \? <KnowledgePortal/);
-  assert.match(lazy,/value === 'risk'/);assert.match(lazy,/destination === 'finance' \|\| destination === 'risk' \? <FinancePortal \/>/);
+  assert.match(lazy,/setDestination\(shell\.dataset\.destination\)/);assert.match(lazy,/destination === 'knowledge' \? <KnowledgePortal/);
+  assert.match(lazy,/destination === 'finance' \|\| destination === 'risk' \? <FinancePortal \/>/);
   assert.match(financePortal,/useLiveRecordsPortal\('risk'/);assert.match(financePortal,/loadSmartRisk\(/);
   assert.match(liveRoot,/function KnowledgeTarget\(\)/);assert.match(liveRoot,/data-regulatory-runtime-target="phase9\.4"/);assert.match(liveRoot,/destinationId==='knowledge'\)content=<KnowledgeTarget\/>/);
   assert.match(knowledgePortal,/useLiveRecordsPortal\('knowledge'\)/);assert.match(knowledgePortal,/createPortal\(<RegulatoryKnowledgeCenter/);
