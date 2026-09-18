@@ -62,6 +62,8 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - mode: **DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY**؛ no new feature authority / DB table / write RPC / shadow truth store.
 - systems under gate: **M3 / M4 / M10 / M16 Phase-11 / M17 Phase-11**; all remain ACTIVE at opening.
 - roadmap destruction dimensions: **large counts / stale targets / duplicate events / revoked links / unauthorized portal access / delivery failure / timezone boundaries / archived relations**.
+- opening source gate #2 / `35316622618`: **PASS**; opening destruction wave **8/8 PASS**; Roadmap #1437 **PASS**.
+- Real Cloud Wave 1: **PENDING** — M3 pinned to published exact-closure #148; fresh M4/M10 + re-run M16/M17 certificates prepared.
 - Phase 11.6 post-closure exact-main baseline: **35/35 SUCCESS**؛ Quality #1695, Real Browser #1611, Major Systems #812, Roadmap #1434, Pages #1538, Live External #1214.
 - frozen budgets: **670000 initial JS / 760000 total JS / 180000 CSS**؛ no cap increase / no feature cut.
 - Phase 12.1 — Copilot Foundation: **LOCKED** until full 11.7 Zero-Escape + Real Cloud + Real Browser + deployed-live + post-merge certification passes.

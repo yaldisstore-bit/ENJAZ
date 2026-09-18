@@ -95,7 +95,7 @@
       "requiredProperty": "revoked_link_followup_non_authoritative_intake_and_workspace_integrity"
     }
   },
-  "openingDestructionTests": "PENDING",
+  "openingDestructionTests": "PASS_8_OF_8",
   "realCloudVerification": "PENDING",
   "permissionMatrixVerification": "PENDING",
   "realBrowserVerification": "PENDING",
@@ -112,5 +112,17 @@
   "nextPhaseName": "Copilot Foundation",
   "successorStatus": "LOCKED",
   "kickoffEvidence": "docs/PHASE11_7_KICKOFF.md",
-  "closureEvidence": null
+  "closureEvidence": null,
+  "openingGateRunId": 35316622618,
+  "openingGateRunNumber": 2,
+  "openingGateHead": "390692c972833cbd016d5cb10d66d7119caf6d0b",
+  "openingRoadmapRunId": 35316622551,
+  "openingRoadmapRunNumber": 1437,
+  "openingRoadmapHead": "390692c972833cbd016d5cb10d66d7119caf6d0b",
+  "realCloudWave1Status": "PENDING",
+  "realCloudWave1Script": "scripts/phase11-7-real-cloud-e2e.mjs",
+  "realCloudWave1Workflow": ".github/workflows/phase11-7-real-cloud-e2e.yml",
+  "m3PublishedBaselineRunId": 35316019043,
+  "m3PublishedBaselineRunNumber": 148,
+  "m3PublishedBaselineHead": "5c4b1bfa4cda339fbbd96b7d3bbf938ef560f98a"
 }

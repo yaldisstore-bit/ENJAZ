@@ -39,6 +39,10 @@ req(JSON.stringify(state.destructionDimensions)===JSON.stringify(dimensions),'de
 for(const key of systems)req(state.systemEvidence?.[key]?.status==='PENDING',`${key} must start PENDING`);
 req(state.exitGatePassed===false&&state.phase12_1Allowed===false&&state.nextPhase==='12.1'&&state.successorStatus==='LOCKED','Phase 12.1 must remain locked while 11.7 is open');
 for(const k of ['realCloudVerification','permissionMatrixVerification','realBrowserVerification','pagesVerification','liveExternalVerification','pullRequestGate','postMergeRecertification'])req(state[k]==='PENDING',`premature 11.7 evidence: ${k}`);
+req(state.openingDestructionTests==='PASS_8_OF_8'&&state.openingGateRunId===35316622618&&state.openingGateRunNumber===2&&state.openingGateHead==='390692c972833cbd016d5cb10d66d7119caf6d0b','opening destruction/gate certificate drift');
+req(state.openingRoadmapRunId===35316622551&&state.openingRoadmapRunNumber===1437&&state.openingRoadmapHead===state.openingGateHead,'opening roadmap certificate drift');
+req(state.realCloudWave1Status==='PENDING'&&state.realCloudWave1Script==='scripts/phase11-7-real-cloud-e2e.mjs'&&state.realCloudWave1Workflow==='.github/workflows/phase11-7-real-cloud-e2e.yml','Real Cloud wave-1 lifecycle drift');
+req(state.m3PublishedBaselineRunId===35316019043&&state.m3PublishedBaselineRunNumber===148&&state.m3PublishedBaselineHead===state.baseCommit,'M3 published exact-closure baseline drift');
 for(const k of ['knownCriticalDefects','knownHighDefects','knownFunctionalBlockers'])req(state[k]===0,`${k} must be zero at opening`);
 
 for(const [id,anchors] of [['M3','11'],['M4','11'],['M10','11'],['M16','7,10,11'],['M17','8,11']]){

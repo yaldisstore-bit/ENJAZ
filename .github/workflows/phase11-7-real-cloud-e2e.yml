@@ -1,0 +1,77 @@
+name: ENJAZ Phase 11.7 — Real Cloud Individual Evidence
+
+on:
+  push:
+    branches:
+      - 'phase11-7-*'
+    paths:
+      - scripts/phase11-7-real-cloud-e2e.mjs
+      - scripts/phase11-6b-real-cloud-e2e.mjs
+      - scripts/phase11-6d-real-cloud-e2e.mjs
+      - .github/workflows/phase11-7-real-cloud-e2e.yml
+      - docs/PHASE11_7_STATE.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: enjaz-phase117-real-cloud
+  cancel-in-progress: false
+
+jobs:
+  individual-real-cloud:
+    name: M3 M4 M10 M16 M17 / authenticated Real Cloud / zero residue
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+      SUPABASE_SECRET_KEY: ${{ secrets.ENJAZ_SUPABASE_SECRET_KEY }}
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Require server-only Supabase credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_SECRET_KEY"
+          case "$SUPABASE_SECRET_KEY" in sb_publishable_*) exit 1 ;; esac
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Static Real Cloud guards
+        run: |
+          node --check scripts/phase11-7-real-cloud-e2e.mjs
+          node --check scripts/phase11-6b-real-cloud-e2e.mjs
+          node --check scripts/phase11-6d-real-cloud-e2e.mjs
+          if grep -Eq 'sb_secret_[A-Za-z0-9_-]+' scripts/phase11-7-real-cloud-e2e.mjs; then exit 1; fi
+      - name: Pin M3 exact-deployed published certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error             -H "Accept: application/vnd.github+json"             -H "Authorization: Bearer $GH_TOKEN"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/35316019043" > /tmp/m3.json
+          node -e 'const f=require("fs");const x=JSON.parse(f.readFileSync("/tmp/m3.json","utf8"));if(x.name!=="ENJAZ Phase 11.3 — Published Client Portal Certificate"||x.conclusion!=="success"||x.head_sha!=="5c4b1bfa4cda339fbbd96b7d3bbf938ef560f98a")process.exit(1);console.log("PASS M3 published exact-closure certificate");'
+      - name: Run M4 and M10 fresh authenticated Real Cloud evidence
+        run: node scripts/phase11-7-real-cloud-e2e.mjs
+      - name: Re-run M17 intake follow-up Real Cloud evidence
+        run: node scripts/phase11-6b-real-cloud-e2e.mjs
+      - name: Re-run M16/M17 unified attention Real Cloud evidence
+        run: node scripts/phase11-6d-real-cloud-e2e.mjs
+      - name: Upload sanitized 11.7 Real Cloud evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase11-7-real-cloud-${{ github.sha }}
+          path: |
+            artifacts/phase11-7-real-cloud/evidence.json
+            artifacts/phase11-6b-real-cloud/evidence.json
+            artifacts/phase11-6d-real-cloud/evidence.json
+          if-no-files-found: error
+          retention-days: 14
