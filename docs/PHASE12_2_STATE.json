@@ -49,7 +49,7 @@
   "workspacePermissionRequired": true,
   "citationsRequired": true,
   "provenanceRequired": true,
-  "clientUiAdded": false,
+  "clientUiAdded": true,
   "newClientCssAdded": false,
   "javascriptBudgetBytes": 670000,
   "totalJavascriptBudgetBytes": 760000,
@@ -84,5 +84,8 @@
   "performanceAdvisorPostContextTotal": 75,
   "unindexedForeignKeysPostContext": 28,
   "newSecurityAdvisorFindings": 0,
-  "newPerformanceAdvisorFindings": 0
+  "newPerformanceAdvisorFindings": 0,
+  "clientUiStatus": "LIVE_LAZY_PENDING_CERTIFICATION",
+  "clientUiPath": "src/ui-r2/copilot/LiveCopilotPortal.tsx",
+  "clientUiRoute": "/app/copilot"
 }
