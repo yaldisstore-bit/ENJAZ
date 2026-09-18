@@ -465,14 +465,18 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Formal closure: `docs/PHASE13_1_CLOSURE.md`.
 - Phase 13.2 — Normalize & Map: **AUTHORIZED_NEXT**.
 
-## 13.2 — Normalize & Map — IN_PROGRESS / PR CERTIFICATION READY
-- exact base: `aa8e402eeb6ed03bee9fb446bc2c741da37df7dc` — final Phase 13.1 closure.
-- A1 maps only explicit exact legacy types and explicit fields to a narrow preview scope: companies / contacts / transactions.
-- deterministic rules only: `identity_scalar`, `trim_text`, `strict_number`.
-- no fuzzy/alias/case inference; no silent field copy; unplanned types remain quarantined.
-- A1 cannot map relationships, assign target authority, persist snapshots, write ENJAZ data or execute import.
-- no DB migration / write RPC / Edge / UI delta / budget increase.
-- **Phase 13.3 — Ordered Import remains LOCKED.**
+## 13.2 — Normalize & Map ✅ CLOSED
+- exact base: `aa8e402eeb6ed03bee9fb446bc2c741da37df7dc`; implementation merge: `26a273816c33768b2f621c28c9cb6d7086b48aef`.
+- A1 explicit mapping: **12/12 PASS**.
+- A2 explicit relationship preview: **10/10 PASS**.
+- A3 destruction: **14/14 PASS**; exact-cent-safe precision and deterministic replay certified.
+- implementation PR #209: **82/82 completed = 81 success + 1 expected skipped; 0 failures**.
+- exact-main: **40/40 SUCCESS**.
+- Phase 13.2 #13, cumulative Real Browser #1692, Pages #203/#1593, Live External #1266 and Published Portal #200: **PASS**.
+- no persistence, generated IDs, FK assignment, ordered import execution, target mutation, DB/write-RPC/Edge/UI authority.
+- Formal closure: `docs/PHASE13_2_CLOSURE.md`.
+- **Phase 13.3 — Ordered Import: AUTHORIZED_NEXT**.
+
 ## 13.3 — Ordered Import
 ## 13.4 — Reconciliation
 ## 13.5 — Import Destruction Gate

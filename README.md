@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.2 — Normalize & Map 🟡 IN PROGRESS — PR CERTIFICATION READY**  
-آخر مرحلة مغلقة: **Phase 13.1 — Read-only Legacy Snapshot Intake ✅ CLOSED / PR + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED**  
-المرحلة الحالية: **Phase 13.2 — Normalize & Map — PR CERTIFICATION READY؛ Phase 13.3 LOCKED**.
+الحالة الرسمية: **Phase 13.2 — Normalize & Map ✅ CLOSED / PR + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED**  
+آخر مرحلة مغلقة: **Phase 13.2 — Normalize & Map ✅ CLOSED / EXPLICIT MAPPING + RELATIONSHIP PREVIEW + DESTRUCTION CERTIFIED**  
+المرحلة اللاحقة: **Phase 13.3 — Ordered Import — AUTHORIZED_NEXT**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -60,25 +60,20 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 12.4 — Regulatory Knowledge Assistance — M8: ✅ CLOSED — A1/A2/A3 certified؛ caller-JWT M8 retrieval Edge v3; exact search↔entry binding; Real Cloud zero mutation/residue; PR 86/86 + exact-main 38/38 + Phase 9.4 Regulatory + Real Browser + Pages + Live External certified.**
 - **Phase 12.5 — AI Zero-Escape & Safety Gate: ✅ CLOSED — W1 16/16 + W2 71/71 + PR 80/80 + exact-main 39/39 + Real Browser + Pages + Live External; M8/M9 CLOSED under ZERO_ESCAPE_V1.**
 - **Phase 13.1 — Read-only Legacy Snapshot Intake: ✅ CLOSED — A1 10/10 + A2 10/10 + A3 13/13 + PR 81/81 + exact-main 39/39 + cumulative Real Browser + Pages + Live External; 13.2 AUTHORIZED_NEXT.**
-- **Phase 13.2 — Normalize & Map: 🟡 IN PROGRESS — A1 + A2 + A3 CERTIFIED؛ implementation PR certification ready; no persistence, writes or ordered import; 13.3 LOCKED.**
+- **Phase 13.2 — Normalize & Map ✅ CLOSED — A1 12/12 + A2 10/10 + A3 14/14 + PR 82/82 + exact-main 40/40 + Real Browser + Pages + Live External; Phase 13.3 AUTHORIZED_NEXT.**
 
-## Phase 13.2 — العمل الحالي
+## Phase 13.2 — دليل الإغلاق الحالي
 
-- exact base: `aa8e402eeb6ed03bee9fb446bc2c741da37df7dc` — final merged Phase 13.1 closure.
-- branch: `phase13-2-normalize-map`.
-- current slice: **PR CERTIFICATION READY**.
-- A1: **CERTIFIED** — Gate #2 / `35398804690`؛ 12/12 tests + 219/219 functional + 25/25 DB self-test; budgets 431032 / 759568 / 179989.
-- A2: **CERTIFIED** — Gate #6 / `35399419189`؛ 10/10 A2 + 12/12 A1 regression + 219/219 functional + 25/25 DB self-test.
-- A3: **CERTIFIED** — Gate #9 / `35399744392`؛ 14/14 destruction + A1/A2 regressions + 219/219 functional + 25/25 DB self-test; exact-cent-safe precision guard PASS.
-- implementation PR may open; Phase 13.3 remains locked until exact-main and separate formal 13.2 closure.
-- explicit target preview scope: `companies / contacts / transactions` only.
-- mapped legacy types and fields require exact caller-declared rules; alias/fuzzy/case inference: **FORBIDDEN**.
-- unmapped legacy types remain **QUARANTINED_UNMAPPED_TYPE**.
-- relationship IDs / workspace IDs / status-lifecycle fields / timestamps: **FORBIDDEN in A1**.
-- preview is in-memory only; persistence / DB writes / ordered import / target mutation: **FORBIDDEN**.
-- Phase 13.3 — Ordered Import: **LOCKED**.
+- exact base: `aa8e402eeb6ed03bee9fb446bc2c741da37df7dc`; implementation PR #209؛ merge `26a273816c33768b2f621c28c9cb6d7086b48aef`.
+- A1: **12/12 PASS**؛ A2: **10/10 PASS**؛ A3 destruction: **14/14 PASS**.
+- PR #209: **82/82 completed = 81 success + 1 expected skipped; 0 failures**.
+- exact-main: **40/40 SUCCESS**.
+- Real Browser #1692 / Pages #203/#1593 / Live External #1266 / Published Portal #200: **PASS**.
+- no persistence / DB writes / generated IDs / FK assignment / ordered import / target mutation / DB migration / write RPC / Edge / UI delta.
+- Phase 13.3 — Ordered Import: **AUTHORIZED_NEXT**.
+- formal closure: [`docs/PHASE13_2_CLOSURE.md`](docs/PHASE13_2_CLOSURE.md).
 - state: [`docs/PHASE13_2_STATE.json`](docs/PHASE13_2_STATE.json).
-- kickoff: [`docs/PHASE13_2_KICKOFF.md`](docs/PHASE13_2_KICKOFF.md).
+
 
 ## Phase 13.1 — العمل الحالي
 
