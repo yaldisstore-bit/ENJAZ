@@ -35,5 +35,7 @@ test('12.4 A2 keeps authentication and workspace denial explicit',()=>{
   assert.match(edge,/AUTH_REQUIRED/);
   assert.match(edge,/AUTH_INVALID/);
   assert.match(edge,/ENJAZ_REGULATORY_WORKSPACE_ACCESS_DENIED/);
+  assert.match(edge,/ENJAZ_ORG_WORKSPACE_FORBIDDEN/);
+  assert.match(edge,/ENJAZ_ORG_AUTH_REQUIRED/);
   assert.match(edge,/Authorization:'Bearer '\+token/);
 });
