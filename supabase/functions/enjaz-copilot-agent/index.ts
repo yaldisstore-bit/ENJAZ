@@ -10,7 +10,7 @@ import {
 } from './approval.ts';
 import {
   AGENT_ACTION_SCHEMA,actionProposalHash,actionTracePayloadHash,isAgentActionOperation,parseAgentActionRequest,
-  parseExecutionResult,preparedCreateActionResult,preparedDocumentRequestResult,preparedReminderActionResult,preparedSnoozeActionResult,type AgentActionRequest,
+  parseExecutionResult,preparedCreateActionResult,preparedDocumentDraftResult,preparedDocumentRequestResult,preparedReminderActionResult,preparedSnoozeActionResult,type AgentActionRequest,
 } from './action.ts';
 
 const cors={
@@ -76,6 +76,14 @@ const DB_CODES=[
   'ENJAZ_PORTAL_REQUEST_CREATE_VERSION_INVALID','ENJAZ_PORTAL_REQUEST_EXPECTED_VERSION_REQUIRED',
     'ENJAZ_PORTAL_SHARE_PRINCIPAL_INVALID','ENJAZ_PORTAL_SHARE_STAFF_COLLISION','ENJAZ_PORTAL_REQUEST_STALE',
   'ENJAZ_PORTAL_REQUEST_NOT_FOUND',
+  'ENJAZ_DOCUMENT_FACTORY_AUTH_REQUIRED','ENJAZ_DOCUMENT_FACTORY_WORKSPACE_FORBIDDEN',
+  'ENJAZ_DOCUMENT_FACTORY_GENERATION_REQUEST_INVALID','ENJAZ_DOCUMENT_FACTORY_TITLE_INVALID',
+  'ENJAZ_DOCUMENT_FACTORY_PUBLISHED_TEMPLATE_VERSION_REQUIRED','ENJAZ_DOCUMENT_FACTORY_TEMPLATE_INACTIVE',
+  'ENJAZ_DOCUMENT_FACTORY_TRANSACTION_NOT_FOUND','ENJAZ_DOCUMENT_FACTORY_COMPANY_NOT_FOUND',
+  'ENJAZ_DOCUMENT_FACTORY_TRANSACTION_COMPANY_MISMATCH','ENJAZ_DOCUMENT_FACTORY_REQUIRED_COMPANY_MISSING',
+  'ENJAZ_DOCUMENT_FACTORY_REQUIRED_TRANSACTION_MISSING','ENJAZ_DOCUMENT_FACTORY_REQUIRED_FACT_MISSING',
+  'ENJAZ_DOCUMENT_FACTORY_UNRESOLVED_TOKEN','ENJAZ_DOCUMENT_FACTORY_GENERATION_REQUEST_DRIFT',
+  'ENJAZ_COPILOT_DOCUMENT_DRAFT_RESULT_INVALID',
 ] as const;
 function dbCode(error:unknown){
   const message=errorText(error);
@@ -122,6 +130,10 @@ function safeError(code:string){
     ENJAZ_PORTAL_PRINCIPAL_NOT_GRANTABLE:'The portal principal is not eligible for this request.',
     ENJAZ_PORTAL_SHARE_PRINCIPAL_INVALID:'The portal principal is not eligible for this request.',
     ENJAZ_PORTAL_SHARE_STAFF_COLLISION:'Staff accounts cannot be targeted as client portal principals.',
+    ENJAZ_DOCUMENT_FACTORY_PUBLISHED_TEMPLATE_VERSION_REQUIRED:'A published document template version is required.',
+    ENJAZ_DOCUMENT_FACTORY_TEMPLATE_INACTIVE:'The document template is inactive.',
+    ENJAZ_DOCUMENT_FACTORY_TRANSACTION_NOT_FOUND:'The selected transaction is not available.',
+    ENJAZ_DOCUMENT_FACTORY_COMPANY_NOT_FOUND:'The selected company is not available.',
     ENJAZ_COPILOT_RATE_LIMITED:'Copilot request limit reached.',
     CONTEXT_SOURCE_FORBIDDEN:'Authoritative ENJAZ context is not available to this user.',
     CONTEXT_SOURCE_UNAVAILABLE:'Authoritative ENJAZ context is temporarily unavailable.',
@@ -139,21 +151,27 @@ function safeError(code:string){
     'ENJAZ_COPILOT_REMINDER_SOURCE_KIND_INVALID','ENJAZ_COPILOT_REMINDER_SCHEDULE_INVALID',
     'ENJAZ_SCHEDULING_ATTENTION_INVALID','ENJAZ_SCHEDULING_ATTENTION_RECIPIENT_INVALID','ENJAZ_SCHEDULING_REMINDER_SCHEDULE_INVALID',
     'PRINCIPAL_ID_INVALID','PORTAL_REQUEST_ID_INVALID','ACTION_INSTRUCTIONS_INVALID','ACTION_VALID_UNTIL_INVALID','ACTION_DOCUMENT_VALIDITY_INVALID',
+      'GENERATION_REQUEST_ID_INVALID','TEMPLATE_VERSION_ID_INVALID','COMPANY_ID_INVALID',
     'ENJAZ_PORTAL_REQUEST_ID_INVALID','ENJAZ_PORTAL_REQUEST_TYPE_INVALID','ENJAZ_PORTAL_REQUEST_TITLE_INVALID',
     'ENJAZ_PORTAL_REQUEST_INSTRUCTIONS_INVALID','ENJAZ_PORTAL_REQUEST_TRANSACTION_INVALID','ENJAZ_PORTAL_REQUEST_VALIDITY_INVALID',
     'ENJAZ_PORTAL_REQUEST_CREATE_VERSION_INVALID','ENJAZ_PORTAL_REQUEST_EXPECTED_VERSION_REQUIRED',
+    'GENERATION_REQUEST_ID_INVALID','TEMPLATE_VERSION_ID_INVALID','COMPANY_ID_INVALID',
+    'ENJAZ_DOCUMENT_FACTORY_GENERATION_REQUEST_INVALID','ENJAZ_DOCUMENT_FACTORY_TITLE_INVALID',
+    'ENJAZ_DOCUMENT_FACTORY_TRANSACTION_COMPANY_MISMATCH','ENJAZ_DOCUMENT_FACTORY_REQUIRED_COMPANY_MISSING',
+    'ENJAZ_DOCUMENT_FACTORY_REQUIRED_TRANSACTION_MISSING','ENJAZ_DOCUMENT_FACTORY_REQUIRED_FACT_MISSING',
+    'ENJAZ_DOCUMENT_FACTORY_UNRESOLVED_TOKEN',
   ]);
   if(messages[code])return {code,retryable,message:messages[code]};
   if(validation.has(code))return {code,retryable:false,message:'Agentic Copilot request is invalid.'};
   return {code:'COPILOT_AGENT_FAILED',retryable:true,message:'Agentic Copilot could not complete the request.'};
 }
 function httpStatus(code:string){
-  if(code==='AUTH_REQUIRED'||code==='AUTH_INVALID'||code==='ENJAZ_FOLLOWUP_AUTH_REQUIRED'||code==='ENJAZ_PORTAL_AUTH_REQUIRED')return 401;
-  if(code==='ENJAZ_COPILOT_WORKSPACE_FORBIDDEN'||code==='ENJAZ_COPILOT_PROPOSAL_ACTOR_FORBIDDEN'||code==='ENJAZ_FOLLOWUP_WORKSPACE_FORBIDDEN'||code==='ENJAZ_PORTAL_OWNER_REQUIRED'||code==='ENJAZ_PORTAL_WORKSPACE_FORBIDDEN'||code==='ENJAZ_PORTAL_PRINCIPAL_NOT_GRANTABLE'||code==='ENJAZ_PORTAL_REQUEST_PERMISSION_REQUIRED'||code==='CONTEXT_SOURCE_FORBIDDEN')return 403;
-  if(code==='ENJAZ_COPILOT_PROPOSAL_NOT_FOUND'||code==='ENJAZ_FOLLOWUP_NOT_FOUND'||code==='ENJAZ_COPILOT_REMINDER_SOURCE_NOT_FOUND'||code==='ENJAZ_SCHEDULING_DEADLINE_NOT_FOUND'||code==='ENJAZ_SCHEDULING_RENEWAL_OCCURRENCE_NOT_FOUND'||code==='ENJAZ_PORTAL_REQUEST_NOT_FOUND')return 404;
+  if(code==='AUTH_REQUIRED'||code==='AUTH_INVALID'||code==='ENJAZ_FOLLOWUP_AUTH_REQUIRED'||code==='ENJAZ_PORTAL_AUTH_REQUIRED'||code==='ENJAZ_DOCUMENT_FACTORY_AUTH_REQUIRED')return 401;
+  if(code==='ENJAZ_COPILOT_WORKSPACE_FORBIDDEN'||code==='ENJAZ_COPILOT_PROPOSAL_ACTOR_FORBIDDEN'||code==='ENJAZ_FOLLOWUP_WORKSPACE_FORBIDDEN'||code==='ENJAZ_PORTAL_OWNER_REQUIRED'||code==='ENJAZ_PORTAL_WORKSPACE_FORBIDDEN'||code==='ENJAZ_PORTAL_PRINCIPAL_NOT_GRANTABLE'||code==='ENJAZ_PORTAL_REQUEST_PERMISSION_REQUIRED'||code==='ENJAZ_DOCUMENT_FACTORY_WORKSPACE_FORBIDDEN'||code==='CONTEXT_SOURCE_FORBIDDEN')return 403;
+  if(code==='ENJAZ_COPILOT_PROPOSAL_NOT_FOUND'||code==='ENJAZ_FOLLOWUP_NOT_FOUND'||code==='ENJAZ_COPILOT_REMINDER_SOURCE_NOT_FOUND'||code==='ENJAZ_SCHEDULING_DEADLINE_NOT_FOUND'||code==='ENJAZ_SCHEDULING_RENEWAL_OCCURRENCE_NOT_FOUND'||code==='ENJAZ_PORTAL_REQUEST_NOT_FOUND'||code==='ENJAZ_DOCUMENT_FACTORY_PUBLISHED_TEMPLATE_VERSION_REQUIRED'||code==='ENJAZ_DOCUMENT_FACTORY_TEMPLATE_INACTIVE'||code==='ENJAZ_DOCUMENT_FACTORY_TRANSACTION_NOT_FOUND'||code==='ENJAZ_DOCUMENT_FACTORY_COMPANY_NOT_FOUND')return 404;
   if(code==='ENJAZ_COPILOT_APPROVAL_EXPIRED'||code==='ENJAZ_COPILOT_ACTION_SNOOZE_STALE'||code==='ENJAZ_COPILOT_ACTION_DUE_AT_STALE'||code==='ENJAZ_COPILOT_REMINDER_SCHEDULE_STALE'||code==='ENJAZ_COPILOT_DOCUMENT_REQUEST_STALE')return 410;
   if(code==='ENJAZ_COPILOT_RATE_LIMITED')return 429;
-  if(code.includes('CONFLICT')||code==='ENJAZ_COPILOT_ACTION_APPROVAL_REQUIRED'||code==='ENJAZ_FOLLOWUP_TERMINAL_FINAL'||code==='ENJAZ_SCHEDULING_ATTENTION_SOURCE_TERMINAL'||code==='ENJAZ_PORTAL_REQUEST_REVOKED'||code==='ENJAZ_PORTAL_REQUEST_NOT_OPEN'||code==='ENJAZ_PORTAL_REQUEST_STALE')return 409;
+  if(code.includes('CONFLICT')||code==='ENJAZ_COPILOT_ACTION_APPROVAL_REQUIRED'||code==='ENJAZ_FOLLOWUP_TERMINAL_FINAL'||code==='ENJAZ_SCHEDULING_ATTENTION_SOURCE_TERMINAL'||code==='ENJAZ_PORTAL_REQUEST_REVOKED'||code==='ENJAZ_PORTAL_REQUEST_NOT_OPEN'||code==='ENJAZ_PORTAL_REQUEST_STALE'||code==='ENJAZ_DOCUMENT_FACTORY_GENERATION_REQUEST_DRIFT')return 409;
   if(code==='CONTEXT_SOURCE_UNAVAILABLE')return 503;
   if(code.endsWith('_INVALID')||code==='ENJAZ_PORTAL_SHARE_STAFF_COLLISION'||code.startsWith('REQUEST_')||code.startsWith('APPROVAL_')||code.startsWith('ACTION_')||code==='OPERATION_FORBIDDEN'||code==='GOAL_INVALID'||code==='CONTEXT_QUERY_INVALID'||code==='LIMIT_INVALID')return 400;
   return 500;
@@ -206,7 +224,7 @@ Deno.serve(async(req:Request)=>{
     const workspaceId=action?.workspaceId??approval?.workspaceId??plan!.workspaceId;
     const requestId=action?.requestId??approval?.requestId??plan!.requestId;
 
-    const begin=await admin.rpc('copilot_begin_request_v7',{
+    const begin=await admin.rpc('copilot_begin_request_v8',{
       p_workspace_id:workspaceId,p_actor_user_id:actorId,p_request_id:requestId,
       p_operation:traceOperation,p_payload_hash:payloadHash,p_limit:20,
     });
@@ -374,6 +392,55 @@ Deno.serve(async(req:Request)=>{
       return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
     }
 
+
+    if(action?.operation==='prepare_document_draft'){
+      const factory=await userClient.rpc('get_document_factory_v1',{p_workspace_id:action.workspaceId});
+      if(factory.error)throw new Error(dbCode(factory.error));
+      const data=record(factory.data),templates=Array.isArray(data.templates)?data.templates:[];
+      let template:J|undefined,version:J|undefined;
+      for(const raw of templates){
+        if(!raw||typeof raw!=='object'||Array.isArray(raw))continue;
+        const t=raw as J,versions=Array.isArray(t.versions)?t.versions:[];
+        const found=versions.find(v=>v&&typeof v==='object'&&!Array.isArray(v)&&text((v as J).id)===action.templateVersionId) as J|undefined;
+        if(found){template=t;version=found;break}
+      }
+      if(!version||text(version.status)!=='published')throw new Error('ENJAZ_DOCUMENT_FACTORY_PUBLISHED_TEMPLATE_VERSION_REQUIRED');
+      if(!template||template.active!==true)throw new Error('ENJAZ_DOCUMENT_FACTORY_TEMPLATE_INACTIVE');
+
+      if(action.companyId){
+        const company=await userClient.from('companies').select('id,workspace_id,deleted_at').eq('workspace_id',action.workspaceId).eq('id',action.companyId).maybeSingle();
+        if(company.error)throw new Error(sourceCode(company.error));
+        if(!company.data||company.data.deleted_at)throw new Error('ENJAZ_DOCUMENT_FACTORY_COMPANY_NOT_FOUND');
+      }
+      if(action.transactionId){
+        const transaction=await userClient.from('transactions').select('id,workspace_id,company_id,deleted_at').eq('workspace_id',action.workspaceId).eq('id',action.transactionId).maybeSingle();
+        if(transaction.error)throw new Error(sourceCode(transaction.error));
+        if(!transaction.data||transaction.data.deleted_at)throw new Error('ENJAZ_DOCUMENT_FACTORY_TRANSACTION_NOT_FOUND');
+        if(action.companyId&&transaction.data.company_id&&transaction.data.company_id!==action.companyId)throw new Error('ENJAZ_DOCUMENT_FACTORY_TRANSACTION_COMPANY_MISMATCH');
+      }
+
+      const proposalHash=await actionProposalHash(action);
+      const expiresAt=new Date(Date.now()+10*60*1000).toISOString();
+      const registered=await admin.rpc('copilot_register_document_draft_proposal_v1',{
+        p_workspace_id:action.workspaceId,p_actor_user_id:actorId,p_request_id:action.requestId,p_proposal_hash:proposalHash,
+        p_generation_request_id:action.generationRequestId,p_template_version_id:action.templateVersionId,p_title:action.title,
+        p_company_id:action.companyId,p_transaction_id:action.transactionId,p_expires_at:expiresAt,
+      });
+      if(registered.error)throw new Error(dbCode(registered.error));
+      const row=record(registered.data);
+      const proposalId=uuidOrNull(row.proposalId),storedHash=text(row.proposalHash),storedExpiry=text(row.expiresAt);
+      if(!proposalId||storedHash!==proposalHash||!storedExpiry||row.actionKind!=='document.draft'
+        ||text(row.targetId)!==action.generationRequestId||text(row.templateVersionId)!==action.templateVersionId||text(row.title)!==action.title
+        ||(row.companyId??null)!==(action.companyId??null)||(row.transactionId??null)!==(action.transactionId??null))throw new Error('COPILOT_ACTION_EVIDENCE_INVALID');
+      const result=preparedDocumentDraftResult({
+        proposalId,proposalHash:storedHash,expiresAt:storedExpiry,replayed:row.replayed===true,
+        generationRequestId:action.generationRequestId,templateVersionId:action.templateVersionId,title:action.title,
+        companyId:action.companyId,transactionId:action.transactionId,
+      });
+      await finish('completed',null,{resultKind:'action_proposal',actionKind:'document.draft',providerUsed:false,outputStatus:'review_required'});
+      return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
+    }
+
     if(action?.operation==='execute_followup_snooze'){
       const executed=await userClient.rpc('copilot_execute_followup_snooze_v1',{
         p_workspace_id:action.workspaceId,p_proposal_id:action.proposalId,
@@ -415,6 +482,17 @@ Deno.serve(async(req:Request)=>{
       if(executed.error)throw new Error(dbCode(executed.error));
       const result=parseExecutionResult(executed.data);
       await finish('completed',null,{resultKind:'action_execution',actionKind:'document.request',providerUsed:false,replayed:result.replayed,requestType:'document'});
+      return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
+    }
+
+    if(action?.operation==='execute_document_draft'){
+      const executed=await userClient.rpc('copilot_execute_document_draft_v1',{
+        p_workspace_id:action.workspaceId,p_proposal_id:action.proposalId,
+        p_proposal_hash:action.proposalHash,p_execution_key:action.executionKey,
+      });
+      if(executed.error)throw new Error(dbCode(executed.error));
+      const result=parseExecutionResult(executed.data);
+      await finish('completed',null,{resultKind:'action_execution',actionKind:'document.draft',providerUsed:false,replayed:result.replayed,outputStatus:'review_required'});
       return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
     }
 
