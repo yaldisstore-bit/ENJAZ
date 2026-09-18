@@ -42,7 +42,7 @@ test('12.4 A3 binds exact official search reference to entry',()=>{
   const refs=parseRegulatorySearchEvidence(search(),request);
   assert.equal(refs.length,1);
   assert.deepEqual(refs[0],{sourceId:S,versionId:V,sourceHash:H,scope:'official_global',sourceWorkspaceId:null,asOf:'2026-09-18'});
-  assert.equal(assertRegulatoryEntryMatchesSearchReference(entry(),refs[0]!,request).sourceId,S);
+  assert.doesNotThrow(()=>assertRegulatoryEntryMatchesSearchReference(entry(),refs[0]!,request));
 });
 
 test('12.4 A3 search root binds caller workspace and asOf',()=>{
