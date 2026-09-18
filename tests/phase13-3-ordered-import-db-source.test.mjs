@@ -4,7 +4,8 @@ import fs from 'node:fs';
 
 const baseSql=fs.readFileSync('database/migrations/phase_13_3_ordered_import_execution.sql','utf8');
 const hardeningSql=fs.readFileSync('database/migrations/phase_13_3_ordered_import_replay_hardening.sql','utf8');
-const sql=hardeningSql;
+const fastpathSql=fs.readFileSync('database/migrations/phase_13_3_ordered_import_idempotency_fastpath.sql','utf8');
+const sql=fastpathSql;
 const has=(m)=>assert.ok(sql.includes(m),m);
 const no=(re,label)=>assert.equal(re.test(sql),false,label);
 
@@ -68,4 +69,15 @@ test('A3 replay hardening resolves idempotency before target/source collision ch
   assert.ok(hash>=0&&existing>hash&&duplicateReturn>existing);
   assert.ok(targetCollision>duplicateReturn,'target collision must run only after exact replay lookup');
   assert.ok(sourceCollision>duplicateReturn,'source collision must run only after exact replay lookup');
+});
+
+test('A3 idempotency fast-path checks durable replay before lock and rechecks after lock',()=>{
+  const firstLookup=sql.indexOf("select j.* into v_existing");
+  const lock=sql.indexOf("pg_advisory_xact_lock");
+  const secondLookup=sql.indexOf("select j.* into v_existing",firstLookup+1);
+  const firstConflict=sql.indexOf("ENJAZ_LEGACY_IMPORT_IDEMPOTENCY_CONFLICT");
+  const targetCollision=sql.indexOf("ENJAZ_LEGACY_IMPORT_TARGET_ALREADY_EXISTS");
+  assert.ok(firstLookup>=0&&firstLookup<lock,'existing replay lookup must precede advisory lock');
+  assert.ok(secondLookup>lock,'concurrent first-write recheck must follow advisory lock');
+  assert.ok(firstConflict>firstLookup&&targetCollision>secondLookup,'collisions must remain after idempotency resolution');
 });
