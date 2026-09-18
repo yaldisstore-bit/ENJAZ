@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "phase": "11.7",
+  "name": "Communication Zero-Escape Gate",
+  "status": "IN_PROGRESS",
+  "openedOn": "2026-09-18",
+  "baseCommit": "5c4b1bfa4cda339fbbd96b7d3bbf938ef560f98a",
+  "implementationBranch": "phase11-7-communication-zero-escape",
+  "predecessor": {
+    "phase": "11.6",
+    "requiredStatus": "CLOSED",
+    "requiredExitGate": true,
+    "requiredAuthorization": "phase11_7Allowed=true",
+    "closureEvidence": "docs/PHASE11_6_CLOSURE.md",
+    "formalClosureCommit": "5c4b1bfa4cda339fbbd96b7d3bbf938ef560f98a"
+  },
+  "predecessorCertification": {
+    "exactMainWorkflowCount": 35,
+    "exactMainSuccessCount": 35,
+    "exactMainFailureCount": 0,
+    "exactMainQueuedCount": 0,
+    "exactMainInProgressCount": 0,
+    "qualityRunId": 35315886158,
+    "qualityRunNumber": 1695,
+    "realBrowserRunId": 35315885941,
+    "realBrowserRunNumber": 1611,
+    "majorSystemsRunId": 35315886071,
+    "majorSystemsRunNumber": 812,
+    "roadmapRunId": 35315886456,
+    "roadmapRunNumber": 1434,
+    "pagesRunId": 35315931140,
+    "pagesRunNumber": 1538,
+    "liveExternalRunId": 35316019025,
+    "liveExternalRunNumber": 1214
+  },
+  "mode": "DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY",
+  "newFeatureAuthorityAllowed": false,
+  "newDatabaseTablesAllowed": false,
+  "newWriteRpcAuthorityAllowed": false,
+  "shadowTruthStoreAllowed": false,
+  "budgetIncreaseAllowed": false,
+  "featureCutForBudgetAllowed": false,
+  "javascriptBudgetBytes": 670000,
+  "totalJavascriptBudgetBytes": 760000,
+  "cssBudgetBytes": 180000,
+  "systemsUnderGate": [
+    "M3",
+    "M4",
+    "M10",
+    "M16_PHASE11_PORTION",
+    "M17_PHASE11_PORTION"
+  ],
+  "destructionDimensions": [
+    "large_counts",
+    "stale_targets",
+    "duplicate_events",
+    "revoked_links",
+    "unauthorized_portal_access",
+    "delivery_failure",
+    "timezone_boundaries",
+    "archived_relations"
+  ],
+  "zeroEscapeLaw": {
+    "individualSystemEvidenceRequired": true,
+    "branchCiAloneCanClose": false,
+    "realCloudRequiredWherePersistentAuthorityIsExercised": true,
+    "permissionMatrixRequired": true,
+    "freshWorkspaceRequiredWhereApplicable": true,
+    "durableRoundTripRequiredWhereWritesAreExercised": true,
+    "realBrowserRequired": true,
+    "deployedLiveRequired": true,
+    "exactMergedShaRequired": true,
+    "postMergeRecertificationRequired": true,
+    "zeroCriticalHighFunctionalBlockersRequired": true
+  },
+  "systemEvidence": {
+    "M3": {
+      "status": "PENDING",
+      "requiredProperty": "revocation_workspace_permission_and_client_safe_projection"
+    },
+    "M4": {
+      "status": "PENDING",
+      "requiredProperty": "dedupe_consent_approval_delivery_failure_and_transport_truth_separation"
+    },
+    "M10": {
+      "status": "PENDING",
+      "requiredProperty": "stale_target_timezone_terminal_fact_and_conflict_integrity"
+    },
+    "M16_PHASE11_PORTION": {
+      "status": "PENDING",
+      "requiredProperty": "contract_target_provenance_stale_conflict_renewal_and_communication_integrity"
+    },
+    "M17_PHASE11_PORTION": {
+      "status": "PENDING",
+      "requiredProperty": "revoked_link_followup_non_authoritative_intake_and_workspace_integrity"
+    }
+  },
+  "openingDestructionTests": "PENDING",
+  "realCloudVerification": "PENDING",
+  "permissionMatrixVerification": "PENDING",
+  "realBrowserVerification": "PENDING",
+  "pagesVerification": "PENDING",
+  "liveExternalVerification": "PENDING",
+  "pullRequestGate": "PENDING",
+  "postMergeRecertification": "PENDING",
+  "knownCriticalDefects": 0,
+  "knownHighDefects": 0,
+  "knownFunctionalBlockers": 0,
+  "exitGatePassed": false,
+  "phase12_1Allowed": false,
+  "nextPhase": "12.1",
+  "nextPhaseName": "Copilot Foundation",
+  "successorStatus": "LOCKED",
+  "kickoffEvidence": "docs/PHASE11_7_KICKOFF.md",
+  "closureEvidence": null
+}
