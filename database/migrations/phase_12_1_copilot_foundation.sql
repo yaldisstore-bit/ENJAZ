@@ -77,6 +77,8 @@ begin
     raise insufficient_privilege using message='ENJAZ_COPILOT_WORKSPACE_FORBIDDEN';
   end if;
 
+  perform pg_advisory_xact_lock(hashtextextended(p_workspace_id::text||':'||p_request_id::text,0));
+
   select * into v_existing
   from private.copilot_request_traces t
   where t.workspace_id=p_workspace_id and t.request_id=p_request_id
