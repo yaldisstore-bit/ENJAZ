@@ -121,6 +121,8 @@ export function preparedSnoozeActionResult(input:Readonly<{
   });
 }
 
+export const preparedActionResult=preparedSnoozeActionResult;
+
 export function preparedCreateActionResult(input:Readonly<{
   proposalId:string;proposalHash:string;expiresAt:string;replayed:boolean;
   transactionId:string;followupId:string;title:string;dueAt:string;
