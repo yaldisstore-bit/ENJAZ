@@ -56,3 +56,14 @@ test('A3 DB source enforces JSON field types instead of implicit scalar-to-text 
   has("jsonb_typeof(v_fields->'type')<>'string'");
   has("jsonb_typeof(v_fields->'current_fee')<>'number'");
 });
+
+test('A3 replay hardening resolves idempotency before target/source collision checks',()=>{
+  const hash=sql.indexOf("v_payload_hash:=encode");
+  const existing=sql.indexOf("select j.* into v_existing");
+  const duplicateReturn=sql.indexOf("'wasDuplicate',true");
+  const targetCollision=sql.indexOf("ENJAZ_LEGACY_IMPORT_TARGET_ALREADY_EXISTS");
+  const sourceCollision=sql.indexOf("ENJAZ_LEGACY_IMPORT_SOURCE_ALREADY_IMPORTED");
+  assert.ok(hash>=0&&existing>hash&&duplicateReturn>existing);
+  assert.ok(targetCollision>duplicateReturn,'target collision must run only after exact replay lookup');
+  assert.ok(sourceCollision>duplicateReturn,'source collision must run only after exact replay lookup');
+});
