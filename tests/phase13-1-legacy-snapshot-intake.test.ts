@@ -20,15 +20,22 @@ const base=():any=>({
   ],
 });
 
-test('13.1 lifecycle starts from exact 12.5 closure and keeps 13.2 locked',()=>{
-  assert.equal(state.status,'IN_PROGRESS');
+test('13.1 lifecycle starts from exact 12.5 closure and authorizes 13.2 only after formal closure',()=>{
+  assert.ok(['IN_PROGRESS','CLOSED'].includes(state.status));
   assert.equal(state.baseCommit,'a7a17d6309e43cff68968be33deecbdac57ed4ed');
   assert.equal(state.predecessorPhase,'12.5');
   assert.equal(state.predecessorStatus,'CLOSED');
   assert.equal(state.predecessorClosureDecision,'PASS');
   assert.equal(state.successorPhase,'13.2');
-  assert.equal(state.successorStatus,'LOCKED');
-  assert.equal(state.phase13_2Allowed,false);
+  if(state.status==='CLOSED'){
+    assert.equal(state.closureDecision,'PASS');
+    assert.equal(state.exitGatePassed,true);
+    assert.equal(state.successorStatus,'AUTHORIZED_NEXT');
+    assert.equal(state.phase13_2Allowed,true);
+  }else{
+    assert.equal(state.successorStatus,'LOCKED');
+    assert.equal(state.phase13_2Allowed,false);
+  }
   assert.equal(state.readOnly,true);
   assert.equal(state.persistenceAllowed,false);
   assert.equal(state.mappingAllowed,false);
