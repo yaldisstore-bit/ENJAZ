@@ -14,9 +14,9 @@ test('12.3 starts only from final certified 12.2 closure',()=>{
   assert.equal(state.predecessorClosureMergeCommit,state.baseCommit);
 });
 
-test('12.3 A1/A2/A3-A certification is preserved while A3-B adds only followup.create',()=>{
+test('12.3 A1/A2/A3-A/A3-B certification is preserved while A3-C adds self reminder only',()=>{
   assert.equal(state.status,'IN_PROGRESS');
-  assert.equal(state.slice,'A3B_FOLLOWUP_CREATE_ACTION');
+  assert.equal(state.slice,'A3C_SELF_REMINDER_ACTION');
   assert.equal(state.a2Certification,'PASS_APPROVAL_BINDING_REAL_CLOUD');
   assert.equal(state.a2FinalSourceGateVerification,'PASS');
   assert.equal(state.a2FinalRealCloudVerification,'PASS');
@@ -35,7 +35,12 @@ test('12.3 A1/A2/A3-A certification is preserved while A3-B adds only followup.c
   assert.equal(state.a3Certification,'PASS_FOLLOWUP_SNOOZE_REAL_CLOUD');
   assert.equal(state.a3CertificationCommitSourceGateVerification,'PASS');
   assert.equal(state.a3CertificationCommitRealCloudVerification,'PASS');
-  assert.deepEqual(state.authorizedActionAdapters,['followup.snooze','followup.create']);
+  assert.equal(state.a3BCertification,'PASS_FOLLOWUP_CREATE_REAL_CLOUD');
+  assert.equal(state.a3BCertificationStatus,'CERTIFIED');
+  assert.deepEqual(state.authorizedActionAdapters,['followup.snooze','followup.create','reminder.schedule']);
+  assert.equal(state.a3CRecipientScope,'SELF_ONLY');
+  assert.equal(state.a3CMode,'REMINDER_ONLY');
+  assert.equal(state.a3CFollowupSideEffectAllowed,false);
   assert.equal(state.directBusinessTableWritesAllowed,false);
   assert.equal(state.genericWriteToolAllowed,false);
   assert.equal(state.clientUiAdded,false);

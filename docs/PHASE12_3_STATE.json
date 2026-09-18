@@ -4,7 +4,7 @@
   "majorSystem": "M9",
   "status": "IN_PROGRESS",
   "mode": "AGENTIC_COPILOT",
-  "slice": "A3B_FOLLOWUP_CREATE_ACTION",
+  "slice": "A3C_SELF_REMINDER_ACTION",
   "baseCommit": "00470d129693fdf1362becbc7d95f54560f79481",
   "predecessorPhase": "12.2",
   "predecessorStatus": "CLOSED",
@@ -55,8 +55,8 @@
   "budgetIncreaseAllowed": false,
   "kickoffEvidence": "docs/PHASE12_3_KICKOFF.md",
   "planCorePath": "supabase/functions/enjaz-copilot-agent/core.ts",
-  "sourceGateVerification": "PASS_A3B_SOURCE_DB_EDGE",
-  "realCloudVerification": "PASS_A3B_33_OF_33_ZERO_RESIDUE",
+  "sourceGateVerification": "PENDING_A3C",
+  "realCloudVerification": "PENDING_A3C",
   "realBrowserVerification": "NOT_REQUIRED_NO_CLIENT_DELTA_A2",
   "pagesVerification": "PENDING_LATER",
   "liveExternalVerification": "PENDING_LATER",
@@ -141,13 +141,16 @@
   "lowRiskMutationExecutionAllowed": true,
   "authorizedActionAdapters": [
     "followup.snooze",
-    "followup.create"
+    "followup.create",
+    "reminder.schedule"
   ],
   "actionOperations": [
     "prepare_followup_snooze",
     "execute_followup_snooze",
     "prepare_followup_create",
-    "execute_followup_create"
+    "execute_followup_create",
+    "prepare_schedule_reminder",
+    "execute_schedule_reminder"
   ],
   "actionProposalDigestDatabaseRecomputed": true,
   "actionExecutionPayloadCarriesBusinessFields": false,
@@ -241,6 +244,16 @@
   "a3BCertifiedAt": "2026-09-18T16:00:22Z",
   "actionExecutionDomainAuthorities": [
     "mutate_transaction_followup_state_v1",
-    "create_transaction_followup_v1"
-  ]
+    "create_transaction_followup_v1",
+    "dispatch_scheduling_attention_v1"
+  ],
+  "a3CKickoffEvidence": "docs/PHASE12_3_A3C_KICKOFF.md",
+  "a3CDatabaseMigrationPath": "database/migrations/phase_12_3_agentic_action_schedule_reminder.sql",
+  "a3CSourceGateVerification": "PENDING",
+  "a3CDatabaseMigrationApplied": false,
+  "a3CEdgeDeployed": false,
+  "a3CRealCloudVerification": "PENDING",
+  "a3CRecipientScope": "SELF_ONLY",
+  "a3CMode": "REMINDER_ONLY",
+  "a3CFollowupSideEffectAllowed": false
 }

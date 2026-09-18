@@ -2,6 +2,7 @@ export const AGENT_ACTION_SCHEMA='enjaz.copilot.agent.action.v1' as const;
 export const AGENT_ACTION_OPERATIONS=[
   'prepare_followup_snooze','execute_followup_snooze',
   'prepare_followup_create','execute_followup_create',
+  'prepare_schedule_reminder','execute_schedule_reminder',
 ] as const;
 export type AgentActionOperation=typeof AGENT_ACTION_OPERATIONS[number];
 
@@ -14,11 +15,15 @@ export type PrepareFollowupSnoozeRequest=Readonly<{
 export type PrepareFollowupCreateRequest=Readonly<{
   workspaceId:string;requestId:string;operation:'prepare_followup_create';transactionId:string;followupId:string;title:string;dueAt:string;
 }>;
+export type PrepareScheduleReminderRequest=Readonly<{
+  workspaceId:string;requestId:string;operation:'prepare_schedule_reminder';
+  sourceKind:'workflow_deadline'|'renewal_occurrence';sourceId:string;operationId:string;scheduledFor:string;
+}>;
 export type ExecuteFollowupActionRequest=Readonly<{
-  workspaceId:string;requestId:string;operation:'execute_followup_snooze'|'execute_followup_create';
+  workspaceId:string;requestId:string;operation:'execute_followup_snooze'|'execute_followup_create'|'execute_schedule_reminder';
   proposalId:string;proposalHash:string;executionKey:string;
 }>;
-export type AgentActionRequest=PrepareFollowupSnoozeRequest|PrepareFollowupCreateRequest|ExecuteFollowupActionRequest;
+export type AgentActionRequest=PrepareFollowupSnoozeRequest|PrepareFollowupCreateRequest|PrepareScheduleReminderRequest|ExecuteFollowupActionRequest;
 
 function uuid(v:unknown,code:string){
   if(typeof v!=='string'||!UUID.test(v.trim()))throw new Error(code);
@@ -73,6 +78,20 @@ export function parseAgentActionRequest(value:unknown):AgentActionRequest{
     });
   }
 
+  if(row.operation==='prepare_schedule_reminder'){
+    exactKeys(row,['workspaceId','requestId','operation','sourceKind','sourceId','operationId','scheduledFor']);
+    if(row.sourceKind!=='workflow_deadline'&&row.sourceKind!=='renewal_occurrence')throw new Error('ACTION_SOURCE_KIND_INVALID');
+    return Object.freeze({
+      workspaceId:uuid(row.workspaceId,'WORKSPACE_ID_INVALID'),
+      requestId:uuid(row.requestId,'REQUEST_ID_INVALID'),
+      operation:'prepare_schedule_reminder',
+      sourceKind:row.sourceKind,
+      sourceId:uuid(row.sourceId,'SOURCE_ID_INVALID'),
+      operationId:uuid(row.operationId,'OPERATION_ID_INVALID'),
+      scheduledFor:futureIso(row.scheduledFor,'ACTION_SCHEDULED_FOR_INVALID'),
+    });
+  }
+
   exactKeys(row,['workspaceId','requestId','operation','proposalId','proposalHash','executionKey']);
   if(typeof row.proposalHash!=='string'||!SHA256.test(row.proposalHash))throw new Error('PROPOSAL_HASH_INVALID');
   return Object.freeze({
@@ -95,15 +114,21 @@ export async function followupCreateCanonical(req:PrepareFollowupCreateRequest){
     req.transactionId,req.followupId,titleHash,req.dueAt,
   ].join('|');
 }
+export function scheduleReminderCanonical(req:PrepareScheduleReminderRequest){
+  return [
+    AGENT_ACTION_SCHEMA,req.workspaceId,req.requestId,req.operation,
+    req.sourceKind,req.sourceId,req.operationId,req.scheduledFor,
+  ].join('|');
+}
 
-export async function actionProposalHash(req:PrepareFollowupSnoozeRequest|PrepareFollowupCreateRequest){
-  return sha256Text(req.operation==='prepare_followup_snooze'
-    ?followupSnoozeCanonical(req)
-    :await followupCreateCanonical(req));
+export async function actionProposalHash(req:PrepareFollowupSnoozeRequest|PrepareFollowupCreateRequest|PrepareScheduleReminderRequest){
+  if(req.operation==='prepare_followup_snooze')return sha256Text(followupSnoozeCanonical(req));
+  if(req.operation==='prepare_followup_create')return sha256Text(await followupCreateCanonical(req));
+  return sha256Text(scheduleReminderCanonical(req));
 }
 
 export async function actionTracePayloadHash(req:AgentActionRequest){
-  if(req.operation==='prepare_followup_snooze'||req.operation==='prepare_followup_create')return actionProposalHash(req);
+  if(req.operation==='prepare_followup_snooze'||req.operation==='prepare_followup_create'||req.operation==='prepare_schedule_reminder')return actionProposalHash(req);
   return sha256Text([
     AGENT_ACTION_SCHEMA,req.workspaceId,req.requestId,req.operation,
     req.proposalId,req.proposalHash,req.executionKey,
@@ -136,6 +161,20 @@ export function preparedCreateActionResult(input:Readonly<{
     explicitApprovalRequired:true as const,digestBound:true as const,executionAllowed:false as const,genericWriteToolAllowed:false as const,
   });
 }
+export function preparedReminderActionResult(input:Readonly<{
+  proposalId:string;proposalHash:string;expiresAt:string;replayed:boolean;
+  sourceKind:'workflow_deadline'|'renewal_occurrence';sourceId:string;operationId:string;scheduledFor:string;
+}>){
+  return Object.freeze({
+    schema:AGENT_ACTION_SCHEMA,status:'pending_approval' as const,
+    proposalId:input.proposalId,proposalHash:input.proposalHash,expiresAt:input.expiresAt,replayed:input.replayed,
+    action:Object.freeze({
+      kind:'reminder.schedule' as const,sourceKind:input.sourceKind,sourceId:input.sourceId,
+      operationId:input.operationId,scheduledFor:input.scheduledFor,recipient:'self' as const,mode:'reminder' as const,
+    }),
+    explicitApprovalRequired:true as const,digestBound:true as const,executionAllowed:false as const,genericWriteToolAllowed:false as const,
+  });
+}
 
 export function parseExecutionResult(value:unknown){
   if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
@@ -143,31 +182,42 @@ export function parseExecutionResult(value:unknown){
   if(row.schema!=='enjaz.copilot.agent.action-execution.v1')throw new Error('ACTION_EXECUTION_RESULT_INVALID');
   if(typeof row.proposalId!=='string'||!UUID.test(row.proposalId))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
   if(typeof row.proposalHash!=='string'||!SHA256.test(row.proposalHash))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
-  if(row.actionKind!=='followup.snooze'&&row.actionKind!=='followup.create')throw new Error('ACTION_EXECUTION_RESULT_INVALID');
+  if(row.actionKind!=='followup.snooze'&&row.actionKind!=='followup.create'&&row.actionKind!=='reminder.schedule')throw new Error('ACTION_EXECUTION_RESULT_INVALID');
   if(typeof row.targetId!=='string'||!UUID.test(row.targetId))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
   if(typeof row.replayed!=='boolean'||!row.result||typeof row.result!=='object'||Array.isArray(row.result))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
 
   const snooze=row.actionKind==='followup.snooze';
+  const create=row.actionKind==='followup.create';
+  const reminder=row.actionKind==='reminder.schedule';
   if(snooze&&(typeof row.snoozedUntil!=='string'||!Number.isFinite(Date.parse(row.snoozedUntil))))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
-  if(!snooze&&(
+  if(create&&(
     typeof row.transactionId!=='string'||!UUID.test(row.transactionId)
     ||typeof row.title!=='string'||row.title.length<1||row.title.length>320
     ||typeof row.dueAt!=='string'||!Number.isFinite(Date.parse(row.dueAt))
   ))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
+  if(reminder&&(
+    (row.sourceKind!=='workflow_deadline'&&row.sourceKind!=='renewal_occurrence')
+    ||typeof row.operationId!=='string'||!UUID.test(row.operationId)
+    ||typeof row.scheduledFor!=='string'||!Number.isFinite(Date.parse(row.scheduledFor))
+  ))throw new Error('ACTION_EXECUTION_RESULT_INVALID');
 
+  const domainAuthority=snooze?'mutate_transaction_followup_state_v1'
+    :create?'create_transaction_followup_v1':'dispatch_scheduling_attention_v1';
   return Object.freeze({
     schema:row.schema as 'enjaz.copilot.agent.action-execution.v1',
     proposalId:row.proposalId,proposalHash:row.proposalHash,executionKey:String(row.executionKey??''),
-    actionKind:row.actionKind as 'followup.snooze'|'followup.create',
+    actionKind:row.actionKind as 'followup.snooze'|'followup.create'|'reminder.schedule',
     targetId:row.targetId,
     snoozedUntil:snooze?new Date(String(row.snoozedUntil)).toISOString():null,
-    transactionId:snooze?null:String(row.transactionId),
-    title:snooze?null:String(row.title),
-    dueAt:snooze?null:new Date(String(row.dueAt)).toISOString(),
+    transactionId:create?String(row.transactionId):null,
+    title:create?String(row.title):null,
+    dueAt:create?new Date(String(row.dueAt)).toISOString():null,
+    sourceKind:reminder?row.sourceKind as 'workflow_deadline'|'renewal_occurrence':null,
+    operationId:reminder?String(row.operationId):null,
+    scheduledFor:reminder?new Date(String(row.scheduledFor)).toISOString():null,
     result:row.result as Record<string,unknown>,replayed:row.replayed,
     atomicApprovalConsumption:true as const,
-    domainAuthority:(snooze?'mutate_transaction_followup_state_v1':'create_transaction_followup_v1') as
-      'mutate_transaction_followup_state_v1'|'create_transaction_followup_v1',
+    domainAuthority:domainAuthority as 'mutate_transaction_followup_state_v1'|'create_transaction_followup_v1'|'dispatch_scheduling_attention_v1',
     genericWriteToolAllowed:false as const,
   });
 }

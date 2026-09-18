@@ -26,7 +26,7 @@ test('12.3 A1 source contract passes',()=>assert.deepEqual(violations(),[]));
 
 test('12.3 A1 execution lock survives A2 database activation',()=>{
  assert.equal(state.a1Certification,'PASS_PLAN_PROPOSAL_CONTRACT');
- assert.equal(state.slice,'A3B_FOLLOWUP_CREATE_ACTION');
+ assert.equal(state.slice,'A3C_SELF_REMINDER_ACTION');
  assert.equal(state.executeOperationAllowed,false);
  assert.equal(state.sensitiveMutationExecutionAllowed,false);
  assert.equal(state.directBusinessTableWritesAllowed,false);
