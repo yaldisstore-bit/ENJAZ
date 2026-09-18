@@ -26,7 +26,7 @@ const req=(v,m)=>{if(!v)errors.push(m)};
 const has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 const lacks=(s,m,l)=>req(!s.includes(m),`${l} forbidden marker present: ${m}`);
 
-req(state.phase==='11.6'&&state.status==='IN_PROGRESS'&&['11.6-C','11.6-D'].includes(state.currentSlice),'11.6-C closure must remain valid through governed successor D');
+req(state.phase==='11.6'&&['IN_PROGRESS','CLOSED'].includes(state.status)&&['11.6-C','11.6-D'].includes(state.currentSlice),'11.6-C closure must remain valid through governed successor D/final closure');
 if(state.currentSlice==='11.6-C'){
   req(state.mode==='CONTRACT_APPROVAL_RETAINER_COMMUNICATION','11.6-C mode drifted');
   req(state.currentSliceBaseCommit==='314ff5a297420b4842a0bba78c3575d84e85c707','11.6-C must start from merged 11.6-B closure');
@@ -39,7 +39,12 @@ req(state.phase11_6bMergeCommit==='314ff5a297420b4842a0bba78c3575d84e85c707','11
 req(['IN_PROGRESS','CLOSED'].includes(state.phase11_6cStatus),'11.6-C lifecycle status invalid');
 if(state.phase11_6cStatus==='CLOSED'){
   req(state.phase11_6cExitGatePassed===true&&state.phase11_6cClosureDecision==='PASS','11.6-C CLOSED requires PASS exit decision');
-  req(state.phase11_6dAllowed===true&&state.phase11_7Allowed===false&&state.successorStatus==='LOCKED','11.6-D must be authorized while 11.7 remains locked');
+  req(state.phase11_6dAllowed===true,'11.6-C closure must preserve D authorization');
+  if(state.status==='IN_PROGRESS'){
+    req(state.phase11_7Allowed===false&&state.successorStatus==='LOCKED','11.7 must remain locked while D/11.6 is open');
+  }else{
+    req(state.phase11_6dStatus==='CLOSED'&&state.phase11_6dExitGatePassed===true&&state.phase11_7Allowed===true&&state.successorStatus==='AUTHORIZED_NEXT','final 11.6 closure requires certified D and authorizes only 11.7');
+  }
   req(state.phase11_6cClosureEvidencePath==='docs/PHASE11_6C_CLOSURE.md','11.6-C closure evidence path drifted');
   req(state.phase11_6cPreClosureGate==='PASS'&&state.phase11_6cPreClosureGateRunId===35289132165&&state.phase11_6cPreClosureGateRunNumber===66&&state.phase11_6cPreClosureGateHead==='8645c2d14e319659ff7312f969258481a66993ba','11.6-C pre-closure gate certificate invalid');
   req(state.phase11_6cRealBrowserVerification==='PASS'&&state.phase11_6cRealBrowserRunId===35289132333&&state.phase11_6cRealBrowserRunNumber===1569,'11.6-C Real Browser certificate invalid');

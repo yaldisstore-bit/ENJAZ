@@ -18,11 +18,17 @@ const req=(v,m)=>{if(!v)errors.push(m)};
 const has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 const lacks=(s,m,l)=>req(!s.includes(m),`${l} forbidden marker present: ${m}`);
 
-req(state.phase==='11.6'&&state.status==='IN_PROGRESS'&&['11.6-B','11.6-C','11.6-D'].includes(state.currentSlice),'11.6-B closure must remain valid through governed Phase 11.6 successor slices');
+req(state.phase==='11.6'&&['IN_PROGRESS','CLOSED'].includes(state.status)&&['11.6-B','11.6-C','11.6-D'].includes(state.currentSlice),'11.6-B closure must remain valid through governed Phase 11.6 successor slices/final closure');
 req(state.phase11_6aStatus==='CLOSED'&&state.phase11_6aExitGatePassed===true&&state.phase11_6aPostMergeRecertification==='PASS_EXACT_MAIN_SHA','11.6-A exact-main predecessor evidence must remain preserved');
 req(state.phase11_6aMergeCommit==='d44b27411f3b994eb79f9e75ea0f8c15984c0412','11.6-B base lineage drifted');
 req(state.phase11_6bStatus==='CLOSED'&&state.phase11_6bExitGatePassed===true&&state.phase11_6bClosureDecision==='PASS','11.6-B formal closure evidence invalid');
-req(state.phase11_6cAllowed===true&&state.phase11_7Allowed===false&&state.successorStatus==='LOCKED','11.6-C must be authorized while Phase 11.7 remains locked');
+req(state.phase11_6cAllowed===true,'11.6-B closure must preserve C authorization lineage');
+if(state.status==='IN_PROGRESS'){
+  req(state.phase11_7Allowed===false&&state.successorStatus==='LOCKED','Phase 11.7 must remain locked while Phase 11.6 is open');
+}else{
+  req(state.phase11_6cStatus==='CLOSED'&&state.phase11_6dStatus==='CLOSED'&&state.exitGatePassed===true,'final 11.6 closure requires certified C/D successors');
+  req(state.phase11_7Allowed===true&&state.successorStatus==='AUTHORIZED_NEXT','final 11.6 closure may authorize only Phase 11.7');
+}
 for(const f of ['phase11_6bShadowSubmissionAllowed','phase11_6bSecureLinkDocumentUploadAllowed','phase11_6bRawCapabilityTokenPersistenceAllowed'])req(state[f]===false,`B fail-closed state drifted: ${f}`);
 for(const f of ['phase11_6bCanonicalSubmissionAuthorityPreserved','phase11_6bPortalAuthorityDelegated','phase11_6bPortalTransactionMustBindToIntakeLead','phase11_6bOneOpenFollowupPerSubmission'])req(state[f]===true,`B authority state drifted: ${f}`);
 

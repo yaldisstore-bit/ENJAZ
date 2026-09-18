@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 🟡 IN PROGRESS — 11.6-D UNIFIED EXPERIENCE & CERTIFICATION**  
-آخر شريحة مغلقة: **Phase 11.6-C — Contract Approval, Retainer Renewal & Communication Evidence ✅ CLOSED / REAL CLOUD CERTIFIED**  
-المرحلة اللاحقة: **Phase 11.7 — Communication Zero-Escape Gate — LOCKED**.
+الحالة الرسمية: **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16 ✅ CLOSED / EXACT-MAIN + PAGES + LIVE EXTERNAL CERTIFIED**  
+آخر شريحة مغلقة: **Phase 11.6-D — Unified Experience & Certification ✅ CLOSED / REAL CLOUD + FIVE-WIDTH CHROMIUM + DEPLOYED-LIVE CERTIFIED**  
+المرحلة اللاحقة: **Phase 11.7 — Communication Zero-Escape Gate — AUTHORIZED_NEXT**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -52,12 +52,12 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 11.3 — Client Portal — M3: ✅ CLOSED + published authenticated portal certificate + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 11.4 — Omnichannel Communications Hub — M4: ✅ CLOSED + Real Cloud + exact-main + Real Browser + governance certified.**
 - **Phase 11.5 — Scheduling, Appointments & Deadline Engine — M10: ✅ CLOSED + authenticated Real Cloud + dedicated 5-width Chromium + exact-main cumulative gates + frozen-budget certification.**
-- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: 🟡 IN PROGRESS — 11.6-D UNIFIED EXPERIENCE & CERTIFICATION.**
+- **Phase 11.6 — Smart Intake & Contract Communication — M17 + M16: ✅ CLOSED + Real Cloud + five-width Chromium + exact-main + Pages + Live External certified.**
 
 ## Phase 11.6 — الحالة الحالية
 
 - formal base: `14a670e8dd2d892a7039fd7a52437a8c6274aa2a` — Phase 11.5 closure merge.
-- current implementation branch: `phase11-6d-unified-experience-certification`.
+- final closure branch: `phase11-6d-final-closure`; implementation merge: `c9b810f3e21a382b92b52e9a630556d2f6cac49f`.
 - 11.6-A — Authority & boundary contract: **CLOSED / exact-main recertified**.
 - 11.6-B — Intake follow-up & client information loop: **CLOSED / CERTIFIED**.
 - 11.6-B Real Cloud SQL lineage: `20260917222114` / `20260917222123` / `20260917222446` / probe `20260917222519` — **PASS**.
@@ -68,11 +68,13 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - 11.6-C — Contract approval, retainer renewal & communication evidence: **CLOSED / CERTIFIED** from merged B base `314ff5a297420b4842a0bba78c3575d84e85c707`.
 - C1/C2/C3 Real Cloud lineage: `20260917225607` / `20260917230127` / `20260917230406` / `20260917231342` / `20260917231857` / `20260917235138` / `20260917235645` — **PASS**.
 - C closure source gate `35289132165` + Real Browser `35289132333`: **PASS**; zero residue; security `66→65`; performance `81→80`; unindexed FK `28→28`.
-- 11.6-D — Unified experience & certification: **IN PROGRESS** from exact merged C closure `ea6d7bdedaa2a714c7ec34ebf444d06e0875b06b`; projection-only / no-new-CSS / frozen-budget contract is active.
-- Phase 11.7: **LOCKED** until the full Phase 11.6 exit gate passes.
+- 11.6-D — Unified experience & certification: **CLOSED / CERTIFIED**; D1/D2 Real Cloud projections PASS, D3 five-width browser PASS, D4 authenticated Real Cloud PASS / zero residue.
+- implementation merge `c9b810f3e21a382b92b52e9a630556d2f6cac49f`: Quality #1692, Real Browser #1608, Major Systems #809, Roadmap #1421, Pages #1534 attempt 2, Live External #1211 — **PASS**.
+- Phase 11.7: **AUTHORIZED_NEXT** only after this formal Phase 11.6 closure.
 - frozen budgets remain **670000 initial JS / 760000 total JS / 180000 CSS**؛ no cap increase authorized.
 - B closure evidence: [`docs/PHASE11_6B_CLOSURE.md`](docs/PHASE11_6B_CLOSURE.md).
 - C closure evidence: [`docs/PHASE11_6C_CLOSURE.md`](docs/PHASE11_6C_CLOSURE.md).
+- Phase 11.6 final closure evidence: [`docs/PHASE11_6_CLOSURE.md`](docs/PHASE11_6_CLOSURE.md).
 - lifecycle state: [`docs/PHASE11_6_STATE.json`](docs/PHASE11_6_STATE.json).
 
 ## Phase 11.5 — دليل الإغلاق الحالي
