@@ -30,6 +30,10 @@ create table private.copilot_request_traces(
   unique(workspace_id,request_id)
 );
 
+create index copilot_rate_buckets_actor_fk_idx
+  on private.copilot_rate_buckets(actor_user_id);
+create index copilot_request_traces_actor_fk_idx
+  on private.copilot_request_traces(actor_user_id);
 create index copilot_request_traces_actor_idx
   on private.copilot_request_traces(workspace_id,actor_user_id,started_at desc);
 create index copilot_request_traces_status_idx
