@@ -46,7 +46,7 @@ test('13.1 A3 hostile target control fields remain forbidden',()=>{
   const value:any=envelope([record('company','1')]);
   value.targetTable='companies';
   assert.throws(()=>parseLegacySnapshot(value),/LEGACY_SNAPSHOT_FIELD_FORBIDDEN/);
-  value.targetTable=undefined;
+  delete value.targetTable;
   value.records[0].mappedEntityId='x';
   assert.throws(()=>parseLegacySnapshot(value),/LEGACY_SNAPSHOT_RECORD_FIELD_FORBIDDEN/);
 });
