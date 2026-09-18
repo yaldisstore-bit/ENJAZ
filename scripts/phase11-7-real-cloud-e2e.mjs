@@ -81,9 +81,9 @@ async function runM4(){
  const response=await fetch(`${url}/functions/v1/enjaz-communications?action=dispatch`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({workspaceId:ws,commandId:first.data.commandId})});
  const dispatchDenied=await response.json().catch(()=>({}));
  assert(response.status===401&&dispatchDenied?.error==='INTERNAL_AUTH_REQUIRED','M4','edge_dispatch_requires_internal_auth',`${response.status}:${String(dispatchDenied?.error??'')}`);
- const after=await admin.from('communications').select('status').eq('id',first.data.communicationId).single();
+ const after=await admin.from('communication_outbound_commands').select('status,dispatch_claimed_at,dispatch_token').eq('workspace_id',ws).eq('id',first.data.commandId).single();
  if(after.error)throw after.error;
- assert(after.data?.status==='queued','M4','unauthorized_dispatch_did_not_forge_delivery');
+ assert(after.data?.status==='queued'&&after.data?.dispatch_claimed_at===null&&after.data?.dispatch_token===null,'M4','unauthorized_dispatch_did_not_claim_or_mutate_command');
 }
 
 async function runM10(){
