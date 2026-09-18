@@ -8,6 +8,7 @@ import {
 
 export type EngagementContractRuntimeRevision = Readonly<EngagementContractRevision & {
   id: string;
+  version: number;
   signatureProvenance: Readonly<Record<string, unknown>>;
   terminationNote: string | null;
   createdAt: string;
@@ -26,6 +27,8 @@ export type CreateEngagementContractRevisionInput = Readonly<{
 export type TransitionEngagementContractRevisionInput = Readonly<{
   workspaceId: string;
   revisionId: string;
+  operationId: string;
+  expectedVersion: number;
   toStatus: EngagementContractStatus;
   documentId?: string | null;
   documentVersionId?: string | null;
@@ -96,10 +99,14 @@ function rows(value: unknown, label: string): readonly Readonly<Record<string, u
   return value.map((item) => record(item, label));
 }
 
-function revisionNumber(value: unknown): number {
+function positiveInteger(value: unknown, label: string): number {
   const parsed = typeof value === 'number' ? value : typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : NaN;
-  if (!Number.isSafeInteger(parsed) || parsed < 1) throw new DataAccessError('Invalid contract revision number', 'DATA_OPERATION_FAILED');
+  if (!Number.isSafeInteger(parsed) || parsed < 1) throw new DataAccessError(`Invalid ${label}`, 'DATA_OPERATION_FAILED');
   return parsed;
+}
+
+function revisionNumber(value: unknown): number {
+  return positiveInteger(value, 'contract revision number');
 }
 
 function parseRevision(row: Readonly<Record<string, unknown>>): EngagementContractRuntimeRevision {
@@ -125,6 +132,7 @@ function parseRevision(row: Readonly<Record<string, unknown>>): EngagementContra
   return Object.freeze({
     ...revision,
     id: requireUuid(row.id ?? row.revisionId, 'revision id'),
+    version: positiveInteger(row.version, 'contract revision version'),
     signatureProvenance: Object.freeze({ ...provenance }),
     terminationNote: nullableText(row.termination_note ?? row.terminationNote, 'termination note', 1000),
     createdAt: typeof (row.created_at ?? row.createdAt) === 'string' ? String(row.created_at ?? row.createdAt) : '',
@@ -160,7 +168,7 @@ export function createEngagementContractGateway(client: EnjazSupabaseClient, tim
   const fetchRevision = async (workspaceId: string, revisionId: string): Promise<EngagementContractRuntimeRevision> => {
     try {
       const result = await client.from('engagement_contract_revisions')
-        .select('id,workspace_id,engagement_id,revision_number,title,status,template_version_id,draft_id,document_id,document_version_id,supersedes_revision_number,effective_on,expires_on,signed_at,signature_provenance,termination_note,created_at,updated_at')
+        .select('id,workspace_id,engagement_id,revision_number,title,status,template_version_id,draft_id,document_id,document_version_id,supersedes_revision_number,effective_on,expires_on,signed_at,signature_provenance,termination_note,version,created_at,updated_at')
         .eq('workspace_id', requireUuid(workspaceId, 'workspace id'))
         .eq('id', requireUuid(revisionId, 'revision id'))
         .maybeSingle();
@@ -179,7 +187,7 @@ export function createEngagementContractGateway(client: EnjazSupabaseClient, tim
       const engagement = engagementId ? requireUuid(engagementId, 'engagement id') : null;
       try {
         let query = client.from('engagement_contract_revisions')
-          .select('id,workspace_id,engagement_id,revision_number,title,status,template_version_id,draft_id,document_id,document_version_id,supersedes_revision_number,effective_on,expires_on,signed_at,signature_provenance,termination_note,created_at,updated_at')
+          .select('id,workspace_id,engagement_id,revision_number,title,status,template_version_id,draft_id,document_id,document_version_id,supersedes_revision_number,effective_on,expires_on,signed_at,signature_provenance,termination_note,version,created_at,updated_at')
           .eq('workspace_id', ws)
           .order('updated_at', { ascending: false });
         if (engagement) query = query.eq('engagement_id', engagement);
@@ -208,15 +216,19 @@ export function createEngagementContractGateway(client: EnjazSupabaseClient, tim
     async transition(input: TransitionEngagementContractRevisionInput) {
       const workspaceId = requireUuid(input.workspaceId, 'workspace id');
       const revisionId = requireUuid(input.revisionId, 'revision id');
+      const operationId = requireUuid(input.operationId, 'operation id');
+      const expectedVersion = positiveInteger(input.expectedVersion, 'expected contract revision version');
       const documentId = input.documentId === undefined ? null : nullableUuid(input.documentId, 'document id');
       const documentVersionId = input.documentVersionId === undefined ? null : nullableUuid(input.documentVersionId, 'document version id');
       if ((documentId === null) !== (documentVersionId === null)) throw new DataAccessError('Document and version must be supplied together', 'DATA_VALIDATION_FAILED');
       const signature = input.signatureProvenance === undefined || input.signatureProvenance === null
         ? null
         : Object.freeze({ ...record(input.signatureProvenance, 'signature provenance') });
-      const response = record(await call('transition_engagement_contract_revision_v1', {
+      const response = record(await call('transition_engagement_contract_revision_v2', {
         p_workspace_id: workspaceId,
         p_revision_id: revisionId,
+        p_operation_id: operationId,
+        p_expected_version: expectedVersion,
         p_to_status: status(input.toStatus),
         p_document_id: documentId,
         p_document_version_id: documentVersionId,

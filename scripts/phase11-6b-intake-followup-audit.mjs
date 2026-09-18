@@ -18,7 +18,7 @@ const req=(v,m)=>{if(!v)errors.push(m)};
 const has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 const lacks=(s,m,l)=>req(!s.includes(m),`${l} forbidden marker present: ${m}`);
 
-req(state.phase==='11.6'&&state.status==='IN_PROGRESS'&&state.currentSlice==='11.6-B','11.6-B lifecycle identity invalid');
+req(state.phase==='11.6'&&state.status==='IN_PROGRESS'&&['11.6-B','11.6-C','11.6-D'].includes(state.currentSlice),'11.6-B closure must remain valid through governed Phase 11.6 successor slices');
 req(state.phase11_6aStatus==='CLOSED'&&state.phase11_6aExitGatePassed===true&&state.phase11_6aPostMergeRecertification==='PASS_EXACT_MAIN_SHA','11.6-A exact-main predecessor evidence must remain preserved');
 req(state.phase11_6aMergeCommit==='d44b27411f3b994eb79f9e75ea0f8c15984c0412','11.6-B base lineage drifted');
 req(state.phase11_6bStatus==='CLOSED'&&state.phase11_6bExitGatePassed===true&&state.phase11_6bClosureDecision==='PASS','11.6-B formal closure evidence invalid');

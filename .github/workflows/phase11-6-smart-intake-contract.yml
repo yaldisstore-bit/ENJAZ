@@ -7,12 +7,21 @@ on:
       - 'docs/PHASE11_6*'
       - 'database/migrations/phase_11_6_*'
       - 'src/features/intake-contract-communication/**'
+      - 'src/features/engagements/engagementContractCommands.ts'
+      - 'src/ui-r2/documents/EngagementContractPanel.tsx'
+      - 'src/ui-r2/phase10-5-browser-main.tsx'
       - 'tests/intakeContractCommunicationAuthority.test.ts'
       - 'tests/intakeFollowupCommands.test.ts'
       - 'tests/intakeFollowupBridgeSource.test.mjs'
+      - 'tests/contractTransitionConcurrencySource.test.mjs'
+      - 'tests/contractApprovalCommands.test.ts'
+      - 'tests/contractApprovalBridgeSource.test.mjs'
+      - 'tests/contractRenewalCommunicationCommands.test.ts'
+      - 'tests/contractRenewalCommunicationSource.test.mjs'
       - 'scripts/phase11-6a-intake-contract-authority-audit.mjs'
       - 'scripts/phase11-6b-intake-followup-audit.mjs'
       - 'scripts/phase11-6b-real-cloud-e2e.mjs'
+      - 'scripts/phase11-6c-contract-approval-audit.mjs'
       - '.github/workflows/phase11-6b-real-cloud-e2e.yml'
       - '.github/workflows/phase11-6-smart-intake-contract.yml'
       - 'README.md'
@@ -44,6 +53,18 @@ jobs:
         run: node --check scripts/phase11-6b-real-cloud-e2e.mjs
       - name: Phase 11.6-B authority audit
         run: node scripts/phase11-6b-intake-followup-audit.mjs
+      - name: Phase 11.6-C1 M16 transition destructive source tests
+        run: node --test tests/contractTransitionConcurrencySource.test.mjs
+      - name: Phase 11.6-C2 contract approval gateway tests
+        run: node --experimental-strip-types --test tests/contractApprovalCommands.test.ts
+      - name: Phase 11.6-C2 client decision destructive source tests
+        run: node --test tests/contractApprovalBridgeSource.test.mjs
+      - name: Phase 11.6-C3 renewal/M4 gateway tests
+        run: node --experimental-strip-types --test tests/contractRenewalCommunicationCommands.test.ts
+      - name: Phase 11.6-C3 renewal/M4 destructive source tests
+        run: node --test tests/contractRenewalCommunicationSource.test.mjs
+      - name: Phase 11.6-C authority audit
+        run: node scripts/phase11-6c-contract-approval-audit.mjs
       - name: Database integrity
         run: npm run db:audit && npm run db:audit:selftest
       - name: Roadmap integrity

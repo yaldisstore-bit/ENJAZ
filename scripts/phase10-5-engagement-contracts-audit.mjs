@@ -116,10 +116,13 @@ for(const marker of [
   'createEngagementContractGateway',
   "client.from('engagement_contract_revisions')",
   "create_engagement_contract_revision_v1",
-  "transition_engagement_contract_revision_v1",
   'validateEngagementContractRevision',
   'signatureProvenance'
 ]) check(`runtime:${marker}`,has(runtime,marker));
+check(
+  'runtime:governed_contract_transition_rpc',
+  has(runtime,"transition_engagement_contract_revision_v1")||has(runtime,"transition_engagement_contract_revision_v2")
+);
 check('runtime_no_money_mutation',!/(payments|payment_reversals|financial_ledger_entries|cashbox_accounts).*\.(insert|update|delete)/i.test(runtime));
 
 for(const marker of [
