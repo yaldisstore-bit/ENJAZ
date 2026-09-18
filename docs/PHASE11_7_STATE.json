@@ -75,29 +75,34 @@
   },
   "systemEvidence": {
     "M3": {
-      "status": "PENDING",
-      "requiredProperty": "revocation_workspace_permission_and_client_safe_projection"
+      "status": "PASS",
+      "requiredProperty": "revocation_workspace_permission_and_client_safe_projection",
+      "evidence": "exact-deployed published certificate #148 / 35316019043 on Phase 11.6 closure SHA"
     },
     "M4": {
-      "status": "PENDING",
-      "requiredProperty": "dedupe_consent_approval_delivery_failure_and_transport_truth_separation"
+      "status": "PASS",
+      "requiredProperty": "dedupe_consent_approval_delivery_failure_and_transport_truth_separation",
+      "evidence": "11.7 Real Cloud #13 — governed outbound, consent, approval, idempotency, cross-workspace denial, Edge internal-auth denial"
     },
     "M10": {
-      "status": "PENDING",
-      "requiredProperty": "stale_target_timezone_terminal_fact_and_conflict_integrity"
+      "status": "PASS",
+      "requiredProperty": "stale_target_timezone_terminal_fact_and_conflict_integrity",
+      "evidence": "11.7 Real Cloud #13 — governed create/replay, immediate stale denial, recovery, Baghdad projection, cross-workspace denial, durable receipt/audit"
     },
     "M16_PHASE11_PORTION": {
-      "status": "PENDING",
-      "requiredProperty": "contract_target_provenance_stale_conflict_renewal_and_communication_integrity"
+      "status": "PASS",
+      "requiredProperty": "contract_target_provenance_stale_conflict_renewal_and_communication_integrity",
+      "evidence": "11.7 Real Cloud #13 re-ran certified 11.6-D unified attention evidence"
     },
     "M17_PHASE11_PORTION": {
-      "status": "PENDING",
-      "requiredProperty": "revoked_link_followup_non_authoritative_intake_and_workspace_integrity"
+      "status": "PASS",
+      "requiredProperty": "revoked_link_followup_non_authoritative_intake_and_workspace_integrity",
+      "evidence": "11.7 Real Cloud #13 re-ran certified 11.6-B follow-up and 11.6-D attention evidence"
     }
   },
   "openingDestructionTests": "PASS_8_OF_8",
-  "realCloudVerification": "PENDING",
-  "permissionMatrixVerification": "PENDING",
+  "realCloudVerification": "PASS_INDIVIDUAL_SYSTEM_WAVE1",
+  "permissionMatrixVerification": "PASS_REAL_CLOUD_WAVE1",
   "realBrowserVerification": "PENDING",
   "pagesVerification": "PENDING",
   "liveExternalVerification": "PENDING",
@@ -119,10 +124,27 @@
   "openingRoadmapRunId": 35316622551,
   "openingRoadmapRunNumber": 1437,
   "openingRoadmapHead": "390692c972833cbd016d5cb10d66d7119caf6d0b",
-  "realCloudWave1Status": "PENDING",
+  "realCloudWave1Status": "PASS",
   "realCloudWave1Script": "scripts/phase11-7-real-cloud-e2e.mjs",
   "realCloudWave1Workflow": ".github/workflows/phase11-7-real-cloud-e2e.yml",
   "m3PublishedBaselineRunId": 35316019043,
   "m3PublishedBaselineRunNumber": 148,
-  "m3PublishedBaselineHead": "5c4b1bfa4cda339fbbd96b7d3bbf938ef560f98a"
+  "m3PublishedBaselineHead": "5c4b1bfa4cda339fbbd96b7d3bbf938ef560f98a",
+  "realCloudWave1RunId": 35320196712,
+  "realCloudWave1RunNumber": 13,
+  "realCloudWave1Head": "339291b4a7fcd4a6a6d992d4a2f4f66a92b41961",
+  "realCloudWave1ArtifactId": 10536333814,
+  "realCloudWave1ArtifactDigest": "sha256:56a87b9e1fd3a31c32c559b0a5b80e2e58be95a6d0e4bc41199de332139cfb26",
+  "realCloudWave1ZeroResidue": true,
+  "realCloudWave1ExternalResidueCheck": "PASS",
+  "m10StaleHardeningMigrationPath": "database/migrations/phase_11_7_m10_stale_conflict_sqlstate_hardening.sql",
+  "m10StaleHardeningMigrationVersion": "20260918073107",
+  "m10StaleHardeningFunctionCount": 9,
+  "m10StaleHardeningRetryableRemaining": 0,
+  "m10StaleHardeningNonRetryableCount": 9,
+  "securityAdvisorPostWave1Total": 65,
+  "performanceAdvisorPostWave1Total": 75,
+  "unindexedForeignKeysPostWave1": 28,
+  "wave1NewSecurityAdvisorFindings": 0,
+  "wave1NewPerformanceAdvisorFindings": 0
 }
