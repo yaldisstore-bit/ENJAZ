@@ -477,10 +477,11 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Formal closure: `docs/PHASE13_2_CLOSURE.md`.
 - **Phase 13.3 — Ordered Import: AUTHORIZED_NEXT**.
 
-## 13.3 — Ordered Import — IN_PROGRESS / A1 CERTIFIED / A2
+## 13.3 — Ordered Import — IN_PROGRESS / A1 + A2 CERTIFIED / A3
 - exact base: `501f5eaad31ba13b3e81d8acd28add4a631ac6bd` — final merged Phase 13.2 closure.
 - **A1 — Deterministic ordered-import plan: CERTIFIED** — Gate #2 / `35403491589`; **11/11 PASS**; functional **219/219**; DB self-test **25/25**.
-- **A2 — Explicit Target-ID & Idempotency Binding: IN PROGRESS** — caller-supplied UUIDs only; workspace/batch/idempotency bound in memory; no permission claim or write.
+- **A2 — Explicit Target-ID & Idempotency Binding: CERTIFIED** — Gate #10 / `35403767829`; **11/11 PASS**; A1 **11/11**; functional **219/219**; DB self-test **25/25**; caller-supplied UUIDs only; no permission claim or write.
+- **A3 — Authenticated Atomic Server Execution Boundary: IN PROGRESS** — execution authority remains disabled at opening; server workspace permission, idempotency enforcement, atomic rollback and cross-workspace denial must be certified before writes are allowed.
 - fixed stage order: `contacts → companies → transactions`.
 - plan generation consumes only certified Phase 13.2 explicit mapping/relationship preview.
 - unmapped, duplicate, dangling, undeclared or review-required records fail closed.
