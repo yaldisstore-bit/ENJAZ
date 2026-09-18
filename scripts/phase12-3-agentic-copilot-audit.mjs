@@ -58,7 +58,7 @@ req(JSON.stringify(state.authorizedActionAdapters)===JSON.stringify(['followup.s
 req(JSON.stringify(state.actionOperations)===JSON.stringify(['prepare_followup_snooze','execute_followup_snooze','prepare_followup_create','execute_followup_create','prepare_schedule_reminder','execute_schedule_reminder']),'12.3 A3-C operation allowlist drifted');
 req(state.a3BCertification==='PASS_FOLLOWUP_CREATE_REAL_CLOUD'&&state.a3BCertificationStatus==='CERTIFIED','12.3 A3-B certification must remain preserved');
 req(state.a3CRecipientScope==='SELF_ONLY'&&state.a3CMode==='REMINDER_ONLY'&&state.a3CFollowupSideEffectAllowed===false,'12.3 A3-C reminder restriction drifted');
-req(JSON.stringify(state.actionExecutionDomainAuthorities)===JSON.stringify(['mutate_transaction_followup_state_v1','create_transaction_followup_v1']),'12.3 A3-B domain authority allowlist drifted');
+req(JSON.stringify(state.actionExecutionDomainAuthorities)===JSON.stringify(['mutate_transaction_followup_state_v1','create_transaction_followup_v1','dispatch_scheduling_attention_v1']),'12.3 A3-C domain authority allowlist drifted');
 req(state.actionProposalDigestDatabaseRecomputed===true&&state.actionExecutionPayloadCarriesBusinessFields===false&&state.actionExecutionAtomicConsumeAndDomainMutation===true,'12.3 A3-A binding/atomicity contract drifted');
 req(state.edgeAgentDeployed===true&&state.edgeAgentFunction==='enjaz-copilot-agent'&&state.edgeAgentVersion===1&&state.edgeAgentVerifyJwt===true,'12.3 A2 Edge deployment evidence drifted');
 req(state.a2EdgeSourceGateVerification==='PASS'&&state.a2EdgeSourceGateRunId===35361859531&&state.a2EdgeSourceGateHead==='f08af983d724c7cdd1ad2fef2c844ab0ec30e28a','12.3 A2 Edge source gate evidence drifted');
@@ -150,7 +150,7 @@ for(const marker of ['followup.create','title is SHA-256 hashed first','create_t
 for(const marker of ['private.copilot_followup_create_hash_v1',"action_kind='followup.create'",'private.copilot_execute_followup_create_v1_impl','public.create_transaction_followup_v1(','grant execute on function public.copilot_execute_followup_create_v1(uuid,uuid,text,uuid)'])has(createMigration,marker,'12.3 A3-B migration');
 req(!/\b(post_payment_v1|reverse_payment_v1|archive_document_v1|send_client_portal_message_v1)\b/.test(createMigration),'12.3 A3-B migration has unauthorized adapter');
 for(const marker of ['33/33 PASS','business fields cannot be injected into the execution request','proposal consumption is rolled back atomically','test auth users: **0**','Phase 12.4 remains LOCKED'])has(a3bEvidence,marker,'12.3 A3-B evidence');
-for(const marker of ['reminder.schedule','SELF','auth.uid()','dispatch_scheduling_attention_v1','Phase 12.4 remains LOCKED'])has(a3c,marker,'12.3 A3-C kickoff');
+for(const marker of ['reminder.schedule','recipient is hard-locked','auth.uid()','dispatch_scheduling_attention_v1','Phase 12.4 remains LOCKED'])has(a3c,marker,'12.3 A3-C kickoff');
 for(const marker of ['private.copilot_schedule_reminder_hash_v1',"action_kind='reminder.schedule'",'private.copilot_execute_schedule_reminder_v1_impl','public.dispatch_scheduling_attention_v1(', "v_actor,'reminder',v_row.action_scheduled_for,null,null",'grant execute on function public.copilot_execute_schedule_reminder_v1(uuid,uuid,text,uuid)'])has(reminderMigration,marker,'12.3 A3-C migration');
 req(!/\b(post_payment_v1|reverse_payment_v1|send_client_portal_message_v1|mutate_transaction_workflow)\b/.test(reminderMigration),'12.3 A3-C migration has unauthorized adapter');
 
