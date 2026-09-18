@@ -27,8 +27,11 @@ on:
       - 'scripts/phase11-6b-real-cloud-e2e.mjs'
       - 'scripts/phase11-6c-contract-approval-audit.mjs'
       - 'scripts/phase11-6d-unified-experience-audit.mjs'
+      - 'scripts/phase11-6d-real-cloud-e2e.mjs'
+      - 'tests-external/phase11-6d-unified-attention-live.spec.cjs'
       - '.github/workflows/phase11-6b-real-cloud-e2e.yml'
       - '.github/workflows/phase11-6d-unified-experience-browser.yml'
+      - '.github/workflows/phase11-6d-real-cloud-e2e.yml'
       - '.github/workflows/phase11-6-smart-intake-contract.yml'
       - 'README.md'
   workflow_dispatch:
@@ -77,6 +80,10 @@ jobs:
         run: node --test tests/unifiedIntakeContractAttentionSource.test.mjs
       - name: Phase 11.6-D unified experience lifecycle audit
         run: node scripts/phase11-6d-unified-experience-audit.mjs
+      - name: Phase 11.6-D Real Cloud certificate static guard
+        run: |
+          node --check scripts/phase11-6d-real-cloud-e2e.mjs
+          if grep -Eq 'sb_secret_[A-Za-z0-9_-]+' scripts/phase11-6d-real-cloud-e2e.mjs; then exit 1; fi
       - name: Database integrity
         run: npm run db:audit && npm run db:audit:selftest
       - name: Roadmap integrity
