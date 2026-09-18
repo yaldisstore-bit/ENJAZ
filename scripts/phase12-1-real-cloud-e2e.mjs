@@ -110,6 +110,20 @@ async function run(){
 
  const serviceTrace=await admin.schema('private').from('copilot_request_traces').select('id').limit(1);
  assert(Boolean(serviceTrace.error),'service_role_direct_private_trace_read_denied');
+
+ if(process.env.ENJAZ_PHASE12_2_EXTENSION==='YES'){
+   const {verifyPhase122Context}=await import('./phase12-2-real-cloud-extension.mjs');
+   const extension=await verifyPhase122Context({
+     admin,
+     owner,
+     outsider,
+     workspaceId:ws,
+     outsiderWorkspaceId:other,
+     edgeUrl:`${url}/functions/v1/enjaz-copilot-context`,
+     publishableKey:pub,
+   });
+   assert(extension?.passed===true&&extension?.cleanupPassed===true,'phase12_2_context_extension',`${extension?.checks??0} checks`);
+ }
 }
 
 async function cleanup(){
