@@ -24,10 +24,10 @@ const plan=()=>({schema:LEGACY_MAPPING_PLAN_SCHEMA,planId:'plan-a1',typeMappings
  ]},
 ]});
 
-test('13.2 opens only from exact 13.1 formal closure and keeps 13.3 locked',()=>{
- assert.equal(state.status,'IN_PROGRESS');assert.equal(state.baseCommit,'aa8e402eeb6ed03bee9fb446bc2c741da37df7dc');
+test('13.2 lifecycle starts from exact 13.1 closure and governs 13.3 authorization',()=>{
+ assert.ok(['IN_PROGRESS','CLOSED'].includes(state.status));assert.equal(state.baseCommit,'aa8e402eeb6ed03bee9fb446bc2c741da37df7dc');
  assert.equal(state.predecessorPhase,'13.1');assert.equal(state.predecessorStatus,'CLOSED');assert.equal(state.predecessorClosureDecision,'PASS');
- assert.equal(state.successorPhase,'13.3');assert.equal(state.successorStatus,'LOCKED');assert.equal(state.phase13_3Allowed,false);
+ assert.equal(state.successorPhase,'13.3');assert.equal(state.successorStatus,state.status==='CLOSED'?'AUTHORIZED_NEXT':'LOCKED');assert.equal(state.phase13_3Allowed,state.status==='CLOSED');
  assert.equal(state.mappingAllowed,true);assert.equal(state.normalizationAllowed,true);assert.equal(state.mappingMustBeExplicit,true);assert.equal(state.mappingInferenceAllowed,false);
  assert.equal(state.persistenceAllowed,false);assert.equal(state.databaseWritesAllowed,false);assert.equal(state.orderedImportAllowed,false);assert.equal(state.importExecutionAllowed,false);assert.equal(state.targetEnjazMutationAllowed,false);
 });

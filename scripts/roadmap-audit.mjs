@@ -171,7 +171,7 @@ if(exists('docs/PHASE13_1_STATE.json')){
 if(exists('docs/PHASE13_2_STATE.json')){
   const p132=json('docs/PHASE13_2_STATE.json'),p131=json('docs/PHASE13_1_STATE.json');
   req(p131.status==='CLOSED'&&p131.closureDecision==='PASS'&&p131.phase13_2Allowed===true&&p131.successorStatus==='AUTHORIZED_NEXT','Phase 13.2 requires formal Phase 13.1 authorization');
-  req(p132.phase==='13.2'&&p132.status==='IN_PROGRESS'&&p132.mode==='EXPLICIT_REVIEWABLE_NORMALIZE_AND_MAP','Phase 13.2 lifecycle invalid');
+  req(p132.phase==='13.2'&&['IN_PROGRESS','CLOSED'].includes(p132.status)&&p132.mode==='EXPLICIT_REVIEWABLE_NORMALIZE_AND_MAP','Phase 13.2 lifecycle invalid');
   req(p132.baseCommit==='aa8e402eeb6ed03bee9fb446bc2c741da37df7dc'&&p132.predecessorClosureMergeCommit===p132.baseCommit,'Phase 13.2 exact base/lineage drifted');
   req(p132.currentSlice==='PR_CERTIFICATION_READY'&&p132.a1Status==='CERTIFIED'&&p132.a2Status==='CERTIFIED'&&p132.a3Status==='CERTIFIED'&&p132.implementationPrReady===true,'Phase 13.2 PR-readiness lifecycle drifted');
   req(p132.mappingAllowed===true&&p132.normalizationAllowed===true&&p132.mappingMustBeExplicit===true&&p132.mappingInferenceAllowed===false&&p132.unknownConceptAutoMappingAllowed===false,'Phase 13.2 mapping law drifted');
@@ -180,7 +180,7 @@ if(exists('docs/PHASE13_2_STATE.json')){
    req(p132.relationshipMappingAllowed===true&&p132.relationshipMappingMustBeExplicit===true&&p132.relationshipInferenceAllowed===false&&p132.relationshipPreviewInMemoryOnly===true&&p132.relationshipForeignKeyAssignmentAllowed===false&&p132.generatedIdAuthorityAllowed===false,'Phase 13.2 A2 relationship preview law drifted');
    req(p132.a3Mode==='DESTRUCTION_AND_CLOSURE_READINESS_ONLY'&&p132.a3NewFeatureAuthorityAllowed===false&&p132.precisionSafeNumberRequired===true&&p132.deterministicReplayRequired===true&&p132.mutationTrapVerificationRequired===true&&p132.hiddenControlFieldRejectionRequired===true&&p132.importPlanGenerationAllowed===false,'Phase 13.2 A3 destruction law drifted');
    req(p132.a3GateRunId===35399744392&&p132.a3GateRunNumber===9&&p132.a3GateHead==='90530ce686c05b9008184254ad51ab4aecf9f336'&&p132.a3PassCount===14&&p132.a3FailCount===0,'Phase 13.2 A3 certification drifted');
-  req(p132.successorPhase==='13.3'&&p132.successorStatus==='LOCKED'&&p132.phase13_3Allowed===false,'Open Phase 13.2 must keep 13.3 locked');
+  if(p132.status==='CLOSED')req(p132.successorPhase==='13.3'&&p132.successorStatus==='AUTHORIZED_NEXT'&&p132.phase13_3Allowed===true&&p132.exitGatePassed===true&&p132.closureDecision==='PASS'&&exists(p132.closureEvidence),'Closed Phase 13.2 must authorize only 13.3 with closure evidence');else req(p132.successorPhase==='13.3'&&p132.successorStatus==='LOCKED'&&p132.phase13_3Allowed===false&&p132.exitGatePassed===false&&p132.closureDecision==='PENDING','Open Phase 13.2 must keep 13.3 locked');
   req(p132.javascriptBudgetBytes===670000&&p132.totalJavascriptBudgetBytes===760000&&p132.cssBudgetBytes===180000&&p132.budgetIncreaseAllowed===false,'Phase 13.2 budget law drifted');
 }
 
