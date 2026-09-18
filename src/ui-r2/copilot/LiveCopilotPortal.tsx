@@ -1,5 +1,6 @@
-import {useLayoutEffect,useState} from 'react';
+import {useState} from 'react';
 import {createPortal} from 'react-dom';
+import {useLiveRecordsPortal} from '../runtime/useLiveRecordsPortal.ts';
 
 type Op='search'|'summarize'|'compare'|'draft'|'explain';
 type Props=Readonly<{workspace:Promise<string|null>;invoke:(body:Readonly<Record<string,unknown>>)=>Promise<Response>}>;
@@ -38,8 +39,6 @@ function Copilot({workspace,invoke}:Props){
 }
 
 export function LiveCopilotPortal(props:Props){
- const [target,setTarget]=useState<HTMLElement|null>(null),[active,setActive]=useState(false);
- useLayoutEffect(()=>{const shell=document.querySelector<HTMLElement>(SHELL),main=document.getElementById('r2-main');if(!shell||!main)return;setTarget(main);const sync=()=>setActive(shell.dataset.destination==='copilot');sync();const observer=new MutationObserver(sync);observer.observe(shell,{attributes:true,attributeFilter:['data-destination']});return()=>observer.disconnect()},[]);
- useLayoutEffect(()=>{if(!target)return;const placeholder=target.querySelector<HTMLElement>(PLACEHOLDER);if(placeholder)placeholder.hidden=active;return()=>{if(placeholder)placeholder.hidden=false}},[active,target]);
+ const {active,target}=useLiveRecordsPortal('copilot',SHELL,PLACEHOLDER);
  return active&&target?createPortal(<Copilot {...props}/>,target):null;
 }
