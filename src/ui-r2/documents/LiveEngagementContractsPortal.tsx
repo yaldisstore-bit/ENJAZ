@@ -6,10 +6,8 @@ import type {DocumentFactoryFactory,EngagementContractFactory} from '../runtime/
 import {EngagementContractPanel} from './EngagementContractPanel.tsx';
 import {useLiveRecordsPortal} from '../runtime/useLiveRecordsPortal.ts';
 
-const SHELL='.r2-shell[data-r2-runtime-mode="live"][data-destination]';
-
 export function LiveEngagementContractsPortal({engagementContractFactory,documentFactoryFactory,workspace}:{engagementContractFactory:EngagementContractFactory;documentFactoryFactory:DocumentFactoryFactory;workspace:Promise<string|null>}){
-  const{active,target}=useLiveRecordsPortal('documents',SHELL,':not(*)'),[contracts,setContracts]=useState<EngagementContractGateway|null>(null),[documentFactory,setDocumentFactory]=useState<DocumentFactoryGateway|null>(null),[workspaceId,setWorkspaceId]=useState<string|null>(null);
+  const{active,target}=useLiveRecordsPortal('documents',':not(*)'),[contracts,setContracts]=useState<EngagementContractGateway|null>(null),[documentFactory,setDocumentFactory]=useState<DocumentFactoryGateway|null>(null),[workspaceId,setWorkspaceId]=useState<string|null>(null);
   useEffect(()=>{let live=true;void workspace.then(value=>{if(live)setWorkspaceId(value)});return()=>{live=false}},[workspace]);
   useEffect(()=>{if(!active||contracts)return;let live=true;void engagementContractFactory().then(gateway=>{if(live)setContracts(gateway)}).catch(()=>undefined);return()=>{live=false}},[active,engagementContractFactory,contracts]);
   useEffect(()=>{if(!active||documentFactory)return;let live=true;void documentFactoryFactory().then(gateway=>{if(live)setDocumentFactory(gateway)}).catch(()=>undefined);return()=>{live=false}},[active,documentFactoryFactory,documentFactory]);
