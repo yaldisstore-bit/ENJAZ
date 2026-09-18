@@ -12,6 +12,7 @@ on:
       - 'scripts/phase12-1-*'
       - 'tests/phase12-1-*'
       - '.github/workflows/phase12-1-copilot-foundation.yml'
+      - '.github/workflows/phase12-1-real-cloud-e2e.yml'
       - 'README.md'
   pull_request:
     paths:
