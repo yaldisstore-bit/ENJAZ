@@ -113,5 +113,8 @@
   "a3DatabaseAuthorityApplied": false,
   "a3EdgeAuthorityApplied": false,
   "a3RealCloudCertified": false,
-  "a3RollbackVerified": false
+  "a3RollbackVerified": false,
+  "a3SourceStatus": "IN_PROGRESS",
+  "a3SourceGateVerification": "PENDING",
+  "a3SourceTestCount": 10
 }
