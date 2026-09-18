@@ -28,6 +28,6 @@ test('11.7 hardens exactly the known M10 stale-conflict functions',()=>{
 
 test('11.7 migration preserves the business error while removing retryable SQLSTATE from active definitions',()=>{
   assert.match(sql,/replace\(replace\(v_def,v_old_compact,v_new\),v_old_spaced,v_new\)/);
-  assert.match(sql,/pg_get_functiondef\(p\.oid\) like '%raise serialization_failure using message=''ENJAZ_SCHEDULING_STALE_VERSION''%'/);
+  assert.ok(sql.includes("pg_get_functiondef(p.oid) ~ 'raise[[:space:]]+serialization_failure[[:space:]]+using[[:space:]]+message[[:space:]]*=[[:space:]]*''ENJAZ_SCHEDULING_STALE_VERSION'''"));
   assert.match(sql,/if v_remaining<>0 then/);
 });
