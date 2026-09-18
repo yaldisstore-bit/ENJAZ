@@ -140,7 +140,7 @@ req(!/\b(insert into|update|delete from)\b/i.test(indexHardening),'12.3 A2 FK in
 for(const marker of ['tamper-evident approval evidence','A2 exposes no consume/execute RPC','Phase 12.4 remains LOCKED'])has(a2,marker,'12.3 A2 kickoff');
 for(const marker of ['49/49 PASS','tampered proposal digest is denied','expired approval is denied with the real clock','test auth users: **0**','Phase 12.4 remains LOCKED'])has(a2Evidence,marker,'12.3 A2 evidence');
 for(const marker of [
-  "userClient.rpc('global_search_v1'","admin.rpc('copilot_begin_request_v6'","admin.rpc('copilot_register_agent_proposal_v1'",
+  "userClient.rpc('global_search_v1'","admin.rpc('copilot_begin_request_v7'","admin.rpc('copilot_register_agent_proposal_v1'",
   "admin.rpc('copilot_decide_agent_proposal_v1'","userClient.auth.getUser(token)","approvalResult("
 ])has(edge,marker,'12.3 A2 Edge boundary');
 req(!/admin\.from\(/.test(edge),'12.3 A2 Edge service role may not read business tables');
