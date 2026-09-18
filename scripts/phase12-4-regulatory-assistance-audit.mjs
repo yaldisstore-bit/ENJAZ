@@ -13,6 +13,7 @@ const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 const a2Kickoff=fs.existsSync('docs/PHASE12_4_A2_KICKOFF.md')?read('docs/PHASE12_4_A2_KICKOFF.md'):'';
 const a2Evidence=fs.existsSync('docs/PHASE12_4_A2_EVIDENCE.md')?read('docs/PHASE12_4_A2_EVIDENCE.md'):'';
 const edge=fs.existsSync('supabase/functions/enjaz-regulatory-assistant/index.ts')?read('supabase/functions/enjaz-regulatory-assistant/index.ts'):'';
+const a3Kickoff=fs.existsSync('docs/PHASE12_4_A3_KICKOFF.md')?read('docs/PHASE12_4_A3_KICKOFF.md'):'';
 
 const errors=[],req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 const m8Registry=registry.systems?.find?.(x=>x.id==='M8');
@@ -22,7 +23,7 @@ req(state.phase==='12.4'&&state.name==='Regulatory Knowledge Assistance'&&state.
 req(state.baseCommit==='cc01d06be81be27e614d80c9edaa86bdf4e79634','12.4 base must be exact final 12.3 closure merge');
 req(state.predecessorClosureMergeCommit===state.baseCommit,'12.4 predecessor lineage drifted');
 req(state.successorPhase==='12.5'&&state.successorStatus==='LOCKED'&&state.phase12_5Allowed===false,'12.5 must remain locked');
-req(['A1_GROUNDED_REGULATORY_ASSISTANCE_CONTRACT','A2_AUTHENTICATED_M8_RETRIEVAL_EDGE'].includes(state.slice),'12.4 current slice drifted');
+req(['A1_GROUNDED_REGULATORY_ASSISTANCE_CONTRACT','A2_AUTHENTICATED_M8_RETRIEVAL_EDGE','A3_SEARCH_ENTRY_BINDING_HARDENING'].includes(state.slice),'12.4 current slice drifted');
 
 req(m8.phase==='9.4'&&m8.status==='CLOSED'&&m8.majorSystem?.id==='M8'&&m8.majorSystem?.status==='ACTIVE','Phase 9.4 M8 foundation must remain closed/active');
 req(m8.majorSystem?.anchors?.join(',')==='9,12'&&m8.majorSystem?.globalClosureAllowed===false,'M8 anchor/global closure law drifted');
@@ -67,7 +68,7 @@ req(!/\b(insert into|update\s+public\.|delete from|service_role)\b/i.test(core),
 
 has(roadmap,'## 12.4 — Regulatory Knowledge Assistance — M8 — IN_PROGRESS','roadmap');
 has(roadmap,'**A1 — Grounded Regulatory Assistance Contract: CERTIFIED**','roadmap');
-if(state.slice==='A2_AUTHENTICATED_M8_RETRIEVAL_EDGE'){
+if(['A2_AUTHENTICATED_M8_RETRIEVAL_EDGE','A3_SEARCH_ENTRY_BINDING_HARDENING'].includes(state.slice)){
   if(state.a2Status==='CERTIFIED')has(roadmap,'**A2 — Authenticated M8 Retrieval Edge: CERTIFIED**','roadmap'); else has(roadmap,'**A2 — Authenticated M8 Retrieval Edge: IN_PROGRESS**','roadmap');
   for(const marker of ['caller JWT is mandatory','no service-role/secret key is used','search_regulatory_knowledge_v1','get_regulatory_knowledge_entry_v1','exact official version'])has(a2Kickoff,marker,'12.4 A2 kickoff');
   req(state.a2EdgeAuthority==='CALLER_JWT_ONLY'&&state.a2ServiceRoleAllowed===false&&state.a2DatabaseMigrationRequired===false,'12.4 A2 authority state drifted');
@@ -87,5 +88,20 @@ if(state.slice==='A2_AUTHENTICATED_M8_RETRIEVAL_EDGE'){
   for(const marker of ['18/18 PASS','cleanup: **PASS**','zero regulatory mutation','cross-workspace regulatory assistance denied','Phase 12.5 remains **LOCKED**'])has(a2Evidence,marker,'12.4 A2 evidence');
 }
 
+if(state.slice==='A3_SEARCH_ENTRY_BINDING_HARDENING'){
+  has(roadmap,'**A3 — Search↔Entry Binding Hardening: IN_PROGRESS**','roadmap');
+  for(const marker of ['Search↔Entry Binding Hardening','sourceId','versionId','sourceHash','scope','rollback-only','Phase 12.5 remains **LOCKED**'])has(a3Kickoff,marker,'12.4 A3 kickoff');
+  req(state.a2FinalSourceGateVerification==='PASS'&&state.a2FinalSourceGateRunId===35380605634&&state.a2FinalSourceGateRunNumber===7&&state.a2FinalSourceGateHead==='0b0c61ce3399713b86dd768cdf5550304e2eede5','12.4 A2 final certification gate drifted');
+  req(state.a3Status==='IN_PROGRESS'&&state.a3SearchRootBindingRequired===true&&state.a3ScopeWorkspaceShapeRequired===true&&state.a3UnconfiguredEntryAfterSearchAllowed===false,'12.4 A3 state contract drifted');
+  req(state.a3DatabaseMigrationRequired===false&&state.a3PermanentFixtureSeedingAllowed===false&&state.a3PopulatedLiveHttpJourneyClaimed===false,'12.4 A3 must not invent DB authority or fake live truth');
+  req(JSON.stringify(state.a3BindingFields)===JSON.stringify(['workspaceId','asOf','sourceId','versionId','sourceHash','scope']),'12.4 A3 binding allowlist drifted');
+  for(const marker of [
+    'parseRegulatorySearchEvidence','REGULATORY_SEARCH_WORKSPACE_MISMATCH','REGULATORY_SEARCH_ASOF_MISMATCH',
+    'REGULATORY_SEARCH_SCOPE_WORKSPACE_MISMATCH','REGULATORY_SEARCH_VERSION_AMBIGUOUS','REGULATORY_SEARCH_DUPLICATE_SOURCE',
+    'assertRegulatoryEntryMatchesSearchReference','REGULATORY_SEARCH_ENTRY_MISSING','REGULATORY_SOURCE_BINDING_CONFLICT'
+  ])has(core,marker,'12.4 A3 core binding');
+  for(const marker of ['parseRegulatorySearchEvidence(search.data,parsed)','assertRegulatoryEntryMatchesSearchReference(response.data,ref,parsed)'])has(edge,marker,'12.4 A3 Edge binding');
+}
+
 if(errors.length){console.error(`ENJAZ PHASE 12.4 A1 AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error('- '+e));process.exit(1)}
-console.log('ENJAZ PHASE 12.4 A2 REGULATORY ASSISTANCE AUDIT PASS — A1 preserved; caller-JWT M8 retrieval Edge v2 is Real Cloud certified, empty-store fail-closed/no-fabrication/cross-workspace/zero-mutation/zero-residue guarantees hold, no shadow authority/provider/persistence/UI/DB delta exists, frozen budgets are preserved, and 12.5 remains locked.');
+console.log('ENJAZ PHASE 12.4 REGULATORY ASSISTANCE AUDIT PASS — A1+A2 preserved; current slice keeps Phase 9.4 M8 as the only truth authority, caller-JWT retrieval is certified, search↔entry binding is fail-closed where enabled, no shadow authority/provider/persistence/UI/DB delta exists, frozen budgets are preserved, and 12.5 remains locked.');
