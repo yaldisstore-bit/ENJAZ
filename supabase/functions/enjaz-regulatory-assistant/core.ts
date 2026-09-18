@@ -95,9 +95,11 @@ function normalizeText(value:unknown,max:number,label:string){
 }
 function isoDate(value:unknown,label:string){
   if(typeof value!=='string'||!DATE.test(value))throw new Error(label+'_INVALID');
-  const [y,m,d]=value.split('-').map(Number);
-  const date=new Date(Date.UTC(y,m-1,d));
-  if(date.getUTCFullYear()!==y||date.getUTCMonth()!==m-1||date.getUTCDate()!==d)throw new Error(label+'_INVALID');
+  const [yearText,monthText,dayText]=value.split('-');
+  if(!yearText||!monthText||!dayText)throw new Error(label+'_INVALID');
+  const year=Number(yearText),month=Number(monthText),day=Number(dayText);
+  const date=new Date(Date.UTC(year,month-1,day));
+  if(date.getUTCFullYear()!==year||date.getUTCMonth()!==month-1||date.getUTCDate()!==day)throw new Error(label+'_INVALID');
   return value;
 }
 function httpsUrl(value:unknown,label:string){
