@@ -139,4 +139,32 @@ if(exists('docs/PHASE9_7_STATE.json')){
   }
 }
 
+
+if(exists('docs/PHASE13_1_STATE.json')){
+  const p131State=json('docs/PHASE13_1_STATE.json');
+  const p125ForPhase131=json('docs/PHASE12_5_STATE.json');
+  req(p125ForPhase131.status==='CLOSED'&&p125ForPhase131.closureDecision==='PASS'&&p125ForPhase131.phase13_1Allowed===true,'Phase 13.1 requires formal Phase 12.5 authorization');
+  req(p131State.phase==='13.1'&&p131State.status==='IN_PROGRESS'&&p131State.mode==='READ_ONLY_LEGACY_SNAPSHOT_INTAKE','Phase 13.1 lifecycle invalid');
+  req(p131State.baseCommit==='a7a17d6309e43cff68968be33deecbdac57ed4ed'&&p131State.predecessorClosureMergeCommit===p131State.baseCommit,'Phase 13.1 base/lineage drifted');
+  req(p131State.readOnly===true&&p131State.persistenceAllowed===false&&p131State.databaseWritesAllowed===false&&p131State.targetEnjazMutationAllowed===false,'Phase 13.1 read-only authority drifted');
+  req(p131State.mappingAllowed===false&&p131State.normalizationAllowed===false&&p131State.orderedImportAllowed===false&&p131State.unknownConceptAutoMappingAllowed===false,'Phase 13.1 mapping/import law drifted');
+  req(p131State.phase13_2Allowed===false&&p131State.successorPhase==='13.2'&&p131State.successorStatus==='LOCKED','Open Phase 13.1 must keep 13.2 locked');
+  req(p131State.javascriptBudgetBytes===670000&&p131State.totalJavascriptBudgetBytes===760000&&p131State.cssBudgetBytes===180000&&p131State.budgetIncreaseAllowed===false,'Phase 13.1 budget law drifted');
+  if(['A2_QUARANTINE_REVIEW_MANIFEST','A3_DESTRUCTION_AND_CLOSURE_READINESS'].includes(p131State.currentSlice)){
+    req(p131State.a1Status==='CERTIFIED'&&p131State.a1GateRunId===35393731218&&p131State.a1PassCount===10&&p131State.a1FailCount===0,'Phase 13.1 A1 certificate drifted');
+    req(p131State.recognizedLegacyTypeAuthority==='EXPLICIT_CALLER_ALLOWLIST_EXACT_MATCH'&&p131State.typeAliasInferenceAllowed===false&&p131State.typeNameNormalizationAllowed===false&&p131State.targetAuthorityAssignmentAllowed===false,'Phase 13.1 A2 authority drifted');
+  }
+  if(p131State.currentSlice==='A2_QUARANTINE_REVIEW_MANIFEST'){
+    req(p131State.a2Status==='IN_PROGRESS','Phase 13.1 A2 lifecycle drifted');
+  }
+  if(p131State.currentSlice==='A3_DESTRUCTION_AND_CLOSURE_READINESS'){
+    req(p131State.a2Status==='CERTIFIED'&&p131State.a2GateRunId===35395538307&&p131State.a2PassCount===10&&p131State.a2FailCount===0,'Phase 13.1 A2 certificate drifted');
+    req(['IN_PROGRESS','CERTIFIED'].includes(p131State.a3Status)&&p131State.a3Mode==='DESTRUCTION_AND_CLOSURE_READINESS_ONLY'&&p131State.a3NewFeatureAuthorityAllowed===false,'Phase 13.1 A3 lifecycle/authority drifted');
+    req(p131State.utf8ByteAccountingRequired===true&&p131State.deterministicReplayRequired===true&&p131State.mutationTrapVerificationRequired===true,'Phase 13.1 A3 hardening drifted');
+    if(p131State.a3Status==='CERTIFIED'){
+      req(p131State.a3GateRunId===35395953023&&p131State.a3PassCount===13&&p131State.a3FailCount===0&&p131State.implementationPrReady===true,'Phase 13.1 A3 certificate/PR-readiness drifted');
+    }
+  }
+}
+
 if(errors.length){console.error(`ENJAZ ROADMAP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.7 lifecycle is Zero-Escape governed; M2 may close only with machine evidence; M3, M4 and M10 activate only through formal Phase 11 predecessor authority; M9 activates only through formal Phase 12.2 authority and open M9 keeps Phase 12.4 locked; M8/M13/M18 remain ACTIVE for later anchors; M7 and M16 activation are locked to formal predecessor authority, and M16 cannot globally close in Phase 10.5.');

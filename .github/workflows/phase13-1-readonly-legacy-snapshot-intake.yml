@@ -1,0 +1,76 @@
+name: ENJAZ Phase 13.1 — Read-only Legacy Snapshot Intake Gate
+
+on:
+  push:
+    branches:
+      - main
+      - phase13-1-readonly-legacy-snapshot-intake
+    paths:
+      - 'docs/PHASE13_1_*'
+      - 'src/features/import/**'
+      - 'scripts/phase13-1-*'
+      - 'tests/phase13-1-*'
+      - '.github/workflows/phase13-1-readonly-legacy-snapshot-intake.yml'
+      - 'README.md'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/PHASE13_1_*'
+      - 'src/features/import/**'
+      - 'scripts/phase13-1-*'
+      - 'tests/phase13-1-*'
+      - '.github/workflows/phase13-1-readonly-legacy-snapshot-intake.yml'
+      - 'README.md'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+
+permissions:
+  contents: read
+
+jobs:
+  phase13-1-a1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: npm ci --no-audit --no-fund
+      - name: Phase 13.1 lifecycle and read-only authority audit
+        run: node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
+      - name: Phase 13.1 A1 destruction tests
+        run: node --experimental-strip-types --test tests/phase13-1-legacy-snapshot-intake.test.ts
+      - name: Phase 13.1 A2 quarantine review audit
+        run: node scripts/phase13-1-legacy-snapshot-review-audit.mjs
+      - name: Phase 13.1 A2 quarantine review tests
+        run: node --experimental-strip-types --test tests/phase13-1-legacy-snapshot-review.test.ts
+      - name: Phase 13.1 A3 destruction audit
+        run: node scripts/phase13-1-legacy-snapshot-destruction-audit.mjs
+      - name: Phase 13.1 A3 destruction tests
+        run: node --experimental-strip-types --test tests/phase13-1-legacy-snapshot-destruction.test.ts
+      - name: Preserve Phase 12.5 formal closure
+        run: node scripts/phase12-5-ai-zero-escape-audit.mjs
+      - name: Full functional regression
+        run: npm run test:functional
+      - name: Database / roadmap / major-system integrity
+        run: |
+          npm run db:audit
+          npm run db:audit:selftest
+          npm run audit:roadmap
+          node scripts/major-systems-zero-escape-audit.mjs
+      - name: Secrets and TypeScript
+        run: |
+          npm run audit:secrets
+          npm run typecheck
+      - name: Production build and frozen budgets
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget

@@ -453,7 +453,17 @@ AI is allowed only after authoritative business domains and permission boundarie
 
 # Phase 13 — Legacy Import & Reconciliation
 
-## 13.1 — Read-only Legacy Snapshot Intake
+## 13.1 — Read-only Legacy Snapshot Intake — IN_PROGRESS
+- exact base: `a7a17d6309e43cff68968be33deecbdac57ed4ed` — final merged Phase 12.5 closure.
+- **A1 — Read-only Snapshot Contract + Structural Inventory: CERTIFIED** — Gate #3 / `35393731218`; **10/10 PASS**, functional **219/219**, DB self-test **25/25**, frozen build **431032 / 759568 JS + 179989 CSS**.
+- **A2 — Quarantine Review Manifest: CERTIFIED** — Gate #5 / `35395538307`; **10/10 PASS**, functional **219/219**, DB self-test **25/25**, frozen build **431032 / 759568 JS + 179989 CSS**.
+- recognized types remain review-only and receive no target system/entity; undeclared observed types are `QUARANTINED_UNKNOWN`.
+- **A3 — Destruction & Closure Readiness: CERTIFIED** — Gate #10 / `35395953023`; **13/13 PASS**, functional **219/219**, DB self-test **25/25**, frozen build **431032 / 759568 JS + 179989 CSS**.
+- A3 uses real UTF-8 byte ceilings and passed adversarial count/depth/array/object/target-field/duplicate/dangling/replay/mutation attacks.
+- Phase 13.1 implementation is **PR READY**, not CLOSED; 13.2 remains locked until PR + exact-main certification.
+- mapping, normalization, ordered import, target writes, DB migration, write RPC, Edge authority and client UI remain forbidden.
+- Phase 13.2 — Normalize & Map remains **LOCKED**.
+
 ## 13.2 — Normalize & Map
 ## 13.3 — Ordered Import
 ## 13.4 — Reconciliation
