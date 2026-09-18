@@ -14,9 +14,12 @@ test('12.3 starts only from final certified 12.2 closure',()=>{
   assert.equal(state.predecessorClosureMergeCommit,state.baseCommit);
 });
 
-test('12.3 A1 locks 12.4 and all execution authority',()=>{
+test('12.3 A1 certification is preserved while A2 keeps 12.4 and execution locked',()=>{
   assert.equal(state.status,'IN_PROGRESS');
-  assert.equal(state.slice,'A1_PLAN_PROPOSAL_CONTRACT');
+  assert.equal(state.slice,'A2_APPROVAL_BINDING_CONTRACT');
+  assert.equal(state.a1Certification,'PASS_PLAN_PROPOSAL_CONTRACT');
+  assert.equal(state.a1SourceGateVerification,'PASS');
+  assert.equal(state.a1SourceGateHead,'a03379be95d702f1f8613f054d2e77d1c67a26b1');
   assert.equal(state.successorPhase,'12.4');
   assert.equal(state.successorStatus,'LOCKED');
   assert.equal(state.phase12_4Allowed,false);
