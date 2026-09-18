@@ -427,9 +427,10 @@ AI is allowed only after authoritative business domains and permission boundarie
 - published `/live/` total JS **759985 / 760000**, CSS **179989 / 180000**; no cap increase / no feature cut / no Phase 12.3 client UI delta.
 - Formal closure: `docs/PHASE12_3_CLOSURE.md`.
 
-## 12.4 — Regulatory Knowledge Assistance — M8 — AUTHORIZED_NEXT
+## 12.4 — Regulatory Knowledge Assistance — M8 — IN_PROGRESS
 - Retrieve/version regulatory sources and distinguish source text, structured facts and AI interpretation.
 - Phase 12 must consume the authority contract established by Phase 9.4 rather than creating a second source of regulatory truth.
+- **A1 — Grounded Regulatory Assistance Contract: IN_PROGRESS** — exact Phase 12.3 closure base `cc01d06be81be27e614d80c9edaa86bdf4e79634`; read-only `answer` contract with explicit `asOf`, exact source-version/hash/provenance citations, fail-closed ambiguity/missing-authority behavior, and hard separation of authoritative official text/structured facts from non-authoritative interpretation. No DB/Edge/UI/provider delta.
 
 ## 12.5 — AI Zero-Escape & Safety Gate
 - Hallucination/missing-data resistance, prompt injection, permission attacks, malicious documents, structured-output regression, tool approval and provider outage recovery.
@@ -609,7 +610,7 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - **Phase 12.3 — Agentic ENJAZ Copilot — M9 ✅ CLOSED + A1/A2/A3-A/A3-B/A3-C/A3-D/A3-E Real Cloud + PR 78/78 + exact-main 38/38 + Pages + Live External certified.**
 - Phase 12.3 formal implementation merge: `0353e15d0e8299ba5410d6fff5bf540b41b90443`.
 - Phase 12.3 published `/live/` budget: **431246 / 670000 initial JS; 759985 / 760000 total JS; 179989 / 180000 CSS**.
-- **Phase 12.4 — Regulatory Knowledge Assistance — M8: AUTHORIZED_NEXT.**
+- **Phase 12.4 — Regulatory Knowledge Assistance — M8: IN_PROGRESS / A1 Grounded Regulatory Assistance Contract.**
 - M8 remains `ACTIVE` because Phase 12.4 is still a governing anchor; M13/M18 remain `ACTIVE` for Phase 15.
 - startup JavaScript hard ceiling remains **670000 bytes**; total JavaScript **760000 bytes**; CSS **180000 bytes**.
 
