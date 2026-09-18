@@ -1,0 +1,60 @@
+name: ENJAZ Phase 12.1 — Copilot Foundation Gate
+
+on:
+  push:
+    branches:
+      - phase12-1-copilot-foundation
+    paths:
+      - 'docs/PHASE12_1_*.md'
+      - 'docs/PHASE12_1_*.json'
+      - 'database/migrations/phase_12_1_*'
+      - 'supabase/functions/enjaz-copilot-foundation/**'
+      - 'scripts/phase12-1-*'
+      - 'tests/phase12-1-*'
+      - '.github/workflows/phase12-1-copilot-foundation.yml'
+      - 'README.md'
+  pull_request:
+    paths:
+      - 'docs/PHASE12_1_*.md'
+      - 'docs/PHASE12_1_*.json'
+      - 'database/migrations/phase_12_1_*'
+      - 'supabase/functions/enjaz-copilot-foundation/**'
+      - 'scripts/phase12-1-*'
+      - 'tests/phase12-1-*'
+      - '.github/workflows/phase12-1-copilot-foundation.yml'
+      - 'README.md'
+
+jobs:
+  phase12-1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Phase 12.1 lifecycle / authority audit
+        run: node scripts/phase12-1-copilot-foundation-audit.mjs
+      - name: Phase 12.1 opening destruction tests
+        run: node --test tests/phase12-1-copilot-foundation.test.mjs
+      - name: Preserve Phase 11.7 closure
+        run: node scripts/phase11-7-communication-zero-escape-audit.mjs
+      - name: Database and roadmap integrity
+        run: |
+          python3 database/scripts/audit_schema.py
+          python3 database/scripts/audit_selftest.py
+          node scripts/roadmap-audit.mjs
+      - name: Secrets and TypeScript
+        run: |
+          node scripts/secret-audit.mjs
+          npm run typecheck
+      - name: Production build and frozen client budgets
+        run: |
+          npm run build
+          node scripts/dist-budget-audit.mjs
