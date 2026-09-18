@@ -71,6 +71,7 @@ type BaseResources = {
   schedulingCommands: SchedulingCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
+  copilotInvoke: (body: Readonly<Record<string, unknown>>) => Promise<Response>;
   documentIntelligenceFactory?: DocumentIntelligenceFactory;
   documentFactoryFactory?: DocumentFactoryFactory;
   engagementContractFactory?: EngagementContractFactory;
@@ -110,6 +111,7 @@ function createProductionResources(): UiR2ProductionResources {
     schedulingCommands: createSchedulingCommandGateway(client),
     searchIntelligence: createSearchIntelligenceGateway(client),
     regulatoryKnowledge: createRegulatoryKnowledgeGateway(client),
+    copilotInvoke: (body) => client.edge('enjaz-copilot-context', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }),
     documentVaultFactory,
     documentIntelligenceFactory,
     documentFactoryFactory,
@@ -147,6 +149,7 @@ function AuthenticatedR2Runtime({
   schedulingCommands,
   searchIntelligence,
   regulatoryKnowledge,
+  copilotInvoke,
   documentVaultFactory,
   documentIntelligenceFactory,
   documentFactoryFactory,
@@ -163,7 +166,7 @@ function AuthenticatedR2Runtime({
 
   return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><NotificationCommandProvider gateway={notificationCommands}><SchedulingCommandProvider gateway={schedulingCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
     <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
-    <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} documentVaultFactory={documentVaultFactory} documentIntelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} engagementContractFactory={engagementContractFactory} documentWorkspace={workspace} />
+    <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} copilotInvoke={copilotInvoke} documentVaultFactory={documentVaultFactory} documentIntelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} engagementContractFactory={engagementContractFactory} documentWorkspace={workspace} />
   </ProcessRuntimeProvider></CurrentUserIdProvider></SchedulingCommandProvider></NotificationCommandProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
 
@@ -188,6 +191,7 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     schedulingCommands={runtime.resources.schedulingCommands}
     searchIntelligence={runtime.resources.searchIntelligence}
     regulatoryKnowledge={runtime.resources.regulatoryKnowledge}
+    copilotInvoke={runtime.resources.copilotInvoke}
     documentVaultFactory={documentVaultFactory}
     documentIntelligenceFactory={runtime.resources.documentIntelligenceFactory}
     documentFactoryFactory={runtime.resources.documentFactoryFactory}
