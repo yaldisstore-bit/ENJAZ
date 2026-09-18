@@ -43,9 +43,14 @@ test('12.5 does not prematurely close M8 or M9 from branch CI',()=>{
     const system=registry.systems.find((x:any)=>x.id===id);
     assert.equal(system.status,'ACTIVE');
     assert.equal(system.closureEvidence,null);
-    assert.equal(state.systemEvidence[id].status,'PENDING');
+    assert.equal(
+      state.systemEvidence[id].status,
+      state.realCloudVerification==='PASS_W2' ? 'REAL_CLOUD_PASS' : 'PENDING'
+    );
   }
   assert.equal(state.zeroEscapeLaw.branchCiAloneCanCloseSystem,false);
+  assert.equal(state.exitGatePassed,false);
+  assert.equal(state.closureDecision,'PENDING');
 });
 
 test('12.5 M9 prompt injection remains bounded goal/context data',()=>{
