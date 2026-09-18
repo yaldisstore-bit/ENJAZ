@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 const root=new URL('../',import.meta.url),read=p=>fs.readFileSync(new URL(p,root),'utf8'),json=p=>JSON.parse(read(p)),exists=p=>fs.existsSync(new URL(p,root));
-const state=json('docs/PHASE13_2_STATE.json'),p131=json('docs/PHASE13_1_STATE.json'),closure=read('docs/PHASE13_1_CLOSURE.md'),kickoff=read('docs/PHASE13_2_KICKOFF.md'),source=read('src/features/import/legacyMappingContract.ts'),tests=read('tests/phase13-2-normalize-map.test.ts'),roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md'),readme=read('README.md'),errors=[];
+const state=json('docs/PHASE13_2_STATE.json'),p131=json('docs/PHASE13_1_STATE.json'),closure=read('docs/PHASE13_1_CLOSURE.md'),kickoff=read('docs/PHASE13_2_KICKOFF.md'),a2doc=read('docs/PHASE13_2_A2_RELATIONSHIP_PREVIEW.md'),source=read('src/features/import/legacyMappingContract.ts'),tests=read('tests/phase13-2-normalize-map.test.ts'),roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md'),readme=read('README.md'),errors=[];
 const req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 req(p131.status==='CLOSED'&&p131.closureDecision==='PASS'&&p131.phase13_2Allowed===true&&p131.successorStatus==='AUTHORIZED_NEXT','13.2 predecessor authorization invalid');
 req(closure.includes('Phase 13.2 — Normalize & Map is now AUTHORIZED_NEXT'),'13.1 closure does not authorize 13.2');
@@ -25,6 +25,7 @@ for(const marker of ['unmapped fields are never copied silently','authority-bear
 const a2tests=read('tests/phase13-2-relationship-preview.test.ts');
 for(const marker of ['resolves only explicitly declared safe relationship previews','does not case-fold or infer synonyms','dangling target remains quarantined','duplicate target makes the relationship ambiguous','does not mutate source snapshot or mapping plan'])has(a2tests,marker,'A2 tests');
 for(const marker of ['Every mapped source field and target field must be named explicitly','Unmapped source fields are ignored','Phase 13.3 — Ordered Import remains LOCKED'])has(kickoff,marker,'kickoff');
+for(const marker of ['transactions.company_id → companies','transactions.primary_contact_id → contacts','companies.primary_contact_id → contacts','foreignKeyAssigned=false','generatedTargetId=null'])has(a2doc,marker,'A2 evidence');
 has(roadmap,'## 13.2 — Normalize & Map — IN_PROGRESS / A2 EXPLICIT RELATIONSHIP PREVIEW','roadmap');has(readme,'Phase 13.2 — Normalize & Map 🟡 IN PROGRESS — A2 EXPLICIT RELATIONSHIP PREVIEW','README');
 req(!exists('database/migrations/phase_13_2_normalize_map.sql'),'13.2 A1 must not add database migration');
 req(!exists('supabase/functions/enjaz-legacy-import/index.ts'),'13.2 A1 must not add import Edge Function');
