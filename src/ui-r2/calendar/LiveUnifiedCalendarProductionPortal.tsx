@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { useLiveRecordsPortal } from '../records/LiveCompaniesProductionPortal.tsx';
+import { useLiveRecordsPortal } from '../runtime/useLiveRecordsPortal.ts';
 import { LiveUnifiedCalendarExperience } from './LiveUnifiedCalendarExperience.tsx';
 
 const SHELL='.r2-shell[data-r2-runtime-mode="live"][data-destination]';
