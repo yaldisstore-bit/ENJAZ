@@ -69,3 +69,11 @@ test('12.3 A3-D Edge hard-locks document request creation semantics',()=>{
   assert.doesNotMatch(edge,/p_resource_share_id:/);
   assert.doesNotMatch(edge,/p_expected_version:/);
 });
+
+
+test('12.3 A3-D prepare mirrors M3 transaction grant floor',()=>{
+  assert.match(edge,/permissions\.includes\('view'\).*permissions\.includes\('upload_requested_document'\)/s);
+  for(const marker of ["'ENJAZ_PORTAL_SHARE_PRINCIPAL_INVALID'","'ENJAZ_PORTAL_SHARE_STAFF_COLLISION'"]){
+    assert.ok(edge.includes(marker),marker);
+  }
+});

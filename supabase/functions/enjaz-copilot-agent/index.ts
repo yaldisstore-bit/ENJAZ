@@ -69,11 +69,12 @@ const DB_CODES=[
   'ENJAZ_SCHEDULING_REMINDER_SCHEDULE_INVALID','ENJAZ_SCHEDULING_IDEMPOTENCY_CONFLICT',
   'ENJAZ_COPILOT_DOCUMENT_REQUEST_STALE',
   'ENJAZ_PORTAL_AUTH_REQUIRED','ENJAZ_PORTAL_OWNER_REQUIRED','ENJAZ_PORTAL_WORKSPACE_FORBIDDEN',
-  'ENJAZ_PORTAL_PRINCIPAL_NOT_GRANTABLE','ENJAZ_PORTAL_REQUEST_PERMISSION_REQUIRED',
+  'ENJAZ_PORTAL_PRINCIPAL_NOT_GRANTABLE','ENJAZ_PORTAL_SHARE_PRINCIPAL_INVALID','ENJAZ_PORTAL_SHARE_STAFF_COLLISION','ENJAZ_PORTAL_REQUEST_PERMISSION_REQUIRED',
   'ENJAZ_PORTAL_REQUEST_ID_INVALID','ENJAZ_PORTAL_REQUEST_TYPE_INVALID','ENJAZ_PORTAL_REQUEST_TITLE_INVALID',
   'ENJAZ_PORTAL_REQUEST_INSTRUCTIONS_INVALID','ENJAZ_PORTAL_REQUEST_TRANSACTION_INVALID','ENJAZ_PORTAL_REQUEST_VALIDITY_INVALID',
   'ENJAZ_PORTAL_REQUEST_ID_CONFLICT','ENJAZ_PORTAL_REQUEST_REVOKED','ENJAZ_PORTAL_REQUEST_NOT_OPEN',
-  'ENJAZ_PORTAL_REQUEST_CREATE_VERSION_INVALID','ENJAZ_PORTAL_REQUEST_EXPECTED_VERSION_REQUIRED','ENJAZ_PORTAL_REQUEST_STALE',
+  'ENJAZ_PORTAL_REQUEST_CREATE_VERSION_INVALID','ENJAZ_PORTAL_REQUEST_EXPECTED_VERSION_REQUIRED',
+    'ENJAZ_PORTAL_SHARE_PRINCIPAL_INVALID','ENJAZ_PORTAL_SHARE_STAFF_COLLISION','ENJAZ_PORTAL_REQUEST_STALE',
   'ENJAZ_PORTAL_REQUEST_NOT_FOUND',
 ] as const;
 function dbCode(error:unknown){
@@ -119,6 +120,8 @@ function safeError(code:string){
     ENJAZ_PORTAL_OWNER_REQUIRED:'Client portal owner authority is required.',
     ENJAZ_PORTAL_REQUEST_PERMISSION_REQUIRED:'The portal principal no longer has document-request permission.',
     ENJAZ_PORTAL_PRINCIPAL_NOT_GRANTABLE:'The portal principal is not eligible for this request.',
+    ENJAZ_PORTAL_SHARE_PRINCIPAL_INVALID:'The portal principal is not eligible for this request.',
+    ENJAZ_PORTAL_SHARE_STAFF_COLLISION:'Staff accounts cannot be targeted as client portal principals.',
     ENJAZ_COPILOT_RATE_LIMITED:'Copilot request limit reached.',
     CONTEXT_SOURCE_FORBIDDEN:'Authoritative ENJAZ context is not available to this user.',
     CONTEXT_SOURCE_UNAVAILABLE:'Authoritative ENJAZ context is temporarily unavailable.',
@@ -337,7 +340,7 @@ Deno.serve(async(req:Request)=>{
         const g=v as J,permissions=Array.isArray(g.permissions)?g.permissions:[];
         const validFrom=text(g.validFrom),validUntil=text(g.validUntil);
         return text(g.principalId)===action.principalId&&text(g.targetType)==='transaction'&&text(g.targetId)===action.transactionId
-          &&permissions.includes('upload_requested_document')&&!text(g.revokedAt)
+          &&permissions.includes('view')&&permissions.includes('upload_requested_document')&&!text(g.revokedAt)
           &&Boolean(validFrom)&&Date.parse(validFrom)<=now&&(!validUntil||Date.parse(validUntil)>now);
       });
       if(!allowed)throw new Error('ENJAZ_PORTAL_REQUEST_PERMISSION_REQUIRED');
