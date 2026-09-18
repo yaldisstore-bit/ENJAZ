@@ -98,5 +98,18 @@
   "a2SearchAuthority": "search_regulatory_knowledge_v1",
   "a2EntryAuthority": "get_regulatory_knowledge_entry_v1",
   "a2ServiceRoleAllowed": false,
-  "a2DatabaseMigrationRequired": false
+  "a2DatabaseMigrationRequired": false,
+  "a1CertificationCommitSourceGateRunId": 35379260589,
+  "a1CertificationCommitSourceGateRunNumber": 6,
+  "a1CertificationCommitSourceGateHead": "16815eee8420e60e44dafa097226522f35e66ebb",
+  "a1CertificationCommitSourceGateVerification": "PASS",
+  "a2KickoffEvidence": "docs/PHASE12_4_A2_KICKOFF.md",
+  "a2EdgePath": "supabase/functions/enjaz-regulatory-assistant/index.ts",
+  "a2EdgeSourceTest": "tests/phase12-4-regulatory-assistance-edge-source.test.mjs",
+  "a2SourceGateVerification": "PENDING",
+  "a2EdgeDeployed": false,
+  "a2RealCloudVerification": "PENDING",
+  "a2VerifyJwtRequired": true,
+  "a2DirectTableAccessAllowed": false,
+  "a2MutationRpcAllowed": false
 }
