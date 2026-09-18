@@ -12,7 +12,11 @@ const errors=[];
 const req=(v,m)=>{if(!v)errors.push(m)};
 const has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
 
-req(state.currentSlice==='A2_QUARANTINE_REVIEW_MANIFEST'&&state.a2Status==='IN_PROGRESS','13.1 A2 lifecycle invalid');
+req(['A2_QUARANTINE_REVIEW_MANIFEST','A3_DESTRUCTION_AND_CLOSURE_READINESS'].includes(state.currentSlice),'13.1 A2 lifecycle chain invalid');
+if(state.currentSlice==='A2_QUARANTINE_REVIEW_MANIFEST') req(state.a2Status==='IN_PROGRESS','13.1 A2 lifecycle invalid');
+if(state.currentSlice==='A3_DESTRUCTION_AND_CLOSURE_READINESS'){
+  req(state.a2Status==='CERTIFIED'&&state.a2GateRunId===35395538307&&state.a2GateRunNumber===5&&state.a2GateHead==='b63ce1c5591d7ff9f54bb69efcabbe685cdef95f','A2 certificate drifted after successor transition');
+}
 req(state.a1Status==='CERTIFIED'&&state.a1GateRunId===35393731218&&state.a1GateRunNumber===3&&state.a1GateHead==='c3d6a12fdb2ce227568f0fbcb8ff79844368cc77','A1 certificate drifted');
 req(state.a1TestCount===10&&state.a1PassCount===10&&state.a1FailCount===0,'A1 test certificate drifted');
 req(state.a1FunctionalTestCount===219&&state.a1FunctionalPassCount===219&&state.a1DbSelftestCount===25&&state.a1DbSelftestPassCount===25,'A1 regression certificate drifted');
