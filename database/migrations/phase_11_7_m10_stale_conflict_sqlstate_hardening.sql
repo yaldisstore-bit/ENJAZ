@@ -11,7 +11,8 @@ declare
   v_oid regprocedure;
   v_def text;
   v_next text;
-  v_old_pattern constant text := 'raise\\s+serialization_failure\\s+using\\s+message\\s*=\\s*''ENJAZ_SCHEDULING_STALE_VERSION''';
+  v_old_compact constant text := 'raise serialization_failure using message=''ENJAZ_SCHEDULING_STALE_VERSION''';
+  v_old_spaced constant text := 'raise serialization_failure using message = ''ENJAZ_SCHEDULING_STALE_VERSION''';
   v_new constant text := 'raise object_not_in_prerequisite_state using message=''ENJAZ_SCHEDULING_STALE_VERSION''';
 begin
   foreach v_sig in array array[
@@ -30,10 +31,10 @@ begin
       raise exception 'ENJAZ_117_M10_STALE_FUNCTION_MISSING:%',v_sig;
     end if;
     v_def := pg_get_functiondef(v_oid);
-    if v_def !~ v_old_pattern then
+    if position(v_old_compact in v_def)=0 and position(v_old_spaced in v_def)=0 then
       raise exception 'ENJAZ_117_M10_STALE_SOURCE_DRIFT:%',v_sig;
     end if;
-    v_next := regexp_replace(v_def,v_old_pattern,v_new,'g');
+    v_next := replace(replace(v_def,v_old_compact,v_new),v_old_spaced,v_new);
     execute v_next;
   end loop;
 end
@@ -59,7 +60,7 @@ begin
       'set_calendar_event_staff_v1_impl',
       'update_calendar_event_metadata_v1_impl'
     )
-    and pg_get_functiondef(p.oid) like '%raise serialization_failure using message=''ENJAZ_SCHEDULING_STALE_VERSION''%';
+    and pg_get_functiondef(p.oid) ~ 'raise[[:space:]]+serialization_failure[[:space:]]+using[[:space:]]+message[[:space:]]*=[[:space:]]*''ENJAZ_SCHEDULING_STALE_VERSION''';
   if v_remaining<>0 then
     raise exception 'ENJAZ_117_M10_RETRYABLE_STALE_REMAINS:%',v_remaining;
   end if;
