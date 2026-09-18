@@ -39,20 +39,24 @@ jobs:
         run: node --experimental-strip-types --test tests/phase11-7-communication-zero-escape.test.ts
       - name: Preserve M3 Client Portal authority
         run: |
-          node scripts/phase11-3-client-portal-audit.mjs
           node --experimental-strip-types --test tests/clientPortalAuthority.test.ts
+          node --test tests/clientPortalDatabaseAuthority.test.mjs
+          node --test tests/clientPortalDatabaseAuthorityHardening.test.mjs
       - name: Preserve M4 Omnichannel authority
         run: |
-          node scripts/phase11-4-omnichannel-audit.mjs
           node --experimental-strip-types --test tests/omnichannelAuthority.test.ts
+          node --experimental-strip-types --test tests/communicationsDispatchBridge.test.ts
       - name: Preserve M10 scheduling authority
         run: |
-          node scripts/phase11-5a-scheduling-authority-audit.mjs
           node --experimental-strip-types --test tests/schedulingAuthority.test.ts
+          node --experimental-strip-types --test tests/unifiedCalendar.test.ts
       - name: Preserve M16/M17 Phase-11 authority
         run: |
           node scripts/phase11-6a-intake-contract-authority-audit.mjs
           node --experimental-strip-types --test tests/intakeContractCommunicationAuthority.test.ts
+          node --experimental-strip-types --test tests/intakeFollowupCommands.test.ts
+          node --experimental-strip-types --test tests/contractApprovalCommands.test.ts
+          node --experimental-strip-types --test tests/contractRenewalCommunicationCommands.test.ts
       - name: Database, roadmap and major-system integrity
         run: |
           npm run db:audit
