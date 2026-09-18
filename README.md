@@ -56,7 +56,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 11.7 — Communication Zero-Escape Gate: ✅ CLOSED — M3/M4/M10 + Phase-11 M16/M17 individual Real Cloud, PR gate, exact-main Real Browser, Pages and Live External certified.**
 - **Phase 12.1 — Copilot Foundation: ✅ CLOSED — private quota/trace evidence + service-only RPC + JWT Edge v1 + Real Cloud + PR + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 12.2 — Contextual Assistance: ✅ CLOSED — permission-scoped authoritative context + citations/provenance + read-only assistance + Real Cloud + exact-main + Pages + Live External certified.**
-- **Phase 12.3 — Agentic ENJAZ Copilot — M9: 🟡 IN_PROGRESS — A1 deterministic plan/proposal certified; A2 digest-bound approval/expiry/replay contract in progress; execution and sensitive mutations remain locked.**
+- **Phase 12.3 — Agentic ENJAZ Copilot — M9: 🟡 IN_PROGRESS — A1 certified; A2 private approval DB boundary is live/hardened and the JWT/RLS Edge boundary is under source certification; execution and sensitive mutations remain locked.**
 
 ## Phase 12.2 — دليل الإغلاق الحالي
 

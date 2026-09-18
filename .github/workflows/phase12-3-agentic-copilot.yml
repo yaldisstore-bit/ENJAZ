@@ -66,6 +66,8 @@ jobs:
         run: node --test tests/phase12-3-agentic-copilot-approval-source.test.mjs
       - name: Phase 12.3 A2 database authority tests
         run: node --test tests/phase12-3-agentic-copilot-db.test.mjs
+      - name: Phase 12.3 A2 Edge authority source tests
+        run: node --test tests/phase12-3-agentic-copilot-edge-source.test.mjs
       - name: Preserve certified Phase 12.2 contextual assistance
         run: |
           node scripts/phase12-2-contextual-assistance-audit.mjs

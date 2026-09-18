@@ -10,6 +10,7 @@ const approval=read('supabase/functions/enjaz-copilot-agent/approval.ts');
 const a2=read('docs/PHASE12_3_A2_KICKOFF.md');
 const migration=read('database/migrations/phase_12_3_agentic_approval_binding.sql');
 const indexHardening=read('database/migrations/phase_12_3_agentic_approval_fk_index_hardening.sql');
+const edge=read('supabase/functions/enjaz-copilot-agent/index.ts');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 
 const errors=[],req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
@@ -27,8 +28,11 @@ for(const key of [
   'executeOperationAllowed','sensitiveMutationExecutionAllowed','directBusinessTableWritesAllowed','genericWriteToolAllowed',
   'serviceRoleBusinessReadsAllowed','browserToolExecutionAllowed','browserProviderCallsAllowed','browserSecretCredentialsAllowed',
   'rawGoalPersistenceAllowed','rawPlanPersistenceAllowed','rawModelOutputPersistenceAllowed','providerRequired',
-  'clientUiAdded','databaseAgentMigrationApplied','edgeAgentDeployed','budgetIncreaseAllowed','executionClaimAllowed'
+  'clientUiAdded','edgeAgentDeployed','budgetIncreaseAllowed','executionClaimAllowed'
 ])req(state[key]===false,`${key} must remain false in 12.3-A2`);
+req(state.databaseAgentMigrationApplied===true&&state.a2IndexHardeningStatus==='PASS_LIVE','12.3 A2 database evidence must be live and hardened before Edge certification');
+req(state.a2FirstMigrationVersion==='20260918151400'&&state.a2IndexHardeningMigrationVersion==='20260918151614','12.3 A2 live migration lineage drifted');
+req(state.securityAdvisorPostA2Total===65&&state.unindexedForeignKeysPostA2===28&&state.a2NewSecurityAdvisorFindings===0&&state.a2NewPerformanceWarnFindings===0,'12.3 A2 post-migration advisor evidence drifted');
 
 for(const key of ['explicitApprovalRequired','approvalBindingRequired','approvalExpiryRequired','approvalReplayProtectionRequired','domainValidationRequired','rlsRequired','workspacePermissionRequired','citationsRequired','provenanceRequired'])req(state[key]===true,`${key} must remain true`);
 
@@ -88,6 +92,13 @@ for(const marker of [
 ])has(indexHardening,marker,'12.3 A2 FK index hardening');
 req(!/\b(insert into|update|delete from)\b/i.test(indexHardening),'12.3 A2 FK index hardening may not mutate rows');
 for(const marker of ['tamper-evident approval evidence','A2 exposes no consume/execute RPC','Phase 12.4 remains LOCKED'])has(a2,marker,'12.3 A2 kickoff');
+for(const marker of [
+  "userClient.rpc('global_search_v1'","admin.rpc('copilot_begin_request_v3'","admin.rpc('copilot_register_agent_proposal_v1'",
+  "admin.rpc('copilot_decide_agent_proposal_v1'","userClient.auth.getUser(token)","executionAllowed:false"
+])has(edge,marker,'12.3 A2 Edge boundary');
+req(!/admin\.from\(/.test(edge),'12.3 A2 Edge service role may not read business tables');
+req(!/admin\.rpc\(['\"](?:post_payment|reverse_payment|mutate_transaction|create_|update_|delete_|archive_|send_|schedule_)/.test(edge),'12.3 A2 Edge may not invoke business mutation RPCs');
+req(!/OPENAI_API_KEY|ANTHROPIC_API_KEY|@ai-sdk\/|generateText|streamText|responses\.create/.test(edge),'12.3 A2 Edge provider path forbidden');
 
 has(roadmap,'## 12.3 — Agentic ENJAZ Copilot — M9','roadmap');
 has(roadmap,'Sensitive mutations require explicit user approval and domain-service validation.','roadmap');

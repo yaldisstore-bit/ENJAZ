@@ -416,7 +416,7 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Agent cannot bypass RLS, workflow/legal transitions, finance rules or document approval state.
 - Opening slice **A1 — Plan / Proposal Contract** is source-gate certified on branch head `6b9d7fdd03584b11069f2e141f83a169f0c2a2b6`; Phase 12.3 Gate run `35358806445` is **PASS**.
 - A1 remains deliberately proposal-only: no execute operation, no generic write tool, no direct business-table write, no service-role business read, no client UI delta and no new database/Edge deployment authority.
-- **A2 — Approval Binding Contract is now IN_PROGRESS:** proposal digest, actor/workspace binding, bounded expiry and replay-safe decision evidence are introduced privately; consume/execute authority remains forbidden until A3.
+- **A2 — Approval Binding Contract is now IN_PROGRESS:** private digest/actor/workspace/expiry/replay evidence is live and FK-hardened in Supabase; JWT/RLS Edge orchestration is the current sub-slice, while consume/execute authority remains forbidden until A3.
 
 ## 12.4 — Regulatory Knowledge Assistance — M8
 - Retrieve/version regulatory sources and distinguish source text, structured facts and AI interpretation.
