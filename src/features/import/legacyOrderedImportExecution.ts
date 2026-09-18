@@ -1,4 +1,5 @@
-import { LEGACY_ORDERED_IMPORT_EXECUTION_MANIFEST_SCHEMA, type LegacyOrderedImportExecutionManifest, type LegacyOrderedImportStageTable } from './legacyOrderedImportBinding.ts';
+import { type LegacyOrderedImportStageTable } from './legacyOrderedImportContract.ts';
+import { LEGACY_ORDERED_IMPORT_EXECUTION_MANIFEST_SCHEMA, type LegacyOrderedImportExecutionManifest, type LegacyBoundImportItem, type LegacyBoundRelationship } from './legacyOrderedImportBinding.ts';
 
 export const LEGACY_ORDERED_IMPORT_EXECUTION_REQUEST_SCHEMA='enjaz.legacy.ordered-import.execute-request.v1' as const;
 export const LEGACY_ORDERED_IMPORT_RPC_ENVELOPE_SCHEMA='enjaz.legacy.ordered-import.rpc-envelope.v1' as const;
@@ -79,8 +80,9 @@ export function parseLegacyOrderedImportExecutionManifest(value:unknown):LegacyO
   bool(value.readyForA3ExecutionBoundary,true,'LEGACY_IMPORT_EXECUTION_A3_READINESS_REQUIRED');
 
   if(!Array.isArray(value.items)||value.items.length<1||value.items.length>5000)throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_ITEMS_INVALID');
+  const rawItems=value.items;
   const sourceKeys=new Set<string>(),targetIds=new Set<string>();
-  const items=value.items.map((raw,index)=>{
+  const items:LegacyBoundImportItem[]=rawItems.map((raw,index)=>{
     if(!object(raw))throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_ITEM_INVALID');
     exact(raw,['ordinal','stage','sourceKey','targetTable','targetId','normalizedFields','writeAllowed'],'LEGACY_IMPORT_EXECUTION_ITEM_FIELD_FORBIDDEN');
     if(raw.ordinal!==index+1)throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_ORDINAL_INVALID');
@@ -101,16 +103,19 @@ export function parseLegacyOrderedImportExecutionManifest(value:unknown):LegacyO
     }
     if(Object.keys(normalizedFields).length<1)throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_NORMALIZED_FIELDS_EMPTY');
     if(index>0){
-      const prev=value.items[index-1] as Record<string,unknown>;
+      const prev=rawItems[index-1];
+      if(!object(prev))throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_ITEM_INVALID');
       const ps=Number(prev.stage);
       if(ps>Number(raw.stage)||(ps===Number(raw.stage)&&String(prev.sourceKey).localeCompare(sourceKey,'en')>0))throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_ITEM_ORDER_INVALID');
     }
-    return {ordinal:index+1,stage:STAGE[targetTable],sourceKey,targetTable,targetId,normalizedFields,writeAllowed:false as const};
+    const stage=STAGE[targetTable];
+    return {ordinal:index+1,stage,sourceKey,targetTable,targetId,normalizedFields,writeAllowed:false};
   });
 
   if(!Array.isArray(value.relationshipBindings)||value.relationshipBindings.length>10000)throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_RELATIONSHIPS_INVALID');
+  const rawRelationships=value.relationshipBindings;
   const itemBySource=new Map(items.map(item=>[item.sourceKey,item] as const)),relationKeys=new Set<string>();
-  const relationshipBindings=value.relationshipBindings.map((raw,index)=>{
+  const relationshipBindings:LegacyBoundRelationship[]=rawRelationships.map((raw,index)=>{
     if(!object(raw))throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_RELATION_INVALID');
     exact(raw,['sourceKey','targetKey','targetField','sourceTargetId','targetTargetId','sourceTargetTable','targetTargetTable','assignmentPerformed','writeAllowed'],'LEGACY_IMPORT_EXECUTION_RELATION_FIELD_FORBIDDEN');
     const sourceKey=text(raw.sourceKey,'LEGACY_IMPORT_EXECUTION_RELATION_SOURCE_INVALID'),targetKey=text(raw.targetKey,'LEGACY_IMPORT_EXECUTION_RELATION_TARGET_INVALID');
@@ -119,19 +124,21 @@ export function parseLegacyOrderedImportExecutionManifest(value:unknown):LegacyO
     if(raw.sourceTargetTable!==source.targetTable||raw.targetTargetTable!==target.targetTable)throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_RELATION_TABLE_DRIFT');
     if(raw.sourceTargetId!==source.targetId||raw.targetTargetId!==target.targetId)throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_RELATION_ID_DRIFT');
     if(raw.targetField!=='company_id'&&raw.targetField!=='primary_contact_id')throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_RELATION_FIELD_INVALID');
-    const authority=source.targetTable+'->'+target.targetTable+':'+raw.targetField;
+    const targetField=raw.targetField;
+    const authority=source.targetTable+'->'+target.targetTable+':'+targetField;
     if(!RELATION_AUTHORITY.has(authority))throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_RELATION_AUTHORITY_INVALID');
     if(target.stage>=source.stage)throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_RELATION_ORDER_INVALID');
     if(raw.assignmentPerformed!==false||raw.writeAllowed!==false)throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_RELATION_WRITE_PRECLAIM_FORBIDDEN');
-    const relationKey=sourceKey+'|'+raw.targetField+'|'+targetKey;
+    const relationKey=sourceKey+'|'+targetField+'|'+targetKey;
     if(relationKeys.has(relationKey))throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_RELATION_DUPLICATE');
     relationKeys.add(relationKey);
     if(index>0){
-      const prev=value.relationshipBindings[index-1] as Record<string,unknown>;
+      const prev=rawRelationships[index-1];
+      if(!object(prev))throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_RELATION_INVALID');
       const pk=String(prev.sourceKey)+'|'+String(prev.targetField)+'|'+String(prev.targetKey);
       if(pk.localeCompare(relationKey,'en')>0)throw new LegacyOrderedImportExecutionError('LEGACY_IMPORT_EXECUTION_RELATION_SORT_INVALID');
     }
-    return {sourceKey,targetKey,targetField:raw.targetField,sourceTargetId:source.targetId,targetTargetId:target.targetId,sourceTargetTable:source.targetTable,targetTargetTable:target.targetTable,assignmentPerformed:false as const,writeAllowed:false as const};
+    return {sourceKey,targetKey,targetField,sourceTargetId:source.targetId,targetTargetId:target.targetId,sourceTargetTable:source.targetTable,targetTargetTable:target.targetTable,assignmentPerformed:false,writeAllowed:false};
   });
 
   return {
