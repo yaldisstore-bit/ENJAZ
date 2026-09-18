@@ -24,3 +24,11 @@ test('12.3 A3-B Edge has exactly two action-specific mutation paths',()=>assert.
 test('destruction: service business read detected',()=>assert.ok(violations(edge+"\nadmin.from('transactions').select('*');").includes('no-service-business-table-read')));
 test('destruction: service create execution detected',()=>assert.ok(violations(edge+"\nadmin.rpc('copilot_execute_followup_create_v1',{});").includes('no-service-business-mutation-rpc')));
 test('destruction: third user mutation RPC detected',()=>assert.ok(violations(edge+"\nuserClient.rpc('post_payment_v1',{});").includes('only-two-allowlisted-user-mutation-rpcs')));
+
+
+test('12.3 A3-B validation errors remain first-class 400 codes',()=>{
+  for(const marker of ["'TRANSACTION_ID_INVALID'","'ACTION_TITLE_INVALID'","'ACTION_DUE_AT_INVALID'"]){
+    const count=edge.split(marker).length-1;
+    assert.ok(count>=2,`${marker} must exist in validation and known-error sets`);
+  }
+});
