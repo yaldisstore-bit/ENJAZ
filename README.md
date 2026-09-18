@@ -4,7 +4,7 @@
 
 الحالة الرسمية: **Phase 12.3 — Agentic ENJAZ Copilot — M9 🟡 IN_PROGRESS / A3-D DOCUMENT REQUEST**  
 آخر مرحلة مغلقة: **Phase 12.2 — Contextual Assistance ✅ CLOSED / READ-ONLY GROUNDED ASSISTANCE CERTIFIED**  
-المرحلة الحالية: **Phase 12.3 — Agentic ENJAZ Copilot — A1 + A2 + A3-A + A3-B + A3-C certified; A3-D is adding only governed `document.request` creation through M3; Phase 12.4 remains LOCKED**.
+المرحلة الحالية: **Phase 12.3 — Agentic ENJAZ Copilot — A1 + A2 + A3-A + A3-B + A3-C + A3-D certified; only four action-specific adapters are authorized and Phase 12.4 remains LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -56,7 +56,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 11.7 — Communication Zero-Escape Gate: ✅ CLOSED — M3/M4/M10 + Phase-11 M16/M17 individual Real Cloud, PR gate, exact-main Real Browser, Pages and Live External certified.**
 - **Phase 12.1 — Copilot Foundation: ✅ CLOSED — private quota/trace evidence + service-only RPC + JWT Edge v1 + Real Cloud + PR + exact-main + Real Browser + Pages + Live External certified.**
 - **Phase 12.2 — Contextual Assistance: ✅ CLOSED — permission-scoped authoritative context + citations/provenance + read-only assistance + Real Cloud + exact-main + Pages + Live External certified.**
-- **Phase 12.3 — Agentic ENJAZ Copilot — M9: 🟡 IN_PROGRESS — A1/A2/A3-A/A3-B/A3-C certified; A3-D adds only create-only `document.request` through existing M3 authority; all other mutations remain locked.**
+- **Phase 12.3 — Agentic ENJAZ Copilot — M9: 🟡 IN_PROGRESS — A1/A2/A3-A/A3-B/A3-C/A3-D certified; `document.request` is create-only through existing M3 authority; all other mutations remain locked.**
 
 ## Phase 12.2 — دليل الإغلاق الحالي
 

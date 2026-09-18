@@ -24,6 +24,7 @@ const a3cEvidence=read('docs/PHASE12_3_A3C_EVIDENCE.md');
 const reminderMigration=read('database/migrations/phase_12_3_agentic_action_schedule_reminder.sql');
 const reminderSnapshotRpcHardening=read('database/migrations/phase_12_3_agentic_schedule_snapshot_rpc_name_hardening.sql');
 const a3d=read('docs/PHASE12_3_A3D_KICKOFF.md');
+const a3dEvidence=read('docs/PHASE12_3_A3D_EVIDENCE.md');
 const documentRequestMigration=read('database/migrations/phase_12_3_agentic_action_document_request.sql');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 
@@ -173,6 +174,14 @@ for(const marker of ['document.request','request type is hard-locked','save_clie
 for(const marker of ['private.copilot_document_request_hash_v1',"action_kind='document.request'",'private.copilot_execute_document_request_v1_impl',"v_row.action_transaction_id,'document'",'grant execute on function public.copilot_execute_document_request_v1(uuid,uuid,text,uuid)'])has(documentRequestMigration,marker,'12.3 A3-D migration');
 req(!/\b(post_payment_v1|reverse_payment_v1|mutate_transaction_workflow|send_client_portal_message_v1)\b/.test(documentRequestMigration),'12.3 A3-D migration has unauthorized adapter');
 req(state.a3DRequestType==='DOCUMENT_ONLY'&&state.a3DResourceShareAllowed===false&&state.a3DExistingRequestUpdateAllowed===false,'12.3 A3-D restriction drifted');
+req(state.a3DCertification==='PASS_DOCUMENT_REQUEST_REAL_CLOUD'&&state.a3DCertificationStatus==='CERTIFIED','12.3 A3-D certification missing');
+req(state.a3DSourceGateVerification==='PASS'&&state.a3DSourceGateRunId===35371537671&&state.a3DSourceGateRunNumber===45&&state.a3DCertifiedSourceHead==='f9be4f42619b2c2c2f05232fbea7e98532c72397','12.3 A3-D source certification drifted');
+req(state.a3DDatabaseMigrationApplied===true&&state.a3DDatabaseMigrationVersion==='20260918164302'&&state.a3DHashCrossLanguageVerification==='PASS_160ab86b520d994579e2158c5c763befec77f84c431c2f5a6f575f639f1f80ff','12.3 A3-D live database/hash evidence drifted');
+req(state.a3DEdgeDeployed===true&&state.a3DEdgeVersion===9&&state.a3DEdgeVerifyJwt===true&&state.a3DEdgeDeploymentDigest==='2009edbe8331cbada408a412d1c61e513e9da0f0e1571ec8148e21ddc09e1aab','12.3 A3-D Edge deployment evidence drifted');
+req(state.a3DRealCloudVerification==='PASS'&&state.a3DRealCloudRunId===35371537794&&state.a3DRealCloudRunNumber===1&&state.a3DRealCloudChecks===44&&state.a3DRealCloudFailureCount===0&&state.a3DRealCloudZeroResidue===true,'12.3 A3-D Real Cloud evidence drifted');
+req(state.a3DRealCloudInvitedPrincipalVerified===true&&state.a3DRealCloudGrantFloorVerified===true&&state.a3DRealCloudDocumentOnlyVerified===true&&state.a3DRealCloudCreateOnlyVerified===true,'12.3 A3-D authority restrictions not certified');
+req(state.a3DRealCloudAtomicRollbackVerified===true&&state.a3DRealCloudSingleUseReplayVerified===true&&state.a3DRealCloudCrossWorkspaceZeroMutation===true,'12.3 A3-D destruction evidence missing');
+for(const marker of ['44/44 PASS','invited client principal','both `view` and `upload_requested_document`','exactly one canonical client portal document request is created','proposal consumption rolls back atomically','test auth users: **0**','Phase 12.4 remains **LOCKED**'])has(a3dEvidence,marker,'12.3 A3-D evidence');
 
 has(roadmap,'## 12.3 — Agentic ENJAZ Copilot — M9','roadmap');
 has(roadmap,'Sensitive mutations require explicit user approval and domain-service validation.','roadmap');

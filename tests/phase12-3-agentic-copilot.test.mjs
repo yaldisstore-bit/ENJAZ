@@ -49,6 +49,12 @@ test('12.3 A1/A2/A3-A/A3-B/A3-C certification is preserved while A3-D adds docum
   assert.equal(state.a3DExistingRequestUpdateAllowed,false);
   assert.equal(state.a3DReadAuthority,'get_client_portal_admin_authority_v1');
   assert.equal(state.a3DExecutionAuthority,'save_client_portal_request_v1');
+  assert.equal(state.a3DCertification,'PASS_DOCUMENT_REQUEST_REAL_CLOUD');
+  assert.equal(state.a3DCertificationStatus,'CERTIFIED');
+  assert.equal(state.a3DSourceGateVerification,'PASS');
+  assert.equal(state.a3DRealCloudVerification,'PASS');
+  assert.equal(state.a3DRealCloudChecks,44);
+  assert.equal(state.a3DRealCloudZeroResidue,true);
   assert.equal(state.directBusinessTableWritesAllowed,false);
   assert.equal(state.genericWriteToolAllowed,false);
   assert.equal(state.clientUiAdded,false);
