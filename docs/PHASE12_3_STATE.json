@@ -4,7 +4,7 @@
   "majorSystem": "M9",
   "status": "IN_PROGRESS",
   "mode": "AGENTIC_COPILOT",
-  "slice": "A3D_DOCUMENT_REQUEST_ACTION",
+  "slice": "A3E_DOCUMENT_DRAFT_ACTION",
   "baseCommit": "00470d129693fdf1362becbc7d95f54560f79481",
   "predecessorPhase": "12.2",
   "predecessorStatus": "CLOSED",
@@ -55,8 +55,8 @@
   "budgetIncreaseAllowed": false,
   "kickoffEvidence": "docs/PHASE12_3_KICKOFF.md",
   "planCorePath": "supabase/functions/enjaz-copilot-agent/core.ts",
-  "sourceGateVerification": "PASS_A3D_CERTIFIED_SOURCE",
-  "realCloudVerification": "PASS_A3D_44_OF_44_ZERO_RESIDUE",
+  "sourceGateVerification": "PENDING_A3E",
+  "realCloudVerification": "PENDING_A3E",
   "realBrowserVerification": "NOT_REQUIRED_NO_CLIENT_DELTA_A2",
   "pagesVerification": "PENDING_LATER",
   "liveExternalVerification": "PENDING_LATER",
@@ -143,7 +143,8 @@
     "followup.snooze",
     "followup.create",
     "reminder.schedule",
-    "document.request"
+    "document.request",
+    "document.draft"
   ],
   "actionOperations": [
     "prepare_followup_snooze",
@@ -153,7 +154,9 @@
     "prepare_schedule_reminder",
     "execute_schedule_reminder",
     "prepare_document_request",
-    "execute_document_request"
+    "execute_document_request",
+    "prepare_document_draft",
+    "execute_document_draft"
   ],
   "actionProposalDigestDatabaseRecomputed": true,
   "actionExecutionPayloadCarriesBusinessFields": false,
@@ -249,7 +252,8 @@
     "mutate_transaction_followup_state_v1",
     "create_transaction_followup_v1",
     "dispatch_scheduling_attention_v1",
-    "save_client_portal_request_v1"
+    "save_client_portal_request_v1",
+    "generate_document_draft_v1"
   ],
   "a3CKickoffEvidence": "docs/PHASE12_3_A3C_KICKOFF.md",
   "a3CDatabaseMigrationPath": "database/migrations/phase_12_3_agentic_action_schedule_reminder.sql",
@@ -336,5 +340,19 @@
   "a3DCertificationStatus": "CERTIFIED",
   "a3DCertifiedSourceHead": "f9be4f42619b2c2c2f05232fbea7e98532c72397",
   "a3DEvidence": "docs/PHASE12_3_A3D_EVIDENCE.md",
-  "a3DCertifiedAt": "2026-09-18T16:58:37Z"
+  "a3DCertifiedAt": "2026-09-18T16:58:37Z",
+  "a3EKickoffEvidence": "docs/PHASE12_3_A3E_KICKOFF.md",
+  "a3EDatabaseMigrationPath": "database/migrations/phase_12_3_agentic_action_document_draft.sql",
+  "a3ESourceGateVerification": "PENDING",
+  "a3EDatabaseMigrationApplied": false,
+  "a3EEdgeDeployed": false,
+  "a3ERealCloudVerification": "PENDING",
+  "a3EReadAuthority": "get_document_factory_v1",
+  "a3EExecutionAuthority": "generate_document_draft_v1",
+  "a3EOutputStatus": "REVIEW_REQUIRED_ONLY",
+  "a3EContactInputAllowed": false,
+  "a3EOcrInputAllowed": false,
+  "a3EReviewAllowed": false,
+  "a3ERenderAllowed": false,
+  "a3EFinalizeAllowed": false
 }
