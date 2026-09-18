@@ -45,6 +45,7 @@ Deno.serve(async(req:Request)=>{
   if(req.method!=='POST')return json(405,errorEnvelope(null,null,null,{code:'METHOD_NOT_ALLOWED',retryable:false,message:'POST is required.'}));
 
   let parsed:FoundationRequest|null=null,traceId:string|null=null,started=Date.now(),actorId:string|null=null;
+  let finishTrace:((status:'completed'|'provider_unavailable'|'failed',errorCode:string|null,metadata?:J)=>Promise<void>)|null=null;
   try{
     const auth=req.headers.get('Authorization')??'',token=auth.startsWith('Bearer ')?auth.slice(7).trim():'';
     if(!token)return json(401,errorEnvelope(null,null,null,safeError('AUTH_REQUIRED')));
@@ -99,6 +100,7 @@ Deno.serve(async(req:Request)=>{
       });
       if(done.error)throw new Error('COPILOT_TRACE_COMPLETION_FAILED');
     };
+    finishTrace=finish;
 
     if(parsed.operation==='capabilities'){
       await finish('completed',null,{resultKind:'capabilities'});
@@ -108,7 +110,11 @@ Deno.serve(async(req:Request)=>{
     await finish('provider_unavailable','PROVIDER_NOT_CONFIGURED',{resultKind:'provider_unavailable'});
     return json(503,errorEnvelope(parsed.requestId,traceId,parsed.operation,safeError('PROVIDER_NOT_CONFIGURED')));
   }catch(error){
-    const code=error instanceof Error?error.message:'COPILOT_FOUNDATION_FAILED';
+    const raw=error instanceof Error?error.message:'COPILOT_FOUNDATION_FAILED';
+    const code=raw.startsWith('REQUEST_')||raw.endsWith('_INVALID')||raw==='OPERATION_FORBIDDEN'?raw:'COPILOT_FOUNDATION_FAILED';
+    if(traceId&&finishTrace&&raw!=='COPILOT_TRACE_COMPLETION_FAILED'){
+      try{await finishTrace('failed',code,{resultKind:'failure'})}catch{}
+    }
     console.error('enjaz-copilot-foundation',code);
     return json(code.startsWith('REQUEST_')||code.endsWith('_INVALID')||code==='OPERATION_FORBIDDEN'?400:500,
       errorEnvelope(parsed?.requestId??null,traceId,parsed?.operation??null,safeError(code)));
