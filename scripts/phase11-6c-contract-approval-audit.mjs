@@ -238,5 +238,7 @@ if(errors.length){
   errors.forEach(e=>console.error(`- ${e}`));
   process.exitCode=1;
 }else{
-  console.log('ENJAZ PHASE 11.6-C AUDIT PASS — C1/C2 are Real Cloud certified; C3 source binds provenance on canonical renewals and accepts only canonical M4 governed outbound communication evidence; 11.6-D remains locked.');
+  console.log(state.phase11_6cStatus==='CLOSED'
+    ? 'ENJAZ PHASE 11.6-C AUDIT PASS — C1/C2/C3 are Real Cloud certified, formal C closure is valid, and 11.6-D is AUTHORIZED_NEXT while 11.7 remains locked.'
+    : 'ENJAZ PHASE 11.6-C AUDIT PASS — C1/C2 are Real Cloud certified; C3 source binds provenance on canonical renewals and accepts only canonical M4 governed outbound communication evidence; 11.6-D remains locked.');
 }
