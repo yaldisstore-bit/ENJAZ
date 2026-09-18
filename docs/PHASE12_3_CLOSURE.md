@@ -162,6 +162,7 @@ Critical runs:
 
 Exact-main inventory:
 
+- exact-main: **38/38 SUCCESS**
 - workflows: **38**
 - success: **38**
 - failures: **0**
