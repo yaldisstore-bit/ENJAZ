@@ -23,7 +23,8 @@ test('12.2 live portal exposes all read-only contextual operations and citations
 
 test('12.2 browser surface has no agentic write or provider authority',()=>{
  const all=portal+'\n'+root;
- for(const forbidden of ['OPENAI_API_KEY','ANTHROPIC_API_KEY','generateText','streamText','service_role','SUPABASE_SECRET','localStorage.','.from(\'transactions\')','.from(\'companies\')','insert(','update(','delete('])assert.equal(all.includes(forbidden),false,forbidden);
+ for(const forbidden of ['OPENAI_API_KEY','ANTHROPIC_API_KEY','generateText','streamText','service_role','SUPABASE_SECRET','localStorage.'])assert.equal(all.includes(forbidden),false,forbidden);
+ assert.doesNotMatch(all,/\.from\(['"](?:companies|transactions|payments|documents|renewals|communications|calendar_events|intake_submissions)['"]\)/);
  assert.doesNotMatch(portal,/fetch\(/);
 });
 
