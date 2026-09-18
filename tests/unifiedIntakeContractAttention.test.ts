@@ -19,7 +19,7 @@ test('filter and terminal options are carried to governed read RPC',async()=>{
  assert.equal(args.p_kind,'contract_renewal');assert.equal(args.p_include_terminal,true);assert.equal(args.p_limit,50);
 });
 test('invalid ids and limits fail before network',async()=>{
- let calls=0;const gateway=createEngagementContractGateway({rpc:()=>{calls++;return Promise.resolve({data:payload,error:null})} as any} as any);
+ let calls=0;const client={rpc:()=>{calls++;return Promise.resolve({data:payload,error:null})}} as any;const gateway=createEngagementContractGateway(client);
  await assert.rejects(()=>gateway.listAttention('bad'),e=>e instanceof DataAccessError&&e.dataCode==='DATA_VALIDATION_FAILED');
  await assert.rejects(()=>gateway.listAttention(W,'all',false,501),e=>e instanceof DataAccessError&&e.dataCode==='DATA_VALIDATION_FAILED');
  assert.equal(calls,0);
