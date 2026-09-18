@@ -18,6 +18,15 @@ export type RegulatoryAssistanceRequest=Readonly<{
   limit:number;
 }>;
 
+export type RegulatorySearchReference=Readonly<{
+  sourceId:string;
+  versionId:string;
+  sourceHash:string;
+  scope:'official_global'|'workspace_curated';
+  sourceWorkspaceId:string|null;
+  asOf:string;
+}>;
+
 export type RegulatoryCitation=Readonly<{
   citationId:string;
   sourceId:string;
@@ -126,6 +135,56 @@ export function parseRegulatoryAssistanceRequest(value:unknown):RegulatoryAssist
   const limit=row.limit===undefined?4:Number(row.limit);
   if(!Number.isSafeInteger(limit)||limit<1||limit>8)throw new Error('LIMIT_INVALID');
   return Object.freeze({workspaceId:row.workspaceId,requestId:row.requestId,operation:'answer',query,asOf,limit});
+}
+
+export function parseRegulatorySearchEvidence(value:unknown,req:RegulatoryAssistanceRequest):readonly RegulatorySearchReference[]{
+  const root=record(value,'REGULATORY_SEARCH');
+  if(root.schema!=='enjaz.regulatory-knowledge.search.v1')throw new Error('REGULATORY_SEARCH_SCHEMA_INVALID');
+  if(root.workspaceId!==req.workspaceId)throw new Error('REGULATORY_SEARCH_WORKSPACE_MISMATCH');
+  if(root.asOf!==req.asOf)throw new Error('REGULATORY_SEARCH_ASOF_MISMATCH');
+  if(!Array.isArray(root.items))throw new Error('REGULATORY_SEARCH_ITEMS_INVALID');
+  const bySource=new Map<string,string>();
+  const refs:RegulatorySearchReference[]=[];
+  for(const value of root.items){
+    const item=record(value,'REGULATORY_SEARCH_ITEM');
+    if(item.schema!=='enjaz.regulatory-knowledge.search.v1'||item.authoritative!==true)throw new Error('REGULATORY_SEARCH_ITEM_INVALID');
+    const sourceId=normalizeText(item.sourceId,128,'SOURCE_ID');
+    const versionId=normalizeText(item.versionId,128,'VERSION_ID');
+    const sourceHash=normalizeText(item.sourceHash,64,'SOURCE_HASH').toLowerCase();
+    if(!UUID.test(sourceId)||!UUID.test(versionId)||!SHA256.test(sourceHash))throw new Error('REGULATORY_SEARCH_ITEM_INVALID');
+    const scope=String(item.scope);
+    if(!SCOPES.has(scope))throw new Error('REGULATORY_SEARCH_ITEM_INVALID');
+    if(item.asOf!==req.asOf)throw new Error('REGULATORY_SEARCH_ASOF_MISMATCH');
+    let sourceWorkspaceId:string|null=null;
+    if(scope==='official_global'){
+      if(item.workspaceId!==null)throw new Error('REGULATORY_SEARCH_SCOPE_WORKSPACE_MISMATCH');
+    }else{
+      if(item.workspaceId!==req.workspaceId)throw new Error('REGULATORY_SEARCH_SCOPE_WORKSPACE_MISMATCH');
+      sourceWorkspaceId=req.workspaceId;
+    }
+    const prior=bySource.get(sourceId);
+    if(prior&&prior!==versionId)throw new Error('REGULATORY_SEARCH_VERSION_AMBIGUOUS');
+    if(prior===versionId)throw new Error('REGULATORY_SEARCH_DUPLICATE_SOURCE');
+    bySource.set(sourceId,versionId);
+    refs.push(Object.freeze({sourceId,versionId,sourceHash,scope:scope as RegulatorySearchReference['scope'],sourceWorkspaceId,asOf:req.asOf}));
+  }
+  return Object.freeze(refs);
+}
+
+export function assertRegulatoryEntryMatchesSearchReference(value:unknown,ref:RegulatorySearchReference,req:RegulatoryAssistanceRequest){
+  const root=record(value,'REGULATORY_ENTRY');
+  if(root.schema!=='enjaz.regulatory-knowledge.entry.v1')throw new Error('REGULATORY_ENTRY_SCHEMA_INVALID');
+  if(root.workspaceId!==req.workspaceId)throw new Error('REGULATORY_WORKSPACE_MISMATCH');
+  if(root.asOf!==req.asOf)throw new Error('REGULATORY_ASOF_MISMATCH');
+  if(root.sourceId!==ref.sourceId)throw new Error('REGULATORY_SOURCE_BINDING_CONFLICT');
+  if(root.configured!==true)throw new Error('REGULATORY_SEARCH_ENTRY_MISSING');
+  const official=record(root.official,'REGULATORY_OFFICIAL');
+  const versionId=normalizeText(official.versionId,128,'VERSION_ID');
+  const sourceHash=normalizeText(official.sourceHash,64,'SOURCE_HASH').toLowerCase();
+  if(versionId!==ref.versionId||sourceHash!==ref.sourceHash||official.scope!==ref.scope)throw new Error('REGULATORY_SOURCE_BINDING_CONFLICT');
+  const sourceWorkspaceId=official.sourceWorkspaceId===null?null:String(official.sourceWorkspaceId);
+  if(sourceWorkspaceId!==ref.sourceWorkspaceId)throw new Error('REGULATORY_SOURCE_BINDING_CONFLICT');
+  return value;
 }
 
 export async function regulatoryAssistancePayloadHash(req:RegulatoryAssistanceRequest){
