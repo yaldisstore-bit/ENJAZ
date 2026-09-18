@@ -43,7 +43,13 @@ req(!fs.existsSync(new URL('supabase/functions/enjaz-legacy-intake',root)),'13.1
 
 has(roadmap,'## 13.1 — Read-only Legacy Snapshot Intake — IN_PROGRESS','roadmap');
 has(roadmap,'Phase 13.2 — Normalize & Map remains **LOCKED**','roadmap');
-has(readme,'Phase 13.1 — Read-only Legacy Snapshot Intake 🟡 IN PROGRESS / A1 READ-ONLY CONTRACT','README');
+has(readme,'Phase 13.1 — Read-only Legacy Snapshot Intake','README');
+if(state.currentSlice==='A2_QUARANTINE_REVIEW_MANIFEST'){
+  has(readme,'A1 CERTIFIED 10/10','README');
+  has(readme,'A2 QUARANTINE REVIEW MANIFEST','README');
+}else{
+  has(readme,'A1 READ-ONLY CONTRACT','README');
+}
 
 if(errors.length){console.error(`ENJAZ PHASE 13.1 A1 AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error('- '+e));process.exit(1)}
 console.log('ENJAZ PHASE 13.1 A1 AUDIT PASS — snapshot intake is bounded/read-only; structural inventory only; no mapping/normalization/persistence/import authority; 13.2 locked.');
