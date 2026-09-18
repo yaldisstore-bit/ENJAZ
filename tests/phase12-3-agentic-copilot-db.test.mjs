@@ -35,3 +35,19 @@ test('12.3 A2 has no business mutation or raw plan persistence',()=>{
   assert.ok(!sql.includes('copilot_consume_agent_proposal'));
   assert.ok(!sql.includes('execute_agent_action'));
 });
+
+
+test('12.3 A2 FK hardening covers actor/decision/consumption evidence',()=>{
+  const hardening=fs.readFileSync('database/migrations/phase_12_3_agentic_approval_fk_index_hardening.sql','utf8');
+  for(const marker of [
+    'copilot_agent_proposals_actor_idx',
+    'copilot_agent_proposals_decided_by_idx',
+    'copilot_agent_proposals_consumed_by_idx',
+    'copilot_agent_approval_events_actor_idx',
+    'actor_user_id,workspace_id,requested_at desc',
+    'decided_by,workspace_id',
+    'consumed_by,workspace_id',
+    'actor_user_id,workspace_id,occurred_at desc',
+  ]) assert.ok(hardening.includes(marker),marker);
+  assert.doesNotMatch(hardening,/\b(insert into|update|delete from)\b/i);
+});

@@ -9,6 +9,7 @@ const core=read('supabase/functions/enjaz-copilot-agent/core.ts');
 const approval=read('supabase/functions/enjaz-copilot-agent/approval.ts');
 const a2=read('docs/PHASE12_3_A2_KICKOFF.md');
 const migration=read('database/migrations/phase_12_3_agentic_approval_binding.sql');
+const indexHardening=read('database/migrations/phase_12_3_agentic_approval_fk_index_hardening.sql');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 
 const errors=[],req=(v,m)=>{if(!v)errors.push(m)},has=(s,m,l)=>req(s.includes(m),`${l} missing marker: ${m}`);
@@ -81,6 +82,11 @@ for(const marker of [
 ])has(migration,marker,'12.3 A2 migration');
 req(!/\b(insert into|update|delete from)\s+public\./i.test(migration),'12.3 A2 migration may not mutate canonical business tables');
 req(!/\b(raw_goal|raw_plan|plan_snapshot|model_output|prompt_text)\b/i.test(migration),'12.3 A2 migration may not persist raw plan/model content');
+for(const marker of [
+  'copilot_agent_proposals_actor_idx','copilot_agent_proposals_decided_by_idx',
+  'copilot_agent_proposals_consumed_by_idx','copilot_agent_approval_events_actor_idx'
+])has(indexHardening,marker,'12.3 A2 FK index hardening');
+req(!/\b(insert into|update|delete from)\b/i.test(indexHardening),'12.3 A2 FK index hardening may not mutate rows');
 for(const marker of ['tamper-evident approval evidence','A2 exposes no consume/execute RPC','Phase 12.4 remains LOCKED'])has(a2,marker,'12.3 A2 kickoff');
 
 has(roadmap,'## 12.3 — Agentic ENJAZ Copilot — M9','roadmap');

@@ -84,5 +84,14 @@
   "executionClaimAllowed": false,
   "approvalDatabaseMigrationPath": "database/migrations/phase_12_3_agentic_approval_binding.sql",
   "approvalCorePath": "supabase/functions/enjaz-copilot-agent/approval.ts",
-  "a2KickoffEvidence": "docs/PHASE12_3_A2_KICKOFF.md"
+  "a2KickoffEvidence": "docs/PHASE12_3_A2_KICKOFF.md",
+  "approvalIndexHardeningMigrationPath": "database/migrations/phase_12_3_agentic_approval_fk_index_hardening.sql",
+  "securityAdvisorBaselineTotal": 65,
+  "performanceAdvisorBaselineTotal": 75,
+  "unindexedForeignKeysBaseline": 28,
+  "a2FirstMigrationAppliedLive": true,
+  "a2FirstMigrationVersion": "20260918151400",
+  "a2FirstMigrationSecurityNewFindings": 0,
+  "a2FirstMigrationUnindexedForeignKeys": 32,
+  "a2IndexHardeningStatus": "PENDING_GATE"
 }
