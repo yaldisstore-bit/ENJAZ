@@ -8,6 +8,10 @@ import {
   AGENT_APPROVAL_SCHEMA,agentProposalHash,approvalDbDecision,approvalPayloadHash,approvalResult,
   approvalTraceOperation,parseAgentApprovalRequest,type AgentApprovalRequest,
 } from './approval.ts';
+import {
+  AGENT_ACTION_SCHEMA,actionProposalHash,actionTracePayloadHash,isAgentActionOperation,parseAgentActionRequest,
+  parseExecutionResult,preparedActionResult,type AgentActionRequest,
+} from './action.ts';
 
 const cors={
   'Access-Control-Allow-Origin':'*',
@@ -53,6 +57,10 @@ const DB_CODES=[
   'ENJAZ_COPILOT_APPROVAL_EXPIRY_INVALID','ENJAZ_COPILOT_PROPOSAL_NOT_FOUND','ENJAZ_COPILOT_PROPOSAL_ACTOR_FORBIDDEN',
   'ENJAZ_COPILOT_PROPOSAL_HASH_CONFLICT','ENJAZ_COPILOT_APPROVAL_CONFLICT','ENJAZ_COPILOT_APPROVAL_REPLAY_CONFLICT',
   'ENJAZ_COPILOT_APPROVAL_EXPIRED','ENJAZ_COPILOT_APPROVAL_DECISION_INVALID','ENJAZ_COPILOT_PROPOSAL_HASH_INVALID',
+  'ENJAZ_COPILOT_ACTION_HASH_CONFLICT','ENJAZ_COPILOT_ACTION_PROPOSAL_CONFLICT','ENJAZ_COPILOT_ACTION_KIND_CONFLICT',
+  'ENJAZ_COPILOT_ACTION_APPROVAL_REQUIRED','ENJAZ_COPILOT_EXECUTION_REPLAY_CONFLICT','ENJAZ_COPILOT_ACTION_SNOOZE_STALE',
+  'ENJAZ_COPILOT_ACTION_SNOOZE_INVALID','ENJAZ_FOLLOWUP_AUTH_REQUIRED','ENJAZ_FOLLOWUP_WORKSPACE_FORBIDDEN',
+  'ENJAZ_FOLLOWUP_NOT_FOUND','ENJAZ_FOLLOWUP_TERMINAL_FINAL','ENJAZ_FOLLOWUP_SNOOZE_NOT_FUTURE',
 ] as const;
 function dbCode(error:unknown){
   const message=errorText(error);
@@ -78,6 +86,14 @@ function safeError(code:string){
     ENJAZ_COPILOT_APPROVAL_CONFLICT:'Proposal already has a conflicting decision.',
     ENJAZ_COPILOT_APPROVAL_REPLAY_CONFLICT:'Approval decision key was already used.',
     ENJAZ_COPILOT_APPROVAL_EXPIRED:'Proposal approval window has expired.',
+    ENJAZ_COPILOT_ACTION_HASH_CONFLICT:'Action digest does not match the exact stored action.',
+    ENJAZ_COPILOT_ACTION_PROPOSAL_CONFLICT:'Action proposal conflicts with existing evidence.',
+    ENJAZ_COPILOT_ACTION_KIND_CONFLICT:'Proposal is not an authorized follow-up snooze action.',
+    ENJAZ_COPILOT_ACTION_APPROVAL_REQUIRED:'Explicit approval is required before action execution.',
+    ENJAZ_COPILOT_EXECUTION_REPLAY_CONFLICT:'Execution key was already consumed by another action.',
+    ENJAZ_COPILOT_ACTION_SNOOZE_STALE:'Approved snooze time is no longer in the future.',
+    ENJAZ_FOLLOWUP_NOT_FOUND:'The approved follow-up no longer exists.',
+    ENJAZ_FOLLOWUP_TERMINAL_FINAL:'The approved follow-up is already terminal.',
     ENJAZ_COPILOT_RATE_LIMITED:'Copilot request limit reached.',
     CONTEXT_SOURCE_FORBIDDEN:'Authoritative ENJAZ context is not available to this user.',
     CONTEXT_SOURCE_UNAVAILABLE:'Authoritative ENJAZ context is temporarily unavailable.',
@@ -88,31 +104,37 @@ function safeError(code:string){
     'APPROVAL_FIELD_FORBIDDEN','WORKSPACEID_INVALID','REQUESTID_INVALID','PROPOSALID_INVALID','DECISIONKEY_INVALID',
     'PROPOSAL_HASH_INVALID','APPROVAL_DECISION_INVALID','ENJAZ_COPILOT_APPROVAL_EXPIRY_INVALID',
     'ENJAZ_COPILOT_APPROVAL_DECISION_INVALID','ENJAZ_COPILOT_PROPOSAL_HASH_INVALID',
+    'ACTION_REQUEST_INVALID','ACTION_FIELD_FORBIDDEN','ACTION_OPERATION_FORBIDDEN','ACTION_SNOOZE_INVALID',
+    'FOLLOWUP_ID_INVALID','PROPOSAL_ID_INVALID','EXECUTION_KEY_INVALID','ENJAZ_COPILOT_ACTION_SNOOZE_INVALID',
   ]);
   if(messages[code])return {code,retryable,message:messages[code]};
   if(validation.has(code))return {code,retryable:false,message:'Agentic Copilot request is invalid.'};
   return {code:'COPILOT_AGENT_FAILED',retryable:true,message:'Agentic Copilot could not complete the request.'};
 }
 function httpStatus(code:string){
-  if(code==='AUTH_REQUIRED'||code==='AUTH_INVALID')return 401;
-  if(code==='ENJAZ_COPILOT_WORKSPACE_FORBIDDEN'||code==='ENJAZ_COPILOT_PROPOSAL_ACTOR_FORBIDDEN'||code==='CONTEXT_SOURCE_FORBIDDEN')return 403;
-  if(code==='ENJAZ_COPILOT_PROPOSAL_NOT_FOUND')return 404;
-  if(code==='ENJAZ_COPILOT_APPROVAL_EXPIRED')return 410;
+  if(code==='AUTH_REQUIRED'||code==='AUTH_INVALID'||code==='ENJAZ_FOLLOWUP_AUTH_REQUIRED')return 401;
+  if(code==='ENJAZ_COPILOT_WORKSPACE_FORBIDDEN'||code==='ENJAZ_COPILOT_PROPOSAL_ACTOR_FORBIDDEN'||code==='ENJAZ_FOLLOWUP_WORKSPACE_FORBIDDEN'||code==='CONTEXT_SOURCE_FORBIDDEN')return 403;
+  if(code==='ENJAZ_COPILOT_PROPOSAL_NOT_FOUND'||code==='ENJAZ_FOLLOWUP_NOT_FOUND')return 404;
+  if(code==='ENJAZ_COPILOT_APPROVAL_EXPIRED'||code==='ENJAZ_COPILOT_ACTION_SNOOZE_STALE')return 410;
   if(code==='ENJAZ_COPILOT_RATE_LIMITED')return 429;
-  if(code.includes('CONFLICT'))return 409;
+  if(code.includes('CONFLICT')||code==='ENJAZ_COPILOT_ACTION_APPROVAL_REQUIRED'||code==='ENJAZ_FOLLOWUP_TERMINAL_FINAL')return 409;
   if(code==='CONTEXT_SOURCE_UNAVAILABLE')return 503;
-  if(code.endsWith('_INVALID')||code.startsWith('REQUEST_')||code.startsWith('APPROVAL_')||code==='OPERATION_FORBIDDEN'||code==='GOAL_INVALID'||code==='CONTEXT_QUERY_INVALID'||code==='LIMIT_INVALID')return 400;
+  if(code.endsWith('_INVALID')||code.startsWith('REQUEST_')||code.startsWith('APPROVAL_')||code.startsWith('ACTION_')||code==='OPERATION_FORBIDDEN'||code==='GOAL_INVALID'||code==='CONTEXT_QUERY_INVALID'||code==='LIMIT_INVALID')return 400;
   return 500;
 }
 function isApprovalBody(v:unknown){
   return Boolean(v&&typeof v==='object'&&!Array.isArray(v)&&Object.prototype.hasOwnProperty.call(v,'decision'));
+}
+function operationOf(v:unknown){
+  if(!v||typeof v!=='object'||Array.isArray(v))return '';
+  return text((v as Record<string,unknown>).operation);
 }
 
 Deno.serve(async(req:Request)=>{
   if(req.method==='OPTIONS')return new Response('ok',{headers:cors});
   if(req.method!=='POST')return json(405,{schema:AGENT_PLAN_SCHEMA,ok:false,error:{code:'METHOD_NOT_ALLOWED',retryable:false,message:'POST is required.'}});
 
-  let plan:AgentRequest|null=null,approval:AgentApprovalRequest|null=null;
+  let plan:AgentRequest|null=null,approval:AgentApprovalRequest|null=null,action:AgentActionRequest|null=null;
   let traceId:string|null=null,actorId:string|null=null,started=Date.now();
   let traceOperation:string|null=null;
   let finishTrace:((status:TraceStatus,errorCode:string|null,metadata?:J)=>Promise<void>)|null=null;
@@ -122,8 +144,10 @@ Deno.serve(async(req:Request)=>{
     if(!token)return json(401,{schema:AGENT_PLAN_SCHEMA,ok:false,error:safeError('AUTH_REQUIRED')});
 
     const body:unknown=await req.json();
-    const approvalMode=isApprovalBody(body);
-    if(approvalMode)approval=parseAgentApprovalRequest(body);
+    const actionMode=isAgentActionOperation(operationOf(body));
+    const approvalMode=!actionMode&&isApprovalBody(body);
+    if(actionMode)action=parseAgentActionRequest(body);
+    else if(approvalMode)approval=parseAgentApprovalRequest(body);
     else plan=parseAgentRequest(body);
 
     const url=Deno.env.get('SUPABASE_URL');
@@ -135,18 +159,18 @@ Deno.serve(async(req:Request)=>{
     });
     const user=await userClient.auth.getUser(token);
     if(user.error||!user.data.user){
-      const schema=approvalMode?AGENT_APPROVAL_SCHEMA:AGENT_PLAN_SCHEMA;
+      const schema=actionMode?AGENT_ACTION_SCHEMA:approvalMode?AGENT_APPROVAL_SCHEMA:AGENT_PLAN_SCHEMA;
       return json(401,{schema,ok:false,error:safeError('AUTH_INVALID')});
     }
     actorId=user.data.user.id;
 
     const admin=createClient(url,serviceKey(),{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
-    traceOperation=approval?approvalTraceOperation(approval.decision):plan!.operation;
-    const payloadHash=approval?await approvalPayloadHash(approval):await agentPayloadHash(plan!);
-    const workspaceId=approval?.workspaceId??plan!.workspaceId;
-    const requestId=approval?.requestId??plan!.requestId;
+    traceOperation=action?.operation??(approval?approvalTraceOperation(approval.decision):plan!.operation);
+    const payloadHash=action?await actionTracePayloadHash(action):(approval?await approvalPayloadHash(approval):await agentPayloadHash(plan!));
+    const workspaceId=action?.workspaceId??approval?.workspaceId??plan!.workspaceId;
+    const requestId=action?.requestId??approval?.requestId??plan!.requestId;
 
-    const begin=await admin.rpc('copilot_begin_request_v3',{
+    const begin=await admin.rpc('copilot_begin_request_v4',{
       p_workspace_id:workspaceId,p_actor_user_id:actorId,p_request_id:requestId,
       p_operation:traceOperation,p_payload_hash:payloadHash,p_limit:20,
     });
@@ -165,6 +189,44 @@ Deno.serve(async(req:Request)=>{
       if(done.error)throw new Error('COPILOT_TRACE_COMPLETION_FAILED');
     };
     finishTrace=finish;
+
+    if(action?.operation==='prepare_followup_snooze'){
+      const target=await userClient.from('transaction_followups')
+        .select('id,workspace_id,status,snoozed_until')
+        .eq('workspace_id',action.workspaceId).eq('id',action.followupId).maybeSingle();
+      if(target.error)throw new Error(sourceCode(target.error));
+      if(!target.data)throw new Error('ENJAZ_FOLLOWUP_NOT_FOUND');
+      if(target.data.status!=='open')throw new Error('ENJAZ_FOLLOWUP_TERMINAL_FINAL');
+
+      const proposalHash=await actionProposalHash(action);
+      const expiresAt=new Date(Date.now()+10*60*1000).toISOString();
+      const registered=await admin.rpc('copilot_register_followup_snooze_proposal_v1',{
+        p_workspace_id:action.workspaceId,p_actor_user_id:actorId,p_request_id:action.requestId,
+        p_proposal_hash:proposalHash,p_followup_id:action.followupId,
+        p_snoozed_until:action.snoozedUntil,p_expires_at:expiresAt,
+      });
+      if(registered.error)throw new Error(dbCode(registered.error));
+      const row=record(registered.data);
+      const proposalId=uuidOrNull(row.proposalId),storedHash=text(row.proposalHash),storedExpiry=text(row.expiresAt);
+      if(!proposalId||storedHash!==proposalHash||!storedExpiry||row.actionKind!=='followup.snooze'||text(row.targetId)!==action.followupId)throw new Error('COPILOT_ACTION_EVIDENCE_INVALID');
+      const result=preparedActionResult({
+        proposalId,proposalHash:storedHash,expiresAt:storedExpiry,replayed:row.replayed===true,
+        followupId:action.followupId,snoozedUntil:action.snoozedUntil,
+      });
+      await finish('completed',null,{resultKind:'action_proposal',actionKind:'followup.snooze',providerUsed:false});
+      return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
+    }
+
+    if(action?.operation==='execute_followup_snooze'){
+      const executed=await userClient.rpc('copilot_execute_followup_snooze_v1',{
+        p_workspace_id:action.workspaceId,p_proposal_id:action.proposalId,
+        p_proposal_hash:action.proposalHash,p_execution_key:action.executionKey,
+      });
+      if(executed.error)throw new Error(dbCode(executed.error));
+      const result=parseExecutionResult(executed.data);
+      await finish('completed',null,{resultKind:'action_execution',actionKind:'followup.snooze',providerUsed:false,replayed:result.replayed});
+      return json(200,{schema:AGENT_ACTION_SCHEMA,ok:true,requestId:action.requestId,traceId,operation:action.operation,result});
+    }
 
     if(approval){
       const decision=await admin.rpc('copilot_decide_agent_proposal_v1',{
@@ -220,14 +282,18 @@ Deno.serve(async(req:Request)=>{
       'REQUEST_INVALID','REQUEST_FIELD_FORBIDDEN','WORKSPACE_ID_INVALID','REQUEST_ID_INVALID','OPERATION_FORBIDDEN',
       'GOAL_INVALID','CONTEXT_QUERY_INVALID','LIMIT_INVALID','APPROVAL_REQUEST_INVALID','APPROVAL_FIELD_FORBIDDEN',
       'WORKSPACEID_INVALID','REQUESTID_INVALID','PROPOSALID_INVALID','DECISIONKEY_INVALID','PROPOSAL_HASH_INVALID',
-      'APPROVAL_DECISION_INVALID',
+      'APPROVAL_DECISION_INVALID','ACTION_REQUEST_INVALID','ACTION_FIELD_FORBIDDEN','ACTION_OPERATION_FORBIDDEN',
+      'ACTION_SNOOZE_INVALID','FOLLOWUP_ID_INVALID','PROPOSAL_ID_INVALID','EXECUTION_KEY_INVALID',
     ]);
     const code=known.has(raw)?raw:'COPILOT_AGENT_FAILED';
     if(traceId&&finishTrace&&raw!=='COPILOT_TRACE_COMPLETION_FAILED'){
       try{await finishTrace('failed',code,{resultKind:'failure',providerUsed:false})}catch{}
     }
     console.error('enjaz-copilot-agent',code);
-    const schema=approval?AGENT_APPROVAL_SCHEMA:AGENT_PLAN_SCHEMA;
+    const schema=action?AGENT_ACTION_SCHEMA:approval?AGENT_APPROVAL_SCHEMA:AGENT_PLAN_SCHEMA;
+    if(action){
+      return json(httpStatus(code),{schema,ok:false,requestId:action.requestId,traceId,operation:action.operation,error:safeError(code)});
+    }
     const body=approval
       ?{schema,ok:false,requestId:approval.requestId,traceId,operation:traceOperation,error:safeError(code)}
       :{...errorAgentEnvelope(plan?.requestId??null,plan?.operation as AgentOperation|null,safeError(code)),traceId};

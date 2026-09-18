@@ -1,4 +1,4 @@
-name: ENJAZ Phase 12.3 — Agentic Copilot A2 Gate
+name: ENJAZ Phase 12.3 — Agentic Copilot A3-A Gate
 
 on:
   push:
@@ -11,6 +11,7 @@ on:
       - 'supabase/functions/enjaz-copilot-agent/**'
       - 'database/migrations/phase_12_3_agentic_approval_binding.sql'
       - 'database/migrations/phase_12_3_agentic_approval_fk_index_hardening.sql'
+      - 'database/migrations/phase_12_3_agentic_action_followup_snooze.sql'
       - 'scripts/phase12-3-*'
       - 'tests/phase12-3-*'
       - '.github/workflows/phase12-3-agentic-copilot.yml'
@@ -25,6 +26,7 @@ on:
       - 'supabase/functions/enjaz-copilot-agent/**'
       - 'database/migrations/phase_12_3_agentic_approval_binding.sql'
       - 'database/migrations/phase_12_3_agentic_approval_fk_index_hardening.sql'
+      - 'database/migrations/phase_12_3_agentic_action_followup_snooze.sql'
       - 'scripts/phase12-3-*'
       - 'tests/phase12-3-*'
       - '.github/workflows/phase12-3-agentic-copilot.yml'
@@ -38,7 +40,7 @@ permissions:
 
 jobs:
   phase12-3-a1:
-    name: A1 Preservation / A2 Approval Binding / Destruction / Frozen Budgets
+    name: A1+A2 Preservation / A3-A Follow-up Snooze / Destruction / Frozen Budgets
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -68,6 +70,10 @@ jobs:
         run: node --test tests/phase12-3-agentic-copilot-db.test.mjs
       - name: Phase 12.3 A2 Edge authority source tests
         run: node --test tests/phase12-3-agentic-copilot-edge-source.test.mjs
+      - name: Phase 12.3 A3-A action core tests
+        run: node --experimental-strip-types --test tests/phase12-3-agentic-copilot-action-core.test.ts
+      - name: Phase 12.3 A3-A database authority tests
+        run: node --test tests/phase12-3-agentic-copilot-action-db.test.mjs
       - name: Preserve certified Phase 12.2 contextual assistance
         run: |
           node scripts/phase12-2-contextual-assistance-audit.mjs

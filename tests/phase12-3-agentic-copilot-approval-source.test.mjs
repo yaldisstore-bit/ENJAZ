@@ -18,6 +18,8 @@ test('12.3 A2 approval core is hash-only and execution locked',()=>{
   assert.doesNotMatch(core,/OPENAI_API_KEY|ANTHROPIC_API_KEY|@ai-sdk\/|generateText|streamText|responses\.create/);
   assert.doesNotMatch(core,/\.from\(|\.rpc\(/);
   assert.equal(state.executeOperationAllowed,false);
-  assert.equal(state.executionClaimAllowed,false);
+  assert.equal(state.a2Certification,'PASS_APPROVAL_BINDING_REAL_CLOUD');
+  assert.equal(state.executionClaimAllowed,true);
   assert.equal(state.sensitiveMutationExecutionAllowed,false);
+  assert.equal(state.authorizedActionAdapters.length,1);
 });

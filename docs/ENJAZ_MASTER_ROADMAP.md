@@ -416,7 +416,8 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Agent cannot bypass RLS, workflow/legal transitions, finance rules or document approval state.
 - Opening slice **A1 — Plan / Proposal Contract** is source-gate certified on branch head `6b9d7fdd03584b11069f2e141f83a169f0c2a2b6`; Phase 12.3 Gate run `35358806445` is **PASS**.
 - A1 remains deliberately proposal-only: no execute operation, no generic write tool, no direct business-table write, no service-role business read, no client UI delta and no new database/Edge deployment authority.
-- **A2 — Approval Binding Contract is now IN_PROGRESS:** private digest/actor/workspace/expiry/replay evidence is live and FK-hardened in Supabase; JWT/RLS Edge orchestration is the current sub-slice, while consume/execute authority remains forbidden until A3.
+- **A2 — Approval Binding Contract: CERTIFIED** with final source Gate #12 + Real Cloud #2 PASS.
+- **A3-A — Action-Specific Execution is now IN_PROGRESS:** only `followup.snooze` is authorized; the action digest is independently recomputed in PostgreSQL and execution atomically consumes the approved proposal while delegating to the existing follow-up domain RPC. No generic execution exists.
 
 ## 12.4 — Regulatory Knowledge Assistance — M8
 - Retrieve/version regulatory sources and distinguish source text, structured facts and AI interpretation.
@@ -597,7 +598,7 @@ This snapshot is retained only as satisfied transition history. It no longer def
 - **Phase 12.2 — Contextual Assistance ✅ CLOSED + authenticated Real Cloud + dedicated/cumulative Real Browser + exact-main 40/40 + Pages + Live External certified.**
 - Phase 12.2 formal implementation merge: `10592bbd0d91684970d5074719871039892d4667`.
 - Phase 12.2 published `/live/` budget: **431246 / 670000 initial JS; 759985 / 760000 total JS; 179989 / 180000 CSS**.
-- **Phase 12.3 — Agentic ENJAZ Copilot — M9: IN_PROGRESS; A1 PASS, A2 approval binding current slice.**
+- **Phase 12.3 — Agentic ENJAZ Copilot — M9: IN_PROGRESS; A1 + A2 PASS, A3-A followup.snooze current slice.**
 - M8 remains `ACTIVE` because Phase 12.4 is still a governing anchor; M13/M18 remain `ACTIVE` for Phase 15.
 - startup JavaScript hard ceiling remains **670000 bytes**; total JavaScript **760000 bytes**; CSS **180000 bytes**.
 

@@ -14,9 +14,12 @@ test('12.3 starts only from final certified 12.2 closure',()=>{
   assert.equal(state.predecessorClosureMergeCommit,state.baseCommit);
 });
 
-test('12.3 A1 certification is preserved while A2 keeps 12.4 and execution locked',()=>{
+test('12.3 A1/A2 certification is preserved while A3-A opens only one low-risk adapter',()=>{
   assert.equal(state.status,'IN_PROGRESS');
-  assert.equal(state.slice,'A2_APPROVAL_BINDING_CONTRACT');
+  assert.equal(state.slice,'A3A_FOLLOWUP_SNOOZE_ACTION');
+  assert.equal(state.a2Certification,'PASS_APPROVAL_BINDING_REAL_CLOUD');
+  assert.equal(state.a2FinalSourceGateVerification,'PASS');
+  assert.equal(state.a2FinalRealCloudVerification,'PASS');
   assert.equal(state.a1Certification,'PASS_PLAN_PROPOSAL_CONTRACT');
   assert.equal(state.a1SourceGateVerification,'PASS');
   assert.equal(state.a1SourceGateHead,'a03379be95d702f1f8613f054d2e77d1c67a26b1');
@@ -25,7 +28,11 @@ test('12.3 A1 certification is preserved while A2 keeps 12.4 and execution locke
   assert.equal(state.phase12_4Allowed,false);
   assert.deepEqual(state.openingOperations,['plan','propose']);
   assert.equal(state.executeOperationAllowed,false);
+  assert.equal(state.genericExecuteOperationAllowed,false);
   assert.equal(state.sensitiveMutationExecutionAllowed,false);
+  assert.equal(state.lowRiskMutationExecutionAllowed,true);
+  assert.equal(state.actionSpecificExecutionAllowed,true);
+  assert.deepEqual(state.authorizedActionAdapters,['followup.snooze']);
   assert.equal(state.directBusinessTableWritesAllowed,false);
   assert.equal(state.genericWriteToolAllowed,false);
   assert.equal(state.clientUiAdded,false);
