@@ -19,6 +19,8 @@ test('12.3 A3-A exposes only followup snooze prepare/execute operations',()=>{
 
 test('12.3 A3-A canonical action hash binds exact target and timestamp',async()=>{
   const req=parseAgentActionRequest({workspaceId:W,requestId:R,operation:'prepare_followup_snooze',followupId:F,snoozedUntil:FUTURE});
+  assert.equal(req.operation,'prepare_followup_snooze');
+  if(req.operation!=='prepare_followup_snooze')throw new Error('unexpected operation');
   assert.equal(followupSnoozeCanonical(req),`enjaz.copilot.agent.action.v1|${W}|${R}|prepare_followup_snooze|${F}|${FUTURE}`);
   const a=await actionProposalHash(req);
   const b=await actionProposalHash({...req,followupId:P});
