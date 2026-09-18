@@ -40,7 +40,7 @@ test('12.3 A1/A2/A3-A/A3-B/A3-C/A3-D certification is preserved while A3-E adds 
   assert.equal(state.a3CCertification,'PASS_SELF_REMINDER_REAL_CLOUD');
   assert.equal(state.a3CCertificationStatus,'CERTIFIED');
   assert.deepEqual(state.authorizedActionAdapters,['followup.snooze','followup.create','reminder.schedule','document.request','document.draft']);
-  assert.deepEqual(state.actionExecutionDomainAuthorities,['mutate_transaction_followup_state_v1','create_transaction_followup_v1','dispatch_scheduling_attention_v1','save_client_portal_request_v1']);
+  assert.deepEqual(state.actionExecutionDomainAuthorities,['mutate_transaction_followup_state_v1','create_transaction_followup_v1','dispatch_scheduling_attention_v1','save_client_portal_request_v1','generate_document_draft_v1']);
   assert.equal(state.a3CRecipientScope,'SELF_ONLY');
   assert.equal(state.a3CMode,'REMINDER_ONLY');
   assert.equal(state.a3CFollowupSideEffectAllowed,false);
