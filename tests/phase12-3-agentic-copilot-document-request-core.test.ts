@@ -14,13 +14,14 @@ const X='66666666-6666-4666-8666-666666666666';
 const DUE='2099-09-19T09:30:00.000Z';
 const VALID='2099-09-20T09:30:00.000Z';
 
-test('12.3 A3-D extends allowlist by document request only',()=>{
-  assert.deepEqual(AGENT_ACTION_OPERATIONS,[
+test('12.3 A3-D document-request operations remain preserved before later A3-E additions',()=>{
+  assert.deepEqual(AGENT_ACTION_OPERATIONS.slice(0,8),[
     'prepare_followup_snooze','execute_followup_snooze',
     'prepare_followup_create','execute_followup_create',
     'prepare_schedule_reminder','execute_schedule_reminder',
     'prepare_document_request','execute_document_request',
   ]);
+  assert.deepEqual(AGENT_ACTION_OPERATIONS.slice(8),['prepare_document_draft','execute_document_draft']);
 });
 
 test('12.3 A3-D digest binds principal transaction target content and validity',async()=>{
