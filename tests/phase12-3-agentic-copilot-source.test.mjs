@@ -24,12 +24,16 @@ function violations(c=core){
 
 test('12.3 A1 source contract passes',()=>assert.deepEqual(violations(),[]));
 
-test('12.3 A1 state forbids execution and direct writes',()=>{
+test('12.3 A1 execution lock survives A2 database activation',()=>{
+ assert.equal(state.a1Certification,'PASS_PLAN_PROPOSAL_CONTRACT');
+ assert.equal(state.slice,'A2_APPROVAL_BINDING_CONTRACT');
  assert.equal(state.executeOperationAllowed,false);
  assert.equal(state.sensitiveMutationExecutionAllowed,false);
  assert.equal(state.directBusinessTableWritesAllowed,false);
+ assert.equal(state.genericWriteToolAllowed,false);
+ assert.equal(state.executionClaimAllowed,false);
  assert.equal(state.edgeAgentDeployed,false);
- assert.equal(state.databaseAgentMigrationApplied,false);
+ assert.equal(state.databaseAgentMigrationApplied,true);
 });
 
 test('destruction: execute operation is detected',()=>{
