@@ -27,6 +27,7 @@ const a3d=read('docs/PHASE12_3_A3D_KICKOFF.md');
 const a3dEvidence=read('docs/PHASE12_3_A3D_EVIDENCE.md');
 const documentRequestMigration=read('database/migrations/phase_12_3_agentic_action_document_request.sql');
 const a3e=read('docs/PHASE12_3_A3E_KICKOFF.md');
+const a3eEvidence=read('docs/PHASE12_3_A3E_EVIDENCE.md');
 const documentDraftMigration=read('database/migrations/phase_12_3_agentic_action_document_draft.sql');
 const roadmap=read('docs/ENJAZ_MASTER_ROADMAP.md');
 
@@ -189,6 +190,16 @@ for(const marker of ['document.draft','review_required','get_document_factory_v1
 for(const marker of ['private.copilot_document_draft_hash_v1',"action_kind='document.draft'",'private.copilot_execute_document_draft_v1_impl','public.generate_document_draft_v1(','v_row.action_company_id,v_row.action_transaction_id,null,null','grant execute on function public.copilot_execute_document_draft_v1(uuid,uuid,text,uuid)'])has(documentDraftMigration,marker,'12.3 A3-E migration');
 req(!/\b(review_document_draft_v1|request_document_render_v1|finalize_document_draft_v1|submit_document_draft_for_review_v1|update_document_draft_content_v1)\b/.test(documentDraftMigration),'12.3 A3-E may not expose review/render/finalization');
 req(state.a3EOutputStatus==='REVIEW_REQUIRED_ONLY'&&state.a3EContactInputAllowed===false&&state.a3EOcrInputAllowed===false&&state.a3EReviewAllowed===false&&state.a3ERenderAllowed===false&&state.a3EFinalizeAllowed===false,'12.3 A3-E restriction drifted');
+req(state.a3ECertification==='PASS_DOCUMENT_DRAFT_REAL_CLOUD'&&state.a3ECertificationStatus==='CERTIFIED','12.3 A3-E certification missing');
+req(state.a3ESourceGateVerification==='PASS'&&state.a3ESourceGateRunId===35374235291&&state.a3ESourceGateRunNumber===82&&state.a3ESourceGateHead==='d228afdb4538d73889834c82d0adc3117f4b5739','12.3 A3-E source certification drifted');
+req(state.a3EDatabaseMigrationApplied===true&&state.a3EDatabaseMigrationVersion==='20260918172603'&&state.a3EHashVerification==='PASS_REAL_CLOUD_DATABASE_RECOMPUTE','12.3 A3-E live database/hash evidence drifted');
+req(state.a3ESecurityAdvisorTotal===65&&state.a3ENewSecurityAdvisorFindings===0&&state.a3EUnindexedForeignKeys===28&&state.a3ENewPerformanceWarnFindings===0,'12.3 A3-E advisor evidence drifted');
+req(state.a3EEdgeDeployed===true&&state.a3EEdgeVersion===10&&state.a3EEdgeVerifyJwt===true&&state.a3EEdgeDeploymentDigest==='7e02eaba7f28c9289cb297e83e54d9b574a7da50f8780aba0e276532ef23f1d1','12.3 A3-E Edge deployment evidence drifted');
+req(state.a3ERealCloudVerification==='PASS'&&state.a3ERealCloudRunId===35374393612&&state.a3ERealCloudRunNumber===1&&state.a3ERealCloudChecks===44&&state.a3ERealCloudFailureCount===0&&state.a3ERealCloudZeroResidue===true,'12.3 A3-E Real Cloud evidence drifted');
+req(state.a3ERealCloudPublishedTemplateVerified===true&&state.a3ERealCloudReviewRequiredOnlyVerified===true&&state.a3ERealCloudNoRenderVaultSideEffect===true,'12.3 A3-E output boundary evidence drifted');
+req(state.a3ERealCloudAtomicRollbackVerified===true&&state.a3ERealCloudSingleUseReplayVerified===true&&state.a3ERealCloudCrossWorkspaceZeroMutation===true,'12.3 A3-E destruction evidence missing');
+req(state.a3ERealCloudArtifactId===10559173568&&state.a3ERealCloudArtifactDigest==='sha256:904403569bb385195bc7bd0af2ac62f926469da8e1d90255581f4cafef65d849','12.3 A3-E artifact evidence drifted');
+for(const marker of ['44/44 PASS','cleanup: **PASS**','no PDF render job or Vault document side effect occurs','domain failure rolls back proposal consumption atomically','Phase 12.4 remains **LOCKED**'])has(a3eEvidence,marker,'12.3 A3-E evidence');
 
 
 has(roadmap,'## 12.3 — Agentic ENJAZ Copilot — M9','roadmap');
