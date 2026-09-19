@@ -228,11 +228,11 @@ begin
  or r->>'reconciled'<>'false' or r->>'closureAuthorized'<>'false'
  then raise exception 'A3 FAILED: missing target hidden or premature authority granted'; end if;
  raise notice 'PASS A3 isolated missing target never produces closure authority';
-end $;
+end $$;
 
 -- A3 must also refuse a forged manifest, altered idempotency, or a ledger
 -- whose counts are internally consistent but disagree with the original hash.
-do $
+do $$
 declare r jsonb; doc jsonb;
 begin
  select f.doc into doc from fixture.original f;
@@ -247,7 +247,7 @@ begin
  'a2-fixture-wrong',doc);
  if r is not null then raise exception 'A3 FAILED: wrong idempotency produced comparison'; end if;
  raise notice 'PASS A3 isolated forged manifest and idempotency denied';
-end $;
+end $$;
 
 reset role;
 update public.import_jobs
@@ -256,13 +256,13 @@ update public.import_jobs
  where id='66666666-6666-4666-8666-666666666666';
 set role authenticated;
 set request.jwt.claim.sub='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-do $
+do $$
 declare r jsonb;
 begin
  select fixture.a3_report() into r;
  if r is not null then raise exception 'A3 FAILED: dual-corrupt counts yielded comparison'; end if;
  raise notice 'PASS A3 isolated mutually corrupt totals cannot compare';
-end $;
+end $$;
 
 reset role;
 update public.import_jobs
@@ -271,7 +271,7 @@ update public.import_jobs
  where id='66666666-6666-4666-8666-666666666666';
 set role authenticated;
 set request.jwt.claim.sub='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-do $
+do $$
 declare r jsonb;
 begin
  select fixture.a3_report() into r;
@@ -280,7 +280,7 @@ begin
  or r->>'closureAuthorized'<>'false'
  then raise exception 'A3 FAILED: restored ledger concealed missing transaction'; end if;
  raise notice 'PASS A3 isolated ledger restoration never repairs missing imported row';
-end $;
+end $$;
 
 -- 5000-item A3 comparison must inspect ALL manifest entries without pagination,
 -- and 5001-item hash-bound requests must fail closed. These ledger/manifest
@@ -289,7 +289,7 @@ reset role;
 grant select on fixture.large to authenticated;
 set role authenticated;
 set request.jwt.claim.sub='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-do $
+do $$
 declare r jsonb; doc jsonb; batch uuid; invalid_result jsonb;
 begin
  select l.doc,l.batch_id into doc,batch from fixture.large l
@@ -312,11 +312,11 @@ begin
  if invalid_result is not null
  then raise exception 'A3 FAILED: 5001 item request returned comparison'; end if;
  raise notice 'PASS A3 isolated bulk 5000 complete comparison and hash-bound 5001 denial';
-end $;
+end $$;
 
 reset role;
 set role anon;
-do $
+do $$
 begin
  begin
  perform public.compare_legacy_import_reconciliation_v1(
