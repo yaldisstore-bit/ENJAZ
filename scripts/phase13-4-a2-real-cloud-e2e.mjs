@@ -140,6 +140,53 @@ async function test(){
     rows[2].record?.fields?.current_fee_decimal!=='135.25',
     'lossless_decimal_money_readback');
 
+  // Permission tests before import do not prove the live successful ledger is isolated.
+  const [anonymousExisting,outsiderExisting]=await Promise.all([
+    read(make(),m),read(other.client,m),
+  ]);
+  failIf(!anonymousExisting.error,'anonymous_cannot_read_successful_ledger',
+    errText(anonymousExisting.error));
+  failIf(Boolean(outsiderExisting.error)||outsiderExisting.data!==null,
+    'outsider_cannot_read_successful_ledger');
+
+  // Alter ONLY fresh test rows. A2 must expose drift, not silently attest or repair it.
+  const {data:changedCompany,error:companyError}=await admin.from('companies')
+    .update({primary_contact_id:null}).eq('id',p.ids.companyId)
+    .eq('workspace_id',ws).select('id');
+  if(companyError||changedCompany?.length!==1)
+    throw companyError??new Error('isolated company tamper did not update exactly one row');
+  const changedFk=await read(owner.client,m);
+  if(changedFk.error)throw changedFk.error;
+  failIf(changedFk.data?.observedRows?.[1]?.record?.relationshipIds?.primary_contact_id!==null||
+    changedFk.data?.observedRows?.[1]?.found!==true||
+    changedFk.data?.reconciled!==false,
+    'changed_fk_visible_without_silent_reconciliation');
+  const {data:restoredCompany,error:restoreCompanyError}=await admin.from('companies')
+    .update({primary_contact_id:p.ids.contactId}).eq('id',p.ids.companyId)
+    .eq('workspace_id',ws).select('id');
+  if(restoreCompanyError||restoredCompany?.length!==1)
+    throw restoreCompanyError??new Error('isolated company restore did not update exactly one row');
+
+  const {data:changedTransaction,error:feeError}=await admin.from('transactions')
+    .update({current_fee:140.25}).eq('id',p.ids.transactionId)
+    .eq('workspace_id',ws).select('id');
+  if(feeError||changedTransaction?.length!==1)
+    throw feeError??new Error('isolated fee tamper did not update exactly one row');
+  const changedMoney=await read(owner.client,m);
+  if(changedMoney.error)throw changedMoney.error;
+  failIf(changedMoney.data?.observedRows?.[2]?.record?.fields?.current_fee_decimal!=='140.25'||
+    changedMoney.data?.reconciled!==false,
+    'changed_money_visible_as_exact_decimal_without_reconciliation');
+  const {data:restoredTransaction,error:restoreFeeError}=await admin.from('transactions')
+    .update({current_fee:135.25}).eq('id',p.ids.transactionId)
+    .eq('workspace_id',ws).select('id');
+  if(restoreFeeError||restoredTransaction?.length!==1)
+    throw restoreFeeError??new Error('isolated fee restore did not update exactly one row');
+  const restoredRead=await read(owner.client,m);
+  if(restoredRead.error)throw restoredRead.error;
+  failIf(JSON.stringify(restoredRead.data?.observedRows)!==JSON.stringify(rows),
+    'isolated_test_row_restoration_verified');
+
   const replay=await importProbe(owner.client,m);
   if(replay.error)throw replay.error;
   failIf(replay.data?.wasDuplicate!==true,'exact_import_replay_ledger');
