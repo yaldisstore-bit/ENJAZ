@@ -2,21 +2,29 @@ import {createClient} from '@supabase/supabase-js';
 import {mkdir,writeFile} from 'node:fs/promises';
 import crypto from 'node:crypto';
 
-const PROJECT='juzxriirhkuzviwnhkbd';
+// Never run destructive test fixtures against the live ENJAZ project.
+// Obtain ENJAZ_A2_BRANCH_REF from the connected project's list_branches
+// result and obtain ALL API credentials from that isolated branch only.
+const PRODUCTION_PROJECT='juzxriirhkuzviwnhkbd';
 const MARKER='phase13_4_a2_readback_real_cloud';
 const DIR='artifacts/phase13-4-a2-real-cloud';
 const OUT=DIR+'/evidence.json';
 const required=name=>{const value=process.env[name]?.trim();if(!value)throw new Error('Missing '+name);return value};
+const branchRef=required('ENJAZ_A2_BRANCH_REF');
 const url=required('SUPABASE_URL').replace(/\/$/,'');
 const pub=required('SUPABASE_PUBLISHABLE_KEY');
 const secret=required('SUPABASE_SECRET_KEY');
-if(process.env.ENJAZ_REAL_CLOUD_CONFIRM!=='YES' || !url.endsWith(PROJECT+'.supabase.co') ||
-   secret===pub || secret.startsWith('sb_publishable_')) throw new Error('13.4 A2 cloud safety guard');
+if(process.env.ENJAZ_REAL_CLOUD_CONFIRM!=='YES' ||
+   process.env.ENJAZ_A2_ISOLATED_BRANCH_CONFIRM!=='YES' ||
+   !/^[a-z0-9]{20}$/.test(branchRef) || branchRef===PRODUCTION_PROJECT ||
+   url!==`https://${branchRef}.supabase.co` ||
+   secret===pub || secret.startsWith('sb_publishable_'))
+  throw new Error('13.4 A2 isolated branch-only safety guard');
 
 const admin=createClient(url,secret,{auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}});
 const make=()=>createClient(url,pub,{auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}});
 const users=[],createdWorkspaces=new Set(),pendingWorkspaces=new Set();
-const evidence={schema:'enjaz.phase13-4.a2.real-cloud.v1',projectRef:PROJECT,
+const evidence={schema:'enjaz.phase13-4.a2.real-cloud.v1',projectRef:branchRef,productionProjectRef:PRODUCTION_PROJECT,
   startedAt:new Date().toISOString(),completedAt:null,passed:false,checks:[],cleanup:[],cleanupPassed:false};
 const uuid=()=>crypto.randomUUID();
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
