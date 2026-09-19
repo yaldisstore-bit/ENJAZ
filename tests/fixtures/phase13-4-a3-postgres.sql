@@ -282,9 +282,41 @@ begin
  raise notice 'PASS A3 isolated ledger restoration never repairs missing imported row';
 end $;
 
+-- 5000-item A3 comparison must inspect ALL manifest entries without pagination,
+-- and 5001-item hash-bound requests must fail closed. These ledger/manifest
+-- pairs were created by the preceding disposable A2 SQL fixture.
+reset role;
+grant select on fixture.large to authenticated;
+set role authenticated;
+set request.jwt.claim.sub='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $
+declare r jsonb; doc jsonb; batch uuid; invalid_result jsonb;
+begin
+ select l.doc,l.batch_id into doc,batch from fixture.large l
+ where l.batch_id='88888888-8888-4888-8888-888888888888';
+ r=public.compare_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',batch,
+ 'a2-large-'||batch::text,doc);
+ if r is null or r->>'rowCount'<>'5000' or
+   r->>'matchedCount'<>'0' or r->>'mismatchCount'<>'5000' or
+   jsonb_array_length(r->'rows')<>5000 or
+   r->'rows'->4999->>'ordinal'<>'5000' or
+   r->'rows'->4999->'differenceCodes' <> '["MISSING_TARGET"]'::jsonb or
+   r->>'allMatchedAtSnapshot'<>'false' or r->>'closureAuthorized'<>'false'
+ then raise exception 'A3 FAILED: 5000 missing expected rows truncated or falsely matched'; end if;
+ select l.doc,l.batch_id into doc,batch from fixture.large l
+ where l.batch_id='99999999-9999-4999-8999-999999999999';
+ invalid_result=public.compare_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',batch,
+ 'a2-large-'||batch::text,doc);
+ if invalid_result is not null
+ then raise exception 'A3 FAILED: 5001 item request returned comparison'; end if;
+ raise notice 'PASS A3 isolated bulk 5000 complete comparison and hash-bound 5001 denial';
+end $;
+
 reset role;
 set role anon;
-do $$
+do $
 begin
  begin
  perform public.compare_legacy_import_reconciliation_v1(
