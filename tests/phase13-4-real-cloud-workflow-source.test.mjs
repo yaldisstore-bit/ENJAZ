@@ -11,6 +11,9 @@ test('Phase 13.4 hosted certification is manual-only and never production-trigge
   assert.match(workflow,/\bon:\s*\n\s+workflow_dispatch:/);
   assert.doesNotMatch(workflow,/\n\s+(?:push|pull_request|schedule):/);
   assert.ok(workflow.includes('PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd'));
+  assert.ok(workflow.includes('test "${GITHUB_REF_TYPE}" = "branch"'));
+  assert.ok(workflow.includes('test "${GITHUB_REF_NAME}" != "main"'));
+  assert.ok(workflow.includes('[[ "${GITHUB_REF_NAME}" == phase13-4-* ]]'));
   assert.ok(workflow.includes('test "${ENJAZ_A2_BRANCH_REF}" != "${PRODUCTION_PROJECT_REF}"'));
   assert.ok(workflow.includes('test "${SUPABASE_URL}" = "https://${ENJAZ_A2_BRANCH_REF}.supabase.co"'));
   assert.ok(workflow.includes('test "${SUPABASE_URL}" != "https://${PRODUCTION_PROJECT_REF}.supabase.co"'));
@@ -33,7 +36,7 @@ test('Phase 13.4 hosted certification needs explicit confirmations and branch-on
 });
 
 test('preflight precedes all network/database mutation and only reviewed A2/A3 source is installed',()=>{
-  const preflight=workflow.indexOf('Fail closed before any network call');
+  const preflight=workflow.indexOf('Fail closed before any Supabase or database call');
   const a2=workflow.indexOf('--file=database/migrations/phase_13_4_reconciliation_readback.sql');
   const a3=workflow.indexOf('--file=database/migrations/phase_13_4_a3_trusted_comparison.sql');
   const harness=workflow.indexOf('node scripts/phase13-4-a2-real-cloud-e2e.mjs');
