@@ -29,7 +29,7 @@ Production A2/A3 reconciliation functions inherited from Phase 13.4 are read-onl
 A1 attacks the source contracts before any destructive hosted run:
 
 - expanded-model target escape into documents, workflow/procedure state, ownership/governance or other M1–M18 tables;
-- unknown legacy types and undeclared relationship vocabulary;
+- unknown legacy concepts/types and undeclared relationship vocabulary;
 - count ceilings and 5001-record/item overflow;
 - orphan/dangling relations;
 - duplicate source keys and duplicate caller-supplied target IDs;
