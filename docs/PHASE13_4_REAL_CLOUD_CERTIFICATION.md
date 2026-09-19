@@ -58,6 +58,7 @@ Regardless of test success or failure, cleanup must run in `finally` and prove:
 - every synthetic workspace created by the harness is absent;
 - related `import_jobs`, `contacts`, `companies`, and `transactions` rows are zero;
 - every synthetic auth user is deleted and absent;
+- a final Auth admin marker sweep finds no user carrying the Phase 13.4 test marker;
 - cleanup evidence has `cleanupPassed=true`;
 - the evidence artifact records the branch ref, start/end timestamps, every named check, cleanup checks, and final pass/failure.
 
