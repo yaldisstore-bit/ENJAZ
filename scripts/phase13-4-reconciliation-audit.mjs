@@ -22,7 +22,7 @@ req(predecessor.status === 'CLOSED' && predecessor.closureDecision === 'PASS' &&
 
 req(s.phase === '13.4' && s.status === 'IN_PROGRESS' &&
   s.mode === 'EXPLICIT_RECONCILIATION_NO_AUTOMATED_REPAIR' &&
-  s.currentSlice === 'A3_HOSTED_DB_RLS_VERIFIED_AUTH_API_PENDING' &&
+  s.currentSlice === 'IMPLEMENTATION_REAL_CLOUD_CERTIFIED_AWAITING_EXACT_HEAD_AND_MAIN' &&
   s.a1Status === 'CERTIFIED_MERGED_MAIN',
   'Phase 13.4 canonical lifecycle or current slice invalid');
 
@@ -33,7 +33,7 @@ req(s.baseCommit === 'ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584' &&
   'Phase 13.4 predecessor/A1 merged lineage not pinned');
 
 req(s.successorPhase === '13.5' && s.successorStatus === 'LOCKED' && s.phase13_5Allowed === false &&
-  s.exitGatePassed === false && s.closureDecision === 'PENDING_AUTH_API_CERTIFICATION' &&
+  s.exitGatePassed === false && s.closureDecision === 'IMPLEMENTATION_PASS_PENDING_EXACT_HEAD_AND_MAIN_RECERTIFICATION' &&
   s.closureEvidence === null,
   'Phase 13.4 must never pre-authorize 13.5 before isolated Real Cloud closure');
 
@@ -54,12 +54,12 @@ req(s.sourceProposalHead === 'cc73ea547f448ccdec9457ab46ae9928ebc1ab92' &&
   ['RUNNING_CURRENT_HEAD','SUCCESS'].includes(s.sourceProposalPhase13_4GateStatus),
   'A2/A3 optimized source lineage or last fully-drained source inventory drifted');
 
-req(s.a2Status === 'HOSTED_DB_RLS_VERIFIED_AUTH_API_PENDING' &&
+req(s.a2Status === 'REAL_CLOUD_CERTIFIED_IMPLEMENTATION' &&
   s.a2PostgresPassCount === 16 && s.a2ActualReadbackAllowed === false &&
   s.a2ProductionFunctionInstalled === false,
   'A2 source/PostgreSQL/hosted-DB/Auth lifecycle invalid');
 
-req(s.a3Status === 'HOSTED_DB_RLS_VERIFIED_AUTH_API_PENDING' &&
+req(s.a3Status === 'REAL_CLOUD_CERTIFIED_IMPLEMENTATION' &&
   s.a3PostgresPassCount === 17 && s.a3ProductionFunctionInstalled === false &&
   s.a3RemediationAllowed === false &&
   s.a3HostedResourceDefectFoundAndFixed === true &&
@@ -68,7 +68,7 @@ req(s.a3Status === 'HOSTED_DB_RLS_VERIFIED_AUTH_API_PENDING' &&
   'A3 hosted safety/performance lifecycle invalid');
 
 req(s.isolatedRealCloudRequired === true &&
-  s.isolatedRealCloudStatus === 'HOSTED_DB_RLS_PASS_AUTH_API_SAFE_INVOKE_PENDING' &&
+  s.isolatedRealCloudStatus === 'PASS_DB_RLS_AUTH_API_ZERO_RESIDUE' &&
   s.supabaseDevelopmentBranchAvailable === false &&
   s.supabaseDevelopmentBranchBlocker === 'FREE_PLAN_REQUIRES_PRO' &&
   s.isolatedLabProjectRef === 'nqhgaukutkyvfumbtbtg' &&
@@ -81,12 +81,18 @@ req(s.isolatedRealCloudRequired === true &&
   s.hostedDbRlsSecurityAdvisorLints === 0 &&
   s.hostedDbRlsMaxItemsPassed === 5000 &&
   s.hostedDbRlsOverLimitDenied === 5001 &&
-  s.authApiCertificationStatus === 'PENDING_SAFE_INVOKE_TRANSPORT' &&
+  s.authApiCertificationStatus === 'PASS_REAL_USER_TOKEN_TRANSPORT' &&
+  s.authApiFunctionalPassed === true && s.authApiCleanupPassed === true &&
+  s.authApiCheckCount === 10 && s.authApiPassCount === 10 && s.authApiFailCount === 0 &&
+  s.authApiHttpStatus === 200 && s.authApiMarkedUserResidueCount === 0 &&
+  s.authApiInvokeTableRemoved === true && s.authApiFinalDisabledFunctionVersion === 4 &&
+  s.authApiFinalVerifyJwt === true && s.authApiFinalEndpointStatus === '410_GONE' &&
   s.productionSupabaseModifiedByPhase13_4 === false &&
   s.livePrivilegeInventoryReadOnlyVerified === true,
   'Hosted Supabase DB/RLS evidence, Auth-API gap, or production-safety state drifted');
 req(s.realCloudCertificationPlan === 'docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md' &&
-  exists(s.realCloudCertificationPlan),
+  exists(s.realCloudCertificationPlan) && s.implementationEvidence === 'docs/PHASE13_4_IMPLEMENTATION_CERTIFICATE.md' &&
+  exists(s.implementationEvidence),
   'Real Cloud certification runbook missing from canonical state');
 req(exists('.github/workflows/phase13-4-real-cloud-certification.yml') &&
   exists('tests/phase13-4-real-cloud-workflow-source.test.mjs'),
@@ -102,11 +108,11 @@ req(s.javascriptBudgetBytes === 670000 && s.totalJavascriptBudgetBytes === 76000
   s.cssBudgetBytes === 180000 && s.budgetIncreaseAllowed === false,
   'Phase 13.4 cannot raise frozen client performance ceilings');
 
-req(s.projectQualityConstitution?.decision === 'IN_PROGRESS' &&
-  s.projectQualityConstitution.tracks.product === 'IN_PROGRESS' &&
+req(s.projectQualityConstitution?.decision === 'IN_PROGRESS_FORMAL_CLOSURE_PENDING' &&
+  s.projectQualityConstitution.tracks.product === 'PASS_IMPLEMENTATION' &&
   s.projectQualityConstitution.tracks.uiUx === 'PASS_NO_CLIENT_DELTA' &&
-  s.projectQualityConstitution.tracks.engineering === 'PASS_SOURCE_DISPOSABLE_POSTGRES_AND_HOSTED_DB_RLS' &&
-  s.projectQualityConstitution.tracks.certification === 'IN_PROGRESS_AUTH_API_PENDING',
+  s.projectQualityConstitution.tracks.engineering === 'PASS_SOURCE_DISPOSABLE_POSTGRES_HOSTED_DB_RLS_AUTH_API' &&
+  s.projectQualityConstitution.tracks.certification === 'PASS_REAL_CLOUD_IMPLEMENTATION_PENDING_EXACT_HEAD_AND_MAIN',
   'Phase 13.4 quality tracks must distinguish source engineering from cloud certification');
 
 for (const marker of [
@@ -127,10 +133,10 @@ for (const marker of [
 ]) has(contract, marker, 'A1 contract');
 
 has(roadmap,
-  '## 13.4 — Reconciliation — IN_PROGRESS / HOSTED DB-RLS VERIFIED / AUTH API PENDING',
+  '## 13.4 — Reconciliation — IN_PROGRESS / REAL CLOUD IMPLEMENTATION CERTIFIED / FORMAL CLOSURE PENDING',
   'roadmap');
 has(readme,
-  'Phase 13.4 — Reconciliation 🟡 IN PROGRESS / HOSTED DB-RLS VERIFIED / AUTH API PENDING',
+  'Phase 13.4 — Reconciliation 🟡 IN PROGRESS / REAL CLOUD IMPLEMENTATION CERTIFIED / FORMAL CLOSURE PENDING',
   'README');
 
 req(exists('database/migrations/phase_13_4_reconciliation_readback.sql') &&
@@ -145,5 +151,5 @@ if (errors.length) {
   for (const error of errors) console.error('- ' + error);
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 13.4 AUDIT PASS — hosted Supabase DB/RLS + zero-residue verified; Auth API transport pending; production untouched; Phase 13.5 locked.');
+  console.log('ENJAZ PHASE 13.4 AUDIT PASS — hosted DB/RLS + real Auth-token transport + zero-residue verified; implementation PASS; formal exact-head/main closure pending; production untouched; Phase 13.5 locked.');
 }

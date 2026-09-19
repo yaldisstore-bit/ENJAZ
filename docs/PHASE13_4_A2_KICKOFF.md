@@ -1,6 +1,6 @@
 # Phase 13.4 — A2 Authenticated Readback — Source Proposal
 
-**Status:** SOURCE + DISPOSABLE POSTGRES + HOSTED DB/RLS VERIFIED / PRODUCTION NOT DEPLOYED / AUTH API PENDING.
+**Status:** SOURCE + DISPOSABLE POSTGRES + HOSTED DB/RLS + REAL AUTH TOKEN VERIFIED / IMPLEMENTATION PASS / PRODUCTION NOT DEPLOYED.
 **Base:** A1 PR #213 merged into main as 03934f9a07746096eee9784b8832f5f302ffd58a.
 **Whole phase:** 13.4 IN_PROGRESS; 13.5 LOCKED.
 
@@ -25,7 +25,7 @@ Production remains untouched: no Phase 13.4 function is deployed to the live ENJ
 
 ## Expanded isolated A2 test coverage
 
-The draft Auth-API harness checks contact source-lineage and field drift followed by exact restoration, and independently reports disappearing transactions, companies and contacts across all three stages. The corresponding database/RLS behaviors have now been executed in the isolated Supabase lab; Auth Admin user creation and real token transport through the Node harness remain pending.
+The draft Auth-API harness checks contact source-lineage and field drift followed by exact restoration, and independently reports disappearing transactions, companies and contacts across all three stages. The corresponding database/RLS behaviors and real Auth user/token transport have now been executed in the isolated Supabase lab with zero residue; formal phase closure still requires exact PR-head, merge and exact-main recertification.
 
 ## SQL-level testing without touching production
 

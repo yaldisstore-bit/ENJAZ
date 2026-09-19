@@ -1,6 +1,6 @@
 # Phase 13.4 — Isolated Supabase Real Cloud Certification Plan
 
-**Status:** HOSTED DB/RLS VERIFIED / AUTH-API TRANSPORT PENDING  
+**Status:** REAL CLOUD IMPLEMENTATION CERTIFIED / FORMAL CLOSURE PENDING  
 **Production project ref:** `juzxriirhkuzviwnhkbd` — MUST NOT be used by the destructive harness.  
 **Successor:** Phase 13.5 remains **LOCKED** until this plan produces successful authenticated hosted evidence and formal closure.
 
@@ -22,7 +22,7 @@ Creating a Supabase development branch was cost-checked and explicitly approved 
 
 The committed GitHub `workflow_dispatch` file is a **post-merge/re-certification convenience**, because GitHub manual-dispatch workflows must be available from the repository default branch before the UI/API can dispatch them reliably. It must not be treated as the pre-merge certification mechanism for this draft PR.
 
-Pre-merge Auth-API certification still uses the reviewed `scripts/phase13-4-a2-real-cloud-e2e.mjs` harness with credentials from an explicitly isolated Supabase environment. The preferred path is a development branch on Pro+; the Free-plan fallback is a separate disposable project. No production credential may substitute for an isolated secret. The separate project has already completed Hosted DB/RLS certification. A lab-only `verify_jwt=true` Edge Function proved that an internal service credential is available to hosted functions, but the current tool surface provides no safe supported invocation path for that protected function. Credential-in-SQL and JWT-disabled invocation attempts were blocked and were not bypassed. The temporary function was replaced with a fixed `410 Gone` response and zero Auth/data residue was re-verified. Phase 13.4 therefore remains open rather than downgrading the Auth-API requirement.
+The Free-plan fallback isolated project completed both hosted DB/RLS certification and real Auth-token transport certification. The Auth certificate used a temporary `@supabase/server` publishable-authenticated Edge Function, with the service credential remaining inside Supabase-managed runtime secrets. Its HTTP certificate returned `passed=true`, `functionalPassed=true`, and `cleanupPassed=true`; the Function was then replaced with a fixed 410/verify-JWT implementation and final zero-residue was re-verified. Phase 13.4 remains open only for exact PR-head, merge and exact-main/deployed-live formal closure gates.
 
 ## Hard isolation prerequisites
 
@@ -41,7 +41,7 @@ Pre-merge Auth-API certification still uses the reviewed `scripts/phase13-4-a2-r
 
 The disposable project `nqhgaukutkyvfumbtbtg` has already passed the database/RLS portion of this plan. Evidence is recorded in [`PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`](PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md), including owner/member/outsider/anon boundaries, real Phase 13.3 import, destructive drift/tamper cases, zero residue, 5000-item hosted comparison after A3 rowset alignment, 5001 fail-closed, and zero Supabase security-advisor lints.
 
-This is not a substitute for the remaining Auth-API transport certificate.
+The separate Auth-API transport certificate has also passed; together these artifacts form the Real Cloud implementation certificate.
 
 ## Required authenticated hosted checks
 
@@ -79,6 +79,6 @@ If cleanup is incomplete, Phase 13.4 remains open even if all functional asserti
 
 ## Certification decision
 
-Only after authenticated hosted checks and zero-residue cleanup pass may A2/A3 be labeled Real Cloud certified. That still does not authorize automatic repair. Formal Phase 13.4 closure must then update the canonical state, produce closure evidence, merge to main, and complete exact-main/deployed-live recertification before Phase 13.5 is unlocked.
+Authenticated hosted checks and zero-residue cleanup have passed, so A2/A3 are now labeled Real Cloud implementation-certified. That still does not authorize automatic repair. Formal Phase 13.4 closure must then update the canonical state, produce closure evidence, merge to main, and complete exact-main/deployed-live recertification before Phase 13.5 is unlocked.
 
-**Until then:** production unchanged, PR remains draft, Phase 13.4 remains IN_PROGRESS, Phase 13.5 remains LOCKED.
+**Current gate:** production unchanged, Phase 13.4 remains IN_PROGRESS until exact-head/merge/exact-main formal closure, and Phase 13.5 remains LOCKED.

@@ -1,6 +1,6 @@
 # Phase 13.4 — Hosted Supabase DB/RLS Evidence
 
-**Status:** HOSTED DB/RLS VERIFIED / AUTH-API TRANSPORT PENDING  
+**Status:** REAL CLOUD IMPLEMENTATION CERTIFIED / FORMAL CLOSURE PENDING  
 **Production project ref:** `juzxriirhkuzviwnhkbd` — unchanged by this evidence.  
 **Isolated lab project ref:** `nqhgaukutkyvfumbtbtg`  
 **Region / engine:** `eu-central-1` / PostgreSQL 17.6  
@@ -115,18 +115,54 @@ Supabase security advisors: **0 lints**.
 
 Only reviewed schema/functions and migration history remain in the disposable lab.
 
-## Remaining certification gap
+## Auth API / real-user-token certificate
 
-This evidence is a real hosted Supabase PostgreSQL/RLS certificate, but it is **not yet the Auth-API transport certificate** required by the original branch-only Node harness.
+A final hosted Auth transport certificate was executed on the same isolated project without exposing any service-role credential outside Supabase.
 
-The connected Supabase tooling exposes the lab URL and publishable/anon keys but does not expose an Auth-admin invocation primitive. A temporary lab-only Edge Function was deployed with `verify_jwt=true`; its runtime can access the lab service credential internally, but this session has no safe supported way to invoke that protected function with a JWT. Attempts to place credentials into SQL or disable JWT verification were blocked by security controls and were not bypassed. The function was immediately replaced by a fixed `410 Gone` implementation with `verify_jwt=true`, and a final residue check confirmed **0** marked Auth users and **0** fixture rows. No production credential was used or permitted.
+The certificate used a temporary Edge Function authenticated with Supabase's current `@supabase/server` `auth: "publishable"` boundary. The public low-privilege publishable key was supplied on the `apikey` header through `pg_net`; the function obtained its isolated-project admin client only from Supabase-managed runtime secrets.
+
+The invocation returned **HTTP 200** with schema `enjaz.phase13-4.auth-api-edge-certificate.v2`, `passed=true`, `functionalPassed=true`, and `cleanupPassed=true`. It executed **10/10 PASS checks**:
+
+- real Auth users were created and signed in;
+- owner JWT missing-job A2/A3 fail-closed;
+- anonymous A2/A3 RPC execution denied;
+- outsider JWT cannot read or compare the owner workspace;
+- owner JWT executes the real Phase 13.3 ordered-import RPC;
+- owner JWT receives the exact A2 readback;
+- owner JWT receives clean A3 snapshot equality with no closure authority;
+- same-workspace member can see the base ledger through RLS but cannot bypass canonical-owner A2/A3;
+- forged manifest fails closed under a real owner token;
+- exact replay remains idempotent under a real owner token.
+
+After the response, the temporary certificate Function was replaced by version **4** returning fixed **410 Gone** with `verify_jwt=true`. The temporary invocation table was dropped.
+
+Final read-only residue verification reports:
+
+- marked Auth users: **0**
+- workspaces: **0**
+- workspace memberships: **0**
+- import jobs: **0**
+- contacts: **0**
+- companies: **0**
+- transactions: **0**
+- temporary invoke table: **absent**
+- Supabase security-advisor lints: **0**
+- Supabase performance-advisor lints: **0**
+
+No production credential or production mutation was used.
+
+## Implementation certification decision
+
+Combined source, disposable PostgreSQL, hosted DB/RLS/adversarial/limit and real Auth-token transport evidence now satisfies the Phase 13.4 implementation certificate.
 
 Therefore:
 
 - Hosted DB/RLS: **PASS**
+- Auth API / real user token transport: **PASS**
 - source + disposable PostgreSQL: **PASS**
+- 5000 accepted / 5001 fail-closed: **PASS**
 - zero residue: **PASS**
-- Auth-API / real user token transport: **PENDING SAFE INVOCATION TRANSPORT**
-- production deployment: **NOT AUTHORIZED**
+- production deployment: **NOT AUTHORIZED BY THIS IMPLEMENTATION CERTIFICATE**
 - automatic repair: **NOT AUTHORIZED**
+- formal Phase 13.4 closure: **PENDING exact PR-head gates, implementation merge, exact-main/deployed-live recertification**
 - Phase 13.5: **LOCKED**
