@@ -30,7 +30,9 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
       - name: Canonical locked dependency high-severity audit
-        run: npm audit --audit-level=high
+        run: |
+          node --test tests/npm-audit-high-certified-fallback.test.mjs
+          node scripts/npm-audit-high-certified-fallback.mjs
       - name: Preserve governed Phase 10.6 contract
         run: |
           node scripts/phase10-6-documents-zero-escape-audit.mjs
