@@ -135,5 +135,14 @@
   "authApiFinalEndpointStatus": "410_GONE",
   "authApiInvokeTableRemoved": true,
   "implementationEvidence": "docs/PHASE13_4_IMPLEMENTATION_CERTIFICATE.md",
-  "realCloudVerification": "PASS_ISOLATED_PROJECT_DB_RLS_AUTH_API_ZERO_RESIDUE"
+  "realCloudVerification": "PASS_ISOLATED_PROJECT_DB_RLS_AUTH_API_ZERO_RESIDUE",
+  "hostedRlsProductionPolicyCount": 15,
+  "hostedRlsLabPolicyCount": 15,
+  "hostedRlsExactPolicyParity": true,
+  "hostedRlsRoleClaimEnforcementVerified": true,
+  "hostedRlsPolicyParityMigrations": [
+    "phase13_4_lab_full_source_rls_policy_parity",
+    "phase13_4_hosted_rls_role_claim_enforcement_certificate",
+    "phase13_4_hosted_exact_rls_policy_parity_certificate"
+  ]
 }
