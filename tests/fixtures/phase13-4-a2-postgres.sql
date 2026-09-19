@@ -13,6 +13,7 @@ create function auth.uid() returns uuid language sql stable
 as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
 
 create table public.workspaces(id uuid primary key, owner_user_id uuid not null);
+create table public.workspace_memberships(workspace_id uuid not null, user_id uuid not null);
 create table public.import_jobs(
   id uuid primary key, workspace_id uuid not null, status text not null,
   counts jsonb not null, reconciliation jsonb not null,
@@ -39,6 +40,10 @@ create table fixture.original(doc jsonb not null, counts jsonb not null, reconci
 
 insert into public.workspaces values
  ('11111111-1111-4111-8111-111111111111','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),
+ ('22222222-2222-4222-8222-222222222222','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
+insert into public.workspace_memberships values
+ ('11111111-1111-4111-8111-111111111111','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),
+ ('11111111-1111-4111-8111-111111111111','cccccccc-cccc-4ccc-8ccc-cccccccccccc'),
  ('22222222-2222-4222-8222-222222222222','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
 insert into public.contacts(id,workspace_id,legacy_source,legacy_id,status,display_name,contact_type) values
  ('33333333-3333-4333-8333-333333333333','11111111-1111-4111-8111-111111111111','phase13.3','contact:a2','active','Test Contact','client');
@@ -80,20 +85,20 @@ as $$ select (select auth.uid()) is not null
 revoke all on function private.is_workspace_owner(uuid) from public,anon;
 grant usage on schema auth,private,extensions,fixture to authenticated;
 grant execute on function auth.uid(),private.is_workspace_owner(uuid) to authenticated;
-grant select on public.workspaces,public.import_jobs,public.contacts,public.companies,
-  public.transactions,fixture.original to authenticated;
+grant select on public.workspaces,public.workspace_memberships,public.import_jobs,
+  public.contacts,public.companies,public.transactions,fixture.original to authenticated;
 alter table public.import_jobs enable row level security;
 alter table public.contacts enable row level security;
 alter table public.companies enable row level security;
 alter table public.transactions enable row level security;
 create policy owner_read on public.import_jobs for select to authenticated using (
- exists(select 1 from public.workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())));
+ workspace_id in (select wm.workspace_id from public.workspace_memberships wm where wm.user_id=(select auth.uid())));
 create policy owner_read on public.contacts for select to authenticated using (
- exists(select 1 from public.workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())));
+ workspace_id in (select wm.workspace_id from public.workspace_memberships wm where wm.user_id=(select auth.uid())));
 create policy owner_read on public.companies for select to authenticated using (
- exists(select 1 from public.workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())));
+ workspace_id in (select wm.workspace_id from public.workspace_memberships wm where wm.user_id=(select auth.uid())));
 create policy owner_read on public.transactions for select to authenticated using (
- exists(select 1 from public.workspaces w where w.id=workspace_id and w.owner_user_id=(select auth.uid())));
+ workspace_id in (select wm.workspace_id from public.workspace_memberships wm where wm.user_id=(select auth.uid())));
 
 -- Compile the actual, unmodified A2 migration in a fresh PostgreSQL instance.
 \i database/migrations/phase_13_4_reconciliation_readback.sql
@@ -141,9 +146,24 @@ begin
  raise notice 'PASS A2 ephemeral PostgreSQL outsider denied';
 end $$;
 
+set request.jwt.claim.sub = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+do $
+declare r jsonb; accessible integer;
+begin
+ select count(*) into accessible from public.import_jobs
+ where workspace_id='11111111-1111-4111-8111-111111111111';
+ if accessible<>1 then raise exception 'A2 FAILURE: non-owner test member lacks baseline RLS access'; end if;
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '66666666-6666-4666-8666-666666666666',
+ 'a2-fixture-2026',doc) into r from fixture.original;
+ if r is not null then raise exception 'A2 FAILURE: same-workspace non-owner readback visible'; end if;
+ raise notice 'PASS A2 ephemeral PostgreSQL workspace member cannot bypass owner-only readback';
+end $;
+
 reset role;
 set role anon;
-do $$ begin
+do $ begin
  begin
   perform public.read_legacy_import_reconciliation_v1(
   '11111111-1111-4111-8111-111111111111',
