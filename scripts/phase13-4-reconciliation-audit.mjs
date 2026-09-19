@@ -81,6 +81,9 @@ req(s.isolatedRealCloudRequired === true &&
   s.hostedDbRlsSecurityAdvisorLints === 0 &&
   s.hostedDbRlsMaxItemsPassed === 5000 &&
   s.hostedDbRlsOverLimitDenied === 5001 &&
+  s.hostedRlsProductionPolicyCount === 15 && s.hostedRlsLabPolicyCount === 15 &&
+  s.hostedRlsExactPolicyParity === true && s.hostedRlsRoleClaimEnforcementVerified === true &&
+  Array.isArray(s.hostedRlsPolicyParityMigrations) && s.hostedRlsPolicyParityMigrations.length === 3 &&
   s.authApiCertificationStatus === 'PASS_REAL_USER_TOKEN_TRANSPORT' &&
   s.authApiFunctionalPassed === true && s.authApiCleanupPassed === true &&
   s.authApiCheckCount === 10 && s.authApiPassCount === 10 && s.authApiFailCount === 0 &&
