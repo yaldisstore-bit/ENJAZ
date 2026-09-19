@@ -540,6 +540,16 @@ async function cleanup(){
       evidence.cleanup.push({kind:'auth_user_zero_residue',passed:true});
     }catch(e){ok=false;evidence.cleanup.push({kind:'auth_user_zero_residue',passed:false,error:errText(e)})}
   }
+  try{
+    const listed=await admin.auth.admin.listUsers({page:1,perPage:1000});
+    if(listed.error)throw listed.error;
+    if((listed.data?.users??[]).some(user=>user.user_metadata?.enjaz_test_marker===MARKER))
+      throw new Error('phase13.4 marked auth user residue');
+    evidence.cleanup.push({kind:'auth_marker_sweep_zero_residue',passed:true});
+  }catch(e){
+    ok=false;
+    evidence.cleanup.push({kind:'auth_marker_sweep_zero_residue',passed:false,error:errText(e)});
+  }
   evidence.cleanupPassed=ok;
 }
 let fatal=null;
