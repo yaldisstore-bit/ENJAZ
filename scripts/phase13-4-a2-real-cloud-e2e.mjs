@@ -100,6 +100,8 @@ const params=m=>({
   p_idempotency_key:m.idempotencyKey,p_manifest:m
 });
 const read=(client,m)=>client.rpc('read_legacy_import_reconciliation_v1',params(m));
+const compare=(client,m)=>client.rpc('compare_legacy_import_reconciliation_v1',params(m));
+const hasCode=(report,ordinal,code)=>report?.rows?.[ordinal-1]?.differenceCodes?.includes(code)===true;
 const importProbe=(client,m)=>client.rpc('execute_legacy_ordered_import_v1',params(m));
 const clone=value=>structuredClone(value);
 
@@ -112,14 +114,25 @@ async function test(){
   const missingJob=await read(owner.client,m);
   if(missingJob.error)throw missingJob.error;
   failIf(missingJob.data!==null,'missing_import_job_fails_closed');
+  const missingComparison=await compare(owner.client,m);
+  failIf(Boolean(missingComparison.error)||missingComparison.data!==null,
+    'a3_missing_import_job_never_yields_comparison');
 
   const anonymous=await read(make(),m);
   failIf(!anonymous.error,'anonymous_execution_denied',errText(anonymous.error));
+  const anonymousCompare=await compare(make(),m);
+  failIf(!anonymousCompare.error,'a3_anonymous_execution_denied',errText(anonymousCompare.error));
 
   const outsider=await read(other.client,m);
   failIf(Boolean(outsider.error)||outsider.data!==null,'outsider_cannot_read_owner_ledger');
+  const outsiderComparison=await compare(other.client,m);
+  failIf(Boolean(outsiderComparison.error)||outsiderComparison.data!==null,
+    'a3_outsider_cannot_compare_owner_ledger');
   const unrelated=await read(owner.client,{...m,workspaceId:foreignWs});
   failIf(Boolean(unrelated.error)||unrelated.data!==null,'owner_cannot_read_foreign_workspace');
+  const unrelatedCompare=await compare(owner.client,{...m,workspaceId:foreignWs});
+  failIf(Boolean(unrelatedCompare.error)||unrelatedCompare.data!==null,
+    'a3_owner_cannot_compare_foreign_workspace');
 
   const inserted=await importProbe(owner.client,m);
   if(inserted.error)throw inserted.error;
@@ -134,6 +147,17 @@ async function test(){
   failIf(data.job?.status!=='succeeded'||data.job.counts?.total!==3,'successful_ledger_required');
   failIf(data.expectedRowCount!==3||data.observedRows?.length!==3,'complete_one_snapshot_readback');
   failIf(data.reconciled!==false||data.mutated!==false,'no_premature_equivalence_or_mutation');
+  const cleanComparison=await compare(owner.client,m);
+  if(cleanComparison.error)throw cleanComparison.error;
+  failIf(cleanComparison.data?.schema!=='enjaz.legacy.reconciliation.comparison.v1'||
+    cleanComparison.data?.rowCount!==3||cleanComparison.data?.matchedCount!==3||
+    cleanComparison.data?.mismatchCount!==0||
+    cleanComparison.data?.allMatchedAtSnapshot!==true||
+    cleanComparison.data?.rows?.some(r=>r.differenceCodes?.length!==0)||
+    cleanComparison.data?.reconciled!==false||
+    cleanComparison.data?.closureAuthorized!==false||
+    cleanComparison.data?.mutated!==false,
+    'a3_actual_phase13_3_import_matches_only_at_snapshot_without_closure');
   const rows=data.observedRows;
   failIf(rows.some((r,i)=>r.ordinal!==i+1||r.found!==true||
     r.targetId!==m.items[i].targetId||r.sourceKey!==m.items[i].sourceKey||
@@ -174,6 +198,9 @@ async function test(){
   const memberReadback=await read(other.client,m);
   failIf(Boolean(memberReadback.error)||memberReadback.data!==null,
     'same_workspace_member_cannot_bypass_canonical_owner_readback');
+  const memberComparison=await compare(other.client,m);
+  failIf(Boolean(memberComparison.error)||memberComparison.data!==null,
+    'a3_same_workspace_member_cannot_compare_as_canonical_owner');
 
   // Alter ONLY fresh test rows. A2 must expose drift, not silently attest or repair it.
   const {data:changedCompany,error:companyError}=await admin.from('companies')
@@ -187,6 +214,12 @@ async function test(){
     changedFk.data?.observedRows?.[1]?.found!==true||
     changedFk.data?.reconciled!==false,
     'changed_fk_visible_without_silent_reconciliation');
+  const fkComparison=await compare(owner.client,m);
+  if(fkComparison.error)throw fkComparison.error;
+  failIf(fkComparison.data?.allMatchedAtSnapshot!==false||
+    fkComparison.data?.mismatchCount!==1||!hasCode(fkComparison.data,2,'RELATIONSHIP_DRIFT')||
+    fkComparison.data?.closureAuthorized!==false,
+    'a3_changed_company_fk_detected_without_closure');
   const {data:restoredCompany,error:restoreCompanyError}=await admin.from('companies')
     .update({primary_contact_id:p.ids.contactId}).eq('id',p.ids.companyId)
     .eq('workspace_id',ws).select('id');
@@ -203,6 +236,11 @@ async function test(){
   failIf(changedMoney.data?.observedRows?.[2]?.record?.fields?.current_fee_decimal!=='140.25'||
     changedMoney.data?.reconciled!==false,
     'changed_money_visible_as_exact_decimal_without_reconciliation');
+  const moneyComparison=await compare(owner.client,m);
+  if(moneyComparison.error)throw moneyComparison.error;
+  failIf(moneyComparison.data?.allMatchedAtSnapshot!==false||
+    moneyComparison.data?.mismatchCount!==1||!hasCode(moneyComparison.data,3,'MONEY_DRIFT'),
+    'a3_changed_transaction_money_detected');
   const {data:restoredTransaction,error:restoreFeeError}=await admin.from('transactions')
     .update({current_fee:135.25}).eq('id',p.ids.transactionId)
     .eq('workspace_id',ws).select('id');
@@ -228,6 +266,13 @@ async function test(){
     changedLineage.data?.observedRows?.[0]?.sourceKey!==m.items[0].sourceKey||
     changedLineage.data?.reconciled!==false,
     'changed_source_lineage_and_fields_exposed_without_auto_repair');
+  const lineageComparison=await compare(owner.client,m);
+  if(lineageComparison.error)throw lineageComparison.error;
+  failIf(lineageComparison.data?.allMatchedAtSnapshot!==false||
+    lineageComparison.data?.mismatchCount!==1||
+    !hasCode(lineageComparison.data,1,'IDENTITY_DRIFT')||
+    !hasCode(lineageComparison.data,1,'FIELD_DRIFT'),
+    'a3_source_lineage_and_normalized_fields_detected');
   const {data:restoredContact,error:restoreContactError}=await admin.from('contacts')
     .update({legacy_id:m.items[0].sourceKey,display_name:'اختبار مطابقة'})
     .eq('id',p.ids.contactId).eq('workspace_id',ws).select('id');
@@ -257,6 +302,9 @@ async function test(){
   const badCounts=await read(owner.client,m);
   failIf(Boolean(badCounts.error)||badCounts.data!==null,
     'inconsistent_durable_import_counts_denied');
+  const inconsistentComparison=await compare(owner.client,m);
+  failIf(Boolean(inconsistentComparison.error)||inconsistentComparison.data!==null,
+    'a3_corrupt_durable_ledger_cannot_attest');
   await replaceIsolatedLedger({counts:originalCounts},'counts restoration');
 
   // Two independently consistent ledger objects must not override the
@@ -306,14 +354,28 @@ async function test(){
   if(replayRead.error)throw replayRead.error;
   failIf(JSON.stringify(replayRead.data?.observedRows)!==JSON.stringify(rows),
     'readback_deterministic_after_replay');
+  const replayComparison=await compare(owner.client,m);
+  if(replayComparison.error)throw replayComparison.error;
+  failIf(replayComparison.data?.allMatchedAtSnapshot!==true||
+    replayComparison.data?.closureAuthorized!==false,
+    'a3_exact_replay_yields_snapshot_equality_but_no_closure');
 
   const changed=clone(m);changed.items[0].normalizedFields.notes='forged';
   const changedRead=await read(owner.client,changed);
   failIf(Boolean(changedRead.error)||changedRead.data!==null,'forged_manifest_hash_denied');
+  const changedComparison=await compare(owner.client,changed);
+  failIf(Boolean(changedComparison.error)||changedComparison.data!==null,
+    'a3_forged_manifest_cannot_attest');
   const badKey=await read(owner.client,{...m,idempotencyKey:'phase13_4_wrong_key'});
   failIf(Boolean(badKey.error)||badKey.data!==null,'wrong_idempotency_denied');
+  const badKeyComparison=await compare(owner.client,{...m,idempotencyKey:'phase13_4_wrong_key'});
+  failIf(Boolean(badKeyComparison.error)||badKeyComparison.data!==null,
+    'a3_wrong_idempotency_cannot_attest');
   const badBatch=await read(owner.client,{...m,batchId:uuid()});
   failIf(Boolean(badBatch.error)||badBatch.data!==null,'wrong_batch_denied');
+  const badBatchComparison=await compare(owner.client,{...m,batchId:uuid()});
+  failIf(Boolean(badBatchComparison.error)||badBatchComparison.data!==null,
+    'a3_wrong_batch_cannot_attest');
 
   const {error:deleteError}=await admin.from('transactions').delete().eq('id',p.ids.transactionId).eq('workspace_id',ws);
   if(deleteError)throw deleteError;
@@ -330,6 +392,13 @@ async function test(){
   if(countError)throw countError;
   failIf(count!==0,'readback_does_not_recreate_missing_target');
   failIf(missingRow.data?.reconciled!==false,'missing_target_never_attested_as_reconciled');
+  const missingComparison=await compare(owner.client,m);
+  if(missingComparison.error)throw missingComparison.error;
+  failIf(missingComparison.data?.allMatchedAtSnapshot!==false||
+    missingComparison.data?.mismatchCount!==1||
+    JSON.stringify(missingComparison.data?.rows?.[2]?.differenceCodes)!=='["MISSING_TARGET"]'||
+    missingComparison.data?.closureAuthorized!==false,
+    'a3_missing_transaction_is_explicit_without_false_drift_or_closure');
 
   // After the isolated transaction is gone, remove its company and then contact.
   // Verify that a missing parent is represented independently for every stage.
@@ -359,6 +428,16 @@ async function test(){
       row.targetId!==m.items[i].targetId)||
     missingAll.data?.reconciled!==false||missingAll.data?.mutated!==false,
     'all_three_missing_targets_remain_explicit_and_never_recreated');
+  const missingAllComparison=await compare(owner.client,m);
+  if(missingAllComparison.error)throw missingAllComparison.error;
+  failIf(missingAllComparison.data?.allMatchedAtSnapshot!==false||
+    missingAllComparison.data?.mismatchCount!==3||
+    missingAllComparison.data?.rows?.length!==3||
+    missingAllComparison.data.rows.some(row=>
+      JSON.stringify(row.differenceCodes)!=='["MISSING_TARGET"]')||
+    missingAllComparison.data?.closureAuthorized!==false||
+    missingAllComparison.data?.mutated!==false,
+    'a3_all_three_missing_targets_never_close_or_repair');
 }
 
 async function cleanup(){
