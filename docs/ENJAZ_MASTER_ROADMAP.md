@@ -490,12 +490,14 @@ AI is allowed only after authoritative business domains and permission boundarie
 - closure evidence: `docs/PHASE13_3_CLOSURE.md`.
 - **Phase 13.4 — Reconciliation: AUTHORIZED_NEXT**, subject to its own source, Real Cloud, exact-main and deployed-live certification.
 
-## 13.4 — Reconciliation — IN_PROGRESS / A1 READ-ONLY EXPECTATION PLAN
+## 13.4 — Reconciliation — IN_PROGRESS / A1 MERGED + A2/A3 SOURCE & ISOLATED-POSTGRES VERIFIED / REAL CLOUD PENDING
 - exact base: `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`, merged formal Phase 13.3 closure; 43/43 exact-main workflows SUCCESS.
-- A1 derives deterministic expected counts, workspace/source lineage, caller-supplied target IDs, explicit relationship IDs and mapped fields from validated Phase 13.3 manifest. **No actual database read, mutation, import-success attestation, or reconciliation certification in A1.**
-- A2 authenticated workspace-scoped import-ledger/target readback and A3 exact comparison, negative/destructive cloud tests and formal closure remain independent steps.
-- No invented legacy mappings, silent repairs, new database write authority, unreviewed bulk import or client UI; frozen client budgets preserved.
-- status: `docs/PHASE13_4_STATE.json`; A1 contract: `docs/PHASE13_4_A1_KICKOFF.md`.
+- A1 deterministic expectation plan is **CERTIFIED / MERGED** via PR #213, merge `03934f9a07746096eee9784b8832f5f302ffd58a`.
+- A2 owner/RLS-bound readback and A3 trusted in-database comparison are implemented as **read-only SECURITY INVOKER source proposals**. Exact verified source head `8e2bb1e6ebe9e9fad43ac7384427f54a4ca53ef2` completed **78/78 workflows = 77 SUCCESS + 1 expected SKIPPED, 0 failures**, with PostgreSQL 17 logging **16 A2 PASS + 17 A3 PASS**.
+- Production Supabase remains unchanged by Phase 13.4; neither A2 nor A3 proposal is installed there. Read-only privilege inventory confirms the four source tables retain RLS and anonymous SELECT remains denied.
+- Remaining exit requirement is authenticated destructive/adversarial **Real Cloud on a dedicated Supabase development branch** with branch-only credentials, lifecycle/field/money/FK/source/missing-row/replay/tamper probes and zero-residue cleanup. This is independent of source/PostgreSQL success.
+- No invented legacy mappings, silent repairs, production write authority, unreviewed bulk import or client UI; frozen client budgets preserved.
+- status: `docs/PHASE13_4_STATE.json`; A1 contract: `docs/PHASE13_4_A1_KICKOFF.md`; A2/A3 contract: `docs/PHASE13_4_A2_KICKOFF.md`.
 - Phase 13.5 — Import Destruction Gate: **LOCKED**.
 
 ## 13.5 — Import Destruction Gate
