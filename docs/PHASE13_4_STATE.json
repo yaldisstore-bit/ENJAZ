@@ -2,7 +2,7 @@
   "phase": "13.4",
   "name": "Reconciliation",
   "status": "IN_PROGRESS",
-  "currentSlice": "A1_READ_ONLY_EXPECTATION_PLAN",
+  "currentSlice": "A3_TRUSTED_COMPARISON_SOURCE_VERIFIED_AWAITING_ISOLATED_REAL_CLOUD",
   "mode": "EXPLICIT_RECONCILIATION_NO_AUTOMATED_REPAIR",
   "baseCommit": "ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584",
   "predecessorPhase": "13.3",
@@ -16,7 +16,8 @@
   "successorStatus": "LOCKED",
   "phase13_5Allowed": false,
   "expectedPlanSchema": "enjaz.legacy.reconciliation.plan.v1",
-  "a1Status": "IN_PROGRESS",
+  "a1Status": "CERTIFIED_MERGED_MAIN",
+  "a1MergeCommit": "03934f9a07746096eee9784b8832f5f302ffd58a",
   "a1ReadOnly": true,
   "a1ImportedDataVerified": false,
   "a1ActualDatabaseReadPerformed": false,
@@ -26,8 +27,26 @@
     "transactions"
   ],
   "a1Source": "VALIDATED_PHASE13_3_EXECUTION_MANIFEST",
+  "sourceProposalHead": "8e2bb1e6ebe9e9fad43ac7384427f54a4ca53ef2",
+  "sourceWorkflowInventory": {
+    "total": 78,
+    "success": 77,
+    "skipped": 1,
+    "failed": 0,
+    "pending": 0
+  },
+  "a2Status": "SOURCE_AND_DISPOSABLE_POSTGRES_VERIFIED_REAL_CLOUD_PENDING",
+  "a2PostgresPassCount": 16,
   "a2ActualReadbackAllowed": false,
+  "a2ProductionFunctionInstalled": false,
+  "a3Status": "SOURCE_AND_DISPOSABLE_POSTGRES_VERIFIED_REAL_CLOUD_PENDING",
+  "a3PostgresPassCount": 17,
+  "a3ProductionFunctionInstalled": false,
   "a3RemediationAllowed": false,
+  "isolatedRealCloudRequired": true,
+  "isolatedRealCloudStatus": "BLOCKED_ON_EXPLICIT_COST_APPROVAL_AND_DEVELOPMENT_BRANCH",
+  "productionSupabaseModifiedByPhase13_4": false,
+  "livePrivilegeInventoryReadOnlyVerified": true,
   "persistenceAllowed": false,
   "databaseWritesAllowed": false,
   "newDatabaseTablesAllowed": false,
@@ -42,7 +61,7 @@
   "knownHighDefects": 0,
   "knownFunctionalBlockers": 0,
   "exitGatePassed": false,
-  "closureDecision": "PENDING",
+  "closureDecision": "PENDING_REAL_CLOUD_CERTIFICATION",
   "closureEvidence": null,
   "javascriptBudgetBytes": 670000,
   "totalJavascriptBudgetBytes": 760000,
@@ -52,8 +71,8 @@
     "tracks": {
       "product": "IN_PROGRESS",
       "uiUx": "PASS_NO_CLIENT_DELTA",
-      "engineering": "IN_PROGRESS",
-      "certification": "IN_PROGRESS"
+      "engineering": "PASS_SOURCE_AND_DISPOSABLE_POSTGRES",
+      "certification": "IN_PROGRESS_REAL_CLOUD_PENDING"
     },
     "decision": "IN_PROGRESS"
   }
