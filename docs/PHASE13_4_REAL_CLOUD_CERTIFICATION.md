@@ -18,6 +18,12 @@
 
 Creating a Supabase development branch is a billable action. The organization cost lookup on 2026-09-19 returned **USD 0.01344/hour**. Re-check the cost immediately before creation and require explicit user approval before provisioning. Source/CI success never authorizes a paid branch.
 
+## Execution-path constraint
+
+The committed GitHub `workflow_dispatch` file is a **post-merge/re-certification convenience**, because GitHub manual-dispatch workflows must be available from the repository default branch before the UI/API can dispatch them reliably. It must not be treated as the pre-merge certification mechanism for this draft PR.
+
+Pre-merge Real Cloud certification therefore uses the same reviewed `scripts/phase13-4-a2-real-cloud-e2e.mjs` harness with branch-only URL/publishable/secret credentials supplied by an explicitly authorized isolated Supabase development branch. No production credential may substitute for the branch secret. If branch credentials cannot be supplied securely, Phase 13.4 stays open rather than downgrading the certification requirement.
+
 ## Hard isolation prerequisites
 
 1. Create a dedicated development branch from project `juzxriirhkuzviwnhkbd` only after explicit cost approval.
