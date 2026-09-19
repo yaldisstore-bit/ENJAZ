@@ -12,6 +12,7 @@ on:
       - 'tests/fixtures/phase13-4-*'
       - 'scripts/phase13-4-*'
       - '.github/workflows/phase13-4-reconciliation.yml'
+      - '.github/workflows/phase13-4-real-cloud-certification.yml'
       - 'README.md'
       - 'docs/ENJAZ_MASTER_ROADMAP.md'
   pull_request:
@@ -54,6 +55,7 @@ jobs:
           node --experimental-strip-types --test tests/phase13-4-reconciliation-readback.test.ts
           node --test tests/phase13-4-reconciliation-db-source.test.mjs
           node --test tests/phase13-4-a3-db-source.test.mjs
+          node --test tests/phase13-4-real-cloud-workflow-source.test.mjs
       - name: A2 isolated Real Cloud preflight — reject live-project credentials before network
         run: |
           node --check scripts/phase13-4-a2-real-cloud-e2e.mjs
