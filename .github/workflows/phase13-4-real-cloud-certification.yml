@@ -32,7 +32,6 @@ jobs:
       SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
       SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
       SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
-      SUPABASE_DB_URL: ${{ secrets.PHASE13_4_SUPABASE_DB_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -55,9 +54,6 @@ jobs:
           test -n "${SUPABASE_SECRET_KEY}"
           test "${SUPABASE_SECRET_KEY}" != "${SUPABASE_PUBLISHABLE_KEY}"
           [[ "${SUPABASE_SECRET_KEY}" != sb_publishable_* ]]
-          test -n "${SUPABASE_DB_URL}"
-          [[ "${SUPABASE_DB_URL}" == *"${ENJAZ_A2_BRANCH_REF}"* ]]
-          [[ "${SUPABASE_DB_URL}" != *"${PRODUCTION_PROJECT_REF}"* ]]
 
       - uses: actions/setup-node@v4
         with:
@@ -67,15 +63,13 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Ensure PostgreSQL client exists
-        run: command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
-
-      - name: Install reviewed A2/A3 read-only proposals on disposable branch only
+      - name: Require reviewed A2/A3 source to be present in selected source ref
         shell: bash
         run: |
           set -euo pipefail
-          psql "${SUPABASE_DB_URL}" --set=ON_ERROR_STOP=1             --file=database/migrations/phase_13_4_reconciliation_readback.sql
-          psql "${SUPABASE_DB_URL}" --set=ON_ERROR_STOP=1             --file=database/migrations/phase_13_4_a3_trusted_comparison.sql
+          test -f database/migrations/phase_13_4_reconciliation_readback.sql
+          test -f database/migrations/phase_13_4_a3_trusted_comparison.sql
+          node --check scripts/phase13-4-a2-real-cloud-e2e.mjs
 
       - name: Run authenticated branch-only A2/A3 adversarial certification
         run: node scripts/phase13-4-a2-real-cloud-e2e.mjs
