@@ -26,6 +26,8 @@ Production A2/A3 reconciliation functions inherited from Phase 13.4 are read-onl
 
 ## A1 destruction matrix
 
+The canonical machine-readable matrix is `docs/PHASE13_5_DESTRUCTION_MATRIX.json` and contains **24 named destructive cases** spanning every roadmap dimension. The TypeScript behavioral suite and a separate static authority-contract suite must both agree with it.
+
 A1 attacks the source contracts before any destructive hosted run:
 
 - expanded-model target escape into documents, workflow/procedure state, ownership/governance or other M1–M18 tables;
