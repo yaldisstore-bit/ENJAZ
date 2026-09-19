@@ -55,7 +55,7 @@ for (const marker of [
 ]) has(source, marker, 'A1 source');
 for (const marker of [
   'exact lineage rows', 'relationship targets', 'never claims readback',
-  'byte-for-byte deterministic', 'duplicate', 'AMBIGUOUS_RELATIONSHIP'
+  'byte-for-byte deterministic', 'TARGET_ID_DUPLICATE', 'AMBIGUOUS_RELATIONSHIP'
 ]) has(tests, marker, 'A1 tests');
 for (const marker of [
   'A1 **does not read Supabase**', 'A2 authenticated evidence acquisition',
