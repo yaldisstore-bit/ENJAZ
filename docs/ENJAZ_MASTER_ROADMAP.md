@@ -490,15 +490,19 @@ AI is allowed only after authoritative business domains and permission boundarie
 - closure evidence: `docs/PHASE13_3_CLOSURE.md`.
 - **Phase 13.4 — Reconciliation: AUTHORIZED_NEXT**, subject to its own source, Real Cloud, exact-main and deployed-live certification.
 
-## 13.4 — Reconciliation — IN_PROGRESS / A1 MERGED + A2/A3 SOURCE & ISOLATED-POSTGRES VERIFIED / REAL CLOUD PENDING
+## 13.4 — Reconciliation — IN_PROGRESS / HOSTED DB-RLS VERIFIED / AUTH API PENDING
 - exact base: `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`, merged formal Phase 13.3 closure; 43/43 exact-main workflows SUCCESS.
 - A1 deterministic expectation plan is **CERTIFIED / MERGED** via PR #213, merge `03934f9a07746096eee9784b8832f5f302ffd58a`.
-- A2 owner/RLS-bound readback and A3 trusted in-database comparison are implemented as **read-only SECURITY INVOKER source proposals**. Exact verified source head `8e2bb1e6ebe9e9fad43ac7384427f54a4ca53ef2` completed **78/78 workflows = 77 SUCCESS + 1 expected SKIPPED, 0 failures**, with PostgreSQL 17 logging **16 A2 PASS + 17 A3 PASS**.
-- Production Supabase remains unchanged by Phase 13.4; neither A2 nor A3 proposal is installed there. Read-only privilege inventory confirms the four source tables retain RLS and anonymous SELECT remains denied.
-- Remaining exit requirement is authenticated destructive/adversarial **Real Cloud on a dedicated Supabase development branch** with branch-only credentials, lifecycle/field/money/FK/source/missing-row/replay/tamper probes and zero-residue cleanup. This is independent of source/PostgreSQL success.
+- A2 owner/RLS-bound readback and A3 trusted in-database comparison remain **read-only SECURITY INVOKER** proposals; disposable PostgreSQL 17 continues to log **16 A2 PASS + 17 A3 PASS**.
+- Supabase development-branch creation was cost-approved at USD 0.01344/hour but rejected by Supabase because ENJAZ is on the Free plan (Branching requires Pro+). No paid branch was created and no branch cost began.
+- A separate isolated Supabase project `nqhgaukutkyvfumbtbtg` in `eu-central-1` was explicitly cost-confirmed at **USD 0/month** and used as the hosted DB/RLS lab. Its minimal schema/RLS was aligned to production before certification; security advisors report **0 lints**.
+- Hosted DB/RLS evidence passes: real Phase 13.3 import RPC, owner/member/outsider/anon authority, exact A2 readback, exact A3 comparison, drift/tamper/missing/unfinished/replay cases, zero residue, **5000 accepted** and **5001 fail-closed**.
+- The first hosted A3 5000-item run exhausted PostgreSQL temp space. A3 was changed from repeated JSON-array positional lookup to materialized expected/observed rowsets joined by ordinal; the exact 5000-item hosted test passes after this optimization and a source regression locks it in.
+- **Production Supabase remains unchanged by Phase 13.4**; neither A2 nor A3 is installed there.
+- Remaining exit requirement is **Auth-API / real-user-token transport certification** in the isolated environment. Connected tooling exposes publishable credentials but not the lab service-role secret required by the existing Auth Admin harness; production credentials are forbidden substitutes.
 - No invented legacy mappings, silent repairs, production write authority, unreviewed bulk import or client UI; frozen client budgets preserved.
-- status: `docs/PHASE13_4_STATE.json`; A1 contract: `docs/PHASE13_4_A1_KICKOFF.md`; A2/A3 contract: `docs/PHASE13_4_A2_KICKOFF.md`.
-- isolated Real Cloud runbook: `docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md`.
+- status: `docs/PHASE13_4_STATE.json`; hosted evidence: `docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`; A1 contract: `docs/PHASE13_4_A1_KICKOFF.md`; A2/A3 contract: `docs/PHASE13_4_A2_KICKOFF.md`.
+- Real Cloud runbook: `docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md`.
 - Phase 13.5 — Import Destruction Gate: **LOCKED**.
 
 ## 13.5 — Import Destruction Gate
