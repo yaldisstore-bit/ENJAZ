@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.4 — Reconciliation 🟡 IN PROGRESS / A1 READ-ONLY EXPECTATION PLAN**  
+الحالة الرسمية: **Phase 13.4 — Reconciliation 🟡 IN PROGRESS / A1 MERGED + A2/A3 SOURCE & ISOLATED-POSTGRES VERIFIED / REAL CLOUD PENDING**  
 آخر مرحلة مغلقة: **Phase 13.3 — Ordered Import ✅ CLOSED / PR + EXACT-MAIN 43/43 + DEPLOYED-LIVE CERTIFIED**  
-المرحلة الحالية: **Phase 13.4 — Reconciliation — A1 READ-ONLY / NO DATABASE READ OR WRITE**؛ Phase 13.5 remains **LOCKED**.
+المرحلة الحالية: **Phase 13.4 — Reconciliation — production untouched; authenticated isolated Supabase certification still required**؛ Phase 13.5 remains **LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -80,11 +80,14 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 ## Phase 13.4 — العمل الحالي
 
 - exact predecessor: Phase 13.3 formal closure merge `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`; **43/43 exact-main SUCCESS**.
-- **A1 — read-only reconciliation expectation plan: IN PROGRESS**. Builds source lineage, expected row counts, explicit relationship IDs and target IDs from validated 13.3 manifests without reading Supabase or claiming imported data was verified.
-- No imported records are edited or automatically repaired; no new database table, write RPC, new UI, or client bundle budget increase.
-- A2 actual authenticated cloud readback and A3 comparison/destruction remain pending. Phase 13.5 **LOCKED**.
+- **A1 — read-only reconciliation expectation plan: CERTIFIED / MERGED** via PR #213, merge `03934f9a07746096eee9784b8832f5f302ffd58a`.
+- **A2 authenticated readback + A3 trusted comparison: SOURCE + DISPOSABLE POSTGRES VERIFIED** on source head `8e2bb1e6ebe9e9fad43ac7384427f54a4ca53ef2`: **78/78 workflows completed = 77 SUCCESS + 1 expected SKIPPED; 0 failures**. Isolated PostgreSQL 17 emitted **16 A2 PASS + 17 A3 PASS** groups.
+- Production Supabase remains unchanged by 13.4: neither proposed A2 nor A3 function is installed. Existing tables remain RLS-enabled; production privilege inventory was read-only.
+- No imported record is edited or automatically repaired; no new database table, write RPC authority, new UI, or client bundle budget increase.
+- **Outstanding certification:** authenticated destructive/adversarial Real Cloud testing on a dedicated Supabase development branch, followed by zero-residue cleanup evidence. Phase 13.5 remains **LOCKED** until that independent gate passes.
 - state: [`docs/PHASE13_4_STATE.json`](docs/PHASE13_4_STATE.json).
-- contract: [`docs/PHASE13_4_A1_KICKOFF.md`](docs/PHASE13_4_A1_KICKOFF.md).
+- A1 contract: [`docs/PHASE13_4_A1_KICKOFF.md`](docs/PHASE13_4_A1_KICKOFF.md).
+- A2/A3 source contract: [`docs/PHASE13_4_A2_KICKOFF.md`](docs/PHASE13_4_A2_KICKOFF.md).
 
 ## Phase 13.2 — دليل الإغلاق الحالي
 
