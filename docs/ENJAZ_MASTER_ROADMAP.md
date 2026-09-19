@@ -498,6 +498,7 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Remaining exit requirement is authenticated destructive/adversarial **Real Cloud on a dedicated Supabase development branch** with branch-only credentials, lifecycle/field/money/FK/source/missing-row/replay/tamper probes and zero-residue cleanup. This is independent of source/PostgreSQL success.
 - No invented legacy mappings, silent repairs, production write authority, unreviewed bulk import or client UI; frozen client budgets preserved.
 - status: `docs/PHASE13_4_STATE.json`; A1 contract: `docs/PHASE13_4_A1_KICKOFF.md`; A2/A3 contract: `docs/PHASE13_4_A2_KICKOFF.md`.
+- isolated Real Cloud runbook: `docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md`.
 - Phase 13.5 — Import Destruction Gate: **LOCKED**.
 
 ## 13.5 — Import Destruction Gate
