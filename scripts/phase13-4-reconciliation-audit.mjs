@@ -11,6 +11,7 @@ const source = read('src/features/import/legacyReconciliationPlan.ts');
 const tests = read('tests/phase13-4-reconciliation-plan.test.ts');
 const roadmap = read('docs/ENJAZ_MASTER_ROADMAP.md');
 const readme = read('README.md');
+const successor = exists('docs/PHASE13_5_STATE.json') ? json('docs/PHASE13_5_STATE.json') : null;
 const errors = [];
 const req = (ok, message) => { if (!ok) errors.push(message); };
 const has = (value, marker, label) => req(value.includes(marker), label + ' missing marker: ' + marker);
@@ -124,7 +125,16 @@ for (const marker of [
 has(roadmap,
   '## 13.4 — Reconciliation ✅ CLOSED / REAL CLOUD + EXACT-MAIN + PRODUCTION READ-ONLY CERTIFIED',
   'roadmap');
-has(roadmap, '## 13.5 — Import Destruction Gate — AUTHORIZED_NEXT', 'roadmap');
+if (successor) {
+  req(successor.phase === '13.5' && successor.status === 'IN_PROGRESS' &&
+    successor.baseCommit === '64b78767ebd3b0112e752f979d5448f78bdfd2cf' &&
+    successor.predecessor?.phase === '13.4' &&
+    successor.successorStatus === 'LOCKED',
+    'active Phase 13.5 successor lineage/lock invalid');
+  has(roadmap, '## 13.5 — Import Destruction Gate — IN_PROGRESS', 'roadmap');
+} else {
+  has(roadmap, '## 13.5 — Import Destruction Gate — AUTHORIZED_NEXT', 'roadmap');
+}
 has(readme,
   'Phase 13.4 — Reconciliation ✅ CLOSED / REAL CLOUD + PRODUCTION READ-ONLY + EXACT-MAIN CERTIFIED',
   'README');
@@ -143,5 +153,5 @@ if (errors.length) {
   for (const error of errors) console.error('- ' + error);
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 13.4 AUDIT PASS — formal closure certified; production A2/A3 remain read-only; Phase 13.5 authorized next.');
+  console.log('ENJAZ PHASE 13.4 AUDIT PASS — formal closure certified; production A2/A3 remain read-only; Phase 13.5 authorized or active under its own locked-successor gate.');
 }
