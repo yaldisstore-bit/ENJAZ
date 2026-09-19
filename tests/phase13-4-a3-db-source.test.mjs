@@ -41,6 +41,17 @@ test('A3 tests every field, lifecycle, source identity, exact decimal and all re
   assert.ok(canonical.includes("r.total=(g.evidence->>'expectedrowcount')::integer"));
 });
 
+test('A3 aligns large observed evidence as rowsets instead of repeated JSON array indexing',()=>{
+  for(const marker of [
+    'expected_items as materialized',
+    'observed_items as materialized',
+    "jsonb_array_elements(evidence->'observedrows')",
+    'join observed_items o using (ordinal)',
+  ]) assert.ok(canonical.includes(marker),marker);
+  assert.doesNotMatch(canonical,/evidence->'observedrows'->\s*\(/,
+    'large A3 comparisons must not repeatedly index the materialized observedRows JSON array');
+});
+
 test('A3 destructive fixture executes only in disposable A2 PostgreSQL CI job',()=>{
   const workflow=fs.readFileSync(new URL('../.github/workflows/phase13-4-reconciliation.yml',import.meta.url),'utf8');
   const fixture=fs.readFileSync(new URL('./fixtures/phase13-4-a3-postgres.sql',import.meta.url),'utf8');
