@@ -51,6 +51,8 @@ jobs:
         run: |
           node --experimental-strip-types --test tests/phase13-4-reconciliation-readback.test.ts
           node --test tests/phase13-4-reconciliation-db-source.test.mjs
+      - name: A2 isolated Real Cloud harness syntax (never invoke cloud here)
+        run: node --check scripts/phase13-4-a2-real-cloud-e2e.mjs
       - name: Preserve prior legacy intake mapping and ordered-import authority
         run: |
           node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
