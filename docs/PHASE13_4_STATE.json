@@ -75,5 +75,6 @@
       "certification": "IN_PROGRESS_REAL_CLOUD_PENDING"
     },
     "decision": "IN_PROGRESS"
-  }
+  },
+  "realCloudCertificationPlan": "docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md"
 }
