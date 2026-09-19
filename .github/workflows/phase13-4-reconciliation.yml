@@ -1,4 +1,4 @@
-name: ENJAZ Phase 13.4 — Reconciliation A1 + A2 Source Gate
+name: ENJAZ Phase 13.4 — A1/A2/A3 Source + Isolated PostgreSQL Gate
 
 on:
   push:
@@ -26,7 +26,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  phase13-4-a1:
+  phase13-4-source:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
@@ -45,11 +45,11 @@ jobs:
           python-version: '3.12'
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Phase 13.4 A1 source and lifecycle audit
+      - name: Phase 13.4 source and lifecycle audit
         run: node scripts/phase13-4-reconciliation-audit.mjs
       - name: A1 deterministic reconciliation planning and destruction tests
         run: node --experimental-strip-types --test tests/phase13-4-reconciliation-plan.test.ts
-      - name: A2 authenticated readback binding and DB-source security tests
+      - name: A2/A3 authenticated readback, comparison and DB-source security tests
         run: |
           node --experimental-strip-types --test tests/phase13-4-reconciliation-readback.test.ts
           node --test tests/phase13-4-reconciliation-db-source.test.mjs
@@ -100,7 +100,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Ensure PostgreSQL client is available
         run: command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
-      - name: Compile actual A2 SQL and test isolated PostgreSQL 17 RLS, ledger and missing-row behavior
+      - name: Compile actual A2/A3 SQL and test isolated PostgreSQL 17 RLS, ledger, comparison and missing-row behavior
         env:
           PGPASSWORD: enjaz_ephemeral_test_only
         run: |
