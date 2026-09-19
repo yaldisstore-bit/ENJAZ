@@ -114,8 +114,8 @@ async function test(){
   const missingJob=await read(owner.client,m);
   if(missingJob.error)throw missingJob.error;
   failIf(missingJob.data!==null,'missing_import_job_fails_closed');
-  const missingComparison=await compare(owner.client,m);
-  failIf(Boolean(missingComparison.error)||missingComparison.data!==null,
+  const missingJobComparison=await compare(owner.client,m);
+  failIf(Boolean(missingJobComparison.error)||missingJobComparison.data!==null,
     'a3_missing_import_job_never_yields_comparison');
 
   const anonymous=await read(make(),m);
