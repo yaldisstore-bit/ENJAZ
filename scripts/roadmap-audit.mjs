@@ -187,10 +187,10 @@ if(exists('docs/PHASE13_2_STATE.json')){
 if(exists('docs/PHASE13_3_STATE.json')){
   const p133=json('docs/PHASE13_3_STATE.json'),p132=json('docs/PHASE13_2_STATE.json');
   req(p132.status==='CLOSED'&&p132.closureDecision==='PASS'&&p132.phase13_3Allowed===true&&p132.successorStatus==='AUTHORIZED_NEXT','Phase 13.3 requires formal Phase 13.2 authorization');
-  req(p133.phase==='13.3'&&p133.status==='IN_PROGRESS'&&p133.mode==='DETERMINISTIC_ORDERED_IMPORT_PLANNING','Phase 13.3 lifecycle invalid');
+  req(p133.phase==='13.3'&&['IN_PROGRESS','CLOSED'].includes(p133.status)&&p133.mode==='DETERMINISTIC_ORDERED_IMPORT_PLANNING','Phase 13.3 lifecycle invalid');
   const a3Certified=p133.currentSlice==='A3_SERVER_EXECUTION_BOUNDARY'&&p133.a3Status==='CERTIFIED';
   req(p133.baseCommit==='501f5eaad31ba13b3e81d8acd28add4a631ac6bd'&&p133.predecessorClosureMergeCommit===p133.baseCommit,'Phase 13.3 exact final 13.2 closure base drifted');
-  req(p133.successorPhase==='13.4'&&p133.successorStatus==='LOCKED'&&p133.phase13_4Allowed===false,'Open Phase 13.3 must keep 13.4 locked');
+  if(p133.status==='CLOSED')req(p133.successorPhase==='13.4'&&p133.successorStatus==='AUTHORIZED_NEXT'&&p133.phase13_4Allowed===true&&p133.exitGatePassed===true&&p133.closureDecision==='PASS'&&p133.closureEvidence==='docs/PHASE13_3_CLOSURE.md'&&exists(p133.closureEvidence)&&p133.postMergeRecertification==='PASS'&&p133.projectQualityConstitution?.decision==='PASS','Closed Phase 13.3 requires certified evidence and authorizes 13.4');else req(p133.successorPhase==='13.4'&&p133.successorStatus==='LOCKED'&&p133.phase13_4Allowed===false&&p133.exitGatePassed===false&&p133.closureDecision==='PENDING','Open Phase 13.3 must keep 13.4 locked');
   req(['A1_DETERMINISTIC_ORDERED_IMPORT_PLAN','A2_EXPLICIT_TARGET_ID_IDEMPOTENCY_BINDING','A3_SERVER_EXECUTION_BOUNDARY'].includes(p133.currentSlice)&&p133.orderedImportPlanningAllowed===true&&p133.orderedImportExecutionAllowed===a3Certified,'Phase 13.3 server-only execution authority drifted');
   for(const k of ['generatedTargetIdsAllowed','newDatabaseTablesAllowed','edgeFunctionAdded','clientUiAdded','unknownConceptAutoMappingAllowed'])req(p133[k]===false,`Phase 13.3 ${k} remains forbidden`);
   for(const k of ['importExecutionAllowed','persistenceAllowed','databaseWritesAllowed','targetEnjazMutationAllowed','foreignKeyAssignmentAllowed','rollbackExecutionAllowed','newWriteRpcAuthorityAllowed'])req(p133[k]===a3Certified,`Phase 13.3 ${k} requires A3 certification`);

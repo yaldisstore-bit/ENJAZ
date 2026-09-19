@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.3 — Ordered Import 🟡 IN PROGRESS / A1 + A2 + A3 CERTIFIED / PR CERTIFICATION PENDING**  
-آخر مرحلة مغلقة: **Phase 13.2 — Normalize & Map ✅ CLOSED / EXPLICIT MAPPING + RELATIONSHIP PREVIEW + DESTRUCTION CERTIFIED**  
-المرحلة الحالية: **Phase 13.3 — Ordered Import — A1 + A2 + A3 CERTIFIED / PR + EXACT-MAIN PENDING**؛ Phase 13.4 remains **LOCKED**.
+الحالة الرسمية: **Phase 13.3 — Ordered Import ✅ CLOSED / A1 + A2 + A3 CERTIFIED / PR + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED**  
+آخر مرحلة مغلقة: **Phase 13.3 — Ordered Import ✅ CLOSED / OWNER-AUTHENTICATED ATOMIC EXECUTION CERTIFIED**  
+المرحلة اللاحقة: **Phase 13.4 — Reconciliation — AUTHORIZED_NEXT بعد دمج شهادة الإغلاق وإعادة اعتماد النسخة الرئيسية**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -61,25 +61,21 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 12.5 — AI Zero-Escape & Safety Gate: ✅ CLOSED — W1 16/16 + W2 71/71 + PR 80/80 + exact-main 39/39 + Real Browser + Pages + Live External; M8/M9 CLOSED under ZERO_ESCAPE_V1.**
 - **Phase 13.1 — Read-only Legacy Snapshot Intake: ✅ CLOSED — A1 10/10 + A2 10/10 + A3 13/13 + PR 81/81 + exact-main 39/39 + cumulative Real Browser + Pages + Live External; 13.2 AUTHORIZED_NEXT.**
 - **Phase 13.2 — Normalize & Map ✅ CLOSED — A1 12/12 + A2 10/10 + A3 14/14 + PR 82/82 + exact-main 40/40 + Real Browser + Pages + Live External; Phase 13.3 AUTHORIZED_NEXT.**
-- **Phase 13.3 — Ordered Import: 🟡 IN PROGRESS — A1 + A2 + A3 CERTIFIED; owner-authenticated atomic RPC Real Cloud 23/23 PASS; PR/exact-main closure PENDING; Phase 13.4 LOCKED.**
+- **Phase 13.3 — Ordered Import ✅ CLOSED — A1 + A2 + A3 CERTIFIED; authenticated Real Cloud 23/23; PR #211 83/83; exact-main 43/43; Real Browser + deployed-live PASS; Phase 13.4 AUTHORIZED_NEXT.**
 
-## Phase 13.3 — العمل الحالي
+## Phase 13.3 — شهادة الإغلاق
 
-- exact base: `501f5eaad31ba13b3e81d8acd28add4a631ac6bd` — final merged Phase 13.2 closure.
-- branch: `phase13-3-ordered-import`.
-- A1: **CERTIFIED** — Gate #2 / `35403491589`; tests **11/11**, functional **219/219**, DB self-test **25/25**.
-- A1 frozen build: **431224 / 670000 initial JS; 759952 / 760000 total JS; 179989 / 180000 CSS**.
-- A2: **CERTIFIED** — Gate #10 / `35403767829`; tests **11/11**, A1 regression **11/11**, functional **219/219**, DB self-test **25/25**.
-- fixed dependency order: **contacts → companies → transactions**.
-- blocks unmapped types, duplicate keys, dangling links, undeclared/quarantined relationships and any `reviewRequired` record.
-- A2 binds caller-supplied target UUIDs + workspace/batch/idempotency in memory and resolves relationship IDs, but performs **no FK assignment / permission claim / server idempotency reservation / write execution**.
-- A3 **CERTIFIED**: strict manifest + owner-authenticated atomic RPC on Supabase; source Gate #23 PASS; Real Cloud #5 **23/23 PASS**; exact replay, cross-workspace denial, late-failure rollback and zero test residue verified. Only an explicitly reviewed, owner-scoped server manifest may write; generic/browser/legacy auto-import remains forbidden.
-- A3 evidence: [`docs/PHASE13_3_A3_EVIDENCE.md`](docs/PHASE13_3_A3_EVIDENCE.md). Formal 13.3 PR/exact-main closure remains pending.
-- Phase 13.4 — Reconciliation: **LOCKED**.
+- implementation PR #211; merge `7784b9e01aca8b43c3f21833292205873b67c915`.
+- A1 deterministic plan: **11/11 PASS**؛ A2 explicit binding: **11/11 PASS**؛ A3 atomic execution: Real Cloud **23/23 PASS**.
+- exact stage order: **contacts → companies → transactions**؛ only explicit, reviewed mappings and caller-supplied IDs may be imported.
+- PR #211: **83/83 completed = 82 success + 1 expected skipped; 0 failures**.
+- exact-main implementation merge: **43/43 workflows SUCCESS**؛ Real Browser #1697 / Pages #205/#1598 / Live External #1271 / Published Portal #205: **PASS**.
+- client budgets remain frozen: **431224 / 670000 initial JS; 759952 / 760000 total JS; 179989 / 180000 CSS**.
+- no unreviewed legacy bulk migration, generated IDs, new client UI, AI authority or blanket import permissions.
+- **Phase 13.4 — Reconciliation: AUTHORIZED_NEXT**؛ remains a distinct phase with its own independent reconciliation and closure requirements.
+- closure: [`docs/PHASE13_3_CLOSURE.md`](docs/PHASE13_3_CLOSURE.md).
 - state: [`docs/PHASE13_3_STATE.json`](docs/PHASE13_3_STATE.json).
-- kickoff: [`docs/PHASE13_3_KICKOFF.md`](docs/PHASE13_3_KICKOFF.md).
-- A2 evidence: [`docs/PHASE13_3_A2_EVIDENCE.md`](docs/PHASE13_3_A2_EVIDENCE.md).
-- A3 kickoff: [`docs/PHASE13_3_A3_KICKOFF.md`](docs/PHASE13_3_A3_KICKOFF.md).
+- A3 Real Cloud evidence: [`docs/PHASE13_3_A3_EVIDENCE.md`](docs/PHASE13_3_A3_EVIDENCE.md).
 
 ## Phase 13.2 — دليل الإغلاق الحالي
 

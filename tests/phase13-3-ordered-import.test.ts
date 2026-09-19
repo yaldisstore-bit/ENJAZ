@@ -24,9 +24,9 @@ const mappingPlan=():any=>({schema:LEGACY_MAPPING_PLAN_SCHEMA,planId:'map-13-3-a
  {sourceLegacyType:'transaction',linkKind:'contact',targetLegacyType:'person',targetField:'primary_contact_id'},
 ]});
 
-test('13.3 starts from exact final 13.2 closure and keeps 13.4 locked',()=>{
+test('13.3 retains exact predecessor and authorizes 13.4 only after certified closure',()=>{
  assert.equal(state.baseCommit,'501f5eaad31ba13b3e81d8acd28add4a631ac6bd');assert.equal(state.predecessorPhase,'13.2');assert.equal(state.predecessorStatus,'CLOSED');assert.equal(state.predecessorClosureDecision,'PASS');
- assert.equal(state.successorPhase,'13.4');assert.equal(state.successorStatus,'LOCKED');assert.equal(state.phase13_4Allowed,false);
+ assert.equal(state.successorPhase,'13.4');if(state.status==='CLOSED'){assert.equal(state.successorStatus,'AUTHORIZED_NEXT');assert.equal(state.phase13_4Allowed,true);assert.equal(state.exitGatePassed,true);assert.equal(state.closureDecision,'PASS');assert.equal(state.postMergeRecertification,'PASS');assert.equal(state.closureEvidence,'docs/PHASE13_3_CLOSURE.md');}else{assert.equal(state.status,'IN_PROGRESS');assert.equal(state.successorStatus,'LOCKED');assert.equal(state.phase13_4Allowed,false);assert.equal(state.exitGatePassed,false);}
  assert.equal(state.orderedImportPlanningAllowed,true);const certified=state.a3Status==='CERTIFIED';assert.equal(state.orderedImportExecutionAllowed,certified);assert.equal(state.databaseWritesAllowed,certified);assert.equal(state.targetEnjazMutationAllowed,certified);assert.equal(state.newDatabaseTablesAllowed,false);assert.equal(state.generatedTargetIdsAllowed,false);
 });
 
