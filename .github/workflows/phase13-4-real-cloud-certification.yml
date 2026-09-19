@@ -1,0 +1,106 @@
+name: ENJAZ Phase 13.4 — Isolated Supabase Real Cloud Certification
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_ref:
+        description: "Disposable Supabase development branch project ref (never production)"
+        required: true
+        type: string
+      confirm:
+        description: "Type YES only after explicit cost approval and branch credential review"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase134-real-cloud-${{ inputs.branch_ref }}
+  cancel-in-progress: false
+
+jobs:
+  isolated-real-cloud:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: phase13-4-isolated-real-cloud
+    env:
+      PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd
+      ENJAZ_A2_BRANCH_REF: ${{ inputs.branch_ref }}
+      ENJAZ_REAL_CLOUD_CONFIRM: ${{ inputs.confirm }}
+      ENJAZ_A2_ISOLATED_BRANCH_CONFIRM: ${{ inputs.confirm }}
+      SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
+      SUPABASE_DB_URL: ${{ secrets.PHASE13_4_SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail closed before any Supabase or database call
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${ENJAZ_REAL_CLOUD_CONFIRM}" = "YES"
+          test "${ENJAZ_A2_ISOLATED_BRANCH_CONFIRM}" = "YES"
+          test "${GITHUB_REF_TYPE}" = "branch"
+          test "${GITHUB_REF_NAME}" != "main"
+          [[ "${GITHUB_REF_NAME}" == phase13-4-* ]]
+          test -n "${ENJAZ_A2_BRANCH_REF}"
+          test "${ENJAZ_A2_BRANCH_REF}" != "${PRODUCTION_PROJECT_REF}"
+          [[ "${ENJAZ_A2_BRANCH_REF}" =~ ^[a-z0-9]{20}$ ]]
+          test -n "${SUPABASE_URL}"
+          test "${SUPABASE_URL}" = "https://${ENJAZ_A2_BRANCH_REF}.supabase.co"
+          test "${SUPABASE_URL}" != "https://${PRODUCTION_PROJECT_REF}.supabase.co"
+          test -n "${SUPABASE_PUBLISHABLE_KEY}"
+          test -n "${SUPABASE_SECRET_KEY}"
+          test "${SUPABASE_SECRET_KEY}" != "${SUPABASE_PUBLISHABLE_KEY}"
+          [[ "${SUPABASE_SECRET_KEY}" != sb_publishable_* ]]
+          test -n "${SUPABASE_DB_URL}"
+          [[ "${SUPABASE_DB_URL}" == *"${ENJAZ_A2_BRANCH_REF}"* ]]
+          [[ "${SUPABASE_DB_URL}" != *"${PRODUCTION_PROJECT_REF}"* ]]
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Ensure PostgreSQL client exists
+        run: command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+
+      - name: Install reviewed A2/A3 read-only proposals on disposable branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql "${SUPABASE_DB_URL}" --set=ON_ERROR_STOP=1             --file=database/migrations/phase_13_4_reconciliation_readback.sql
+          psql "${SUPABASE_DB_URL}" --set=ON_ERROR_STOP=1             --file=database/migrations/phase_13_4_a3_trusted_comparison.sql
+
+      - name: Run authenticated branch-only A2/A3 adversarial certification
+        run: node scripts/phase13-4-a2-real-cloud-e2e.mjs
+
+      - name: Require passing evidence and zero residue
+        if: always()
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const p='artifacts/phase13-4-a2-real-cloud/evidence.json';
+          if(!fs.existsSync(p)) throw new Error('missing Phase 13.4 Real Cloud evidence artifact');
+          const e=JSON.parse(fs.readFileSync(p,'utf8'));
+          if(e.projectRef==='juzxriirhkuzviwnhkbd') throw new Error('production project evidence is forbidden');
+          if(e.passed!==true || e.cleanupPassed!==true) {
+            throw new Error('Phase 13.4 Real Cloud certification or cleanup failed');
+          }
+          console.log('Phase 13.4 isolated Real Cloud evidence PASS with zero residue');
+          NODE
+
+      - name: Upload immutable certification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase13-4-isolated-real-cloud-evidence-${{ inputs.branch_ref }}
+          path: artifacts/phase13-4-a2-real-cloud/evidence.json
+          if-no-files-found: error
+          retention-days: 30
