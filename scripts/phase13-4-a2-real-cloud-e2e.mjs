@@ -212,6 +212,42 @@ async function test(){
   failIf(JSON.stringify(restoredLineage.data?.observedRows)!==JSON.stringify(rows),
     'isolated_source_lineage_restoration_verified');
 
+  // Deliberately corrupt ONLY the durable ledger of this disposable import.
+  // Readback must reject an inconsistent success record, not return misleading evidence.
+  const {data:jobRows,error:jobReadError}=await admin.from('import_jobs')
+    .select('id,counts,reconciliation').eq('id',m.batchId)
+    .eq('workspace_id',ws).limit(2);
+  if(jobReadError||jobRows?.length!==1)
+    throw jobReadError??new Error('isolated import ledger missing or ambiguous');
+  const originalCounts=clone(jobRows[0].counts);
+  const originalReconciliation=clone(jobRows[0].reconciliation);
+  async function replaceIsolatedLedger(patch,label){
+    const {data:updated,error}=await admin.from('import_jobs')
+      .update(patch).eq('id',m.batchId).eq('workspace_id',ws).select('id');
+    if(error||updated?.length!==1)
+      throw error??new Error('isolated '+label+' did not update exactly one ledger');
+  }
+  await replaceIsolatedLedger({counts:{...originalCounts,total:4}},'counts corruption');
+  const badCounts=await read(owner.client,m);
+  failIf(Boolean(badCounts.error)||badCounts.data!==null,
+    'inconsistent_durable_import_counts_denied');
+  await replaceIsolatedLedger({counts:originalCounts},'counts restoration');
+
+  await replaceIsolatedLedger({reconciliation:{
+    ...originalReconciliation,
+    result:{...originalReconciliation.result,atomic:false},
+  }},'atomic outcome corruption');
+  const nonAtomic=await read(owner.client,m);
+  failIf(Boolean(nonAtomic.error)||nonAtomic.data!==null,
+    'non_atomic_durable_import_outcome_denied');
+  await replaceIsolatedLedger({reconciliation:originalReconciliation},
+    'atomic outcome restoration');
+  const restoredLedger=await read(owner.client,m);
+  if(restoredLedger.error)throw restoredLedger.error;
+  failIf(JSON.stringify(restoredLedger.data?.observedRows)!==JSON.stringify(rows)||
+    restoredLedger.data?.job?.status!=='succeeded',
+    'isolated_ledger_restoration_verified');
+
   const replay=await importProbe(owner.client,m);
   if(replay.error)throw replay.error;
   failIf(replay.data?.wasDuplicate!==true,'exact_import_replay_ledger');
