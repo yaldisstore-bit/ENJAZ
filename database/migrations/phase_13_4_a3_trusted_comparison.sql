@@ -23,12 +23,20 @@ with secure_readback as materialized (
     and jsonb_typeof(evidence->'observedRows')='array'
     and jsonb_array_length(evidence->'observedRows') =
         (evidence->>'expectedRowCount')::integer
-), expected as (
-  select pos::integer as ordinal, item,
-    evidence->'observedRows'->(pos::integer-1) as observed
+), expected_items as materialized (
+  select pos::integer as ordinal, item
   from guarded
   cross join lateral jsonb_array_elements(p_manifest->'items')
     with ordinality as e(item,pos)
+), observed_items as materialized (
+  select pos::integer as ordinal, observed
+  from guarded
+  cross join lateral jsonb_array_elements(evidence->'observedRows')
+    with ordinality as o(observed,pos)
+), expected as (
+  select e.ordinal,e.item,o.observed
+  from expected_items e
+  join observed_items o using (ordinal)
 ), bindings as (
   select b->>'sourceKey' as source_key,
     jsonb_object_agg(b->>'targetField',b->>'targetTargetId') as expected_ids
