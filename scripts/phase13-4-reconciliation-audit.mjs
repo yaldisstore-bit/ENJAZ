@@ -51,7 +51,7 @@ req(s.realCloudVerification === 'PASS_ISOLATED_PROJECT_DB_RLS_AUTH_API_ZERO_RESI
   s.authApiFunctionalPassed === true && s.authApiCleanupPassed === true &&
   s.authApiCheckCount === 10 && s.authApiPassCount === 10 && s.authApiFailCount === 0 &&
   s.hostedDbRlsMaxItemsPassed === 5000 && s.hostedDbRlsOverLimitDenied === 5001 &&
-  s.hostedDbRlsExactProductionPolicyParity === true &&
+  s.hostedRlsExactPolicyParity === true &&
   s.hostedRlsProductionPolicyCount === 15 && s.hostedRlsLabPolicyCount === 15,
   'Real Cloud/Auth/RLS certificate invalid');
 
