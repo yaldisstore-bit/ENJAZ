@@ -51,7 +51,9 @@ jobs:
       - name: Phase 13.5 lifecycle and frozen-authority audit
         run: node scripts/phase13-5-import-destruction-audit.mjs
       - name: A1 cross-boundary destructive source tests
-        run: node --experimental-strip-types --test tests/phase13-5-import-destruction.test.ts
+        run: |
+          node --experimental-strip-types --test tests/phase13-5-import-destruction.test.ts
+          node --test tests/phase13-5-import-destruction-contract.test.mjs
       - name: Preserve Phase 13.1 through 13.4 contracts
         run: |
           node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
