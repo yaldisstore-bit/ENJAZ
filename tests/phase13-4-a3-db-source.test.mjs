@@ -114,3 +114,14 @@ test('A3 PostgreSQL fixture has balanced dollar-quoted blocks, including adversa
   assert.doesNotMatch(fixture,/^\s*(?:do \$(?!\$)|end \$;)/gm,
     'single-dollar delimiters must never silently break the remaining fixture');
 });
+
+
+test('production comment-normalization migration is comments-only and cannot expand authority',()=>{
+  const migration=fs.readFileSync(new URL('../database/migrations/phase_13_4_production_comment_normalization.sql',import.meta.url),'utf8');
+  const executable=migration.replace(/^\s*--.*$/gm,'').toLowerCase();
+  assert.match(executable,/comment on function public\.read_legacy_import_reconciliation_v1/);
+  assert.match(executable,/comment on function public\.compare_legacy_import_reconciliation_v1/);
+  assert.doesNotMatch(executable,/\b(?:insert|update|delete|truncate|create\s+table|alter\s+table|drop\s+table|create\s+(?:or\s+replace\s+)?function|grant|revoke)\b/);
+  assert.ok(executable.trim().startsWith('begin;'));
+  assert.ok(executable.trim().endsWith('commit;'));
+});

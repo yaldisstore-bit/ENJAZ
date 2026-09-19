@@ -490,7 +490,7 @@ AI is allowed only after authoritative business domains and permission boundarie
 - closure evidence: `docs/PHASE13_3_CLOSURE.md`.
 - **Phase 13.4 — Reconciliation: AUTHORIZED_NEXT**, subject to its own source, Real Cloud, exact-main and deployed-live certification.
 
-## 13.4 — Reconciliation — CLOSED / REAL CLOUD + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED
+## 13.4 — Reconciliation ✅ CLOSED / REAL CLOUD + EXACT-MAIN + PRODUCTION READ-ONLY CERTIFIED
 - exact base: `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`, merged formal Phase 13.3 closure; 43/43 exact-main workflows SUCCESS.
 - A1 deterministic expectation plan is **CERTIFIED / MERGED** via PR #213, merge `03934f9a07746096eee9784b8832f5f302ffd58a`.
 - A2 owner/RLS-bound readback and A3 trusted in-database comparison remain **read-only SECURITY INVOKER** proposals; disposable PostgreSQL 17 continues to log **16 A2 PASS + 17 A3 PASS**.
@@ -498,20 +498,18 @@ AI is allowed only after authoritative business domains and permission boundarie
 - A separate isolated Supabase project `nqhgaukutkyvfumbtbtg` in `eu-central-1` was explicitly cost-confirmed at **USD 0/month** and used as the hosted DB/RLS lab. Its minimal schema/RLS was aligned to production before certification; security advisors report **0 lints**.
 - Hosted DB/RLS evidence passes: real Phase 13.3 import RPC, owner/member/outsider/anon authority, exact A2 readback, exact A3 comparison, drift/tamper/missing/unfinished/replay cases, zero residue, **5000 accepted** and **5001 fail-closed**.
 - The first hosted A3 5000-item run exhausted PostgreSQL temp space. A3 was changed from repeated JSON-array positional lookup to materialized expected/observed rowsets joined by ordinal; the exact 5000-item hosted test passes after this optimization and a source regression locks it in.
-- **Production Supabase remains unchanged by Phase 13.4**; neither A2 nor A3 is installed there.
+- Production Supabase now contains only the certified **read-only SECURITY INVOKER** A2/A3 functions. No Phase 13.4 business-row mutation, repair or new write authority was introduced.
 - Real Auth-API transport also passes in the isolated project: three real users were created and signed in, owner/outsider/member/anonymous boundaries were exercised with actual user JWTs, the real Phase 13.3 import + A2 + A3 ran, forged-manifest and replay behavior passed, and cleanup returned zero Auth/data residue. The temporary certificate endpoint is disabled with 410/verify-JWT.
 - No invented legacy mappings, silent repairs, production write authority, unreviewed bulk import or client UI; frozen client budgets preserved.
 - status: `docs/PHASE13_4_STATE.json`; hosted evidence: `docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`; A1 contract: `docs/PHASE13_4_A1_KICKOFF.md`; A2/A3 contract: `docs/PHASE13_4_A2_KICKOFF.md`.
 - Real Cloud runbook: `docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md`.
-- Implementation PR #214 exact head `97ce9a65a9b9a062b43868241ebd0520f970543c`: **87/87 completed = 86 SUCCESS + 1 expected SKIPPED**, zero failures.
-- Implementation merge / exact-main `cbf654ccc3728bb639d057883ad0847f7721d38e`: **42/42 SUCCESS**, including Phase 13.4 Gate, Quality, Real Browser, Pages, Live External and Published Client Portal.
-- Real Cloud: hosted DB/RLS + exact 15/15 production-policy parity + 5000/5001 + real Auth-user/JWT **10/10 PASS** + zero residue.
-- Exact-main budgets: initial JS **431032/670000**, total JS **759568/760000**, CSS **179989/180000**.
-- Production Supabase remains unchanged by Phase 13.4; A2/A3 are not installed there and this closure does not claim real historical-data reconciliation.
-- Formal closure evidence: `docs/PHASE13_4_CLOSURE.md`.
+- Implementation PR #214: **87/87 completed = 86 SUCCESS + 1 expected SKIPPED, 0 failures**; merge `cbf654ccc3728bb639d057883ad0847f7721d38e`.
+- exact-main: **48/48 completed = 42 SUCCESS + 6 expected duplicate SKIPPED, 0 failures/pending**; Phase Gate, Quality, Real Browser, Pages, Live External and Published Client Portal all have successful exact-SHA evidence.
+- Production migrations: `20260919125100`, `20260919125103`, `20260919125253`; phase-owned security-advisor findings **0**.
+- Formal closure: `docs/PHASE13_4_CLOSURE.md`.
 - Phase 13.5 — Import Destruction Gate: **AUTHORIZED_NEXT**.
 
-## 13.5 — Import Destruction Gate
+## 13.5 — Import Destruction Gate — AUTHORIZED_NEXT
 
 Import may target the expanded model only where explicit mappings exist. Unknown legacy concepts remain quarantined/reviewable instead of being guessed into M1–M18 structures. Counts, orphan relations, money, workflow state, ownership, documents and duplicate/idempotency behavior must reconcile.
 

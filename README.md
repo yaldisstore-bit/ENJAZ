@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.4 — Reconciliation ✅ CLOSED / REAL CLOUD + EXACT-MAIN 42/42 + DEPLOYED-LIVE CERTIFIED**  
-آخر مرحلة مغلقة: **Phase 13.4 — Reconciliation ✅ CLOSED / PR + REAL CLOUD + EXACT-MAIN 42/42 + DEPLOYED-LIVE CERTIFIED**  
-المرحلة التالية المصرح بها: **Phase 13.5 — Import Destruction Gate — AUTHORIZED_NEXT**. Phase 13.4 مغلقة؛ Supabase الإنتاجي بقي دون نشر A2/A3 ودون أي إصلاح آلي أو ادعاء بأن البيانات التاريخية للمستخدمين قد تمت مطابقتها.
+الحالة الرسمية: **Phase 13.4 — Reconciliation ✅ CLOSED / REAL CLOUD + PRODUCTION READ-ONLY + EXACT-MAIN CERTIFIED**  
+آخر مرحلة مغلقة: **Phase 13.4 — Reconciliation ✅ CLOSED / PR 87/87 + REAL CLOUD + EXACT-MAIN + PRODUCTION READ-ONLY CERTIFIED**  
+المرحلة الحالية التالية: **Phase 13.5 — Import Destruction Gate — AUTHORIZED_NEXT** بعد إغلاق 13.4 رسمياً؛ لا إصلاح تلقائي ولا توسيع لصلاحيات الاستيراد خارج عقد 13.5.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 

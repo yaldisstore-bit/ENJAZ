@@ -1,86 +1,110 @@
 # Phase 13.4 — Reconciliation — Formal Closure Evidence
 
-**Decision proposed:** PASS / certified reconciliation implementation + exact-main deployed-live evidence.  
-**Date:** 2026-09-19  
-**Exact predecessor closure:** `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584` — Phase 13.3 CLOSED.  
+**Decision proposed:** PASS / formally close Phase 13.4.  
+**Date:** 2026-09-19.  
+**Predecessor:** Phase 13.3 closure `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`.  
 **Implementation PR:** #214.  
 **Certified implementation head:** `97ce9a65a9b9a062b43868241ebd0520f970543c`.  
 **Implementation merge / exact-main SHA:** `cbf654ccc3728bb639d057883ad0847f7721d38e`.  
-**Authorized successor after this closure merges and its own closure checks pass:** Phase 13.5 — Import Destruction Gate.
+**Successor after this closure merges:** Phase 13.5 — Import Destruction Gate.
 
 ## Product and authority boundary
 
-Phase 13.4 closes the explicit reconciliation **implementation and certification boundary** for Phase 13.3 ordered-import outcomes. A2 is an owner-scoped, RLS-respecting, read-only `SECURITY INVOKER` readback over the exact successful import ledger and expected targets. A3 performs the trusted in-database expected↔observed comparison and reports explicit drift without mutation, repair or closure authority.
+Phase 13.4 closes only the explicit reconciliation evidence boundary for the Phase 13.3 ordered-import contract. A2 reads the exact hash-bound import ledger and imported target rows; A3 compares the original manifest to A2 evidence inside PostgreSQL. Both production functions are `STABLE SECURITY INVOKER`, owner/RLS scoped, callable only by `authenticated`, and read-only.
 
-This closure does **not** claim that any user's historical legacy data has been imported or reconciled. It does **not** install A2/A3 on production Supabase: a final read-only production check after the implementation merge confirms both functions remain absent. Phase 13.5 is authorized as the next development/certification phase, not as permission for unreviewed production migration, repair or destructive import.
+Snapshot equality never sets `reconciled=true`, never grants `closureAuthorized`, never repairs, deletes or reimports a row and never expands the Phase 13.3 write boundary. This closure does not claim that any specific user's historical import was reconciled; Phase 13.5 must independently destroy/test the import boundary before any wider authority.
 
-## Source and disposable PostgreSQL certificate
+## Implementation PR certificate
 
-Final PR #214 head `97ce9a65a9b9a062b43868241ebd0520f970543c` completed **87/87 workflows = 86 SUCCESS + 1 expected SKIPPED**, with 0 failed / cancelled / pending.
+PR #214 exact head `97ce9a65a9b9a062b43868241ebd0520f970543c`:
 
-- Phase 13.4 PR gate `35440635266`: PASS.
-- Quality Gate `35440635413`: PASS.
-- Real Browser Acceptance `35440635371`: PASS.
-- Disposable PostgreSQL 17 emitted **16 A2 PASS + 17 A3 PASS** with zero SQL errors.
-- Source/contract suites, preserved Phase 13.3 regression and functional **219/219** all passed.
+- **87/87 completed = 86 SUCCESS + 1 expected SKIPPED; 0 failures, 0 pending**.
+- Phase 13.4 Gate `35440635266`: SUCCESS.
+- Quality `35440635413`: SUCCESS.
+- Real Browser `35440635371`: SUCCESS.
+- Hosted Real Cloud implementation certificate: PASS with zero residue.
+
+## Source / PostgreSQL regression certificate
+
+Exact-main Phase 13.4 Gate `35441049046`:
+
+- A1 plan tests: **6/6**.
+- A1 destruction tests: **6/6**.
+- A2 readback source tests: **5/5**.
+- A2/A3 DB-source tests: **6/6**.
+- Real Cloud workflow source guard: **4/4**.
+- cloud-preflight guard: **4/4**.
+- preserved Phase 13.3 execution tests: **32/32 + 14/14**.
+- functional regression: **219/219**.
+- disposable PostgreSQL 17: **16 A2 PASS + 17 A3 PASS**.
 
 ## Real Cloud certificate
 
-The isolated Supabase lab `nqhgaukutkyvfumbtbtg` in `eu-central-1` provided the destructive/authenticated certificate because the production organization is on Free and development branching is unavailable.
+Disposable Supabase project `nqhgaukutkyvfumbtbtg` in `eu-central-1` proved:
 
-Certified evidence includes:
-
-- exact production-policy parity across the six relevant tables: **15/15 policies**;
-- real hosted owner/member/outsider/anonymous RLS behavior;
-- real Phase 13.3 ordered-import execution;
-- exact A2 readback and clean A3 comparison with no repair/closure authority;
-- field, money, relationship, identity/source-lineage and lifecycle drift;
-- five-axis same-row drift preservation and restoration;
-- forged manifest, wrong batch/idempotency, corrupt/unfinished ledger and missing targets fail closed;
+- exact production policy parity: **15/15**;
+- owner / outsider / same-workspace non-owner / anon isolation;
+- real Phase 13.3 ordered import;
+- exact decimal and relationship readback;
+- identity, lifecycle, field, money and relationship drift;
+- missing targets, forged manifest, wrong batch/idempotency, corrupt/unfinished ledger states;
 - exact replay idempotency;
-- hosted **5000 item PASS** after the A3 rowset-alignment resource fix;
-- **5001 fail-closed PASS**;
-- real Auth users and real user JWT transport: **10/10 PASS**, HTTP 200, `passed=true`, `functionalPassed=true`, `cleanupPassed=true`;
-- final zero residue: 0 marked Auth users and 0 rows in workspaces, memberships, import_jobs, contacts, companies and transactions;
-- temporary invocation table absent; temporary certificate endpoint replaced by fixed **410 Gone / verify_jwt=true**;
-- isolated-lab security/performance advisor findings: **0 / 0**.
+- hosted A2/A3 **5000 PASS** and **5001 fail-closed PASS** after the A3 rowset-alignment fix;
+- real Auth user creation/sign-in and JWT transport: **10/10 PASS**;
+- final Auth/data residue: **0**;
+- lab security and performance advisor lints: **0 / 0**.
 
-Formal implementation evidence: `docs/PHASE13_4_IMPLEMENTATION_CERTIFICATE.md`. Hosted evidence: `docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`.
+Full hosted evidence: `docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`.
 
-## Exact-main / deployed-live recertification
+## Production read-only deployment
 
-Exact implementation main `cbf654ccc3728bb639d057883ad0847f7721d38e` completed **42/42 workflow runs SUCCESS**; failed / skipped / queued / in-progress: **0 / 0 / 0 / 0**.
+After implementation merge and exact-main recertification, the certified functions were installed on production project `juzxriirhkuzviwnhkbd`:
 
-- Phase 13.4 Gate: `35441049046` — PASS.
-- Quality Gate: `35441049230` — PASS.
-- Major Systems Zero-Escape: `35441049016` — PASS.
-- Project Quality Constitution: `35441049135` — PASS.
-- Cumulative Real Browser: `35441049242` — PASS.
-- Pages build/deployment: `35441048370` — PASS.
-- Pages Preview: `35441105457` — PASS.
-- Live External: `35441132445` — PASS.
-- Published Client Portal: `35441132432` — PASS.
+- `20260919125100 phase_13_4_reconciliation_readback`
+- `20260919125103 phase_13_4_a3_trusted_comparison`
+- `20260919125253 phase_13_4_production_comment_normalization`
+
+Live metadata proves for A2 and A3:
+
+- `SECURITY DEFINER=false` → SECURITY INVOKER;
+- volatility `STABLE`;
+- `anon EXECUTE=false`;
+- `PUBLIC EXECUTE=false`;
+- `authenticated EXECUTE=true`.
+
+Phase-owned production Security Advisor findings: **0**. The deployment created no Phase 13.4 table and performed no business-row insert/update/delete.
+
+## Exact-main / deployed-live certificate
+
+On exact implementation main `cbf654ccc3728bb639d057883ad0847f7721d38e`:
+
+- **48/48 workflow runs completed = 42 SUCCESS + 6 expected duplicate workflow_run SKIPPED**;
+- failures / queued / in-progress: **0 / 0 / 0**;
+- Phase 13.4 Gate `35441049046`: SUCCESS;
+- Quality `35441049230`: SUCCESS;
+- Real Browser `35441049242`: SUCCESS;
+- Pages build/deployment `35441048370`: SUCCESS;
+- Pages Preview `35441105457`: SUCCESS;
+- Live External `35441132445`: SUCCESS;
+- Published Client Portal `35441132432`: SUCCESS;
+- Project Quality Constitution `35441049135`: SUCCESS;
+- Major Systems Zero-Escape `35441049016`: SUCCESS.
+
+Repeated downstream workflow_run events after the first successful Pages/Live/Portal certificates were skipped by design and are recorded as expected skips, not failures.
 
 ## Frozen performance and four-track quality
 
-Exact-main Quality Gate measured:
-
-- Initial JavaScript: **431032 / 670000 bytes**.
-- Total JavaScript: **759568 / 760000 bytes**.
+- Initial JavaScript: **431224 / 670000 bytes**.
+- Total JavaScript: **759952 / 760000 bytes**.
 - CSS: **179989 / 180000 bytes**.
-- No budget increase and no Phase 13.4 client UI delta.
+- Product: PASS.
+- UI/UX: PASS — no client delta; cumulative Real Browser and deployed-live gates passed.
+- Engineering: PASS — read-only owner/RLS authority, strict ledger binding, zero-repair comparison and hosted 5000 hardening.
+- Certification: PASS — exact PR-head, Real Cloud/Auth, production read-only deployment and exact-main deployed-live evidence.
+- Known Critical / High / functional blockers: **0 / 0 / 0**.
 
-Four-track decision:
+## Closure and successor
 
-- Product: **PASS** — deterministic explicit reconciliation evidence with fail-closed mismatches.
-- UI/UX: **PASS** — no client delta; cumulative Real Browser and published-live checks passed.
-- Engineering: **PASS** — read-only owner/RLS boundary, trusted comparison, hosted resource fix, policy parity and zero residue.
-- Certification: **PASS** — exact PR head, Real Cloud Auth/RLS, exact-main 42/42 and deployed-live evidence.
+Phase 13.4 satisfies its exit gate. Phase 13.5 — Import Destruction Gate becomes **AUTHORIZED_NEXT only when this formal closure change is merged to canonical main**.
 
-Known Critical / High / functional blockers: **0 / 0 / 0**.
-
-## Successor boundary
-
-Phase 13.5 — Import Destruction Gate becomes **AUTHORIZED_NEXT** only when this formal closure PR itself passes its exact-head gates and is merged.
-
-Phase 13.5 must still independently prove destructive import/reconciliation behavior under its own scope. This closure grants no automatic repair, no inferred legacy mapping, no production A2/A3 deployment, and no claim of real historical-data reconciliation.
+The successor inherits permanent restrictions: no invented legacy mappings, no silent repair, no autogenerated target IDs, no unreviewed bulk import and no broader write authority without its own destructive evidence.
