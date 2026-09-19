@@ -124,5 +124,5 @@ jobs:
         run: |
           set -euo pipefail
           psql -h 127.0.0.1 -U postgres -d enjaz_phase135             --set=ON_ERROR_STOP=1             --file=tests/fixtures/phase13-5-import-destruction-postgres.sql 2>&1 | tee /tmp/phase135-a2.log
-          test "$(grep -c 'PASS 13.5 A2' /tmp/phase135-a2.log)" -eq 13
+          test "$(grep -c 'PASS 13.5 A2' /tmp/phase135-a2.log)" -eq 14
           ! grep -q '13.5 FAILURE' /tmp/phase135-a2.log

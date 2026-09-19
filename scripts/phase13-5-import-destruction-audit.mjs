@@ -24,7 +24,7 @@ check('import_law',s.exactMappingReuseRequired===true&&s.generatedTargetIdsAllow
 check('target_scope',s.targetTables?.join(',')==='contacts,companies,transactions'&&s.stageOrder?.join(',')==='contacts,companies,transactions'&&s.maxItems===5000&&s.overLimitFailClosedAt===5001);
 check('budget_freeze',s.javascriptBudgetBytes===670000&&s.totalJavascriptBudgetBytes===760000&&s.cssBudgetBytes===180000&&s.budgetIncreaseAllowed===false);
 check('matrix_link',s.destructionMatrix==='docs/PHASE13_5_DESTRUCTION_MATRIX.json'&&exists(s.destructionMatrix));
-check('a2_fixture',s.a2Fixture==='tests/fixtures/phase13-5-import-destruction-postgres.sql'&&exists(s.a2Fixture)&&s.a2ExpectedPassCount===13&&s.a2ZeroResidueRequired===true);
+check('a2_fixture',s.a2Fixture==='tests/fixtures/phase13-5-import-destruction-postgres.sql'&&exists(s.a2Fixture)&&s.a2ExpectedPassCount===14&&s.a2ZeroResidueRequired===true);
 check('matrix_schema',matrix.schema==='enjaz.phase13-5.import-destruction.matrix.v1'&&matrix.cases?.length===24&&new Set(matrix.cases.map(x=>x.id)).size===24);
 for(const d of ['counts','orphan_relations','money','workflow_state','ownership','documents','duplicate_idempotency'])
   check('dimension_'+d,matrix.requiredRoadmapDimensions?.includes(d));
