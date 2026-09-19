@@ -91,5 +91,13 @@
       "certification": "IN_PROGRESS"
     },
     "decision": "IN_PROGRESS"
-  }
+  },
+  "destructionMatrix": "docs/PHASE13_5_DESTRUCTION_MATRIX.json",
+  "destructionCaseCount": 24,
+  "destructionContractTestPath": "tests/phase13-5-import-destruction-contract.test.mjs",
+  "productionDestructiveTestingAllowed": false,
+  "isolatedDestructiveEnvironmentRequired": true,
+  "zeroResidueRequired": true,
+  "a2Status": "PENDING_DISPOSABLE_POSTGRES_DESTRUCTION",
+  "a3Status": "PENDING_ISOLATED_REAL_CLOUD_DESTRUCTION"
 }
