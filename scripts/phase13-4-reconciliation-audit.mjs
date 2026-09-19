@@ -20,9 +20,10 @@ req(predecessor.status === 'CLOSED' && predecessor.closureDecision === 'PASS' &&
   predecessor.closureEvidence === 'docs/PHASE13_3_CLOSURE.md' && exists(predecessor.closureEvidence),
   'Phase 13.4 requires certified closed predecessor and real formal closure evidence');
 
-req(s.phase === '13.4' && s.status === 'IN_PROGRESS' &&
+const closed = s.status === 'CLOSED';
+req(s.phase === '13.4' && ['IN_PROGRESS','CLOSED'].includes(s.status) &&
   s.mode === 'EXPLICIT_RECONCILIATION_NO_AUTOMATED_REPAIR' &&
-  s.currentSlice === 'IMPLEMENTATION_REAL_CLOUD_CERTIFIED_AWAITING_EXACT_HEAD_AND_MAIN' &&
+  s.currentSlice === (closed ? 'FORMAL_CLOSURE' : 'IMPLEMENTATION_REAL_CLOUD_CERTIFIED_AWAITING_EXACT_HEAD_AND_MAIN') &&
   s.a1Status === 'CERTIFIED_MERGED_MAIN',
   'Phase 13.4 canonical lifecycle or current slice invalid');
 
@@ -32,10 +33,17 @@ req(s.baseCommit === 'ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584' &&
   s.a1MergeCommit === '03934f9a07746096eee9784b8832f5f302ffd58a',
   'Phase 13.4 predecessor/A1 merged lineage not pinned');
 
-req(s.successorPhase === '13.5' && s.successorStatus === 'LOCKED' && s.phase13_5Allowed === false &&
-  s.exitGatePassed === false && s.closureDecision === 'IMPLEMENTATION_PASS_PENDING_EXACT_HEAD_AND_MAIN_RECERTIFICATION' &&
-  s.closureEvidence === null,
-  'Phase 13.4 must never pre-authorize 13.5 before isolated Real Cloud closure');
+if (closed) {
+  req(s.successorPhase === '13.5' && s.successorStatus === 'AUTHORIZED_NEXT' && s.phase13_5Allowed === true &&
+    s.exitGatePassed === true && s.closureDecision === 'PASS' &&
+    s.closureEvidence === 'docs/PHASE13_4_CLOSURE.md' && exists(s.closureEvidence),
+    'Closed Phase 13.4 requires formal evidence and guarded Phase 13.5 authorization');
+} else {
+  req(s.successorPhase === '13.5' && s.successorStatus === 'LOCKED' && s.phase13_5Allowed === false &&
+    s.exitGatePassed === false && s.closureDecision === 'IMPLEMENTATION_PASS_PENDING_EXACT_HEAD_AND_MAIN_RECERTIFICATION' &&
+    s.closureEvidence === null,
+    'Open Phase 13.4 must keep Phase 13.5 locked');
+}
 
 req(s.expectedPlanSchema === 'enjaz.legacy.reconciliation.plan.v1' &&
   s.a1Source === 'VALIDATED_PHASE13_3_EXECUTION_MANIFEST' &&
@@ -45,7 +53,9 @@ req(s.expectedPlanSchema === 'enjaz.legacy.reconciliation.plan.v1' &&
   'A1 read-only expectation boundary drifted');
 
 req(s.sourceProposalHead === 'cc73ea547f448ccdec9457ab46ae9928ebc1ab92' &&
-  s.lastFullyDrainedSourceHead === 'fc50f868ff2a94af7a7782f1dfa2423d1270546c' &&
+  s.lastFullyDrainedSourceHead === (closed
+    ? '97ce9a65a9b9a062b43868241ebd0520f970543c'
+    : 'fc50f868ff2a94af7a7782f1dfa2423d1270546c') &&
   s.lastFullyDrainedSourceWorkflowInventory?.total === 87 &&
   s.lastFullyDrainedSourceWorkflowInventory?.success === 86 &&
   s.lastFullyDrainedSourceWorkflowInventory?.skipped === 1 &&
@@ -111,12 +121,21 @@ req(s.javascriptBudgetBytes === 670000 && s.totalJavascriptBudgetBytes === 76000
   s.cssBudgetBytes === 180000 && s.budgetIncreaseAllowed === false,
   'Phase 13.4 cannot raise frozen client performance ceilings');
 
-req(s.projectQualityConstitution?.decision === 'IN_PROGRESS_FORMAL_CLOSURE_PENDING' &&
-  s.projectQualityConstitution.tracks.product === 'PASS_IMPLEMENTATION' &&
-  s.projectQualityConstitution.tracks.uiUx === 'PASS_NO_CLIENT_DELTA' &&
-  s.projectQualityConstitution.tracks.engineering === 'PASS_SOURCE_DISPOSABLE_POSTGRES_HOSTED_DB_RLS_AUTH_API' &&
-  s.projectQualityConstitution.tracks.certification === 'PASS_REAL_CLOUD_IMPLEMENTATION_PENDING_EXACT_HEAD_AND_MAIN',
-  'Phase 13.4 quality tracks must distinguish source engineering from cloud certification');
+if (closed) {
+  req(s.projectQualityConstitution?.decision === 'PASS' &&
+    s.projectQualityConstitution.tracks.product === 'PASS' &&
+    s.projectQualityConstitution.tracks.uiUx === 'PASS_NO_CLIENT_DELTA_CUMULATIVE_BROWSER' &&
+    s.projectQualityConstitution.tracks.engineering === 'PASS' &&
+    s.projectQualityConstitution.tracks.certification === 'PASS',
+    'Closed Phase 13.4 requires all four quality tracks PASS');
+} else {
+  req(s.projectQualityConstitution?.decision === 'IN_PROGRESS_FORMAL_CLOSURE_PENDING' &&
+    s.projectQualityConstitution.tracks.product === 'PASS_IMPLEMENTATION' &&
+    s.projectQualityConstitution.tracks.uiUx === 'PASS_NO_CLIENT_DELTA' &&
+    s.projectQualityConstitution.tracks.engineering === 'PASS_SOURCE_DISPOSABLE_POSTGRES_HOSTED_DB_RLS_AUTH_API' &&
+    s.projectQualityConstitution.tracks.certification === 'PASS_REAL_CLOUD_IMPLEMENTATION_PENDING_EXACT_HEAD_AND_MAIN',
+    'Open Phase 13.4 quality tracks must preserve formal-closure pending state');
+}
 
 for (const marker of [
   'parseLegacyOrderedImportExecutionManifest(manifestValue)', 'LEGACY_RECONCILIATION_PLAN_SCHEMA',
@@ -136,11 +155,62 @@ for (const marker of [
 ]) has(contract, marker, 'A1 contract');
 
 has(roadmap,
-  '## 13.4 — Reconciliation — IN_PROGRESS / REAL CLOUD IMPLEMENTATION CERTIFIED / FORMAL CLOSURE PENDING',
+  closed
+    ? '## 13.4 — Reconciliation — CLOSED / REAL CLOUD + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED'
+    : '## 13.4 — Reconciliation — IN_PROGRESS / REAL CLOUD IMPLEMENTATION CERTIFIED / FORMAL CLOSURE PENDING',
   'roadmap');
 has(readme,
-  'Phase 13.4 — Reconciliation 🟡 IN PROGRESS / REAL CLOUD IMPLEMENTATION CERTIFIED / FORMAL CLOSURE PENDING',
+  closed
+    ? 'Phase 13.4 — Reconciliation ✅ CLOSED / REAL CLOUD + EXACT-MAIN 42/42 + DEPLOYED-LIVE CERTIFIED'
+    : 'Phase 13.4 — Reconciliation 🟡 IN PROGRESS / REAL CLOUD IMPLEMENTATION CERTIFIED / FORMAL CLOSURE PENDING',
   'README');
+
+if (closed) {
+  const evidence = read(s.closureEvidence);
+  req(s.implementationPullRequest === 214 &&
+    s.implementationHead === '97ce9a65a9b9a062b43868241ebd0520f970543c' &&
+    s.implementationMergeCommit === 'cbf654ccc3728bb639d057883ad0847f7721d38e' &&
+    s.pullRequestWorkflowCount === 87 && s.pullRequestSuccessCount === 86 &&
+    s.pullRequestSkippedCount === 1 && s.pullRequestFailureCount === 0 &&
+    s.pullRequestPhaseGateRunId === 35440635266 &&
+    s.pullRequestQualityRunId === 35440635413 &&
+    s.pullRequestRealBrowserRunId === 35440635371 &&
+    s.pullRequestGate === 'PASS',
+    'Phase 13.4 certified implementation PR lineage invalid');
+  req(s.postMergeRecertification === 'PASS' &&
+    s.postMergeMainSha === 'cbf654ccc3728bb639d057883ad0847f7721d38e' &&
+    s.postMergeMainWorkflowCount === 42 && s.postMergeMainSuccessCount === 42 &&
+    s.postMergeMainFailureCount === 0 && s.postMergeMainSkippedCount === 0 &&
+    s.postMergeMainQueuedCount === 0 && s.postMergeMainInProgressCount === 0,
+    'Phase 13.4 exact-main inventory invalid');
+  req(s.postMergePhaseGateRunId === 35441049046 &&
+    s.postMergeQualityRunId === 35441049230 &&
+    s.postMergeMajorSystemsRunId === 35441049016 &&
+    s.postMergeConstitutionRunId === 35441049135 &&
+    s.postMergeRealBrowserRunId === 35441049242 &&
+    s.postMergePagesBuildRunId === 35441048370 &&
+    s.postMergePagesPreviewRunId === 35441105457 &&
+    s.postMergeLiveExternalRunId === 35441132445 &&
+    s.postMergePublishedPortalRunId === 35441132432,
+    'Phase 13.4 exact-main/deployed-live run lineage invalid');
+  req(s.realBrowserVerification === 'PASS_EXACT_MAIN_CUMULATIVE' &&
+    s.pagesVerification === 'PASS' && s.liveExternalVerification === 'PASS' &&
+    s.publishedPortalVerification === 'PASS' &&
+    s.finalBudgetVerification === 'PASS_FROZEN_CAPS_NO_CLIENT_DELTA' &&
+    s.finalInitialJavascriptBytes === 431032 &&
+    s.finalTotalJavascriptBytes === 759568 &&
+    s.finalCssBytes === 179989,
+    'Phase 13.4 exact-main browser/live/budget closure evidence invalid');
+  req(s.productionSupabaseModifiedByPhase13_4 === false &&
+    s.a2ProductionFunctionInstalled === false &&
+    s.a3ProductionFunctionInstalled === false &&
+    s.productionA2A3AbsenceVerifiedAtClosure === true,
+    'Phase 13.4 closure must not fabricate production A2/A3 deployment');
+  for (const mark of [
+    'cbf654ccc3728bb639d057883ad0847f7721d38e','42/42','87/87','10/10','5000','5001',
+    '35441049242','35441132445','Phase 13.5'
+  ]) has(evidence, mark, 'formal Phase 13.4 closure evidence');
+}
 
 req(exists('database/migrations/phase_13_4_reconciliation_readback.sql') &&
   exists('database/migrations/phase_13_4_a3_trusted_comparison.sql'),
@@ -154,5 +224,5 @@ if (errors.length) {
   for (const error of errors) console.error('- ' + error);
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 13.4 AUDIT PASS — hosted DB/RLS + real Auth-token transport + zero-residue verified; implementation PASS; formal exact-head/main closure pending; production untouched; Phase 13.5 locked.');
+  console.log(closed ? 'ENJAZ PHASE 13.4 AUDIT PASS — formal closure certified; exact-main 42/42 + Real Cloud + deployed-live PASS; production A2/A3 intentionally absent; Phase 13.5 authorized next.' : 'ENJAZ PHASE 13.4 AUDIT PASS — hosted DB/RLS + real Auth-token transport + zero-residue verified; implementation PASS; formal exact-head/main closure pending; production untouched; Phase 13.5 locked.');
 }

@@ -490,7 +490,7 @@ AI is allowed only after authoritative business domains and permission boundarie
 - closure evidence: `docs/PHASE13_3_CLOSURE.md`.
 - **Phase 13.4 — Reconciliation: AUTHORIZED_NEXT**, subject to its own source, Real Cloud, exact-main and deployed-live certification.
 
-## 13.4 — Reconciliation — IN_PROGRESS / REAL CLOUD IMPLEMENTATION CERTIFIED / FORMAL CLOSURE PENDING
+## 13.4 — Reconciliation — CLOSED / REAL CLOUD + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED
 - exact base: `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`, merged formal Phase 13.3 closure; 43/43 exact-main workflows SUCCESS.
 - A1 deterministic expectation plan is **CERTIFIED / MERGED** via PR #213, merge `03934f9a07746096eee9784b8832f5f302ffd58a`.
 - A2 owner/RLS-bound readback and A3 trusted in-database comparison remain **read-only SECURITY INVOKER** proposals; disposable PostgreSQL 17 continues to log **16 A2 PASS + 17 A3 PASS**.
@@ -503,8 +503,13 @@ AI is allowed only after authoritative business domains and permission boundarie
 - No invented legacy mappings, silent repairs, production write authority, unreviewed bulk import or client UI; frozen client budgets preserved.
 - status: `docs/PHASE13_4_STATE.json`; hosted evidence: `docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`; A1 contract: `docs/PHASE13_4_A1_KICKOFF.md`; A2/A3 contract: `docs/PHASE13_4_A2_KICKOFF.md`.
 - Real Cloud runbook: `docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md`.
-- Implementation certification: **PASS**. Formal 13.4 closure still requires exact PR-head completion, implementation merge and exact-main/deployed-live recertification.
-- Phase 13.5 — Import Destruction Gate: **LOCKED**.
+- Implementation PR #214 exact head `97ce9a65a9b9a062b43868241ebd0520f970543c`: **87/87 completed = 86 SUCCESS + 1 expected SKIPPED**, zero failures.
+- Implementation merge / exact-main `cbf654ccc3728bb639d057883ad0847f7721d38e`: **42/42 SUCCESS**, including Phase 13.4 Gate, Quality, Real Browser, Pages, Live External and Published Client Portal.
+- Real Cloud: hosted DB/RLS + exact 15/15 production-policy parity + 5000/5001 + real Auth-user/JWT **10/10 PASS** + zero residue.
+- Exact-main budgets: initial JS **431032/670000**, total JS **759568/760000**, CSS **179989/180000**.
+- Production Supabase remains unchanged by Phase 13.4; A2/A3 are not installed there and this closure does not claim real historical-data reconciliation.
+- Formal closure evidence: `docs/PHASE13_4_CLOSURE.md`.
+- Phase 13.5 — Import Destruction Gate: **AUTHORIZED_NEXT**.
 
 ## 13.5 — Import Destruction Gate
 
