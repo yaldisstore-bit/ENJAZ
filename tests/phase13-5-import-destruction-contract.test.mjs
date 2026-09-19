@@ -57,8 +57,9 @@ test('production reconciliation authority remains authenticated-only, owner-boun
     assert.match(sql,/security invoker/);
     assert.match(sql,/revoke all on function/);
     assert.match(sql,/grant execute on function[\s\S]*to authenticated/);
-    assert.match(sql,/private\.is_workspace_owner/);
   }
+  assert.match(a2,/private\.is_workspace_owner/);
+  assert.match(a3,/public\.read_legacy_import_reconciliation_v1/);
   assert.match(a2,/5000/);
   assert.match(a3,/5000/);
   assert.doesNotMatch(a2,/\binsert\s+into\b|\bupdate\s+public\.|\bdelete\s+from\b/);
