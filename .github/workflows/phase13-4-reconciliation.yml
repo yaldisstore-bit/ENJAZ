@@ -1,0 +1,68 @@
+name: ENJAZ Phase 13.4 — Reconciliation A1 Gate
+
+on:
+  push:
+    branches: [phase13-4-reconciliation-a1, main]
+    paths:
+      - 'docs/PHASE13_4_*'
+      - 'src/features/import/legacyReconciliation*.ts'
+      - 'tests/phase13-4-*'
+      - 'scripts/phase13-4-*'
+      - '.github/workflows/phase13-4-reconciliation.yml'
+      - 'README.md'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase134-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase13-4-a1:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 13.4 A1 source and lifecycle audit
+        run: node scripts/phase13-4-reconciliation-audit.mjs
+      - name: A1 deterministic reconciliation planning and destruction tests
+        run: node --experimental-strip-types --test tests/phase13-4-reconciliation-plan.test.ts
+      - name: Preserve prior legacy intake mapping and ordered-import authority
+        run: |
+          node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
+          node scripts/phase13-2-normalize-map-audit.mjs
+          node scripts/phase13-3-ordered-import-audit.mjs
+          node --experimental-strip-types --test tests/phase13-3-ordered-import.test.ts tests/phase13-3-ordered-import-binding.test.ts tests/phase13-3-ordered-import-execution.test.ts
+          node --test tests/phase13-3-ordered-import-db-source.test.mjs
+      - name: Full functional + governance regressions
+        run: |
+          npm run test:functional
+          npm run db:audit
+          npm run db:audit:selftest
+          npm run audit:roadmap
+          node scripts/major-systems-zero-escape-audit.mjs
+      - name: Secrets + type safety + frozen production budgets
+        run: |
+          npm run audit:secrets
+          npm run typecheck
+          npm run build -- --base=/
+          npm run audit:dist:budget
