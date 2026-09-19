@@ -27,7 +27,7 @@ const mappingPlan=():any=>({schema:LEGACY_MAPPING_PLAN_SCHEMA,planId:'map-13-3-a
 test('13.3 starts from exact final 13.2 closure and keeps 13.4 locked',()=>{
  assert.equal(state.baseCommit,'501f5eaad31ba13b3e81d8acd28add4a631ac6bd');assert.equal(state.predecessorPhase,'13.2');assert.equal(state.predecessorStatus,'CLOSED');assert.equal(state.predecessorClosureDecision,'PASS');
  assert.equal(state.successorPhase,'13.4');assert.equal(state.successorStatus,'LOCKED');assert.equal(state.phase13_4Allowed,false);
- assert.equal(state.orderedImportPlanningAllowed,true);assert.equal(state.orderedImportExecutionAllowed,false);assert.equal(state.databaseWritesAllowed,false);assert.equal(state.targetEnjazMutationAllowed,false);
+ assert.equal(state.orderedImportPlanningAllowed,true);const certified=state.a3Status==='CERTIFIED';assert.equal(state.orderedImportExecutionAllowed,certified);assert.equal(state.databaseWritesAllowed,certified);assert.equal(state.targetEnjazMutationAllowed,certified);assert.equal(state.newDatabaseTablesAllowed,false);assert.equal(state.generatedTargetIdsAllowed,false);
 });
 
 test('A1 produces deterministic contacts then companies then transactions order',()=>{
