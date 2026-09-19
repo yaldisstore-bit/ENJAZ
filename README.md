@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.4 — Reconciliation ✅ CLOSED / REAL CLOUD + PRODUCTION READ-ONLY + EXACT-MAIN CERTIFIED**  
-آخر مرحلة مغلقة: **Phase 13.4 — Reconciliation ✅ CLOSED / PR 87/87 + REAL CLOUD + EXACT-MAIN + PRODUCTION READ-ONLY CERTIFIED**  
-المرحلة الحالية التالية: **Phase 13.5 — Import Destruction Gate — AUTHORIZED_NEXT** بعد إغلاق 13.4 رسمياً؛ لا إصلاح تلقائي ولا توسيع لصلاحيات الاستيراد خارج عقد 13.5.
+الحالة الرسمية: **Phase 13.5 — Import Destruction Gate 🟡 IN PROGRESS / A1 STATIC DESTRUCTION**  
+آخر مرحلة مغلقة: **Phase 13.4 — Reconciliation ✅ CLOSED / REAL CLOUD + PRODUCTION READ-ONLY + EXACT-MAIN CERTIFIED**  
+المرحلة التالية المقفلة: **Phase 14.1 — Cross-domain Journeys — LOCKED** حتى إغلاق 13.5 بكامل destructive Real Cloud + exact-main + deployed-live evidence.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -62,6 +62,8 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 13.1 — Read-only Legacy Snapshot Intake: ✅ CLOSED — A1 10/10 + A2 10/10 + A3 13/13 + PR 81/81 + exact-main 39/39 + cumulative Real Browser + Pages + Live External; 13.2 AUTHORIZED_NEXT.**
 - **Phase 13.2 — Normalize & Map ✅ CLOSED — A1 12/12 + A2 10/10 + A3 14/14 + PR 82/82 + exact-main 40/40 + Real Browser + Pages + Live External; Phase 13.3 AUTHORIZED_NEXT.**
 - **Phase 13.3 — Ordered Import ✅ CLOSED — A1 + A2 + A3 CERTIFIED; authenticated Real Cloud 23/23; PR #211 83/83; exact-main 43/43; Real Browser + deployed-live PASS; Phase 13.4 AUTHORIZED_NEXT.**
+- **Phase 13.4 — Reconciliation ✅ CLOSED — production A2/A3 are certified read-only SECURITY INVOKER functions; corrected closure record merged at `64b78767`; Phase 13.5 AUTHORIZED_NEXT.**
+- **Phase 13.5 — Import Destruction Gate 🟡 IN PROGRESS / A1 STATIC DESTRUCTION — expanded-model escape, orphan/duplicate/money/idempotency/authority attacks; Phase 14.1 LOCKED.**
 
 ## Phase 13.3 — شهادة الإغلاق
 

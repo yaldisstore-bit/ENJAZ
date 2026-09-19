@@ -1,0 +1,74 @@
+name: ENJAZ Phase 13.5 — Import Destruction Gate
+
+on:
+  push:
+    branches: [phase13-5-import-destruction, main]
+    paths:
+      - 'docs/PHASE13_5_*'
+      - 'src/features/import/**'
+      - 'database/migrations/phase_13_3_*'
+      - 'database/migrations/phase_13_4_*'
+      - 'tests/phase13-5-*'
+      - 'scripts/phase13-5-*'
+      - '.github/workflows/phase13-5-import-destruction.yml'
+      - 'README.md'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase135-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  a1-static-destruction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+      VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 13.5 lifecycle and frozen-authority audit
+        run: node scripts/phase13-5-import-destruction-audit.mjs
+      - name: A1 cross-boundary destructive source tests
+        run: node --experimental-strip-types --test tests/phase13-5-import-destruction.test.ts
+      - name: Preserve Phase 13.1 through 13.4 contracts
+        run: |
+          node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
+          node scripts/phase13-2-normalize-map-audit.mjs
+          node scripts/phase13-3-ordered-import-audit.mjs
+          node scripts/phase13-4-reconciliation-audit.mjs
+          node --experimental-strip-types --test tests/phase13-2-destruction.test.ts
+          node --experimental-strip-types --test tests/phase13-3-ordered-import.test.ts tests/phase13-3-ordered-import-binding.test.ts tests/phase13-3-ordered-import-execution.test.ts
+          node --test tests/phase13-4-reconciliation-db-source.test.mjs tests/phase13-4-a3-db-source.test.mjs
+      - name: Full functional database and governance regression
+        run: |
+          npm run test:functional
+          npm run db:audit
+          npm run db:audit:selftest
+          npm run audit:roadmap
+          node scripts/major-systems-zero-escape-audit.mjs
+      - name: Secrets type safety build and frozen budgets
+        run: |
+          npm run audit:secrets
+          npm run typecheck
+          npm run build -- --base=/
+          npm run audit:dist:budget

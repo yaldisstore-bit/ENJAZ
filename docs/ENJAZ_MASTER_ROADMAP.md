@@ -509,9 +509,17 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Formal closure: `docs/PHASE13_4_CLOSURE.md`.
 - Phase 13.5 — Import Destruction Gate: **AUTHORIZED_NEXT**.
 
-## 13.5 — Import Destruction Gate — AUTHORIZED_NEXT
+## 13.5 — Import Destruction Gate — IN_PROGRESS / A1 STATIC DESTRUCTION
 
-Import may target the expanded model only where explicit mappings exist. Unknown legacy concepts remain quarantined/reviewable instead of being guessed into M1–M18 structures. Counts, orphan relations, money, workflow state, ownership, documents and duplicate/idempotency behavior must reconcile.
+- exact base: `64b78767ebd3b0112e752f979d5448f78bdfd2cf`, the canonical correction of Phase 13.4 production read-only deployment evidence.
+- This is a Zero-Escape/destruction phase, not a feature-delivery phase. No new table, write RPC, Edge write authority, client UI, inferred mapping, generated target ID or automatic repair is allowed.
+- A1 attacks the whole source chain: snapshot → normalize/map → ordered plan → target-ID binding → execution manifest.
+- Explicit import targets remain only `contacts`, `companies`, `transactions`. Attempts to escape into documents, workflow/procedure state, ownership/governance or arbitrary M1–M18 tables must fail closed.
+- Destruction dimensions include counts/5001 ceiling, orphan relations, duplicate source keys, duplicate target IDs, exact money precision, hidden controls, idempotency/replay, relationship ordering and write/repair/closure preclaims.
+- A1 performs no database writes. Isolated Real Cloud destructive execution/reconciliation is a later required wave.
+- Phase 14.1 — Cross-domain Journeys: **LOCKED** until Phase 13.5 formal closure.
+
+Import may target the expanded model only where explicit mappings exist in a future separately certified scope. Unknown legacy concepts remain quarantined/reviewable instead of being guessed into M1–M18 structures. Counts, orphan relations, money, workflow state, ownership, documents and duplicate/idempotency behavior must reconcile.
 
 ---
 
