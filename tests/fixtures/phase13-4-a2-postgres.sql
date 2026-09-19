@@ -227,3 +227,88 @@ begin
  then raise exception 'A2 FAILURE: missing record was concealed or repaired'; end if;
  raise notice 'PASS A2 ephemeral PostgreSQL missing target remains visible';
 end $$;
+
+-- Adversarial manifest and job identity must never detach a readback from
+-- the original durable Phase 13.3 payload hash or idempotency key.
+do $$
+declare r jsonb;
+begin
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '66666666-6666-4666-8666-666666666666',
+ 'a2-fixture-2026',
+ jsonb_set(doc,'{items,0,sourceKey}','"forged-source"'::jsonb))
+ into r from fixture.original;
+ if r is not null then raise exception 'A2 FAILURE: forged manifest accepted'; end if;
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '66666666-6666-4666-8666-666666666666',
+ 'wrong-idempotency',doc) into r from fixture.original;
+ if r is not null then raise exception 'A2 FAILURE: wrong idempotency accepted'; end if;
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '77777777-7777-4777-8777-777777777777',
+ 'a2-fixture-2026',doc) into r from fixture.original;
+ if r is not null then raise exception 'A2 FAILURE: unknown batch accepted'; end if;
+ raise notice 'PASS A2 ephemeral PostgreSQL forged-manifest and wrong-key binding denied';
+end $$;
+
+reset role;
+update public.contacts set legacy_id='contact:a2-modified'
+ where id='33333333-3333-4333-8333-333333333333';
+set role authenticated;
+set request.jwt.claim.sub = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $$
+declare r jsonb;
+begin
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '66666666-6666-4666-8666-666666666666',
+ 'a2-fixture-2026',doc) into r from fixture.original;
+ if r is null
+   or r->'observedRows'->0->>'sourceKey'<>'contact:a2'
+   or r->'observedRows'->0->'record'->>'legacyId'<>'contact:a2-modified'
+   or r->>'reconciled'<>'false'
+ then raise exception 'A2 FAILURE: source lineage tamper was hidden or reconciled'; end if;
+ raise notice 'PASS A2 ephemeral PostgreSQL source lineage drift visible without attestation';
+end $$;
+
+reset role;
+delete from public.companies where id='44444444-4444-4444-8444-444444444444';
+set role authenticated;
+set request.jwt.claim.sub = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $$
+declare r jsonb;
+begin
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '66666666-6666-4666-8666-666666666666',
+ 'a2-fixture-2026',doc) into r from fixture.original;
+ if r is null or jsonb_array_length(r->'observedRows')<>3
+   or r->'observedRows'->0->>'found'<>'true'
+   or r->'observedRows'->1->>'found'<>'false'
+   or r->'observedRows'->1->'record'<>'null'::jsonb
+   or r->'observedRows'->2->>'found'<>'false'
+   or r->>'reconciled'<>'false'
+ then raise exception 'A2 FAILURE: missing company hidden or repaired'; end if;
+ raise notice 'PASS A2 ephemeral PostgreSQL missing company remains explicit';
+end $$;
+
+reset role;
+delete from public.contacts where id='33333333-3333-4333-8333-333333333333';
+set role authenticated;
+set request.jwt.claim.sub = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $$
+declare r jsonb;
+begin
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '66666666-6666-4666-8666-666666666666',
+ 'a2-fixture-2026',doc) into r from fixture.original;
+ if r is null or jsonb_array_length(r->'observedRows')<>3
+   or exists(select 1 from jsonb_array_elements(r->'observedRows') e
+     where e->>'found'<>'false' or e->'record'<>'null'::jsonb)
+   or r->>'mutated'<>'false' or r->>'reconciled'<>'false'
+ then raise exception 'A2 FAILURE: missing contact or all-missing state concealed'; end if;
+ raise notice 'PASS A2 ephemeral PostgreSQL all three missing rows visible, no repair';
+end $$;
