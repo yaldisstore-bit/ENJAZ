@@ -251,6 +251,31 @@ async function test(){
     'inconsistent_durable_import_counts_denied');
   await replaceIsolatedLedger({counts:originalCounts},'counts restoration');
 
+  // Two independently consistent ledger objects must not override the
+  // hash-bound original manifest; count each stage, not only total.
+  async function assertDualLedgerCountDrift(nextCounts,label){
+    await replaceIsolatedLedger({
+      counts:nextCounts,
+      reconciliation:{
+        ...originalReconciliation,
+        result:{...originalReconciliation.result,counts:{
+          ...originalReconciliation.result.counts,
+          total:nextCounts.total,contacts:nextCounts.contacts,
+          companies:nextCounts.companies,transactions:nextCounts.transactions,
+        }},
+      },
+    },label+' fixture corruption');
+    const inconsistent=await read(owner.client,m);
+    failIf(Boolean(inconsistent.error)||inconsistent.data!==null,label);
+    await replaceIsolatedLedger({
+      counts:originalCounts,reconciliation:originalReconciliation,
+    },label+' fixture restoration');
+  }
+  await assertDualLedgerCountDrift({...originalCounts,total:4},
+    'dual_corrupt_ledger_total_rejected_by_manifest');
+  await assertDualLedgerCountDrift({...originalCounts,companies:2},
+    'dual_corrupt_ledger_stage_rejected_by_manifest');
+
   await replaceIsolatedLedger({reconciliation:{
     ...originalReconciliation,
     result:{...originalReconciliation.result,atomic:false},
