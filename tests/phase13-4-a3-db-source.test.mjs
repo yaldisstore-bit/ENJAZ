@@ -89,6 +89,7 @@ test('A3 branch-only live harness checks equality and adversarial cases without 
     "'a3_wrong_idempotency_cannot_attest'",
     "'a3_missing_transaction_is_explicit_without_false_drift_or_closure'",
     "'a3_all_three_missing_targets_never_close_or_repair'",
+    "'auth_marker_sweep_zero_residue'",
     "evidence.cleanupPassed=ok"
   ])assert.ok(harness.includes(marker),marker);
 });
