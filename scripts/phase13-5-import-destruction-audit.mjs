@@ -6,6 +6,7 @@ const exists=p=>fs.existsSync(new URL(p,root));
 const s=json('docs/PHASE13_5_STATE.json');
 const prev=json('docs/PHASE13_4_STATE.json');
 const tests=read('tests/phase13-5-import-destruction.test.ts');
+const matrix=json('docs/PHASE13_5_DESTRUCTION_MATRIX.json');
 const kickoff=read('docs/PHASE13_5_KICKOFF.md');
 const mapping=read('src/features/import/legacyMappingContract.ts');
 const ordered=read('src/features/import/legacyOrderedImportContract.ts');
@@ -37,6 +38,14 @@ req(JSON.stringify(s.productionBaseline?.allowedTargetTables)===JSON.stringify([
   s.productionBaseline?.historicalImportReconciliationClaimed===false,'production baseline authority drifted');
 req(s.javascriptBudgetBytes===670000&&s.totalJavascriptBudgetBytes===760000&&s.cssBudgetBytes===180000,
   'frozen client budgets drifted');
+req(s.productionDestructiveTestingAllowed===false&&s.isolatedDestructiveEnvironmentRequired===true&&s.zeroResidueRequired===true,
+  'destructive certification must remain isolated and zero-residue');
+req(s.destructionMatrix==='docs/PHASE13_5_DESTRUCTION_MATRIX.json'&&s.destructionCaseCount===24,
+  '13.5 destruction matrix binding drifted');
+req(matrix.schema==='enjaz.phase13-5.import-destruction.matrix.v1'&&matrix.cases?.length===24&&
+  new Set(matrix.cases.map(x=>x.id)).size===24,'destruction matrix completeness drifted');
+for(const d of ['counts','orphan_relations','money','workflow_state','ownership','documents','duplicate_idempotency'])
+  req(matrix.requiredRoadmapDimensions?.includes(d),'destruction matrix missing roadmap dimension '+d);
 
 for(const marker of [
  'expanded-model target escape','unknown legacy concepts','5001-record/item overflow','orphan/dangling relations',
