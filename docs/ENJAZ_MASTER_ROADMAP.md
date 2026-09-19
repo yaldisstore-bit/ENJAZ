@@ -490,7 +490,14 @@ AI is allowed only after authoritative business domains and permission boundarie
 - closure evidence: `docs/PHASE13_3_CLOSURE.md`.
 - **Phase 13.4 — Reconciliation: AUTHORIZED_NEXT**, subject to its own source, Real Cloud, exact-main and deployed-live certification.
 
-## 13.4 — Reconciliation
+## 13.4 — Reconciliation — IN_PROGRESS / A1 READ-ONLY EXPECTATION PLAN
+- exact base: `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`, merged formal Phase 13.3 closure; 43/43 exact-main workflows SUCCESS.
+- A1 derives deterministic expected counts, workspace/source lineage, caller-supplied target IDs, explicit relationship IDs and mapped fields from validated Phase 13.3 manifest. **No actual database read, mutation, import-success attestation, or reconciliation certification in A1.**
+- A2 authenticated workspace-scoped import-ledger/target readback and A3 exact comparison, negative/destructive cloud tests and formal closure remain independent steps.
+- No invented legacy mappings, silent repairs, new database write authority, unreviewed bulk import or client UI; frozen client budgets preserved.
+- status: `docs/PHASE13_4_STATE.json`; A1 contract: `docs/PHASE13_4_A1_KICKOFF.md`.
+- Phase 13.5 — Import Destruction Gate: **LOCKED**.
+
 ## 13.5 — Import Destruction Gate
 
 Import may target the expanded model only where explicit mappings exist. Unknown legacy concepts remain quarantined/reviewable instead of being guessed into M1–M18 structures. Counts, orphan relations, money, workflow state, ownership, documents and duplicate/idempotency behavior must reconcile.
