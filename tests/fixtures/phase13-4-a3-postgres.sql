@@ -254,7 +254,7 @@ update public.companies set legacy_id='company:a2-tampered',
 where id='44444444-4444-4444-8444-444444444444';
 set role authenticated;
 set request.jwt.claim.sub='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-do $
+do $$
 declare r jsonb;
 begin
  select fixture.a3_report() into r;
@@ -266,7 +266,7 @@ begin
    or r->>'mutated'<>'false'
  then raise exception 'A3 FAILED: same-row multi-axis drift lost a difference code'; end if;
  raise notice 'PASS A3 isolated same-row five-axis drift preserves all difference codes';
-end $;
+end $$;
 reset role;
 update public.companies set legacy_id='company:a2',
   deleted_at=null,legal_name='Test Company',capital=120.50,
@@ -274,7 +274,7 @@ update public.companies set legacy_id='company:a2',
 where id='44444444-4444-4444-8444-444444444444';
 set role authenticated;
 set request.jwt.claim.sub='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-do $
+do $$
 declare r jsonb;
 begin
  select fixture.a3_report() into r;
@@ -283,7 +283,7 @@ begin
    or r->>'closureAuthorized'<>'false'
  then raise exception 'A3 FAILED: isolated restoration did not return exact snapshot match'; end if;
  raise notice 'PASS A3 isolated same-row drift restoration returns equality without closure';
-end $;
+end $$;
 
 reset role;
 update public.contacts set deleted_at=null
