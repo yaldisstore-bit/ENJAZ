@@ -477,16 +477,18 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Formal closure: `docs/PHASE13_2_CLOSURE.md`.
 - **Phase 13.3 — Ordered Import: AUTHORIZED_NEXT**.
 
-## 13.3 — Ordered Import — IN_PROGRESS / A1 + A2 CERTIFIED / A3 CERTIFIED
-- exact base: `501f5eaad31ba13b3e81d8acd28add4a631ac6bd` — final merged Phase 13.2 closure.
-- **A1 — Deterministic ordered-import plan: CERTIFIED** — Gate #2 / `35403491589`; **11/11 PASS**; functional **219/219**; DB self-test **25/25**.
-- **A2 — Explicit Target-ID & Idempotency Binding: CERTIFIED** — Gate #10 / `35403767829`; **11/11 PASS**; A1 **11/11**; functional **219/219**; DB self-test **25/25**; caller-supplied UUIDs only; no permission claim or write.
-- **A3 — Authenticated Atomic Server Execution Boundary: CERTIFIED** — source Gate #23 PASS; Real Cloud #5 **23/23 PASS** on `a442a41ec6c6e4eb5166c54ee847d276347c349a`; owner-authenticated atomic RPC uses existing `import_jobs`, exact replay, cross-workspace denial, and zero-partial-write rollback. Narrow approved server execution only; 13.3 PR/exact-main closure pending. See `docs/PHASE13_3_A3_EVIDENCE.md`.
-- fixed stage order: `contacts → companies → transactions`.
-- plan generation consumes only certified Phase 13.2 explicit mapping/relationship preview.
-- unmapped, duplicate, dangling, undeclared or review-required records fail closed.
-- no target-ID generation, FK assignment, idempotency binding, persistence, target mutation, DB migration, write RPC, Edge import authority or client UI in A1.
-- **Phase 13.4 — Reconciliation remains LOCKED.**
+## 13.3 — Ordered Import ✅ CLOSED
+- exact predecessor: `501f5eaad31ba13b3e81d8acd28add4a631ac6bd`; implementation PR #211 merged as `7784b9e01aca8b43c3f21833292205873b67c915`.
+- **A1 — deterministic plan: CERTIFIED**, source Gate #2 / `35403491589`, **11/11 PASS**.
+- **A2 — explicit target-ID and idempotency binding: CERTIFIED**, source Gate #10 / `35403767829`, **11/11 PASS**.
+- **A3 — owner-authenticated atomic execution: CERTIFIED**, Real Cloud #5 / `35408155675`, **23/23 PASS**; rollback, replay, cross-workspace denial and zero test residue verified.
+- implementation PR #211: **83/83 completed = 82 success + 1 expected skipped, 0 failures**; exact implementation main: **43/43 SUCCESS**.
+- cumulative Real Browser #1697, Pages #205/#1598, Live External #1271 and Published Portal #205: **PASS** on exact implementation SHA.
+- A1 + A2 CERTIFIED / A3 CERTIFIED; only explicit reviewed Phase 13.2 mappings and caller-supplied UUIDs; fixed `contacts → companies → transactions` stage order.
+- No inferred mappings or generated IDs, no unreviewed bulk import, no new client UI or AI provider authority. The owner-authenticated Postgres RPC is the sole certified write boundary for this phase.
+- client budgets frozen: initial JS 431224/670000; total JS 759952/760000; CSS 179989/180000; zero budget increase.
+- closure evidence: `docs/PHASE13_3_CLOSURE.md`.
+- **Phase 13.4 — Reconciliation: AUTHORIZED_NEXT**, subject to its own source, Real Cloud, exact-main and deployed-live certification.
 
 ## 13.4 — Reconciliation
 ## 13.5 — Import Destruction Gate
