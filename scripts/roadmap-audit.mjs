@@ -184,4 +184,19 @@ if(exists('docs/PHASE13_2_STATE.json')){
   req(p132.javascriptBudgetBytes===670000&&p132.totalJavascriptBudgetBytes===760000&&p132.cssBudgetBytes===180000&&p132.budgetIncreaseAllowed===false,'Phase 13.2 budget law drifted');
 }
 
+if(exists('docs/PHASE13_3_STATE.json')){
+  const p133=json('docs/PHASE13_3_STATE.json'),p132=json('docs/PHASE13_2_STATE.json');
+  req(p132.status==='CLOSED'&&p132.closureDecision==='PASS'&&p132.phase13_3Allowed===true&&p132.successorStatus==='AUTHORIZED_NEXT','Phase 13.3 requires formal Phase 13.2 authorization');
+  req(p133.phase==='13.3'&&p133.status==='IN_PROGRESS'&&p133.mode==='DETERMINISTIC_ORDERED_IMPORT_PLANNING','Phase 13.3 lifecycle invalid');
+  const a3Certified=p133.currentSlice==='A3_SERVER_EXECUTION_BOUNDARY'&&p133.a3Status==='CERTIFIED';
+  req(p133.baseCommit==='501f5eaad31ba13b3e81d8acd28add4a631ac6bd'&&p133.predecessorClosureMergeCommit===p133.baseCommit,'Phase 13.3 exact final 13.2 closure base drifted');
+  req(p133.successorPhase==='13.4'&&p133.successorStatus==='LOCKED'&&p133.phase13_4Allowed===false,'Open Phase 13.3 must keep 13.4 locked');
+  req(['A1_DETERMINISTIC_ORDERED_IMPORT_PLAN','A2_EXPLICIT_TARGET_ID_IDEMPOTENCY_BINDING','A3_SERVER_EXECUTION_BOUNDARY'].includes(p133.currentSlice)&&p133.orderedImportPlanningAllowed===true&&p133.orderedImportExecutionAllowed===a3Certified,'Phase 13.3 server-only execution authority drifted');
+  for(const k of ['generatedTargetIdsAllowed','newDatabaseTablesAllowed','edgeFunctionAdded','clientUiAdded','unknownConceptAutoMappingAllowed'])req(p133[k]===false,`Phase 13.3 ${k} remains forbidden`);
+  for(const k of ['importExecutionAllowed','persistenceAllowed','databaseWritesAllowed','targetEnjazMutationAllowed','foreignKeyAssignmentAllowed','rollbackExecutionAllowed','newWriteRpcAuthorityAllowed'])req(p133[k]===a3Certified,`Phase 13.3 ${k} requires A3 certification`);
+  if(p133.currentSlice==='A1_DETERMINISTIC_ORDERED_IMPORT_PLAN')req(p133.idempotencyBindingAllowed===false,'Phase 13.3 A1 cannot bind idempotency');else if(p133.currentSlice==='A2_EXPLICIT_TARGET_ID_IDEMPOTENCY_BINDING')req(p133.a1Status==='CERTIFIED'&&p133.a1GateRunId===35403491589&&p133.a1PassCount===11&&p133.a2Status==='IN_PROGRESS'&&p133.idempotencyBindingAllowed===true&&p133.generatedTargetIdsAllowed===false&&p133.foreignKeyAssignmentAllowed===false,'Phase 13.3 A2 lifecycle/binding law drifted');else req(p133.a2Status==='CERTIFIED'&&p133.a2GateRunId===35403767829&&p133.a2PassCount===11&&['IN_PROGRESS','CERTIFIED'].includes(p133.a3Status)&&p133.orderedImportExecutionAllowed===a3Certified&&p133.databaseWritesAllowed===a3Certified&&(!a3Certified||(p133.a3RealCloudCertified===true&&p133.a3Evidence==='docs/PHASE13_3_A3_EVIDENCE.md'&&exists(p133.a3Evidence))),'Phase 13.3 A3 certification law drifted');
+  req(p133.stageOrderA1?.join(',')==='contacts,companies,transactions'&&p133.targetTablesA1?.join(',')==='contacts,companies,transactions','Phase 13.3 A1 stage order drifted');
+  req(p133.javascriptBudgetBytes===670000&&p133.totalJavascriptBudgetBytes===760000&&p133.cssBudgetBytes===180000&&p133.budgetIncreaseAllowed===false,'Phase 13.3 budget law drifted');
+}
+
 if(errors.length){console.error(`ENJAZ ROADMAP AUDIT FAIL (${errors.length})`);errors.forEach(e=>console.error(`- ${e}`));process.exitCode=1}else console.log('ENJAZ ROADMAP AUDIT PASS — Phases 0-18 ordered; Phase 9.7 lifecycle is Zero-Escape governed; M2 may close only with machine evidence; M3, M4 and M10 activate only through formal Phase 11 predecessor authority; M9 activates only through formal Phase 12.2 authority and open M9 keeps Phase 12.4 locked; M8/M13/M18 remain ACTIVE for later anchors; M7 and M16 activation are locked to formal predecessor authority, and M16 cannot globally close in Phase 10.5.');

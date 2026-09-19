@@ -477,7 +477,17 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Formal closure: `docs/PHASE13_2_CLOSURE.md`.
 - **Phase 13.3 — Ordered Import: AUTHORIZED_NEXT**.
 
-## 13.3 — Ordered Import
+## 13.3 — Ordered Import — IN_PROGRESS / A1 + A2 CERTIFIED / A3 CERTIFIED
+- exact base: `501f5eaad31ba13b3e81d8acd28add4a631ac6bd` — final merged Phase 13.2 closure.
+- **A1 — Deterministic ordered-import plan: CERTIFIED** — Gate #2 / `35403491589`; **11/11 PASS**; functional **219/219**; DB self-test **25/25**.
+- **A2 — Explicit Target-ID & Idempotency Binding: CERTIFIED** — Gate #10 / `35403767829`; **11/11 PASS**; A1 **11/11**; functional **219/219**; DB self-test **25/25**; caller-supplied UUIDs only; no permission claim or write.
+- **A3 — Authenticated Atomic Server Execution Boundary: CERTIFIED** — source Gate #23 PASS; Real Cloud #5 **23/23 PASS** on `a442a41ec6c6e4eb5166c54ee847d276347c349a`; owner-authenticated atomic RPC uses existing `import_jobs`, exact replay, cross-workspace denial, and zero-partial-write rollback. Narrow approved server execution only; 13.3 PR/exact-main closure pending. See `docs/PHASE13_3_A3_EVIDENCE.md`.
+- fixed stage order: `contacts → companies → transactions`.
+- plan generation consumes only certified Phase 13.2 explicit mapping/relationship preview.
+- unmapped, duplicate, dangling, undeclared or review-required records fail closed.
+- no target-ID generation, FK assignment, idempotency binding, persistence, target mutation, DB migration, write RPC, Edge import authority or client UI in A1.
+- **Phase 13.4 — Reconciliation remains LOCKED.**
+
 ## 13.4 — Reconciliation
 ## 13.5 — Import Destruction Gate
 
