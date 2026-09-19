@@ -49,3 +49,12 @@ Formal Phase 13.4 closure requires:
 4. separate formal closure evidence/state transition.
 
 Until those gates pass, Phase 13.4 remains `IN_PROGRESS` and Phase 13.5 remains `LOCKED`.
+
+
+## Post-implementation deployment and exact-main recertification
+
+Implementation PR #214 merged as `cbf654ccc3728bb639d057883ad0847f7721d38e`. Exact-main produced **48/48 completed workflow runs = 42 SUCCESS + 6 expected duplicate workflow_run SKIPPED, 0 failures, 0 pending**. The successful set includes Phase 13.4 Gate, Quality, cumulative Real Browser, Pages build/deployment, Pages Preview, Live External and Published Client Portal.
+
+After that gate, the two certified read-only functions were installed on production Supabase as migrations `20260919125100` and `20260919125103`; migration `20260919125253` normalized their live comments. Metadata verification confirms both functions are `SECURITY INVOKER` / `STABLE`, `anon=false`, `PUBLIC=false`, `authenticated=true`. Phase-owned production Security Advisor findings: **0**. No production business row was created, updated or deleted by Phase 13.4 deployment.
+
+Formal closure evidence: `docs/PHASE13_4_CLOSURE.md`.
