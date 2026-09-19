@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'phase13-5-*'
+      - main
     paths:
       - 'docs/PHASE13_5_*'
       - 'scripts/phase13-5-*'
