@@ -86,3 +86,13 @@ test('A3 branch-only live harness checks equality and adversarial cases without 
     "evidence.cleanupPassed=ok"
   ])assert.ok(harness.includes(marker),marker);
 });
+
+test('A3 PostgreSQL fixture has balanced dollar-quoted blocks, including adversarial cases',()=>{
+  const fixture=fs.readFileSync(new URL('./fixtures/phase13-4-a3-postgres.sql',import.meta.url),'utf8');
+  const openings=[...fixture.matchAll(/^\s*do \$\$(?=\s|$)/gm)].length;
+  const closings=[...fixture.matchAll(/^\s*end \$\$;/gm)].length;
+  assert.ok(openings>0,'expected executable PostgreSQL DO blocks');
+  assert.equal(openings,closings,'each DO block needs its matching dollar-quoted terminator');
+  assert.doesNotMatch(fixture,/^\s*(?:do \$(?!\$)|end \$;)/gm,
+    'single-dollar delimiters must never silently break the remaining fixture');
+});
