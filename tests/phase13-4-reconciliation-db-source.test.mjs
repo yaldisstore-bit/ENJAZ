@@ -45,3 +45,22 @@ test('A2 preserves missing rows, exact ordinal and source identities and does no
 test('A2 does not contain service key, auto-fix authority or unbounded page-based readback', () => {
   assert.doesNotMatch(canonical, /service[_-]?role|service[_-]?key|automated[_-]?repair|offset\s+\d+|limit\s+1000/);
 });
+
+test('A2 Real Cloud harness is explicitly opt-in, isolated and exercises post-import drift', () => {
+  const harness = fs.readFileSync(new URL('../scripts/phase13-4-a2-real-cloud-e2e.mjs', import.meta.url), 'utf8');
+  for (const marker of [
+    "ENJAZ_REAL_CLOUD_CONFIRM!=='YES'",
+    "url.endsWith(PROJECT+'.supabase.co')",
+    "enjaz_test_marker:MARKER",
+    "'anonymous_cannot_read_successful_ledger'",
+    "'outsider_cannot_read_successful_ledger'",
+    "'changed_fk_visible_without_silent_reconciliation'",
+    "'changed_money_visible_as_exact_decimal_without_reconciliation'",
+    "'isolated_test_row_restoration_verified'",
+    "'missing_target_preserved_without_silent_repair'",
+    "evidence.cleanupPassed=ok",
+    "evidence.passed=!fatal&&evidence.cleanupPassed",
+  ]) assert.ok(harness.includes(marker), marker);
+  assert.match(harness, /\\.delete\\(\\)\\.eq\\('id',p\\.ids\\.transactionId\\)\\.eq\\('workspace_id',ws\\)/);
+  assert.match(harness, /admin\\.from\\('workspaces'\\)\\.delete\\(\\)\\.eq\\('id',ws\\)/);
+});
