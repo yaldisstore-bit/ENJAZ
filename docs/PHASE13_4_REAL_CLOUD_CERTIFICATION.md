@@ -26,6 +26,7 @@ Pre-merge Real Cloud certification therefore uses the same reviewed `scripts/pha
 
 ## Hard isolation prerequisites
 
+0. The manual workflow file must exist on GitHub's default branch so `workflow_dispatch` can be invoked. Bootstrap only the guarded manual workflow to `main`; do **not** merge the A2/A3 implementation PR as a shortcut. At execution time select a non-main `phase13-4-*` source branch; the workflow fails closed on `main` or a tag.
 1. Create a dedicated development branch from project `juzxriirhkuzviwnhkbd` only after explicit cost approval.
 2. Record the returned branch project ref. It must differ from `juzxriirhkuzviwnhkbd`.
 3. Obtain branch-local API URL, publishable key and secret/service credential. Never reuse production credentials.
