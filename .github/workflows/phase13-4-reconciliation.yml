@@ -7,6 +7,7 @@ on:
       - 'docs/PHASE13_4_*'
       - 'src/features/import/legacyReconciliation*.ts'
       - 'database/migrations/phase_13_4_reconciliation_readback.sql'
+      - 'database/migrations/phase_13_4_a3_trusted_comparison.sql'
       - 'tests/phase13-4-*'
       - 'tests/fixtures/phase13-4-*'
       - 'scripts/phase13-4-*'
@@ -52,6 +53,7 @@ jobs:
         run: |
           node --experimental-strip-types --test tests/phase13-4-reconciliation-readback.test.ts
           node --test tests/phase13-4-reconciliation-db-source.test.mjs
+          node --test tests/phase13-4-a3-db-source.test.mjs
       - name: A2 isolated Real Cloud preflight — reject live-project credentials before network
         run: |
           node --check scripts/phase13-4-a2-real-cloud-e2e.mjs
@@ -105,3 +107,6 @@ jobs:
           psql --host=127.0.0.1 --port=5432 --username=postgres \
             --dbname=enjaz_a2_test --set=ON_ERROR_STOP=1 \
             --file=tests/fixtures/phase13-4-a2-postgres.sql
+          psql --host=127.0.0.1 --port=5432 --username=postgres \
+            --dbname=enjaz_a2_test --set=ON_ERROR_STOP=1 \
+            --file=tests/fixtures/phase13-4-a3-postgres.sql
