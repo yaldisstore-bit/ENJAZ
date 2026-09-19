@@ -245,6 +245,46 @@ where id='44444444-4444-4444-8444-444444444444';
 update public.transactions set current_fee=135.25
 where id='55555555-5555-4555-8555-555555555555';
 
+-- One damaged company must preserve all five independent diagnostic codes;
+-- a repair of the synthetic fixture restores exact snapshot equality.
+reset role;
+update public.companies set legacy_id='company:a2-tampered',
+  deleted_at=now(),legal_name='Tampered Company',capital=121.50,
+  primary_contact_id=null
+where id='44444444-4444-4444-8444-444444444444';
+set role authenticated;
+set request.jwt.claim.sub='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $
+declare r jsonb;
+begin
+ select fixture.a3_report() into r;
+ if r is null or r->>'rowCount'<>'3' or r->>'matchedCount'<>'2'
+   or r->>'mismatchCount'<>'1' or r->>'allMatchedAtSnapshot'<>'false'
+   or r->'rows'->1->'differenceCodes'<>
+      '["IDENTITY_DRIFT","LIFECYCLE_DRIFT","FIELD_DRIFT","MONEY_DRIFT","RELATIONSHIP_DRIFT"]'::jsonb
+   or r->>'reconciled'<>'false' or r->>'closureAuthorized'<>'false'
+   or r->>'mutated'<>'false'
+ then raise exception 'A3 FAILED: same-row multi-axis drift lost a difference code'; end if;
+ raise notice 'PASS A3 isolated same-row five-axis drift preserves all difference codes';
+end $;
+reset role;
+update public.companies set legacy_id='company:a2',
+  deleted_at=null,legal_name='Test Company',capital=120.50,
+  primary_contact_id='33333333-3333-4333-8333-333333333333'
+where id='44444444-4444-4444-8444-444444444444';
+set role authenticated;
+set request.jwt.claim.sub='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $
+declare r jsonb;
+begin
+ select fixture.a3_report() into r;
+ if r is null or r->>'matchedCount'<>'3' or r->>'mismatchCount'<>'0'
+   or r->>'allMatchedAtSnapshot'<>'true'
+   or r->>'closureAuthorized'<>'false'
+ then raise exception 'A3 FAILED: isolated restoration did not return exact snapshot match'; end if;
+ raise notice 'PASS A3 isolated same-row drift restoration returns equality without closure';
+end $;
+
 reset role;
 update public.contacts set deleted_at=null
 where id='33333333-3333-4333-8333-333333333333';
