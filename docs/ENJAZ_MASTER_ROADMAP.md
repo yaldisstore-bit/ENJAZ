@@ -490,12 +490,20 @@ AI is allowed only after authoritative business domains and permission boundarie
 - closure evidence: `docs/PHASE13_3_CLOSURE.md`.
 - **Phase 13.4 — Reconciliation: AUTHORIZED_NEXT**, subject to its own source, Real Cloud, exact-main and deployed-live certification.
 
-## 13.4 — Reconciliation — IN_PROGRESS / A1 READ-ONLY EXPECTATION PLAN
+## 13.4 — Reconciliation — IN_PROGRESS / REAL CLOUD IMPLEMENTATION CERTIFIED / FORMAL CLOSURE PENDING
 - exact base: `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`, merged formal Phase 13.3 closure; 43/43 exact-main workflows SUCCESS.
-- A1 derives deterministic expected counts, workspace/source lineage, caller-supplied target IDs, explicit relationship IDs and mapped fields from validated Phase 13.3 manifest. **No actual database read, mutation, import-success attestation, or reconciliation certification in A1.**
-- A2 authenticated workspace-scoped import-ledger/target readback and A3 exact comparison, negative/destructive cloud tests and formal closure remain independent steps.
-- No invented legacy mappings, silent repairs, new database write authority, unreviewed bulk import or client UI; frozen client budgets preserved.
-- status: `docs/PHASE13_4_STATE.json`; A1 contract: `docs/PHASE13_4_A1_KICKOFF.md`.
+- A1 deterministic expectation plan is **CERTIFIED / MERGED** via PR #213, merge `03934f9a07746096eee9784b8832f5f302ffd58a`.
+- A2 owner/RLS-bound readback and A3 trusted in-database comparison remain **read-only SECURITY INVOKER** proposals; disposable PostgreSQL 17 continues to log **16 A2 PASS + 17 A3 PASS**.
+- Supabase development-branch creation was cost-approved at USD 0.01344/hour but rejected by Supabase because ENJAZ is on the Free plan (Branching requires Pro+). No paid branch was created and no branch cost began.
+- A separate isolated Supabase project `nqhgaukutkyvfumbtbtg` in `eu-central-1` was explicitly cost-confirmed at **USD 0/month** and used as the hosted DB/RLS lab. Its minimal schema/RLS was aligned to production before certification; security advisors report **0 lints**.
+- Hosted DB/RLS evidence passes: real Phase 13.3 import RPC, owner/member/outsider/anon authority, exact A2 readback, exact A3 comparison, drift/tamper/missing/unfinished/replay cases, zero residue, **5000 accepted** and **5001 fail-closed**.
+- The first hosted A3 5000-item run exhausted PostgreSQL temp space. A3 was changed from repeated JSON-array positional lookup to materialized expected/observed rowsets joined by ordinal; the exact 5000-item hosted test passes after this optimization and a source regression locks it in.
+- **Production Supabase remains unchanged by Phase 13.4**; neither A2 nor A3 is installed there.
+- Real Auth-API transport also passes in the isolated project: three real users were created and signed in, owner/outsider/member/anonymous boundaries were exercised with actual user JWTs, the real Phase 13.3 import + A2 + A3 ran, forged-manifest and replay behavior passed, and cleanup returned zero Auth/data residue. The temporary certificate endpoint is disabled with 410/verify-JWT.
+- No invented legacy mappings, silent repairs, production write authority, unreviewed bulk import or client UI; frozen client budgets preserved.
+- status: `docs/PHASE13_4_STATE.json`; hosted evidence: `docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`; A1 contract: `docs/PHASE13_4_A1_KICKOFF.md`; A2/A3 contract: `docs/PHASE13_4_A2_KICKOFF.md`.
+- Real Cloud runbook: `docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md`.
+- Implementation certification: **PASS**. Formal 13.4 closure still requires exact PR-head completion, implementation merge and exact-main/deployed-live recertification.
 - Phase 13.5 — Import Destruction Gate: **LOCKED**.
 
 ## 13.5 — Import Destruction Gate

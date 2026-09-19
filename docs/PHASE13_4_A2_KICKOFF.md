@@ -1,0 +1,57 @@
+# Phase 13.4 — A2 Authenticated Readback — Source Proposal
+
+**Status:** SOURCE + DISPOSABLE POSTGRES + HOSTED DB/RLS + REAL AUTH TOKEN VERIFIED / IMPLEMENTATION PASS / PRODUCTION NOT DEPLOYED.
+**Base:** A1 PR #213 merged into main as 03934f9a07746096eee9784b8832f5f302ffd58a.
+**Whole phase:** 13.4 IN_PROGRESS; 13.5 LOCKED.
+
+## Intended behavior
+
+The readback query must use the real caller JWT, existing workspace-owner authority and table RLS. It binds the existing Phase 13.3 import_jobs record to the exact batch, workspace, idempotency key and SHA-256 of the original execution manifest, then reads each expected target in one SQL statement and one MVCC statement snapshot. Missing rows stay explicit. Monetary fields are returned as decimal strings.
+
+Production remains untouched: no Phase 13.4 function is deployed to the live ENJAZ project and no production imported-data equivalence is asserted. The same proposals are installed only in isolated Supabase lab `nqhgaukutkyvfumbtbtg`, where Hosted DB/RLS behavior and zero-residue have been verified.
+
+## Files and permission boundary
+
+- src/features/import/legacyReconciliationReadback.ts prepares a validated caller-JWT RPC request; no execution or attestation.
+- database/migrations/phase_13_4_reconciliation_readback.sql proposes an existing-table, SECURITY INVOKER, STABLE, owner-scoped, RLS-protected read-only function. Anonymous EXECUTE denied; no DML, new tables, service-role business read, automatic repair or Edge/client UI.
+- tests/phase13-4-reconciliation-readback.test.ts and tests/phase13-4-reconciliation-db-source.test.mjs are source-only checks and are not Real Cloud evidence.
+
+## A1 exact merged-main verification (independent of A2)
+
+- Exact A1 main merge: `03934f9a07746096eee9784b8832f5f302ffd58a`.
+- GitHub Actions inventory for that SHA: **40/40 completed successful push workflows**, plus **3/3 successful downstream workflow_run checks** (Pages Preview #1603, Live External #1276, Published Client Portal #210); no failed items in that 43-check inventory. The distinct dynamic Pages deployment #207 also succeeded. Later repeated downstream runs marked skipped are not counted as failures or as new certifications.
+- [A1 source gate #3](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430187281), [Quality #1787](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430187290), [Real Browser #1703](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430187298), [Pages deploy #207](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430186692), [Pages Preview #1603](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430229662), [Live External #1276](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430281349), [Published Client Portal #210](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430281354): SUCCESS on that exact SHA.
+- This establishes A1 **merged-main/deployed-live verification only**. It does NOT certify A2, prove real imported-data reconciliation, authorize the proposed SQL migration, close Phase 13.4 or unlock Phase 13.5.
+
+## Expanded isolated A2 test coverage
+
+The draft Auth-API harness checks contact source-lineage and field drift followed by exact restoration, and independently reports disappearing transactions, companies and contacts across all three stages. The corresponding database/RLS behaviors and real Auth user/token transport have now been executed in the isolated Supabase lab with zero residue; formal phase closure still requires exact PR-head, merge and exact-main recertification.
+
+## SQL-level testing without touching production
+
+- CI now provisions a disposable PostgreSQL 17 service and runs `tests/fixtures/phase13-4-a2-postgres.sql` against the exact proposed SQL file. The fixture creates synthetic-only tables, JWT identity shims and RLS, and exercises owner/outsider/anonymous boundaries, a same-workspace member that can read the base ledger but cannot pass the canonical owner-only RPC, exact decimal fields, lineage/FK reads, damaged ledger rejection and missing-target visibility. No Supabase credentials or production data are used by this job.
+- Disposable PostgreSQL remains compilation/regression evidence. Independent hosted evidence now exists in the isolated Supabase project: real `authenticated` role + `auth.uid()` boundary, actual Phase 13.3 import RPC, owner/member/outsider/anon behavior, destructive comparison cases, 5000/5001 bounds and zero residue all passed. The remaining gap is Auth-API/real-user-token transport; do not install the migration into production as a shortcut.
+- The readback proposal additionally binds the completed Phase 13.3 atomic outcome, persisted-result schema, final-result payload hash and exact durable `result.counts = import_jobs.counts - contract` consistency. Ledger corruption/restoration and the same-workspace-member-vs-canonical-owner boundary have now been executed successfully on hosted Supabase DB/RLS.
+
+## Cloud destructive-test isolation and current SQL evidence
+
+- The A2 Auth-API harness is **isolated-ref only**. It requires an explicit non-production Supabase ref, matching `https://<isolated-ref>.supabase.co`, isolated publishable/secret credentials, and both `ENJAZ_REAL_CLOUD_CONFIRM=YES` and `ENJAZ_A2_ISOLATED_BRANCH_CONFIRM=YES`. It rejects the connected production ref `juzxriirhkuzviwnhkbd` even when both confirmations are set. Never supply the production API URL or production secret.
+- `tests/phase13-4-a2-cloud-preflight.test.mjs` deliberately runs **only rejected configurations** with inert placeholders and asserts fail-closed exits before any API client is constructed. CI does not run the destructive cloud test.
+- A cost-approved development-branch attempt was rejected because the ENJAZ organization is on Supabase Free and Branching requires Pro+. A separate isolated project `nqhgaukutkyvfumbtbtg` was therefore created at confirmed USD 0/month in `eu-central-1`; it is the current hosted DB/RLS lab. Its publishable keys are available through connected tooling, but the service-role/secret needed by the Auth Admin harness is not exposed.
+- Earlier head `ce94101734d7b6a3747f5047a5fbf38227215772` established the first disposable PostgreSQL evidence with **11 PASS groups**. It is retained only as historical evidence.
+- The exact source-only head `8e2bb1e6ebe9e9fad43ac7384427f54a4ca53ef2` supersedes that evidence. [Phase 13.4 run #35437033495](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35437033495) completed **SUCCESS** in both jobs and the actual PostgreSQL 17 logs contain **16 A2 PASS notices + 17 A3 PASS notices**. The A2 set includes dual-corrupt total/per-stage ledger rejection, incomplete-job rejection, exact 5000-item readback and fail-closed 5001-item binding. The A3 set includes exact clean comparison, owner/outsider/member/anonymous boundaries, field/money/FK/source/lifecycle drift, missing targets, forged manifest/idempotency, mutually corrupted counts, five-axis same-row drift, restoration to equality without closure, and the 5000/5001 boundary.
+- On the later fully-drained source head `fc50f868ff2a94af7a7782f1dfa2423d1270546c`, repository-wide inventory completed **87/87 = 86 SUCCESS + 1 expected SKIPPED, 0 FAILED, 0 PENDING**, with Quality Gate and Real Browser SUCCESS. Hosted DB/RLS evidence is recorded separately in `PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`. A subsequent A3 rowset-alignment optimization was required by hosted 5000-item resource testing and is locked by a source regression.
+
+## Required certifications before deployment / closure
+
+1. Preserve the exact merged-main A1 certification above and independently verify all A2 PR-head regressions; PR-head PASS alone cannot certify A2's cloud readback.
+2. Independently review SQL, owner/RLS privileges, ledger hash binding, partial reads, decimal semantics and the 5000-item bound.
+3. Preserve the completed Hosted DB/RLS evidence and finish the remaining Auth-API/real-user-token transport certificate in the isolated environment; never substitute production credentials.
+4. Preserve the implemented A3 trusted DB comparison boundary and the hosted 5000-item rowset-alignment fix: it invokes authenticated A2 evidence inside the database, rejects caller-supplied readback/attestation, and never auto-repairs, deletes, reimports or grants closure authority.
+5. Close 13.4 and unlock 13.5 only with independent full Product / UI-UX / Engineering / Certification gates and formal closure evidence.
+
+Execution runbook: [`PHASE13_4_REAL_CLOUD_CERTIFICATION.md`](PHASE13_4_REAL_CLOUD_CERTIFICATION.md).
+
+Hosted DB/RLS evidence: [`PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`](PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md).
+
+**Authorization today:** source + CI + isolated Hosted DB/RLS verification only. Do not deploy the proposed migration to production or unlock Phase 13.5 before Auth-API transport certification and formal closure.

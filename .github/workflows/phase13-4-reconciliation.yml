@@ -1,14 +1,18 @@
-name: ENJAZ Phase 13.4 — Reconciliation A1 Gate
+name: ENJAZ Phase 13.4 — A1/A2/A3 Source + Isolated PostgreSQL Gate
 
 on:
   push:
-    branches: [phase13-4-reconciliation-a1, main]
+    branches: [phase13-4-reconciliation-a1, phase13-4-reconciliation-a2-readback, main]
     paths:
       - 'docs/PHASE13_4_*'
       - 'src/features/import/legacyReconciliation*.ts'
+      - 'database/migrations/phase_13_4_reconciliation_readback.sql'
+      - 'database/migrations/phase_13_4_a3_trusted_comparison.sql'
       - 'tests/phase13-4-*'
+      - 'tests/fixtures/phase13-4-*'
       - 'scripts/phase13-4-*'
       - '.github/workflows/phase13-4-reconciliation.yml'
+      - '.github/workflows/phase13-4-real-cloud-certification.yml'
       - 'README.md'
       - 'docs/ENJAZ_MASTER_ROADMAP.md'
   pull_request:
@@ -23,7 +27,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  phase13-4-a1:
+  phase13-4-source:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
@@ -42,10 +46,20 @@ jobs:
           python-version: '3.12'
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Phase 13.4 A1 source and lifecycle audit
+      - name: Phase 13.4 source and lifecycle audit
         run: node scripts/phase13-4-reconciliation-audit.mjs
       - name: A1 deterministic reconciliation planning and destruction tests
         run: node --experimental-strip-types --test tests/phase13-4-reconciliation-plan.test.ts
+      - name: A2/A3 authenticated readback, comparison and DB-source security tests
+        run: |
+          node --experimental-strip-types --test tests/phase13-4-reconciliation-readback.test.ts
+          node --test tests/phase13-4-reconciliation-db-source.test.mjs
+          node --test tests/phase13-4-a3-db-source.test.mjs
+          node --test tests/phase13-4-real-cloud-workflow-source.test.mjs
+      - name: A2 isolated Real Cloud preflight — reject live-project credentials before network
+        run: |
+          node --check scripts/phase13-4-a2-real-cloud-e2e.mjs
+          node --test tests/phase13-4-a2-cloud-preflight.test.mjs
       - name: Preserve prior legacy intake mapping and ordered-import authority
         run: |
           node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
@@ -66,3 +80,35 @@ jobs:
           npm run typecheck
           npm run build -- --base=/
           npm run audit:dist:budget
+
+  a2-postgres-isolated:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: enjaz_a2_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: enjaz_ephemeral_test_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d enjaz_a2_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure PostgreSQL client is available
+        run: command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+      - name: Compile actual A2/A3 SQL and test isolated PostgreSQL 17 RLS, ledger, comparison and missing-row behavior
+        env:
+          PGPASSWORD: enjaz_ephemeral_test_only
+        run: |
+          psql --host=127.0.0.1 --port=5432 --username=postgres \
+            --dbname=enjaz_a2_test --set=ON_ERROR_STOP=1 \
+            --file=tests/fixtures/phase13-4-a2-postgres.sql
+          psql --host=127.0.0.1 --port=5432 --username=postgres \
+            --dbname=enjaz_a2_test --set=ON_ERROR_STOP=1 \
+            --file=tests/fixtures/phase13-4-a3-postgres.sql

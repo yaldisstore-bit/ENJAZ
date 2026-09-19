@@ -1,6 +1,6 @@
 # Phase 13.4 — Reconciliation — A1 Read-only Expectation Plan
 
-**Status:** IN_PROGRESS / A1 implementation.
+**Status:** CERTIFIED / MERGED via PR #213 as `03934f9a07746096eee9784b8832f5f302ffd58a`; retained as the frozen A1 contract.
 **Exact predecessor:** final Phase 13.3 formal closure merged as `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584` with 43/43 exact-main workflows SUCCESS (including cumulative Real Browser, Pages, Live External and Published Portal).
 **Successor:** Phase 13.5 — Import Destruction Gate — LOCKED.
 

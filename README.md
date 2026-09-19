@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.4 — Reconciliation 🟡 IN PROGRESS / A1 READ-ONLY EXPECTATION PLAN**  
+الحالة الرسمية: **Phase 13.4 — Reconciliation 🟡 IN PROGRESS / REAL CLOUD IMPLEMENTATION CERTIFIED / FORMAL CLOSURE PENDING**  
 آخر مرحلة مغلقة: **Phase 13.3 — Ordered Import ✅ CLOSED / PR + EXACT-MAIN 43/43 + DEPLOYED-LIVE CERTIFIED**  
-المرحلة الحالية: **Phase 13.4 — Reconciliation — A1 READ-ONLY / NO DATABASE READ OR WRITE**؛ Phase 13.5 remains **LOCKED**.
+المرحلة الحالية: **Phase 13.4 — Reconciliation — hosted DB/RLS + real Auth-token transport + zero-residue PASS; exact-head/merge/exact-main closure remains; production untouched**؛ Phase 13.5 remains **LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -80,11 +80,19 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 ## Phase 13.4 — العمل الحالي
 
 - exact predecessor: Phase 13.3 formal closure merge `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`; **43/43 exact-main SUCCESS**.
-- **A1 — read-only reconciliation expectation plan: IN PROGRESS**. Builds source lineage, expected row counts, explicit relationship IDs and target IDs from validated 13.3 manifests without reading Supabase or claiming imported data was verified.
-- No imported records are edited or automatically repaired; no new database table, write RPC, new UI, or client bundle budget increase.
-- A2 actual authenticated cloud readback and A3 comparison/destruction remain pending. Phase 13.5 **LOCKED**.
+- **A1 — read-only reconciliation expectation plan: CERTIFIED / MERGED** via PR #213, merge `03934f9a07746096eee9784b8832f5f302ffd58a`.
+- **A2 authenticated readback + A3 trusted comparison: SOURCE + DISPOSABLE POSTGRES VERIFIED**؛ isolated PostgreSQL 17 remains **16 A2 PASS + 17 A3 PASS**.
+- **Hosted Supabase DB/RLS: PASS** on isolated project `nqhgaukutkyvfumbtbtg` (same region, USD 0/month fallback because Free-plan development branches are unavailable). Owner/member/outsider/anon boundaries, real Phase 13.3 import, clean comparison, destructive drift/tamper cases, zero residue, A2/A3 5000-item bound and 5001 fail-closed were exercised.
+- A cloud-only 5000-item A3 temp-space failure exposed repeated JSON array indexing. A3 now aligns expected/observed rowsets by ordinal; the same 5000-item hosted test passes after the fix, with a source regression preventing reintroduction.
+- **Production Supabase remains unchanged by 13.4:** neither A2 nor A3 is installed there. Production privilege/RLS inspection was read-only.
+- **Outstanding certification:** Auth-API / real-user-token transport through the isolated environment. Connected tooling does not expose the lab service-role secret and production credentials are forbidden substitutes.
+- No imported production record is edited or automatically repaired; no new production database table, write RPC authority, new UI, or client bundle budget increase.
+- Phase 13.5 remains **LOCKED**.
 - state: [`docs/PHASE13_4_STATE.json`](docs/PHASE13_4_STATE.json).
-- contract: [`docs/PHASE13_4_A1_KICKOFF.md`](docs/PHASE13_4_A1_KICKOFF.md).
+- hosted DB/RLS evidence: [`docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`](docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md).
+- A1 contract: [`docs/PHASE13_4_A1_KICKOFF.md`](docs/PHASE13_4_A1_KICKOFF.md).
+- A2/A3 source contract: [`docs/PHASE13_4_A2_KICKOFF.md`](docs/PHASE13_4_A2_KICKOFF.md).
+- Real Cloud certification runbook: [`docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md`](docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md).
 
 ## Phase 13.2 — دليل الإغلاق الحالي
 
