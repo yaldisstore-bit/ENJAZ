@@ -64,6 +64,8 @@ test('A3 destructive fixture executes only in disposable A2 PostgreSQL CI job',(
     'A3 isolated mutually corrupt totals cannot compare',
     'A3 isolated ledger restoration never repairs missing imported row',
     'A3 isolated compound three-stage drift preserves all difference codes',
+    'A3 isolated same-row five-axis drift preserves all difference codes',
+    'A3 isolated same-row drift restoration returns equality without closure',
     'A3 isolated bulk 5000 complete comparison and hash-bound 5001 denial',
   ])assert.ok(fixture.includes(marker),marker);
 });
