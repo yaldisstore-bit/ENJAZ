@@ -312,3 +312,60 @@ begin
  then raise exception 'A2 FAILURE: missing contact or all-missing state concealed'; end if;
  raise notice 'PASS A2 ephemeral PostgreSQL all three missing rows visible, no repair';
 end $$;
+
+-- Even matching job/result counts must be denied if BOTH diverge from the
+-- original, hash-bound Phase 13.3 manifest.
+reset role;
+update public.import_jobs set
+ counts=jsonb_set(counts,'{total}','4'::jsonb),
+ reconciliation=jsonb_set(reconciliation,'{result,counts,total}','4'::jsonb)
+where id='66666666-6666-4666-8666-666666666666';
+set role authenticated;
+set request.jwt.claim.sub = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $$
+declare r jsonb;
+begin
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '66666666-6666-4666-8666-666666666666',
+ 'a2-fixture-2026',doc) into r from fixture.original;
+ if r is not null then raise exception 'A2 FAILURE: dual-corrupt ledger totals accepted'; end if;
+ raise notice 'PASS A2 ephemeral PostgreSQL dual-corrupt ledger totals fail manifest count binding';
+end $$;
+
+reset role;
+update public.import_jobs set
+ counts=jsonb_set((select counts from fixture.original),'{companies}','2'::jsonb),
+ reconciliation=jsonb_set((select reconciliation from fixture.original),
+ '{result,counts,companies}','2'::jsonb)
+where id='66666666-6666-4666-8666-666666666666';
+set role authenticated;
+set request.jwt.claim.sub = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $$
+declare r jsonb;
+begin
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '66666666-6666-4666-8666-666666666666',
+ 'a2-fixture-2026',doc) into r from fixture.original;
+ if r is not null then raise exception 'A2 FAILURE: dual-corrupt per-stage counts accepted'; end if;
+ raise notice 'PASS A2 ephemeral PostgreSQL dual-corrupt per-stage counts fail manifest count binding';
+end $$;
+
+reset role;
+update public.import_jobs set counts=(select counts from fixture.original),
+ reconciliation=(select reconciliation from fixture.original),
+ finished_at=null
+where id='66666666-6666-4666-8666-666666666666';
+set role authenticated;
+set request.jwt.claim.sub = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $$
+declare r jsonb;
+begin
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '66666666-6666-4666-8666-666666666666',
+ 'a2-fixture-2026',doc) into r from fixture.original;
+ if r is not null then raise exception 'A2 FAILURE: non-finalized succeeded ledger accepted'; end if;
+ raise notice 'PASS A2 ephemeral PostgreSQL missing completion time denies readback';
+end $$;
