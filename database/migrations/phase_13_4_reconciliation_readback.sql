@@ -26,12 +26,21 @@ as $function$
       and j.id = p_batch_id
       and j.status = 'succeeded'
       and j.counts->>'contract' = 'phase13.3'
+      -- A completed job must still have the exact certified Phase 13.3
+      -- result envelope and coherent durable per-table counts.
+      and j.reconciliation->'result'->>'schema' =
+        'enjaz.legacy.ordered-import.execution-result.v1'
+      and j.reconciliation->'result'->>'atomic' = 'true'
+      and j.reconciliation->'result'->>'persistencePerformed' = 'true'
+      and j.reconciliation->'result'->'counts' = (j.counts - 'contract')
       and j.reconciliation->>'idempotencyKey' = p_idempotency_key
       and j.reconciliation->>'payloadHash' =
         encode(extensions.digest(convert_to(p_manifest::text, 'UTF8'), 'sha256'), 'hex')
       and j.reconciliation->'result'->>'batchId' = p_batch_id::text
       and j.reconciliation->'result'->>'workspaceId' = p_workspace_id::text
       and j.reconciliation->'result'->>'idempotencyKey' = p_idempotency_key
+      and j.reconciliation->'result'->>'payloadHash' =
+        j.reconciliation->>'payloadHash'
       and jsonb_typeof(p_manifest->'items') = 'array'
       and jsonb_array_length(p_manifest->'items') between 1 and 5000
       and octet_length(convert_to(p_manifest::text, 'UTF8')) <= 8388608
