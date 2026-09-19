@@ -212,6 +212,39 @@ begin
  raise notice 'PASS A3 isolated deleted lifecycle drift visible';
 end $$;
 
+-- Compound field/decimal/FK damage must preserve every difference code.
+reset role;
+update public.contacts set deleted_at=null,notes='compound drift'
+where id='33333333-3333-4333-8333-333333333333';
+update public.companies set capital=121.50,primary_contact_id=null
+where id='44444444-4444-4444-8444-444444444444';
+update public.transactions set current_fee=140.25
+where id='55555555-5555-4555-8555-555555555555';
+set role authenticated;
+set request.jwt.claim.sub='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $$
+declare r jsonb;
+begin
+ select fixture.a3_report() into r;
+ if r is null or r->>'rowCount'<>'3' or r->>'matchedCount'<>'0'
+   or r->>'mismatchCount'<>'3' or r->>'allMatchedAtSnapshot'<>'false'
+   or r->'rows'->0->'differenceCodes'<>'["FIELD_DRIFT"]'::jsonb
+   or r->'rows'->1->'differenceCodes'<>'["MONEY_DRIFT","RELATIONSHIP_DRIFT"]'::jsonb
+   or r->'rows'->2->'differenceCodes'<>'["MONEY_DRIFT"]'::jsonb
+   or r->>'reconciled'<>'false' or r->>'closureAuthorized'<>'false'
+   or r->>'mutated'<>'false'
+ then raise exception 'A3 FAILED: combined drift concealed or codes lost'; end if;
+ raise notice 'PASS A3 isolated compound three-stage drift preserves all difference codes';
+end $$;
+reset role;
+update public.contacts set notes=null
+where id='33333333-3333-4333-8333-333333333333';
+update public.companies set capital=120.50,
+ primary_contact_id='33333333-3333-4333-8333-333333333333'
+where id='44444444-4444-4444-8444-444444444444';
+update public.transactions set current_fee=135.25
+where id='55555555-5555-4555-8555-555555555555';
+
 reset role;
 update public.contacts set deleted_at=null
 where id='33333333-3333-4333-8333-333333333333';
