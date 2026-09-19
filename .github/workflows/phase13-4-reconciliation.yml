@@ -1,11 +1,12 @@
-name: ENJAZ Phase 13.4 — Reconciliation A1 Gate
+name: ENJAZ Phase 13.4 — Reconciliation A1 + A2 Source Gate
 
 on:
   push:
-    branches: [phase13-4-reconciliation-a1, main]
+    branches: [phase13-4-reconciliation-a1, phase13-4-reconciliation-a2-readback, main]
     paths:
       - 'docs/PHASE13_4_*'
       - 'src/features/import/legacyReconciliation*.ts'
+      - 'database/migrations/phase_13_4_reconciliation_readback.sql'
       - 'tests/phase13-4-*'
       - 'scripts/phase13-4-*'
       - '.github/workflows/phase13-4-reconciliation.yml'
@@ -46,6 +47,10 @@ jobs:
         run: node scripts/phase13-4-reconciliation-audit.mjs
       - name: A1 deterministic reconciliation planning and destruction tests
         run: node --experimental-strip-types --test tests/phase13-4-reconciliation-plan.test.ts
+      - name: A2 authenticated readback binding and DB-source security tests
+        run: |
+          node --experimental-strip-types --test tests/phase13-4-reconciliation-readback.test.ts
+          node --test tests/phase13-4-reconciliation-db-source.test.mjs
       - name: Preserve prior legacy intake mapping and ordered-import authority
         run: |
           node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
