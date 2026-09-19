@@ -37,7 +37,7 @@
   "a3ProductionFunctionInstalled": false,
   "a3RemediationAllowed": false,
   "isolatedRealCloudRequired": true,
-  "isolatedRealCloudStatus": "ISOLATED_PROJECT_DB_RLS_CERTIFIED_AUTH_API_INVOCATION_BLOCKED_BY_TOOLING",
+  "isolatedRealCloudStatus": "HOSTED_DB_RLS_PASS_AUTH_API_SAFE_INVOKE_PENDING",
   "productionSupabaseModifiedByPhase13_4": false,
   "livePrivilegeInventoryReadOnlyVerified": true,
   "persistenceAllowed": false,
@@ -64,7 +64,7 @@
     "tracks": {
       "product": "IN_PROGRESS",
       "uiUx": "PASS_NO_CLIENT_DELTA",
-      "engineering": "PASS_SOURCE_POSTGRES_AND_HOSTED_DB_RLS",
+      "engineering": "PASS_SOURCE_DISPOSABLE_POSTGRES_AND_HOSTED_DB_RLS",
       "certification": "IN_PROGRESS_AUTH_API_PENDING"
     },
     "decision": "IN_PROGRESS"
@@ -93,7 +93,7 @@
   "a3HostedResourceDefectFoundAndFixed": true,
   "a3RowsetAlignmentCommit": "81de18247886912e8b31c665bd8c2f8ec6b25b66",
   "a3RowsetAlignmentRegressionCommit": "cc73ea547f448ccdec9457ab46ae9928ebc1ab92",
-  "authApiCertificationStatus": "PENDING_SERVICE_SECRET_AND_HTTP_TRANSPORT",
+  "authApiCertificationStatus": "PENDING_SAFE_INVOKE_TRANSPORT",
   "isolatedCloudMode": "SEPARATE_PROJECT_FALLBACK_FREE_PLAN_NO_BRANCHING",
   "isolatedCloudProjectRef": "nqhgaukutkyvfumbtbtg",
   "isolatedCloudProjectRegion": "eu-central-1",
@@ -109,7 +109,6 @@
   ],
   "hostedA3Original5000Failure": "NO_SPACE_LEFT_ON_DEVICE_ON_ORIGINAL_JSON_ARRAY_INDEXING",
   "hostedA3RowsetOptimizationVerified": true,
-  "authApiCertificateStatus": "PENDING_TOOLING_NO_SAFE_INVOKE_PATH",
   "authApiTemporaryFunctionDisabled": true,
   "authApiMarkedUserResidueCount": 0,
   "hostedFixtureResidueCounts": {
