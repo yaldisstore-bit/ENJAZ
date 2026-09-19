@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.4 — Reconciliation ✅ CLOSED / REAL CLOUD + PRODUCTION READ-ONLY + EXACT-MAIN CERTIFIED**  
+الحالة الرسمية: **Phase 13.5 — Import Destruction Gate 🟡 IN PROGRESS / A1 DESTRUCTION CONTRACT**  
 آخر مرحلة مغلقة: **Phase 13.4 — Reconciliation ✅ CLOSED / PR 87/87 + REAL CLOUD + EXACT-MAIN + PRODUCTION READ-ONLY CERTIFIED**  
-المرحلة الحالية التالية: **Phase 13.5 — Import Destruction Gate — AUTHORIZED_NEXT** بعد إغلاق 13.4 رسمياً؛ لا إصلاح تلقائي ولا توسيع لصلاحيات الاستيراد خارج عقد 13.5.
+المرحلة الحالية: **Phase 13.5 — Import Destruction Gate 🟡 IN PROGRESS / A1 DESTRUCTION CONTRACT**؛ لا إصلاح تلقائي، لا إنتاج كهدف إتلاف، ولا توسيع لصلاحيات الاستيراد. Phase 14.1 remains **LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 

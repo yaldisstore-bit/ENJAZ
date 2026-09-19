@@ -1,0 +1,191 @@
+{
+  "schema": "enjaz.phase13-5.import-destruction.matrix.v1",
+  "phase": "13.5",
+  "baseCommit": "64b78767ebd3b0112e752f979d5448f78bdfd2cf",
+  "productionDestructiveTargetAllowed": false,
+  "automaticRepairAllowed": false,
+  "targetTables": [
+    "contacts",
+    "companies",
+    "transactions"
+  ],
+  "requiredRoadmapDimensions": [
+    "counts",
+    "orphan_relations",
+    "money",
+    "workflow_state",
+    "ownership",
+    "documents",
+    "duplicate_idempotency"
+  ],
+  "cases": [
+    {
+      "id": "D01_UNMAPPED_TYPE_QUARANTINE",
+      "layer": "mapping",
+      "dimension": "workflow_state",
+      "attack": "legacy workflow-like record has no explicit mapping",
+      "expected": "QUARANTINE_NO_WRITE"
+    },
+    {
+      "id": "D02_OWNERSHIP_CONCEPT_QUARANTINE",
+      "layer": "mapping",
+      "dimension": "ownership",
+      "attack": "legacy ownership/governance concept has no explicit mapping",
+      "expected": "QUARANTINE_NO_WRITE"
+    },
+    {
+      "id": "D03_DOCUMENT_CONCEPT_QUARANTINE",
+      "layer": "mapping",
+      "dimension": "documents",
+      "attack": "legacy document concept has no explicit mapping",
+      "expected": "QUARANTINE_NO_WRITE"
+    },
+    {
+      "id": "D04_UNMAPPED_RELATIONSHIP",
+      "layer": "mapping",
+      "dimension": "orphan_relations",
+      "attack": "link has no explicit relationship mapping",
+      "expected": "QUARANTINE_NO_WRITE"
+    },
+    {
+      "id": "D05_DUPLICATE_RECORD_KEY",
+      "layer": "intake",
+      "dimension": "duplicate_idempotency",
+      "attack": "duplicate type:id appears in snapshot",
+      "expected": "REVIEW_BLOCK_IMPORT"
+    },
+    {
+      "id": "D06_DANGLING_LINK",
+      "layer": "intake",
+      "dimension": "orphan_relations",
+      "attack": "link target absent from snapshot",
+      "expected": "REVIEW_BLOCK_IMPORT"
+    },
+    {
+      "id": "D07_UNSAFE_MONEY_PRECISION",
+      "layer": "mapping",
+      "dimension": "money",
+      "attack": "strict_number exceeds two-decimal safe precision",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D08_FORBIDDEN_TARGET_TABLE",
+      "layer": "mapping",
+      "dimension": "workflow_state",
+      "attack": "mapping targets a table outside contacts/companies/transactions",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D09_FORBIDDEN_TARGET_FIELD",
+      "layer": "execution",
+      "dimension": "ownership",
+      "attack": "manifest injects field outside certified target field allowlist",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D10_DUPLICATE_SOURCE_BINDING",
+      "layer": "binding",
+      "dimension": "duplicate_idempotency",
+      "attack": "one source key receives multiple target bindings",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D11_DUPLICATE_TARGET_ID",
+      "layer": "binding",
+      "dimension": "duplicate_idempotency",
+      "attack": "multiple source keys share caller target UUID",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D12_STAGE_ORDER_TAMPER",
+      "layer": "execution",
+      "dimension": "counts",
+      "attack": "items or stage order differ from contacts→companies→transactions",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D13_RELATION_AUTHORITY_TAMPER",
+      "layer": "execution",
+      "dimension": "orphan_relations",
+      "attack": "relationship points to uncertified table/field authority",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D14_RELATION_ID_DRIFT",
+      "layer": "execution",
+      "dimension": "orphan_relations",
+      "attack": "relationship target UUID differs from bound item UUID",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D15_FORGED_MANIFEST_HASH",
+      "layer": "reconciliation",
+      "dimension": "duplicate_idempotency",
+      "attack": "caller manifest differs from durable Phase13.3 payload hash",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D16_WRONG_BATCH_OR_IDEMPOTENCY",
+      "layer": "reconciliation",
+      "dimension": "duplicate_idempotency",
+      "attack": "workspace job exists but batch/idempotency binding differs",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D17_CHANGED_REPLAY_CONFLICT",
+      "layer": "execution",
+      "dimension": "duplicate_idempotency",
+      "attack": "same idempotency identity replays changed payload",
+      "expected": "CONFLICT_NO_DUPLICATE_WRITE"
+    },
+    {
+      "id": "D18_NON_OWNER_OR_CROSS_WORKSPACE",
+      "layer": "authority",
+      "dimension": "ownership",
+      "attack": "outsider or same-workspace non-owner attempts reconciliation/import authority",
+      "expected": "DENY"
+    },
+    {
+      "id": "D19_LATE_WRITE_FAILURE",
+      "layer": "atomicity",
+      "dimension": "counts",
+      "attack": "failure after earlier stage writes inside ordered import",
+      "expected": "ROLLBACK_ZERO_PARTIAL_ROWS"
+    },
+    {
+      "id": "D20_MISSING_OR_SOFT_DELETED_TARGET",
+      "layer": "reconciliation",
+      "dimension": "orphan_relations",
+      "attack": "expected target disappears or lifecycle drifts after import",
+      "expected": "MISMATCH_NO_REPAIR"
+    },
+    {
+      "id": "D21_DURABLE_LEDGER_COUNT_CORRUPTION",
+      "layer": "reconciliation",
+      "dimension": "counts",
+      "attack": "durable totals/stage counts/result coherence are corrupted",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D22_SCALE_BOUNDARY_5000_5001",
+      "layer": "scale",
+      "dimension": "counts",
+      "attack": "5000 items versus 5001 items",
+      "expected": "5000_PASS_5001_FAIL_CLOSED"
+    },
+    {
+      "id": "D23_GENERATED_ID_PRECLAIM",
+      "layer": "execution",
+      "dimension": "ownership",
+      "attack": "manifest claims generated target IDs or client write authority",
+      "expected": "FAIL_CLOSED"
+    },
+    {
+      "id": "D24_UNKNOWN_CONCEPT_SHADOW_WRITE",
+      "layer": "domain_boundary",
+      "dimension": "workflow_state",
+      "attack": "unmapped legacy concept attempts write into M1–M18 authority",
+      "expected": "NO_SHADOW_AUTHORITY_NO_WRITE"
+    }
+  ]
+}
