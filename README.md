@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.3 — Ordered Import 🟡 IN PROGRESS / A1 + A2 CERTIFIED / A3 SERVER EXECUTION BOUNDARY**  
+الحالة الرسمية: **Phase 13.3 — Ordered Import 🟡 IN PROGRESS / A1 + A2 + A3 CERTIFIED / PR CERTIFICATION PENDING**  
 آخر مرحلة مغلقة: **Phase 13.2 — Normalize & Map ✅ CLOSED / EXPLICIT MAPPING + RELATIONSHIP PREVIEW + DESTRUCTION CERTIFIED**  
-المرحلة الحالية: **Phase 13.3 — Ordered Import — A1 + A2 CERTIFIED / A3 SOURCE + SECURITY BOUNDARY OPEN**؛ Phase 13.4 remains **LOCKED**.
+المرحلة الحالية: **Phase 13.3 — Ordered Import — A1 + A2 + A3 CERTIFIED / PR + EXACT-MAIN PENDING**؛ Phase 13.4 remains **LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -61,7 +61,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 12.5 — AI Zero-Escape & Safety Gate: ✅ CLOSED — W1 16/16 + W2 71/71 + PR 80/80 + exact-main 39/39 + Real Browser + Pages + Live External; M8/M9 CLOSED under ZERO_ESCAPE_V1.**
 - **Phase 13.1 — Read-only Legacy Snapshot Intake: ✅ CLOSED — A1 10/10 + A2 10/10 + A3 13/13 + PR 81/81 + exact-main 39/39 + cumulative Real Browser + Pages + Live External; 13.2 AUTHORIZED_NEXT.**
 - **Phase 13.2 — Normalize & Map ✅ CLOSED — A1 12/12 + A2 10/10 + A3 14/14 + PR 82/82 + exact-main 40/40 + Real Browser + Pages + Live External; Phase 13.3 AUTHORIZED_NEXT.**
-- **Phase 13.3 — Ordered Import: 🟡 IN PROGRESS — A1 + A2 CERTIFIED / A3 authenticated atomic server execution boundary; write authority still disabled pending A3 certification; Phase 13.4 LOCKED.**
+- **Phase 13.3 — Ordered Import: 🟡 IN PROGRESS — A1 + A2 + A3 CERTIFIED; owner-authenticated atomic RPC Real Cloud 23/23 PASS; PR/exact-main closure PENDING; Phase 13.4 LOCKED.**
 
 ## Phase 13.3 — العمل الحالي
 
@@ -73,7 +73,8 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - fixed dependency order: **contacts → companies → transactions**.
 - blocks unmapped types, duplicate keys, dangling links, undeclared/quarantined relationships and any `reviewRequired` record.
 - A2 binds caller-supplied target UUIDs + workspace/batch/idempotency in memory and resolves relationship IDs, but performs **no FK assignment / permission claim / server idempotency reservation / write execution**.
-- A3 is now **IN PROGRESS**: strict execution-manifest parser + non-executed RPC envelope **CERTIFIED** at Gate #13; A3 DB authority source now uses existing `import_jobs` ledger with owner-auth, atomic RPC and no upsert; live DB authority remains disabled until source gate + Real Cloud certification.
+- A3 **CERTIFIED**: strict manifest + owner-authenticated atomic RPC on Supabase; source Gate #23 PASS; Real Cloud #5 **23/23 PASS**; exact replay, cross-workspace denial, late-failure rollback and zero test residue verified. Only an explicitly reviewed, owner-scoped server manifest may write; generic/browser/legacy auto-import remains forbidden.
+- A3 evidence: [`docs/PHASE13_3_A3_EVIDENCE.md`](docs/PHASE13_3_A3_EVIDENCE.md). Formal 13.3 PR/exact-main closure remains pending.
 - Phase 13.4 — Reconciliation: **LOCKED**.
 - state: [`docs/PHASE13_3_STATE.json`](docs/PHASE13_3_STATE.json).
 - kickoff: [`docs/PHASE13_3_KICKOFF.md`](docs/PHASE13_3_KICKOFF.md).
