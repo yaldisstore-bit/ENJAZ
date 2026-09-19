@@ -50,4 +50,6 @@ The draft Real Cloud harness now checks contact source-lineage and field drift f
 4. Preserve the implemented A3 trusted DB comparison boundary: it invokes authenticated A2 evidence inside the database, rejects caller-supplied readback/attestation, and never auto-repairs, deletes, reimports or grants closure authority. Hosted branch certification remains required.
 5. Close 13.4 and unlock 13.5 only with independent full Product / UI-UX / Engineering / Certification gates and formal closure evidence.
 
+Execution runbook: [`PHASE13_4_REAL_CLOUD_CERTIFICATION.md`](PHASE13_4_REAL_CLOUD_CERTIFICATION.md).
+
 **Authorization today:** source review and CI only. Do not deploy the proposed migration to production before live safety verification.
