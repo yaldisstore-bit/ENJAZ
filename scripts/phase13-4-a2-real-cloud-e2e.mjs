@@ -283,6 +283,66 @@ async function test(){
   failIf(JSON.stringify(restoredLineage.data?.observedRows)!==JSON.stringify(rows),
     'isolated_source_lineage_restoration_verified');
 
+  // Hosted Supabase must expose lifecycle drift under the authenticated owner
+  // and restore to the exact clean snapshot without granting closure authority.
+  const {data:lifecycleContact,error:lifecycleError}=await admin.from('contacts')
+    .update({deleted_at:new Date().toISOString()}).eq('id',p.ids.contactId)
+    .eq('workspace_id',ws).select('id');
+  if(lifecycleError||lifecycleContact?.length!==1)
+    throw lifecycleError??new Error('isolated lifecycle tamper did not update exactly one row');
+  const lifecycleComparison=await compare(owner.client,m);
+  if(lifecycleComparison.error)throw lifecycleComparison.error;
+  failIf(lifecycleComparison.data?.allMatchedAtSnapshot!==false||
+    lifecycleComparison.data?.mismatchCount!==1||
+    !hasCode(lifecycleComparison.data,1,'LIFECYCLE_DRIFT')||
+    lifecycleComparison.data?.closureAuthorized!==false,
+    'a3_deleted_lifecycle_drift_detected_without_closure');
+  const {data:lifecycleRestored,error:lifecycleRestoreError}=await admin.from('contacts')
+    .update({deleted_at:null}).eq('id',p.ids.contactId).eq('workspace_id',ws).select('id');
+  if(lifecycleRestoreError||lifecycleRestored?.length!==1)
+    throw lifecycleRestoreError??new Error('isolated lifecycle restore did not update exactly one row');
+
+  // One hosted row carrying all five independent drift axes must preserve every
+  // diagnostic code; restoration must return equality but still no closure.
+  const fiveAxisLegacyId=m.items[1].sourceKey+'-five-axis';
+  const {data:fiveAxisCompany,error:fiveAxisError}=await admin.from('companies')
+    .update({
+      legacy_id:fiveAxisLegacyId,
+      deleted_at:new Date().toISOString(),
+      legal_name:'A3 five-axis drift',
+      capital:121.50,
+      primary_contact_id:null,
+    }).eq('id',p.ids.companyId).eq('workspace_id',ws).select('id');
+  if(fiveAxisError||fiveAxisCompany?.length!==1)
+    throw fiveAxisError??new Error('isolated five-axis company tamper did not update exactly one row');
+  const fiveAxisComparison=await compare(owner.client,m);
+  if(fiveAxisComparison.error)throw fiveAxisComparison.error;
+  failIf(fiveAxisComparison.data?.allMatchedAtSnapshot!==false||
+    fiveAxisComparison.data?.mismatchCount!==1||
+    JSON.stringify(fiveAxisComparison.data?.rows?.[1]?.differenceCodes)!==
+      '["IDENTITY_DRIFT","LIFECYCLE_DRIFT","FIELD_DRIFT","MONEY_DRIFT","RELATIONSHIP_DRIFT"]'||
+    fiveAxisComparison.data?.reconciled!==false||
+    fiveAxisComparison.data?.closureAuthorized!==false||
+    fiveAxisComparison.data?.mutated!==false,
+    'a3_same_row_five_axis_drift_preserves_all_codes');
+  const {data:fiveAxisRestored,error:fiveAxisRestoreError}=await admin.from('companies')
+    .update({
+      legacy_id:m.items[1].sourceKey,
+      deleted_at:null,
+      legal_name:'شركة اختبار A2',
+      capital:120.50,
+      primary_contact_id:p.ids.contactId,
+    }).eq('id',p.ids.companyId).eq('workspace_id',ws).select('id');
+  if(fiveAxisRestoreError||fiveAxisRestored?.length!==1)
+    throw fiveAxisRestoreError??new Error('isolated five-axis company restore did not update exactly one row');
+  const fiveAxisRestoredComparison=await compare(owner.client,m);
+  if(fiveAxisRestoredComparison.error)throw fiveAxisRestoredComparison.error;
+  failIf(fiveAxisRestoredComparison.data?.allMatchedAtSnapshot!==true||
+    fiveAxisRestoredComparison.data?.matchedCount!==3||
+    fiveAxisRestoredComparison.data?.mismatchCount!==0||
+    fiveAxisRestoredComparison.data?.closureAuthorized!==false,
+    'a3_five_axis_restoration_returns_equality_without_closure');
+
   // Deliberately corrupt ONLY the durable ledger of this disposable import.
   // Readback must reject an inconsistent success record, not return misleading evidence.
   const {data:jobRows,error:jobReadError}=await admin.from('import_jobs')
