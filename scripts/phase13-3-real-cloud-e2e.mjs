@@ -137,77 +137,48 @@ function simpleManifest(workspaceId){
     })
   };
 }
-function largeRollbackManifest(workspaceId,countContacts=3999){
-  const items=[];
-  for(let i=0;i<countContacts;i++){
-    const n=String(i).padStart(4,'0');
-    items.push(item(i+1,1,`contact:race:${n}`,'contacts',uuid(),{display_name:`Race Contact ${n}`,contact_type:'other'}));
-  }
-  const companyId=uuid();
-  items.push(item(countContacts+1,2,'company:race:last','companies',companyId,{legal_name:'Race Conflict Company'}));
+function deterministicRollbackManifest(workspaceId){
+  const contactId=uuid(),companyId=uuid();
   return {
-    companyId,
+    contactId,companyId,
     value:manifest({
       workspaceId,
       batchId:uuid(),
-      idempotencyKey:`phase13_3_race_${uuid().replaceAll('-','')}`,
-      snapshotId:'snapshot-13-3-atomicity',
-      mappingPlanId:'mapping-plan-13-3-atomicity',
-      items,
+      idempotencyKey:`phase13_3_atomic_rollback_${uuid().replaceAll('-','')}`,
+      snapshotId:'snapshot-13-3-atomicity-deterministic',
+      mappingPlanId:'mapping-plan-13-3-atomicity-deterministic',
+      items:[
+        item(1,1,'contact:rollback:deterministic','contacts',contactId,{display_name:'Rollback Contact',contact_type:'other'}),
+        item(2,2,'company:rollback:overflow','companies',companyId,{legal_name:'Rollback Overflow Company',capital:1e30}),
+      ],
     })
   };
 }
 
 async function verifyAtomicRollback(){
-  // First measure a similarly-sized successful batch so the collision can be injected during the write phase.
-  const benchmark=await signIn(await createUser('rollback-benchmark'));
-  const benchmarkWs=await workspace(benchmark);
-  const bench=largeRollbackManifest(benchmarkWs);
-  const started=Date.now();
-  const benchResult=await call(benchmark.client,bench.value);
-  const duration=Date.now()-started;
-  assert(!benchResult.error&&benchResult.data?.counts?.total===4000,'rollback_benchmark_committed',`${duration}ms`);
-  await deleteWorkspace(benchmarkWs);
-
-  let delay=Math.max(100,Math.min(3000,Math.round(duration*0.45)));
-  for(let attempt=1;attempt<=4;attempt++){
-    const actor=await signIn(await createUser(`rollback-${attempt}`));
-    const ws=await workspace(actor);
-    const probe=largeRollbackManifest(ws);
-    const rpcPromise=call(actor.client,probe.value);
-    await sleep(delay);
-    const injected=await admin.from('companies').insert({
-      id:probe.companyId,workspace_id:ws,legal_name:'Concurrent blocker',status:'active',
-      legacy_id:`rollback-blocker-${attempt}`,legacy_source:'phase13.3-rollback-race'
-    });
-    const result=await rpcPromise;
-    const text=errText(result.error);
-    const rowCount=await count('contacts',ws);
-    const jobs=await jobCount(ws);
-    const lateConflict=Boolean(result.error)&&!text.includes('ENJAZ_LEGACY_IMPORT_TARGET_ALREADY_EXISTS')&&/duplicate key|unique constraint/i.test(text);
-    evidence.rollbackAttempts.push({
-      attempt,delayMs:delay,
-      injectedSucceeded:!injected.error,
-      rpcSucceeded:!result.error,
-      error:text||null,
-      importedContactCount:rowCount,
-      importJobCount:jobs,
-      lateConflict,
-    });
-
-    if(lateConflict&&rowCount===0&&jobs===0){
-      pass('atomic_rollback_after_late_company_conflict',`attempt ${attempt}, delay ${delay}ms`);
-      await deleteWorkspace(ws);
-      return;
-    }
-
-    // Clean this isolated attempt and adapt the race window.
-    await deleteWorkspace(ws);
-    if(result.error&&text.includes('ENJAZ_LEGACY_IMPORT_TARGET_ALREADY_EXISTS')) delay=Math.min(3500,Math.round(delay*1.55));
-    else if(!result.error||injected.error) delay=Math.max(40,Math.round(delay*0.62));
-    else delay=Math.max(40,Math.round(delay*0.8));
-  }
-  throw new Error('ASSERTION_FAILED:atomic_rollback_race_not_observed');
+  const actor=await signIn(await createUser('rollback-deterministic'));
+  const ws=await workspace(actor);
+  const probe=deterministicRollbackManifest(ws);
+  const result=await call(actor.client,probe.value);
+  const text=errText(result.error);
+  const [contactCount,companyCount,jobs]=await Promise.all([
+    count('contacts',ws),count('companies',ws),jobCount(ws),
+  ]);
+  const lateConstraintFailure=Boolean(result.error)&&(/numeric field overflow/i.test(text)||/22003/.test(text));
+  evidence.rollbackAttempts.push({
+    attempt:1,
+    mode:'deterministic_late_company_numeric_overflow',
+    rpcSucceeded:!result.error,
+    error:text||null,
+    importedContactCount:contactCount,
+    importedCompanyCount:companyCount,
+    importJobCount:jobs,
+    lateConstraintFailure,
+  });
+  assert(lateConstraintFailure,'atomic_rollback_late_constraint_failure_observed',text);
+  assert(contactCount===0&&companyCount===0&&jobs===0,'atomic_rollback_zero_partial_rows',`contacts=${contactCount}, companies=${companyCount}, jobs=${jobs}`);
+  pass('atomic_rollback_after_deterministic_late_company_failure','numeric(18,2) overflow after contact write rolls back entire RPC');
+  await deleteWorkspace(ws);
 }
 
 async function run(){
