@@ -16,9 +16,20 @@ This is source code only. No new Supabase function has been deployed, and no act
 - database/migrations/phase_13_4_reconciliation_readback.sql proposes an existing-table, SECURITY INVOKER, STABLE, owner-scoped, RLS-protected read-only function. Anonymous EXECUTE denied; no DML, new tables, service-role business read, automatic repair or Edge/client UI.
 - tests/phase13-4-reconciliation-readback.test.ts and tests/phase13-4-reconciliation-db-source.test.mjs are source-only checks and are not Real Cloud evidence.
 
+## A1 exact merged-main verification (independent of A2)
+
+- Exact A1 main merge: `03934f9a07746096eee9784b8832f5f302ffd58a`.
+- GitHub Actions inventory for that SHA: **40/40 completed successful push workflows**, plus **3/3 successful downstream workflow_run checks** (Pages Preview #1603, Live External #1276, Published Client Portal #210); no failed items in that 43-check inventory. The distinct dynamic Pages deployment #207 also succeeded. Later repeated downstream runs marked skipped are not counted as failures or as new certifications.
+- [A1 source gate #3](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430187281), [Quality #1787](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430187290), [Real Browser #1703](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430187298), [Pages deploy #207](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430186692), [Pages Preview #1603](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430229662), [Live External #1276](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430281349), [Published Client Portal #210](https://github.com/yaldisstore-bit/ENJAZ/actions/runs/35430281354): SUCCESS on that exact SHA.
+- This establishes A1 **merged-main/deployed-live verification only**. It does NOT certify A2, prove real imported-data reconciliation, authorize the proposed SQL migration, close Phase 13.4 or unlock Phase 13.5.
+
+## Expanded isolated A2 test coverage
+
+The draft Real Cloud harness now checks contact source-lineage and field drift followed by exact restoration, and independently reports disappearing transactions, companies and contacts across all three stages. These are committed **test cases, not executed Real Cloud evidence**; source CI syntax does not establish database behavior.
+
 ## Required certifications before deployment / closure
 
-1. Finish exact merged-main A1 inventory, cumulative regressions, published Pages and deployed-live verification; PR-head PASS alone is not sufficient.
+1. Preserve the exact merged-main A1 certification above and independently verify all A2 PR-head regressions; PR-head PASS alone cannot certify A2's cloud readback.
 2. Independently review SQL, owner/RLS privileges, ledger hash binding, partial reads, decimal semantics and the 5000-item bound.
 3. Run authenticated isolated Real Cloud permission and adversarial tests: same-workspace, anonymous, outsider, changed manifest, changed idempotency, missing/replayed job, missing/mismatched/FK-orphan row, concurrent mutation, cleanup and zero residue.
 4. Implement A3 expected/observed comparison at a trusted server/DB boundary. Never trust a caller-supplied verified flag or JSON readback; never auto-repair, delete or reimport.
