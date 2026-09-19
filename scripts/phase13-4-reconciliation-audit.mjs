@@ -53,7 +53,9 @@ req(s.expectedPlanSchema === 'enjaz.legacy.reconciliation.plan.v1' &&
   'A1 read-only expectation boundary drifted');
 
 req(s.sourceProposalHead === 'cc73ea547f448ccdec9457ab46ae9928ebc1ab92' &&
-  s.lastFullyDrainedSourceHead === 'fc50f868ff2a94af7a7782f1dfa2423d1270546c' &&
+  s.lastFullyDrainedSourceHead === (closed
+    ? '97ce9a65a9b9a062b43868241ebd0520f970543c'
+    : 'fc50f868ff2a94af7a7782f1dfa2423d1270546c') &&
   s.lastFullyDrainedSourceWorkflowInventory?.total === 87 &&
   s.lastFullyDrainedSourceWorkflowInventory?.success === 86 &&
   s.lastFullyDrainedSourceWorkflowInventory?.skipped === 1 &&
