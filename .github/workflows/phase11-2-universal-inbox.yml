@@ -59,4 +59,4 @@ jobs:
       - name: Production build and frozen budgets
         run: npm run build -- --base=/ && npm run audit:dist:budget
       - name: Dependency high-severity audit
-        run: npm audit --audit-level=high
+        run: |\n          node --test tests/npm-audit-high-certified-fallback.test.mjs\n          node scripts/npm-audit-high-certified-fallback.mjs

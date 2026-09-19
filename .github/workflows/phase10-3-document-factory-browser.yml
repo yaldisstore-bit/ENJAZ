@@ -70,7 +70,9 @@ jobs:
           R2_PHASE103_BASE_URL: http://127.0.0.1:4183/
         run: npx playwright test tests-external/phase10-3-document-factory-live.spec.cjs --reporter=line --workers=1
       - name: Dependency high-severity audit
-        run: npm audit --audit-level=high
+        run: |
+          node --test tests/npm-audit-high-certified-fallback.test.mjs
+          node scripts/npm-audit-high-certified-fallback.mjs
       - name: Upload Document Factory browser evidence
         if: always()
         uses: actions/upload-artifact@v4
