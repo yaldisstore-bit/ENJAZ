@@ -33,6 +33,21 @@ as $function$
       and j.reconciliation->'result'->>'atomic' = 'true'
       and j.reconciliation->'result'->>'persistencePerformed' = 'true'
       and j.reconciliation->'result'->'counts' = (j.counts - 'contract')
+      -- Two mutually agreeing ledger objects could both have been corrupted.
+      -- Require their counts to also agree with the original hash-bound manifest.
+      and j.counts = (
+        select jsonb_build_object(
+          'contract', 'phase13.3',
+          'total', count(*)::integer,
+          'contacts', count(*) filter (where item->>'targetTable' = 'contacts')::integer,
+          'companies', count(*) filter (where item->>'targetTable' = 'companies')::integer,
+          'transactions', count(*) filter (where item->>'targetTable' = 'transactions')::integer
+        )
+        from jsonb_array_elements(p_manifest->'items') as original(item)
+      )
+      and j.finished_at is not null
+      and j.started_at is not null
+      and j.finished_at >= j.started_at
       and j.reconciliation->>'idempotencyKey' = p_idempotency_key
       and j.reconciliation->>'payloadHash' =
         encode(extensions.digest(convert_to(p_manifest::text, 'UTF8'), 'sha256'), 'hex')
