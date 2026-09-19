@@ -27,6 +27,12 @@ This is source code only. No new Supabase function has been deployed, and no act
 
 The draft Real Cloud harness now checks contact source-lineage and field drift followed by exact restoration, and independently reports disappearing transactions, companies and contacts across all three stages. These are committed **test cases, not executed Real Cloud evidence**; source CI syntax does not establish database behavior.
 
+## SQL-level testing without touching production
+
+- CI now provisions a disposable PostgreSQL 17 service and runs `tests/fixtures/phase13-4-a2-postgres.sql` against the exact proposed SQL file. The fixture creates synthetic-only tables, JWT identity shims and RLS, and exercises owner/outsider/anonymous boundaries, exact decimal fields, lineage/FK reads, damaged ledger rejection and missing-target visibility. No Supabase credentials or production data are used by this job.
+- A successful disposable-Postgres run establishes SQL compilation and representative local behavior **only**. Supabase Real Cloud JWT/role and policy behavior, actual Phase 13.3 imports, cleanup, and consistency still require independent authenticated isolation evidence. No existing hosted Supabase test branch is available; do not install the migration into production as a shortcut.
+- The readback proposal additionally binds the completed Phase 13.3 atomic outcome, persisted-result schema, final-result payload hash and exact durable `result.counts = import_jobs.counts - contract` consistency. The expanded Real Cloud harness contains disposable-ledger corruption/restoration tests, but those have not been executed on hosted Supabase.
+
 ## Required certifications before deployment / closure
 
 1. Preserve the exact merged-main A1 certification above and independently verify all A2 PR-head regressions; PR-head PASS alone cannot certify A2's cloud readback.
