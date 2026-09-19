@@ -224,11 +224,63 @@ declare r jsonb;
 begin
  select fixture.a3_report() into r;
  if r->>'allMatchedAtSnapshot'<>'false' or r->>'mismatchCount'<>'1'
- or not r->'rows'->2->'differenceCodes' ? 'MISSING_TARGET'
+ or r->'rows'->2->'differenceCodes' <> '["MISSING_TARGET"]'::jsonb
  or r->>'reconciled'<>'false' or r->>'closureAuthorized'<>'false'
  then raise exception 'A3 FAILED: missing target hidden or premature authority granted'; end if;
  raise notice 'PASS A3 isolated missing target never produces closure authority';
-end $$;
+end $;
+
+-- A3 must also refuse a forged manifest, altered idempotency, or a ledger
+-- whose counts are internally consistent but disagree with the original hash.
+do $
+declare r jsonb; doc jsonb;
+begin
+ select doc into doc from fixture.original;
+ r=public.compare_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '66666666-6666-4666-8666-666666666666',
+ 'a2-fixture-2026',jsonb_set(doc,'{items,0,normalizedFields,notes}','"forged"'::jsonb));
+ if r is not null then raise exception 'A3 FAILED: forged manifest produced comparison'; end if;
+ r=public.compare_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ '66666666-6666-4666-8666-666666666666',
+ 'a2-fixture-wrong',doc);
+ if r is not null then raise exception 'A3 FAILED: wrong idempotency produced comparison'; end if;
+ raise notice 'PASS A3 isolated forged manifest and idempotency denied';
+end $;
+
+reset role;
+update public.import_jobs
+ set counts=jsonb_set(counts,'{total}','4'::jsonb),
+ reconciliation=jsonb_set(reconciliation,'{result,counts,total}','4'::jsonb)
+ where id='66666666-6666-4666-8666-666666666666';
+set role authenticated;
+set request.jwt.claim.sub='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $
+declare r jsonb;
+begin
+ select fixture.a3_report() into r;
+ if r is not null then raise exception 'A3 FAILED: dual-corrupt counts yielded comparison'; end if;
+ raise notice 'PASS A3 isolated mutually corrupt totals cannot compare';
+end $;
+
+reset role;
+update public.import_jobs
+ set counts=(select counts from fixture.original),
+ reconciliation=(select reconciliation from fixture.original)
+ where id='66666666-6666-4666-8666-666666666666';
+set role authenticated;
+set request.jwt.claim.sub='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $
+declare r jsonb;
+begin
+ select fixture.a3_report() into r;
+ if r is null or r->>'mismatchCount'<>'1'
+ or r->'rows'->2->'differenceCodes' <> '["MISSING_TARGET"]'::jsonb
+ or r->>'closureAuthorized'<>'false'
+ then raise exception 'A3 FAILED: restored ledger concealed missing transaction'; end if;
+ raise notice 'PASS A3 isolated ledger restoration never repairs missing imported row';
+end $;
 
 reset role;
 set role anon;
