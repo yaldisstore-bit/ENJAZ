@@ -29,12 +29,12 @@ Pre-merge Real Cloud certification therefore uses the same reviewed `scripts/pha
 0. The manual workflow file must exist on GitHub's default branch so `workflow_dispatch` can be invoked. Bootstrap only the guarded manual workflow to `main`; do **not** merge the A2/A3 implementation PR as a shortcut. At execution time select a non-main `phase13-4-*` source branch; the workflow fails closed on `main` or a tag.
 1. Create a dedicated development branch from project `juzxriirhkuzviwnhkbd` only after explicit cost approval.
 2. Record the returned branch project ref. It must differ from `juzxriirhkuzviwnhkbd`.
-3. Obtain branch-local API URL, publishable key and secret/service credential. Never reuse production credentials.
+3. Obtain the branch-local API URL and publishable key automatically from Supabase; obtain only the branch secret/service credential for the hosted Auth admin harness. Never reuse production credentials.
 4. Keep both harness confirmations explicit:
    - `ENJAZ_REAL_CLOUD_CONFIRM=YES`
    - `ENJAZ_A2_ISOLATED_BRANCH_CONFIRM=YES`
 5. The URL must equal `https://<branch-ref>.supabase.co`; the harness fails closed otherwise.
-6. Install only the reviewed A2/A3 SQL proposals on the disposable branch. Do not install them on production as a shortcut.
+6. Before dispatch, install only the reviewed A2/A3 SQL proposals on the disposable branch through the connected Supabase branch project using the reviewed migration source. The GitHub workflow deliberately has no database URL/psql authority. Do not install them on production as a shortcut.
 7. Preserve the branch as disposable test infrastructure; do not attach client traffic to it.
 
 ## Required authenticated hosted checks
