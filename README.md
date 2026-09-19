@@ -88,6 +88,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - state: [`docs/PHASE13_4_STATE.json`](docs/PHASE13_4_STATE.json).
 - A1 contract: [`docs/PHASE13_4_A1_KICKOFF.md`](docs/PHASE13_4_A1_KICKOFF.md).
 - A2/A3 source contract: [`docs/PHASE13_4_A2_KICKOFF.md`](docs/PHASE13_4_A2_KICKOFF.md).
+- Real Cloud certification runbook: [`docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md`](docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md).
 
 ## Phase 13.2 — دليل الإغلاق الحالي
 
