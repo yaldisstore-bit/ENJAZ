@@ -369,3 +369,80 @@ begin
  if r is not null then raise exception 'A2 FAILURE: non-finalized succeeded ledger accepted'; end if;
  raise notice 'PASS A2 ephemeral PostgreSQL missing completion time denies readback';
 end $$;
+
+
+-- Independent max-boundary fixture: both manifests are properly hash-bound to
+-- distinct, successful, finalized synthetic ledgers. The 5001-item denial
+-- therefore exercises the size gate itself, NOT merely a payload-hash mismatch.
+reset role;
+create table fixture.large(
+  batch_id uuid primary key, doc jsonb not null, counts jsonb, reconciliation jsonb
+);
+insert into fixture.large(batch_id,doc)
+select '88888888-8888-4888-8888-888888888888',
+ jsonb_build_object('items',jsonb_agg(jsonb_build_object(
+ 'sourceKey','bulk:'||g::text,
+ 'targetTable','contacts',
+ 'targetId','00000000-0000-4000-8000-'||lpad(g::text,12,'0')
+ ) order by g))
+from generate_series(1,5000) as seq(g);
+
+insert into fixture.large(batch_id,doc)
+select '99999999-9999-4999-8999-999999999999',
+ jsonb_set(doc,'{items}',doc->'items'||jsonb_build_array(jsonb_build_object(
+ 'sourceKey','bulk:5001','targetTable','contacts',
+ 'targetId','00000000-0000-4000-8000-000000005001'
+ )))
+from fixture.large
+where batch_id='88888888-8888-4888-8888-888888888888';
+
+update fixture.large set counts=jsonb_build_object(
+ 'contract','phase13.3','total',jsonb_array_length(doc->'items'),
+ 'contacts',jsonb_array_length(doc->'items'),'companies',0,'transactions',0);
+update fixture.large set reconciliation=jsonb_build_object(
+ 'idempotencyKey','a2-large-'||batch_id::text,
+ 'payloadHash',encode(extensions.digest(convert_to(doc::text,'UTF8'),'sha256'),'hex'),
+ 'result',jsonb_build_object(
+  'schema','enjaz.legacy.ordered-import.execution-result.v1',
+  'workspaceId','11111111-1111-4111-8111-111111111111',
+  'batchId',batch_id,
+  'idempotencyKey','a2-large-'||batch_id::text,
+  'payloadHash',encode(extensions.digest(convert_to(doc::text,'UTF8'),'sha256'),'hex'),
+  'atomic',true,'persistencePerformed',true,'counts',counts-'contract'
+ ));
+insert into public.import_jobs(id,workspace_id,status,counts,reconciliation,finished_at)
+ select batch_id,'11111111-1111-4111-8111-111111111111',
+ 'succeeded',counts,reconciliation,now() from fixture.large;
+grant select on fixture.large to authenticated;
+
+set role authenticated;
+set request.jwt.claim.sub = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+do $$
+declare r jsonb; count_result integer; last_item jsonb;
+begin
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ batch_id,'a2-large-'||batch_id::text,doc) into r
+ from fixture.large where batch_id='88888888-8888-4888-8888-888888888888';
+ count_result=jsonb_array_length(r->'observedRows');
+ last_item=r->'observedRows'->4999;
+ if r is null or r->>'expectedRowCount'<>'5000' or count_result<>5000
+   or last_item->>'ordinal'<>'5000'
+   or last_item->>'sourceKey'<>'bulk:5000'
+   or last_item->>'found'<>'false'
+   or last_item->'record'<>'null'::jsonb
+   or r->>'mutated'<>'false' or r->>'reconciled'<>'false'
+ then raise exception 'A2 FAILURE: 5000-item readback omitted, reordered or attested rows'; end if;
+ raise notice 'PASS A2 ephemeral PostgreSQL bulk_5000_complete_without_pagination';
+end $$;
+
+do $$
+declare r jsonb;
+begin
+ select public.read_legacy_import_reconciliation_v1(
+ '11111111-1111-4111-8111-111111111111',
+ batch_id,'a2-large-'||batch_id::text,doc) into r
+ from fixture.large where batch_id='99999999-9999-4999-8999-999999999999';
+ if r is not null then raise exception 'A2 FAILURE: 5001-item bound exceeded but readback accepted'; end if;
+ raise notice 'PASS A2 ephemeral PostgreSQL hash_bound_5001_items_denied';
+end $$;
