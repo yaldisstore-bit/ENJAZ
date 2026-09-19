@@ -40,11 +40,11 @@ with secure_readback as materialized (
 ), compared as (
   select x.ordinal, x.item->>'targetTable' as target_table,
          x.item->>'targetId' as target_id,
-    to_jsonb(array_remove(array[
-      case when x.observed->>'found' is distinct from 'true'
-        or x.observed->'record' is null or
-           x.observed->'record'='null'::jsonb
-        then 'MISSING_TARGET' end,
+    case when x.observed->>'found' is distinct from 'true'
+      or x.observed->'record' is null
+      or x.observed->'record'='null'::jsonb
+      then jsonb_build_array('MISSING_TARGET')
+    else to_jsonb(array_remove(array[
       case when x.observed->>'ordinal' is distinct from x.ordinal::text
         or x.observed->>'targetTable' is distinct from x.item->>'targetTable'
         or x.observed->>'targetId' is distinct from x.item->>'targetId'
@@ -101,7 +101,8 @@ with secure_readback as materialized (
           'company_id',b.expected_ids->>'company_id',
           'primary_contact_id',b.expected_ids->>'primary_contact_id')
         then 'RELATIONSHIP_DRIFT' end
-    ]::text[],null::text)) as difference_codes
+    ]::text[],null::text))
+    end as difference_codes
   from expected x
   left join bindings b on b.source_key=x.item->>'sourceKey'
 ), report as (
