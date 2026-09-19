@@ -126,8 +126,9 @@ has(roadmap,
   'roadmap');
 req(
   roadmap.includes('## 13.5 — Import Destruction Gate — AUTHORIZED_NEXT') ||
-  roadmap.includes('## 13.5 — Import Destruction Gate — IN_PROGRESS /'),
-  'roadmap must preserve Phase 13.5 authorized-next history or active successor state'
+  roadmap.includes('## 13.5 — Import Destruction Gate — IN_PROGRESS /') ||
+  roadmap.includes('## 13.5 — Import Destruction Gate — CLOSURE_CANDIDATE /'),
+  'roadmap must preserve Phase 13.5 authorized-next history, active successor state or governed closure candidate'
 );
 has(readme, 'Phase 13.4 — Reconciliation ✅ CLOSED', 'README');
 

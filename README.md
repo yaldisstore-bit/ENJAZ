@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.5 — Import Destruction Gate 🟡 IN PROGRESS / A3 REAL CLOUD DESTRUCTION CERTIFIED / EXACT-HEAD PENDING**  
+الحالة الرسمية: **Phase 13.5 — Import Destruction Gate 🟠 CLOSURE CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED**  
 آخر مرحلة مغلقة: **Phase 13.4 — Reconciliation ✅ CLOSED / PR 87/87 + REAL CLOUD + EXACT-MAIN + PRODUCTION READ-ONLY CERTIFIED**  
-المرحلة الحالية: **Phase 13.5 — Import Destruction Gate 🟡 IN PROGRESS / A3 REAL CLOUD DESTRUCTION CERTIFIED / EXACT-HEAD PENDING**؛ لا إصلاح تلقائي، لا إنتاج كهدف إتلاف، ولا توسيع لصلاحيات الاستيراد. Phase 14.1 remains **LOCKED**.
+المرحلة الحالية: **Phase 13.5 — Import Destruction Gate 🟠 CLOSURE CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED**؛ A1/A2/A3 وPR exact-head وimplementation exact-main ناجحة، وPhase 14.1 تبقى **LOCKED** حتى post-merge recertification لشهادة الإغلاق.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
