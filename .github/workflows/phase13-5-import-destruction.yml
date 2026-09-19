@@ -8,6 +8,8 @@ on:
       - 'src/features/import/**'
       - 'database/migrations/phase_13_3_*'
       - 'database/migrations/phase_13_4_*'
+      - 'scripts/phase13-4-reconciliation-audit.mjs'
+      - 'docs/PHASE13_4_*'
       - 'tests/phase13-5-*'
       - 'scripts/phase13-5-*'
       - '.github/workflows/phase13-5-import-destruction.yml'
