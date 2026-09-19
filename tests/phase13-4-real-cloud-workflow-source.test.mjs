@@ -17,8 +17,6 @@ test('Phase 13.4 hosted certification is manual-only and never production-trigge
   assert.ok(workflow.includes('test "${ENJAZ_A2_BRANCH_REF}" != "${PRODUCTION_PROJECT_REF}"'));
   assert.ok(workflow.includes('test "${SUPABASE_URL}" = "https://${ENJAZ_A2_BRANCH_REF}.supabase.co"'));
   assert.ok(workflow.includes('test "${SUPABASE_URL}" != "https://${PRODUCTION_PROJECT_REF}.supabase.co"'));
-  assert.ok(workflow.includes('[[ "${SUPABASE_DB_URL}" == *"${ENJAZ_A2_BRANCH_REF}"* ]]'));
-  assert.ok(workflow.includes('[[ "${SUPABASE_DB_URL}" != *"${PRODUCTION_PROJECT_REF}"* ]]'));
 });
 
 test('Phase 13.4 hosted certification needs explicit confirmations and branch-only secrets',()=>{
@@ -28,20 +26,20 @@ test('Phase 13.4 hosted certification needs explicit confirmations and branch-on
     'PHASE13_4_SUPABASE_URL',
     'PHASE13_4_SUPABASE_PUBLISHABLE_KEY',
     'PHASE13_4_SUPABASE_SECRET_KEY',
-    'PHASE13_4_SUPABASE_DB_URL',
     'environment: phase13-4-isolated-real-cloud',
   ]) assert.ok(workflow.includes(marker),marker);
   assert.match(workflow,/test "\${ENJAZ_REAL_CLOUD_CONFIRM}" = "YES"/);
   assert.match(workflow,/test "\${ENJAZ_A2_ISOLATED_BRANCH_CONFIRM}" = "YES"/);
 });
 
-test('preflight precedes all network/database mutation and only reviewed A2/A3 source is installed',()=>{
+test('preflight precedes hosted harness and workflow cannot install branch schema',()=>{
   const preflight=workflow.indexOf('Fail closed before any Supabase or database call');
-  const a2=workflow.indexOf('--file=database/migrations/phase_13_4_reconciliation_readback.sql');
-  const a3=workflow.indexOf('--file=database/migrations/phase_13_4_a3_trusted_comparison.sql');
+  const sourceCheck=workflow.indexOf('Require reviewed A2/A3 source to be present in selected source ref');
   const harness=workflow.indexOf('node scripts/phase13-4-a2-real-cloud-e2e.mjs');
-  assert.ok(preflight>=0 && a2>preflight && a3>a2 && harness>a3);
-  assert.doesNotMatch(workflow,/phase_13_4_reconciliation\.sql/);
+  assert.ok(preflight>=0 && sourceCheck>preflight && harness>sourceCheck);
+  assert.ok(workflow.includes('test -f database/migrations/phase_13_4_reconciliation_readback.sql'));
+  assert.ok(workflow.includes('test -f database/migrations/phase_13_4_a3_trusted_comparison.sql'));
+  assert.doesNotMatch(workflow,/\bpsql\b|SUPABASE_DB_URL|phase_13_4_reconciliation\.sql/);
   assert.doesNotMatch(workflow,/service_role|juzxriirhkuzviwnhkbd\.supabase\.co/);
 });
 
