@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.3 — Ordered Import ✅ CLOSED / A1 + A2 + A3 CERTIFIED / PR + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED**  
-آخر مرحلة مغلقة: **Phase 13.3 — Ordered Import ✅ CLOSED / OWNER-AUTHENTICATED ATOMIC EXECUTION CERTIFIED**  
-المرحلة اللاحقة: **Phase 13.4 — Reconciliation — AUTHORIZED_NEXT بعد دمج شهادة الإغلاق وإعادة اعتماد النسخة الرئيسية**.
+الحالة الرسمية: **Phase 13.4 — Reconciliation 🟡 IN PROGRESS / A1 READ-ONLY EXPECTATION PLAN**  
+آخر مرحلة مغلقة: **Phase 13.3 — Ordered Import ✅ CLOSED / PR + EXACT-MAIN 43/43 + DEPLOYED-LIVE CERTIFIED**  
+المرحلة الحالية: **Phase 13.4 — Reconciliation — A1 READ-ONLY / NO DATABASE READ OR WRITE**؛ Phase 13.5 remains **LOCKED**.
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -76,6 +76,15 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - closure: [`docs/PHASE13_3_CLOSURE.md`](docs/PHASE13_3_CLOSURE.md).
 - state: [`docs/PHASE13_3_STATE.json`](docs/PHASE13_3_STATE.json).
 - A3 Real Cloud evidence: [`docs/PHASE13_3_A3_EVIDENCE.md`](docs/PHASE13_3_A3_EVIDENCE.md).
+
+## Phase 13.4 — العمل الحالي
+
+- exact predecessor: Phase 13.3 formal closure merge `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`; **43/43 exact-main SUCCESS**.
+- **A1 — read-only reconciliation expectation plan: IN PROGRESS**. Builds source lineage, expected row counts, explicit relationship IDs and target IDs from validated 13.3 manifests without reading Supabase or claiming imported data was verified.
+- No imported records are edited or automatically repaired; no new database table, write RPC, new UI, or client bundle budget increase.
+- A2 actual authenticated cloud readback and A3 comparison/destruction remain pending. Phase 13.5 **LOCKED**.
+- state: [`docs/PHASE13_4_STATE.json`](docs/PHASE13_4_STATE.json).
+- contract: [`docs/PHASE13_4_A1_KICKOFF.md`](docs/PHASE13_4_A1_KICKOFF.md).
 
 ## Phase 13.2 — دليل الإغلاق الحالي
 
