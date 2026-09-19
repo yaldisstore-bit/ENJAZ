@@ -12,7 +12,7 @@ const failures=[];
 const check=(name,ok)=>{if(!ok)failures.push(name)};
 const exists=p=>fs.existsSync(p);
 
-check('phase_identity',s.phase==='13.5'&&s.name==='Import Destruction Gate'&&s.status==='IN_PROGRESS'&&s.currentSlice==='A1_DESTRUCTION_CONTRACT');
+check('phase_identity',s.phase==='13.5'&&s.name==='Import Destruction Gate'&&s.status==='IN_PROGRESS'&&['A1_DESTRUCTION_CONTRACT','A2_DISPOSABLE_POSTGRES_DESTRUCTION'].includes(s.currentSlice));
 check('exact_base',s.baseCommit==='64b78767ebd3b0112e752f979d5448f78bdfd2cf');
 check('predecessor_closed',predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true&&predecessor.phase13_5Allowed===true&&predecessor.successorStatus==='AUTHORIZED_NEXT');
 check('predecessor_evidence',s.predecessorClosureEvidence==='docs/PHASE13_4_CLOSURE.md'&&exists(s.predecessorClosureEvidence));
@@ -24,6 +24,7 @@ check('import_law',s.exactMappingReuseRequired===true&&s.generatedTargetIdsAllow
 check('target_scope',s.targetTables?.join(',')==='contacts,companies,transactions'&&s.stageOrder?.join(',')==='contacts,companies,transactions'&&s.maxItems===5000&&s.overLimitFailClosedAt===5001);
 check('budget_freeze',s.javascriptBudgetBytes===670000&&s.totalJavascriptBudgetBytes===760000&&s.cssBudgetBytes===180000&&s.budgetIncreaseAllowed===false);
 check('matrix_link',s.destructionMatrix==='docs/PHASE13_5_DESTRUCTION_MATRIX.json'&&exists(s.destructionMatrix));
+check('a2_fixture',s.a2Fixture==='tests/fixtures/phase13-5-import-destruction-postgres.sql'&&exists(s.a2Fixture)&&s.a2ExpectedPassCount===13&&s.a2ZeroResidueRequired===true);
 check('matrix_schema',matrix.schema==='enjaz.phase13-5.import-destruction.matrix.v1'&&matrix.cases?.length===24&&new Set(matrix.cases.map(x=>x.id)).size===24);
 for(const d of ['counts','orphan_relations','money','workflow_state','ownership','documents','duplicate_idempotency'])
   check('dimension_'+d,matrix.requiredRoadmapDimensions?.includes(d));

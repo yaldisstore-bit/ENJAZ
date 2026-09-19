@@ -46,7 +46,9 @@ jobs:
       - name: Phase 13.5 A1 governed destruction audit
         run: node scripts/phase13-5-import-destruction-audit.mjs
       - name: Phase 13.5 destruction contract tests
-        run: node --test tests/phase13-5-import-destruction-contract.test.mjs
+        run: |
+          node --test tests/phase13-5-import-destruction-contract.test.mjs
+          node --test tests/phase13-5-import-destruction-db-source.test.mjs
       - name: Preserve Phase 13.1 snapshot destruction boundary
         run: |
           node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
@@ -92,3 +94,35 @@ jobs:
           npm run audit:dist:budget
       - name: Dependency high-severity audit
         run: npm audit --audit-level=high
+
+  phase13-5-a2-postgres:
+    name: A2 disposable PostgreSQL destructive execution
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: enjaz_phase135
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d enjaz_phase135"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure PostgreSQL client exists
+        run: command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+      - name: Execute Phase 13.5 destructive fixture
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d enjaz_phase135             --set=ON_ERROR_STOP=1             --file=tests/fixtures/phase13-5-import-destruction-postgres.sql 2>&1 | tee /tmp/phase135-a2.log
+          test "$(grep -c 'PASS 13.5 A2' /tmp/phase135-a2.log)" -eq 13
+          ! grep -q '13.5 FAILURE' /tmp/phase135-a2.log

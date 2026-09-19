@@ -1,6 +1,6 @@
 # Phase 13.5 — Import Destruction Gate — Kickoff
 
-**Status:** IN_PROGRESS — A1 DESTRUCTION CONTRACT  
+**Status:** IN_PROGRESS — A2 DISPOSABLE POSTGRES DESTRUCTION  
 **Base:** `64b78767ebd3b0112e752f979d5448f78bdfd2cf` — canonical Phase 13.4 closure/correction; exact-main **42/42 SUCCESS**.  
 **Predecessor:** Phase 13.4 ✅ CLOSED / Real Cloud + production read-only reconciliation certified.  
 **Successor:** Phase 14.1 — Cross-domain Journeys — **LOCKED**.
@@ -53,3 +53,7 @@ Run destructive Auth/RLS tests only against an isolated environment. Production 
 ## Exit gate
 
 Formal closure requires all four quality tracks PASS, zero Critical/High/functional blockers, exact PR-head gates, Real Cloud zero-residue, cumulative Real Browser, implementation merge, exact-main recertification, Pages and Live External evidence. Only then may Phase 14.1 be authorized.
+
+## A2 fixture now active
+
+`tests/fixtures/phase13-5-import-destruction-postgres.sql` compiles the exact certified Phase 13.3 execution migrations plus Phase 13.4 A2/A3 SQL in a fresh PostgreSQL 17 service. It executes 13 destructive PASS assertions covering anonymous/owner/member/outsider authority, exact 1/1/1 import, money/FK lineage, exact replay, changed replay conflict, A2/A3 equality without closure, lifecycle/missing target, forged ledger identity, forced late-write rollback, generated-ID preclaim rejection, 5001 denial and explicit zero database residue.

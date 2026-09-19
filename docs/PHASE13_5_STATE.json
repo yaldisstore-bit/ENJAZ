@@ -2,7 +2,7 @@
   "phase": "13.5",
   "name": "Import Destruction Gate",
   "status": "IN_PROGRESS",
-  "currentSlice": "A1_DESTRUCTION_CONTRACT",
+  "currentSlice": "A2_DISPOSABLE_POSTGRES_DESTRUCTION",
   "mode": "DESTRUCTION_AND_CLOSURE_EVIDENCE_ONLY",
   "baseCommit": "64b78767ebd3b0112e752f979d5448f78bdfd2cf",
   "predecessorPhase": "13.4",
@@ -44,8 +44,8 @@
   "maxItems": 5000,
   "overLimitFailClosedAt": 5001,
   "destructionMatrix": "docs/PHASE13_5_DESTRUCTION_MATRIX.json",
-  "a1Status": "SOURCE_CONTRACT_ACTIVE",
-  "a2Status": "PENDING_DISPOSABLE_POSTGRES_DESTRUCTION",
+  "a1Status": "SOURCE_CONTRACT_IMPLEMENTED_PENDING_COMBINED_GATE",
+  "a2Status": "DISPOSABLE_POSTGRES_DESTRUCTION_ACTIVE",
   "a3Status": "PENDING_ISOLATED_REAL_CLOUD_DESTRUCTION",
   "realBrowserRequired": true,
   "exactMainRequired": true,
@@ -70,5 +70,8 @@
       "certification": "PENDING_A2_A3_EXACT_MAIN"
     },
     "decision": "IN_PROGRESS"
-  }
+  },
+  "a2Fixture": "tests/fixtures/phase13-5-import-destruction-postgres.sql",
+  "a2ExpectedPassCount": 13,
+  "a2ZeroResidueRequired": true
 }
