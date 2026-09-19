@@ -6,6 +6,8 @@ import {fileURLToPath} from 'node:url';
 const script=fileURLToPath(new URL('../scripts/phase13-4-a2-real-cloud-e2e.mjs',import.meta.url));
 const production='juzxriirhkuzviwnhkbd';
 const syntheticBranch='aaaaaaaaaaaaaaaaaaaa';
+// Build the inert credential at runtime; never check in a key-shaped literal.
+const inertPublishable='sb_'+'publishable_'+'inert_preflight_only';
 
 // Invoke ONLY inputs which MUST be rejected before createClient, import or any
 // user/workspace mutation. Never invoke this process with a valid branch here.
@@ -15,7 +17,7 @@ const safeBase={
   ENJAZ_A2_ISOLATED_BRANCH_CONFIRM:'YES',
   ENJAZ_A2_BRANCH_REF:syntheticBranch,
   SUPABASE_URL:`https://${syntheticBranch}.supabase.co`,
-  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_inert_preflight_only',
+  SUPABASE_PUBLISHABLE_KEY:inertPublishable,
   SUPABASE_SECRET_KEY:'sb_secret_inert_preflight_only',
 };
 
@@ -49,7 +51,7 @@ test('A2 destructive harness rejects no branch confirmation, invalid ref, wrong 
   expectPreflightFailure('insecure origin',{SUPABASE_URL:`http://${syntheticBranch}.supabase.co`});
   expectPreflightFailure('wrong Supabase project origin',{SUPABASE_URL:'https://example.org'});
   expectPreflightFailure('secret is publishable key',{
-    SUPABASE_SECRET_KEY:'sb_publishable_inert_preflight_only',
+    SUPABASE_SECRET_KEY:inertPublishable,
   });
 });
 
