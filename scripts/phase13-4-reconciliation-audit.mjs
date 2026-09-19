@@ -65,6 +65,9 @@ req(s.isolatedRealCloudRequired === true &&
   s.productionSupabaseModifiedByPhase13_4 === false &&
   s.livePrivilegeInventoryReadOnlyVerified === true,
   'Real Cloud isolation or production-safety state drifted');
+req(s.realCloudCertificationPlan === 'docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md' &&
+  exists(s.realCloudCertificationPlan),
+  'Real Cloud certification runbook missing from canonical state');
 
 for (const k of [
   'persistenceAllowed','databaseWritesAllowed','newDatabaseTablesAllowed','newWriteRpcAuthorityAllowed',
