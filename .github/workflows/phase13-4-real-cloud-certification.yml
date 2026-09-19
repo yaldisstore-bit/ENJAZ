@@ -36,12 +36,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fail closed before any network call
+      - name: Fail closed before any Supabase or database call
         shell: bash
         run: |
           set -euo pipefail
           test "${ENJAZ_REAL_CLOUD_CONFIRM}" = "YES"
           test "${ENJAZ_A2_ISOLATED_BRANCH_CONFIRM}" = "YES"
+          test "${GITHUB_REF_TYPE}" = "branch"
+          test "${GITHUB_REF_NAME}" != "main"
+          [[ "${GITHUB_REF_NAME}" == phase13-4-* ]]
           test -n "${ENJAZ_A2_BRANCH_REF}"
           test "${ENJAZ_A2_BRANCH_REF}" != "${PRODUCTION_PROJECT_REF}"
           [[ "${ENJAZ_A2_BRANCH_REF}" =~ ^[a-z0-9]{20}$ ]]
