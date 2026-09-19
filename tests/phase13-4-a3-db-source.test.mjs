@@ -28,7 +28,7 @@ test('A3 tests every field, lifecycle, source identity, exact decimal and all re
   for(const marker of [
     "'missing_target'","'identity_drift'","'lifecycle_drift'",
     "'field_drift'","'money_drift'","'relationship_drift'",
-    "'legacyid'","'legacysource'","'deletedat'","'status'",
+    "record,legacyid","record,legacysource","record,deletedat","record,status",
     "'display_name'","'contact_type'","'phone'","'email'","'notes'",
     "'legal_name'","'capitaldecimal'","'address'","'activities'",
     "'registration_number'","'legal_status'","'department'","'current_fee_decimal'",
