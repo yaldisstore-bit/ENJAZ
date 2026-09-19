@@ -68,7 +68,7 @@ req(s.a3Status === 'HOSTED_DB_RLS_VERIFIED_AUTH_API_PENDING' &&
   'A3 hosted safety/performance lifecycle invalid');
 
 req(s.isolatedRealCloudRequired === true &&
-  s.isolatedRealCloudStatus === 'HOSTED_DB_RLS_PASS_AUTH_API_PENDING' &&
+  s.isolatedRealCloudStatus === 'HOSTED_DB_RLS_PASS_AUTH_API_SAFE_INVOKE_PENDING' &&
   s.supabaseDevelopmentBranchAvailable === false &&
   s.supabaseDevelopmentBranchBlocker === 'FREE_PLAN_REQUIRES_PRO' &&
   s.isolatedLabProjectRef === 'nqhgaukutkyvfumbtbtg' &&
@@ -81,7 +81,7 @@ req(s.isolatedRealCloudRequired === true &&
   s.hostedDbRlsSecurityAdvisorLints === 0 &&
   s.hostedDbRlsMaxItemsPassed === 5000 &&
   s.hostedDbRlsOverLimitDenied === 5001 &&
-  s.authApiCertificationStatus === 'PENDING_SERVICE_SECRET_AND_HTTP_TRANSPORT' &&
+  s.authApiCertificationStatus === 'PENDING_SAFE_INVOKE_TRANSPORT' &&
   s.productionSupabaseModifiedByPhase13_4 === false &&
   s.livePrivilegeInventoryReadOnlyVerified === true,
   'Hosted Supabase DB/RLS evidence, Auth-API gap, or production-safety state drifted');
