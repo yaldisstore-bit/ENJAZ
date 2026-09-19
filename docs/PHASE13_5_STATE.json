@@ -44,9 +44,9 @@
   "maxItems": 5000,
   "overLimitFailClosedAt": 5001,
   "destructionMatrix": "docs/PHASE13_5_DESTRUCTION_MATRIX.json",
-  "a1Status": "SOURCE_CONTRACT_IMPLEMENTED",
+  "a1Status": "SOURCE_CONTRACT_PASS",
   "a2Status": "DISPOSABLE_POSTGRES_14_PASS_PENDING_CURRENT_HEAD_GATE",
-  "a3Status": "PENDING_ISOLATED_REAL_CLOUD_DESTRUCTION",
+  "a3Status": "HOSTED_DB_RLS_DESTRUCTION_PASS_AUTH_JWT_PENDING",
   "realBrowserRequired": true,
   "exactMainRequired": true,
   "pagesRequired": true,
@@ -73,5 +73,10 @@
   },
   "a2Fixture": "tests/fixtures/phase13-5-import-destruction-postgres.sql",
   "a2ExpectedPassCount": 14,
-  "a2ZeroResidueRequired": true
+  "a2ZeroResidueRequired": true,
+  "a2ObservedPassCount": 14,
+  "a2ZeroResidueVerified": true,
+  "a3HostedDbMigration": "phase13_5_hosted_db_destruction_certificate_v2",
+  "a3HostedDbPassed": true,
+  "a3HostedDbZeroResidue": true
 }

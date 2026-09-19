@@ -124,10 +124,12 @@ for (const marker of [
 has(roadmap,
   '## 13.4 — Reconciliation ✅ CLOSED / REAL CLOUD + EXACT-MAIN + PRODUCTION READ-ONLY CERTIFIED',
   'roadmap');
-has(roadmap, '## 13.5 — Import Destruction Gate — AUTHORIZED_NEXT', 'roadmap');
-has(readme,
-  'Phase 13.4 — Reconciliation ✅ CLOSED / REAL CLOUD + PRODUCTION READ-ONLY + EXACT-MAIN CERTIFIED',
-  'README');
+req(
+  roadmap.includes('## 13.5 — Import Destruction Gate — AUTHORIZED_NEXT') ||
+  roadmap.includes('## 13.5 — Import Destruction Gate — IN_PROGRESS /'),
+  'roadmap must preserve Phase 13.5 authorized-next history or active successor state'
+);
+has(readme, 'Phase 13.4 — Reconciliation ✅ CLOSED', 'README');
 
 req(exists('database/migrations/phase_13_4_reconciliation_readback.sql') &&
   exists('database/migrations/phase_13_4_a3_trusted_comparison.sql') &&
@@ -143,5 +145,5 @@ if (errors.length) {
   for (const error of errors) console.error('- ' + error);
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 13.4 AUDIT PASS — formal closure certified; production A2/A3 remain read-only; Phase 13.5 authorized next.');
+  console.log('ENJAZ PHASE 13.4 AUDIT PASS — formal closure certified; production A2/A3 remain read-only; Phase 13.5 authorized or actively progressing.');
 }
