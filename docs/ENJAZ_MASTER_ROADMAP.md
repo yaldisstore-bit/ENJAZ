@@ -509,13 +509,13 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Formal closure: `docs/PHASE13_4_CLOSURE.md`.
 - Phase 13.5 — Import Destruction Gate: **AUTHORIZED_NEXT**.
 
-## 13.5 — Import Destruction Gate — IN_PROGRESS / A2 DISPOSABLE POSTGRES DESTRUCTION
+## 13.5 — Import Destruction Gate — IN_PROGRESS / A3 REAL CLOUD DESTRUCTION CERTIFIED / EXACT-HEAD PENDING
 
 Import may target the expanded model only where explicit mappings exist. Unknown legacy concepts remain quarantined/reviewable instead of being guessed into M1–M18 structures. Counts, orphan relations, money, workflow state, ownership, documents and duplicate/idempotency behavior must reconcile.
 
 - A1 implemented: machine-readable 24-case destruction matrix + fail-closed source audit; no new authority or production destructive execution.
-- A2 active: disposable PostgreSQL 17 destruction fixture executes the real 13.3 write RPC + 13.4 A2/A3 SQL; latest fixture produced 14 destructive PASS notices including atomic late-write rollback and zero residue.
-- A3 in progress: isolated Supabase hosted DB/RLS destruction certificate v2 has passed with zero residue; real Auth/JWT destructive transport certificate is being finalized.
+- A2 **PASS**: disposable PostgreSQL 17 executes the real 13.3 write RPC + 13.4 A2/A3 SQL and produced **14 destructive PASS** notices including atomic late-write rollback, 5001 fail-closed and zero residue.
+- A3 **REAL CLOUD PASS**: isolated Supabase hosted DB/RLS certificate v2 passed; protected real Auth/JWT runner #35448348574 returned `passed=true`, `functionalPassed=true`, `cleanupPassed=true` with **11/11 checks**, then the certificate endpoint was disabled to 410/verify-JWT. Final Auth/data residue and security/performance lints are all zero.
 - Production may be inspected read-only but is forbidden as the destructive target.
 - Phase 14.1 remains **LOCKED** until formal 13.5 Zero-Escape closure.
 
