@@ -65,7 +65,11 @@ test('A2 Real Cloud harness is explicitly opt-in, isolated and exercises post-im
   const harness = fs.readFileSync(new URL('../scripts/phase13-4-a2-real-cloud-e2e.mjs', import.meta.url), 'utf8');
   for (const marker of [
     "ENJAZ_REAL_CLOUD_CONFIRM!=='YES'",
-    "url.endsWith(PROJECT+'.supabase.co')",
+    "ENJAZ_A2_ISOLATED_BRANCH_CONFIRM!=='YES'",
+    "const branchRef=required('ENJAZ_A2_BRANCH_REF')",
+    "branchRef===PRODUCTION_PROJECT",
+    "url!==`https://${branchRef}.supabase.co`",
+    "projectRef:branchRef,productionProjectRef:PRODUCTION_PROJECT",
     "enjaz_test_marker:MARKER",
     "'anonymous_cannot_read_successful_ledger'",
     "'outsider_cannot_read_successful_ledger'",
