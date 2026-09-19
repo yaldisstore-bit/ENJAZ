@@ -19,6 +19,10 @@ The isolated Supabase project passed real hosted PostgreSQL/RLS checks for owner
 
 Full evidence: `docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`.
 
+## Production-policy RLS parity
+
+Before formal implementation certification, the lab's six-table policy surface was compared to production and brought to **15/15 exact policy parity**. A hosted role/claim certificate then proved outsider/owner/member row visibility under the real `authenticated` role and `auth.uid()`, followed by a successful repeat of the real Phase 13.3 import and A2/A3 owner/member/outsider/anon boundaries. Zero residue and zero advisor lints were re-verified.
+
 ## Real Auth-token transport certificate
 
 A temporary isolated-project Edge Function used Supabase's official publishable-auth boundary while retaining admin credentials only inside Supabase runtime secrets. Its `pg_net` invocation returned HTTP **200** with:
