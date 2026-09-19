@@ -68,6 +68,9 @@ req(s.isolatedRealCloudRequired === true &&
 req(s.realCloudCertificationPlan === 'docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md' &&
   exists(s.realCloudCertificationPlan),
   'Real Cloud certification runbook missing from canonical state');
+req(exists('.github/workflows/phase13-4-real-cloud-certification.yml') &&
+  exists('tests/phase13-4-real-cloud-workflow-source.test.mjs'),
+  'Manual branch-only Real Cloud workflow or its source guard is missing');
 
 for (const k of [
   'persistenceAllowed','databaseWritesAllowed','newDatabaseTablesAllowed','newWriteRpcAuthorityAllowed',
