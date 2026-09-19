@@ -60,5 +60,28 @@ test('A3 destructive fixture executes only in disposable A2 PostgreSQL CI job',(
     'A3 isolated deleted lifecycle drift visible',
     'A3 isolated missing target never produces closure authority',
     'A3 isolated anonymous execution forbidden',
+    'A3 isolated forged manifest and idempotency denied',
+    'A3 isolated mutually corrupt totals cannot compare',
+    'A3 isolated ledger restoration never repairs missing imported row',
   ])assert.ok(fixture.includes(marker),marker);
+});
+
+test('A3 branch-only live harness checks equality and adversarial cases without touching production',()=>{
+  const harness=fs.readFileSync(new URL('../scripts/phase13-4-a2-real-cloud-e2e.mjs',import.meta.url),'utf8');
+  for(const marker of [
+    "branchRef===PRODUCTION_PROJECT",
+    "process.env.ENJAZ_A2_ISOLATED_BRANCH_CONFIRM!=='YES'",
+    "const compare=(client,m)=>client.rpc('compare_legacy_import_reconciliation_v1',params(m))",
+    "'a3_actual_phase13_3_import_matches_only_at_snapshot_without_closure'",
+    "'a3_same_workspace_member_cannot_compare_as_canonical_owner'",
+    "'a3_changed_company_fk_detected_without_closure'",
+    "'a3_changed_transaction_money_detected'",
+    "'a3_source_lineage_and_normalized_fields_detected'",
+    "'a3_corrupt_durable_ledger_cannot_attest'",
+    "'a3_forged_manifest_cannot_attest'",
+    "'a3_wrong_idempotency_cannot_attest'",
+    "'a3_missing_transaction_is_explicit_without_false_drift_or_closure'",
+    "'a3_all_three_missing_targets_never_close_or_repair'",
+    "evidence.cleanupPassed=ok"
+  ])assert.ok(harness.includes(marker),marker);
 });
