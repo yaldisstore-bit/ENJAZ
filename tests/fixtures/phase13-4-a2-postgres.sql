@@ -147,7 +147,7 @@ begin
 end $$;
 
 set request.jwt.claim.sub = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
-do $
+do $$
 declare r jsonb; accessible integer;
 begin
  select count(*) into accessible from public.import_jobs
@@ -159,11 +159,11 @@ begin
  'a2-fixture-2026',doc) into r from fixture.original;
  if r is not null then raise exception 'A2 FAILURE: same-workspace non-owner readback visible'; end if;
  raise notice 'PASS A2 ephemeral PostgreSQL workspace member cannot bypass owner-only readback';
-end $;
+end $$;
 
 reset role;
 set role anon;
-do $ begin
+do $$ begin
  begin
   perform public.read_legacy_import_reconciliation_v1(
   '11111111-1111-4111-8111-111111111111',
