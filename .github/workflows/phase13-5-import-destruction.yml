@@ -1,0 +1,128 @@
+name: ENJAZ Phase 13.5 — Import Destruction Gate
+
+on:
+  push:
+    branches:
+      - 'phase13-5-*'
+    paths:
+      - 'docs/PHASE13_5_*'
+      - 'scripts/phase13-5-*'
+      - 'tests/phase13-5-*'
+      - '.github/workflows/phase13-5-import-destruction.yml'
+      - 'README.md'
+      - 'docs/ENJAZ_MASTER_ROADMAP.md'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase135-import-destruction-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase13-5-a1:
+    name: A1 destruction contract / predecessor preservation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      VITE_APP_ENV: production
+      VITE_APP_LOG_LEVEL: info
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Phase 13.5 A1 governed destruction audit
+        run: node scripts/phase13-5-import-destruction-audit.mjs
+      - name: Phase 13.5 destruction contract tests
+        run: |
+          node --test tests/phase13-5-import-destruction-contract.test.mjs
+          node --test tests/phase13-5-import-destruction-db-source.test.mjs
+      - name: Preserve Phase 13.1 snapshot destruction boundary
+        run: |
+          node scripts/phase13-1-readonly-legacy-snapshot-intake-audit.mjs
+          node scripts/phase13-1-legacy-snapshot-destruction-audit.mjs
+          node --experimental-strip-types --test tests/phase13-1-legacy-snapshot-intake.test.ts
+          node --experimental-strip-types --test tests/phase13-1-legacy-snapshot-destruction.test.ts
+      - name: Preserve Phase 13.2 normalize/map destruction boundary
+        run: |
+          node scripts/phase13-2-normalize-map-audit.mjs
+          node scripts/phase13-2-destruction-audit.mjs
+          node --experimental-strip-types --test tests/phase13-2-normalize-map.test.ts
+          node --experimental-strip-types --test tests/phase13-2-relationship-preview.test.ts
+          node --experimental-strip-types --test tests/phase13-2-destruction.test.ts
+      - name: Preserve Phase 13.3 ordered import authority
+        run: |
+          node scripts/phase13-3-ordered-import-audit.mjs
+          node --experimental-strip-types --test tests/phase13-3-ordered-import.test.ts
+          node --experimental-strip-types --test tests/phase13-3-ordered-import-binding.test.ts
+          node --experimental-strip-types --test tests/phase13-3-ordered-import-execution.test.ts
+          node --test tests/phase13-3-ordered-import-db-source.test.mjs
+      - name: Preserve Phase 13.4 reconciliation authority
+        run: |
+          node scripts/phase13-4-reconciliation-audit.mjs
+          node --experimental-strip-types --test tests/phase13-4-reconciliation-plan.test.ts
+          node --experimental-strip-types --test tests/phase13-4-reconciliation-readback.test.ts
+          node --test tests/phase13-4-reconciliation-db-source.test.mjs
+          node --test tests/phase13-4-a3-db-source.test.mjs
+      - name: Full functional regression
+        run: npm run test:functional
+      - name: Database / roadmap / major-system governance
+        run: |
+          npm run db:audit
+          npm run db:audit:selftest
+          npm run audit:roadmap
+          node scripts/major-systems-zero-escape-audit.mjs
+      - name: Secrets + TypeScript
+        run: |
+          npm run audit:secrets
+          npm run typecheck
+      - name: Production build + frozen budgets
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
+      - name: Dependency high-severity audit
+        run: npm audit --audit-level=high
+
+  phase13-5-a2-postgres:
+    name: A2 disposable PostgreSQL destructive execution
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: enjaz_phase135
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d enjaz_phase135"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure PostgreSQL client exists
+        run: command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+      - name: Execute Phase 13.5 destructive fixture
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d enjaz_phase135             --set=ON_ERROR_STOP=1             --file=tests/fixtures/phase13-5-import-destruction-postgres.sql 2>&1 | tee /tmp/phase135-a2.log
+          test "$(grep -c 'PASS 13.5 A2' /tmp/phase135-a2.log)" -eq 14
+          ! grep -q '13.5 FAILURE' /tmp/phase135-a2.log
