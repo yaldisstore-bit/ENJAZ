@@ -62,8 +62,11 @@ test('13.5 expanded-model target escape is forbidden for documents workflow owne
 
 test('13.5 workflow ownership and document authority fields cannot be smuggled into certified target tables',()=>{
  for(const targetField of ['workflow_state','owner_user_id','document_id','workspace_id','status','deleted_at']){
-  const p=mapping();p.typeMappings[0].fieldMappings.push({sourceField:'name',targetField,normalize:'trim_text'});
-  assert.throws(()=>buildLegacyOrderedImportPlan(snapshot(),p),/LEGACY_MAPPING_TARGET_FIELD_FORBIDDEN/,targetField);
+  const s=snapshot();
+  s.records[0].fields.legacy_escape='x';
+  const p=mapping();
+  p.typeMappings[0].fieldMappings.push({sourceField:'legacy_escape',targetField,normalize:'trim_text'});
+  assert.throws(()=>buildLegacyOrderedImportPlan(s,p),/LEGACY_MAPPING_TARGET_FIELD_FORBIDDEN/,targetField);
  }
 });
 
