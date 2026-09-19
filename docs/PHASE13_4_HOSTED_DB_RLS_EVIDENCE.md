@@ -115,6 +115,19 @@ Supabase security advisors: **0 lints**.
 
 Only reviewed schema/functions and migration history remain in the disposable lab.
 
+## Exact production RLS policy parity
+
+After the initial hosted certificates, the six-table lab RLS surface was compared directly against production rather than assumed equivalent. The lab was completed to match the production policy set and then re-certified:
+
+- production policy count across `workspaces`, `workspace_memberships`, `import_jobs`, `contacts`, `companies`, and `transactions`: **15**;
+- isolated lab policy count across the same six tables: **15**;
+- normalized policy names, roles, commands, `USING` expressions and `WITH CHECK` expressions: **15/15 exact parity**;
+- a dedicated hosted role/claim certificate proved RLS is actually enforced under `SET ROLE authenticated` + `auth.uid()`: outsider sees **0** owner-ledger rows, canonical owner sees **1**, same-workspace member sees **1**;
+- after exact policy parity, the real Phase 13.3 import + owner A2/A3 + member/outsider/anon boundary certificate was re-run successfully;
+- post-certificate residue remained **0** across Auth marker users and all six fixture tables; security/performance advisors remained **0 lints**.
+
+This closes the risk that the hosted lab might have passed against a weaker or materially different RLS policy surface than production.
+
 ## Auth API / real-user-token certificate
 
 A final hosted Auth transport certificate was executed on the same isolated project without exposing any service-role credential outside Supabase.
