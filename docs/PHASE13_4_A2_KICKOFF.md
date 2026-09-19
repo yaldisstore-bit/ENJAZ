@@ -29,9 +29,9 @@ The draft Real Cloud harness now checks contact source-lineage and field drift f
 
 ## SQL-level testing without touching production
 
-- CI now provisions a disposable PostgreSQL 17 service and runs `tests/fixtures/phase13-4-a2-postgres.sql` against the exact proposed SQL file. The fixture creates synthetic-only tables, JWT identity shims and RLS, and exercises owner/outsider/anonymous boundaries, exact decimal fields, lineage/FK reads, damaged ledger rejection and missing-target visibility. No Supabase credentials or production data are used by this job.
+- CI now provisions a disposable PostgreSQL 17 service and runs `tests/fixtures/phase13-4-a2-postgres.sql` against the exact proposed SQL file. The fixture creates synthetic-only tables, JWT identity shims and RLS, and exercises owner/outsider/anonymous boundaries, a same-workspace member that can read the base ledger but cannot pass the canonical owner-only RPC, exact decimal fields, lineage/FK reads, damaged ledger rejection and missing-target visibility. No Supabase credentials or production data are used by this job.
 - A successful disposable-Postgres run establishes SQL compilation and representative local behavior **only**. Supabase Real Cloud JWT/role and policy behavior, actual Phase 13.3 imports, cleanup, and consistency still require independent authenticated isolation evidence. No existing hosted Supabase test branch is available; do not install the migration into production as a shortcut.
-- The readback proposal additionally binds the completed Phase 13.3 atomic outcome, persisted-result schema, final-result payload hash and exact durable `result.counts = import_jobs.counts - contract` consistency. The expanded Real Cloud harness contains disposable-ledger corruption/restoration tests, but those have not been executed on hosted Supabase.
+- The readback proposal additionally binds the completed Phase 13.3 atomic outcome, persisted-result schema, final-result payload hash and exact durable `result.counts = import_jobs.counts - contract` consistency. The expanded Real Cloud harness contains disposable-ledger corruption/restoration tests and the same-workspace-member-vs-canonical-owner boundary, but those have not been executed on hosted Supabase.
 
 ## Required certifications before deployment / closure
 
