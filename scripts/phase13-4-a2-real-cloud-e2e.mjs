@@ -187,6 +187,31 @@ async function test(){
   failIf(JSON.stringify(restoredRead.data?.observedRows)!==JSON.stringify(rows),
     'isolated_test_row_restoration_verified');
 
+  // The durable import ledger must not conceal post-import source-lineage drift.
+  // Mutate ONLY the contact belonging to this fresh, disposable test workspace.
+  const changedLegacyId=m.items[0].sourceKey+'-tampered';
+  const {data:changedContact,error:contactError}=await admin.from('contacts')
+    .update({legacy_id:changedLegacyId,display_name:'A2 changed after import'})
+    .eq('id',p.ids.contactId).eq('workspace_id',ws).select('id');
+  if(contactError||changedContact?.length!==1)
+    throw contactError??new Error('isolated contact tamper did not update exactly one row');
+  const changedLineage=await read(owner.client,m);
+  if(changedLineage.error)throw changedLineage.error;
+  failIf(changedLineage.data?.observedRows?.[0]?.record?.legacyId!==changedLegacyId||
+    changedLineage.data?.observedRows?.[0]?.record?.fields?.display_name!=='A2 changed after import'||
+    changedLineage.data?.observedRows?.[0]?.sourceKey!==m.items[0].sourceKey||
+    changedLineage.data?.reconciled!==false,
+    'changed_source_lineage_and_fields_exposed_without_auto_repair');
+  const {data:restoredContact,error:restoreContactError}=await admin.from('contacts')
+    .update({legacy_id:m.items[0].sourceKey,display_name:'اختبار مطابقة'})
+    .eq('id',p.ids.contactId).eq('workspace_id',ws).select('id');
+  if(restoreContactError||restoredContact?.length!==1)
+    throw restoreContactError??new Error('isolated contact restore did not update exactly one row');
+  const restoredLineage=await read(owner.client,m);
+  if(restoredLineage.error)throw restoredLineage.error;
+  failIf(JSON.stringify(restoredLineage.data?.observedRows)!==JSON.stringify(rows),
+    'isolated_source_lineage_restoration_verified');
+
   const replay=await importProbe(owner.client,m);
   if(replay.error)throw replay.error;
   failIf(replay.data?.wasDuplicate!==true,'exact_import_replay_ledger');
@@ -218,6 +243,35 @@ async function test(){
   if(countError)throw countError;
   failIf(count!==0,'readback_does_not_recreate_missing_target');
   failIf(missingRow.data?.reconciled!==false,'missing_target_never_attested_as_reconciled');
+
+  // After the isolated transaction is gone, remove its company and then contact.
+  // Verify that a missing parent is represented independently for every stage.
+  const {data:deletedCompany,error:deleteCompanyError}=await admin.from('companies')
+    .delete().eq('id',p.ids.companyId).eq('workspace_id',ws).select('id');
+  if(deleteCompanyError||deletedCompany?.length!==1)
+    throw deleteCompanyError??new Error('isolated company removal did not delete exactly one row');
+  const missingCompany=await read(owner.client,m);
+  if(missingCompany.error)throw missingCompany.error;
+  failIf(missingCompany.data?.observedRows?.length!==3||
+    missingCompany.data.observedRows[0]?.found!==true||
+    missingCompany.data.observedRows[1]?.found!==false||
+    missingCompany.data.observedRows[1]?.record!==null||
+    missingCompany.data.observedRows[2]?.found!==false||
+    missingCompany.data?.reconciled!==false,
+    'missing_company_and_transaction_preserved_without_repair');
+
+  const {data:deletedContact,error:deleteContactError}=await admin.from('contacts')
+    .delete().eq('id',p.ids.contactId).eq('workspace_id',ws).select('id');
+  if(deleteContactError||deletedContact?.length!==1)
+    throw deleteContactError??new Error('isolated contact removal did not delete exactly one row');
+  const missingAll=await read(owner.client,m);
+  if(missingAll.error)throw missingAll.error;
+  failIf(missingAll.data?.observedRows?.length!==3||
+    missingAll.data.observedRows.some((row,i)=>
+      row.ordinal!==i+1||row.found!==false||row.record!==null||
+      row.targetId!==m.items[i].targetId)||
+    missingAll.data?.reconciled!==false||missingAll.data?.mutated!==false,
+    'all_three_missing_targets_remain_explicit_and_never_recreated');
 }
 
 async function cleanup(){
