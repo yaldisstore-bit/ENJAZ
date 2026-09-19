@@ -22,7 +22,7 @@ req(predecessor.status === 'CLOSED' && predecessor.closureDecision === 'PASS' &&
 
 req(s.phase === '13.4' && s.status === 'IN_PROGRESS' &&
   s.mode === 'EXPLICIT_RECONCILIATION_NO_AUTOMATED_REPAIR' &&
-  s.currentSlice === 'A3_TRUSTED_COMPARISON_SOURCE_VERIFIED_AWAITING_ISOLATED_REAL_CLOUD' &&
+  s.currentSlice === 'A3_HOSTED_DB_RLS_VERIFIED_AUTH_API_PENDING' &&
   s.a1Status === 'CERTIFIED_MERGED_MAIN',
   'Phase 13.4 canonical lifecycle or current slice invalid');
 
@@ -33,7 +33,7 @@ req(s.baseCommit === 'ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584' &&
   'Phase 13.4 predecessor/A1 merged lineage not pinned');
 
 req(s.successorPhase === '13.5' && s.successorStatus === 'LOCKED' && s.phase13_5Allowed === false &&
-  s.exitGatePassed === false && s.closureDecision === 'PENDING_REAL_CLOUD_CERTIFICATION' &&
+  s.exitGatePassed === false && s.closureDecision === 'PENDING_AUTH_API_CERTIFICATION' &&
   s.closureEvidence === null,
   'Phase 13.4 must never pre-authorize 13.5 before isolated Real Cloud closure');
 
@@ -44,27 +44,47 @@ req(s.expectedPlanSchema === 'enjaz.legacy.reconciliation.plan.v1' &&
   s.a1ActualDatabaseReadPerformed === false,
   'A1 read-only expectation boundary drifted');
 
-req(s.sourceProposalHead === '8e2bb1e6ebe9e9fad43ac7384427f54a4ca53ef2' &&
-  s.sourceWorkflowInventory?.total === 78 && s.sourceWorkflowInventory?.success === 77 &&
-  s.sourceWorkflowInventory?.skipped === 1 && s.sourceWorkflowInventory?.failed === 0 &&
-  s.sourceWorkflowInventory?.pending === 0,
-  'A2/A3 exact verified source inventory drifted');
+req(s.sourceProposalHead === 'cc73ea547f448ccdec9457ab46ae9928ebc1ab92' &&
+  s.lastFullyDrainedSourceHead === 'fc50f868ff2a94af7a7782f1dfa2423d1270546c' &&
+  s.lastFullyDrainedSourceWorkflowInventory?.total === 87 &&
+  s.lastFullyDrainedSourceWorkflowInventory?.success === 86 &&
+  s.lastFullyDrainedSourceWorkflowInventory?.skipped === 1 &&
+  s.lastFullyDrainedSourceWorkflowInventory?.failed === 0 &&
+  s.lastFullyDrainedSourceWorkflowInventory?.pending === 0 &&
+  ['RUNNING_CURRENT_HEAD','SUCCESS'].includes(s.sourceProposalPhase13_4GateStatus),
+  'A2/A3 optimized source lineage or last fully-drained source inventory drifted');
 
-req(s.a2Status === 'SOURCE_AND_DISPOSABLE_POSTGRES_VERIFIED_REAL_CLOUD_PENDING' &&
+req(s.a2Status === 'HOSTED_DB_RLS_VERIFIED_AUTH_API_PENDING' &&
   s.a2PostgresPassCount === 16 && s.a2ActualReadbackAllowed === false &&
   s.a2ProductionFunctionInstalled === false,
-  'A2 source/PostgreSQL/cloud lifecycle invalid');
+  'A2 source/PostgreSQL/hosted-DB/Auth lifecycle invalid');
 
-req(s.a3Status === 'SOURCE_AND_DISPOSABLE_POSTGRES_VERIFIED_REAL_CLOUD_PENDING' &&
+req(s.a3Status === 'HOSTED_DB_RLS_VERIFIED_AUTH_API_PENDING' &&
   s.a3PostgresPassCount === 17 && s.a3ProductionFunctionInstalled === false &&
-  s.a3RemediationAllowed === false,
-  'A3 source/PostgreSQL/cloud lifecycle invalid');
+  s.a3RemediationAllowed === false &&
+  s.a3HostedResourceDefectFoundAndFixed === true &&
+  s.a3RowsetAlignmentCommit === '81de18247886912e8b31c665bd8c2f8ec6b25b66' &&
+  s.a3RowsetAlignmentRegressionCommit === 'cc73ea547f448ccdec9457ab46ae9928ebc1ab92',
+  'A3 hosted safety/performance lifecycle invalid');
 
 req(s.isolatedRealCloudRequired === true &&
-  s.isolatedRealCloudStatus === 'BLOCKED_ON_EXPLICIT_COST_APPROVAL_AND_DEVELOPMENT_BRANCH' &&
+  s.isolatedRealCloudStatus === 'HOSTED_DB_RLS_PASS_AUTH_API_PENDING' &&
+  s.supabaseDevelopmentBranchAvailable === false &&
+  s.supabaseDevelopmentBranchBlocker === 'FREE_PLAN_REQUIRES_PRO' &&
+  s.isolatedLabProjectRef === 'nqhgaukutkyvfumbtbtg' &&
+  s.isolatedLabProjectRegion === 'eu-central-1' &&
+  s.isolatedLabProjectMonthlyCostUsd === 0 &&
+  s.hostedDbRlsEvidence === 'docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md' &&
+  exists(s.hostedDbRlsEvidence) &&
+  s.hostedDbRlsVerified === true &&
+  s.hostedDbRlsZeroResidue === true &&
+  s.hostedDbRlsSecurityAdvisorLints === 0 &&
+  s.hostedDbRlsMaxItemsPassed === 5000 &&
+  s.hostedDbRlsOverLimitDenied === 5001 &&
+  s.authApiCertificationStatus === 'PENDING_SERVICE_SECRET_AND_HTTP_TRANSPORT' &&
   s.productionSupabaseModifiedByPhase13_4 === false &&
   s.livePrivilegeInventoryReadOnlyVerified === true,
-  'Real Cloud isolation or production-safety state drifted');
+  'Hosted Supabase DB/RLS evidence, Auth-API gap, or production-safety state drifted');
 req(s.realCloudCertificationPlan === 'docs/PHASE13_4_REAL_CLOUD_CERTIFICATION.md' &&
   exists(s.realCloudCertificationPlan),
   'Real Cloud certification runbook missing from canonical state');
@@ -85,8 +105,8 @@ req(s.javascriptBudgetBytes === 670000 && s.totalJavascriptBudgetBytes === 76000
 req(s.projectQualityConstitution?.decision === 'IN_PROGRESS' &&
   s.projectQualityConstitution.tracks.product === 'IN_PROGRESS' &&
   s.projectQualityConstitution.tracks.uiUx === 'PASS_NO_CLIENT_DELTA' &&
-  s.projectQualityConstitution.tracks.engineering === 'PASS_SOURCE_AND_DISPOSABLE_POSTGRES' &&
-  s.projectQualityConstitution.tracks.certification === 'IN_PROGRESS_REAL_CLOUD_PENDING',
+  s.projectQualityConstitution.tracks.engineering === 'PASS_SOURCE_DISPOSABLE_POSTGRES_AND_HOSTED_DB_RLS' &&
+  s.projectQualityConstitution.tracks.certification === 'IN_PROGRESS_AUTH_API_PENDING',
   'Phase 13.4 quality tracks must distinguish source engineering from cloud certification');
 
 for (const marker of [
@@ -107,10 +127,10 @@ for (const marker of [
 ]) has(contract, marker, 'A1 contract');
 
 has(roadmap,
-  '## 13.4 — Reconciliation — IN_PROGRESS / A1 MERGED + A2/A3 SOURCE & ISOLATED-POSTGRES VERIFIED / REAL CLOUD PENDING',
+  '## 13.4 — Reconciliation — IN_PROGRESS / HOSTED DB-RLS VERIFIED / AUTH API PENDING',
   'roadmap');
 has(readme,
-  'Phase 13.4 — Reconciliation 🟡 IN PROGRESS / A1 MERGED + A2/A3 SOURCE & ISOLATED-POSTGRES VERIFIED / REAL CLOUD PENDING',
+  'Phase 13.4 — Reconciliation 🟡 IN PROGRESS / HOSTED DB-RLS VERIFIED / AUTH API PENDING',
   'README');
 
 req(exists('database/migrations/phase_13_4_reconciliation_readback.sql') &&
@@ -125,5 +145,5 @@ if (errors.length) {
   for (const error of errors) console.error('- ' + error);
   process.exitCode = 1;
 } else {
-  console.log('ENJAZ PHASE 13.4 AUDIT PASS — A1 merged; A2/A3 source + disposable PostgreSQL verified; production untouched; isolated Real Cloud still required; Phase 13.5 locked.');
+  console.log('ENJAZ PHASE 13.4 AUDIT PASS — hosted Supabase DB/RLS + zero-residue verified; Auth API transport pending; production untouched; Phase 13.5 locked.');
 }
