@@ -5,7 +5,8 @@ import fs from 'node:fs';
 const baseSql=fs.readFileSync('database/migrations/phase_13_3_ordered_import_execution.sql','utf8');
 const hardeningSql=fs.readFileSync('database/migrations/phase_13_3_ordered_import_replay_hardening.sql','utf8');
 const fastpathSql=fs.readFileSync('database/migrations/phase_13_3_ordered_import_idempotency_fastpath.sql','utf8');
-const sql=fastpathSql;
+const conflictSqlstateSql=fs.readFileSync('database/migrations/20260919000205_phase_13_3_ordered_import_conflict_sqlstate_hardening.sql','utf8');
+const sql=conflictSqlstateSql;
 const has=(m)=>assert.ok(sql.includes(m),m);
 const no=(re,label)=>assert.equal(re.test(sql),false,label);
 
@@ -80,4 +81,10 @@ test('A3 idempotency fast-path checks durable replay before lock and rechecks af
   assert.ok(firstLookup>=0&&firstLookup<lock,'existing replay lookup must precede advisory lock');
   assert.ok(secondLookup>lock,'concurrent first-write recheck must follow advisory lock');
   assert.ok(firstConflict>firstLookup&&targetCollision>secondLookup,'collisions must remain after idempotency resolution');
+});
+
+test('A3 intentional idempotency conflicts never use retryable SQLSTATE 40001',()=>{
+  no(/serialization_failure/i,'intentional conflicts must not use SQLSTATE 40001');
+  has("raise unique_violation using message='ENJAZ_LEGACY_IMPORT_IDEMPOTENCY_CONFLICT'");
+  has("raise object_not_in_prerequisite_state using message='ENJAZ_LEGACY_IMPORT_EXISTING_NOT_FINAL'");
 });

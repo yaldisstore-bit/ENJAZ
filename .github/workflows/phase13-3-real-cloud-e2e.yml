@@ -9,6 +9,7 @@ on:
       - 'database/migrations/phase_13_3_ordered_import_execution.sql'
       - 'database/migrations/phase_13_3_ordered_import_replay_hardening.sql'
       - 'database/migrations/phase_13_3_ordered_import_idempotency_fastpath.sql'
+      - 'database/migrations/20260919000205_phase_13_3_ordered_import_conflict_sqlstate_hardening.sql'
       - 'docs/PHASE13_3_STATE.json'
       - 'tests/phase13-3-ordered-import-db-source.test.mjs'
       - '.github/workflows/phase13-3-real-cloud-e2e.yml'
