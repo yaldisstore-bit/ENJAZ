@@ -22,7 +22,7 @@ Creating a Supabase development branch was cost-checked and explicitly approved 
 
 The committed GitHub `workflow_dispatch` file is a **post-merge/re-certification convenience**, because GitHub manual-dispatch workflows must be available from the repository default branch before the UI/API can dispatch them reliably. It must not be treated as the pre-merge certification mechanism for this draft PR.
 
-Pre-merge Auth-API certification still uses the reviewed `scripts/phase13-4-a2-real-cloud-e2e.mjs` harness with credentials from an explicitly isolated Supabase environment. The preferred path is a development branch on Pro+; the Free-plan fallback is a separate disposable project. No production credential may substitute for an isolated secret. The separate project has already completed Hosted DB/RLS certification, but the existing connected tooling exposes only its URL and publishable/anon keys, not the service-role/secret key needed by the Auth Admin harness. Phase 13.4 therefore remains open rather than downgrading the Auth-API requirement.
+Pre-merge Auth-API certification still uses the reviewed `scripts/phase13-4-a2-real-cloud-e2e.mjs` harness with credentials from an explicitly isolated Supabase environment. The preferred path is a development branch on Pro+; the Free-plan fallback is a separate disposable project. No production credential may substitute for an isolated secret. The separate project has already completed Hosted DB/RLS certification. A lab-only `verify_jwt=true` Edge Function proved that an internal service credential is available to hosted functions, but the current tool surface provides no safe supported invocation path for that protected function. Credential-in-SQL and JWT-disabled invocation attempts were blocked and were not bypassed. The temporary function was replaced with a fixed `410 Gone` response and zero Auth/data residue was re-verified. Phase 13.4 therefore remains open rather than downgrading the Auth-API requirement.
 
 ## Hard isolation prerequisites
 
@@ -35,7 +35,7 @@ Pre-merge Auth-API certification still uses the reviewed `scripts/phase13-4-a2-r
 4. The URL must equal `https://<isolated-ref>.supabase.co`; the harness fails closed for the production ref.
 5. Before Auth-API dispatch, install only the reviewed Phase 13.3 hardening and Phase 13.4 A2/A3 SQL on the isolated environment through connected Supabase migrations. The GitHub workflow deliberately has no database URL/psql authority.
 6. Preserve the isolated environment as disposable test infrastructure; do not attach production/client traffic to it.
-7. If an isolated service secret cannot be supplied securely, keep Auth-API certification pending rather than using a production secret or weakening the harness.
+7. If a safe protected invocation path cannot be supplied, keep Auth-API certification pending rather than embedding credentials into SQL, disabling JWT verification, using a production secret, or weakening the harness.
 
 ## Hosted DB/RLS evidence already completed
 
