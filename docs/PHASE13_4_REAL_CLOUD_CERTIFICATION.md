@@ -1,6 +1,6 @@
 # Phase 13.4 — Isolated Supabase Real Cloud Certification Plan
 
-**Status:** READY FOR ISOLATED EXECUTION / NOT YET CERTIFIED  
+**Status:** HOSTED DB/RLS VERIFIED / AUTH-API TRANSPORT PENDING  
 **Production project ref:** `juzxriirhkuzviwnhkbd` — MUST NOT be used by the destructive harness.  
 **Successor:** Phase 13.5 remains **LOCKED** until this plan produces successful authenticated hosted evidence and formal closure.
 
@@ -16,26 +16,32 @@
 
 ## Cost gate
 
-Creating a Supabase development branch is a billable action. The organization cost lookup on 2026-09-19 returned **USD 0.01344/hour**. Re-check the cost immediately before creation and require explicit user approval before provisioning. Source/CI success never authorizes a paid branch.
+Creating a Supabase development branch was cost-checked and explicitly approved at **USD 0.01344/hour**, but Supabase rejected creation because the ENJAZ organization is on the Free plan and Branching requires Pro or above. No development branch was created and no hourly branch cost began. A separate isolated project was then cost-checked and explicitly confirmed at **USD 0/month**; project `nqhgaukutkyvfumbtbtg` in `eu-central-1` is the current disposable hosted DB/RLS lab. Source/CI or hosted-DB success never authorizes production deployment.
 
 ## Execution-path constraint
 
 The committed GitHub `workflow_dispatch` file is a **post-merge/re-certification convenience**, because GitHub manual-dispatch workflows must be available from the repository default branch before the UI/API can dispatch them reliably. It must not be treated as the pre-merge certification mechanism for this draft PR.
 
-Pre-merge Real Cloud certification therefore uses the same reviewed `scripts/phase13-4-a2-real-cloud-e2e.mjs` harness with branch-only URL/publishable/secret credentials supplied by an explicitly authorized isolated Supabase development branch. No production credential may substitute for the branch secret. If branch credentials cannot be supplied securely, Phase 13.4 stays open rather than downgrading the certification requirement.
+Pre-merge Auth-API certification still uses the reviewed `scripts/phase13-4-a2-real-cloud-e2e.mjs` harness with credentials from an explicitly isolated Supabase environment. The preferred path is a development branch on Pro+; the Free-plan fallback is a separate disposable project. No production credential may substitute for an isolated secret. The separate project has already completed Hosted DB/RLS certification, but the existing connected tooling exposes only its URL and publishable/anon keys, not the service-role/secret key needed by the Auth Admin harness. Phase 13.4 therefore remains open rather than downgrading the Auth-API requirement.
 
 ## Hard isolation prerequisites
 
-0. The manual workflow file must exist on GitHub's default branch so `workflow_dispatch` can be invoked. Bootstrap only the guarded manual workflow to `main`; do **not** merge the A2/A3 implementation PR as a shortcut. At execution time select a non-main `phase13-4-*` source branch; the workflow fails closed on `main` or a tag.
-1. Create a dedicated development branch from project `juzxriirhkuzviwnhkbd` only after explicit cost approval.
-2. Record the returned branch project ref. It must differ from `juzxriirhkuzviwnhkbd`.
-3. Obtain the branch-local API URL and publishable key automatically from Supabase; obtain only the branch secret/service credential for the hosted Auth admin harness. Never reuse production credentials.
-4. Keep both harness confirmations explicit:
+0. The guarded manual workflow is already bootstrapped on GitHub's default branch; do **not** merge the A2/A3 implementation PR as a shortcut.
+1. Use an isolated Supabase environment whose project ref differs from `juzxriirhkuzviwnhkbd`. Preferred: development branch on Pro+. Current Free-plan fallback: disposable project `nqhgaukutkyvfumbtbtg`.
+2. The isolated environment must have its own URL, publishable key and secret/service credential. Never reuse production credentials.
+3. Keep both harness confirmations explicit:
    - `ENJAZ_REAL_CLOUD_CONFIRM=YES`
    - `ENJAZ_A2_ISOLATED_BRANCH_CONFIRM=YES`
-5. The URL must equal `https://<branch-ref>.supabase.co`; the harness fails closed otherwise.
-6. Before dispatch, install only the reviewed A2/A3 SQL proposals on the disposable branch through the connected Supabase branch project using the reviewed migration source. The GitHub workflow deliberately has no database URL/psql authority. Do not install them on production as a shortcut.
-7. Preserve the branch as disposable test infrastructure; do not attach client traffic to it.
+4. The URL must equal `https://<isolated-ref>.supabase.co`; the harness fails closed for the production ref.
+5. Before Auth-API dispatch, install only the reviewed Phase 13.3 hardening and Phase 13.4 A2/A3 SQL on the isolated environment through connected Supabase migrations. The GitHub workflow deliberately has no database URL/psql authority.
+6. Preserve the isolated environment as disposable test infrastructure; do not attach production/client traffic to it.
+7. If an isolated service secret cannot be supplied securely, keep Auth-API certification pending rather than using a production secret or weakening the harness.
+
+## Hosted DB/RLS evidence already completed
+
+The disposable project `nqhgaukutkyvfumbtbtg` has already passed the database/RLS portion of this plan. Evidence is recorded in [`PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`](PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md), including owner/member/outsider/anon boundaries, real Phase 13.3 import, destructive drift/tamper cases, zero residue, 5000-item hosted comparison after A3 rowset alignment, 5001 fail-closed, and zero Supabase security-advisor lints.
+
+This is not a substitute for the remaining Auth-API transport certificate.
 
 ## Required authenticated hosted checks
 
