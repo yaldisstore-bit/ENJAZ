@@ -149,6 +149,24 @@ async function test(){
   failIf(Boolean(outsiderExisting.error)||outsiderExisting.data!==null,
     'outsider_cannot_read_successful_ledger');
 
+  // The real schema allows another user to hold an owner-labelled workspace
+  // membership while the canonical workspaces.owner_user_id remains unchanged.
+  // Even if table RLS grants membership-based ledger read, the A2 RPC must
+  // require the canonical workspace owner, not merely membership or its role.
+  const {data:addedMember,error:memberError}=await admin.from('workspace_memberships')
+    .insert({workspace_id:ws,user_id:other.id,role:'owner'})
+    .select('workspace_id,user_id');
+  if(memberError||addedMember?.length!==1)
+    throw memberError??new Error('isolated same-workspace membership insert failed');
+  const memberLedger=await other.client.from('import_jobs')
+    .select('id').eq('workspace_id',ws).eq('id',m.batchId);
+  if(memberLedger.error)throw memberLedger.error;
+  failIf(memberLedger.data?.length!==1,
+    'same_workspace_member_can_read_base_ledger_via_existing_rls');
+  const memberReadback=await read(other.client,m);
+  failIf(Boolean(memberReadback.error)||memberReadback.data!==null,
+    'same_workspace_member_cannot_bypass_canonical_owner_readback');
+
   // Alter ONLY fresh test rows. A2 must expose drift, not silently attest or repair it.
   const {data:changedCompany,error:companyError}=await admin.from('companies')
     .update({primary_contact_id:null}).eq('id',p.ids.companyId)
