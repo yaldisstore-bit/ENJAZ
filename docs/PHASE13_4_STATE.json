@@ -78,7 +78,7 @@
     "failed": 0,
     "pending": 0
   },
-  "sourceProposalPhase13_4GateStatus": "RUNNING_CURRENT_HEAD",
+  "sourceProposalPhase13_4GateStatus": "SUCCESS",
   "supabaseDevelopmentBranchAvailable": false,
   "supabaseDevelopmentBranchBlocker": "FREE_PLAN_REQUIRES_PRO",
   "isolatedLabProjectRef": "nqhgaukutkyvfumbtbtg",
