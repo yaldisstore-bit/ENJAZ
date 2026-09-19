@@ -61,6 +61,6 @@ test('A2 Real Cloud harness is explicitly opt-in, isolated and exercises post-im
     "evidence.cleanupPassed=ok",
     "evidence.passed=!fatal&&evidence.cleanupPassed",
   ]) assert.ok(harness.includes(marker), marker);
-  assert.match(harness, /\\.delete\\(\\)\\.eq\\('id',p\\.ids\\.transactionId\\)\\.eq\\('workspace_id',ws\\)/);
-  assert.match(harness, /admin\\.from\\('workspaces'\\)\\.delete\\(\\)\\.eq\\('id',ws\\)/);
+  assert.ok(harness.includes(".delete().eq('id',p.ids.transactionId).eq('workspace_id',ws)"));
+  assert.ok(harness.includes("admin.from('workspaces').delete().eq('id',ws)"));
 });
