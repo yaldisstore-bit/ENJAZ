@@ -55,7 +55,7 @@ test('snapshot and mapping fail closed for duplicates, dangling links and unsafe
 test('production reconciliation authority remains authenticated-only, owner-bound and non-repairing',()=>{
   for(const sql of [a2,a3]){
     assert.match(sql,/security invoker/);
-    assert.match(sql,/revoke execute on function/);
+    assert.match(sql,/revoke all on function/);
     assert.match(sql,/grant execute on function[\s\S]*to authenticated/);
     assert.match(sql,/private\.is_workspace_owner/);
   }
