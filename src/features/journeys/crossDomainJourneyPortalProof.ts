@@ -159,7 +159,11 @@ export async function verifyCrossDomainClientPortalRead(
           original.transaction_id !== document.transactionId ||
           original.company_id !== document.companyId ||
           original.title !== document.title || original.status !== document.status ||
-          original.mime_type !== document.mimeType || original.size_bytes !== document.sizeBytes)
+          original.document_type !== document.documentType ||
+          original.mime_type !== document.mimeType || original.size_bytes !== document.sizeBytes ||
+          !sameInstant(original.captured_at, document.capturedAt) ||
+          !sameInstant(original.created_at, document.createdAt) ||
+          !sameInstant(original.updated_at, document.updatedAt))
         throw new CrossDomainPortalProofError('SOURCE_DRIFT');
     }
   }
