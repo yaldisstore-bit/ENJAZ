@@ -43,13 +43,15 @@ export async function verifyCrossDomainFinanceRead(
   finance: Pick<FinanceCommandGateway, 'getReceipt'>,
 ): Promise<CrossDomainFinanceReadProof> {
   const ids = new Set<string>();
-  const reversals = new Map<string, string>();
+  const reversals = new Map<string, CrossDomainJourneyReadProof['reversals'][number]>();
   const reversedIds = new Set<string>();
   for (const row of source.reversals) {
+    if (row.workspace_id !== source.workspaceId)
+      throw new CrossDomainFinanceProofError('REVERSAL_DRIFT');
     if (reversedIds.has(row.id) || reversals.has(row.payment_id))
       throw new CrossDomainFinanceProofError('DUPLICATE');
     reversedIds.add(row.id);
-    reversals.set(row.payment_id, row.id);
+    reversals.set(row.payment_id, row);
   }
 
   const receipts: FinanceReceipt[] = [];
@@ -72,10 +74,15 @@ export async function verifyCrossDomainFinanceRead(
         receipt.amountCents !== amountCents ||
         receipt.status !== payment.status)
       throw new CrossDomainFinanceProofError('SOURCE_DRIFT');
-    const reversalId = reversals.get(payment.id);
-    if (reversalId !== undefined) {
+    const reversal = reversals.get(payment.id);
+    if (reversal !== undefined) {
+      const sourceInstant = Date.parse(reversal.reversed_at);
+      const receiptInstant = receipt.reversal ? Date.parse(receipt.reversal.reversedAt) : NaN;
       if (receipt.status !== 'reversed' || !receipt.reversal ||
-          receipt.reversal.paymentId !== payment.id || receipt.reversal.reversalId !== reversalId)
+          receipt.reversal.paymentId !== payment.id || receipt.reversal.reversalId !== reversal.id ||
+          receipt.reversal.reason !== reversal.reason ||
+          !Number.isFinite(sourceInstant) || !Number.isFinite(receiptInstant) ||
+          sourceInstant !== receiptInstant)
         throw new CrossDomainFinanceProofError('REVERSAL_DRIFT');
       reversedTotalCents += receipt.amountCents;
     } else if (receipt.reversal !== null || receipt.status !== 'posted') {
