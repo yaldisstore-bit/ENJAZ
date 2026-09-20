@@ -37,8 +37,9 @@ const baseModel = (): ClientPortalReadModel => ({
   documentUploads:[],documentApprovalResponses:[],
 });
 const source = (): CrossDomainJourneyReadProof => ({
-  workspaceId:W, company:{id:C,legal_name:'Test company'},
-  transaction:{id:T,company_id:C},
+  workspaceId:W, company:{id:C,legal_name:'Test company',display_name:null,status:'active'},
+  transaction:{id:T,company_id:C,type:'QA',status:'open',
+    created_at:'2026-09-20',updated_at:'2026-09-20',completed_at:null},
   procedures:[],followups:[],payments:[{id:P,workspace_id:W,company_id:C,transaction_id:T,amount:0.29,
     receipt_ref:'QA1',method:'cash',status:'posted',paid_at:PAID_AT}],reversals:[],
   documents:[{id:D,workspace_id:W,transaction_id:T,company_id:C,title:'Approved',
@@ -81,6 +82,24 @@ test('A2 independently scoped portal reads only explicit company, transaction, d
   assert.equal(proof.clientWritePermissionCertified,false);
   assert.equal(proof.atomicCrossPrincipalSnapshotCertified,false);
   assert.deepEqual(calls,['authority','read','authority']);
+});
+
+test('A2 refuses altered company and transaction facts even with valid target IDs',async()=>{
+  for(const patch of [{legalName:'Wrong company'}, {displayName:'Forged label'}, {status:'inactive'}]){
+    const model={...baseModel(),companies:[{...baseModel().companies[0]!,...patch}]};
+    await assert.rejects(verifyCrossDomainClientPortalRead(source(),gateway(model),NOW),reason('SOURCE_DRIFT'));
+  }
+  for(const patch of [
+    {type:'Forged type'}, {status:'closed'}, {createdAt:'2026-09-19'},
+    {updatedAt:'2026-09-21'}, {completedAt:'2026-09-20'},
+  ]){
+    const model={...baseModel(),transactions:[{...baseModel().transactions[0]!,...patch}]};
+    await assert.rejects(verifyCrossDomainClientPortalRead(source(),gateway(model),NOW),reason('SOURCE_DRIFT'));
+  }
+  const equivalent={...baseModel(),transactions:[{...baseModel().transactions[0]!,
+    createdAt:'2026-09-20T03:00:00+03:00',updatedAt:'2026-09-20T00:00:00Z'}]};
+  const proof=await verifyCrossDomainClientPortalRead(source(),gateway(equivalent),NOW);
+  assert.equal(proof.targetTransactionVisible,true);
 });
 
 test('A2 rejects duplicate company rows in the client-safe projection',async()=>{
