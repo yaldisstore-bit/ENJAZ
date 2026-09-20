@@ -38,7 +38,7 @@ const baseModel = (): ClientPortalReadModel => ({
 const source = (): CrossDomainJourneyReadProof => ({
   workspaceId:W, company:{id:C,legal_name:'Test company'},
   transaction:{id:T,company_id:C},
-  procedures:[],followups:[],payments:[{id:P,company_id:C,transaction_id:T}],reversals:[],
+  procedures:[],followups:[],payments:[{id:P,company_id:C,transaction_id:T,amount:0.29,receipt_ref:'QA1',method:'cash',status:'posted'}],reversals:[],
   documents:[{id:D}],
   proofKind:'AUTHENTICATED_INTERNAL_READ_ONLY',
   atomicMultiDomainSnapshotCertified:false,clientVisibilityCertified:false,
@@ -125,6 +125,23 @@ test('A2 rejects a portal record absent from the internal source instead of inve
   const receipt={...baseModel(),receipts:[{...baseModel().receipts[0]!,paymentId:USER}]};
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(receipt),NOW,
+  ),reason('SOURCE_DRIFT'));
+});
+
+test('A2 refuses a portal receipt with correct payment ID but changed financial facts',async()=>{
+  for (const patch of [
+    {amount:'0.30'}, {amount:'0.291'}, {amount:'9007199254740992.00'},
+    {method:'transfer'}, {status:'reversed'}, {receiptRef:'FORGED'},
+  ]) {
+    const forged={...baseModel(),receipts:[{...baseModel().receipts[0]!, ...patch}]};
+    await assert.rejects(verifyCrossDomainClientPortalRead(
+      source(),gateway(forged),NOW,
+    ),reason('SOURCE_DRIFT'));
+  }
+  const financeOnly={...baseModel(),transactions:[],documents:[],
+    receipts:[{...baseModel().receipts[0]!,amount:'0.30'}]};
+  await assert.rejects(verifyCrossDomainClientPortalRead(
+    source(),gateway(financeOnly,authority([grant('company',C),grant('transaction',T,['view_finance'])])),NOW,
   ),reason('SOURCE_DRIFT'));
 });
 
