@@ -2,7 +2,7 @@
   "phase": "14.1",
   "name": "Cross-domain Journeys",
   "status": "IN_PROGRESS",
-  "currentSlice": "A1_SOURCE_CONTRACT",
+  "currentSlice": "A2_LINKED_READ_PROOF",
   "predecessorPhase": "13.5",
   "predecessorStatus": "CLOSED",
   "predecessorClosureMergeCommit": "0df2dd9d8c8ec232c7dd49a516da7a436224871a",
@@ -11,7 +11,7 @@
   "predecessorPostMergeWorkflowCount": 43,
   "predecessorPostMergeSuccessCount": 43,
   "sourceMatrix": "docs/PHASE14_1_JOURNEY_MATRIX.json",
-  "a1Status": "SOURCE_PROPOSAL_PENDING_EXACT_HEAD_CI",
+  "a1Status": "SOURCE_CERTIFIED_EXACT_PR_HEAD",
   "a2RealCloudStatus": "NOT_STARTED",
   "a3RealBrowserStatus": "NOT_STARTED",
   "phase14_2Allowed": false,
@@ -29,5 +29,13 @@
   "exactMainDeployedLiveRequired": true,
   "knownCriticalDefects": null,
   "knownHighDefects": null,
-  "knownFunctionalBlockers": null
+  "knownFunctionalBlockers": null,
+  "a1ExactPrHead": "11a82fdc7ab61c0a9d9245dd67bff90b609dfd90",
+  "a1ExactPrHeadWorkflowCount": 82,
+  "a1ExactPrHeadSuccessCount": 81,
+  "a1ExactPrHeadExpectedSkipCount": 1,
+  "a1MergedMain": "665fcc63a5919e4ad80d0b01b8f54914d15bad0c",
+  "a1MergedMainWorkflowCount": 36,
+  "a1MergedMainSuccessCount": 36,
+  "a2SourceStatus": "IN_PROGRESS_UNCERTIFIED"
 }
