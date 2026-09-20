@@ -3,6 +3,7 @@ import fs from 'node:fs';
 const read=p=>fs.readFileSync(p,'utf8');
 const json=p=>JSON.parse(read(p));
 const s=json('docs/PHASE13_5_STATE.json');
+const closed=s.status==='CLOSED';
 const predecessor=json('docs/PHASE13_4_STATE.json');
 const matrix=json('docs/PHASE13_5_DESTRUCTION_MATRIX.json');
 const kickoff=read('docs/PHASE13_5_KICKOFF.md');
@@ -13,8 +14,9 @@ const check=(name,ok)=>{if(!ok)failures.push(name)};
 const exists=p=>fs.existsSync(p);
 
 check('phase_identity',
-  s.phase==='13.5'&&s.name==='Import Destruction Gate'&&s.status==='IN_PROGRESS'&&
-  s.currentSlice==='FORMAL_CLOSURE_CANDIDATE_AWAITING_POSTMERGE_RECERTIFICATION');
+  s.phase==='13.5'&&s.name==='Import Destruction Gate'&&
+  (closed?s.currentSlice==='FORMAL_CLOSURE':
+    s.status==='IN_PROGRESS'&&s.currentSlice==='FORMAL_CLOSURE_CANDIDATE_AWAITING_POSTMERGE_RECERTIFICATION'));
 check('exact_base',s.baseCommit==='64b78767ebd3b0112e752f979d5448f78bdfd2cf');
 check('predecessor_closed',
   predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true&&
@@ -25,10 +27,15 @@ check('predecessor_exact_main',
   s.predecessorCanonicalClosureCommit==='64b78767ebd3b0112e752f979d5448f78bdfd2cf'&&
   s.predecessorExactMainWorkflowCount===42&&s.predecessorExactMainSuccessCount===42);
 
-check('successor_locked',
-  s.successorPhase==='14.1'&&s.successorStatus==='LOCKED'&&
-  s.phase14_1Allowed===false&&s.exitGatePassed===false&&
-  s.closureDecision==='IMPLEMENTATION_AND_EXACT_MAIN_PASS_PENDING_CLOSURE_MAIN_RECERTIFICATION');
+check('successor_transition',
+  s.successorPhase==='14.1'&&
+  (closed?
+    s.successorStatus==='AUTHORIZED_NEXT'&&s.phase14_1Allowed===true&&
+    s.exitGatePassed===true&&s.closureDecision==='PASS'&&
+    s.closureEvidence==='docs/PHASE13_5_CLOSURE.md'&&exists(s.closureEvidence):
+    s.successorStatus==='LOCKED'&&s.phase14_1Allowed===false&&
+    s.exitGatePassed===false&&
+    s.closureDecision==='IMPLEMENTATION_AND_EXACT_MAIN_PASS_PENDING_CLOSURE_MAIN_RECERTIFICATION'));
 
 check('no_new_authority',
   s.newFeatureAuthorityAllowed===false&&s.newDatabaseTablesAllowed===false&&
@@ -122,20 +129,28 @@ check('production_zero_delta',
   s.productionLatestMigrationVersion==='20260919125253');
 
 check('quality_tracks',
-  s.projectQualityConstitution?.tracks?.product==='PASS_IMPLEMENTATION_AND_EXACT_MAIN'&&
   s.projectQualityConstitution?.tracks?.uiUx==='PASS_NO_CLIENT_DELTA_CUMULATIVE_BROWSER'&&
   s.projectQualityConstitution?.tracks?.engineering==='PASS_A1_A2_A3_DESTRUCTION_ZERO_RESIDUE'&&
-  s.projectQualityConstitution?.tracks?.certification==='PASS_IMPLEMENTATION_EXACT_HEAD_AND_MAIN_PENDING_CLOSURE_MAIN'&&
-  s.projectQualityConstitution?.decision==='IN_PROGRESS_FORMAL_CLOSURE_CANDIDATE');
+  (closed?
+    s.projectQualityConstitution?.tracks?.product==='PASS'&&
+    s.projectQualityConstitution?.tracks?.certification==='PASS_EXACT_HEAD_EXACT_MAIN_REAL_CLOUD_AND_DEPLOYED_LIVE'&&
+    s.projectQualityConstitution?.decision==='PASS':
+    s.projectQualityConstitution?.tracks?.product==='PASS_IMPLEMENTATION_AND_EXACT_MAIN'&&
+    s.projectQualityConstitution?.tracks?.certification==='PASS_IMPLEMENTATION_EXACT_HEAD_AND_MAIN_PENDING_CLOSURE_MAIN'&&
+    s.projectQualityConstitution?.decision==='IN_PROGRESS_FORMAL_CLOSURE_CANDIDATE'));
 
 check('kickoff',
   kickoff.includes('A green source branch alone can never close this phase')&&
   kickoff.includes('Production may be inspected read-only but is forbidden as a destructive target')&&
   kickoff.includes('88/88')&&kickoff.includes('42/42'));
 check('roadmap',
-  roadmap.includes('## 13.5 — Import Destruction Gate — CLOSURE_CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED'));
+  roadmap.includes(closed?
+    '## 13.5 — Import Destruction Gate ✅ CLOSED / A1+A2+A3 + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED':
+    '## 13.5 — Import Destruction Gate — CLOSURE_CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED'));
 check('readme',
-  readme.includes('Phase 13.5 — Import Destruction Gate 🟠 CLOSURE CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED'));
+  readme.includes(closed?
+    'Phase 13.5 — Import Destruction Gate ✅ CLOSED / A1+A2+A3 + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED':
+    'Phase 13.5 — Import Destruction Gate 🟠 CLOSURE CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED'));
 
 check('no_phase135_prod_migration',!exists('database/migrations/phase_13_5_import_destruction.sql'));
 check('no_phase135_edge_authority',!exists('supabase/functions/enjaz-import-destruction/index.ts'));
@@ -144,4 +159,6 @@ if(failures.length){
   console.error('ENJAZ PHASE 13.5 CLOSURE-CANDIDATE AUDIT FAIL ('+failures.length+')\n- '+failures.join('\n- '));
   process.exit(1);
 }
-console.log('ENJAZ PHASE 13.5 CLOSURE-CANDIDATE AUDIT PASS — A1/A2/A3 + exact PR-head + implementation exact-main certified; canonical post-merge 13.5 recertification still required; Phase 14.1 locked.');
+console.log(closed?
+  'ENJAZ PHASE 13.5 FORMAL CLOSURE AUDIT PASS — A1/A2/A3 + exact-head + canonical exact-main/deployed-live certified; 14.1 authorized next, not started.':
+  'ENJAZ PHASE 13.5 CLOSURE-CANDIDATE AUDIT PASS — A1/A2/A3 + exact PR-head + implementation exact-main certified; canonical post-merge 13.5 recertification still required; Phase 14.1 locked.');
