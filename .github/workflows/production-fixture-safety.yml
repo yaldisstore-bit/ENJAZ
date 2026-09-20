@@ -1,0 +1,27 @@
+name: ENJAZ — Production Fixture Workflow Safety
+
+on:
+  push:
+    branches: [main, 'security-quarantine-*', 'phase14-1-*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-fixture-safety:
+    name: Production-admin fixture jobs remain quarantined
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Repository-wide job quarantine contract
+        run: |
+          node --check scripts/audit-production-fixture-workflows.mjs
+          node scripts/audit-production-fixture-workflows.mjs
+          node --test tests/productionFixtureWorkflowAudit.test.mjs
