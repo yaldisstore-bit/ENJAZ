@@ -55,7 +55,7 @@ async function test(){
  const prior=await admin.auth.admin.listUsers({page:1,perPage:1000});
  if(prior.error||!prior.data?.users)throw Error('BASELINE_AUTH_DENIED');
  verify(prior.data.users.length===0&&
-  (await Promise.all(['workspaces','companies','transactions','transaction_followups'].map(count))).every(x=>x===0),
+  (await Promise.all(['workspaces','companies','transactions','transaction_followups'].map(table => count(table)))).every(x=>x===0),
   'EXCLUSIVE_EMPTY_ISOLATED_LAB');
  const owner=await createUser('owner'),outsider=await createUser('outsider'),ws=owner.ws;
  verify(ws!==outsider.ws,'DISTINCT_OWNER_OUTSIDER_WORKSPACES');
@@ -139,7 +139,7 @@ async function cleanup(){
  try{
   const result=await admin.auth.admin.listUsers({page:1,perPage:1000});
   if(result.error||result.data?.users?.some(u=>u.user_metadata?.enjaz_test_marker===MARKER)||
-   (await Promise.all(['workspaces','companies','transactions','transaction_followups'].map(count))).some(x=>x!==0))
+   (await Promise.all(['workspaces','companies','transactions','transaction_followups'].map(table => count(table)))).some(x=>x!==0))
    throw Error('MARKED_FIXTURE_RESIDUE');
   evidence.cleanup.push({kind:'independent_zero_residue',passed:true});
  }catch{ok=false;evidence.cleanup.push({kind:'independent_zero_residue',passed:false});}
