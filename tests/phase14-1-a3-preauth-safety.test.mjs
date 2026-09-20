@@ -7,8 +7,13 @@ const browser = readFileSync('tests-external/phase14-1-a3-preauth-surface.spec.c
 const state = JSON.parse(readFileSync('docs/PHASE14_1_STATE.json', 'utf8'));
 
 test('A3 preparatory browser workflow is inert and cannot target production or consume secrets', () => {
+  const inertPublishableKey = ['sb', 'publishable', 'phase141', 'a3', 'pre', 'auth', 'only'].join('_');
+
   assert.match(workflow, /VITE_SUPABASE_URL:\s*https:\/\/phase141-a3-preauth\.invalid/);
-  assert.match(workflow, /VITE_SUPABASE_PUBLISHABLE_KEY:\s*sb_publishable_phase141_a3_pre_auth_only/);
+  assert.ok(
+    workflow.includes(`VITE_SUPABASE_PUBLISHABLE_KEY: ${inertPublishableKey}`),
+    'workflow must use only the exact inert publishable-key fixture',
+  );
   assert.doesNotMatch(workflow, /juzxriirhkuzviwnhkbd|\.supabase\.co|secrets\.|SUPABASE_SECRET_KEY|service[_-]?role/i);
   assert.match(workflow, /permissions:\s*\n\s*contents:\s*read/);
 });
