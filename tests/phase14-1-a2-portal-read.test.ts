@@ -283,6 +283,9 @@ test('A2 rejects duplicated, malformed and internal-field client request project
     [{...entry,resourceShareId:D}],
     [{...entry,requestType:'approval',resourceShareId:null}],
     [{...entry,requestType:'invalid'}],
+    [{...entry,id:'invalid-id'}],
+    [{...entry,transactionId:'invalid-transaction'}],
+    [{...entry,requestType:'approval',resourceShareId:'invalid-share'}],
   ]) {
     await assert.rejects(verifyCrossDomainClientPortalRead(source(),gateway(
       {...base,requests} as ClientPortalReadModel,grants,
