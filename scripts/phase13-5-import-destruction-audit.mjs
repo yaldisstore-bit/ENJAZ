@@ -128,6 +128,48 @@ check('production_zero_delta',
   s.productionPhase135NamedFunctionCount===0&&
   s.productionLatestMigrationVersion==='20260919125253');
 
+if(closed){
+  check('closure_pr_lineage',
+    s.closureCandidatePullRequest===221&&
+    s.closureCandidateHead==='b7418d798080e0e58bcf3b1f34232799da169d66'&&
+    s.closureCandidateMergeCommit==='40d6e9c7218d25e418ecc5ab1f629abaf1abe089'&&
+    s.closureCandidateWorkflowCount===87&&s.closureCandidateSuccessCount===86&&
+    s.closureCandidateSkippedCount===1&&s.closureCandidateFailureCount===0);
+  check('dependency_audit_repair_lineage',
+    s.dependencyAuditRepairPullRequest===222&&
+    s.dependencyAuditRepairHead==='76d7c040799ecd951f64739a05840d2d46faf67b'&&
+    s.dependencyAuditRepairMergeCommit==='bbd46c5628a80a6be87b9a4cecfe21d26d0ec045'&&
+    s.dependencyAuditRepairWorkflowCount===78&&s.dependencyAuditRepairSuccessCount===77&&
+    s.dependencyAuditRepairSkippedCount===1&&s.dependencyAuditRepairFailureCount===0);
+  check('final_implementation_exact_main',
+    s.finalImplementationMainSha==='bbd46c5628a80a6be87b9a4cecfe21d26d0ec045'&&
+    s.formalClosureProposalBaseCommit===s.finalImplementationMainSha&&
+    s.finalImplementationMainWorkflowCount===36&&s.finalImplementationMainSuccessCount===36&&
+    s.finalImplementationMainSkippedCount===0&&s.finalImplementationMainFailureCount===0&&
+    s.finalImplementationMainQueuedCount===0&&s.finalImplementationMainInProgressCount===0);
+  check('final_exact_main_gate_ids',
+    s.finalImplementationPhase135GateRunId===35489868804&&
+    s.finalImplementationPhase135A1JobId===106022857821&&
+    s.finalImplementationQualityRunId===35489868734&&
+    s.finalImplementationRealBrowserRunId===35489868796&&
+    s.finalImplementationPagesRunId===35489868103&&
+    s.finalImplementationPagesPreviewRunId===35489895877&&
+    s.finalImplementationLiveExternalRunId===35489931303&&
+    s.finalImplementationPublishedPortalRunId===35489931320&&
+    s.finalImplementationConstitutionRunId===35489868780&&
+    s.finalImplementationMajorSystemsRunId===35489868774);
+  check('fresh_live_high_severity_audit',
+    s.finalImplementationNpmHighAudit==='PASS_FRESH_REGISTRY_SCAN_ZERO_VULNERABILITIES_NO_FALLBACK');
+  check('formal_closed_boundary',
+    s.nextPhase==='14.1'&&s.formalClosurePostMergeRecertification==='PENDING'&&
+    s.knownCriticalDefects===0&&s.knownHighDefects===0&&s.knownFunctionalBlockers===0);
+  const evidence=exists(s.closureEvidence)?read(s.closureEvidence):'';
+  check('closure_document',
+    evidence.includes('36/36 canonical-main workflow runs completed successfully')&&
+    evidence.includes('fresh npm-registry high-severity audit')&&
+    evidence.includes('Phase 14.1 AUTHORIZED_NEXT, not started'));
+}
+
 check('quality_tracks',
   s.projectQualityConstitution?.tracks?.uiUx==='PASS_NO_CLIENT_DELTA_CUMULATIVE_BROWSER'&&
   s.projectQualityConstitution?.tracks?.engineering==='PASS_A1_A2_A3_DESTRUCTION_ZERO_RESIDUE'&&
