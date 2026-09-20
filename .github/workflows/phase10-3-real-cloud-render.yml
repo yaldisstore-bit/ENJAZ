@@ -18,6 +18,8 @@ concurrency:
 
 jobs:
   real-cloud-arabic-pdf:
+    # Quarantined: never execute privileged fixture E2E against production.
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
