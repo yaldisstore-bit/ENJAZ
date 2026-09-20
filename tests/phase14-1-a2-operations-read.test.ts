@@ -20,7 +20,7 @@ const source=():CrossDomainJourneyReadProof=>({
   atomicMultiDomainSnapshotCertified:false,clientVisibilityCertified:false,
 }) as unknown as CrossDomainJourneyReadProof;
 const assignment=(patch:Record<string,unknown>={})=>({id:A,transactionId:T,assignedUserId:W,...patch});
-const visit=(patch:Record<string,unknown>={})=>({id:V,transactionId:T,assignmentId:A,...patch});
+const visit=(patch:Record<string,unknown>={})=>({id:V,transactionId:T,assignmentId:A,assignedUserId:W,...patch});
 const engagement=(patch:Record<string,unknown>={})=>({id:E,companyId:C,transactionIds:[T],...patch});
 const revision=(patch:Record<string,unknown>={})=>({
   id:R,workspaceId:W,engagementId:E,revision:1,supersedesRevision:null,...patch,
@@ -105,6 +105,12 @@ test('A2 denies a field visit assigned to a different transaction or orphan assi
   })),reason('FIELD_LINK_DRIFT'));
   await assert.rejects(verifyCrossDomainOperationsRead(source(),gateway({
     field:{visits:[visit({assignmentId:C})]},
+  })),reason('FIELD_LINK_DRIFT'));
+  await assert.rejects(verifyCrossDomainOperationsRead(source(),gateway({
+    field:{visits:[visit({assignedUserId:C})]},
+  })),reason('FIELD_LINK_DRIFT'));
+  await assert.rejects(verifyCrossDomainOperationsRead(source(),gateway({
+    field:{assignments:[assignment({assignedUserId:C})]},
   })),reason('FIELD_LINK_DRIFT'));
 });
 
