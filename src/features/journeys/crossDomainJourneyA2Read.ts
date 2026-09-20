@@ -48,6 +48,11 @@ export async function verifyCrossDomainA2Read(
   const money = await verifyCrossDomainFinanceRead(source, finance);
   const fieldAndContracts = await verifyCrossDomainOperationsRead(source, { ...operations, finance });
   const client = await verifyCrossDomainClientPortalRead(source, independentlyAuthenticatedPortal, now);
+  // A client principal must not be represented by the staff Auth identity.
+  // This collision check does not prove independent JWTs; only the hosted
+  // multi-user journey can verify separate authenticated sessions.
+  if (client.principalId === staffUserId.trim().toLowerCase())
+    throw new Error('A2 independent client principal collides with staff identity');
   if (money.companyId !== source.company.id || money.transactionId !== source.transaction.id ||
       fieldAndContracts.workspaceId !== source.workspaceId ||
       fieldAndContracts.companyId !== source.company.id ||
