@@ -1,0 +1,152 @@
+import type {
+  ClientPortalGateway, ClientPortalAuthorityGrant,
+} from '../client-portal/clientPortalGateway.ts';
+import {
+  CLIENT_SAFE_COMPANY_FIELDS, CLIENT_SAFE_TRANSACTION_FIELDS,
+  CLIENT_SAFE_DOCUMENT_FIELDS, CLIENT_SAFE_RECEIPT_FIELDS,
+} from '../client-portal/clientPortalAuthority.ts';
+import type { CrossDomainJourneyReadProof } from './crossDomainJourneyReadProof.ts';
+
+// Internal independent acceptance probe over an actual separately-authenticated
+// client portal gateway. Never return internal company/transaction rows to a client.
+export class CrossDomainPortalProofError extends Error {
+  readonly reason: 'AUTHORITY_DRIFT' | 'GRANT_MISSING' | 'UNRELATED_RECORD' | 'SOURCE_DRIFT' | 'FORBIDDEN_FIELD';
+  constructor(reason: CrossDomainPortalProofError['reason']) {
+    super(`Cross-domain client portal proof rejected: ${reason}`);
+    this.name = 'CrossDomainPortalProofError';
+    this.reason = reason;
+  }
+}
+
+export interface CrossDomainPortalReadProof {
+  readonly workspaceId: string;
+  readonly principalId: string;
+  readonly observedCompanyCount: number;
+  readonly observedTransactionCount: number;
+  readonly observedDocumentCount: number;
+  readonly observedReceiptCount: number;
+  readonly targetTransactionVisible: boolean;
+  readonly proofKind: 'READ_ONLY_INDEPENDENT_CLIENT_PROJECTION_CROSSCHECK';
+  readonly realAuthRlsCertified: false;
+  readonly clientWritePermissionCertified: false;
+  readonly atomicCrossPrincipalSnapshotCertified: false;
+}
+
+function allowedFields(value: object, allowed: readonly string[]): void {
+  const keys = Object.keys(value);
+  if (keys.some(key => !allowed.includes(key)))
+    throw new CrossDomainPortalProofError('FORBIDDEN_FIELD');
+}
+
+function activeGrant(grant: ClientPortalAuthorityGrant, now: number): boolean {
+  const from = grant.validFrom === null ? null : Date.parse(grant.validFrom);
+  const until = grant.validUntil === null ? null : Date.parse(grant.validUntil);
+  if ((from !== null && !Number.isFinite(from)) ||
+      (until !== null && !Number.isFinite(until)))
+    throw new CrossDomainPortalProofError('AUTHORITY_DRIFT');
+  return (from === null || from <= now) && (until === null || until > now);
+}
+
+function granted(
+  grants: readonly ClientPortalAuthorityGrant[],
+  type: 'company' | 'transaction',
+  id: string,
+  permission: 'view' | 'view_finance',
+  now: number,
+): boolean {
+  return grants.some(grant => grant.targetType === type && grant.targetId === id &&
+    grant.permissions.includes(permission) && activeGrant(grant, now));
+}
+
+function authoritySignature(grants: readonly ClientPortalAuthorityGrant[]): string {
+  const seen = new Set<string>();
+  const serial = grants.map(grant => {
+    if (seen.has(grant.id)) throw new CrossDomainPortalProofError('AUTHORITY_DRIFT');
+    seen.add(grant.id);
+    return [grant.id, grant.targetType, grant.targetId, grant.version, grant.validFrom,
+      grant.validUntil, [...grant.permissions].sort()];
+  });
+  return JSON.stringify(serial.sort((a, b) => String(a[0]).localeCompare(String(b[0]))));
+}
+
+/**
+ * Source-only client isolation probe: portal is supplied as the authentic
+ * independently signed-in client gateway, not the staff DataLayer/finance client.
+ * Validates observations, never grants access or exposes private source rows.
+ */
+export async function verifyCrossDomainClientPortalRead(
+  source: CrossDomainJourneyReadProof,
+  portal: Pick<ClientPortalGateway, 'authority' | 'readModel'>,
+  now = new Date(),
+): Promise<CrossDomainPortalReadProof> {
+  if (!Number.isFinite(now.getTime())) throw new CrossDomainPortalProofError('AUTHORITY_DRIFT');
+  const before = await portal.authority(source.workspaceId);
+  if (before.workspaceId !== source.workspaceId || !before.principalId)
+    throw new CrossDomainPortalProofError('AUTHORITY_DRIFT');
+  const signature = authoritySignature(before.grants);
+  const view = await portal.readModel(source.workspaceId);
+  const asOf = now.getTime();
+  for (const company of view.companies) {
+    allowedFields(company, CLIENT_SAFE_COMPANY_FIELDS);
+    if (!granted(before.grants, 'company', company.id, 'view', asOf))
+      throw new CrossDomainPortalProofError('GRANT_MISSING');
+    if (company.id === source.company.id && company.legalName !== source.company.legal_name)
+      throw new CrossDomainPortalProofError('SOURCE_DRIFT');
+  }
+  const transactionById = new Map(view.transactions.map(t => [t.id, t] as const));
+  if (transactionById.size !== view.transactions.length)
+    throw new CrossDomainPortalProofError('UNRELATED_RECORD');
+  for (const transaction of view.transactions) {
+    allowedFields(transaction, CLIENT_SAFE_TRANSACTION_FIELDS);
+    if (!granted(before.grants, 'transaction', transaction.id, 'view', asOf))
+      throw new CrossDomainPortalProofError('GRANT_MISSING');
+    if (transaction.id === source.transaction.id && transaction.companyId !== source.company.id)
+      throw new CrossDomainPortalProofError('SOURCE_DRIFT');
+  }
+  const observedDocs = new Set<string>();
+  const sourceDocs = new Set(source.documents.map(document => document.id));
+  for (const document of view.documents) {
+    allowedFields(document, CLIENT_SAFE_DOCUMENT_FIELDS);
+    if (observedDocs.has(document.id)) throw new CrossDomainPortalProofError('UNRELATED_RECORD');
+    observedDocs.add(document.id);
+    const transaction = transactionById.get(document.transactionId);
+    if (!transaction || transaction.companyId !== document.companyId)
+      throw new CrossDomainPortalProofError('UNRELATED_RECORD');
+    if (!granted(before.grants, 'transaction', document.transactionId, 'view', asOf))
+      throw new CrossDomainPortalProofError('GRANT_MISSING');
+    if (document.transactionId === source.transaction.id && !sourceDocs.has(document.id))
+      throw new CrossDomainPortalProofError('SOURCE_DRIFT');
+  }
+  const observedReceipts = new Set<string>();
+  const sourcePayments = new Set(source.payments.map(payment => payment.id));
+  for (const receipt of view.receipts) {
+    allowedFields(receipt, CLIENT_SAFE_RECEIPT_FIELDS);
+    if (observedReceipts.has(receipt.paymentId))
+      throw new CrossDomainPortalProofError('UNRELATED_RECORD');
+    observedReceipts.add(receipt.paymentId);
+    const transaction = transactionById.get(receipt.transactionId);
+    if (!transaction || transaction.companyId !== receipt.companyId)
+      throw new CrossDomainPortalProofError('UNRELATED_RECORD');
+    if (!granted(before.grants, 'transaction', receipt.transactionId, 'view', asOf) ||
+        !granted(before.grants, 'transaction', receipt.transactionId, 'view_finance', asOf))
+      throw new CrossDomainPortalProofError('GRANT_MISSING');
+    if (receipt.transactionId === source.transaction.id && !sourcePayments.has(receipt.paymentId))
+      throw new CrossDomainPortalProofError('SOURCE_DRIFT');
+  }
+  const after = await portal.authority(source.workspaceId);
+  if (after.workspaceId !== before.workspaceId || after.principalId !== before.principalId ||
+      authoritySignature(after.grants) !== signature)
+    throw new CrossDomainPortalProofError('AUTHORITY_DRIFT');
+  return Object.freeze({
+    workspaceId: source.workspaceId, principalId: before.principalId,
+    observedCompanyCount: view.companies.length,
+    observedTransactionCount: view.transactions.length,
+    observedDocumentCount: view.documents.length,
+    observedReceiptCount: view.receipts.length,
+    targetTransactionVisible: transactionById.has(source.transaction.id),
+    proofKind: 'READ_ONLY_INDEPENDENT_CLIENT_PROJECTION_CROSSCHECK' as const,
+    realAuthRlsCertified: false as const,
+    clientWritePermissionCertified: false as const,
+    atomicCrossPrincipalSnapshotCertified: false as const,
+  });
+}
