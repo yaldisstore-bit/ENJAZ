@@ -8,9 +8,11 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const PAGE_LIMIT = 100;
 
 export class CrossDomainJourneyReadError extends Error {
-  constructor(readonly reason: 'INVALID_ID' | 'NO_WORKSPACE' | 'NOT_FOUND' | 'LINK_DRIFT' | 'CAPACITY' | 'CHANGED') {
+  readonly reason: 'INVALID_ID' | 'NO_WORKSPACE' | 'NOT_FOUND' | 'LINK_DRIFT' | 'CAPACITY' | 'CHANGED';
+  constructor(reason: CrossDomainJourneyReadError['reason']) {
     super(`Cross-domain read proof rejected: ${reason}`);
     this.name = 'CrossDomainJourneyReadError';
+    this.reason = reason;
   }
 }
 
