@@ -18,6 +18,8 @@ concurrency:
 
 jobs:
   real-cloud-zero-escape:
+    # Quarantined: never execute privileged fixture E2E against production.
+    if: ${{ false }}
     name: Authenticated Storage / corrupt binary / checksum / isolation / zero residue
     runs-on: ubuntu-24.04
     timeout-minutes: 25
