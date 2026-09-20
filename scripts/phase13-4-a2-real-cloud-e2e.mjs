@@ -319,6 +319,7 @@ async function test(){
     .update({
       legacy_id:fiveAxisLegacyId,
       deleted_at:new Date().toISOString(),
+      deletion_reason:'isolated five-axis reconciliation fixture',
       type:'test_import_reconciliation_five_axis',
       current_fee:140.25,
       primary_contact_id:null,
@@ -339,6 +340,7 @@ async function test(){
     .update({
       legacy_id:m.items[2].sourceKey,
       deleted_at:null,
+      deletion_reason:null,
       type:'test_import_reconciliation',
       current_fee:135.25,
       primary_contact_id:p.ids.contactId,
