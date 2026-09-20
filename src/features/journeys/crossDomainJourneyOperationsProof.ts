@@ -62,16 +62,18 @@ export async function verifyCrossDomainOperationsRead(
     throw new CrossDomainOperationsProofError('GOVERNANCE_LINK_DRIFT');
 
   const assignments = field.assignments.filter(row => row.transactionId === tx);
-  const assignmentIds = new Set<string>();
+  const assignmentsById = new Map<string, (typeof assignments)[number]>();
   for (const row of assignments) {
-    if (assignmentIds.has(row.id))
+    if (assignmentsById.has(row.id))
       throw new CrossDomainOperationsProofError('FIELD_DUPLICATE');
-    assignmentIds.add(row.id);
+    assignmentsById.set(row.id, row);
   }
-  const visits = field.visits.filter(row => row.transactionId === tx || assignmentIds.has(row.assignmentId));
+  const visits = field.visits.filter(row => row.transactionId === tx || assignmentsById.has(row.assignmentId));
   const visitIds = new Set<string>();
   for (const row of visits) {
-    if (row.transactionId !== tx || !assignmentIds.has(row.assignmentId))
+    const assignment = assignmentsById.get(row.assignmentId);
+    if (row.transactionId !== tx || !assignment ||
+        row.assignedUserId !== assignment.assignedUserId)
       throw new CrossDomainOperationsProofError('FIELD_LINK_DRIFT');
     if (visitIds.has(row.id)) throw new CrossDomainOperationsProofError('FIELD_DUPLICATE');
     visitIds.add(row.id);
