@@ -161,8 +161,35 @@ if(closed){
   check('fresh_live_high_severity_audit',
     s.finalImplementationNpmHighAudit==='PASS_FRESH_REGISTRY_SCAN_ZERO_VULNERABILITIES_NO_FALLBACK');
   check('formal_closed_boundary',
-    s.nextPhase==='14.1'&&s.formalClosurePostMergeRecertification==='PENDING'&&
+    s.nextPhase==='14.1'&&
+    (s.formalClosurePostMergeRecertification==='PENDING'||
+     s.formalClosurePostMergeRecertification==='PASS')&&
     s.knownCriticalDefects===0&&s.knownHighDefects===0&&s.knownFunctionalBlockers===0);
+  if(s.formalClosurePostMergeRecertification==='PASS'){
+    const certified=s.formalClosureMergeCommit==='0df2dd9d8c8ec232c7dd49a516da7a436224871a'&&
+      s.formalClosurePullRequest===223&&s.formalClosureExactMainWorkflowCount===43&&
+      s.formalClosureExactMainSuccessCount===43&&s.formalClosureExactMainFailureCount===0&&
+      s.formalClosureExactMainSkippedCount===0&&s.formalClosureExactMainPendingCount===0&&
+      s.formalClosurePhaseGateRunId===35495067515&&
+      s.formalClosurePreservedPhase134RunId===35495067463&&
+      s.formalClosureQualityRunId===35495067501&&
+      s.formalClosureRealBrowserRunId===35495067472&&
+      s.formalClosureConstitutionRunId===35495067576&&
+      s.formalClosureMajorSystemsRunId===35495067467&&
+      s.formalClosurePagesPreviewRunId===35495126859&&
+      s.formalClosureLiveExternalRunId===35495153772&&
+      s.formalClosurePublishedPortalRunId===35495153780;
+    check('postmerge_exact_main_certificate',certified);
+    const postmerge=s.formalClosurePostMergeEvidence;
+    const proof=postmerge&&exists(postmerge)?read(postmerge):'';
+    check('postmerge_evidence_file',
+      postmerge==='docs/PHASE13_5_POSTMERGE_RECERTIFICATION.md'&&
+      proof.includes(s.formalClosureMergeCommit)&&
+      proof.includes('43/43 COMPLETED SUCCESS')&&
+      proof.includes('35495067515')&&proof.includes('35495153772')&&
+      proof.includes('35495153780')&&
+      proof.includes('no Phase 13.5 production migration'));
+  }
   const evidence=exists(s.closureEvidence)?read(s.closureEvidence):'';
   check('closure_document',
     evidence.includes('36/36 canonical-main workflow runs completed successfully')&&
