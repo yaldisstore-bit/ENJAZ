@@ -151,7 +151,7 @@ export async function verifyCrossDomainClientPortalRead(
     if (observedDocs.has(document.id)) throw new CrossDomainPortalProofError('UNRELATED_RECORD');
     observedDocs.add(document.id);
     const transaction = transactionById.get(document.transactionId);
-    if (!transaction || transaction.companyId !== document.companyId)
+    if (!transaction || (document.companyId !== null && transaction.companyId !== document.companyId))
       throw new CrossDomainPortalProofError('UNRELATED_RECORD');
     if (!granted(before.grants, 'transaction', document.transactionId, 'view', asOf))
       throw new CrossDomainPortalProofError('GRANT_MISSING');
