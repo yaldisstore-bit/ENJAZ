@@ -45,7 +45,9 @@ jobs:
           npm run build -- --base=/
           npm run audit:dist:budget
       - name: Dependency high-severity audit
-        run: |\n          node --test tests/npm-audit-high-certified-fallback.test.mjs\n          node scripts/npm-audit-high-certified-fallback.mjs
+        run: |
+          node --test tests/npm-audit-high-certified-fallback.test.mjs
+          node scripts/npm-audit-high-certified-fallback.mjs
       - name: Build dedicated Phase 11.1 browser harness
         run: npx vite build --config vite.phase11-1-browser.config.ts --base=/
       - name: Install pinned Chromium tooling
