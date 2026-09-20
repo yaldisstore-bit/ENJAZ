@@ -38,7 +38,7 @@ const baseModel = (): ClientPortalReadModel => ({
 const source = (): CrossDomainJourneyReadProof => ({
   workspaceId:W, company:{id:C,legal_name:'Test company'},
   transaction:{id:T,company_id:C},
-  procedures:[],followups:[],payments:[{id:P}],reversals:[],
+  procedures:[],followups:[],payments:[{id:P,company_id:C,transaction_id:T}],reversals:[],
   documents:[{id:D}],
   proofKind:'AUTHENTICATED_INTERNAL_READ_ONLY',
   atomicMultiDomainSnapshotCertified:false,clientVisibilityCertified:false,
@@ -111,7 +111,7 @@ test('A2 rejects a document or receipt that references an unrelated transaction/
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(wrongDocument),NOW,
   ),reason('UNRELATED_RECORD'));
-  const wrongReceipt={...baseModel(),receipts:[{...baseModel().receipts[0]!,transactionId:USER}]};
+  const wrongReceipt={...baseModel(),receipts:[{...baseModel().receipts[0]!,companyId:USER}]};
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(wrongReceipt),NOW,
   ),reason('UNRELATED_RECORD'));
@@ -126,6 +126,19 @@ test('A2 rejects a portal record absent from the internal source instead of inve
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(receipt),NOW,
   ),reason('SOURCE_DRIFT'));
+});
+
+test('A2 individually shared receipt permits finance-only scope without general transaction view',async()=>{
+  const onlyFinance={...baseModel(),transactions:[],documents:[]};
+  const grants=authority([grant('company',C),grant('transaction',T,['view_finance'])]);
+  const proof=await verifyCrossDomainClientPortalRead(source(),gateway(onlyFinance,grants),NOW);
+  assert.equal(proof.targetTransactionVisible,false);
+  assert.equal(proof.observedReceiptCount,1);
+  assert.equal(proof.realAuthRlsCertified,false);
+  const unrelated={...onlyFinance,receipts:[{...baseModel().receipts[0]!,transactionId:USER}]};
+  await assert.rejects(verifyCrossDomainClientPortalRead(
+    source(),gateway(unrelated,grants),NOW,
+  ),reason('GRANT_MISSING'));
 });
 
 test('A2 projection rejects forbidden internal fields before returning an observation',async()=>{
