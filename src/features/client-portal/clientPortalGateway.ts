@@ -73,7 +73,8 @@ export interface ClientPortalRequestView {
 export interface ClientPortalDocumentView {
   readonly id: string;
   readonly transactionId: string;
-  readonly companyId: string;
+  // SQL permits a transaction-linked document with no separate company_id.
+  readonly companyId: string | null;
   readonly title: string;
   readonly documentType: string | null;
   readonly mimeType: string;
@@ -207,7 +208,7 @@ function parseReadModel(value:unknown):ClientPortalReadModel{
   const row=object(value);
   const companies=list(row.companies).map((value)=>{const v=object(value);return Object.freeze({id:text(v.id),legalName:text(v.legalName),displayName:nullableText(v.displayName),status:text(v.status)});});
   const transactions=list(row.transactions).map((value)=>{const v=object(value);return Object.freeze({id:text(v.id),companyId:text(v.companyId),type:text(v.type),status:text(v.status),createdAt:text(v.createdAt),updatedAt:text(v.updatedAt),completedAt:nullableText(v.completedAt)});});
-  const documents=list(row.documents).map((value)=>{const v=object(value);return Object.freeze({id:text(v.id),transactionId:text(v.transactionId),companyId:text(v.companyId),title:text(v.title),documentType:nullableText(v.documentType),mimeType:text(v.mimeType),sizeBytes:Number(v.sizeBytes)||0,status:text(v.status),capturedAt:nullableText(v.capturedAt),createdAt:text(v.createdAt),updatedAt:text(v.updatedAt)});});
+  const documents=list(row.documents).map((value)=>{const v=object(value);return Object.freeze({id:text(v.id),transactionId:text(v.transactionId),companyId:nullableText(v.companyId),title:text(v.title),documentType:nullableText(v.documentType),mimeType:text(v.mimeType),sizeBytes:Number(v.sizeBytes)||0,status:text(v.status),capturedAt:nullableText(v.capturedAt),createdAt:text(v.createdAt),updatedAt:text(v.updatedAt)});});
   const receipts=list(row.receipts).map((value)=>{const v=object(value);return Object.freeze({paymentId:text(v.paymentId),transactionId:text(v.transactionId),companyId:text(v.companyId),receiptRef:nullableText(v.receiptRef),amount:text(v.amount),method:text(v.method),paidAt:text(v.paidAt),status:text(v.status),receiptVersion:integer(v.receiptVersion)});});
   const requests=list(row.requests).map((value)=>{const v=object(value),requestType=text(v.requestType);if(!['document','approval','information','appointment','payment'].includes(requestType))throw new Error('نوع طلب العميل غير صالح.');return Object.freeze({id:text(v.id),transactionId:text(v.transactionId),requestType:requestType as ClientPortalRequestView['requestType'],title:text(v.title),instructions:nullableText(v.instructions),dueAt:nullableText(v.dueAt),status:text(v.status),resourceShareId:nullableText(v.resourceShareId),createdAt:text(v.createdAt),updatedAt:text(v.updatedAt)});});
   const safeRecords=(name:string)=>Object.freeze(list(row[name]).map((value)=>Object.freeze({...object(value)})));
