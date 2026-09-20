@@ -1,5 +1,5 @@
 import type { EnjazDataLayerFactory, EnjazWorkspaceDataLayer } from '../../data/createDataLayer.ts';
-import type { RowOf } from '../../data/contracts/dataTypes.ts';
+import type { ColumnOf, RowOf } from '../../data/contracts/dataTypes.ts';
 import type { ReadRepository } from '../../data/repositories/createEntityRepository.ts';
 
 // Internal authenticated read proof only. Never expose this complete model through the client portal.
@@ -39,7 +39,7 @@ function assertWorkspace(row: { workspace_id: string }, workspaceId: string): vo
 
 async function limited<T extends 'workflow_instances' | 'transaction_followups' | 'payments' | 'payment_reversals' | 'documents'>(
   repo: ReadRepository<T>,
-  column: keyof RowOf<T> & string,
+  column: ColumnOf<T>,
   value: string | readonly string[],
 ): Promise<readonly RowOf<T>[]> {
   const page = await repo.list({
