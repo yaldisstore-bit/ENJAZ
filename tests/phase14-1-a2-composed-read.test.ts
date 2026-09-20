@@ -10,7 +10,7 @@ const U='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', W='bbbbbbbb-bbbb-4bbb-8bbb-bbbbb
 const C='cccccccc-cccc-4ccc-8ccc-cccccccccccc', T='dddddddd-dddd-4ddd-8ddd-dddddddddddd';
 const P='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee', CLIENT='ffffffff-ffff-4fff-8fff-ffffffffffff';
 const UPDATED='2026-09-20T08:00:00Z',PAID='2026-09-19T17:30:00Z',NOW=new Date('2026-09-20T12:00:00Z');
-function fixture(flags:{mismatchedReceipt?:boolean;foreignEngagement?:boolean;clientLeak?:boolean}={}){
+function fixture(flags:{mismatchedReceipt?:boolean;foreignEngagement?:boolean;clientLeak?:boolean;staffIdentityReused?:boolean}={}){
   const calls:string[]=[];
   const company={id:C,workspace_id:W,legal_name:'Company',display_name:null,status:'active',
     updated_at:UPDATED,deleted_at:null,merged_into_id:null};
@@ -53,7 +53,7 @@ function fixture(flags:{mismatchedReceipt?:boolean;foreignEngagement?:boolean;cl
       validFrom:null,validUntil:null,version:1},
   ];
   const portal={
-    async authority(){calls.push('portal:authority');return {workspaceId:W,principalId:CLIENT,grants};},
+    async authority(){calls.push('portal:authority');return {workspaceId:W,principalId:flags.staffIdentityReused?U:CLIENT,grants};},
     async readModel(){calls.push('portal:read');return {
       companies:[{id:C,legalName:'Company',displayName:null,status:'active',
         ...(flags.clientLeak?{internalField:'not allowed'}:{})}],
@@ -97,6 +97,13 @@ test('A2 composed read rejects a commercial engagement for another company befor
   await assert.rejects(run(),/ENGAGEMENT_LINK_DRIFT/);
   assert.ok(calls.includes('field:context'));
   assert.ok(!calls.some(x=>x.startsWith('portal:')));
+});
+
+test('A2 composed read refuses client principal identity reused from the staff actor',async()=>{
+  const {run,calls}=fixture({staffIdentityReused:true});
+  await assert.rejects(run(),/independent client principal collides with staff identity/);
+  assert.deepEqual(calls.filter(x=>x.startsWith('portal:')),
+    ['portal:authority','portal:read','portal:authority']);
 });
 
 test('A2 composed read refuses an internal field visible to the independently scoped client',async()=>{
