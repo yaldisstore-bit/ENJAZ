@@ -39,6 +39,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+      - name: Compile-check isolated J04 harness before any cloud mutation
+        run: node --check scripts/phase14-1-a2-j04-field-real-cloud.mjs
       - name: Execute real owner JWT J01–J04 field operations, retry and cleanup
         run: node scripts/phase14-1-a2-j04-field-real-cloud.mjs
       - name: Verify isolated J04 evidence without falsely certifying full A2
