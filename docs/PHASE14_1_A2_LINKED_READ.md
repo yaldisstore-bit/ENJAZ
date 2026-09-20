@@ -7,6 +7,11 @@ Branch: `phase14-1-a2-linked-read-proof`. This step follows merged A1 PR #224, e
 
 `tests/phase14-1-a2-linked-read.test.ts` covers positive linked reads, invalid actor/ID, missing and mismatched root records, foreign-workspace children, forged company and reversal links, truncated lists, root version and actor-workspace drift, and archived internal-only behavior. Independent workflow `phase14-1-a2-linked-read.yml` runs the real TypeScript module's tests and existing typecheck/build/budget gates; it does not pretend to run hosted Supabase or an integrated browser journey.
 
+
+## A2 financial source crosscheck (additional source slice)
+
+`src/features/journeys/crossDomainJourneyFinanceProof.ts` invokes the existing read-only `FinanceCommandGateway.getReceipt` for each linked payment, matches authoritative receipt ID/company/transaction/workspace caller scope, method, receipt reference and exact bigint cents, reconciles one reversal per payment with the existing reversal rows, and rejects an orphan/duplicate reversal, sub-cent/unsafe number, inconsistent posted/reversed states or mismatched IDs. It returns only an *observed payment subtotal*, never a complete finance ledger, accounting balance, cross-domain atomicity claim or client authorization. The independent A2 workflow also runs the dedicated eight-case financial negative test file; no finance write RPC or new shadow ledger is introduced.
+
 ## Remaining non-negotiable exit gates
 A2 must still run **a real authenticated, durable complete journey** through the actual linked domain commands using an explicitly isolated Supabase target. Check owner/member/outsider/client denial, create → refresh → read, retry/offline, monetary reversal, field handoff, document provenance, archive/restore and zero Auth/data residue. A3 must independently exercise Chromium at 1280/430/390/360/320 with published portal/RTL, keyboard/back/network recovery. Then complete exact-head regressions, merge, exact-main deployed-live recertification and a separate closure decision.
 
