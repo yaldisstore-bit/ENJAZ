@@ -104,8 +104,12 @@ export async function verifyCrossDomainClientPortalRead(
   const signature = authoritySignature(before.grants);
   const view = await portal.readModel(source.workspaceId);
   const asOf = now.getTime();
+  const observedCompanyIds = new Set<string>();
   for (const company of view.companies) {
     allowedFields(company, CLIENT_SAFE_COMPANY_FIELDS);
+    if (observedCompanyIds.has(company.id))
+      throw new CrossDomainPortalProofError('UNRELATED_RECORD');
+    observedCompanyIds.add(company.id);
     if (!granted(before.grants, 'company', company.id, 'view', asOf))
       throw new CrossDomainPortalProofError('GRANT_MISSING');
     if (company.id === source.company.id && company.legalName !== source.company.legal_name)
