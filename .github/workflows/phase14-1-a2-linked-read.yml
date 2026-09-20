@@ -35,7 +35,7 @@ jobs:
       - name: Reject incomplete hosted structural prerequisite contract
         run: |
           node scripts/phase14-1-a2-hosted-readiness-audit.mjs
-          node --test tests/phase14-1-a2-hosted-readiness.test.mjs tests/phase14-1-a2-isolated-lab-evidence.test.mjs
+          node --test tests/phase14-1-a2-hosted-readiness.test.mjs tests/phase14-1-a2-isolated-lab-evidence.test.mjs tests/phase14-1-a2-isolated-auth-preflight.test.mjs
       - name: Typecheck
         run: npm run typecheck
       - name: No production bundle budget expansion

@@ -47,7 +47,12 @@
   "a2HostedLabZeroResidue": true,
   "a2HostedFunctionParityStatus": "DRIFT_RECORDED_PRODUCTION_HAS_UNTRACKED_FUNCTIONS",
   "a2IsolatedAuthSmokeWorkflow": ".github/workflows/phase14-1-a2-isolated-auth-smoke.yml",
-  "a2IsolatedAuthSmokeStatus": "PENDING_GITHUB_RUN",
+  "a2IsolatedAuthSmokeStatus": "BLOCKED_MISSING_GITHUB_ENVIRONMENT_SECRETS",
+  "a2IsolatedAuthSmokeBlockedRun": "35524524949",
+  "a2IsolatedAuthSmokeBlockedHead": "03e5ac129b2837fc1638859f87a65387b5f08ffa",
+  "a2IsolatedAuthReadinessEvidence": "docs/PHASE14_1_A2_AUTH_READINESS.md",
+  "a2HostedBootstrapStatus": "RESTORED_EXISTING_MIGRATION_CATALOG_VERIFIED_RUNTIME_PENDING",
+  "a2HostedBootstrapMigration": "database/migrations/phase_1_3_auth_workspace_signup_trigger.sql",
   "a2InternalWorkflowRun": "35524528305",
   "a2SourceDeliverables": [
     "internal scoped linked read proof",

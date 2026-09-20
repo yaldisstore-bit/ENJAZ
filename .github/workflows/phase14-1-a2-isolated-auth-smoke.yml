@@ -1,4 +1,4 @@
-name: ENJAZ Phase 14.1 — Isolated Auth smoke certificate
+name: ENJAZ Phase 14.1 — Isolated Auth/import smoke (NOT full A2)
 
 on:
   push:
@@ -6,6 +6,8 @@ on:
       - 'phase14-1-*'
     paths:
       - 'scripts/phase13-4-a2-real-cloud-e2e.mjs'
+      - 'scripts/phase14-1-a2-isolated-auth-preflight.mjs'
+      - 'tests/phase14-1-a2-isolated-auth-preflight.test.mjs'
       - 'docs/PHASE14_1_A2_ISOLATED_LAB_STRUCTURAL_EVIDENCE.json'
       - '.github/workflows/phase14-1-a2-isolated-auth-smoke.yml'
   workflow_dispatch:
@@ -32,23 +34,15 @@ jobs:
       SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
     steps:
       - uses: actions/checkout@v4
-      - name: Fail closed to the disposable lab before any network call
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "${SUPABASE_URL}" = "https://${ENJAZ_A2_BRANCH_REF}.supabase.co"
-          test "${SUPABASE_URL}" != "https://${PRODUCTION_PROJECT_REF}.supabase.co"
-          test -n "${SUPABASE_PUBLISHABLE_KEY}"
-          test -n "${SUPABASE_SECRET_KEY}"
-          test "${SUPABASE_SECRET_KEY}" != "${SUPABASE_PUBLISHABLE_KEY}"
-          [[ "${SUPABASE_SECRET_KEY}" != sb_publishable_* ]]
+      - name: Diagnose missing credentials and deny unapproved targets before network or fixtures
+        run: node scripts/phase14-1-a2-isolated-auth-preflight.mjs
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Run real Auth JWT smoke and cleanup certificate
+      - name: Run existing real Auth and import smoke (not eleven-domain A2 acceptance)
         run: node scripts/phase13-4-a2-real-cloud-e2e.mjs
       - name: Verify evidence is isolated and clean
         shell: bash
@@ -66,6 +60,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: phase141-a2-isolated-auth-smoke
-          path: artifacts/phase13-4-a2-real-cloud/evidence.json
+          path: |
+            artifacts/phase14-1-a2-isolated-auth/preflight.json
+            artifacts/phase13-4-a2-real-cloud/evidence.json
           if-no-files-found: error
           retention-days: 30
