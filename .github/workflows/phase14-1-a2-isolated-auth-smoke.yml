@@ -7,6 +7,7 @@ on:
     paths:
       - 'scripts/phase13-4-a2-real-cloud-e2e.mjs'
       - 'scripts/phase14-1-a2-isolated-auth-preflight.mjs'
+      - 'scripts/phase14-1-a2-isolated-residue-cleanup.mjs'
       - 'tests/phase14-1-a2-isolated-auth-preflight.test.mjs'
       - 'docs/PHASE14_1_A2_ISOLATED_LAB_STRUCTURAL_EVIDENCE.json'
       - 'docs/PHASE14_1_A2_LAB_READONLY_RECHECK_20260920.md'
@@ -43,6 +44,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+      - name: Recover only marked isolated Auth smoke residue before a new test
+        run: node scripts/phase14-1-a2-isolated-residue-cleanup.mjs
       - name: Run existing real Auth and import smoke (not eleven-domain A2 acceptance)
         run: node scripts/phase13-4-a2-real-cloud-e2e.mjs
       - name: Verify evidence is isolated and clean
