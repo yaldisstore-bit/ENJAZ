@@ -1,0 +1,207 @@
+{
+  "schema": "enjaz.phase14-1.cross-domain.a1-source-matrix.v1",
+  "phase": "14.1",
+  "slice": "A1_SOURCE_CONTRACT",
+  "authority": "EXISTING_SCOPED_DOMAIN_GATEWAYS_ONLY",
+  "maxClientBudgetIncreaseBytes": 0,
+  "journey": [
+    {
+      "id": "J01_COMPANY",
+      "domain": "companies",
+      "source": "src/features/companies/companyService.ts",
+      "marker": "export async function saveCompany(",
+      "evidence": [
+        "company workspace ID is authoritative",
+        "save/reload ID and version integrity"
+      ]
+    },
+    {
+      "id": "J02_TRANSACTION",
+      "domain": "transactions",
+      "source": "src/features/transactions/transactionEditorService.ts",
+      "marker": "export async function saveTransactionEditorDraft(",
+      "evidence": [
+        "company->transaction relationship validated",
+        "stale/duplicate save rejects or idempotently replays"
+      ]
+    },
+    {
+      "id": "J03_PROCEDURE",
+      "domain": "workflow",
+      "source": "src/features/workflow/governmentProcedureCommands.ts",
+      "marker": "async startProcedure(input: StartGovernmentProcedureInput)",
+      "evidence": [
+        "same transaction/workspace procedure association",
+        "stage transition authorized; conflicting actor denied"
+      ]
+    },
+    {
+      "id": "J04_FIELD",
+      "domain": "field-operations",
+      "source": "src/features/field-operations/fieldOperationsCommands.ts",
+      "marker": "async upsertAssignment(x)",
+      "evidence": [
+        "assignment/visit references same transaction and authorized assignee",
+        "offline/retry/check-in/handoff safely converge"
+      ]
+    },
+    {
+      "id": "J05_FOLLOWUP",
+      "domain": "notifications",
+      "source": "src/features/notifications/notificationCommands.ts",
+      "marker": "async mutateFollowup(input: FollowupMutationInput)",
+      "evidence": [
+        "followup source lineage remains transaction/workflow-bound",
+        "snooze/complete duplicate and cross-user permission negative"
+      ]
+    },
+    {
+      "id": "J06_PAYMENT",
+      "domain": "finance",
+      "source": "src/features/finance/financeCommands.ts",
+      "marker": "async postPayment(input: PostPaymentInput)",
+      "evidence": [
+        "payment/receipt ties to source transaction and same workspace",
+        "exact cents, replay and reversal balance invariants"
+      ]
+    },
+    {
+      "id": "J07_DOCUMENT",
+      "domain": "documents",
+      "source": "src/features/documents/documentFactoryCommands.ts",
+      "marker": "async generate(input:DocumentFactoryGenerationInput)",
+      "evidence": [
+        "approved version/facts/provenance are linked to same source",
+        "render/finalize fails closed on mismatch and duplicate"
+      ]
+    },
+    {
+      "id": "J08_CLIENT",
+      "domain": "client-portal",
+      "source": "src/features/client-portal/clientPortalGateway.ts",
+      "marker": "async readModel(workspaceId:string)",
+      "evidence": [
+        "client sees only explicitly permitted own engagement/transaction",
+        "no implicit internal record or data leak"
+      ]
+    },
+    {
+      "id": "J09_ARCHIVE",
+      "domain": "transactions",
+      "source": "src/features/transactions/transactionLifecycleService.ts",
+      "marker": "export async function applyTransactionLifecycleAction(",
+      "evidence": [
+        "archive/restore resolves same transaction and links",
+        "conflicting versions and unauthorized actors denied"
+      ]
+    },
+    {
+      "id": "J10_GOVERNANCE",
+      "domain": "governance",
+      "source": "src/features/governance/governanceCommands.ts",
+      "marker": "export function createGovernanceCommandGateway(",
+      "evidence": [
+        "ownership/representation authority is validated where relevant",
+        "cross-workspace and expired authorization denied"
+      ]
+    },
+    {
+      "id": "J11_ENGAGEMENT",
+      "domain": "engagements",
+      "source": "src/features/engagements/engagementContractCommands.ts",
+      "marker": "export function createEngagementContractGateway(",
+      "evidence": [
+        "retainer/contract joins company/transaction source without shadow truth",
+        "revision/history/approval maintain same workspace"
+      ]
+    }
+  ],
+  "adversarialCases": [
+    {
+      "id": "N01_CROSS_WORKSPACE",
+      "scope": "all",
+      "expect": "foreign workspace actor cannot read/write any linked step"
+    },
+    {
+      "id": "N02_SAME_WORKSPACE_ROLE",
+      "scope": "all",
+      "expect": "same-workspace non-authorized role cannot escalate domain mutation"
+    },
+    {
+      "id": "N03_IDENTITY_DRIFT",
+      "scope": "company_transaction",
+      "expect": "company and transaction IDs cannot silently diverge"
+    },
+    {
+      "id": "N04_STAGE_CONFLICT",
+      "scope": "workflow_field",
+      "expect": "stale transition and duplicate field handoff reject/replay correctly"
+    },
+    {
+      "id": "N05_OFFLINE_RETRY",
+      "scope": "field_followup",
+      "expect": "offline or uncertain writes replay with same operation identity"
+    },
+    {
+      "id": "N06_MONEY_REPLAY",
+      "scope": "finance",
+      "expect": "duplicate payment and reversal cannot double count cents"
+    },
+    {
+      "id": "N07_DOCUMENT_PROVENANCE",
+      "scope": "documents",
+      "expect": "document draft cannot finalize without valid source/review/version"
+    },
+    {
+      "id": "N08_CLIENT_PERMISSION",
+      "scope": "client_portal",
+      "expect": "client portal cannot reveal unrelated company/transaction documents"
+    },
+    {
+      "id": "N09_ARCHIVE_VISIBILITY",
+      "scope": "archive",
+      "expect": "archived records obey role and source visibility without orphan links"
+    },
+    {
+      "id": "N10_UNMAPPED_LEGACY",
+      "scope": "import",
+      "expect": "unmapped legacy data remains quarantined; no inferred IDs or permissions"
+    },
+    {
+      "id": "N11_GOVERNANCE_EFFECTIVE_DATE",
+      "scope": "governance",
+      "expect": "expired or unauthorized representation cannot approve governed actions"
+    },
+    {
+      "id": "N12_RETAINER_CONFLICT",
+      "scope": "engagements",
+      "expect": "stale retainer revision cannot change authoritative money/engagement"
+    },
+    {
+      "id": "N13_AUTH_EXPIRY",
+      "scope": "all",
+      "expect": "expired session fails closed with safe resumption"
+    },
+    {
+      "id": "N14_ZERO_RESIDUE",
+      "scope": "hosted",
+      "expect": "isolated cloud fixtures and marked auth users fully removed"
+    }
+  ],
+  "requiredCertification": [
+    "A1 source contract + cross-domain inventory",
+    "A2 authenticated isolated Real Cloud complete durable round trip and negative RLS/role checks",
+    "A3 five-width real Chromium mobile/RTL and recovery journeys",
+    "exact-head full regression and 4 quality tracks",
+    "merge plus exact-main Pages/Live External and deployed app verification",
+    "independent formal closure before Phase 14.2"
+  ],
+  "forbidden": [
+    "production destructive probes",
+    "new generic write authority",
+    "automatic legacy repairs or inferred target IDs",
+    "closure from static source or mocks alone",
+    "cross-domain shadow persistence",
+    "frozen client bundle budget increase"
+  ]
+}
