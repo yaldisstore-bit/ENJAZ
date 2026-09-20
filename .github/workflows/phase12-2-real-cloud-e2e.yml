@@ -24,8 +24,6 @@ jobs:
   real-cloud:
     # QUARANTINED: only isolated-hosted fixture tests may run.
     if: ${{ false }}
-    # QUARANTINED: production must never receive fixture mutations.
-    if: ${{ false }}
     name: Auth / Context / Provenance / Isolation / Replay / Zero Residue
     runs-on: ubuntu-24.04
     timeout-minutes: 30
