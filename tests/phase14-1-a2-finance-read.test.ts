@@ -11,13 +11,15 @@ const C = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 const T = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
 const P = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 const R = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
+const REVERSED_AT = '2026-09-20T08:00:00.000Z';
+const REASON = 'Duplicate payment';
 
 const payment = (overrides: Record<string, unknown> = {}) => ({
   id: P, workspace_id: W, company_id: C, transaction_id: T,
   amount: 0.29, method: 'cash', status: 'posted', receipt_ref: 'QA-1', ...overrides,
 });
 const reversal = (overrides: Record<string, unknown> = {}) => ({
-  id: R, payment_id: P, workspace_id: W, ...overrides,
+  id: R, payment_id: P, workspace_id: W, reversed_at: REVERSED_AT, reason: REASON, ...overrides,
 });
 const receipt = (overrides: Record<string, unknown> = {}): FinanceReceipt => ({
   paymentId: P, transactionId: T, companyId: C, amountCents: 29n,
@@ -54,7 +56,7 @@ test('A2 money crosscheck preserves exact cents and consumes the existing scoped
 });
 
 test('A2 correctly excludes an already reversed receipt, without manufacturing shadow ledger entries', async () => {
-  const reverse = { reversalId: R, paymentId: P };
+  const reverse = { reversalId: R, paymentId: P, reversedAt: REVERSED_AT, reason: REASON };
   const result = await verifyCrossDomainFinanceRead(
     source([payment({ status: 'reversed' })], [reversal()]),
     gateway(receipt({ status: 'reversed', reversal: reverse })),
@@ -112,6 +114,30 @@ test('A2 rejects hidden reversal, missing reversal, forged reversal id and orpha
     source([payment()], [reversal({ payment_id: C })]),
     gateway(receipt()),
   ), reason('REVERSAL_DRIFT'));
+});
+
+test('A2 rejects forged reversal reason, changed timestamp and cross-workspace provenance', async () => {
+  const base = { reversalId: R, paymentId: P, reversedAt: REVERSED_AT, reason: REASON };
+  for (const forged of [
+    { ...base, reason: 'Forged reason' },
+    { ...base, reversedAt: '2026-09-20T08:01:00.000Z' },
+    { ...base, reversedAt: 'invalid-timestamp' },
+  ]) {
+    await assert.rejects(verifyCrossDomainFinanceRead(
+      source([payment({status:'reversed'})], [reversal()]),
+      gateway(receipt({status:'reversed', reversal:forged})),
+    ),reason('REVERSAL_DRIFT'));
+  }
+  await assert.rejects(verifyCrossDomainFinanceRead(
+    source([payment({status:'reversed'})], [reversal({workspace_id:C})]),
+    gateway(receipt({status:'reversed', reversal:base})),
+  ),reason('REVERSAL_DRIFT'));
+  const sameInstant={...base,reversedAt:'2026-09-20T11:00:00.000+03:00'};
+  const valid=await verifyCrossDomainFinanceRead(
+    source([payment({status:'reversed'})], [reversal()]),
+    gateway(receipt({status:'reversed', reversal:sameInstant})),
+  );
+  assert.equal(valid.observedNetPaymentCents,0n);
 });
 
 test('A2 zero payments cause zero financial reads and no inferred money', async () => {
