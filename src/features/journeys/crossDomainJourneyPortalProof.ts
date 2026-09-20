@@ -164,8 +164,12 @@ export async function verifyCrossDomainClientPortalRead(
       const payment = sourcePayments.get(receipt.paymentId);
       if (!payment || payment.company_id !== receipt.companyId ||
           payment.transaction_id !== receipt.transactionId ||
+          payment.workspace_id !== source.workspaceId ||
           payment.receipt_ref !== receipt.receiptRef ||
           payment.method !== receipt.method || payment.status !== receipt.status ||
+          !Number.isFinite(Date.parse(payment.paid_at)) ||
+          !Number.isFinite(Date.parse(receipt.paidAt)) ||
+          Date.parse(payment.paid_at) !== Date.parse(receipt.paidAt) ||
           strictPaymentCents(payment.amount) !== strictReceiptCents(receipt.amount))
         throw new CrossDomainPortalProofError('SOURCE_DRIFT');
     }
