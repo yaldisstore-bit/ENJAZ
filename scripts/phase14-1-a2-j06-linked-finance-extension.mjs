@@ -13,7 +13,7 @@ export async function checkLinkedFinance({
     p_workspace_id: ws,
     p_transaction_id: transactionId,
     p_amount: '135.25',
-    p_method: 'cash',
+    p_method: 'transfer',
     p_paid_at: paidAt,
     p_note: 'J06 isolated linked payment',
     p_idempotency_key: paymentKey,
@@ -88,9 +88,10 @@ export async function checkLinkedFinance({
     'J06_FRESH_JWT_REVERSAL_RETRY_NO_DOUBLE_REVERSAL');
   const competingReversal = await owner.client.rpc('reverse_payment_v1',
     { ...reverseArgs, p_idempotency_key: randomUUID() });
-  verify(Boolean(competingReversal.error) &&
+  verify(!competingReversal.error && competingReversal.data?.wasDuplicate === true &&
+    competingReversal.data?.reversalId === reversalId &&
     await readCount('payment_reversals', ws) === 1,
-    'J06_NEW_KEY_SECOND_REVERSAL_DENIED');
+    'J06_NEW_KEY_SECOND_REVERSAL_CONVERGES_TO_SAME_REVERSAL');
 
   const final = await fresh.rpc('get_payment_receipt_v1',
     { p_workspace_id: ws, p_payment_id: paymentId });
