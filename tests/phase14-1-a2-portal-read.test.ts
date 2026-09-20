@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import type {
-  ClientPortalGateway, ClientPortalReadModel, ClientPortalAuthorityContext,
+import {
+  createClientPortalGateway,
+  type ClientPortalGateway, type ClientPortalReadModel, type ClientPortalAuthorityContext,
 } from '../src/features/client-portal/clientPortalGateway.ts';
+import type { EnjazSupabaseClient } from '../src/core/supabase/client.ts';
 import type { CrossDomainJourneyReadProof } from '../src/features/journeys/crossDomainJourneyReadProof.ts';
 import {
   verifyCrossDomainClientPortalRead, CrossDomainPortalProofError,
@@ -134,6 +136,26 @@ test('A2 expired and future-dated grants are denied; no implicit finance permiss
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(baseModel(),authority([grant('company',C),grant('transaction',T,['view'])])),NOW,
   ),reason('GRANT_MISSING'));
+});
+
+test('A2 real portal read-model parser accepts an unassigned document company only under a granted transaction',async()=>{
+  const raw={...baseModel(),documents:[{...baseModel().documents[0]!,companyId:null}]};
+  const rpcCalls:string[]=[];
+  const realGateway=createClientPortalGateway({rpc(name:string,args:Record<string,unknown>){
+    rpcCalls.push(name);
+    assert.equal(name,'get_client_portal_read_model_v1');
+    assert.equal(args.p_workspace_id,W);
+    return Promise.resolve({data:raw,error:null});
+  }} as unknown as EnjazSupabaseClient);
+  const parsed=await realGateway.readModel(W);
+  assert.equal(parsed.documents[0]?.companyId,null);
+  assert.deepEqual(rpcCalls,['get_client_portal_read_model_v1']);
+  const internal=source();
+  const nullable={...internal,documents:[{...internal.documents[0],company_id:null}]} as CrossDomainJourneyReadProof;
+  const result=await verifyCrossDomainClientPortalRead(nullable,gateway(parsed),NOW);
+  assert.equal(result.observedDocumentCount,1);
+  const wrong={...parsed,documents:[{...parsed.documents[0]!,companyId:USER}]};
+  await assert.rejects(verifyCrossDomainClientPortalRead(nullable,gateway(wrong),NOW),reason('UNRELATED_RECORD'));
 });
 
 test('A2 rejects a document or receipt that references an unrelated transaction/company',async()=>{
