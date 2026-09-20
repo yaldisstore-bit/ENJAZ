@@ -72,8 +72,10 @@ export async function verifyCrossDomainOperationsRead(
   const visitIds = new Set<string>();
   for (const row of visits) {
     const assignment = assignmentsById.get(row.assignmentId);
+    // Reassignment rewrites only checked-in visits. A completed visit must
+    // retain its historical assignee even when the assignment moves later.
     if (row.transactionId !== tx || !assignment ||
-        row.assignedUserId !== assignment.assignedUserId)
+        (row.status === 'checked_in' && row.assignedUserId !== assignment.assignedUserId))
       throw new CrossDomainOperationsProofError('FIELD_LINK_DRIFT');
     if (visitIds.has(row.id)) throw new CrossDomainOperationsProofError('FIELD_DUPLICATE');
     visitIds.add(row.id);
