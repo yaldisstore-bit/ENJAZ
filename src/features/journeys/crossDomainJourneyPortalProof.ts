@@ -44,6 +44,7 @@ function strictPaymentCents(amount: number): bigint {
   const scaled = amount * 100;
   if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0 ||
       !Number.isFinite(scaled) || !Number.isSafeInteger(Math.round(scaled)) ||
+      Math.round(scaled) < 1 ||
       Math.abs(scaled - Math.round(scaled)) > 0.0000001)
     throw new CrossDomainPortalProofError('SOURCE_DRIFT');
   return BigInt(Math.round(scaled));
