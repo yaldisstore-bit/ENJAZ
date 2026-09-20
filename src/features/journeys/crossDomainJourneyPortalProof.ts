@@ -32,6 +32,8 @@ export interface CrossDomainPortalReadProof {
   readonly atomicCrossPrincipalSnapshotCertified: false;
 }
 
+const REQUEST_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 function allowedFields(value: object, allowed: readonly string[]): void {
   const keys = Object.keys(value);
   if (keys.some(key => !allowed.includes(key)))
@@ -207,11 +209,15 @@ export async function verifyCrossDomainClientPortalRead(
   const observedRequestIds = new Set<string>();
   for (const request of view.requests) {
     allowedFields(request, CLIENT_SAFE_REQUEST_FIELDS);
-    if (!request.id || observedRequestIds.has(request.id))
+    if (!REQUEST_UUID.test(request.id) || !REQUEST_UUID.test(request.transactionId) ||
+        observedRequestIds.has(request.id))
       throw new CrossDomainPortalProofError('UNRELATED_RECORD');
     observedRequestIds.add(request.id);
     const permission = requiredRequestPermission[request.requestType];
-    if (!permission || (request.requestType === 'approval') !== (request.resourceShareId !== null))
+    if (!permission ||
+        (request.requestType === 'approval'
+          ? request.resourceShareId === null || !REQUEST_UUID.test(request.resourceShareId)
+          : request.resourceShareId !== null))
       throw new CrossDomainPortalProofError('UNRELATED_RECORD');
     if (!granted(before.grants, 'transaction', request.transactionId, permission, asOf))
       throw new CrossDomainPortalProofError('GRANT_MISSING');
