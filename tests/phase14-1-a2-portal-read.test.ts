@@ -15,6 +15,7 @@ const D = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 const P = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
 const USER = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const NOW = new Date('2026-09-20T12:00:00.000Z');
+const PAID_AT = '2026-09-20T08:00:00.000Z';
 const grant = (type: 'company' | 'transaction', id: string, permissions: readonly ('view'|'view_finance')[] = ['view'], other: Record<string,unknown> = {}) => ({
   id: type === 'company' ? C : T, targetType: type, targetId: id,
   permissions, validFrom: null, validUntil: null, version: 1, ...other,
@@ -31,14 +32,15 @@ const baseModel = (): ClientPortalReadModel => ({
     mimeType:'application/pdf', sizeBytes:12, status:'ready', capturedAt:null,
     createdAt:'2026-09-20', updatedAt:'2026-09-20' }],
   receipts: [{ paymentId:P, transactionId:T, companyId:C, receiptRef:'QA1',
-    amount:'0.29', method:'cash', paidAt:'2026-09-20', status:'posted', receiptVersion:1 }],
+    amount:'0.29', method:'cash', paidAt:PAID_AT, status:'posted', receiptVersion:1 }],
   requests: [],timeline:[],messages:[],appointmentResponses:[],readReceipts:[],
   documentUploads:[],documentApprovalResponses:[],
 });
 const source = (): CrossDomainJourneyReadProof => ({
   workspaceId:W, company:{id:C,legal_name:'Test company'},
   transaction:{id:T,company_id:C},
-  procedures:[],followups:[],payments:[{id:P,company_id:C,transaction_id:T,amount:0.29,receipt_ref:'QA1',method:'cash',status:'posted'}],reversals:[],
+  procedures:[],followups:[],payments:[{id:P,workspace_id:W,company_id:C,transaction_id:T,amount:0.29,
+    receipt_ref:'QA1',method:'cash',status:'posted',paid_at:PAID_AT}],reversals:[],
   documents:[{id:D,workspace_id:W,transaction_id:T,company_id:C,title:'Approved',
     status:'ready',mime_type:'application/pdf',size_bytes:12}],
   proofKind:'AUTHENTICATED_INTERNAL_READ_ONLY',
@@ -151,6 +153,21 @@ test('A2 refuses a portal receipt with correct payment ID but changed financial 
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(financeOnly,authority([grant('company',C),grant('transaction',T,['view_finance'])])),NOW,
   ),reason('SOURCE_DRIFT'));
+});
+
+test('A2 refuses forged receipt paid-at and foreign source workspace even when identity matches',async()=>{
+  for (const paidAt of ['2026-09-20T08:01:00.000Z','invalid-timestamp']) {
+    const model={...baseModel(),receipts:[{...baseModel().receipts[0]!,paidAt}]};
+    await assert.rejects(verifyCrossDomainClientPortalRead(
+      source(),gateway(model),NOW,
+    ),reason('SOURCE_DRIFT'));
+  }
+  const altered=source();
+  const foreign={...altered,payments:[{...altered.payments[0],workspace_id:USER}]} as CrossDomainJourneyReadProof;
+  await assert.rejects(verifyCrossDomainClientPortalRead(foreign,gateway(),NOW),reason('SOURCE_DRIFT'));
+  const equivalent={...baseModel(),receipts:[{...baseModel().receipts[0]!,paidAt:'2026-09-20T11:00:00.000+03:00'}]};
+  const proof=await verifyCrossDomainClientPortalRead(source(),gateway(equivalent),NOW);
+  assert.equal(proof.observedReceiptCount,1);
 });
 
 test('A2 rejects a correctly linked document with forged client-visible source facts',async()=>{
