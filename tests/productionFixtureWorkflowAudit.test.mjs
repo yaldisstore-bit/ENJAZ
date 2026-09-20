@@ -37,6 +37,11 @@ test('new or additional production-admin jobs are scanned rather than relying on
   assert.equal(auditProductionFixtureWorkflows([{name:'new.yml',content:another}]).length, 1);
 });
 
+test('duplicated job-level if keys are invalid even when both are false', () => {
+  const duplicate = make('    if: ${{ false }}\n    if: ${{ false }}\n');
+  assert.equal(auditProductionFixtureWorkflow('duplicate.yml', duplicate).length, 1);
+});
+
 test('read-only or isolated workflows without the production/admin pairing are not disabled', () => {
   assert.deepEqual(auditProductionFixtureWorkflow('isolated.yml', make('').replaceAll(
     'juzxriirhkuzviwnhkbd', 'abcdefghijklmnopqrst',
