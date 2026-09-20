@@ -148,6 +148,11 @@ test('A2 refuses a portal receipt with correct payment ID but changed financial 
       source(),gateway(forged),NOW,
     ),reason('SOURCE_DRIFT'));
   }
+  const tinySource=source();
+  const tinyPayment={...tinySource,payments:[{...tinySource.payments[0],amount:0.00000000001}]} as CrossDomainJourneyReadProof;
+  await assert.rejects(verifyCrossDomainClientPortalRead(
+    tinyPayment,gateway(),NOW,
+  ),reason('SOURCE_DRIFT'));
   const financeOnly={...baseModel(),transactions:[],documents:[],
     receipts:[{...baseModel().receipts[0]!,amount:'0.30'}]};
   await assert.rejects(verifyCrossDomainClientPortalRead(
