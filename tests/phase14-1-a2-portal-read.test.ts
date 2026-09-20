@@ -43,7 +43,8 @@ const source = (): CrossDomainJourneyReadProof => ({
   procedures:[],followups:[],payments:[{id:P,workspace_id:W,company_id:C,transaction_id:T,amount:0.29,
     receipt_ref:'QA1',method:'cash',status:'posted',paid_at:PAID_AT}],reversals:[],
   documents:[{id:D,workspace_id:W,transaction_id:T,company_id:C,title:'Approved',
-    status:'ready',mime_type:'application/pdf',size_bytes:12}],
+    status:'ready',mime_type:'application/pdf',size_bytes:12,document_type:null,
+    captured_at:null,created_at:'2026-09-20',updated_at:'2026-09-20'}],
   proofKind:'AUTHENTICATED_INTERNAL_READ_ONLY',
   atomicMultiDomainSnapshotCertified:false,clientVisibilityCertified:false,
 }) as unknown as CrossDomainJourneyReadProof;
@@ -197,12 +198,17 @@ test('A2 refuses forged receipt paid-at and foreign source workspace even when i
 test('A2 rejects a correctly linked document with forged client-visible source facts',async()=>{
   for (const patch of [
     {title:'Altered title'}, {status:'approved'}, {mimeType:'text/html'}, {sizeBytes:999},
+    {documentType:'altered'}, {capturedAt:'2026-09-19'},
+    {createdAt:'2026-09-19'}, {updatedAt:'2026-09-21'},
   ]) {
     const model={...baseModel(),documents:[{...baseModel().documents[0]!, ...patch}]};
     await assert.rejects(verifyCrossDomainClientPortalRead(
       source(),gateway(model),NOW,
     ),reason('SOURCE_DRIFT'));
   }
+  const sameDates={...baseModel(),documents:[{...baseModel().documents[0]!,
+    createdAt:'2026-09-20T03:00:00+03:00',updatedAt:'2026-09-20T00:00:00Z'}]};
+  assert.equal((await verifyCrossDomainClientPortalRead(source(),gateway(sameDates),NOW)).observedDocumentCount,1);
   const mismatched=source() as unknown as Record<string,unknown>;
   const forgedSource={...mismatched,documents:[{...source().documents[0],workspace_id:USER}]} as unknown as CrossDomainJourneyReadProof;
   await assert.rejects(verifyCrossDomainClientPortalRead(
