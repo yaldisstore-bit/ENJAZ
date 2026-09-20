@@ -18,6 +18,8 @@ concurrency:
 
 jobs:
   real-cloud:
+    # QUARANTINED: legacy fixture runner must not mutate production.
+    if: ${{ false }}
     name: Edge v3 Safety Replay / Binding Guards / Empty-Store Fail-Closed / Zero Mutation
     runs-on: ubuntu-24.04
     timeout-minutes: 20
