@@ -1,0 +1,66 @@
+name: ENJAZ Phase 14.1 A2 — J04 Real Cloud (NOT full A2)
+
+on:
+  push:
+    branches:
+      - 'phase14-1-*'
+    paths:
+      - 'scripts/phase14-1-a2-j04-field-real-cloud.mjs'
+      - '.github/workflows/phase14-1-a2-j04-field-real-cloud.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase141-a2-auth-smoke
+  cancel-in-progress: false
+
+jobs:
+  isolated-j04:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: phase13-4-isolated-real-cloud
+    env:
+      PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd
+      ENJAZ_A2_BRANCH_REF: nqhgaukutkyvfumbtbtg
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+      ENJAZ_A2_ISOLATED_BRANCH_CONFIRM: YES
+      SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deny unapproved projects before any fixture writes
+        run: node scripts/phase14-1-a2-isolated-auth-preflight.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Execute real owner JWT J01–J04 field operations, retry and cleanup
+        run: node scripts/phase14-1-a2-j04-field-real-cloud.mjs
+      - name: Verify isolated J04 evidence without falsely certifying full A2
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const e = JSON.parse(fs.readFileSync('artifacts/phase14-1-a2-j04-field/evidence.json','utf8'));
+          if (e.projectRef !== 'nqhgaukutkyvfumbtbtg' ||
+              e.productionProjectRef === e.projectRef ||
+              e.scope?.join(',') !== 'J01_COMPANY,J02_TRANSACTION,J03_PROCEDURE,J04_FIELD' ||
+              e.completeElevenDomainA2 !== false || e.phase14_1Closed !== false ||
+              e.passed !== true || e.cleanupPassed !== true)
+            throw new Error('J04 hosted slice NOT certified');
+          console.log('PASS isolated authenticated J04 field and zero residue (NOT full A2)');
+          NODE
+      - name: Upload isolated J04 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase141-a2-j04-field-real-cloud
+          path: |
+            artifacts/phase14-1-a2-isolated-auth/preflight.json
+            artifacts/phase14-1-a2-j04-field/evidence.json
+          if-no-files-found: error
+          retention-days: 30
