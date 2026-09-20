@@ -84,10 +84,10 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **A2 authenticated readback + A3 trusted comparison: SOURCE + DISPOSABLE POSTGRES VERIFIED**؛ isolated PostgreSQL 17 remains **16 A2 PASS + 17 A3 PASS**.
 - **Hosted Supabase DB/RLS: PASS** on isolated project `nqhgaukutkyvfumbtbtg` (same region, USD 0/month fallback because Free-plan development branches are unavailable). Owner/member/outsider/anon boundaries, real Phase 13.3 import, clean comparison, destructive drift/tamper cases, zero residue, A2/A3 5000-item bound and 5001 fail-closed were exercised.
 - A cloud-only 5000-item A3 temp-space failure exposed repeated JSON array indexing. A3 now aligns expected/observed rowsets by ordinal; the same 5000-item hosted test passes after the fix, with a source regression preventing reintroduction.
-- **Production Supabase remains unchanged by 13.4:** neither A2 nor A3 is installed there. Production privilege/RLS inspection was read-only.
-- **Outstanding certification:** Auth-API / real-user-token transport through the isolated environment. Connected tooling does not expose the lab service-role secret and production credentials are forbidden substitutes.
+- **Phase 13.4 production read-only certificate:** A2/A3 owner-scoped read-only reconciliation functions were installed and privilege/RLS-verified without any business-row insert, update or delete; see `docs/PHASE13_4_CLOSURE.md`.
+- **Phase 13.4 Auth/JWT certificate:** isolated real-user-token transport passed with zero marked-user residue. Production credentials were never used as a substitute for disposable lab credentials.
 - No imported production record is edited or automatically repaired; no new production database table, write RPC authority, new UI, or client bundle budget increase.
-- Phase 13.5 remains **LOCKED**.
+- Phase 13.5 is now **CLOSED**; Phase 14.1 is **AUTHORIZED_NEXT / NOT_STARTED** after formal closure.
 - state: [`docs/PHASE13_4_STATE.json`](docs/PHASE13_4_STATE.json).
 - hosted DB/RLS evidence: [`docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`](docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md).
 - A1 contract: [`docs/PHASE13_4_A1_KICKOFF.md`](docs/PHASE13_4_A1_KICKOFF.md).
