@@ -18,9 +18,7 @@ concurrency:
 
 jobs:
   real-cloud-arabic-pdf:
-    # FAIL-CLOSED QUARANTINE: this legacy test pins production and creates
-    # users/workspaces. Never run it automatically or manually until the
-    # script/credentials are migrated to a verified isolated full-schema target.
+    # Quarantined: never execute privileged fixture E2E against production.
     if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25

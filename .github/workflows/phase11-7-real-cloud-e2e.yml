@@ -24,6 +24,7 @@ concurrency:
 
 jobs:
   individual-real-cloud:
+    if: ${{ false }}
     name: M3 M4 M10 M16 M17 / authenticated Real Cloud / zero residue
     runs-on: ubuntu-24.04
     timeout-minutes: 45

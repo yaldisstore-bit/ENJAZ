@@ -21,6 +21,8 @@ concurrency:
 
 jobs:
   real-cloud:
+    # QUARANTINED: only isolated-hosted fixture tests may run.
+    if: ${{ false }}
     name: Auth / Workspace / Idempotency / Rate Limit / Provider Isolation / Zero Residue
     runs-on: ubuntu-24.04
     timeout-minutes: 30

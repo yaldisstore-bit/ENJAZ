@@ -18,6 +18,8 @@ concurrency:
 
 jobs:
   real-cloud:
+    # QUARANTINED: only isolated-hosted fixture tests may run.
+    if: ${{ false }}
     name: Approved Follow-up Snooze / Atomic Consumption / Replay / Rollback / Zero Residue
     runs-on: ubuntu-24.04
     timeout-minutes: 20

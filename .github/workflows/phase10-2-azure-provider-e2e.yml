@@ -15,7 +15,8 @@ concurrency:
 
 jobs:
   real-azure-arabic-ocr:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.head_ref == 'phase10-2-document-intelligence-ocr')
+    # Quarantined: privileged live provider fixtures must not target production.
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:

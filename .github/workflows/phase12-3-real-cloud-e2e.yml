@@ -19,6 +19,8 @@ concurrency:
 
 jobs:
   real-cloud:
+    # QUARANTINED: only isolated-hosted fixture tests may run.
+    if: ${{ false }}
     name: JWT / RLS / Proposal Digest / Approval Replay / Expiry / Zero Business Mutation
     runs-on: ubuntu-24.04
     timeout-minutes: 20

@@ -17,9 +17,7 @@ concurrency:
 
 jobs:
   real-cloud-document-intelligence:
-    # FAIL-CLOSED QUARANTINE: this legacy test pins production and creates
-    # users/workspaces. Never run it automatically or manually until the
-    # script/credentials are migrated to a verified isolated full-schema target.
+    # Quarantined: legacy credentialed E2E must not use production for test fixtures.
     if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
