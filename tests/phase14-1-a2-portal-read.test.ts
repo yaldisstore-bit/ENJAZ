@@ -81,6 +81,13 @@ test('A2 independently scoped portal reads only explicit company, transaction, d
   assert.deepEqual(calls,['authority','read','authority']);
 });
 
+test('A2 rejects duplicate company rows in the client-safe projection',async()=>{
+  const model={...baseModel(),companies:[...baseModel().companies,...baseModel().companies]};
+  await assert.rejects(verifyCrossDomainClientPortalRead(
+    source(),gateway(model),NOW,
+  ),reason('UNRELATED_RECORD'));
+});
+
 test('A2 no grant cannot be inferred from a rendered company or transaction',async()=>{
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(baseModel(),authority([grant('transaction',T,['view','view_finance'])])),NOW,
