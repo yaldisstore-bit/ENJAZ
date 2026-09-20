@@ -21,6 +21,8 @@ concurrency:
 
 jobs:
   real-cloud:
+    # QUARANTINED: production must never receive fixture mutations.
+    if: ${{ false }}
     name: Auth / Workspace / Idempotency / Rate Limit / Provider Isolation / Zero Residue
     runs-on: ubuntu-24.04
     timeout-minutes: 30
