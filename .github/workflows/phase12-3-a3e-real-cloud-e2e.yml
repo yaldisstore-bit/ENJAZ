@@ -18,6 +18,8 @@ concurrency:
 
 jobs:
   real-cloud:
+    # QUARANTINED: legacy fixture runner must not mutate production.
+    if: ${{ false }}
     name: Document Draft / M7 Authority / Replay / Rollback / Zero Residue
     runs-on: ubuntu-24.04
     timeout-minutes: 20
