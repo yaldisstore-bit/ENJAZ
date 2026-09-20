@@ -103,10 +103,14 @@ export async function verifyCrossDomainOperationsRead(
       numbers.add(row.revision);
       revisionCount += 1;
     }
-    // A sparse list is not a complete contract history, even when every visible
-    // row points backwards correctly (the missing predecessor might be hidden).
+    // Check the complete predecessor chain, not only each visible row's
+    // numeric supersedes marker: a prior version must be formally superseded
+    // before a newer revision can exist in the authoritative SQL contract.
+    const byRevision = new Map(revisions.map(row => [row.revision, row] as const));
     for (let number = 1; number <= numbers.size; number += 1) {
-      if (!numbers.has(number)) throw new CrossDomainOperationsProofError('CONTRACT_LINK_DRIFT');
+      const current = byRevision.get(number);
+      if (!current || (number < numbers.size && current.status !== 'superseded'))
+        throw new CrossDomainOperationsProofError('CONTRACT_LINK_DRIFT');
     }
   }
   return Object.freeze({
