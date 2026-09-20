@@ -57,6 +57,13 @@ function strictReceiptCents(amount: string): bigint {
   return BigInt(match[1]!) * 100n + BigInt((match[2] ?? '').padEnd(2, '0') || '0');
 }
 
+function sameInstant(source: string | null, visible: string | null): boolean {
+  if (source === null || visible === null) return source === visible;
+  const sourceTime = Date.parse(source);
+  const visibleTime = Date.parse(visible);
+  return Number.isFinite(sourceTime) && Number.isFinite(visibleTime) && sourceTime === visibleTime;
+}
+
 function activeGrant(grant: ClientPortalAuthorityGrant, now: number): boolean {
   const from = grant.validFrom === null ? null : Date.parse(grant.validFrom);
   const until = grant.validUntil === null ? null : Date.parse(grant.validUntil);
@@ -113,7 +120,10 @@ export async function verifyCrossDomainClientPortalRead(
     observedCompanyIds.add(company.id);
     if (!granted(before.grants, 'company', company.id, 'view', asOf))
       throw new CrossDomainPortalProofError('GRANT_MISSING');
-    if (company.id === source.company.id && company.legalName !== source.company.legal_name)
+    if (company.id === source.company.id &&
+        (company.legalName !== source.company.legal_name ||
+         company.displayName !== source.company.display_name ||
+         company.status !== source.company.status))
       throw new CrossDomainPortalProofError('SOURCE_DRIFT');
   }
   const transactionById = new Map(view.transactions.map(t => [t.id, t] as const));
@@ -123,7 +133,13 @@ export async function verifyCrossDomainClientPortalRead(
     allowedFields(transaction, CLIENT_SAFE_TRANSACTION_FIELDS);
     if (!granted(before.grants, 'transaction', transaction.id, 'view', asOf))
       throw new CrossDomainPortalProofError('GRANT_MISSING');
-    if (transaction.id === source.transaction.id && transaction.companyId !== source.company.id)
+    if (transaction.id === source.transaction.id &&
+        (transaction.companyId !== source.company.id ||
+         transaction.type !== source.transaction.type ||
+         transaction.status !== source.transaction.status ||
+         !sameInstant(source.transaction.created_at, transaction.createdAt) ||
+         !sameInstant(source.transaction.updated_at, transaction.updatedAt) ||
+         !sameInstant(source.transaction.completed_at, transaction.completedAt)))
       throw new CrossDomainPortalProofError('SOURCE_DRIFT');
   }
   const observedDocs = new Set<string>();
