@@ -44,6 +44,7 @@
   "a2SourceDeliverables": [
     "internal scoped linked read proof",
     "authoritative read-only payment/reversal receipt crosscheck",
+    "explicit client-portal grant and safe projection crosscheck (independent client gateway required)",
     "isolated hosted structural prerequisite and production target denial audit"
   ]
 }
