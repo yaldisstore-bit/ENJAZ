@@ -17,6 +17,8 @@ concurrency:
 
 jobs:
   real-cloud-document-intelligence:
+    # Quarantined: legacy credentialed E2E must not use production for test fixtures.
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
