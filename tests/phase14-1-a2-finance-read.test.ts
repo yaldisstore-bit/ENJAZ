@@ -12,18 +12,21 @@ const T = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
 const P = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 const R = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
 const REVERSED_AT = '2026-09-20T08:00:00.000Z';
+const PAID_AT = '2026-09-19T17:30:00.000Z';
 const REASON = 'Duplicate payment';
 
 const payment = (overrides: Record<string, unknown> = {}) => ({
   id: P, workspace_id: W, company_id: C, transaction_id: T,
-  amount: 0.29, method: 'cash', status: 'posted', receipt_ref: 'QA-1', ...overrides,
+  amount: 0.29, method: 'cash', status: 'posted', receipt_ref: 'QA-1',
+  paid_at: PAID_AT, note: 'Approved payment', ...overrides,
 });
 const reversal = (overrides: Record<string, unknown> = {}) => ({
   id: R, payment_id: P, workspace_id: W, reversed_at: REVERSED_AT, reason: REASON, ...overrides,
 });
 const receipt = (overrides: Record<string, unknown> = {}): FinanceReceipt => ({
   paymentId: P, transactionId: T, companyId: C, amountCents: 29n,
-  method: 'cash', status: 'posted', receiptRef: 'QA-1', reversal: null, ...overrides,
+  method: 'cash', status: 'posted', receiptRef: 'QA-1', reversal: null,
+  paidAt: PAID_AT, note: 'Approved payment', ...overrides,
 }) as FinanceReceipt;
 const source = (
   payments: readonly Record<string, unknown>[] = [payment()],
@@ -85,6 +88,23 @@ test('A2 rejects mismatched workspace, company, transaction and wrong receipt re
   await assert.rejects(verifyCrossDomainFinanceRead(
     source(), gateway(receipt({ receiptRef: 'FORGED' })),
   ), reason('SOURCE_DRIFT'));
+});
+
+test('A2 rejects forged paid-at times, invalid payment dates and altered receipt notes', async () => {
+  for (const receiptPatch of [
+    {paidAt:'2026-09-19T17:31:00.000Z'},
+    {paidAt:'invalid-timestamp'},
+    {note:'Different payment note'},
+  ]) await assert.rejects(verifyCrossDomainFinanceRead(
+    source(),gateway(receipt(receiptPatch)),
+  ),reason('SOURCE_DRIFT'));
+  await assert.rejects(verifyCrossDomainFinanceRead(
+    source([payment({paid_at:'invalid-timestamp'})]),gateway(receipt()),
+  ),reason('SOURCE_DRIFT'));
+  const equivalent=await verifyCrossDomainFinanceRead(
+    source(),gateway(receipt({paidAt:'2026-09-19T20:30:00.000+03:00'})),
+  );
+  assert.equal(equivalent.observedNetPaymentCents,29n);
 });
 
 test('A2 rejects amount tampering, bad precision and non-finite money without rounding away a cent', async () => {
