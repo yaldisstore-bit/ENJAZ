@@ -48,6 +48,7 @@
   "a2HostedFunctionParityStatus": "DRIFT_RECORDED_PRODUCTION_HAS_UNTRACKED_FUNCTIONS",
   "a2IsolatedAuthSmokeWorkflow": ".github/workflows/phase14-1-a2-isolated-auth-smoke.yml",
   "a2IsolatedAuthSmokeStatus": "PENDING_GITHUB_RUN",
+  "a2InternalWorkflowRun": "35524528305",
   "a2SourceDeliverables": [
     "internal scoped linked read proof",
     "authoritative read-only payment/reversal receipt crosscheck",
@@ -57,8 +58,8 @@
   ],
   "productionFixtureQuarantineMergedMain": "2c88573797974b4af98ece765bfc1471559cbf42",
   "a3PreparatoryBrowserStatus": "PASS_14_OF_14_ISOLATED_CHROMIUM_NO_LIVE_AUTH",
-  "a3PreparatoryBrowserEvidenceRun": "35521831919",
-  "a3PreparatoryBrowserEvidenceHead": "8e3f050c8d91cce87223d63b60d6d368c7dcf255",
+  "a3PreparatoryBrowserEvidenceRun": "35524528481",
+  "a3PreparatoryBrowserEvidenceHead": "03e5ac129b2837fc1638859f87a65387b5f08ffa",
   "a3PreparatoryBrowserWidths": [
     1280,
     430,
