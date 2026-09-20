@@ -51,7 +51,7 @@ function strictPaymentCents(amount: number): bigint {
 
 function strictReceiptCents(amount: string): bigint {
   if (typeof amount !== 'string') throw new CrossDomainPortalProofError('SOURCE_DRIFT');
-  const match = /^(0|[1-9]\\d{0,15})(?:\\.(\\d{1,2}))?$/.exec(amount);
+  const match = /^(0|[1-9]\d{0,15})(?:\.(\d{1,2}))?$/.exec(amount);
   if (!match) throw new CrossDomainPortalProofError('SOURCE_DRIFT');
   return BigInt(match[1]!) * 100n + BigInt((match[2] ?? '').padEnd(2, '0') || '0');
 }
