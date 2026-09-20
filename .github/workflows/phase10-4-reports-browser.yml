@@ -66,7 +66,9 @@ jobs:
           PHASE104_REPORTS_BASE_URL: http://127.0.0.1:4184/
         run: npx playwright test tests-external/phase10-4-reports-pdf-browser.spec.cjs --reporter=line --workers=1
       - name: Dependency high-severity audit
-        run: |\n          node --test tests/npm-audit-high-certified-fallback.test.mjs\n          node scripts/npm-audit-high-certified-fallback.mjs
+        run: |
+          node --test tests/npm-audit-high-certified-fallback.test.mjs
+          node scripts/npm-audit-high-certified-fallback.mjs
       - name: Upload Phase 10.4 browser evidence
         if: always()
         uses: actions/upload-artifact@v4
