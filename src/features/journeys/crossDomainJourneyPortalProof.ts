@@ -122,7 +122,7 @@ export async function verifyCrossDomainClientPortalRead(
       throw new CrossDomainPortalProofError('SOURCE_DRIFT');
   }
   const observedDocs = new Set<string>();
-  const sourceDocs = new Set(source.documents.map(document => document.id));
+  const sourceDocs = new Map(source.documents.map(document => [document.id, document] as const));
   for (const document of view.documents) {
     allowedFields(document, CLIENT_SAFE_DOCUMENT_FIELDS);
     if (observedDocs.has(document.id)) throw new CrossDomainPortalProofError('UNRELATED_RECORD');
@@ -132,8 +132,15 @@ export async function verifyCrossDomainClientPortalRead(
       throw new CrossDomainPortalProofError('UNRELATED_RECORD');
     if (!granted(before.grants, 'transaction', document.transactionId, 'view', asOf))
       throw new CrossDomainPortalProofError('GRANT_MISSING');
-    if (document.transactionId === source.transaction.id && !sourceDocs.has(document.id))
-      throw new CrossDomainPortalProofError('SOURCE_DRIFT');
+    if (document.transactionId === source.transaction.id) {
+      const original = sourceDocs.get(document.id);
+      if (!original || original.workspace_id !== source.workspaceId ||
+          original.transaction_id !== document.transactionId ||
+          original.company_id !== document.companyId ||
+          original.title !== document.title || original.status !== document.status ||
+          original.mime_type !== document.mimeType || original.size_bytes !== document.sizeBytes)
+        throw new CrossDomainPortalProofError('SOURCE_DRIFT');
+    }
   }
   const observedReceipts = new Set<string>();
   const sourcePayments = new Map(source.payments.map(payment => [payment.id, payment] as const));
