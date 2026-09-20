@@ -16,7 +16,7 @@ const P = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
 const USER = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const NOW = new Date('2026-09-20T12:00:00.000Z');
 const PAID_AT = '2026-09-20T08:00:00.000Z';
-const grant = (type: 'company' | 'transaction', id: string, permissions: readonly ('view'|'view_finance')[] = ['view'], other: Record<string,unknown> = {}) => ({
+const grant = (type: 'company' | 'transaction', id: string, permissions: ClientPortalAuthorityContext['grants'][number]['permissions'] = ['view'], other: Record<string,unknown> = {}) => ({
   id: type === 'company' ? C : T, targetType: type, targetId: id,
   permissions, validFrom: null, validUntil: null, version: 1, ...other,
 });
