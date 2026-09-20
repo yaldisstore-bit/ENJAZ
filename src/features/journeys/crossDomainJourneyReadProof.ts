@@ -50,7 +50,11 @@ async function limited<T extends 'workflow_instances' | 'transaction_followups' 
     limit: PAGE_LIMIT,
   });
   // An incomplete page must never be mistaken for proof of an exhaustive journey.
-  if (page.hasMore || page.items.length > PAGE_LIMIT) throw new CrossDomainJourneyReadError('CAPACITY');
+  if (page.hasMore || page.items.length > PAGE_LIMIT ||
+      (page.total !== null && page.total !== page.items.length))
+    throw new CrossDomainJourneyReadError('CAPACITY');
+  if (new Set(page.items.map(item => item.id)).size !== page.items.length)
+    throw new CrossDomainJourneyReadError('LINK_DRIFT');
   return Object.freeze([...page.items]);
 }
 
@@ -59,10 +63,13 @@ function checkLinks(
   workspaceId: string,
   company: RowOf<'companies'>,
   transaction: RowOf<'transactions'>,
+  companyKey: string,
+  transactionKey: string,
 ): void {
   assertWorkspace(company, workspaceId);
   assertWorkspace(transaction, workspaceId);
-  if (layer.scope.workspaceId !== workspaceId || company.deleted_at !== null ||
+  if (layer.scope.workspaceId !== workspaceId || company.id !== companyKey ||
+      transaction.id !== transactionKey || company.deleted_at !== null ||
       company.merged_into_id !== null || transaction.deleted_at !== null ||
       transaction.company_id !== company.id) throw new CrossDomainJourneyReadError('LINK_DRIFT');
 }
@@ -79,16 +86,17 @@ export async function loadCrossDomainJourneyReadProof(
   companyId: string,
   transactionId: string,
 ): Promise<CrossDomainJourneyReadProof> {
+  const userKey = requiredId(userId);
   const companyKey = requiredId(companyId);
   const transactionKey = requiredId(transactionId);
-  const workspaceId = await factory.resolveWorkspaceId(requiredId(userId));
+  const workspaceId = await factory.resolveWorkspaceId(userKey);
   if (!workspaceId) throw new CrossDomainJourneyReadError('NO_WORKSPACE');
   const layer = factory.forWorkspace(workspaceId);
   const [company, transaction] = await Promise.all([
     layer.companies.getById(companyKey), layer.transactions.getById(transactionKey),
   ]);
   if (!company || !transaction) throw new CrossDomainJourneyReadError('NOT_FOUND');
-  checkLinks(layer, workspaceId, company, transaction);
+  checkLinks(layer, workspaceId, company, transaction, companyKey, transactionKey);
 
   const [procedures, followups, payments, documents] = await Promise.all([
     limited(layer.workflowInstances, 'transaction_id', transactionKey),
@@ -125,13 +133,13 @@ export async function loadCrossDomainJourneyReadProof(
   }
 
   const [currentWorkspaceId, currentCompany, currentTransaction] = await Promise.all([
-    factory.resolveWorkspaceId(userId),
+    factory.resolveWorkspaceId(userKey),
     layer.companies.getById(companyKey),
     layer.transactions.getById(transactionKey),
   ]);
   if (currentWorkspaceId !== workspaceId || !currentCompany || !currentTransaction)
     throw new CrossDomainJourneyReadError('CHANGED');
-  checkLinks(layer, workspaceId, currentCompany, currentTransaction);
+  checkLinks(layer, workspaceId, currentCompany, currentTransaction, companyKey, transactionKey);
   if (currentCompany.updated_at !== company.updated_at ||
       currentTransaction.updated_at !== transaction.updated_at ||
       currentTransaction.company_id !== transaction.company_id)
