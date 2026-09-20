@@ -18,6 +18,7 @@ type FixtureOptions = {
   collections?: Record<string, readonly Record<string, unknown>[]>;
   truncated?: string;
   inconsistentTotal?: string;
+  unknownTotal?: string;
   mutateOnRecheck?: boolean;
   changeWorkspaceOnRecheck?: boolean;
 };
@@ -47,7 +48,7 @@ function fixture(options: FixtureOptions = {}) {
       assert.equal(request.filters.length, 1);
       const rows = collections[kind] ?? [];
       return { items: rows, hasMore: options.truncated === kind, offset: 0, limit: 100,
-        total: rows.length + (options.inconsistentTotal === kind ? 1 : 0) };
+        total: options.unknownTotal === kind ? null : rows.length + (options.inconsistentTotal === kind ? 1 : 0) };
     },
   });
   const layer = {
@@ -183,6 +184,15 @@ test('A2 never treats a truncated domain page as full journey evidence', async (
   for (const kind of ['procedures', 'followups', 'payments', 'documents', 'reversals']) {
     const collections = { payments: [{ id: P, workspace_id: W, company_id: C, transaction_id: T }] };
     await assert.rejects(loadCrossDomainJourneyReadProof(fixture({ collections, truncated: kind }).factory, U, C, T), expectReason('CAPACITY'));
+  }
+});
+
+test('A2 refuses missing exact source totals rather than asserting an unverified complete read', async () => {
+  for (const kind of ['procedures','followups','payments','documents','reversals']) {
+    const collections={payments:[{id:P,workspace_id:W,company_id:C,transaction_id:T}]};
+    await assert.rejects(loadCrossDomainJourneyReadProof(
+      fixture({collections,unknownTotal:kind}).factory,U,C,T,
+    ),expectReason('CAPACITY'));
   }
 });
 
