@@ -54,7 +54,9 @@ export async function verifyCrossDomainOperationsRead(
     readers.finance.loadContext(ws),
   ]);
   if (field.authority !== 'field_assignments_visits_evidence_receipts' ||
-      field.transactionWriteAuthority !== 'none' || field.financeWriteAuthority !== 'none')
+      field.transactionWriteAuthority !== 'none' || field.financeWriteAuthority !== 'none' ||
+      field.workflowWriteAuthority !== 'existing_workflow_rpc_only' ||
+      field.automationWriteAuthority !== 'existing_automation_rpc_only')
     throw new CrossDomainOperationsProofError('FIELD_AUTHORITY');
   if (governance.companyId !== company)
     throw new CrossDomainOperationsProofError('GOVERNANCE_LINK_DRIFT');
