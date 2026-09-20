@@ -62,6 +62,8 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 13.1 — Read-only Legacy Snapshot Intake: ✅ CLOSED — A1 10/10 + A2 10/10 + A3 13/13 + PR 81/81 + exact-main 39/39 + cumulative Real Browser + Pages + Live External; 13.2 AUTHORIZED_NEXT.**
 - **Phase 13.2 — Normalize & Map ✅ CLOSED — A1 12/12 + A2 10/10 + A3 14/14 + PR 82/82 + exact-main 40/40 + Real Browser + Pages + Live External; Phase 13.3 AUTHORIZED_NEXT.**
 - **Phase 13.3 — Ordered Import ✅ CLOSED — A1 + A2 + A3 CERTIFIED; authenticated Real Cloud 23/23; PR #211 83/83; exact-main 43/43; Real Browser + deployed-live PASS; Phase 13.4 AUTHORIZED_NEXT.**
+- **Phase 13.4 — Reconciliation ✅ CLOSED** — read-only A2/A3 installed with canonical-owner authority, independent hosted Auth/RLS zero-residue certificate, PR #218 formal closure; preservation of Phase 13.4 is checked by the 13.5 gate.
+- **Phase 13.5 — Import Destruction Gate ✅ CLOSED** — formal closure proposal in PR #223 remains subject to its own exact-head and post-merge gates; Phase 14.1 is not started.
 
 ## Phase 13.3 — شهادة الإغلاق
 
@@ -77,7 +79,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - state: [`docs/PHASE13_3_STATE.json`](docs/PHASE13_3_STATE.json).
 - A3 Real Cloud evidence: [`docs/PHASE13_3_A3_EVIDENCE.md`](docs/PHASE13_3_A3_EVIDENCE.md).
 
-## Phase 13.4 — العمل الحالي
+## Phase 13.4 — شهادة الإغلاق
 
 - exact predecessor: Phase 13.3 formal closure merge `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`; **43/43 exact-main SUCCESS**.
 - **A1 — read-only reconciliation expectation plan: CERTIFIED / MERGED** via PR #213, merge `03934f9a07746096eee9784b8832f5f302ffd58a`.
