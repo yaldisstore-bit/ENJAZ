@@ -5,6 +5,7 @@ import { checkLinkedFollowup } from './phase14-1-a2-j05-linked-followup-extensio
 import { checkLinkedFinance } from './phase14-1-a2-j06-linked-finance-extension.mjs';
 import { checkLinkedDocument } from './phase14-1-a2-j07-linked-document-extension.mjs';
 import { checkLinkedClientPortal } from './phase14-1-a2-j08-client-auth-gateway-extension.mjs';
+import { checkLinkedArchive } from './phase14-1-a2-j09-linked-archive-extension.mjs';
 
 // One authenticated J01-J07 linked journey in the disposable lab; NOT eleven-domain acceptance.
 // The test refuses production/unknown targets and requires an entirely empty disposable lab.
@@ -33,8 +34,8 @@ const admin = createClient(url, secret, clientConfig);
 const client = () => createClient(url, key, clientConfig);
 const users = [];
 const storagePaths = new Set();
-const report = { schema: 'enjaz.phase14-1.a2.j08-linked-real-cloud.v1', projectRef: LAB,
-  productionProjectRef: PROD, scope: ['J01_COMPANY','J02_TRANSACTION','J03_PROCEDURE','J04_FIELD','J05_FOLLOWUP','J06_PAYMENT','J07_DOCUMENT','J08_CLIENT_PORTAL'],
+const report = { schema: 'enjaz.phase14-1.a2.j09-linked-real-cloud.v1', projectRef: LAB,
+  productionProjectRef: PROD, scope: ['J01_COMPANY','J02_TRANSACTION','J03_PROCEDURE','J04_FIELD','J05_FOLLOWUP','J06_PAYMENT','J07_DOCUMENT','J08_CLIENT_PORTAL','J09_ARCHIVE'],
   completeElevenDomainA2: false, phase14_1Closed: false, passed: false,
   cleanupPassed: false, checks: [], cleanup: [], startedAt: new Date().toISOString() };
 const verify = (ok, code) => {
@@ -291,6 +292,9 @@ async function run() {
     transactionId:tx.id,companyId:ownerCompany.data.id,
     publishableKey:key,storagePaths,readCount,verify});
   await checkLinkedClientPortal({owner,outsider,admin,makeUser,workspaceId:ws,
+    transactionId:tx.id,companyId:ownerCompany.data.id,
+    documentId:j07.documentId,readCount,verify});
+  await checkLinkedArchive({owner,outsider,fresh,workspaceId:ws,
     transactionId:tx.id,companyId:ownerCompany.data.id,
     documentId:j07.documentId,readCount,verify});
 }
