@@ -5,8 +5,16 @@ on:
     branches: ['phase14-1-*']
     paths:
       - 'tests-external/phase14-1-a3-preauth-surface.spec.cjs'
+      - 'tests/phase14-1-a3-preauth-safety.test.mjs'
+      - 'docs/PHASE14_1_STATE.json'
       - '.github/workflows/phase14-1-a3-preauth-browser.yml'
-      - 'src/ui-r2/client-portal/**'
+      - 'r2-production-test.html'
+      - 'vite.config.ts'
+      - 'vite.r2-production-test.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/core/auth/**'
+      - 'src/ui-r2/**'
       - 'src/features/journeys/**'
   pull_request:
     branches: [main]
@@ -32,6 +40,8 @@ jobs:
           cache: npm
       - name: Locked dependencies
         run: npm ci --no-audit --no-fund
+      - name: Fail-closed preparatory safety contract
+        run: node --test tests/phase14-1-a3-preauth-safety.test.mjs
       - name: Isolated public pre-auth portal build, no production URL
         run: npm run build -- --base=/
       - name: Isolated deterministic staff bridge fixture build

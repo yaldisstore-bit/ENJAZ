@@ -14,6 +14,7 @@
   "a1Status": "SOURCE_CERTIFIED_EXACT_PR_HEAD",
   "a2RealCloudStatus": "NOT_STARTED",
   "a3RealBrowserStatus": "NOT_STARTED",
+  "a3PreparatoryBrowserSafetyGuard": "ACTIVE_FAIL_CLOSED_NO_SECRETS_NO_PRODUCTION",
   "phase14_2Allowed": false,
   "successorStatus": "LOCKED",
   "exitGatePassed": false,

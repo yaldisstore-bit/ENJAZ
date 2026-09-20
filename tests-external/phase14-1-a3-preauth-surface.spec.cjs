@@ -19,7 +19,7 @@ async function noOverflow(page) {
 
 for (const width of widths) {
   const height = width === 1280 ? 900 : width === 430 ? 932 : width === 390 ? 844 : width === 360 ? 740 : 700;
-  test(`A3 preparatory staff fixture: protected home, account and executive navigation at ${width}px`, async ({ browser }) => {
+  test(`A3 preparatory staff fixture: protected home, account, history-back and executive navigation at ${width}px`, async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1 });
     try {
       const page = await context.newPage();
@@ -39,13 +39,27 @@ for (const width of widths) {
       await account.click();
       await expect(page.locator('[data-account-session="protected"]')).toBeVisible();
       await noOverflow(page);
-      await page.keyboard.press('Escape');
+
+      // Browser history is the closest deterministic Chromium boundary to the
+      // Android system Back action. The dedicated Android/IME certificate is
+      // still a separate A3 requirement.
+      await page.goBack();
       await expect(page.locator('[data-overlay="account"]')).toHaveCount(0);
+      await expect(page.locator('[data-r2-live="home"]')).toBeVisible();
+
+      const transactions = page.getByRole('button', { name: /فتح المعاملات/ });
+      await transactions.click();
+      await expect(page.locator('[data-r2-runtime-mode="live"][data-destination="transactions"]')).toBeVisible();
+      await page.goBack();
+      await expect(page.locator('[data-r2-live="home"]')).toBeVisible();
 
       const executive = page.getByRole('button', { name: 'الملخص التنفيذي' });
       await expect(executive).toBeVisible();
       await executive.click();
       await expect(page.locator('[data-r2-live="executive-briefing"]')).toBeVisible();
+      await noOverflow(page);
+      await page.getByRole('button', { name: 'العودة للرئيسية' }).click();
+      await expect(page.locator('[data-r2-live="home"]')).toBeVisible();
       await noOverflow(page);
       expect(errors).toEqual([]);
     } finally {
