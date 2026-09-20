@@ -26,7 +26,7 @@ export interface CrossDomainFinanceReadProof {
 
 function cents(value: number): bigint {
   if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0 ||
-      !Number.isSafeInteger(Math.round(value * 100)) ||
+      !Number.isSafeInteger(Math.round(value * 100)) || Math.round(value * 100) < 1 ||
       !Number.isFinite(value * 100) ||
       Math.abs(value * 100 - Math.round(value * 100)) > 0.0000001)
     throw new CrossDomainFinanceProofError('AMOUNT_PRECISION');
