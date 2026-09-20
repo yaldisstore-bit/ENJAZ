@@ -1,0 +1,38 @@
+name: ENJAZ Phase 14.1 — A2 Internal Linked Read Proof
+
+on:
+  push:
+    branches:
+      - 'phase14-1-*'
+    paths:
+      - 'src/features/journeys/**'
+      - 'tests/phase14-1-a2-*'
+      - '.github/workflows/phase14-1-a2-linked-read.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linked-read:
+    name: A2 scoped linked read / negative drift checks — NOT Real Cloud
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Fail-closed linked source and read-only proof tests
+        run: node --experimental-strip-types --test tests/phase14-1-a2-linked-read.test.ts
+      - name: Typecheck
+        run: npm run typecheck
+      - name: No production bundle budget expansion
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
