@@ -14,6 +14,11 @@ Branch: `phase14-1-a2-linked-read-proof`. This step follows merged A1 PR #224, e
 
 
 
+
+## Field, governance and retainer continuity (existing read gateways only)
+
+`src/features/journeys/crossDomainJourneyOperationsProof.ts` uses the existing `loadContext` methods for field operations, governance and finance, then the existing engagement-contract `list` method for actual commercial engagements linked to the selected company and transaction. It verifies assignment→visit transaction identity, detects orphan and duplicate visits, refuses any field gateway claiming new finance/transaction write authority, verifies governance company lineage, rejects a retainer belonging to a different company, and rejects contract workspace/engagement mismatch, duplicate revisions or impossible supersession. It never creates/changes assignments, approval, signatures, finance or representation and returns no authorization to perform any of those actions. Seven source-level tests are included. This read evidence does not prove field offline replay or real user role enforcement; those remain genuine isolated-hosted A2 and mobile A3 gates.
+
 ## Client-visible boundary (independent portal identity required)
 
 `src/features/journeys/crossDomainJourneyPortalProof.ts` accepts the existing `ClientPortalGateway` for a **separately authenticated client principal**, NOT an internal staff gateway or an inferred client permission. Its read-only crosscheck compares the portal's explicit, currently valid company/transaction `view` and transaction `view_finance` grants to the existing client-safe projection, rejects internal fields, orphan document/receipt links, rows absent from the internal source, duplicate observations and changed authority between two reads. It returns counts and a target-visible flag only; it never returns internal company records or grants client access. Resource-share-specific server filtering, permission enforcement and revocation are still dependent on the authoritative portal RPC; this crosscheck cannot certify them from mocks. Independent 8-case adversarial source tests exercise these negative boundaries. Actual signed-in portal/client isolation, published-live and 5-width UI remain an unpassed separate A2/A3 requirement.
