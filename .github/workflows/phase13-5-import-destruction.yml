@@ -9,6 +9,9 @@ on:
       - 'docs/PHASE13_5_*'
       - 'scripts/phase13-5-*'
       - 'tests/phase13-5-*'
+      - 'scripts/npm-audit-high-certified-fallback.mjs'
+      - 'tests/npm-audit-high-certified-fallback.test.mjs'
+      - 'package-lock.json'
       - '.github/workflows/phase13-5-import-destruction.yml'
       - 'README.md'
       - 'docs/ENJAZ_MASTER_ROADMAP.md'
@@ -94,7 +97,9 @@ jobs:
           npm run build -- --base=/
           npm run audit:dist:budget
       - name: Dependency high-severity audit
-        run: npm audit --audit-level=high
+        run: |
+          node --test tests/npm-audit-high-certified-fallback.test.mjs
+          node scripts/npm-audit-high-certified-fallback.mjs
 
   phase13-5-a2-postgres:
     name: A2 disposable PostgreSQL destructive execution

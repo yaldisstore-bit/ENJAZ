@@ -71,7 +71,9 @@ jobs:
       - name: Production build and frozen budgets
         run: npm run build && npm run audit:dist:budget
       - name: Dependency high-severity audit
-        run: npm audit --audit-level=high
+        run: |
+          node --test tests/npm-audit-high-certified-fallback.test.mjs
+          node scripts/npm-audit-high-certified-fallback.mjs
 
   portal-browser:
     name: Portal shell / Real Chromium / 1280 + 430 + 390 + 360 + 320
