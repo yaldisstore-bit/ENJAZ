@@ -21,6 +21,8 @@ concurrency:
 
 jobs:
   real-cloud:
+    # QUARANTINED: only isolated-hosted fixture tests may run.
+    if: ${{ false }}
     # QUARANTINED: production must never receive fixture mutations.
     if: ${{ false }}
     name: Auth / Workspace / Idempotency / Rate Limit / Provider Isolation / Zero Residue
