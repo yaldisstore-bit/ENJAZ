@@ -19,6 +19,8 @@ concurrency:
 
 jobs:
   real-cloud:
+    # QUARANTINED: legacy fixture runner must not mutate production.
+    if: ${{ false }}
     name: Auth / Empty-Store Fail-Closed / Workspace Isolation / Zero Mutation / Zero Residue
     runs-on: ubuntu-24.04
     timeout-minutes: 20

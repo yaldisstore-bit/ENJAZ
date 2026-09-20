@@ -18,6 +18,7 @@ concurrency:
 
 jobs:
   real-cloud-intake-followup:
+    if: ${{ false }}
     name: Secure bearer / Client Portal / isolation / audit / zero residue
     runs-on: ubuntu-24.04
     timeout-minutes: 25

@@ -12,7 +12,8 @@ concurrency:
 
 jobs:
   real-cloud-storage-e2e:
-    if: github.ref == 'refs/heads/phase10-1-document-vault'
+    # QUARANTINED: privileged fixture E2E targets production. Use isolated full-schema project only.
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:

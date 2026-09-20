@@ -18,6 +18,8 @@ concurrency:
 
 jobs:
   real-cloud:
+    # QUARANTINED: real Auth fixture/privileged runner must not touch production.
+    if: ${{ false }}
     name: Fresh Auth / M8 Injection+No-Fabrication / M9 Approval Bypass Replay / Zero Residue
     runs-on: ubuntu-24.04
     timeout-minutes: 35

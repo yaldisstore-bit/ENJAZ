@@ -19,6 +19,8 @@ concurrency:
 
 jobs:
   real-cloud-unified-attention:
+    # QUARANTINED: privileged fixture tests must not run against production.
+    if: ${{ false }}
     name: Fresh workspace / durable projection / isolation / stale recovery / zero residue
     runs-on: ubuntu-24.04
     timeout-minutes: 25
