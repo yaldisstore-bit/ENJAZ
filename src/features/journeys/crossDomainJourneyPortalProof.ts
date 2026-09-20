@@ -118,20 +118,25 @@ export async function verifyCrossDomainClientPortalRead(
       throw new CrossDomainPortalProofError('SOURCE_DRIFT');
   }
   const observedReceipts = new Set<string>();
-  const sourcePayments = new Set(source.payments.map(payment => payment.id));
+  const sourcePayments = new Map(source.payments.map(payment => [payment.id, payment] as const));
   for (const receipt of view.receipts) {
     allowedFields(receipt, CLIENT_SAFE_RECEIPT_FIELDS);
     if (observedReceipts.has(receipt.paymentId))
       throw new CrossDomainPortalProofError('UNRELATED_RECORD');
     observedReceipts.add(receipt.paymentId);
     const transaction = transactionById.get(receipt.transactionId);
-    if (!transaction || transaction.companyId !== receipt.companyId)
+    // The authoritative portal SQL permits individually shared receipts with
+    // view_finance even if the transaction's general view grant is absent.
+    if (transaction && transaction.companyId !== receipt.companyId)
       throw new CrossDomainPortalProofError('UNRELATED_RECORD');
-    if (!granted(before.grants, 'transaction', receipt.transactionId, 'view', asOf) ||
-        !granted(before.grants, 'transaction', receipt.transactionId, 'view_finance', asOf))
+    if (!granted(before.grants, 'transaction', receipt.transactionId, 'view_finance', asOf))
       throw new CrossDomainPortalProofError('GRANT_MISSING');
-    if (receipt.transactionId === source.transaction.id && !sourcePayments.has(receipt.paymentId))
-      throw new CrossDomainPortalProofError('SOURCE_DRIFT');
+    if (receipt.transactionId === source.transaction.id) {
+      const payment = sourcePayments.get(receipt.paymentId);
+      if (!payment || payment.company_id !== receipt.companyId ||
+          payment.transaction_id !== receipt.transactionId)
+        throw new CrossDomainPortalProofError('SOURCE_DRIFT');
+    }
   }
   const after = await portal.authority(source.workspaceId);
   if (after.workspaceId !== before.workspaceId || after.principalId !== before.principalId ||
