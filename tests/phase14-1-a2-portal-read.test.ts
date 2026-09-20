@@ -247,6 +247,50 @@ test('A2 revoked, changed or malformed grant evidence between reads fails closed
   ),reason('AUTHORITY_DRIFT'));
 });
 
+test('A2 client requests require their exact transaction capability, not a generic view grant',async()=>{
+  const requestId='11111111-1111-4111-8111-111111111111';
+  const shareId='22222222-2222-4222-8222-222222222222';
+  const types=[
+    ['document','upload_requested_document',null],
+    ['approval','approve_document',shareId],
+    ['information','message',null],
+    ['appointment','confirm_appointment',null],
+    ['payment','view_finance',null],
+  ] as const;
+  for (const [requestType, permission, resourceShareId] of types) {
+    const entry={id:requestId,transactionId:T,requestType,title:'Client request',
+      instructions:null,dueAt:null,status:'open',resourceShareId,
+      createdAt:'2026-09-20T08:00:00Z',updatedAt:'2026-09-20T08:00:00Z'};
+    const model={...baseModel(),companies:[],transactions:[],documents:[],receipts:[],requests:[entry]};
+    const scoped=authority([grant('transaction',T,[permission])]);
+    const proof=await verifyCrossDomainClientPortalRead(source(),gateway(model,scoped),NOW);
+    assert.equal(proof.targetTransactionVisible,false);
+    await assert.rejects(verifyCrossDomainClientPortalRead(source(),gateway(model,authority([
+      grant('transaction',T,['view']),
+    ])),NOW),reason('GRANT_MISSING'));
+    await assert.rejects(verifyCrossDomainClientPortalRead(source(),gateway(model,authority([])),NOW),reason('GRANT_MISSING'));
+  }
+});
+
+test('A2 rejects duplicated, malformed and internal-field client request projections',async()=>{
+  const entry={id:'11111111-1111-4111-8111-111111111111',transactionId:T,requestType:'document' as const,
+    title:'Client request',instructions:null,dueAt:null,status:'open',resourceShareId:null,
+    createdAt:'2026-09-20T08:00:00Z',updatedAt:'2026-09-20T08:00:00Z'};
+  const grants=authority([grant('transaction',T,['upload_requested_document'])]);
+  const base={...baseModel(),companies:[],transactions:[],documents:[],receipts:[]};
+  for (const requests of [
+    [entry,entry], [{...entry,internalNotes:'private'}],
+    [{...entry,resourceShareId:D}],
+    [{...entry,requestType:'approval',resourceShareId:null}],
+    [{...entry,requestType:'invalid'}],
+  ]) {
+    await assert.rejects(verifyCrossDomainClientPortalRead(source(),gateway(
+      {...base,requests} as ClientPortalReadModel,grants,
+    ),NOW),error => error instanceof CrossDomainPortalProofError &&
+      ['UNRELATED_RECORD','FORBIDDEN_FIELD'].includes(error.reason));
+  }
+});
+
 test('A2 empty portal projection does not prove access; no internal data are returned',async()=>{
   const blank={...baseModel(),companies:[],transactions:[],documents:[],receipts:[]};
   const proof=await verifyCrossDomainClientPortalRead(source(),gateway(blank,authority([])),NOW);
