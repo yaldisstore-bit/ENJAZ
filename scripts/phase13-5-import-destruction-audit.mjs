@@ -184,7 +184,11 @@ check('quality_tracks',
 check('kickoff',
   kickoff.includes('A green source branch alone can never close this phase')&&
   kickoff.includes('Production may be inspected read-only but is forbidden as a destructive target')&&
-  kickoff.includes('88/88')&&kickoff.includes('42/42'));
+  (closed?
+    kickoff.includes('A1+A2+A3, implementation and closure PR exact-head')&&
+    kickoff.includes('36/36')&&
+    kickoff.includes('only after formal closure merge'):
+    kickoff.includes('88/88')&&kickoff.includes('42/42')));
 check('roadmap',
   roadmap.includes(closed?
     '## 13.5 — Import Destruction Gate ✅ CLOSED / A1+A2+A3 + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED':
