@@ -1,0 +1,83 @@
+{
+  "schema": "enjaz.phase14-1.a2.isolated-lab-structural-evidence.v1",
+  "observedOn": "2026-09-20",
+  "productionRef": "juzxriirhkuzviwnhkbd",
+  "labRef": "nqhgaukutkyvfumbtbtg",
+  "labKind": "disposable_project",
+  "isolationIndependentlyVerified": true,
+  "productionWasReadOnly": true,
+  "labResetWasGuarded": true,
+  "schemaReadiness": "PASS_FULL_SCHEMA_ISOLATED_LAB_STRUCTURAL_ONLY",
+  "cloudAuthenticationCertificate": false,
+  "destructiveTestAuthorized": false,
+  "publicInventory": {
+    "tables": 124,
+    "rlsEnabledTables": 124,
+    "columns": 1486,
+    "indexes": 686,
+    "policies": 161,
+    "triggers": 64,
+    "constraints": 1301,
+    "fingerprints": {
+      "tables": "a8ef3f38cc055c2af7529116e81a136f",
+      "columns": "6ac920382ed687aeac826c6ece34a8b7",
+      "indexes": "86e0da0a128e5488d8f788385b0fdc99",
+      "policies": "34744b4959b8a34bb88ec6d0919c2f20",
+      "triggers": "103f28935ee06e29d6949573effb406a",
+      "constraints": "3a8ad83b1753b5d11bc75258c516160c"
+    }
+  },
+  "requiredMinimumInventory": {
+    "tableCount": 23,
+    "tablesFound": 23,
+    "tablesWithRls": 23,
+    "rpcCount": 13,
+    "rpcsFound": 13
+  },
+  "zeroResidueSnapshot": {
+    "authUsers": 0,
+    "publicBusinessRows": 0,
+    "storageBuckets": 0,
+    "storageObjects": 0
+  },
+  "productionLabFunctionDrift": {
+    "productionPublicFunctions": 201,
+    "labPublicFunctions": 200,
+    "productionPrivateFunctions": 238,
+    "labPrivateFunctions": 236,
+    "missingInLab": [
+      "public.get_scheduling_calendar_v1(uuid,timestamptz,timestamptz,uuid,uuid,uuid,text,integer)",
+      "private.get_scheduling_calendar_v1_impl(uuid,timestamptz,timestamptz,uuid,uuid,uuid,text,integer)",
+      "private.bootstrap_auth_user()"
+    ],
+    "semanticallyDifferentPublicFunctions": [
+      "complete_document_extraction_v1",
+      "fail_document_extraction_v1",
+      "get_document_intelligence_v1",
+      "mark_document_extraction_started_v1",
+      "prepare_intake_file_upload_v1"
+    ],
+    "interpretation": "Production contains untracked function drift. This evidence does not silently certify exact function parity and does not authorize production mutation."
+  },
+  "advisorSnapshot": {
+    "security": {
+      "rlsEnabledNoPolicyInfo": 19,
+      "anonSecurityDefinerWarnings": 2,
+      "authenticatedSecurityDefinerWarnings": 43
+    },
+    "performance": {
+      "unindexedForeignKeyInfo": 28,
+      "unusedIndexInfo": 52,
+      "duplicateIndexWarnings": 1
+    },
+    "interpretation": "Advisor findings match the existing production posture and require separate intentional remediation; they are not changed by this structural certificate."
+  },
+  "remainingGates": [
+    "real Auth JWTs for owner/member/denied role/outsider/client",
+    "eleven-domain authenticated durable journey and negative checks",
+    "duplicate/replay, money reversal, offline and unknown-outcome checks",
+    "zero-residue cleanup after authenticated fixtures",
+    "five-width real Chromium and published portal verification",
+    "exact-head merge/main/live closure"
+  ]
+}

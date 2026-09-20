@@ -1,0 +1,71 @@
+name: ENJAZ Phase 14.1 — Isolated Auth smoke certificate
+
+on:
+  push:
+    branches:
+      - 'phase14-1-*'
+    paths:
+      - 'scripts/phase13-4-a2-real-cloud-e2e.mjs'
+      - 'docs/PHASE14_1_A2_ISOLATED_LAB_STRUCTURAL_EVIDENCE.json'
+      - '.github/workflows/phase14-1-a2-isolated-auth-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase141-a2-auth-smoke
+  cancel-in-progress: false
+
+jobs:
+  isolated-auth-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: phase13-4-isolated-real-cloud
+    env:
+      PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd
+      ENJAZ_A2_BRANCH_REF: nqhgaukutkyvfumbtbtg
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+      ENJAZ_A2_ISOLATED_BRANCH_CONFIRM: YES
+      SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail closed to the disposable lab before any network call
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${SUPABASE_URL}" = "https://${ENJAZ_A2_BRANCH_REF}.supabase.co"
+          test "${SUPABASE_URL}" != "https://${PRODUCTION_PROJECT_REF}.supabase.co"
+          test -n "${SUPABASE_PUBLISHABLE_KEY}"
+          test -n "${SUPABASE_SECRET_KEY}"
+          test "${SUPABASE_SECRET_KEY}" != "${SUPABASE_PUBLISHABLE_KEY}"
+          [[ "${SUPABASE_SECRET_KEY}" != sb_publishable_* ]]
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run real Auth JWT smoke and cleanup certificate
+        run: node scripts/phase13-4-a2-real-cloud-e2e.mjs
+      - name: Verify evidence is isolated and clean
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const p = 'artifacts/phase13-4-a2-real-cloud/evidence.json';
+          const e = JSON.parse(fs.readFileSync(p, 'utf8'));
+          if (e.projectRef !== 'nqhgaukutkyvfumbtbtg' || e.productionProjectRef === e.projectRef) throw new Error('wrong target');
+          if (e.passed !== true || e.cleanupPassed !== true) throw new Error('isolated Auth smoke failed');
+          console.log('PASS isolated real Auth smoke with zero residue');
+          NODE
+      - name: Upload Auth smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase141-a2-isolated-auth-smoke
+          path: artifacts/phase13-4-a2-real-cloud/evidence.json
+          if-no-files-found: error
+          retention-days: 30
