@@ -38,6 +38,24 @@ function allowedFields(value: object, allowed: readonly string[]): void {
     throw new CrossDomainPortalProofError('FORBIDDEN_FIELD');
 }
 
+// The portal SQL emits numeric(18,2) amounts as decimal text. Compare in cents
+// without accepting rounded, unsafe or malformed values from either read path.
+function strictPaymentCents(amount: number): bigint {
+  const scaled = amount * 100;
+  if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0 ||
+      !Number.isFinite(scaled) || !Number.isSafeInteger(Math.round(scaled)) ||
+      Math.abs(scaled - Math.round(scaled)) > 0.0000001)
+    throw new CrossDomainPortalProofError('SOURCE_DRIFT');
+  return BigInt(Math.round(scaled));
+}
+
+function strictReceiptCents(amount: string): bigint {
+  if (typeof amount !== 'string') throw new CrossDomainPortalProofError('SOURCE_DRIFT');
+  const match = /^(0|[1-9]\\d{0,15})(?:\\.(\\d{1,2}))?$/.exec(amount);
+  if (!match) throw new CrossDomainPortalProofError('SOURCE_DRIFT');
+  return BigInt(match[1]!) * 100n + BigInt((match[2] ?? '').padEnd(2, '0') || '0');
+}
+
 function activeGrant(grant: ClientPortalAuthorityGrant, now: number): boolean {
   const from = grant.validFrom === null ? null : Date.parse(grant.validFrom);
   const until = grant.validUntil === null ? null : Date.parse(grant.validUntil);
@@ -134,7 +152,10 @@ export async function verifyCrossDomainClientPortalRead(
     if (receipt.transactionId === source.transaction.id) {
       const payment = sourcePayments.get(receipt.paymentId);
       if (!payment || payment.company_id !== receipt.companyId ||
-          payment.transaction_id !== receipt.transactionId)
+          payment.transaction_id !== receipt.transactionId ||
+          payment.receipt_ref !== receipt.receiptRef ||
+          payment.method !== receipt.method || payment.status !== receipt.status ||
+          strictPaymentCents(payment.amount) !== strictReceiptCents(receipt.amount))
         throw new CrossDomainPortalProofError('SOURCE_DRIFT');
     }
   }
