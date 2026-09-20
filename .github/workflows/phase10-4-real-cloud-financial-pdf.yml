@@ -17,6 +17,10 @@ concurrency:
 
 jobs:
   real-cloud-financial-pdf:
+    # FAIL-CLOSED QUARANTINE: this legacy test pins production and creates
+    # users/workspaces. Never run it automatically or manually until the
+    # script/credentials are migrated to a verified isolated full-schema target.
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
