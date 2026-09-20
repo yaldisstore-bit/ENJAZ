@@ -24,6 +24,8 @@ concurrency:
 
 jobs:
   real-cloud:
+    # QUARANTINED: real Auth fixture/privileged runner must not touch production.
+    if: ${{ false }}
     name: Auth / Ordered Writes / Replay / Conflict / Atomic Rollback / Zero Residue
     runs-on: ubuntu-24.04
     timeout-minutes: 45
