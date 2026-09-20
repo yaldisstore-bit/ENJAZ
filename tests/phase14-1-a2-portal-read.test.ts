@@ -107,29 +107,29 @@ test('A2 expired and future-dated grants are denied; no implicit finance permiss
 });
 
 test('A2 rejects a document or receipt that references an unrelated transaction/company',async()=>{
-  const wrongDocument={...baseModel(),documents:[{...baseModel().documents[0],companyId:USER}]};
+  const wrongDocument={...baseModel(),documents:[{...baseModel().documents[0]!,companyId:USER}]};
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(wrongDocument),NOW,
   ),reason('UNRELATED_RECORD'));
-  const wrongReceipt={...baseModel(),receipts:[{...baseModel().receipts[0],transactionId:USER}]};
+  const wrongReceipt={...baseModel(),receipts:[{...baseModel().receipts[0]!,transactionId:USER}]};
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(wrongReceipt),NOW,
   ),reason('UNRELATED_RECORD'));
 });
 
 test('A2 rejects a portal record absent from the internal source instead of inventing a share',async()=>{
-  const document={...baseModel(),documents:[{...baseModel().documents[0],id:USER}]};
+  const document={...baseModel(),documents:[{...baseModel().documents[0]!,id:USER}]};
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(document),NOW,
   ),reason('SOURCE_DRIFT'));
-  const receipt={...baseModel(),receipts:[{...baseModel().receipts[0],paymentId:USER}]};
+  const receipt={...baseModel(),receipts:[{...baseModel().receipts[0]!,paymentId:USER}]};
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(receipt),NOW,
   ),reason('SOURCE_DRIFT'));
 });
 
 test('A2 projection rejects forbidden internal fields before returning an observation',async()=>{
-  const leaked={...baseModel(),companies:[{...baseModel().companies[0],internalNotes:'no'}]} as ClientPortalReadModel;
+  const leaked={...baseModel(),companies:[{...baseModel().companies[0]!,internalNotes:'no'}]} as unknown as ClientPortalReadModel;
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(leaked),NOW,
   ),reason('FORBIDDEN_FIELD'));
