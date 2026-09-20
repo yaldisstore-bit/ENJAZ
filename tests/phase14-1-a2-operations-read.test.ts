@@ -138,9 +138,16 @@ test('A2 duplicate and non-causal contract revisions are rejected; optional enga
     revisions:[revision(),revision({id:C,revision:3,supersedesRevision:1})],
   })),reason('CONTRACT_LINK_DRIFT'));
   const complete=await verifyCrossDomainOperationsRead(source(),gateway({
-    revisions:[revision({id:C,revision:2,supersedesRevision:1}),revision()],
+    revisions:[revision({id:C,revision:2,supersedesRevision:1}),revision({status:'superseded'})],
   }));
   assert.equal(complete.linkedContractRevisionCount,2);
+  await assert.rejects(verifyCrossDomainOperationsRead(source(),gateway({
+    revisions:[revision({status:'effective'}),revision({id:C,revision:2,supersedesRevision:1,status:'draft'})],
+  })),reason('CONTRACT_LINK_DRIFT'));
+  const formallySuperseded=await verifyCrossDomainOperationsRead(source(),gateway({
+    revisions:[revision({status:'superseded'}),revision({id:C,revision:2,supersedesRevision:1,status:'draft'})],
+  }));
+  assert.equal(formallySuperseded.linkedContractRevisionCount,2);
   const calls:string[]=[];
   const empty=await verifyCrossDomainOperationsRead(source(),gateway({
     finance:{engagements:[]},field:{assignments:[],visits:[]},calls,
