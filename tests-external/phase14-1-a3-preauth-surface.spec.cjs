@@ -92,3 +92,33 @@ for (const width of widths) {
     }
   });
 }
+
+for (const width of [430, 390, 360, 320]) {
+  test(`A3 preparatory touch emulation: staff remains navigable during network loss at ${width}px`, async ({ browser }) => {
+    const context = await browser.newContext({
+      viewport: { width, height: width === 430 ? 932 : width === 390 ? 844 : width === 360 ? 740 : 700 },
+      deviceScaleFactor: 2, isMobile: true, hasTouch: true,
+    });
+    try {
+      const page = await context.newPage();
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      await page.goto(new URL('r2-production-test.html?test=authenticated', staffBase).toString(), {
+        waitUntil: 'networkidle', timeout: 30_000,
+      });
+      await expect(page.locator('[data-r2-live="home"]')).toBeVisible();
+      await context.setOffline(true);
+      const executive = page.getByRole('button', { name: 'الملخص التنفيذي' });
+      await executive.tap();
+      await expect(page.locator('[data-r2-live="executive-briefing"]')).toBeVisible();
+      await noOverflow(page);
+      await context.setOffline(false);
+      await page.getByRole('button', { name: 'الحساب ومساحة العمل' }).tap();
+      await expect(page.locator('[data-account-session="protected"]')).toBeVisible();
+      await noOverflow(page);
+      expect(errors).toEqual([]);
+    } finally {
+      await context.close();
+    }
+  });
+}
