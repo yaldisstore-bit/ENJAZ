@@ -141,7 +141,7 @@ test('A2 revoked, changed or malformed grant evidence between reads fails closed
   ),reason('AUTHORITY_DRIFT'));
   await assert.rejects(verifyCrossDomainClientPortalRead(
     source(),gateway(baseModel(),authority([
-      grant('company',C,{ } as never),grant('transaction',T,['view','view_finance'],{validUntil:'invalid'}),
+      grant('company',C),grant('transaction',T,['view','view_finance'],{validUntil:'invalid'}),
     ])),NOW,
   ),reason('AUTHORITY_DRIFT'));
 });
