@@ -2,8 +2,9 @@ import { createClient } from '@supabase/supabase-js';
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { checkLinkedFollowup } from './phase14-1-a2-j05-linked-followup-extension.mjs';
+import { checkLinkedFinance } from './phase14-1-a2-j06-linked-finance-extension.mjs';
 
-// One authenticated J01-J05 linked journey in the disposable lab; NOT eleven-domain acceptance.
+// One authenticated J01-J06 linked journey in the disposable lab; NOT eleven-domain acceptance.
 // The test refuses production/unknown targets and requires an entirely empty disposable lab.
 const LAB = 'nqhgaukutkyvfumbtbtg';
 const PROD = 'juzxriirhkuzviwnhkbd';
@@ -29,8 +30,8 @@ const clientConfig = { auth: { persistSession: false, autoRefreshToken: false, d
 const admin = createClient(url, secret, clientConfig);
 const client = () => createClient(url, key, clientConfig);
 const users = [];
-const report = { schema: 'enjaz.phase14-1.a2.j05-linked-real-cloud.v1', projectRef: LAB,
-  productionProjectRef: PROD, scope: ['J01_COMPANY','J02_TRANSACTION','J03_PROCEDURE','J04_FIELD','J05_FOLLOWUP'],
+const report = { schema: 'enjaz.phase14-1.a2.j06-linked-real-cloud.v1', projectRef: LAB,
+  productionProjectRef: PROD, scope: ['J01_COMPANY','J02_TRANSACTION','J03_PROCEDURE','J04_FIELD','J05_FOLLOWUP','J06_PAYMENT'],
   completeElevenDomainA2: false, phase14_1Closed: false, passed: false,
   cleanupPassed: false, checks: [], cleanup: [], startedAt: new Date().toISOString() };
 const verify = (ok, code) => {
@@ -81,7 +82,7 @@ async function run() {
   const usersBefore = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (usersBefore.error || !usersBefore.data?.users) throw new Error('AUTH_BASELINE_DENIED');
   verify(usersBefore.data.users.length === 0 &&
-    (await Promise.all(['workspaces','companies','transactions','workflow_instances','field_assignments','field_visits','field_sync_receipts','transaction_followups'].map(x => readCount(x)))).every(x => x === 0),
+    (await Promise.all(['workspaces','companies','transactions','workflow_instances','field_assignments','field_visits','field_sync_receipts','transaction_followups','payments','payment_reversals'].map(x => readCount(x)))).every(x => x === 0),
     'EXCLUSIVE_EMPTY_LAB_BEFORE_J03');
 
   const owner = await makeUser('owner');
@@ -278,6 +279,8 @@ async function run() {
 
   await checkLinkedFollowup({owner,outsider,fresh,workspaceId:ws,
     transactionId:tx.id,readCount,verify});
+  await checkLinkedFinance({owner,outsider,fresh,workspaceId:ws,
+    transactionId:tx.id,companyId:ownerCompany.data.id,readCount,verify});
 }
 async function cleanup() {
   let clean = true;
@@ -314,7 +317,8 @@ async function cleanup() {
     if (after.error || after.data?.users?.some(u=>u.user_metadata?.enjaz_test_marker===MARKER) ||
         (await Promise.all(['workspaces','companies','transactions','government_entities',
           'government_procedures','workflow_templates','workflow_instances','workflow_transition_events',
-          'field_assignments','field_visits','field_sync_receipts','transaction_followups']
+          'field_assignments','field_visits','field_sync_receipts','transaction_followups',
+          'payments','payment_reversals','financial_ledger_entries']
           .map(t=>readCount(t)))).some(n=>n!==0)) throw new Error('J03_RESIDUE_DETECTED');
     report.cleanup.push({kind:'independent_auth_and_business_zero_residue',passed:true});
   } catch {
