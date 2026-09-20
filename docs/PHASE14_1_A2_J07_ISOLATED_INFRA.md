@@ -1,0 +1,9 @@
+# Phase 14.1 A2 — isolated J07 document infrastructure (2026-09-20)
+
+**Target:** disposable lab `nqhgaukutkyvfumbtbtg` only; production `juzxriirhkuzviwnhkbd` was not modified. These are infrastructure-readiness observations, **not** a J07 authenticated rendered-document certificate.
+
+- Deployed the existing repository source `supabase/functions/enjaz-document-render/index.ts` as `enjaz-document-render` in the isolated lab through its connected Supabase deployment action. Post-deployment function listing showed **ACTIVE**, version **1**, `verify_jwt=true`. No production deployment or change to the published application.
+- Created only the lab's previously absent bucket `enjaz-documents-private`, behind a fail-closed lab-empty guard covering Auth users, workspaces, documents, existing storage objects, and existing buckets. The bucket is **private**, size limit **52,428,800 bytes**, with only PDF/JPEG/PNG/WebP/DOCX/XLSX MIME types. Independent post-change read-only SQL verified that exact configuration, **zero bucket objects and zero Auth users**. This is lab-only persistent infrastructure, not leftover business-test residue.
+- Pre-existing tables and documented document RPC signatures were read-only inventoried before setup; no new broad user or direct-table grants were made. The actual real-identity document-generation, approval, Edge PDF render, binary checksum, replay, source-lineage and zero-object-residue checks are separate run evidence and must not be inferred from this file.
+
+**Current guard:** PR #225 remains DRAFT, Phase 14.1 IN_PROGRESS, Phase 14.2 LOCKED; production destructive probes prohibited. Only a completed exact-executable-SHA authenticated J01–J07 run with an independent post-run residue check can upgrade J07 from infrastructure ready to narrowly certified. Additional J08–J11, separate principal/role, A3 mobile/published portal, full CI and exact-main live release gates remain open.
