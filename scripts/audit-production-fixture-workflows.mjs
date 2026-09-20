@@ -23,8 +23,10 @@ export function auditProductionFixtureWorkflow(filename, yaml) {
     const job = section.slice(header.index + header[0].length, after ? after.index : undefined);
     // Require a literal job-level false, not a step-level skip or a branch
     // condition that can be bypassed by workflow_dispatch.
-    if (!/^    if: \$\{\{ false \}\}\s*$/m.test(job))
-      findings.push(filename + ': production-admin job ' + header[1] + ' is not quarantined');
+    const jobHeader = job.split(/^    steps:\s*$/m, 1)[0];
+    const flags = [...jobHeader.matchAll(/^    if:\s*(.*)$/gm)];
+    if (flags.length !== 1 || flags[0][1] !== '${{ false }}')
+      findings.push(filename + ': production-admin job ' + header[1] + ' requires exactly one literal disabled job-level if');
   }
   return findings;
 }
