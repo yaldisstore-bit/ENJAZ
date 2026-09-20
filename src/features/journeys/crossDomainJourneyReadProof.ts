@@ -51,7 +51,8 @@ async function limited<T extends 'workflow_instances' | 'transaction_followups' 
   });
   // An incomplete page must never be mistaken for proof of an exhaustive journey.
   if (page.hasMore || page.items.length > PAGE_LIMIT ||
-      (page.total !== null && page.total !== page.items.length))
+      page.total === null || !Number.isSafeInteger(page.total) ||
+      page.total !== page.items.length)
     throw new CrossDomainJourneyReadError('CAPACITY');
   if (new Set(page.items.map(item => item.id)).size !== page.items.length)
     throw new CrossDomainJourneyReadError('LINK_DRIFT');
