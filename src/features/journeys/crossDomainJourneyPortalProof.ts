@@ -3,7 +3,7 @@ import type {
 } from '../client-portal/clientPortalGateway.ts';
 import {
   CLIENT_SAFE_COMPANY_FIELDS, CLIENT_SAFE_TRANSACTION_FIELDS,
-  CLIENT_SAFE_DOCUMENT_FIELDS, CLIENT_SAFE_RECEIPT_FIELDS,
+  CLIENT_SAFE_DOCUMENT_FIELDS, CLIENT_SAFE_RECEIPT_FIELDS, CLIENT_SAFE_REQUEST_FIELDS,
 } from '../client-portal/clientPortalAuthority.ts';
 import type { CrossDomainJourneyReadProof } from './crossDomainJourneyReadProof.ts';
 
@@ -77,7 +77,7 @@ function granted(
   grants: readonly ClientPortalAuthorityGrant[],
   type: 'company' | 'transaction',
   id: string,
-  permission: 'view' | 'view_finance',
+  permission: ClientPortalAuthorityGrant['permissions'][number],
   now: number,
 ): boolean {
   return grants.some(grant => grant.targetType === type && grant.targetId === id &&
@@ -194,6 +194,27 @@ export async function verifyCrossDomainClientPortalRead(
           strictPaymentCents(payment.amount) !== strictReceiptCents(receipt.amount))
         throw new CrossDomainPortalProofError('SOURCE_DRIFT');
     }
+  }
+  // Requests use their *own* scoped capability, not an inferred transaction
+  // view grant. The SQL request source also permits a finance-only request.
+  const requiredRequestPermission = {
+    document: 'upload_requested_document',
+    approval: 'approve_document',
+    information: 'message',
+    appointment: 'confirm_appointment',
+    payment: 'view_finance',
+  } as const;
+  const observedRequestIds = new Set<string>();
+  for (const request of view.requests) {
+    allowedFields(request, CLIENT_SAFE_REQUEST_FIELDS);
+    if (!request.id || observedRequestIds.has(request.id))
+      throw new CrossDomainPortalProofError('UNRELATED_RECORD');
+    observedRequestIds.add(request.id);
+    const permission = requiredRequestPermission[request.requestType];
+    if (!permission || (request.requestType === 'approval') !== (request.resourceShareId !== null))
+      throw new CrossDomainPortalProofError('UNRELATED_RECORD');
+    if (!granted(before.grants, 'transaction', request.transactionId, permission, asOf))
+      throw new CrossDomainPortalProofError('GRANT_MISSING');
   }
   const after = await portal.authority(source.workspaceId);
   if (after.workspaceId !== before.workspaceId || after.principalId !== before.principalId ||
