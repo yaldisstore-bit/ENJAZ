@@ -47,5 +47,18 @@
     "explicit client-portal grant and safe projection crosscheck (independent client gateway required)",
     "field assignment/visit, governance, and engagement/retainer read continuity crosscheck",
     "isolated hosted structural prerequisite and production target denial audit"
-  ]
+  ],
+  "productionFixtureQuarantineMergedMain": "2c88573797974b4af98ece765bfc1471559cbf42",
+  "a3PreparatoryBrowserStatus": "PASS_14_OF_14_ISOLATED_CHROMIUM_NO_LIVE_AUTH",
+  "a3PreparatoryBrowserEvidenceRun": "35521831919",
+  "a3PreparatoryBrowserEvidenceHead": "8e3f050c8d91cce87223d63b60d6d368c7dcf255",
+  "a3PreparatoryBrowserWidths": [
+    1280,
+    430,
+    390,
+    360,
+    320
+  ],
+  "a3PreparatoryBrowserRealAndroidCertified": false,
+  "a3PreparatoryBrowserPublishedPortalCertified": false
 }
