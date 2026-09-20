@@ -111,7 +111,7 @@ test('A2 rejects amount tampering, bad precision and non-finite money without ro
   await assert.rejects(verifyCrossDomainFinanceRead(
     source(), gateway(receipt({ amountCents: 30n })),
   ), reason('SOURCE_DRIFT'));
-  for (const amount of [-1, 0, 0.291, Number.NaN, 100000000000000.01]) {
+  for (const amount of [-1, 0, 0.00000000001, 0.291, Number.NaN, 100000000000000.01]) {
     await assert.rejects(verifyCrossDomainFinanceRead(
       source([payment({ amount })]), gateway(receipt()),
     ), reason('AMOUNT_PRECISION'));
