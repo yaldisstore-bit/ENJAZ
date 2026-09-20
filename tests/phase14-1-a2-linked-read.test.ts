@@ -17,6 +17,7 @@ type FixtureOptions = {
   transaction?: Record<string, unknown> | null;
   collections?: Record<string, readonly Record<string, unknown>[]>;
   truncated?: string;
+  inconsistentTotal?: string;
   mutateOnRecheck?: boolean;
   changeWorkspaceOnRecheck?: boolean;
 };
@@ -45,7 +46,8 @@ function fixture(options: FixtureOptions = {}) {
       calls.push('list:' + kind);
       assert.equal(request.filters.length, 1);
       const rows = collections[kind] ?? [];
-      return { items: rows, hasMore: options.truncated === kind, offset: 0, limit: 100, total: rows.length };
+      return { items: rows, hasMore: options.truncated === kind, offset: 0, limit: 100,
+        total: rows.length + (options.inconsistentTotal === kind ? 1 : 0) };
     },
   });
   const layer = {
@@ -141,6 +143,40 @@ test('A2 rejects a foreign-workspace child and payment/document lineage drift', 
   ];
   for (const collections of cases)
     await assert.rejects(loadCrossDomainJourneyReadProof(fixture({ collections }).factory, U, C, T), expectReason('LINK_DRIFT'));
+});
+
+test('A2 rejects swapped getById roots even if the returned company/transaction appear linked', async () => {
+  await assert.rejects(loadCrossDomainJourneyReadProof(fixture({ company: {
+    id: P, workspace_id: W, updated_at: 'now', deleted_at: null, merged_into_id: null,
+  }, transaction: {
+    id: T, company_id: P, workspace_id: W, updated_at: 'now', deleted_at: null,
+  } }).factory, U, C, T), expectReason('LINK_DRIFT'));
+  await assert.rejects(loadCrossDomainJourneyReadProof(fixture({ transaction: {
+    id: P, company_id: C, workspace_id: W, updated_at: 'now', deleted_at: null,
+  } }).factory, U, C, T), expectReason('LINK_DRIFT'));
+});
+
+test('A2 rejects a false complete-page total or duplicate IDs in any linked domain', async () => {
+  for (const kind of ['procedures', 'followups', 'payments', 'documents', 'reversals']) {
+    const collections = { payments: [{ id: P, workspace_id: W, company_id: C, transaction_id: T }] };
+    await assert.rejects(loadCrossDomainJourneyReadProof(
+      fixture({ collections, inconsistentTotal: kind }).factory, U, C, T,
+    ), expectReason('CAPACITY'));
+  }
+  const rows = {
+    procedures: { id: P, workspace_id: W, transaction_id: T },
+    followups: { id: P, workspace_id: W, transaction_id: T },
+    payments: { id: P, workspace_id: W, company_id: C, transaction_id: T },
+    documents: { id: P, workspace_id: W, company_id: C, transaction_id: T },
+    reversals: { id: R, workspace_id: W, payment_id: P },
+  };
+  for (const kind of Object.keys(rows)) {
+    const row = rows[kind as keyof typeof rows];
+    const collections = { payments: [rows.payments], [kind]: [row, row] };
+    await assert.rejects(loadCrossDomainJourneyReadProof(
+      fixture({ collections }).factory, U, C, T,
+    ), expectReason('LINK_DRIFT'));
+  }
 });
 
 test('A2 never treats a truncated domain page as full journey evidence', async () => {
