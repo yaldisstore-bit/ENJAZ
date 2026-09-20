@@ -1,3 +1,4 @@
+import {randomUUID} from 'node:crypto';
 // J09 authenticated archive → fresh-session reload → restore of the SAME
 // J01–J08 transaction. Data API update is the existing lifecycle persistence
 // surface; this is not a real browser UI nor an activity-history certificate.
@@ -44,7 +45,7 @@ export async function checkLinkedArchive({
   const blockedPayment=await owner.client.rpc('post_payment_v1',{
     p_workspace_id:ws,p_transaction_id:transactionId,p_amount:'1.00',
     p_method:'transfer',p_paid_at:new Date().toISOString(),
-    p_note:'J09 archive rejection probe',p_idempotency_key:crypto.randomUUID(),
+    p_note:'J09 archive rejection probe',p_idempotency_key:randomUUID(),
     p_cashbox_id:null,p_engagement_id:null,
   });
   verify(Boolean(blockedPayment.error)&&await readCount('payments',ws)===1,
