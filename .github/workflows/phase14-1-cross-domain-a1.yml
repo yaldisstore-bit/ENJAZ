@@ -1,0 +1,53 @@
+name: ENJAZ Phase 14.1 — Cross-domain Journey A1 Source Gate
+
+on:
+  push:
+    branches:
+      - 'phase14-1-*'
+    paths:
+      - 'docs/PHASE14_1_*'
+      - 'docs/PHASE13_5_STATE.json'
+      - 'docs/PHASE13_5_POSTMERGE_RECERTIFICATION.md'
+      - 'scripts/phase14-1-*'
+      - 'scripts/phase13-5-*'
+      - 'tests/phase14-1-*'
+      - 'src/features/**'
+      - '.github/workflows/phase14-1-cross-domain-a1.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase141-a1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  a1-source-contract:
+    name: A1 source-only gateway and adversarial boundary
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Require independently certified Phase 13.5 exact-main provenance
+        run: node scripts/phase13-5-import-destruction-audit.mjs
+      - name: A1 source inventory and successor lock
+        run: node scripts/phase14-1-journey-a1-audit.mjs
+      - name: A1 source and fail-closed adversarial regression
+        run: node --test tests/phase14-1-journey-a1.test.mjs
+      - name: Preserve functional and typed boundaries
+        run: |
+          npm run test:functional
+          npm run typecheck
+      - name: Preserve frozen production budget
+        run: |
+          npm run build -- --base=/
+          npm run audit:dist:budget
