@@ -9,6 +9,7 @@ on:
       - 'scripts/phase14-1-a2-isolated-auth-preflight.mjs'
       - 'tests/phase14-1-a2-isolated-auth-preflight.test.mjs'
       - 'docs/PHASE14_1_A2_ISOLATED_LAB_STRUCTURAL_EVIDENCE.json'
+      - 'docs/PHASE14_1_A2_LAB_READONLY_RECHECK_20260920.md'
       - '.github/workflows/phase14-1-a2-isolated-auth-smoke.yml'
   workflow_dispatch:
 
