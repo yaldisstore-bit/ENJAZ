@@ -1,0 +1,67 @@
+name: ENJAZ Phase 14.1 A2 — J05 Followup Real Cloud (NOT full A2)
+
+on:
+  push:
+    branches:
+      - 'phase14-1-*'
+    paths:
+      - 'scripts/phase14-1-a2-j05-followup-real-cloud.mjs'
+      - '.github/workflows/phase14-1-a2-j05-followup-real-cloud.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase141-a2-auth-smoke
+  cancel-in-progress: false
+
+jobs:
+  isolated-j05-followup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: phase13-4-isolated-real-cloud
+    env:
+      PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd
+      ENJAZ_A2_BRANCH_REF: nqhgaukutkyvfumbtbtg
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+      ENJAZ_A2_ISOLATED_BRANCH_CONFIRM: YES
+      SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deny unsafe credentials before network fixtures
+        run: node scripts/phase14-1-a2-isolated-auth-preflight.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Syntax-check J05 harness before any cloud writes
+        run: node --check scripts/phase14-1-a2-j05-followup-real-cloud.mjs
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run isolated authenticated J01/J02/J05 followup, replay and RLS
+        run: node scripts/phase14-1-a2-j05-followup-real-cloud.mjs
+      - name: Require narrow isolated J05 evidence and zero residue
+        run: |
+          node - <<'NODE'
+          const e = require('./artifacts/phase14-1-a2-j05-followup/evidence.json');
+          if (e.projectRef !== 'nqhgaukutkyvfumbtbtg' ||
+              e.productionProjectRef === e.projectRef ||
+              e.scope?.join(',') !== 'J01_COMPANY,J02_TRANSACTION,J05_FOLLOWUP' ||
+              e.linkedJ03J04 !== false || e.completeElevenDomainA2 !== false ||
+              e.phase14_1Closed !== false || e.passed !== true || e.cleanupPassed !== true)
+            throw new Error('J05 narrow hosted gate not certified');
+          console.log('PASS isolated real JWT J05 transaction followup and zero residue (NOT full A2)');
+          NODE
+      - name: Upload isolated J05 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase141-a2-j05-followup-real-cloud
+          path: |
+            artifacts/phase14-1-a2-isolated-auth/preflight.json
+            artifacts/phase14-1-a2-j05-followup/evidence.json
+          if-no-files-found: error
+          retention-days: 30
