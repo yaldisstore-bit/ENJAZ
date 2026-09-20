@@ -95,13 +95,18 @@ export async function verifyCrossDomainOperationsRead(
     for (const row of revisions) {
       if (row.workspaceId !== ws || row.engagementId !== engagement.id ||
           !Number.isSafeInteger(row.revision) || row.revision < 1 ||
-          (row.supersedesRevision !== null && row.supersedesRevision >= row.revision))
+          row.supersedesRevision !== (row.revision === 1 ? null : row.revision - 1))
         throw new CrossDomainOperationsProofError('CONTRACT_LINK_DRIFT');
       if (contractIds.has(row.id) || numbers.has(row.revision))
         throw new CrossDomainOperationsProofError('CONTRACT_DUPLICATE');
       contractIds.add(row.id);
       numbers.add(row.revision);
       revisionCount += 1;
+    }
+    // A sparse list is not a complete contract history, even when every visible
+    // row points backwards correctly (the missing predecessor might be hidden).
+    for (let number = 1; number <= numbers.size; number += 1) {
+      if (!numbers.has(number)) throw new CrossDomainOperationsProofError('CONTRACT_LINK_DRIFT');
     }
   }
   return Object.freeze({
