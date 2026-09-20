@@ -71,6 +71,10 @@ export async function verifyCrossDomainFinanceRead(
         receipt.companyId !== source.company.id ||
         receipt.receiptRef !== payment.receipt_ref ||
         receipt.method !== payment.method ||
+        receipt.note !== payment.note ||
+        !Number.isFinite(Date.parse(payment.paid_at)) ||
+        !Number.isFinite(Date.parse(receipt.paidAt)) ||
+        Date.parse(payment.paid_at) !== Date.parse(receipt.paidAt) ||
         receipt.amountCents !== amountCents ||
         receipt.status !== payment.status)
       throw new CrossDomainFinanceProofError('SOURCE_DRIFT');
