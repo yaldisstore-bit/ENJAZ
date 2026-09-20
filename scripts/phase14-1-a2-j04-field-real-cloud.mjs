@@ -190,9 +190,9 @@ async function run() {
     freshAssignment.data?.transaction_id === tx.id &&
     freshAssignment.data?.assigned_user_id === owner.id,
     'J04_FRESH_JWT_ASSIGNMENT_RELOAD');
-  const outsiderRead = await outsider.client.from('field_assignments')
+  const outsiderAssignmentRead = await outsider.client.from('field_assignments')
     .select('id').eq('id',assignmentId);
-  verify((outsiderRead.error || outsiderRead.data?.length === 0),
+  verify((outsiderAssignmentRead.error || outsiderAssignmentRead.data?.length === 0),
     'J04_OUTSIDER_ASSIGNMENT_READ_DENIED');
 
   const checkInKey = randomUUID();
