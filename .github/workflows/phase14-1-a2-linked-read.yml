@@ -7,6 +7,8 @@ on:
     paths:
       - 'src/features/journeys/**'
       - 'tests/phase14-1-a2-*'
+      - 'scripts/phase14-1-a2-*'
+      - 'docs/PHASE14_1_A2_*'
       - '.github/workflows/phase14-1-a2-linked-read.yml'
   pull_request:
     branches: [main]
@@ -30,6 +32,10 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Fail-closed linked source and read-only proof tests
         run: node --experimental-strip-types --test tests/phase14-1-a2-linked-read.test.ts tests/phase14-1-a2-finance-read.test.ts
+      - name: Reject incomplete hosted structural prerequisite contract
+        run: |
+          node scripts/phase14-1-a2-hosted-readiness-audit.mjs
+          node --test tests/phase14-1-a2-hosted-readiness.test.mjs
       - name: Typecheck
         run: npm run typecheck
       - name: No production bundle budget expansion
