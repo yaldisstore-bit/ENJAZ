@@ -55,7 +55,7 @@ export function auditJourneyMatrix(matrix, readSource) {
 export function auditPhase14State(s, predecessor, proof) {
   const problems=[];
   const check=(name,ok)=>{if(!ok)problems.push(name);};
-  check('phase_identity',s.phase==='14.1'&&s.status==='IN_PROGRESS'&&s.currentSlice==='A1_SOURCE_CONTRACT');
+  check('phase_identity',s.phase==='14.1'&&s.status==='IN_PROGRESS'&&s.currentSlice==='A2_LINKED_READ_PROOF');
   check('certified_predecessor',predecessor.phase==='13.5'&&predecessor.status==='CLOSED'&&
     predecessor.formalClosurePostMergeRecertification==='PASS'&&
     predecessor.formalClosureMergeCommit===expectedPredecessor&&
@@ -67,7 +67,13 @@ export function auditPhase14State(s, predecessor, proof) {
     s.predecessorPostMergeEvidence==='docs/PHASE13_5_POSTMERGE_RECERTIFICATION.md'&&
     proof.includes(expectedPredecessor)&&proof.includes('43/43 COMPLETED SUCCESS'));
   check('a1_only',s.sourceMatrix==='docs/PHASE14_1_JOURNEY_MATRIX.json'&&
-    s.a1Status==='SOURCE_PROPOSAL_PENDING_EXACT_HEAD_CI'&&
+    s.a1Status==='SOURCE_CERTIFIED_EXACT_PR_HEAD'&&
+    s.a1ExactPrHead==='11a82fdc7ab61c0a9d9245dd67bff90b609dfd90'&&
+    s.a1ExactPrHeadWorkflowCount===82&&s.a1ExactPrHeadSuccessCount===81&&
+    s.a1ExactPrHeadExpectedSkipCount===1&&
+    s.a1MergedMain==='665fcc63a5919e4ad80d0b01b8f54914d15bad0c'&&
+    s.a1MergedMainWorkflowCount===36&&s.a1MergedMainSuccessCount===36&&
+    s.a2SourceStatus==='IN_PROGRESS_UNCERTIFIED'&&
     s.a2RealCloudStatus==='NOT_STARTED'&&s.a3RealBrowserStatus==='NOT_STARTED');
   check('successor_locked',s.phase14_2Allowed===false&&s.successorStatus==='LOCKED'&&
     s.exitGatePassed===false&&s.closureDecision==='NOT_REQUESTED');
