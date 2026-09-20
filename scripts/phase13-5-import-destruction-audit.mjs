@@ -3,6 +3,7 @@ import fs from 'node:fs';
 const read=p=>fs.readFileSync(p,'utf8');
 const json=p=>JSON.parse(read(p));
 const s=json('docs/PHASE13_5_STATE.json');
+const closed=s.status==='CLOSED';
 const predecessor=json('docs/PHASE13_4_STATE.json');
 const matrix=json('docs/PHASE13_5_DESTRUCTION_MATRIX.json');
 const kickoff=read('docs/PHASE13_5_KICKOFF.md');
@@ -13,8 +14,9 @@ const check=(name,ok)=>{if(!ok)failures.push(name)};
 const exists=p=>fs.existsSync(p);
 
 check('phase_identity',
-  s.phase==='13.5'&&s.name==='Import Destruction Gate'&&s.status==='IN_PROGRESS'&&
-  s.currentSlice==='FORMAL_CLOSURE_CANDIDATE_AWAITING_POSTMERGE_RECERTIFICATION');
+  s.phase==='13.5'&&s.name==='Import Destruction Gate'&&
+  (closed?s.currentSlice==='FORMAL_CLOSURE':
+    s.status==='IN_PROGRESS'&&s.currentSlice==='FORMAL_CLOSURE_CANDIDATE_AWAITING_POSTMERGE_RECERTIFICATION'));
 check('exact_base',s.baseCommit==='64b78767ebd3b0112e752f979d5448f78bdfd2cf');
 check('predecessor_closed',
   predecessor.status==='CLOSED'&&predecessor.exitGatePassed===true&&
@@ -25,10 +27,15 @@ check('predecessor_exact_main',
   s.predecessorCanonicalClosureCommit==='64b78767ebd3b0112e752f979d5448f78bdfd2cf'&&
   s.predecessorExactMainWorkflowCount===42&&s.predecessorExactMainSuccessCount===42);
 
-check('successor_locked',
-  s.successorPhase==='14.1'&&s.successorStatus==='LOCKED'&&
-  s.phase14_1Allowed===false&&s.exitGatePassed===false&&
-  s.closureDecision==='IMPLEMENTATION_AND_EXACT_MAIN_PASS_PENDING_CLOSURE_MAIN_RECERTIFICATION');
+check('successor_transition',
+  s.successorPhase==='14.1'&&
+  (closed?
+    s.successorStatus==='AUTHORIZED_NEXT'&&s.phase14_1Allowed===true&&
+    s.exitGatePassed===true&&s.closureDecision==='PASS'&&
+    s.closureEvidence==='docs/PHASE13_5_CLOSURE.md'&&exists(s.closureEvidence):
+    s.successorStatus==='LOCKED'&&s.phase14_1Allowed===false&&
+    s.exitGatePassed===false&&
+    s.closureDecision==='IMPLEMENTATION_AND_EXACT_MAIN_PASS_PENDING_CLOSURE_MAIN_RECERTIFICATION'));
 
 check('no_new_authority',
   s.newFeatureAuthorityAllowed===false&&s.newDatabaseTablesAllowed===false&&
@@ -121,21 +128,75 @@ check('production_zero_delta',
   s.productionPhase135NamedFunctionCount===0&&
   s.productionLatestMigrationVersion==='20260919125253');
 
+if(closed){
+  check('closure_pr_lineage',
+    s.closureCandidatePullRequest===221&&
+    s.closureCandidateHead==='b7418d798080e0e58bcf3b1f34232799da169d66'&&
+    s.closureCandidateMergeCommit==='40d6e9c7218d25e418ecc5ab1f629abaf1abe089'&&
+    s.closureCandidateWorkflowCount===87&&s.closureCandidateSuccessCount===86&&
+    s.closureCandidateSkippedCount===1&&s.closureCandidateFailureCount===0);
+  check('dependency_audit_repair_lineage',
+    s.dependencyAuditRepairPullRequest===222&&
+    s.dependencyAuditRepairHead==='76d7c040799ecd951f64739a05840d2d46faf67b'&&
+    s.dependencyAuditRepairMergeCommit==='bbd46c5628a80a6be87b9a4cecfe21d26d0ec045'&&
+    s.dependencyAuditRepairWorkflowCount===78&&s.dependencyAuditRepairSuccessCount===77&&
+    s.dependencyAuditRepairSkippedCount===1&&s.dependencyAuditRepairFailureCount===0);
+  check('final_implementation_exact_main',
+    s.finalImplementationMainSha==='bbd46c5628a80a6be87b9a4cecfe21d26d0ec045'&&
+    s.formalClosureProposalBaseCommit===s.finalImplementationMainSha&&
+    s.finalImplementationMainWorkflowCount===36&&s.finalImplementationMainSuccessCount===36&&
+    s.finalImplementationMainSkippedCount===0&&s.finalImplementationMainFailureCount===0&&
+    s.finalImplementationMainQueuedCount===0&&s.finalImplementationMainInProgressCount===0);
+  check('final_exact_main_gate_ids',
+    s.finalImplementationPhase135GateRunId===35489868804&&
+    s.finalImplementationPhase135A1JobId===106022857821&&
+    s.finalImplementationQualityRunId===35489868734&&
+    s.finalImplementationRealBrowserRunId===35489868796&&
+    s.finalImplementationPagesRunId===35489868103&&
+    s.finalImplementationPagesPreviewRunId===35489895877&&
+    s.finalImplementationLiveExternalRunId===35489931303&&
+    s.finalImplementationPublishedPortalRunId===35489931320&&
+    s.finalImplementationConstitutionRunId===35489868780&&
+    s.finalImplementationMajorSystemsRunId===35489868774);
+  check('fresh_live_high_severity_audit',
+    s.finalImplementationNpmHighAudit==='PASS_FRESH_REGISTRY_SCAN_ZERO_VULNERABILITIES_NO_FALLBACK');
+  check('formal_closed_boundary',
+    s.nextPhase==='14.1'&&s.formalClosurePostMergeRecertification==='PENDING'&&
+    s.knownCriticalDefects===0&&s.knownHighDefects===0&&s.knownFunctionalBlockers===0);
+  const evidence=exists(s.closureEvidence)?read(s.closureEvidence):'';
+  check('closure_document',
+    evidence.includes('36/36 canonical-main workflow runs completed successfully')&&
+    evidence.includes('fresh npm-registry high-severity audit')&&
+    evidence.includes('Phase 14.1 AUTHORIZED_NEXT, not started'));
+}
+
 check('quality_tracks',
-  s.projectQualityConstitution?.tracks?.product==='PASS_IMPLEMENTATION_AND_EXACT_MAIN'&&
   s.projectQualityConstitution?.tracks?.uiUx==='PASS_NO_CLIENT_DELTA_CUMULATIVE_BROWSER'&&
   s.projectQualityConstitution?.tracks?.engineering==='PASS_A1_A2_A3_DESTRUCTION_ZERO_RESIDUE'&&
-  s.projectQualityConstitution?.tracks?.certification==='PASS_IMPLEMENTATION_EXACT_HEAD_AND_MAIN_PENDING_CLOSURE_MAIN'&&
-  s.projectQualityConstitution?.decision==='IN_PROGRESS_FORMAL_CLOSURE_CANDIDATE');
+  (closed?
+    s.projectQualityConstitution?.tracks?.product==='PASS'&&
+    s.projectQualityConstitution?.tracks?.certification==='PASS_EXACT_HEAD_EXACT_MAIN_REAL_CLOUD_AND_DEPLOYED_LIVE'&&
+    s.projectQualityConstitution?.decision==='PASS':
+    s.projectQualityConstitution?.tracks?.product==='PASS_IMPLEMENTATION_AND_EXACT_MAIN'&&
+    s.projectQualityConstitution?.tracks?.certification==='PASS_IMPLEMENTATION_EXACT_HEAD_AND_MAIN_PENDING_CLOSURE_MAIN'&&
+    s.projectQualityConstitution?.decision==='IN_PROGRESS_FORMAL_CLOSURE_CANDIDATE'));
 
 check('kickoff',
   kickoff.includes('A green source branch alone can never close this phase')&&
   kickoff.includes('Production may be inspected read-only but is forbidden as a destructive target')&&
-  kickoff.includes('88/88')&&kickoff.includes('42/42'));
+  (closed?
+    kickoff.includes('A1+A2+A3, implementation and closure PR exact-head')&&
+    kickoff.includes('36/36')&&
+    kickoff.includes('only after formal closure merge'):
+    kickoff.includes('88/88')&&kickoff.includes('42/42')));
 check('roadmap',
-  roadmap.includes('## 13.5 — Import Destruction Gate — CLOSURE_CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED'));
+  roadmap.includes(closed?
+    '## 13.5 — Import Destruction Gate ✅ CLOSED / A1+A2+A3 + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED':
+    '## 13.5 — Import Destruction Gate — CLOSURE_CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED'));
 check('readme',
-  readme.includes('Phase 13.5 — Import Destruction Gate 🟠 CLOSURE CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED'));
+  readme.includes(closed?
+    'Phase 13.5 — Import Destruction Gate ✅ CLOSED / A1+A2+A3 + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED':
+    'Phase 13.5 — Import Destruction Gate 🟠 CLOSURE CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED'));
 
 check('no_phase135_prod_migration',!exists('database/migrations/phase_13_5_import_destruction.sql'));
 check('no_phase135_edge_authority',!exists('supabase/functions/enjaz-import-destruction/index.ts'));
@@ -144,4 +205,6 @@ if(failures.length){
   console.error('ENJAZ PHASE 13.5 CLOSURE-CANDIDATE AUDIT FAIL ('+failures.length+')\n- '+failures.join('\n- '));
   process.exit(1);
 }
-console.log('ENJAZ PHASE 13.5 CLOSURE-CANDIDATE AUDIT PASS — A1/A2/A3 + exact PR-head + implementation exact-main certified; canonical post-merge 13.5 recertification still required; Phase 14.1 locked.');
+console.log(closed?
+  'ENJAZ PHASE 13.5 FORMAL CLOSURE AUDIT PASS — A1/A2/A3 + exact-head + canonical exact-main/deployed-live certified; 14.1 authorized next, not started.':
+  'ENJAZ PHASE 13.5 CLOSURE-CANDIDATE AUDIT PASS — A1/A2/A3 + exact PR-head + implementation exact-main certified; canonical post-merge 13.5 recertification still required; Phase 14.1 locked.');

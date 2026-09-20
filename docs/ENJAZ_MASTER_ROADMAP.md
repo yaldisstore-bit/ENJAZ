@@ -509,7 +509,7 @@ AI is allowed only after authoritative business domains and permission boundarie
 - Formal closure: `docs/PHASE13_4_CLOSURE.md`.
 - Phase 13.5 — Import Destruction Gate: **AUTHORIZED_NEXT**.
 
-## 13.5 — Import Destruction Gate — CLOSURE_CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED
+## 13.5 — Import Destruction Gate ✅ CLOSED / A1+A2+A3 + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED
 
 Import may target the expanded model only where explicit mappings exist. Unknown legacy concepts remain quarantined/reviewable instead of being guessed into M1–M18 structures. Counts, orphan relations, money, workflow state, ownership, documents and duplicate/idempotency behavior must reconcile.
 
@@ -518,7 +518,8 @@ Import may target the expanded model only where explicit mappings exist. Unknown
 - A3 **REAL CLOUD PASS**: isolated Supabase hosted DB/RLS certificate v2 passed; protected real Auth/JWT runner #35448348574 returned `passed=true`, `functionalPassed=true`, `cleanupPassed=true` with **11/11 checks**, then the certificate endpoint was disabled to 410/verify-JWT. Final Auth/data residue and security/performance lints are all zero.
 - Production may be inspected read-only but is forbidden as the destructive target.
 - PR #219 exact-head **88/88** (87 success + 1 expected skip) and implementation exact-main/deployed-live **42/42 SUCCESS** are certified at `bee38b1208e6de000a7e295609c0fbc7490fff89`.
-- This closure-candidate change adds the Phase 13.5 gate to canonical `main`; Phase 14.1 remains **LOCKED** until post-merge Phase 13.5 recertification and a separate final closure decision.
+- Closure candidate PR #221 and npm audit hardening PR #222 both passed exact-head; post-merge implementation `bbd46c5628a80a6be87b9a4cecfe21d26d0ec045` passed **36/36 canonical-main** runs, including Phase 13.5 destruction, fresh npm registry security audit, Real Browser, Pages, Live External and Published Portal; the formal closure certificate is `docs/PHASE13_5_CLOSURE.md`.
+- Phase 14.1 — Cross-domain Journeys is **AUTHORIZED_NEXT / NOT_STARTED** after formal Phase 13.5 closure; this authorizes planning only and does not expand import or database authority.
 
 ---
 

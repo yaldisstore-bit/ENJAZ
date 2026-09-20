@@ -1,9 +1,9 @@
 # Phase 13.5 — Import Destruction Gate — Kickoff
 
-**Status:** IN_PROGRESS — FORMAL CLOSURE CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED  
+**Status:** CLOSED — A1/A2/A3 + PR EXACT-HEAD + CANONICAL EXACT-MAIN / DEPLOYED-LIVE CERTIFIED  
 **Base:** `64b78767ebd3b0112e752f979d5448f78bdfd2cf` — canonical Phase 13.4 closure/correction; exact-main **42/42 SUCCESS**.  
 **Predecessor:** Phase 13.4 ✅ CLOSED / Real Cloud + production read-only reconciliation certified.  
-**Successor:** Phase 14.1 — Cross-domain Journeys — **LOCKED**.
+**Successor:** Phase 14.1 — Cross-domain Journeys — **AUTHORIZED_NEXT / NOT_STARTED**.
 
 ## Mission
 
@@ -62,4 +62,4 @@ Formal closure requires all four quality tracks PASS, zero Critical/High/functio
 
 Isolated Supabase project `nqhgaukutkyvfumbtbtg` passed the hosted destruction certificate without using production as a destructive target. Hosted DB/RLS certificate `phase13_5_hosted_db_destruction_certificate_v2` passed with zero residue. A protected `verify_jwt=true` Auth certificate was invoked by temporary runner #35448348574 and returned `passed=true`, `functionalPassed=true`, `cleanupPassed=true`, with 11/11 checks over real users/sessions, owner/member/outsider/anon authority, import/replay/conflict, A2/A3, forged manifest, money drift, missing target and generated-ID preclaim. The endpoint is now fixed 410/verify-JWT and final Auth/data residue plus advisor findings are zero.
 
-A1+A2+A3, exact PR-head (88/88), implementation merge and implementation exact-main/deployed-live (42/42) are certified. Phase 14.1 remains locked until this closure-candidate change itself merges and Phase 13.5 re-runs successfully on canonical main.
+A1+A2+A3, implementation and closure PR exact-head, and final canonical exact-main/deployed-live (36/36) are certified. The final Phase 13.5 closure proposal records these certificates in `docs/PHASE13_5_CLOSURE.md`; Phase 14.1 becomes AUTHORIZED_NEXT / NOT_STARTED only after formal closure merge.

@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.5 — Import Destruction Gate 🟠 CLOSURE CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED**  
-آخر مرحلة مغلقة: **Phase 13.4 — Reconciliation ✅ CLOSED / PR 87/87 + REAL CLOUD + EXACT-MAIN + PRODUCTION READ-ONLY CERTIFIED**  
-المرحلة الحالية: **Phase 13.5 — Import Destruction Gate 🟠 CLOSURE CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED**؛ A1/A2/A3 وPR exact-head وimplementation exact-main ناجحة، وPhase 14.1 تبقى **LOCKED** حتى post-merge recertification لشهادة الإغلاق.
+الحالة الرسمية: **Phase 13.5 — Import Destruction Gate ✅ CLOSED / A1+A2+A3 + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED**  
+آخر مرحلة مغلقة: **Phase 13.5 — Import Destruction Gate ✅ CLOSED / 36/36 exact-main + Real Cloud / zero residue**  
+المرحلة التالية: **Phase 14.1 — Cross-domain Journeys — AUTHORIZED_NEXT / NOT_STARTED**؛ لا تتوسع صلاحيات الاستيراد أو قاعدة البيانات بمجرد هذا الإذن. شهادة إغلاق 13.5: [PHASE13_5_CLOSURE.md](docs/PHASE13_5_CLOSURE.md).
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -62,6 +62,8 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 13.1 — Read-only Legacy Snapshot Intake: ✅ CLOSED — A1 10/10 + A2 10/10 + A3 13/13 + PR 81/81 + exact-main 39/39 + cumulative Real Browser + Pages + Live External; 13.2 AUTHORIZED_NEXT.**
 - **Phase 13.2 — Normalize & Map ✅ CLOSED — A1 12/12 + A2 10/10 + A3 14/14 + PR 82/82 + exact-main 40/40 + Real Browser + Pages + Live External; Phase 13.3 AUTHORIZED_NEXT.**
 - **Phase 13.3 — Ordered Import ✅ CLOSED — A1 + A2 + A3 CERTIFIED; authenticated Real Cloud 23/23; PR #211 83/83; exact-main 43/43; Real Browser + deployed-live PASS; Phase 13.4 AUTHORIZED_NEXT.**
+- **Phase 13.4 — Reconciliation ✅ CLOSED** — read-only A2/A3 installed with canonical-owner authority, independent hosted Auth/RLS zero-residue certificate, PR #218 formal closure; preservation of Phase 13.4 is checked by the 13.5 gate.
+- **Phase 13.5 — Import Destruction Gate ✅ CLOSED** — formal closure proposal in PR #223 remains subject to its own exact-head and post-merge gates; Phase 14.1 is not started.
 
 ## Phase 13.3 — شهادة الإغلاق
 
@@ -77,17 +79,17 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - state: [`docs/PHASE13_3_STATE.json`](docs/PHASE13_3_STATE.json).
 - A3 Real Cloud evidence: [`docs/PHASE13_3_A3_EVIDENCE.md`](docs/PHASE13_3_A3_EVIDENCE.md).
 
-## Phase 13.4 — العمل الحالي
+## Phase 13.4 — شهادة الإغلاق
 
 - exact predecessor: Phase 13.3 formal closure merge `ee14330d5aa5d4da51b7e5d5c7fe7b4d64dae584`; **43/43 exact-main SUCCESS**.
 - **A1 — read-only reconciliation expectation plan: CERTIFIED / MERGED** via PR #213, merge `03934f9a07746096eee9784b8832f5f302ffd58a`.
 - **A2 authenticated readback + A3 trusted comparison: SOURCE + DISPOSABLE POSTGRES VERIFIED**؛ isolated PostgreSQL 17 remains **16 A2 PASS + 17 A3 PASS**.
 - **Hosted Supabase DB/RLS: PASS** on isolated project `nqhgaukutkyvfumbtbtg` (same region, USD 0/month fallback because Free-plan development branches are unavailable). Owner/member/outsider/anon boundaries, real Phase 13.3 import, clean comparison, destructive drift/tamper cases, zero residue, A2/A3 5000-item bound and 5001 fail-closed were exercised.
 - A cloud-only 5000-item A3 temp-space failure exposed repeated JSON array indexing. A3 now aligns expected/observed rowsets by ordinal; the same 5000-item hosted test passes after the fix, with a source regression preventing reintroduction.
-- **Production Supabase remains unchanged by 13.4:** neither A2 nor A3 is installed there. Production privilege/RLS inspection was read-only.
-- **Outstanding certification:** Auth-API / real-user-token transport through the isolated environment. Connected tooling does not expose the lab service-role secret and production credentials are forbidden substitutes.
+- **Phase 13.4 production read-only certificate:** A2/A3 owner-scoped read-only reconciliation functions were installed and privilege/RLS-verified without any business-row insert, update or delete; see `docs/PHASE13_4_CLOSURE.md`.
+- **Phase 13.4 Auth/JWT certificate:** isolated real-user-token transport passed with zero marked-user residue. Production credentials were never used as a substitute for disposable lab credentials.
 - No imported production record is edited or automatically repaired; no new production database table, write RPC authority, new UI, or client bundle budget increase.
-- Phase 13.5 remains **LOCKED**.
+- Phase 13.5 is now **CLOSED**; Phase 14.1 is **AUTHORIZED_NEXT / NOT_STARTED** after formal closure.
 - state: [`docs/PHASE13_4_STATE.json`](docs/PHASE13_4_STATE.json).
 - hosted DB/RLS evidence: [`docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`](docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md).
 - A1 contract: [`docs/PHASE13_4_A1_KICKOFF.md`](docs/PHASE13_4_A1_KICKOFF.md).
