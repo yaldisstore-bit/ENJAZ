@@ -58,7 +58,7 @@ jobs:
           done
           cat /tmp/enjaz-141-a3-staff.log
           exit 1
-      - name: Run ten Chromium cases, no hosted test users or fixture writes
+      - name: Run fourteen Chromium cases, no hosted test users or fixture writes
         env:
           ENJAZ_A3_STAFF_BASE_URL: http://127.0.0.1:4176/
           ENJAZ_A3_PORTAL_BASE_URL: http://127.0.0.1:4193/portal
