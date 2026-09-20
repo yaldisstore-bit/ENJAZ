@@ -302,39 +302,49 @@ async function test(){
   if(lifecycleRestoreError||lifecycleRestored?.length!==1)
     throw lifecycleRestoreError??new Error('isolated lifecycle restore did not update exactly one row');
 
-  // One hosted row carrying all five independent drift axes must preserve every
-  // diagnostic code; restoration must return equality but still no closure.
-  const fiveAxisLegacyId=m.items[1].sourceKey+'-five-axis';
-  const {data:fiveAxisCompany,error:fiveAxisError}=await admin.from('companies')
+  // Governance owns company-capital mutations: even service_role must not
+  // bypass the trigger just to manufacture a MONEY_DRIFT fixture.
+  const {error:capitalGuardError}=await admin.from('companies')
+    .update({capital:121.50}).eq('id',p.ids.companyId)
+    .eq('workspace_id',ws).select('id');
+  failIf(capitalGuardError?.code!=='42501'||
+    capitalGuardError?.message!=='ENJAZ_CAPITAL_REQUIRES_GOVERNANCE_COMMAND',
+    'direct_company_capital_tamper_denied_by_governance');
+
+  // A transaction has its own authorized monetary source (current_fee).
+  // Exercise all five independent drift axes on that SAME hosted row without
+  // weakening the separate company-capital governance guard.
+  const fiveAxisLegacyId=m.items[2].sourceKey+'-five-axis';
+  const {data:fiveAxisTransaction,error:fiveAxisError}=await admin.from('transactions')
     .update({
       legacy_id:fiveAxisLegacyId,
       deleted_at:new Date().toISOString(),
-      legal_name:'A3 five-axis drift',
-      capital:121.50,
+      type:'test_import_reconciliation_five_axis',
+      current_fee:140.25,
       primary_contact_id:null,
-    }).eq('id',p.ids.companyId).eq('workspace_id',ws).select('id');
-  if(fiveAxisError||fiveAxisCompany?.length!==1)
-    throw fiveAxisError??new Error('isolated five-axis company tamper did not update exactly one row');
+    }).eq('id',p.ids.transactionId).eq('workspace_id',ws).select('id');
+  if(fiveAxisError||fiveAxisTransaction?.length!==1)
+    throw fiveAxisError??new Error('isolated five-axis transaction tamper did not update exactly one row');
   const fiveAxisComparison=await compare(owner.client,m);
   if(fiveAxisComparison.error)throw fiveAxisComparison.error;
   failIf(fiveAxisComparison.data?.allMatchedAtSnapshot!==false||
     fiveAxisComparison.data?.mismatchCount!==1||
-    JSON.stringify(fiveAxisComparison.data?.rows?.[1]?.differenceCodes)!==
+    JSON.stringify(fiveAxisComparison.data?.rows?.[2]?.differenceCodes)!==
       '["IDENTITY_DRIFT","LIFECYCLE_DRIFT","FIELD_DRIFT","MONEY_DRIFT","RELATIONSHIP_DRIFT"]'||
     fiveAxisComparison.data?.reconciled!==false||
     fiveAxisComparison.data?.closureAuthorized!==false||
     fiveAxisComparison.data?.mutated!==false,
     'a3_same_row_five_axis_drift_preserves_all_codes');
-  const {data:fiveAxisRestored,error:fiveAxisRestoreError}=await admin.from('companies')
+  const {data:fiveAxisRestored,error:fiveAxisRestoreError}=await admin.from('transactions')
     .update({
-      legacy_id:m.items[1].sourceKey,
+      legacy_id:m.items[2].sourceKey,
       deleted_at:null,
-      legal_name:'شركة اختبار A2',
-      capital:120.50,
+      type:'test_import_reconciliation',
+      current_fee:135.25,
       primary_contact_id:p.ids.contactId,
-    }).eq('id',p.ids.companyId).eq('workspace_id',ws).select('id');
+    }).eq('id',p.ids.transactionId).eq('workspace_id',ws).select('id');
   if(fiveAxisRestoreError||fiveAxisRestored?.length!==1)
-    throw fiveAxisRestoreError??new Error('isolated five-axis company restore did not update exactly one row');
+    throw fiveAxisRestoreError??new Error('isolated five-axis transaction restore did not update exactly one row');
   const fiveAxisRestoredComparison=await compare(owner.client,m);
   if(fiveAxisRestoredComparison.error)throw fiveAxisRestoredComparison.error;
   failIf(fiveAxisRestoredComparison.data?.allMatchedAtSnapshot!==true||
