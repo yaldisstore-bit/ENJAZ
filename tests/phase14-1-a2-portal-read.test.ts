@@ -28,7 +28,7 @@ const baseModel = (): ClientPortalReadModel => ({
   transactions: [{ id:T, companyId:C, type:'QA', status:'open',
     createdAt:'2026-09-20', updatedAt:'2026-09-20', completedAt:null }],
   documents: [{ id:D, transactionId:T, companyId:C, title:'Approved', documentType:null,
-    mimeType:'application/pdf', sizeBytes:12, status:'approved', capturedAt:null,
+    mimeType:'application/pdf', sizeBytes:12, status:'ready', capturedAt:null,
     createdAt:'2026-09-20', updatedAt:'2026-09-20' }],
   receipts: [{ paymentId:P, transactionId:T, companyId:C, receiptRef:'QA1',
     amount:'0.29', method:'cash', paidAt:'2026-09-20', status:'posted', receiptVersion:1 }],
@@ -40,7 +40,7 @@ const source = (): CrossDomainJourneyReadProof => ({
   transaction:{id:T,company_id:C},
   procedures:[],followups:[],payments:[{id:P,company_id:C,transaction_id:T,amount:0.29,receipt_ref:'QA1',method:'cash',status:'posted'}],reversals:[],
   documents:[{id:D,workspace_id:W,transaction_id:T,company_id:C,title:'Approved',
-    status:'approved',mime_type:'application/pdf',size_bytes:12}],
+    status:'ready',mime_type:'application/pdf',size_bytes:12}],
   proofKind:'AUTHENTICATED_INTERNAL_READ_ONLY',
   atomicMultiDomainSnapshotCertified:false,clientVisibilityCertified:false,
 }) as unknown as CrossDomainJourneyReadProof;
@@ -148,7 +148,7 @@ test('A2 refuses a portal receipt with correct payment ID but changed financial 
 
 test('A2 rejects a correctly linked document with forged client-visible source facts',async()=>{
   for (const patch of [
-    {title:'Altered title'}, {status:'ready'}, {mimeType:'text/html'}, {sizeBytes:999},
+    {title:'Altered title'}, {status:'approved'}, {mimeType:'text/html'}, {sizeBytes:999},
   ]) {
     const model={...baseModel(),documents:[{...baseModel().documents[0]!, ...patch}]};
     await assert.rejects(verifyCrossDomainClientPortalRead(
