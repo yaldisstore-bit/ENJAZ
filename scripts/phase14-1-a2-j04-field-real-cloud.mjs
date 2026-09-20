@@ -4,6 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { checkLinkedFollowup } from './phase14-1-a2-j05-linked-followup-extension.mjs';
 import { checkLinkedFinance } from './phase14-1-a2-j06-linked-finance-extension.mjs';
 import { checkLinkedDocument } from './phase14-1-a2-j07-linked-document-extension.mjs';
+import { checkLinkedClientPortal } from './phase14-1-a2-j08-client-auth-gateway-extension.mjs';
 
 // One authenticated J01-J07 linked journey in the disposable lab; NOT eleven-domain acceptance.
 // The test refuses production/unknown targets and requires an entirely empty disposable lab.
@@ -32,8 +33,8 @@ const admin = createClient(url, secret, clientConfig);
 const client = () => createClient(url, key, clientConfig);
 const users = [];
 const storagePaths = new Set();
-const report = { schema: 'enjaz.phase14-1.a2.j07-linked-real-cloud.v1', projectRef: LAB,
-  productionProjectRef: PROD, scope: ['J01_COMPANY','J02_TRANSACTION','J03_PROCEDURE','J04_FIELD','J05_FOLLOWUP','J06_PAYMENT','J07_DOCUMENT'],
+const report = { schema: 'enjaz.phase14-1.a2.j08-linked-real-cloud.v1', projectRef: LAB,
+  productionProjectRef: PROD, scope: ['J01_COMPANY','J02_TRANSACTION','J03_PROCEDURE','J04_FIELD','J05_FOLLOWUP','J06_PAYMENT','J07_DOCUMENT','J08_CLIENT_PORTAL'],
   completeElevenDomainA2: false, phase14_1Closed: false, passed: false,
   cleanupPassed: false, checks: [], cleanup: [], startedAt: new Date().toISOString() };
 const verify = (ok, code) => {
@@ -86,7 +87,8 @@ async function run() {
   verify(usersBefore.data.users.length === 0 &&
     (await Promise.all(['workspaces','companies','transactions','workflow_instances','field_assignments','field_visits','field_sync_receipts','transaction_followups','payments','payment_reversals',
       'document_templates','document_template_versions','document_drafts',
-      'pdf_jobs','documents','document_versions','document_upload_sessions'].map(x => readCount(x)))).every(x => x === 0),
+      'pdf_jobs','documents','document_versions','document_upload_sessions',
+      'client_portal_principals','client_portal_grants','client_portal_resource_shares'].map(x => readCount(x)))).every(x => x === 0),
     'EXCLUSIVE_EMPTY_LAB_BEFORE_J03');
 
   const owner = await makeUser('owner');
@@ -285,9 +287,12 @@ async function run() {
     transactionId:tx.id,readCount,verify});
   await checkLinkedFinance({owner,outsider,fresh,workspaceId:ws,
     transactionId:tx.id,companyId:ownerCompany.data.id,readCount,verify});
-  await checkLinkedDocument({owner,outsider,fresh,admin,workspaceId:ws,
+  const j07=await checkLinkedDocument({owner,outsider,fresh,admin,workspaceId:ws,
     transactionId:tx.id,companyId:ownerCompany.data.id,
     publishableKey:key,storagePaths,readCount,verify});
+  await checkLinkedClientPortal({owner,outsider,admin,makeUser,workspaceId:ws,
+    transactionId:tx.id,companyId:ownerCompany.data.id,
+    documentId:j07.documentId,readCount,verify});
 }
 async function cleanup() {
   let clean = true;
@@ -339,7 +344,8 @@ async function cleanup() {
           'field_assignments','field_visits','field_sync_receipts','transaction_followups',
           'payments','payment_reversals','financial_ledger_entries',
           'document_templates','document_template_versions','document_drafts',
-          'pdf_jobs','documents','document_versions','document_upload_sessions']
+          'pdf_jobs','documents','document_versions','document_upload_sessions',
+          'client_portal_principals','client_portal_grants','client_portal_resource_shares']
           .map(t=>readCount(t)))).some(n=>n!==0)) throw new Error('J03_RESIDUE_DETECTED');
     report.cleanup.push({kind:'independent_auth_and_business_zero_residue',passed:true});
   } catch {

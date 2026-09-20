@@ -1,4 +1,4 @@
-name: ENJAZ Phase 14.1 A2 — Linked J01-J07 Real Cloud (NOT full A2)
+name: ENJAZ Phase 14.1 A2 — Linked J01-J08 Real Cloud (NOT full A2)
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
       - 'scripts/phase14-1-a2-j05-linked-followup-extension.mjs'
       - 'scripts/phase14-1-a2-j06-linked-finance-extension.mjs'
       - 'scripts/phase14-1-a2-j07-linked-document-extension.mjs'
+      - 'scripts/phase14-1-a2-j08-client-auth-gateway-extension.mjs'
       - '.github/workflows/phase14-1-a2-j04-field-real-cloud.yml'
   workflow_dispatch:
 
@@ -48,22 +49,23 @@ jobs:
           node --check scripts/phase14-1-a2-j05-linked-followup-extension.mjs
           node --check scripts/phase14-1-a2-j06-linked-finance-extension.mjs
           node --check scripts/phase14-1-a2-j07-linked-document-extension.mjs
-      - name: Execute same-user JWT J01–J07 procedure, field, followup, retry and cleanup
+          node --check scripts/phase14-1-a2-j08-client-auth-gateway-extension.mjs
+      - name: Execute same-user JWT J01–J08 procedure, field, followup, retry and cleanup
         run: node scripts/phase14-1-a2-j04-field-real-cloud.mjs
-      - name: Verify isolated linked J01–J07 evidence without falsely certifying full A2
+      - name: Verify isolated linked J01–J08 evidence without falsely certifying full A2
         run: |
           node - <<'NODE'
           const fs = require('node:fs');
           const e = JSON.parse(fs.readFileSync('artifacts/phase14-1-a2-j04-field/evidence.json','utf8'));
           if (e.projectRef !== 'nqhgaukutkyvfumbtbtg' ||
               e.productionProjectRef === e.projectRef ||
-              e.scope?.join(',') !== 'J01_COMPANY,J02_TRANSACTION,J03_PROCEDURE,J04_FIELD,J05_FOLLOWUP,J06_PAYMENT,J07_DOCUMENT' ||
+              e.scope?.join(',') !== 'J01_COMPANY,J02_TRANSACTION,J03_PROCEDURE,J04_FIELD,J05_FOLLOWUP,J06_PAYMENT,J07_DOCUMENT,J08_CLIENT_PORTAL' ||
               e.completeElevenDomainA2 !== false || e.phase14_1Closed !== false ||
               e.passed !== true || e.cleanupPassed !== true)
-            throw new Error('Linked J01-J07 hosted slice NOT certified');
-          console.log('PASS isolated authenticated linked J01-J07 and zero residue (NOT full A2)');
+            throw new Error('Linked J01-J08 hosted slice NOT certified');
+          console.log('PASS isolated authenticated linked J01-J08 and zero residue (NOT full A2)');
           NODE
-      - name: Upload isolated linked J01-J07 evidence
+      - name: Upload isolated linked J01-J08 evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
