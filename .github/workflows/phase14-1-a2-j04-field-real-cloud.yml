@@ -1,4 +1,4 @@
-name: ENJAZ Phase 14.1 A2 — J04 Real Cloud (NOT full A2)
+name: ENJAZ Phase 14.1 A2 — Linked J01-J05 Real Cloud (NOT full A2)
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - 'phase14-1-*'
     paths:
       - 'scripts/phase14-1-a2-j04-field-real-cloud.mjs'
+      - 'scripts/phase14-1-a2-j05-linked-followup-extension.mjs'
       - '.github/workflows/phase14-1-a2-j04-field-real-cloud.yml'
   workflow_dispatch:
 
@@ -39,28 +40,30 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Compile-check isolated J04 harness before any cloud mutation
-        run: node --check scripts/phase14-1-a2-j04-field-real-cloud.mjs
-      - name: Execute real owner JWT J01–J04 field operations, retry and cleanup
+      - name: Compile-check integrated runner and followup extension before cloud mutation
+        run: |
+          node --check scripts/phase14-1-a2-j04-field-real-cloud.mjs
+          node --check scripts/phase14-1-a2-j05-linked-followup-extension.mjs
+      - name: Execute same-user JWT J01–J05 procedure, field, followup, retry and cleanup
         run: node scripts/phase14-1-a2-j04-field-real-cloud.mjs
-      - name: Verify isolated J04 evidence without falsely certifying full A2
+      - name: Verify isolated linked J01–J05 evidence without falsely certifying full A2
         run: |
           node - <<'NODE'
           const fs = require('node:fs');
           const e = JSON.parse(fs.readFileSync('artifacts/phase14-1-a2-j04-field/evidence.json','utf8'));
           if (e.projectRef !== 'nqhgaukutkyvfumbtbtg' ||
               e.productionProjectRef === e.projectRef ||
-              e.scope?.join(',') !== 'J01_COMPANY,J02_TRANSACTION,J03_PROCEDURE,J04_FIELD' ||
+              e.scope?.join(',') !== 'J01_COMPANY,J02_TRANSACTION,J03_PROCEDURE,J04_FIELD,J05_FOLLOWUP' ||
               e.completeElevenDomainA2 !== false || e.phase14_1Closed !== false ||
               e.passed !== true || e.cleanupPassed !== true)
-            throw new Error('J04 hosted slice NOT certified');
-          console.log('PASS isolated authenticated J04 field and zero residue (NOT full A2)');
+            throw new Error('Linked J01-J05 hosted slice NOT certified');
+          console.log('PASS isolated authenticated linked J01-J05 and zero residue (NOT full A2)');
           NODE
-      - name: Upload isolated J04 evidence
+      - name: Upload isolated linked J01-J05 evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase141-a2-j04-field-real-cloud
+          name: phase141-a2-j01-j05-linked-real-cloud
           path: |
             artifacts/phase14-1-a2-isolated-auth/preflight.json
             artifacts/phase14-1-a2-j04-field/evidence.json
