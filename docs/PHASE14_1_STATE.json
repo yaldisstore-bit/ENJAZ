@@ -37,5 +37,13 @@
   "a1MergedMain": "665fcc63a5919e4ad80d0b01b8f54914d15bad0c",
   "a1MergedMainWorkflowCount": 36,
   "a1MergedMainSuccessCount": 36,
-  "a2SourceStatus": "IN_PROGRESS_UNCERTIFIED"
+  "a2SourceStatus": "IN_PROGRESS_UNCERTIFIED",
+  "a2HostedPrerequisitesStatus": "BLOCKED_NO_FULL_SCHEMA_ISOLATED_TARGET",
+  "a2HostedPrerequisitesContract": "docs/PHASE14_1_A2_HOSTED_PREREQUISITES.json",
+  "a2HostedStructuralAuditIsCloudCertificate": false,
+  "a2SourceDeliverables": [
+    "internal scoped linked read proof",
+    "authoritative read-only payment/reversal receipt crosscheck",
+    "isolated hosted structural prerequisite and production target denial audit"
+  ]
 }
