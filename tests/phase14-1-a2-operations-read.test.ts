@@ -37,6 +37,8 @@ function gateway(x:Options={}):CrossDomainOperationsReaders {
       return {
         authority:'field_assignments_visits_evidence_receipts',
         transactionWriteAuthority:'none',financeWriteAuthority:'none',
+        workflowWriteAuthority:'existing_workflow_rpc_only',
+        automationWriteAuthority:'existing_automation_rpc_only',
         assignments:[assignment()],visits:[visit()],...x.field,
       };
     } },
@@ -82,6 +84,12 @@ test('A2 denies a field gateway that manufactures finance or transaction writes'
   })),reason('FIELD_AUTHORITY'));
   await assert.rejects(verifyCrossDomainOperationsRead(source(),gateway({
     field:{financeWriteAuthority:'generic_write'},
+  })),reason('FIELD_AUTHORITY'));
+  await assert.rejects(verifyCrossDomainOperationsRead(source(),gateway({
+    field:{workflowWriteAuthority:'unrestricted'},
+  })),reason('FIELD_AUTHORITY'));
+  await assert.rejects(verifyCrossDomainOperationsRead(source(),gateway({
+    field:{automationWriteAuthority:'unrestricted'},
   })),reason('FIELD_AUTHORITY'));
 });
 
