@@ -10,6 +10,7 @@ import { cleanupDiagnostic, removeLinkedFixtureWorkspace } from './phase14-1-a2-
 import { checkLinkedGovernance } from './phase14-1-a2-j10-linked-governance-extension.mjs';
 import { checkLinkedContract } from './phase14-1-a2-j11-linked-contract-extension.mjs';
 import { checkSameWorkspaceRoleNegativeMatrix } from './phase14-1-a2-n02-role-negative-matrix.mjs';
+import { checkAuthExpiryResumption } from './phase14-1-a2-n13-auth-expiry.mjs';
 
 // J01-J11 linked happy path and selected negatives; NOT the complete A2 role,
 // expiry, source-gateway, client-approval or browser acceptance matrix.
@@ -43,7 +44,7 @@ const storagePaths = new Set();
 const report = { schema: 'enjaz.phase14-1.a2.j11-linked-real-cloud.v1', projectRef: LAB,
   productionProjectRef: PROD, scope: ['J01_COMPANY','J02_TRANSACTION','J03_PROCEDURE','J04_FIELD','J05_FOLLOWUP','J06_PAYMENT','J07_DOCUMENT','J08_CLIENT_PORTAL','J09_ARCHIVE','J10_GOVERNANCE','J11_ENGAGEMENT'],
   completeElevenDomainA2: false, phase14_1Closed: false, passed: false,
-  n02SameWorkspaceRoleMatrix: false,
+  n02SameWorkspaceRoleMatrix: false, n13AuthExpiry: false,
   remainingNegativeGates: ['N02_SAME_WORKSPACE_ROLE_ALL_DOMAINS','N13_AUTH_EXPIRY'],
   cleanupPassed: false, checks: [], cleanup: [], startedAt: new Date().toISOString() };
 const verify = (ok, code) => {
@@ -317,6 +318,11 @@ async function run() {
     companyId:ownerCompany.data.id,procedureId,templateVersionId:j07.templateVersionId,readCount,verify});
   report.n02SameWorkspaceRoleMatrix=true;
   report.remainingNegativeGates=['N13_AUTH_EXPIRY'];
+  await checkAuthExpiryResumption({owner,admin,makeClient:client,workspaceId:ws,
+    companyId:ownerCompany.data.id,transactionId:tx.id,readCount,verify});
+  report.n13AuthExpiry=true;
+  report.completeElevenDomainA2=true;
+  report.remainingNegativeGates=[];
 }
 async function cleanup() {
   let clean = true;
