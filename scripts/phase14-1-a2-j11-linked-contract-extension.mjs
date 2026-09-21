@@ -63,7 +63,13 @@ export async function checkLinkedContract({owner,outsider,member,fresh,workspace
     changedReplay.error?.code==='23505','J11_REVIEW_RETRY_NO_DOUBLE_TRANSITION');
   const stale=await owner.client.rpc('transition_engagement_contract_revision_v2',
     {...reviewArgs,p_operation_id:randomUUID(),p_to_status:'approved'});
-  verify(stale.error?.code==='40001'&&(await read()).data?.version===2,
+  const staleRead=await read();
+  const staleRejected=Boolean(stale.error)&&(
+    stale.error?.code==='40001'||
+    String(stale.error?.message??'').includes('ENJAZ_CONTRACT_TRANSITION_STALE')
+  );
+  verify(staleRejected&&!staleRead.error&&staleRead.data?.version===2&&
+    staleRead.data?.status==='under_review',
     'J11_STALE_CONTRACT_VERSION_CANNOT_CHANGE_RETAINER');
   const transition=async(status,expectedVersion,extra={})=>{
     const result=await owner.client.rpc('transition_engagement_contract_revision_v2',{
