@@ -10,7 +10,13 @@ function fixture({marker='phase14_1_a2_j04_field_real_cloud',owner=uid,blocked=n
   const dependencies=LINKED_FIXTURE_LEAF_TABLES;
   for(const t of dependencies)rows[t]=[{id:uid,workspace_id:ws},{id:foreign,workspace_id:foreign}];
   const deletes=[];
-  const admin={auth:{admin:{getUserById:async()=>({data:{user:{id:uid,
+  const corporate=new Set(dependencies.filter(t=>t.startsWith('corporate_')));
+  const admin={rpc:async(name,params)=>{
+    assert.equal(name,'phase14_1_a2_lab_remove_corporate_children_v1');
+    assert.deepEqual(params,{p_workspace_id:ws,p_owner_user_id:uid});
+    for(const table of corporate)rows[table]=rows[table].filter(r=>r.workspace_id!==ws);
+    return {data:{cleaned:true},error:null};
+  },auth:{admin:{getUserById:async()=>({data:{user:{id:uid,
     email:'enjaz-a2-j03-owner-'+uid+'@example.com',
     user_metadata:{enjaz_test_marker:marker,label:'owner'}}},error:null})}},from(table){
     let remove=false,single=false;const filters=[];
@@ -74,6 +80,8 @@ test('diagnostics exclude arbitrary server text and credential-shaped codes',()=
 
 test('a silent successful DELETE that leaves a RESTRICT child cannot certify cleanup',async()=>{
   const f=fixture();
+  // The lab helper falsely claims cleanup while leaving corporate rows.
+  f.args.admin.rpc=async()=>({data:{cleaned:true},error:null});
   const original=f.args.admin.from;
   f.args.admin.from=function(table){
     const q=original.call(this,table);
@@ -87,4 +95,13 @@ test('a silent successful DELETE that leaves a RESTRICT child cannot certify cle
   await assert.rejects(removeLinkedFixtureWorkspace(f.args),/CLEANUP_DEPENDENCY_ROWS_REMAIN/);
   assert.equal(f.deletes.some(d=>d.table==='workspaces'),false);
   assert.equal(f.rows.corporate_governance_events.some(r=>r.workspace_id===ws),true);
+});
+
+test('failed lab-only governance RPC cannot delete its workspace or unrelated rows',async()=>{
+  const f=fixture();
+  f.args.admin.rpc=async()=>({data:null,error:{code:'42501',message:'unauthorized fixture'}});
+  await assert.rejects(removeLinkedFixtureWorkspace(f.args),/CLEANUP_LAB_GOVERNANCE_RPC_DENIED/);
+  assert.equal(f.deletes.some(d=>d.table==='workspaces'),false);
+  assert.equal(f.rows.corporate_governance_events.some(r=>r.workspace_id===ws),true);
+  assert.equal(f.rows.corporate_governance_events.some(r=>r.workspace_id===foreign),true);
 });
