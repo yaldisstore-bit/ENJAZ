@@ -13,6 +13,7 @@ import { checkLinkedContract } from './phase14-1-a2-j11-linked-contract-extensio
 // J01-J11 linked happy path and selected negatives; NOT the complete A2 role,
 // expiry, source-gateway, client-approval or browser acceptance matrix.
 // The test refuses production/unknown targets and requires an entirely empty disposable lab.
+// Guarded recovery run 35566685297 re-established zero Auth/business residue before this rerun.
 const LAB = 'nqhgaukutkyvfumbtbtg';
 const PROD = 'juzxriirhkuzviwnhkbd';
 const MARKER = 'phase14_1_a2_j04_field_real_cloud';
