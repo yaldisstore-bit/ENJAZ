@@ -29,7 +29,7 @@ async function loginStaff(page) {
   await expect(page.locator('[data-r2-runtime-mode="live"]')).toBeVisible({ timeout: 30000 });
 }
 
-async function loginClient(page) {
+async function loginClient(page, fatal = []) {
   await page.goto(new URL('/portal', baseUrl).toString(), { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-client-portal-auth="true"]')).toBeVisible({ timeout: 20000 });
   await page.getByLabel('البريد الإلكتروني').fill(clientEmail);
@@ -64,7 +64,12 @@ async function loginClient(page) {
       .map(node => typeof node.className === 'string' ? node.className : node.tagName)
       .slice(0, 8),
   }));
-  console.log('A3_PORTAL_POST_RPC_STATE ' + JSON.stringify(portalState));
+  const safeFatal = fatal.slice(0, 6).map(value => String(value)
+    .replace(/https?:\/\/\S+/g, '<url>')
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '<email>')
+    .slice(0, 220));
+  console.log('A3_PORTAL_POST_RPC_STATE ' + JSON.stringify({...portalState,
+    fatalCount: fatal.length, safeFatal}));
   expect(portalState.error).toBe(0);
   expect(portalState.shell).toBe(1);
   expect(portalState.hero).toBe(1);
@@ -87,7 +92,7 @@ for (const width of [1280, 430, 390, 360, 320]) {
     page.on('pageerror', e => fatal.push(e.message));
     page.on('console', m => { if (m.type() === 'error') fatal.push(m.text()); });
     await page.setViewportSize({ width, height: width === 1280 ? 900 : 844 });
-    await loginClient(page);
+    await loginClient(page, fatal);
     const shell = page.locator('[data-client-portal-shell="isolated"]');
     await expect(shell).toHaveAttribute('dir', 'rtl');
     await expect(page.getByRole('navigation', { name: 'تنقل بوابة العميل' })).toBeVisible();
@@ -100,7 +105,7 @@ for (const width of [1280, 430, 390, 360, 320]) {
 test('Phase 14.1 A3 client portal survives offline refresh and recovers online', async ({ page, context }) => {
   test.setTimeout(75000);
   await page.setViewportSize({ width: 390, height: 844 });
-  await loginClient(page);
+  await loginClient(page, fatal);
   try {
     await context.setOffline(true);
     await page.getByRole('button', { name: 'تحديث' }).click();
