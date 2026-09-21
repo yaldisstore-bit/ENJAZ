@@ -45,37 +45,47 @@ if(users.length===0){
   for(const table of tables)check((await count(table))===0,'RECOVERY_EMPTY_AUTH_NONEMPTY_'+table);
   console.log('PASS_RECOVERY_ALREADY_ZERO_RESIDUE');process.exit(0);
 }
-check(users.length===1,'RECOVERY_UNEXPECTED_USER_POPULATION');
-const user=users[0];
-check(user.user_metadata?.enjaz_test_marker===MARKER&&user.user_metadata?.label==='owner'&&
-  /^enjaz-a2-j03-owner-[0-9a-f-]+@example\.com$/.test(user.email??''),
-  'RECOVERY_UNMARKED_IDENTITY_DENIED');
+check(users.length===2,'RECOVERY_UNEXPECTED_USER_POPULATION');
+const byLabel=new Map(users.map(user=>[user.user_metadata?.label,user]));
+check(byLabel.size===2&&byLabel.has('owner')&&byLabel.has('portal-client'),
+  'RECOVERY_UNEXPECTED_MARKED_ROLES');
+for(const [label,user] of byLabel){
+  check(user.user_metadata?.enjaz_test_marker===MARKER&&
+    new RegExp('^enjaz-a2-j03-'+label+'-[0-9a-f-]+@example\\.com
+for(const table of tables)check((await count(table))===0,
+  'RECOVERY_POST_DELETE_RESIDUE_'+table);
+console.log('PASS_RECOVERY_EXACT_MARKED_LAB_ZERO_AUTH_AND_BUSINESS_RESIDUE');
+).test(user.email??''),
+    'RECOVERY_UNMARKED_IDENTITY_DENIED');
+}
+const owner=byLabel.get('owner');
+const portalClient=byLabel.get('portal-client');
 const workspaces=await admin.from('workspaces').select('id,owner_user_id').limit(3);
 check(!workspaces.error&&workspaces.data?.length===1&&
-  workspaces.data[0].owner_user_id===user.id,'RECOVERY_EXACT_OWNER_WORKSPACE_DENIED');
+  workspaces.data[0].owner_user_id===owner.id,'RECOVERY_EXACT_OWNER_WORKSPACE_DENIED');
 const ws=workspaces.data[0].id;
-// One-time J10 leaf repair has already deleted the three RESTRICT children
-// under the strictly marked owner, without touching the workspace or Auth.
 check((await count('companies'))===1&&(await count('companies',ws))===1&&
-  (await count('corporate_governance_events'))===0&&
-  (await count('corporate_resolutions'))===0&&
-  (await count('corporate_registry_states'))===0,
+  (await count('corporate_governance_events'))===5&&
+  (await count('corporate_resolutions'))===1&&
+  (await count('corporate_registry_states'))===1,
   'RECOVERY_UNEXPECTED_J10_GRAPH');
 for(const table of tables.filter(t=>t!=='workspaces')){
   check((await count(table))===(await count(table,ws)),
     'RECOVERY_FOREIGN_OR_UNSCOPED_ROWS_'+table);
 }
-console.log('PASS_RECOVERY_ONE_MARKED_OWNER_ONE_WORKSPACE_ALL_ROWS_SCOPED');
+console.log('PASS_RECOVERY_TWO_MARKED_IDENTITIES_ONE_WORKSPACE_ALL_ROWS_SCOPED');
 
-// The previously failed run uploaded no stored objects (independent read-only
-// inventory). Recheck the exact workspace prefix before metadata removal.
+// The failed linked run left no stored objects. Recheck the exact workspace
+// prefix before removing the strictly marked database graph and Auth fixtures.
 const storage=await admin.storage.from('enjaz-documents-private').list(ws,{limit:100});
 check(!storage.error&&Array.isArray(storage.data)&&storage.data.length===0,
   'RECOVERY_STORAGE_NONEMPTY_OR_UNVERIFIED');
-await removeLinkedFixtureWorkspace({admin,url,userId:user.id,workspaceId:ws});
+await removeLinkedFixtureWorkspace({admin,url,userId:owner.id,workspaceId:ws});
 console.log('PASS_RECOVERY_SCOPED_WORKSPACE_REMOVED');
-const deleted=await admin.auth.admin.deleteUser(user.id,false);
-check(!deleted.error,'RECOVERY_MARKED_OWNER_AUTH_DELETE_DENIED');
+for(const user of [portalClient,owner]){
+  const deleted=await admin.auth.admin.deleteUser(user.id,false);
+  check(!deleted.error,'RECOVERY_MARKED_AUTH_DELETE_DENIED');
+}
 const after=await admin.auth.admin.listUsers({page:1,perPage:1000});
 check(!after.error&&after.data?.users?.length===0,'RECOVERY_AUTH_RESIDUE');
 for(const table of tables)check((await count(table))===0,
