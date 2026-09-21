@@ -26,8 +26,14 @@ export async function checkLinkedGovernance({owner,outsider,fresh,admin,makeUser
   const replay=await fresh.rpc('replace_company_ownership_snapshot_v1',ownership);
   verify(!replay.error&&replay.data?.replayed===true&&await readCount('corporate_ownership_stakes',ws)===1,
     'J10_OWNERSHIP_REPLAY_NO_DUPLICATE');
-  const conflict=await owner.client.rpc('replace_company_ownership_snapshot_v1',
+  const incomplete=await owner.client.rpc('replace_company_ownership_snapshot_v1',
     {...ownership,p_entries:[{kind:'person',id:person,role:'shareholder',percentage:'90'}]});
+  verify(incomplete.error?.code==='23514'&&await readCount('corporate_ownership_stakes',ws)===1,
+    'J10_INCOMPLETE_OWNERSHIP_TOTAL_DENIED');
+  // A replay conflict must carry an independently valid 100% ownership payload;
+  // otherwise the percentage validation correctly fails before replay lookup.
+  const conflict=await owner.client.rpc('replace_company_ownership_snapshot_v1',
+    {...ownership,p_entries:[{kind:'person',id:person,role:'partner',percentage:'100'}]});
   verify(conflict.error?.code==='23505','J10_OWNERSHIP_REPLAY_PAYLOAD_CONFLICT');
   const bo=await owner.client.rpc('replace_company_beneficial_owners_v1',{
     ...common,p_expected_version:0,p_operation_id:randomUUID(),p_effective_from:'2026-01-01',
