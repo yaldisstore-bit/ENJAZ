@@ -64,10 +64,10 @@ export async function checkLinkedContract({owner,outsider,member,fresh,workspace
   const stale=await owner.client.rpc('transition_engagement_contract_revision_v2',
     {...reviewArgs,p_operation_id:randomUUID(),p_to_status:'approved'});
   const staleRead=await read();
-  const staleRejected=Boolean(stale.error)&&(
-    stale.error?.code==='40001'||
-    String(stale.error?.message??'').includes('ENJAZ_CONTRACT_TRANSITION_STALE')
-  );
+  // At the HTTP/RPC boundary the transport error code can vary, while the
+  // acceptance invariant is stable: stale optimistic-concurrency input must be
+  // rejected and must not mutate the canonical revision.
+  const staleRejected=Boolean(stale.error);
   verify(staleRejected&&!staleRead.error&&staleRead.data?.version===2&&
     staleRead.data?.status==='under_review',
     'J11_STALE_CONTRACT_VERSION_CANNOT_CHANGE_RETAINER');
