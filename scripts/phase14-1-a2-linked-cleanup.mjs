@@ -39,6 +39,22 @@ export async function removeLinkedFixtureWorkspace({ admin, url, userId, workspa
   if (workspace.error || workspace.data?.id !== workspaceId || workspace.data?.owner_user_id !== userId)
     fail('CLEANUP_WORKSPACE_OWNER_MISMATCH', workspace.error);
 
+  // J10 governance rows are immutable to application roles by design.
+  // Only the marked owner fixture may invoke the separately deployed LAB-ONLY
+  // service-role RPC, and only if this run actually created governance events.
+  if (user.user_metadata.label === 'owner') {
+    const governance = await admin.from('corporate_governance_events')
+      .select('*', { head: true, count: 'exact' }).eq('workspace_id', workspaceId);
+    if (governance.error || !Number.isInteger(governance.count))
+      fail('CLEANUP_LAB_GOVERNANCE_COUNT_DENIED', governance.error);
+    if (governance.count > 0) {
+      const scoped = await admin.rpc('phase14_1_a2_lab_remove_corporate_children_v1',
+        { p_workspace_id: workspaceId, p_owner_user_id: userId });
+      if (scoped.error || scoped.data?.cleaned !== true)
+        fail('CLEANUP_LAB_GOVERNANCE_RPC_DENIED', scoped.error);
+    }
+  }
+
   // These leaf fixtures have RESTRICT links to the company/transaction/document
   // graph. Remove them first, so workspace cascade order cannot strand them.
   // Never disable constraints, delete a foreign workspace, or sweep Auth users.
