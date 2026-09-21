@@ -47,6 +47,15 @@ export async function removeLinkedFixtureWorkspace({ admin, url, userId, workspa
   for (const table of LINKED_FIXTURE_LEAF_TABLES) {
     const result = await admin.from(table).delete().eq('workspace_id', workspaceId);
     if (result.error) fail('CLEANUP_DEPENDENCY_DELETE_DENIED', result.error);
+    // PostgREST can return a successful DELETE with zero affected rows when
+    // RLS filters the target. Confirm every RESTRICT child is actually gone
+    // before deleting its company/workspace parent.
+    const remaining = await admin.from(table).select('id', { head: true, count: 'exact' })
+      .eq('workspace_id', workspaceId);
+    if (remaining.error || !Number.isInteger(remaining.count))
+      fail('CLEANUP_DEPENDENCY_VERIFY_DENIED', remaining.error);
+    if (remaining.count !== 0)
+      fail('CLEANUP_DEPENDENCY_ROWS_REMAIN', { code: 'CHILD_ROWS_REMAIN' });
   }
   const removed = await admin.from('workspaces').delete()
     .eq('id', workspaceId).eq('owner_user_id', userId).select('id');
