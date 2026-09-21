@@ -53,9 +53,12 @@ const workspaces=await admin.from('workspaces').select('id,owner_user_id').limit
 check(!workspaces.error&&workspaces.data?.length===1&&
   workspaces.data[0].owner_user_id===user.id,'RECOVERY_EXACT_OWNER_WORKSPACE_DENIED');
 const ws=workspaces.data[0].id;
+// One-time J10 leaf repair has already deleted the three RESTRICT children
+// under the strictly marked owner, without touching the workspace or Auth.
 check((await count('companies'))===1&&(await count('companies',ws))===1&&
-  (await count('corporate_governance_events'))===1&&
-  (await count('corporate_resolutions'))===1,
+  (await count('corporate_governance_events'))===0&&
+  (await count('corporate_resolutions'))===0&&
+  (await count('corporate_registry_states'))===0,
   'RECOVERY_UNEXPECTED_J10_GRAPH');
 for(const table of tables.filter(t=>t!=='workspaces')){
   check((await count(table))===(await count(table,ws)),
