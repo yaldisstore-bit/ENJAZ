@@ -49,8 +49,9 @@ async function loginClient(page, fatal = []) {
   await workspacesReady;
   await expect(page.locator('[data-client-portal-shell="isolated"]')).toBeVisible({ timeout: 30000 });
   await Promise.all([modelReady, authorityReady]);
+  const shell = page.locator('[data-client-portal-shell="isolated"]');
+  await expect(shell).toHaveAttribute('data-client-portal-load-state', 'ready', { timeout: 30000 });
   await expect(page.locator('.cp-skeleton')).toHaveCount(0, { timeout: 25000 });
-  await page.waitForTimeout(250);
   const portalState = await page.evaluate(() => ({
     path: window.location.pathname,
     shell: document.querySelectorAll('[data-client-portal-shell="isolated"]').length,
@@ -60,6 +61,7 @@ async function loginClient(page, fatal = []) {
     skeleton: document.querySelectorAll('.cp-skeleton').length,
     error: document.querySelectorAll('.cp-notice--error').length,
     hero: document.querySelectorAll('.cp-hero').length,
+    loadState: document.querySelector('[data-client-portal-shell="isolated"]')?.getAttribute('data-client-portal-load-state') ?? null,
     mainChildren: Array.from(document.querySelector('.cp-main')?.children ?? [])
       .map(node => typeof node.className === 'string' ? node.className : node.tagName)
       .slice(0, 8),
@@ -104,6 +106,9 @@ for (const width of [1280, 430, 390, 360, 320]) {
 
 test('Phase 14.1 A3 client portal survives offline refresh and recovers online', async ({ page, context }) => {
   test.setTimeout(75000);
+  const fatal = [];
+  page.on('pageerror', e => fatal.push(e.message));
+  page.on('console', m => { if (m.type() === 'error') fatal.push(m.text()); });
   await page.setViewportSize({ width: 390, height: 844 });
   await loginClient(page, fatal);
   try {
@@ -121,7 +126,9 @@ test('Phase 14.1 A3 client portal survives offline refresh and recovers online',
     response.request().method() === 'POST' && response.ok());
   await page.getByRole('button', { name: 'تحديث' }).click();
   await recoveredRead;
-  await expect(page.locator('[data-client-portal-shell="isolated"]')).toBeVisible({ timeout: 20000 });
+  const recoveredShell = page.locator('[data-client-portal-shell="isolated"]');
+  await expect(recoveredShell).toBeVisible({ timeout: 20000 });
+  await expect(recoveredShell).toHaveAttribute('data-client-portal-load-state', 'ready', { timeout: 30000 });
   await expect(page.locator('.cp-skeleton')).toHaveCount(0, { timeout: 25000 });
   await expect(page.locator('.cp-notice--error')).toHaveCount(0);
   await expect(page.locator('.cp-hero')).toBeVisible();

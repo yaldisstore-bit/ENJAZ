@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { createSupabaseAuthGateway } from '../../core/auth/SupabaseAuthGateway.ts';
 import { createRuntimeConfig } from '../../core/config/env.ts';
 import { createEnjazSupabaseClient } from '../../core/supabase/client.ts';
@@ -85,14 +85,30 @@ function RequestAction({gateway,workspaceId,request,onChanged}:Readonly<{gateway
 }
 
 function PortalShell({gateway,workspaces,initialWorkspace,onSignOut}:Readonly<{gateway:ClientPortalGateway;workspaces:readonly ClientPortalWorkspace[];initialWorkspace:string;onSignOut:()=>void}>){
-  const [workspaceId,setWorkspaceId]=useState(initialWorkspace),[section,setSection]=useState<PortalSection>('overview'),[model,setModel]=useState<ClientPortalReadModel|null>(null),[authority,setAuthority]=useState<ClientPortalAuthorityContext|null>(null),[loading,setLoading]=useState(true),[notice,setNotice]=useState<Notice>(null);
+  const [workspaceId,setWorkspaceId]=useState(initialWorkspace),[section,setSection]=useState<PortalSection>('overview');
+  const loadSequence=useRef(0);
+  const [view,setView]=useState<Readonly<{model:ClientPortalReadModel|null;authority:ClientPortalAuthorityContext|null;loading:boolean;notice:Notice}>>({
+    model:null,authority:null,loading:true,notice:null,
+  });
+  const {model,authority,loading,notice}=view;
   const current=workspaces.find((item)=>item.workspaceId===workspaceId)??workspaces[0]!;
-  const reload=useCallback(async()=>{setLoading(true);setNotice(null);try{const [m,a]=await Promise.all([gateway.readModel(current.workspaceId),gateway.authority(current.workspaceId)]);setModel(m);setAuthority(a);}catch(error){setNotice({kind:'error',message:userMessage(error,'تعذر تحميل بيانات البوابة.')});setModel(null);setAuthority(null);}finally{setLoading(false);}},[gateway,current.workspaceId]);
+  const reload=useCallback(async()=>{
+    const sequence=++loadSequence.current;
+    setView((previous)=>({...previous,loading:true,notice:null}));
+    try{
+      const [m,a]=await Promise.all([gateway.readModel(current.workspaceId),gateway.authority(current.workspaceId)]);
+      if(sequence!==loadSequence.current)return;
+      setView({model:m,authority:a,loading:false,notice:null});
+    }catch(error){
+      if(sequence!==loadSequence.current)return;
+      setView({model:null,authority:null,loading:false,notice:{kind:'error',message:userMessage(error,'تعذر تحميل بيانات البوابة.')}});
+    }
+  },[gateway,current.workspaceId]);
   useEffect(()=>{void reload();},[reload]);
   const openRequests=useMemo(()=>model?.requests.filter((item)=>item.status==='open')??[],[model]);
   const companyById=useMemo(()=>new Map((model?.companies??[]).map((item)=>[item.id,item])),[model]);
   const nav:readonly [PortalSection,string,string][]=[['overview','الرئيسية','⌂'],['requests','الطلبات','✓'],['transactions','المعاملات','▣'],['documents','الوثائق','▤'],['receipts','الإيصالات','◫']];
-  return <div className="cp-shell" dir="rtl" data-client-portal-shell="isolated"><header className="cp-topbar"><div className="cp-topbar__brand"><ClientPortalMark/><div><strong>بوابة إنجاز</strong><span>{current.workspaceName}</span></div></div><div className="cp-topbar__actions">{workspaces.length>1&&<select aria-label="مساحة العمل" value={workspaceId} onChange={(e)=>setWorkspaceId(e.currentTarget.value)}>{workspaces.map((item)=><option key={item.workspaceId} value={item.workspaceId}>{item.workspaceName}</option>)}</select>}<button onClick={()=>{void reload();}} className="cp-icon-button" aria-label="تحديث">↻</button><button onClick={onSignOut} className="cp-icon-button" aria-label="تسجيل الخروج">↪</button></div></header><main className="cp-main">{notice&&<div className={`cp-notice cp-notice--${notice.kind}`}>{notice.message}</div>}{loading?<div className="cp-skeleton"><span/><span/><span/></div>:model&&authority&&<>
+  return <div className="cp-shell" dir="rtl" data-client-portal-shell="isolated" data-client-portal-load-state={loading?'loading':notice?'error':model&&authority?'ready':'invalid'}><header className="cp-topbar"><div className="cp-topbar__brand"><ClientPortalMark/><div><strong>بوابة إنجاز</strong><span>{current.workspaceName}</span></div></div><div className="cp-topbar__actions">{workspaces.length>1&&<select aria-label="مساحة العمل" value={workspaceId} onChange={(e)=>setWorkspaceId(e.currentTarget.value)}>{workspaces.map((item)=><option key={item.workspaceId} value={item.workspaceId}>{item.workspaceName}</option>)}</select>}<button onClick={()=>{void reload();}} className="cp-icon-button" aria-label="تحديث">↻</button><button onClick={onSignOut} className="cp-icon-button" aria-label="تسجيل الخروج">↪</button></div></header><main className="cp-main">{notice&&<div className={`cp-notice cp-notice--${notice.kind}`}>{notice.message}</div>}{loading?<div className="cp-skeleton"><span/><span/><span/></div>:model&&authority&&<>
     {section==='overview'&&<><section className="cp-hero"><div><p className="cp-kicker">ملخصك اليوم</p><h1>{openRequests.length?`لديك ${openRequests.length} طلب بحاجة لإجراء`:'كل شيء تحت السيطرة'}</h1><p>{openRequests.length?'أنجز المطلوب من هنا مباشرة؛ كل إجراء مرتبط بمعاملته وصلاحيته المحددة.':'لا توجد طلبات مفتوحة الآن. يمكنك متابعة حالة معاملاتك ووثائقك في أي وقت.'}</p></div><div className="cp-hero__metric"><strong>{model.transactions.length}</strong><span>معاملة متاحة</span></div></section><section className="cp-stats"><article><span>طلبات مفتوحة</span><strong>{openRequests.length}</strong></article><article><span>وثائق مشتركة</span><strong>{model.documents.length}</strong></article><article><span>إيصالات</span><strong>{model.receipts.length}</strong></article></section>{openRequests.slice(0,3).map((request)=><article className="cp-request" key={request.id}><div className="cp-request__head"><span className="cp-chip">{requestLabels[request.requestType]}</span><small>{request.dueAt?`الاستحقاق ${new Date(request.dueAt).toLocaleDateString('ar-IQ')}`:'بدون موعد محدد'}</small></div><h2>{request.title}</h2>{request.instructions&&<p>{request.instructions}</p>}<RequestAction gateway={gateway} workspaceId={current.workspaceId} request={request} onChanged={reload}/></article>)}</>}
     {section==='requests'&&<section className="cp-section"><header><p className="cp-kicker">مركز الإجراءات</p><h1>الطلبات</h1><span>{model.requests.length} طلب</span></header><div className="cp-list">{model.requests.map((request)=><article className="cp-request" key={request.id}><div className="cp-request__head"><span className="cp-chip">{requestLabels[request.requestType]}</span><span className={`cp-status cp-status--${request.status==='open'?'open':'done'}`}>{request.status==='open'?'مفتوح':'مكتمل'}</span></div><h2>{request.title}</h2>{request.instructions&&<p>{request.instructions}</p>}<RequestAction gateway={gateway} workspaceId={current.workspaceId} request={request} onChanged={reload}/></article>)}</div></section>}
     {section==='transactions'&&<section className="cp-section"><header><p className="cp-kicker">المعاملات المخولة</p><h1>معاملاتي</h1><span>{model.transactions.length} معاملة</span></header><div className="cp-list">{model.transactions.map((tx)=><article className="cp-record" key={tx.id}><div><span className="cp-chip">{tx.type||'معاملة'}</span><h2>{companyById.get(tx.companyId)?.displayName||companyById.get(tx.companyId)?.legalName||'الشركة'}</h2><p>آخر تحديث {new Date(tx.updatedAt).toLocaleDateString('ar-IQ')}</p></div><span className="cp-status cp-status--open">{tx.status}</span></article>)}</div></section>}
