@@ -24,12 +24,14 @@ test('A3 preparatory smoke remains explicitly non-certifying', () => {
     `A2 hosted state must remain explicitly uncertified, got ${state.a2RealCloudStatus}`,
   );
   assert.notEqual(state.a2RealCloudStatus, 'PASS');
-  assert.equal(state.a3RealBrowserStatus, 'NOT_STARTED');
+  assert.ok(['NOT_STARTED','PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_NOT_FULL_A3'].includes(state.a3RealBrowserStatus));
   assert.equal(state.a3PreparatoryBrowserSafetyGuard, 'ACTIVE_FAIL_CLOSED_NO_SECRETS_NO_PRODUCTION');
   assert.equal(state.a3PreparatoryBrowserStatus, 'PASS_14_OF_14_ISOLATED_CHROMIUM_NO_LIVE_AUTH');
   assert.deepEqual(state.a3PreparatoryBrowserWidths, [1280, 430, 390, 360, 320]);
   assert.equal(state.a3PreparatoryBrowserRealAndroidCertified, false);
   assert.equal(state.a3PreparatoryBrowserPublishedPortalCertified, false);
+  assert.equal(state.a3RealBrowserPhysicalAndroidCertified, false);
+  assert.equal(state.a3RealBrowserPublishedPortalCertified, false);
   assert.equal(state.exitGatePassed, false);
   assert.equal(state.phase14_2Allowed, false);
   assert.match(browser, /cannot certify a real client JWT/);
