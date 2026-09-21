@@ -50,7 +50,7 @@ export async function removeLinkedFixtureWorkspace({ admin, url, userId, workspa
     // PostgREST can return a successful DELETE with zero affected rows when
     // RLS filters the target. Confirm every RESTRICT child is actually gone
     // before deleting its company/workspace parent.
-    const remaining = await admin.from(table).select('id', { head: true, count: 'exact' })
+    const remaining = await admin.from(table).select('*', { head: true, count: 'exact' })
       .eq('workspace_id', workspaceId);
     if (remaining.error || !Number.isInteger(remaining.count))
       fail('CLEANUP_DEPENDENCY_VERIFY_DENIED', remaining.error);
