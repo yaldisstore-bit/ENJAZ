@@ -4,6 +4,7 @@ import {removeLinkedFixtureWorkspace} from './phase14-1-a2-linked-cleanup.mjs';
 // Recover ONLY the exact marked failed-run fixture in the disposable lab.
 // Re-run only after the read-only inventory/source guards establish the same exact marked shape.
 // Rerun requested after linked run 35566778698 left the same two-user marked residue.
+// Recovery is intentionally serialized ahead of the next J11 compatibility rerun.
 // No workspace/user sweeps, unknown identities, production, or ambiguous shape.
 const LAB='nqhgaukutkyvfumbtbtg',PROD='juzxriirhkuzviwnhkbd';
 const MARKER='phase14_1_a2_j04_field_real_cloud';
