@@ -34,12 +34,24 @@ async function loginClient(page) {
   await expect(page.locator('[data-client-portal-auth="true"]')).toBeVisible({ timeout: 20000 });
   await page.getByLabel('البريد الإلكتروني').fill(clientEmail);
   await page.getByLabel('كلمة المرور').fill(clientPassword);
+
+  // Register live-read observers before submit so a fast localhost render cannot
+  // race past the RPCs and make shell/skeleton timing look like data readiness.
+  const successfulRpc = name => page.waitForResponse(response =>
+    response.url().endsWith('/rest/v1/rpc/' + name) &&
+    response.request().method() === 'POST' && response.ok(),
+  { timeout: 30000 });
+  const workspacesReady = successfulRpc('list_client_portal_workspaces_v1');
+  const modelReady = successfulRpc('get_client_portal_read_model_v1');
+  const authorityReady = successfulRpc('get_client_portal_authority_v1');
+
   await page.getByRole('button', { name: 'دخول آمن' }).click();
+  await workspacesReady;
   await expect(page.locator('[data-client-portal-shell="isolated"]')).toBeVisible({ timeout: 30000 });
-  // Finish the initial read before changing connectivity; the shell alone is not readiness.
+  await Promise.all([modelReady, authorityReady]);
   await expect(page.locator('.cp-skeleton')).toHaveCount(0, { timeout: 25000 });
   await expect(page.locator('.cp-notice--error')).toHaveCount(0);
-  await expect(page.locator('.cp-hero')).toBeVisible();
+  await expect(page.locator('.cp-hero')).toBeVisible({ timeout: 20000 });
 }
 
 for (const width of [1280, 430, 390, 360, 320]) {
