@@ -36,6 +36,10 @@ async function loginClient(page) {
   await page.getByLabel('كلمة المرور').fill(clientPassword);
   await page.getByRole('button', { name: 'دخول آمن' }).click();
   await expect(page.locator('[data-client-portal-shell="isolated"]')).toBeVisible({ timeout: 30000 });
+  // Finish the initial read before changing connectivity; the shell alone is not readiness.
+  await expect(page.locator('.cp-skeleton')).toHaveCount(0, { timeout: 25000 });
+  await expect(page.locator('.cp-notice--error')).toHaveCount(0);
+  await expect(page.locator('.cp-hero')).toBeVisible();
 }
 
 for (const width of [1280, 430, 390, 360, 320]) {
@@ -66,14 +70,27 @@ for (const width of [1280, 430, 390, 360, 320]) {
 }
 
 test('Phase 14.1 A3 client portal survives offline refresh and recovers online', async ({ page, context }) => {
+  test.setTimeout(75000);
   await page.setViewportSize({ width: 390, height: 844 });
   await loginClient(page);
-  await context.setOffline(true);
+  try {
+    await context.setOffline(true);
+    await page.getByRole('button', { name: 'تحديث' }).click();
+    // The production gateway has a 20s deadline. The old 15s assertion failed too early.
+    await expect(page.locator('.cp-notice--error')).toBeVisible({ timeout: 25000 });
+    await expect(page.locator('.cp-skeleton')).toHaveCount(0);
+    await expect(page.locator('.cp-hero')).toHaveCount(0);
+  } finally {
+    await context.setOffline(false);
+  }
+  const recoveredRead = page.waitForResponse(response =>
+    response.url().endsWith('/rest/v1/rpc/get_client_portal_read_model_v1') &&
+    response.request().method() === 'POST' && response.ok());
   await page.getByRole('button', { name: 'تحديث' }).click();
-  await expect(page.locator('.cp-notice--error')).toBeVisible({ timeout: 15000 });
-  await context.setOffline(false);
-  await page.getByRole('button', { name: 'تحديث' }).click();
+  await recoveredRead;
   await expect(page.locator('[data-client-portal-shell="isolated"]')).toBeVisible({ timeout: 20000 });
-  await expect(page.locator('.cp-skeleton')).toHaveCount(0, { timeout: 20000 });
+  await expect(page.locator('.cp-skeleton')).toHaveCount(0, { timeout: 25000 });
+  await expect(page.locator('.cp-notice--error')).toHaveCount(0);
+  await expect(page.locator('.cp-hero')).toBeVisible();
   await noHorizontalOverflow(page);
 });

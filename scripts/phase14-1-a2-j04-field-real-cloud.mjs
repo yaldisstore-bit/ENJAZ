@@ -397,5 +397,8 @@ try { await run(); } catch (error) {
   if (failure) report.failureCode=failure;
   await mkdir('artifacts/phase14-1-a2-j04-field',{recursive:true});
   await writeFile(OUT,JSON.stringify(report,null,2)+'\n');
+  console.log('LINKED_JOURNEY_RESULT', JSON.stringify({ passed: report.passed,
+    cleanupPassed: report.cleanupPassed, checks: report.checks.length,
+    failureCode: report.failureCode ?? null }));
 }
 if (failure || !report.cleanupPassed) process.exitCode=1;

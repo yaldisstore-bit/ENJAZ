@@ -14,6 +14,9 @@ on:
       - 'scripts/phase14-1-a2-j10-linked-governance-extension.mjs'
       - 'scripts/phase14-1-a2-j11-linked-contract-extension.mjs'
       - 'scripts/phase14-1-a2-linked-cleanup.mjs'
+      - 'scripts/phase14-1-a3-*.mjs'
+      - 'tests/phase14-1-a3-process.test.mjs'
+      - 'tests-external/phase14-1-a3-real-auth.spec.cjs'
       - 'tests/phase14-1-a2-linked-cleanup.test.mjs'
       - '.github/workflows/phase14-1-a2-j04-field-real-cloud.yml'
   workflow_dispatch:
@@ -50,7 +53,7 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Compile-check integrated runner and followup extension before cloud mutation
         run: |
-          node --test tests/phase14-1-a2-linked-cleanup.test.mjs
+          node --test tests/phase14-1-a2-linked-cleanup.test.mjs tests/phase14-1-a3-process.test.mjs
           node --check scripts/phase14-1-a2-j04-field-real-cloud.mjs
           node --check scripts/phase14-1-a2-j05-linked-followup-extension.mjs
           node --check scripts/phase14-1-a2-j06-linked-finance-extension.mjs
@@ -59,6 +62,22 @@ jobs:
           node --check scripts/phase14-1-a2-j09-linked-archive-extension.mjs
           node --check scripts/phase14-1-a2-j10-linked-governance-extension.mjs
           node --check scripts/phase14-1-a2-j11-linked-contract-extension.mjs
+          node --check scripts/phase14-1-a3-real-browser.mjs
+          node --check tests-external/phase14-1-a3-real-auth.spec.cjs
+      - name: Prepare pinned browser tools and build before creating disposable Auth users
+        timeout-minutes: 8
+        env:
+          SUPABASE_SECRET_KEY: ''
+          VITE_APP_ENV: test
+          VITE_APP_LOG_LEVEL: error
+          VITE_SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          npm run build -- --base=/
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          node node_modules/@playwright/test/cli.js install --with-deps chromium
+      - name: Read-only isolated-lab inventory before the journey
+        run: node scripts/phase14-1-a2-lab-readonly-inventory.mjs
       - name: Execute same-user JWT J01–J11 procedure, field, followup, retry and cleanup
         run: node scripts/phase14-1-a2-j04-field-real-cloud.mjs
       - name: Verify isolated linked J01–J11 evidence without falsely certifying full A2
@@ -72,9 +91,12 @@ jobs:
               e.completeElevenDomainA2 !== false || e.phase14_1Closed !== false ||
               e.passed !== true || e.cleanupPassed !== true ||
               !e.checks?.includes('J10_FRESH_JWT_GOVERNANCE_PRESERVES_J01_J09_LINEAGE') ||
-              !e.checks?.includes('J11_REVISION_HISTORY_PRESERVES_PREVIOUS_CANONICAL_ARTIFACT'))
+              !e.checks?.includes('J11_REVISION_HISTORY_PRESERVES_PREVIOUS_CANONICAL_ARTIFACT') ||
+              !e.checks?.includes('A3_REAL_AUTH_STAFF_CLIENT_FIVE_WIDTH_CHROMIUM') ||
+              !e.checks?.includes('A3_REAL_CLIENT_OFFLINE_REFRESH_RECOVERY'))
             throw new Error('Linked J01-J11 hosted slice NOT certified');
           console.log('PASS isolated authenticated linked J01-J11 and zero residue (NOT full A2)');
+          console.log('PASS real-auth five-width Chromium and client offline recovery (NOT full A3)');
           NODE
       - name: Upload isolated linked J01-J11 evidence
         if: always()
