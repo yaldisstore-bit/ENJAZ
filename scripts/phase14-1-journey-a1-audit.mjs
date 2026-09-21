@@ -55,7 +55,7 @@ export function auditJourneyMatrix(matrix, readSource) {
 export function auditPhase14State(s, predecessor, proof) {
   const problems=[];
   const check=(name,ok)=>{if(!ok)problems.push(name);};
-  check('phase_identity',s.phase==='14.1'&&s.status==='IN_PROGRESS'&&s.currentSlice==='A2_LINKED_READ_PROOF');
+  check('phase_identity',s.phase==='14.1'&&s.status==='IN_PROGRESS'&&['A2_LINKED_READ_PROOF','A2_ROLE_EXPIRY_NEGATIVE_MATRIX'].includes(s.currentSlice));
   check('certified_predecessor',predecessor.phase==='13.5'&&predecessor.status==='CLOSED'&&
     predecessor.formalClosurePostMergeRecertification==='PASS'&&
     predecessor.formalClosureMergeCommit===expectedPredecessor&&
@@ -76,7 +76,7 @@ export function auditPhase14State(s, predecessor, proof) {
     s.a2SourceStatus==='IN_PROGRESS_UNCERTIFIED'&&
     typeof s.a2RealCloudStatus==='string'&&
     (s.a2RealCloudStatus==='NOT_STARTED'||s.a2RealCloudStatus.endsWith('_NOT_CERTIFIED'))&&
-    s.a2RealCloudStatus!=='PASS'&&s.a3RealBrowserStatus==='NOT_STARTED');
+    s.a2RealCloudStatus!=='PASS'&&['NOT_STARTED','PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_NOT_FULL_A3'].includes(s.a3RealBrowserStatus));
   check('successor_locked',s.phase14_2Allowed===false&&s.successorStatus==='LOCKED'&&
     s.exitGatePassed===false&&s.closureDecision==='NOT_REQUESTED');
   check('safety_invariants',s.productionDestructiveTestingAllowed===false&&
