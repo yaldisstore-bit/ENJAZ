@@ -1,4 +1,5 @@
 import {randomUUID} from 'node:crypto';
+import {checkPhase14A3RealBrowser} from './phase14-1-a3-real-browser.mjs';
 
 // Independent client Auth/JWT and explicit transaction/company/resource shares.
 // Runs only after the same disposable J01-J07 journey. Admin seeds strictly
@@ -121,4 +122,12 @@ export async function checkLinkedClientPortal({
     await readCount('client_portal_grants',ws)===2&&
     await readCount('client_portal_resource_shares',ws)===2,
     'J08_SCAFFOLD_BOUND_TO_ONE_DISPOSABLE_WORKSPACE');
+
+  // A3 uses the same disposable real Auth users before the parent cleanup.
+  // The portal grants are intentionally revoked first, so the browser proof
+  // validates both authenticated isolation and an empty-safe client surface.
+  await checkPhase14A3RealBrowser({
+    owner,client,url:process.env.SUPABASE_URL,
+    publishableKey:process.env.SUPABASE_PUBLISHABLE_KEY,verify,
+  });
 }
