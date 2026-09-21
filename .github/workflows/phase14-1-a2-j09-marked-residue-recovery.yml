@@ -5,6 +5,7 @@ on:
       - 'phase14-1-*'
     paths:
       - 'scripts/phase14-1-a2-j09-marked-residue-recovery.mjs'
+      - 'scripts/phase14-1-a2-lab-readonly-inventory.mjs'
       - '.github/workflows/phase14-1-a2-j09-marked-residue-recovery.yml'
   workflow_dispatch:
 permissions:
@@ -38,5 +39,7 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Syntax-check marked-only recovery
         run: node --check scripts/phase14-1-a2-j09-marked-residue-recovery.mjs
-      - name: Verify exact two marked users and one marked workspace before scoped delete; log FK diagnostics if blocked
+      - name: Read-only sanitized lab inventory before any recovery mutation
+        run: node scripts/phase14-1-a2-lab-readonly-inventory.mjs
+      - name: Verify exact marked fixture shape before scoped delete; fail closed on any ambiguity
         run: node scripts/phase14-1-a2-j09-marked-residue-recovery.mjs
