@@ -20,7 +20,7 @@ const allowed=new Set(['owner','outsider','portal-client','member']);
 const marked=users.filter(u=>u.user_metadata?.enjaz_test_marker===MARKER);
 const unmarked=users.filter(u=>u.user_metadata?.enjaz_test_marker!==MARKER);
 const identitiesSafe=marked.every(u=>allowed.has(u.user_metadata?.label)&&
-  /^enjaz-a2-j03-[a-z-]+-[0-9a-f-]+@example\\.com$/.test(u.email??''));
+  /^enjaz-a2-j03-[a-z-]+-[0-9a-f-]+@example\.com$/.test(u.email??''));
 const tables=['workspaces','companies','contacts','organization_members','transactions',
   'corporate_governance_events','corporate_ownership_stakes','corporate_registry_states',
   'corporate_ownership_states','corporate_resolutions','corporate_capital_events',
