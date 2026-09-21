@@ -68,7 +68,7 @@ test('A1 cannot unlock Phase 14.2 or certify Real Cloud/Browser prematurely',()=
  const unlocked=copy(state);unlocked.phase14_2Allowed=true;
  assert.ok(phase(unlocked).includes('successor_locked'));
  const falseCert=copy(state);falseCert.a2RealCloudStatus='PASS';
- assert.ok(phase(falseCert).includes('a1_only'));
+ assert.ok(phase(falseCert).includes('a1_certified_a2_open'));
  const fakeClean=copy(state);fakeClean.knownHighDefects=0;
  assert.ok(phase(fakeClean).includes('no_premature_clean_bill'));
 });
