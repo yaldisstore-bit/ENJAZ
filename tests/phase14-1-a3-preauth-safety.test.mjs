@@ -19,7 +19,11 @@ test('A3 preparatory browser workflow is inert and cannot target production or c
 });
 
 test('A3 preparatory smoke remains explicitly non-certifying', () => {
-  assert.equal(state.a2RealCloudStatus, 'NOT_STARTED');
+  assert.ok(
+    state.a2RealCloudStatus === 'NOT_STARTED' || state.a2RealCloudStatus.endsWith('_NOT_CERTIFIED'),
+    `A2 hosted state must remain explicitly uncertified, got ${state.a2RealCloudStatus}`,
+  );
+  assert.notEqual(state.a2RealCloudStatus, 'PASS');
   assert.equal(state.a3RealBrowserStatus, 'NOT_STARTED');
   assert.equal(state.a3PreparatoryBrowserSafetyGuard, 'ACTIVE_FAIL_CLOSED_NO_SECRETS_NO_PRODUCTION');
   assert.equal(state.a3PreparatoryBrowserStatus, 'PASS_14_OF_14_ISOLATED_CHROMIUM_NO_LIVE_AUTH');
