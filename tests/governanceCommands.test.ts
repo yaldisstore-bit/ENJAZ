@@ -51,6 +51,6 @@ test('governance write timeout remains outcome-unknown so the same operation id 
 });
 
 test('database conflict remains typed instead of becoming a visual success',async()=>{
-  const gateway=createGovernanceCommandGateway(client(async()=>({data:null,error:{code:'40001',message:'ENJAZ_RESOLUTION_STALE'}})));
+  const gateway=createGovernanceCommandGateway(client(async()=>({data:null,error:{code:'PT409',message:'ENJAZ_RESOLUTION_STALE'}})));
   await assert.rejects(()=>gateway.recordResolution({workspaceId:W,companyId:C,expectedVersion:5,operationId:OP,number:null,title:'قرار صحيح',type:'general',effectiveOn:'2026-09-11',notes:null}),(e:unknown)=>e instanceof DataAccessError&&e.dataCode==='DATA_CONFLICT');
 });
