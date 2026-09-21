@@ -73,7 +73,7 @@ export async function checkLinkedGovernance({owner,outsider,fresh,admin,makeUser
   verify(!resolution.error&&resolution.data?.version===1,'J10_RESOLUTION_PERSISTED');
   const stale=await owner.client.rpc('record_company_resolution_v1',{
     ...resolutionArgs,p_operation_id:randomUUID(),p_resolution_number:'J10-STALE'});
-  verify(stale.error?.code==='40001'&&await readCount('corporate_resolutions',ws)===1,
+  verify(stale.error?.code==='PT409'&&await readCount('corporate_resolutions',ws)===1,
     'J10_STALE_RESOLUTION_VERSION_DENIED');
   const capital=await owner.client.rpc('record_company_capital_event_v1',{
     ...common,p_expected_version:0,p_operation_id:randomUUID(),p_change_type:'set',
