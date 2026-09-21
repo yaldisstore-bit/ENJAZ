@@ -51,30 +51,28 @@ async function loginClient(page, fatal = []) {
   await Promise.all([modelReady, authorityReady]);
   const shell = page.locator('[data-client-portal-shell="isolated"]');
   await expect(shell).toHaveAttribute('data-client-portal-load-state', 'ready', { timeout: 30000 });
-  await expect(page.locator('.cp-skeleton')).toHaveCount(0, { timeout: 25000 });
-  const portalState = await page.evaluate(() => ({
-    path: window.location.pathname,
-    shell: document.querySelectorAll('[data-client-portal-shell="isolated"]').length,
-    auth: document.querySelectorAll('[data-client-portal-auth="true"]').length,
-    loading: document.querySelectorAll('.cp-loading').length,
-    entry: document.querySelectorAll('.cp-entry').length,
-    skeleton: document.querySelectorAll('.cp-skeleton').length,
-    error: document.querySelectorAll('.cp-notice--error').length,
-    hero: document.querySelectorAll('.cp-hero').length,
-    loadState: document.querySelector('[data-client-portal-shell="isolated"]')?.getAttribute('data-client-portal-load-state') ?? null,
-    mainChildren: Array.from(document.querySelector('.cp-main')?.children ?? [])
-      .map(node => typeof node.className === 'string' ? node.className : node.tagName)
-      .slice(0, 8),
-  }));
+  await expect(page.getByRole('heading', { name: 'كل شيء تحت السيطرة' })).toBeVisible({ timeout: 20000 });
+  const portalState = await page.evaluate(() => {
+    const shell = document.querySelector('[data-client-portal-shell="isolated"]');
+    return {
+      path: window.location.pathname,
+      shell: shell ? 1 : 0,
+      auth: document.querySelectorAll('[data-client-portal-auth="true"]').length,
+      loadState: shell?.getAttribute('data-client-portal-load-state') ?? null,
+      mainChildCount: shell?.querySelector('main')?.children.length ?? -1,
+      navigationCount: shell?.querySelectorAll('nav').length ?? 0,
+    };
+  });
   const safeFatal = fatal.slice(0, 6).map(value => String(value)
     .replace(/https?:\/\/\S+/g, '<url>')
     .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '<email>')
     .slice(0, 220));
   console.log('A3_PORTAL_POST_RPC_STATE ' + JSON.stringify({...portalState,
     fatalCount: fatal.length, safeFatal}));
-  expect(portalState.error).toBe(0);
   expect(portalState.shell).toBe(1);
-  expect(portalState.hero).toBe(1);
+  expect(portalState.loadState).toBe('ready');
+  expect(portalState.mainChildCount).toBeGreaterThan(0);
+  expect(portalState.navigationCount).toBeGreaterThan(0);
 }
 
 for (const width of [1280, 430, 390, 360, 320]) {
@@ -114,10 +112,11 @@ test('Phase 14.1 A3 client portal survives offline refresh and recovers online',
   try {
     await context.setOffline(true);
     await page.getByRole('button', { name: 'تحديث' }).click();
-    // The production gateway has a 20s deadline. The old 15s assertion failed too early.
-    await expect(page.locator('.cp-notice--error')).toBeVisible({ timeout: 25000 });
-    await expect(page.locator('.cp-skeleton')).toHaveCount(0);
-    await expect(page.locator('.cp-hero')).toHaveCount(0);
+    // Production class names are compacted at build time; the stable load-state
+    // contract verifies fail-closed offline behavior without coupling to CSS tokens.
+    const offlineShell = page.locator('[data-client-portal-shell="isolated"]');
+    await expect(offlineShell).toHaveAttribute('data-client-portal-load-state', 'error', { timeout: 25000 });
+    await expect(page.getByRole('heading', { name: 'كل شيء تحت السيطرة' })).toHaveCount(0);
   } finally {
     await context.setOffline(false);
   }
@@ -129,8 +128,6 @@ test('Phase 14.1 A3 client portal survives offline refresh and recovers online',
   const recoveredShell = page.locator('[data-client-portal-shell="isolated"]');
   await expect(recoveredShell).toBeVisible({ timeout: 20000 });
   await expect(recoveredShell).toHaveAttribute('data-client-portal-load-state', 'ready', { timeout: 30000 });
-  await expect(page.locator('.cp-skeleton')).toHaveCount(0, { timeout: 25000 });
-  await expect(page.locator('.cp-notice--error')).toHaveCount(0);
-  await expect(page.locator('.cp-hero')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'كل شيء تحت السيطرة' })).toBeVisible({ timeout: 20000 });
   await noHorizontalOverflow(page);
 });
