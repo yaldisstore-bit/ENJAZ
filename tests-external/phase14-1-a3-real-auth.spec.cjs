@@ -50,8 +50,24 @@ async function loginClient(page) {
   await expect(page.locator('[data-client-portal-shell="isolated"]')).toBeVisible({ timeout: 30000 });
   await Promise.all([modelReady, authorityReady]);
   await expect(page.locator('.cp-skeleton')).toHaveCount(0, { timeout: 25000 });
-  await expect(page.locator('.cp-notice--error')).toHaveCount(0);
-  await expect(page.locator('.cp-hero')).toBeVisible({ timeout: 20000 });
+  await page.waitForTimeout(250);
+  const portalState = await page.evaluate(() => ({
+    path: window.location.pathname,
+    shell: document.querySelectorAll('[data-client-portal-shell="isolated"]').length,
+    auth: document.querySelectorAll('[data-client-portal-auth="true"]').length,
+    loading: document.querySelectorAll('.cp-loading').length,
+    entry: document.querySelectorAll('.cp-entry').length,
+    skeleton: document.querySelectorAll('.cp-skeleton').length,
+    error: document.querySelectorAll('.cp-notice--error').length,
+    hero: document.querySelectorAll('.cp-hero').length,
+    mainChildren: Array.from(document.querySelector('.cp-main')?.children ?? [])
+      .map(node => typeof node.className === 'string' ? node.className : node.tagName)
+      .slice(0, 8),
+  }));
+  console.log('A3_PORTAL_POST_RPC_STATE ' + JSON.stringify(portalState));
+  expect(portalState.error).toBe(0);
+  expect(portalState.shell).toBe(1);
+  expect(portalState.hero).toBe(1);
 }
 
 for (const width of [1280, 430, 390, 360, 320]) {
