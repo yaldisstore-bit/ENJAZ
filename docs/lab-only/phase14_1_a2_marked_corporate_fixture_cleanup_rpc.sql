@@ -22,8 +22,10 @@ begin
   end if;
   if (select count(*) from auth.users) not between 1 and 4 or
      exists (select 1 from auth.users u where
-       u.raw_user_meta_data->>'enjaz_test_marker' <> 'phase14_1_a2_j04_field_real_cloud'
+       u.raw_user_meta_data->>'enjaz_test_marker' is distinct from 'phase14_1_a2_j04_field_real_cloud'
+       or u.raw_user_meta_data->>'label' is null
        or u.raw_user_meta_data->>'label' not in ('owner','outsider','portal-client','member')
+       or u.email is null
        or u.email not like 'enjaz-a2-j03-%@example.com') then
     raise insufficient_privilege using message='ENJAZ_LAB_CLEANUP_UNMARKED_AUTH_DENIED';
   end if;
