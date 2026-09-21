@@ -47,7 +47,7 @@ function PortalAuthScreen(){
   };
   return <main className="cp-auth" dir="rtl" data-client-portal-auth="true"><section className="cp-auth__card">
     <div className="cp-auth__brand"><ClientPortalMark/><div><strong>بوابة إنجاز</strong><span>مساحتك الآمنة لمتابعة معاملاتك</span></div></div>
-    <header><p className="cp-kicker">دخول العملاء</p><h1>كل ما يخص معاملتك، في مكان واضح.</h1><p>استخدم البريد المرتبط بالدعوة. حساب العميل منفصل بالكامل عن مساحة عمل الموظفين.</p></header>
+    <header><p className="cp-kicker">دخول العملاء</p><h1>كل ما يخص معاملتك، في مكان واضح.</h1><p>استخدم البريد المرتبط بالدعوة.</p></header>
     {notice&&<div className={`cp-notice cp-notice--${notice.kind}`} role="status">{notice.message}</div>}
     <form onSubmit={(event)=>{void submit(event);}} className="cp-auth__form">
       <label><span>البريد الإلكتروني</span><input type="email" autoComplete="email" value={email} onChange={(e)=>setEmail(e.currentTarget.value)} required placeholder="name@example.com"/></label>
@@ -55,7 +55,7 @@ function PortalAuthScreen(){
       <button className="cp-button cp-button--primary" disabled={busy}>{busy?'جارٍ التحقق…':'دخول آمن'}</button>
       <button type="button" className="cp-link-button" onClick={()=>{void reset();}} disabled={busy}>نسيت كلمة المرور؟</button>
     </form>
-    <footer>لا يمكن لهذا الحساب الوصول إلى ملاحظات الموظفين أو الأنظمة الداخلية أو أي شركة غير مخولة له.</footer>
+    <footer>يعرض حساب العميل العناصر المخولة له فقط.</footer>
   </section></main>;
 }
 
@@ -66,7 +66,7 @@ function PortalPasswordUpdate(){
 }
 
 function EmptyAccess({invitations,onActivate,busy,onSignOut}:Readonly<{invitations:readonly ClientPortalInvitation[];onActivate:(v:ClientPortalInvitation)=>void;busy:boolean;onSignOut:()=>void}>){
-  return <main className="cp-entry" dir="rtl"><section className="cp-entry__card"><ClientPortalMark/><p className="cp-kicker">بوابة العملاء</p>{invitations.length?<><h1>لديك دعوة جديدة</h1><p>فعّل الوصول إلى المساحة التي دعاك إليها فريق إنجاز. التفعيل لا يمنحك أي صلاحية خارج العناصر المشتركة معك.</p><div className="cp-invitations">{invitations.map((inv)=><button key={inv.principalId} className="cp-invitation" disabled={busy} onClick={()=>onActivate(inv)}><span><strong>{inv.workspaceName}</strong><small>دعوة جاهزة للتفعيل</small></span><b>{busy?'…':'تفعيل'}</b></button>)}</div></>:<><h1>لا توجد صلاحية عميل نشطة</h1><p>الحساب صحيح، لكن لا توجد دعوة أو مساحة عميل مفعلة له حاليًا.</p></>}<button className="cp-link-button" onClick={onSignOut}>تسجيل الخروج</button></section></main>;
+  return <main className="cp-entry" dir="rtl"><section className="cp-entry__card"><ClientPortalMark/><p className="cp-kicker">بوابة العملاء</p>{invitations.length?<><h1>لديك دعوة جديدة</h1><p>فعّل الدعوة لعرض العناصر المشتركة معك فقط.</p><div className="cp-invitations">{invitations.map((inv)=><button key={inv.principalId} className="cp-invitation" disabled={busy} onClick={()=>onActivate(inv)}><span><strong>{inv.workspaceName}</strong><small>دعوة جاهزة للتفعيل</small></span><b>{busy?'…':'تفعيل'}</b></button>)}</div></>:<><h1>لا توجد صلاحية عميل نشطة</h1><p>الحساب صحيح، لكن لا توجد دعوة أو مساحة عميل مفعلة له حاليًا.</p></>}<button className="cp-link-button" onClick={onSignOut}>تسجيل الخروج</button></section></main>;
 }
 
 const requestLabels:Record<ClientPortalRequestView['requestType'],string>={document:'رفع وثيقة',approval:'موافقة على وثيقة',information:'معلومة مطلوبة',appointment:'تأكيد موعد',payment:'دفعة/إيصال'};
