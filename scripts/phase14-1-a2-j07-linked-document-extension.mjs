@@ -166,5 +166,5 @@ export async function checkLinkedDocument({
    source.data?.final_document_version_id===documentVersionId&&
    (hidden.error||hidden.data?.length===0),
    'J07_DURABLE_J01_TO_J06_FINAL_DOCUMENT_AND_FOREIGN_RLS');
- return {documentId,documentVersionId};
+ return {documentId,documentVersionId,draftId,templateVersionId:versionId};
 }

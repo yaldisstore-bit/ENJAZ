@@ -2,6 +2,12 @@
 const LAB_URL = 'https://nqhgaukutkyvfumbtbtg.supabase.co';
 const MARKER = 'phase14_1_a2_j04_field_real_cloud';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const LINKED_FIXTURE_LEAF_TABLES = Object.freeze([
+  'client_portal_authority_events','client_portal_resource_shares','client_portal_grants',
+  'document_upload_sessions','corporate_capital_events','corporate_resolutions',
+  'corporate_authority_grants','corporate_beneficial_owners','corporate_ownership_stakes',
+  'corporate_governance_events','corporate_registry_states','corporate_ownership_states',
+]);
 
 export function cleanupDiagnostic(error) {
   // Do not log request bodies, JWTs, email addresses or arbitrary server text.
@@ -36,8 +42,9 @@ export async function removeLinkedFixtureWorkspace({ admin, url, userId, workspa
   // These leaf fixtures have RESTRICT links to the company/transaction/document
   // graph. Remove them first, so workspace cascade order cannot strand them.
   // Never disable constraints, delete a foreign workspace, or sweep Auth users.
-  for (const table of ['client_portal_authority_events','client_portal_resource_shares',
-    'client_portal_grants','document_upload_sessions']) {
+  // Corporate registry children intentionally have no workspace CASCADE and
+  // must be removed before their company/contact parents in this empty lab.
+  for (const table of LINKED_FIXTURE_LEAF_TABLES) {
     const result = await admin.from(table).delete().eq('workspace_id', workspaceId);
     if (result.error) fail('CLEANUP_DEPENDENCY_DELETE_DENIED', result.error);
   }

@@ -1,4 +1,4 @@
-name: ENJAZ Phase 14.1 A2 — Linked J01-J09 Real Cloud (NOT full A2)
+name: ENJAZ Phase 14.1 A2 — Linked J01-J11 Real Cloud (NOT full A2)
 
 on:
   push:
@@ -11,6 +11,8 @@ on:
       - 'scripts/phase14-1-a2-j07-linked-document-extension.mjs'
       - 'scripts/phase14-1-a2-j08-client-auth-gateway-extension.mjs'
       - 'scripts/phase14-1-a2-j09-linked-archive-extension.mjs'
+      - 'scripts/phase14-1-a2-j10-linked-governance-extension.mjs'
+      - 'scripts/phase14-1-a2-j11-linked-contract-extension.mjs'
       - 'scripts/phase14-1-a2-linked-cleanup.mjs'
       - 'tests/phase14-1-a2-linked-cleanup.test.mjs'
       - '.github/workflows/phase14-1-a2-j04-field-real-cloud.yml'
@@ -55,26 +57,30 @@ jobs:
           node --check scripts/phase14-1-a2-j07-linked-document-extension.mjs
           node --check scripts/phase14-1-a2-j08-client-auth-gateway-extension.mjs
           node --check scripts/phase14-1-a2-j09-linked-archive-extension.mjs
-      - name: Execute same-user JWT J01–J09 procedure, field, followup, retry and cleanup
+          node --check scripts/phase14-1-a2-j10-linked-governance-extension.mjs
+          node --check scripts/phase14-1-a2-j11-linked-contract-extension.mjs
+      - name: Execute same-user JWT J01–J11 procedure, field, followup, retry and cleanup
         run: node scripts/phase14-1-a2-j04-field-real-cloud.mjs
-      - name: Verify isolated linked J01–J09 evidence without falsely certifying full A2
+      - name: Verify isolated linked J01–J11 evidence without falsely certifying full A2
         run: |
           node - <<'NODE'
           const fs = require('node:fs');
           const e = JSON.parse(fs.readFileSync('artifacts/phase14-1-a2-j04-field/evidence.json','utf8'));
           if (e.projectRef !== 'nqhgaukutkyvfumbtbtg' ||
               e.productionProjectRef === e.projectRef ||
-              e.scope?.join(',') !== 'J01_COMPANY,J02_TRANSACTION,J03_PROCEDURE,J04_FIELD,J05_FOLLOWUP,J06_PAYMENT,J07_DOCUMENT,J08_CLIENT_PORTAL,J09_ARCHIVE' ||
+              e.scope?.join(',') !== 'J01_COMPANY,J02_TRANSACTION,J03_PROCEDURE,J04_FIELD,J05_FOLLOWUP,J06_PAYMENT,J07_DOCUMENT,J08_CLIENT_PORTAL,J09_ARCHIVE,J10_GOVERNANCE,J11_ENGAGEMENT' ||
               e.completeElevenDomainA2 !== false || e.phase14_1Closed !== false ||
-              e.passed !== true || e.cleanupPassed !== true)
-            throw new Error('Linked J01-J09 hosted slice NOT certified');
-          console.log('PASS isolated authenticated linked J01-J09 and zero residue (NOT full A2)');
+              e.passed !== true || e.cleanupPassed !== true ||
+              !e.checks?.includes('J10_FRESH_JWT_GOVERNANCE_PRESERVES_J01_J09_LINEAGE') ||
+              !e.checks?.includes('J11_REVISION_HISTORY_PRESERVES_PREVIOUS_CANONICAL_ARTIFACT'))
+            throw new Error('Linked J01-J11 hosted slice NOT certified');
+          console.log('PASS isolated authenticated linked J01-J11 and zero residue (NOT full A2)');
           NODE
-      - name: Upload isolated linked J01-J09 evidence
+      - name: Upload isolated linked J01-J11 evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase141-a2-j01-j09-linked-real-cloud
+          name: phase141-a2-j01-j11-linked-real-cloud
           path: |
             artifacts/phase14-1-a2-isolated-auth/preflight.json
             artifacts/phase14-1-a2-j04-field/evidence.json

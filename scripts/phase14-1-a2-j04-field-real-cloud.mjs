@@ -7,8 +7,11 @@ import { checkLinkedDocument } from './phase14-1-a2-j07-linked-document-extensio
 import { checkLinkedClientPortal } from './phase14-1-a2-j08-client-auth-gateway-extension.mjs';
 import { checkLinkedArchive } from './phase14-1-a2-j09-linked-archive-extension.mjs';
 import { cleanupDiagnostic, removeLinkedFixtureWorkspace } from './phase14-1-a2-linked-cleanup.mjs';
+import { checkLinkedGovernance } from './phase14-1-a2-j10-linked-governance-extension.mjs';
+import { checkLinkedContract } from './phase14-1-a2-j11-linked-contract-extension.mjs';
 
-// One authenticated J01-J09 linked journey in the disposable lab; NOT full A2 acceptance.
+// J01-J11 linked happy path and selected negatives; NOT the complete A2 role,
+// expiry, source-gateway, client-approval or browser acceptance matrix.
 // The test refuses production/unknown targets and requires an entirely empty disposable lab.
 const LAB = 'nqhgaukutkyvfumbtbtg';
 const PROD = 'juzxriirhkuzviwnhkbd';
@@ -35,8 +38,8 @@ const admin = createClient(url, secret, clientConfig);
 const client = () => createClient(url, key, clientConfig);
 const users = [];
 const storagePaths = new Set();
-const report = { schema: 'enjaz.phase14-1.a2.j09-linked-real-cloud.v1', projectRef: LAB,
-  productionProjectRef: PROD, scope: ['J01_COMPANY','J02_TRANSACTION','J03_PROCEDURE','J04_FIELD','J05_FOLLOWUP','J06_PAYMENT','J07_DOCUMENT','J08_CLIENT_PORTAL','J09_ARCHIVE'],
+const report = { schema: 'enjaz.phase14-1.a2.j11-linked-real-cloud.v1', projectRef: LAB,
+  productionProjectRef: PROD, scope: ['J01_COMPANY','J02_TRANSACTION','J03_PROCEDURE','J04_FIELD','J05_FOLLOWUP','J06_PAYMENT','J07_DOCUMENT','J08_CLIENT_PORTAL','J09_ARCHIVE','J10_GOVERNANCE','J11_ENGAGEMENT'],
   completeElevenDomainA2: false, phase14_1Closed: false, passed: false,
   cleanupPassed: false, checks: [], cleanup: [], startedAt: new Date().toISOString() };
 const verify = (ok, code) => {
@@ -90,7 +93,11 @@ async function run() {
     (await Promise.all(['workspaces','companies','transactions','workflow_instances','field_assignments','field_visits','field_sync_receipts','transaction_followups','payments','payment_reversals',
       'document_templates','document_template_versions','document_drafts',
       'pdf_jobs','documents','document_versions','document_upload_sessions',
-      'client_portal_principals','client_portal_grants','client_portal_resource_shares'].map(x => readCount(x)))).every(x => x === 0),
+      'client_portal_principals','client_portal_grants','client_portal_resource_shares',
+      'corporate_ownership_stakes','corporate_governance_events','corporate_registry_states',
+      'corporate_beneficial_owners','corporate_authority_grants','corporate_capital_events',
+      'corporate_resolutions','corporate_ownership_states','commercial_engagements',
+      'engagement_contract_revisions'].map(x => readCount(x)))).every(x => x === 0),
     'EXCLUSIVE_EMPTY_LAB_BEFORE_J03');
 
   const owner = await makeUser('owner');
@@ -298,6 +305,10 @@ async function run() {
   await checkLinkedArchive({owner,outsider,fresh,workspaceId:ws,
     transactionId:tx.id,companyId:ownerCompany.data.id,
     documentId:j07.documentId,readCount,verify});
+  const j10=await checkLinkedGovernance({owner,outsider,fresh,admin,makeUser,workspaceId:ws,
+    transactionId:tx.id,companyId:ownerCompany.data.id,readCount,verify});
+  await checkLinkedContract({owner,outsider,member:j10.member,fresh,workspaceId:ws,
+    transactionId:tx.id,companyId:ownerCompany.data.id,...j07,readCount,verify});
 }
 async function cleanup() {
   let clean = true;
@@ -359,7 +370,11 @@ async function cleanup() {
           'payments','payment_reversals','financial_ledger_entries',
           'document_templates','document_template_versions','document_drafts',
           'pdf_jobs','documents','document_versions','document_upload_sessions',
-          'client_portal_principals','client_portal_grants','client_portal_resource_shares','client_portal_authority_events']
+          'client_portal_principals','client_portal_grants','client_portal_resource_shares','client_portal_authority_events',
+          'corporate_ownership_stakes','corporate_governance_events','corporate_registry_states',
+          'corporate_beneficial_owners','corporate_authority_grants','corporate_capital_events',
+          'corporate_resolutions','corporate_ownership_states','commercial_engagements',
+          'commercial_engagement_transactions','engagement_contract_revisions','contacts','organization_members']
           .map(t=>readCount(t)))).some(n=>n!==0)) throw new Error('J03_RESIDUE_DETECTED');
     report.cleanup.push({kind:'independent_auth_and_business_zero_residue',passed:true});
   } catch (error) {

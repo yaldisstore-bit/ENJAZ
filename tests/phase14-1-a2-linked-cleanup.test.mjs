@@ -1,14 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanupDiagnostic, removeLinkedFixtureWorkspace } from '../scripts/phase14-1-a2-linked-cleanup.mjs';
+import { cleanupDiagnostic, removeLinkedFixtureWorkspace, LINKED_FIXTURE_LEAF_TABLES } from '../scripts/phase14-1-a2-linked-cleanup.mjs';
 
 const ws='14100000-0000-4000-8000-000000000001';
 const uid='14100000-0000-4000-8000-000000000002';
 const foreign='14100000-0000-4000-8000-000000000003';
 function fixture({marker='phase14_1_a2_j04_field_real_cloud',owner=uid,blocked=null,zeroDelete=false}={}) {
   const rows={workspaces:[{id:ws,owner_user_id:owner},{id:foreign,owner_user_id:foreign}]};
-  const dependencies=['client_portal_authority_events','client_portal_resource_shares',
-    'client_portal_grants','document_upload_sessions'];
+  const dependencies=LINKED_FIXTURE_LEAF_TABLES;
   for(const t of dependencies)rows[t]=[{id:uid,workspace_id:ws},{id:foreign,workspace_id:foreign}];
   const deletes=[];
   const admin={auth:{admin:{getUserById:async()=>({data:{user:{id:uid,
