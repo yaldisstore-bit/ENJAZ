@@ -320,7 +320,10 @@ async function cleanup() {
     report.cleanup.push({kind,passed:false,...diagnostic});
     console.error('LINKED_CLEANUP_FAILED',kind,JSON.stringify(diagnostic));
   };
-  // Remove foreign test workspaces first. The lab-only governance cleanup intentionally\n  // requires the owner company graph to be the only remaining company graph.\n  const workspaceCleanupOrder=[...users].sort((a,b)=>Number(a.label==='owner')-Number(b.label==='owner'));\n  for (const user of workspaceCleanupOrder) {
+  // Remove foreign test workspaces first. The lab-only governance cleanup intentionally
+  // requires the owner company graph to be the only remaining company graph.
+  const workspaceCleanupOrder=[...users].sort((a,b)=>Number(a.label==='owner')-Number(b.label==='owner'));
+  for (const user of workspaceCleanupOrder) {
     try {
       const { data, error } = await admin.from('workspaces').select('id')
         .eq('owner_user_id',user.id).limit(2);
