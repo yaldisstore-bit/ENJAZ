@@ -30,7 +30,7 @@ const tables=['workspaces','companies','contacts','organization_members','transa
   'transaction_followups','commercial_engagements','engagement_contract_revisions'];
 const counts={};
 for(const table of tables){
-  const {count,error}=await admin.from(table).select('id',{count:'exact',head:true});
+  const {count,error}=await admin.from(table).select('*',{count:'exact',head:true});
   if(error||!Number.isInteger(count))throw Error('LAB_INVENTORY_COUNT_UNAVAILABLE_'+table);
   counts[table]=count;
 }
