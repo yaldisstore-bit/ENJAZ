@@ -14,7 +14,8 @@ function fixture({marker='phase14_1_a2_j04_field_real_cloud',owner=uid,blocked=n
     email:'enjaz-a2-j03-owner-'+uid+'@example.com',
     user_metadata:{enjaz_test_marker:marker,label:'owner'}}},error:null})}},from(table){
     let remove=false,single=false;const filters=[];
-    const q={select(){return q;},delete(){remove=true;return q;},
+    let headCount=false;
+    const q={select(_columns,opts){headCount=Boolean(opts?.head && opts?.count==='exact');return q;},delete(){remove=true;return q;},
       eq(k,v){filters.push([k,v]);return q;},single(){single=true;return q;},
       then(resolve,reject){return Promise.resolve().then(()=>{
         const matches=r=>filters.every(([k,v])=>r[k]===v);
@@ -29,7 +30,8 @@ function fixture({marker='phase14_1_a2_j04_field_real_cloud',owner=uid,blocked=n
           } else assert.deepEqual(filters,[['workspace_id',ws]]);
           rows[table]=rows[table].filter(r=>!matches(r));
         }
-        return {data:single?(data[0]??null):data,error:null};
+        return {data:headCount?null:(single?(data[0]??null):data),
+          count:headCount?data.length:null,error:null};
       }).then(resolve,reject);}};
     return q;
   }};
@@ -68,4 +70,21 @@ test('zero-row parent delete is never a confirmed cleanup',async()=>{
 });
 test('diagnostics exclude arbitrary server text and credential-shaped codes',()=>{
   assert.deepEqual(cleanupDiagnostic({code:'eyJ.secret.token',message:'password=private'}),{code:'UNKNOWN'});
+});
+
+test('a silent successful DELETE that leaves a RESTRICT child cannot certify cleanup',async()=>{
+  const f=fixture();
+  const original=f.args.admin.from;
+  f.args.admin.from=function(table){
+    const q=original.call(this,table);
+    if(table!=='corporate_governance_events')return q;
+    const originalDelete=q.delete;
+    q.delete=()=>{ // Simulate an RLS-filtered deletion with zero removed rows.
+      return {eq(){return Promise.resolve({error:null,data:[]});}};
+    };
+    return q;
+  };
+  await assert.rejects(removeLinkedFixtureWorkspace(f.args),/CLEANUP_DEPENDENCY_ROWS_REMAIN/);
+  assert.equal(f.deletes.some(d=>d.table==='workspaces'),false);
+  assert.equal(f.rows.corporate_governance_events.some(r=>r.workspace_id===ws),true);
 });
