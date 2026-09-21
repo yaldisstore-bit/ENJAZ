@@ -1,7 +1,7 @@
 import {createClient} from '@supabase/supabase-js';
 import {removeLinkedFixtureWorkspace} from './phase14-1-a2-linked-cleanup.mjs';
 
-// Recover ONLY the single marked J10 failed-run fixture in the disposable lab.
+// Recover ONLY the exact marked failed-run fixture in the disposable lab.
 // Re-run only after the read-only inventory/source guards establish the same exact marked shape.
 // No workspace/user sweeps, unknown identities, production, or ambiguous shape.
 const LAB='nqhgaukutkyvfumbtbtg',PROD='juzxriirhkuzviwnhkbd';
@@ -43,27 +43,27 @@ check(!auth.error&&Array.isArray(auth.data?.users),'RECOVERY_AUTH_READ_DENIED');
 const users=auth.data.users;
 if(users.length===0){
   for(const table of tables)check((await count(table))===0,'RECOVERY_EMPTY_AUTH_NONEMPTY_'+table);
-  console.log('PASS_RECOVERY_ALREADY_ZERO_RESIDUE');process.exit(0);
+  console.log('PASS_RECOVERY_ALREADY_ZERO_RESIDUE');
+  process.exit(0);
 }
+
 check(users.length===2,'RECOVERY_UNEXPECTED_USER_POPULATION');
 const byLabel=new Map(users.map(user=>[user.user_metadata?.label,user]));
 check(byLabel.size===2&&byLabel.has('owner')&&byLabel.has('portal-client'),
   'RECOVERY_UNEXPECTED_MARKED_ROLES');
 for(const [label,user] of byLabel){
-  check(user.user_metadata?.enjaz_test_marker===MARKER&&
-    new RegExp('^enjaz-a2-j03-'+label+'-[0-9a-f-]+@example\\.com
-for(const table of tables)check((await count(table))===0,
-  'RECOVERY_POST_DELETE_RESIDUE_'+table);
-console.log('PASS_RECOVERY_EXACT_MARKED_LAB_ZERO_AUTH_AND_BUSINESS_RESIDUE');
-).test(user.email??''),
+  const emailPattern=new RegExp('^enjaz-a2-j03-'+label+'-[0-9a-f-]+@example\\.com$');
+  check(user.user_metadata?.enjaz_test_marker===MARKER&&emailPattern.test(user.email??''),
     'RECOVERY_UNMARKED_IDENTITY_DENIED');
 }
+
 const owner=byLabel.get('owner');
 const portalClient=byLabel.get('portal-client');
 const workspaces=await admin.from('workspaces').select('id,owner_user_id').limit(3);
 check(!workspaces.error&&workspaces.data?.length===1&&
   workspaces.data[0].owner_user_id===owner.id,'RECOVERY_EXACT_OWNER_WORKSPACE_DENIED');
 const ws=workspaces.data[0].id;
+
 check((await count('companies'))===1&&(await count('companies',ws))===1&&
   (await count('corporate_governance_events'))===5&&
   (await count('corporate_resolutions'))===1&&
@@ -80,8 +80,10 @@ console.log('PASS_RECOVERY_TWO_MARKED_IDENTITIES_ONE_WORKSPACE_ALL_ROWS_SCOPED')
 const storage=await admin.storage.from('enjaz-documents-private').list(ws,{limit:100});
 check(!storage.error&&Array.isArray(storage.data)&&storage.data.length===0,
   'RECOVERY_STORAGE_NONEMPTY_OR_UNVERIFIED');
+
 await removeLinkedFixtureWorkspace({admin,url,userId:owner.id,workspaceId:ws});
 console.log('PASS_RECOVERY_SCOPED_WORKSPACE_REMOVED');
+
 for(const user of [portalClient,owner]){
   const deleted=await admin.auth.admin.deleteUser(user.id,false);
   check(!deleted.error,'RECOVERY_MARKED_AUTH_DELETE_DENIED');
