@@ -11,6 +11,8 @@ on:
       - 'scripts/phase14-1-a2-j07-linked-document-extension.mjs'
       - 'scripts/phase14-1-a2-j08-client-auth-gateway-extension.mjs'
       - 'scripts/phase14-1-a2-j09-linked-archive-extension.mjs'
+      - 'scripts/phase14-1-a2-linked-cleanup.mjs'
+      - 'tests/phase14-1-a2-linked-cleanup.test.mjs'
       - '.github/workflows/phase14-1-a2-j04-field-real-cloud.yml'
   workflow_dispatch:
 
@@ -46,6 +48,7 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Compile-check integrated runner and followup extension before cloud mutation
         run: |
+          node --test tests/phase14-1-a2-linked-cleanup.test.mjs
           node --check scripts/phase14-1-a2-j04-field-real-cloud.mjs
           node --check scripts/phase14-1-a2-j05-linked-followup-extension.mjs
           node --check scripts/phase14-1-a2-j06-linked-finance-extension.mjs
@@ -71,7 +74,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase141-a2-j01-j07-linked-real-cloud
+          name: phase141-a2-j01-j09-linked-real-cloud
           path: |
             artifacts/phase14-1-a2-isolated-auth/preflight.json
             artifacts/phase14-1-a2-j04-field/evidence.json

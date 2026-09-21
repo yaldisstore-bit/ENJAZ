@@ -6,8 +6,9 @@ import { checkLinkedFinance } from './phase14-1-a2-j06-linked-finance-extension.
 import { checkLinkedDocument } from './phase14-1-a2-j07-linked-document-extension.mjs';
 import { checkLinkedClientPortal } from './phase14-1-a2-j08-client-auth-gateway-extension.mjs';
 import { checkLinkedArchive } from './phase14-1-a2-j09-linked-archive-extension.mjs';
+import { cleanupDiagnostic, removeLinkedFixtureWorkspace } from './phase14-1-a2-linked-cleanup.mjs';
 
-// One authenticated J01-J07 linked journey in the disposable lab; NOT eleven-domain acceptance.
+// One authenticated J01-J09 linked journey in the disposable lab; NOT full A2 acceptance.
 // The test refuses production/unknown targets and requires an entirely empty disposable lab.
 const LAB = 'nqhgaukutkyvfumbtbtg';
 const PROD = 'juzxriirhkuzviwnhkbd';
@@ -300,6 +301,13 @@ async function run() {
 }
 async function cleanup() {
   let clean = true;
+  const cleanedUsers = new Set();
+  const cleanupFailure = (kind,error) => {
+    clean=false;
+    const diagnostic=error?.diagnostic ?? cleanupDiagnostic(error);
+    report.cleanup.push({kind,passed:false,...diagnostic});
+    console.error('LINKED_CLEANUP_FAILED',kind,JSON.stringify(diagnostic));
+  };
   for (const user of users) {
     try {
       const { data, error } = await admin.from('workspaces').select('id')
@@ -317,27 +325,29 @@ async function cleanup() {
           .filter(p=>typeof p==='string'&&p.startsWith(ws+'/'));
         if(paths.length){
           const removed=await admin.storage.from('enjaz-documents-private').remove(paths);
-          if(removed.error)throw Error('J07_SCOPED_STORAGE_DELETE_DENIED');
+          if(removed.error)throw Object.assign(Error('J07_SCOPED_STORAGE_DELETE_DENIED'),
+            {code:'J07_SCOPED_STORAGE_DELETE_DENIED',diagnostic:cleanupDiagnostic(removed.error)});
         }
-        // Removal is scoped to marked users' new disposable workspaces only.
-        const { error: deleteError } = await admin.from('workspaces').delete()
-          .eq('id',ws).eq('owner_user_id',user.id);
-        if (deleteError) throw new Error('SCOPED_WORKSPACE_DELETE_DENIED');
+        await removeLinkedFixtureWorkspace({admin,url,userId:user.id,workspaceId:ws});
       }
+      cleanedUsers.add(user.id);
       report.cleanup.push({kind:'marked_workspace',passed:true});
-    } catch {
-      clean=false;
-      report.cleanup.push({kind:'marked_workspace',passed:false});
+    } catch (error) {
+      cleanupFailure('marked_workspace',error);
     }
   }
   for (const user of users) {
     try {
+      // Preserve marked identities for diagnostic recovery if their data failed
+      // to clean up. A partial failure can never be certified as zero residue.
+      if(!cleanedUsers.has(user.id))throw Object.assign(Error('WORKSPACE_REMAINS'),{code:'WORKSPACE_REMAINS'});
+      const signedOut=await user.client.auth.signOut({scope:'global'});
+      if(signedOut.error)throw Object.assign(Error('SIGNOUT_FAILED'),{diagnostic:cleanupDiagnostic(signedOut.error)});
       const { error } = await admin.auth.admin.deleteUser(user.id,false);
-      if (error) throw new Error('MARKED_USER_DELETE_DENIED');
+      if (error) throw Object.assign(Error('MARKED_USER_DELETE_DENIED'),{diagnostic:cleanupDiagnostic(error)});
       report.cleanup.push({kind:'marked_auth_user',passed:true});
-    } catch {
-      clean=false;
-      report.cleanup.push({kind:'marked_auth_user',passed:false});
+    } catch (error) {
+      cleanupFailure('marked_auth_user',error);
     }
   }
   try {
@@ -349,12 +359,11 @@ async function cleanup() {
           'payments','payment_reversals','financial_ledger_entries',
           'document_templates','document_template_versions','document_drafts',
           'pdf_jobs','documents','document_versions','document_upload_sessions',
-          'client_portal_principals','client_portal_grants','client_portal_resource_shares']
+          'client_portal_principals','client_portal_grants','client_portal_resource_shares','client_portal_authority_events']
           .map(t=>readCount(t)))).some(n=>n!==0)) throw new Error('J03_RESIDUE_DETECTED');
     report.cleanup.push({kind:'independent_auth_and_business_zero_residue',passed:true});
-  } catch {
-    clean=false;
-    report.cleanup.push({kind:'independent_auth_and_business_zero_residue',passed:false});
+  } catch (error) {
+    cleanupFailure('independent_auth_and_business_zero_residue',error);
   }
   report.cleanupPassed=clean;
 }
