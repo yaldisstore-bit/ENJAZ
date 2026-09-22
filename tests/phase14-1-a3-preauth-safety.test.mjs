@@ -86,3 +86,23 @@ test('workflow reruns when either UI surface, its harness, or locked dependencie
     "'tests/phase14-1-a3-preauth-safety.test.mjs'",
   ]) assert.ok(workflow.includes(path), `missing workflow trigger ${path}`);
 });
+
+test('A3 physical Android evidence must remain unclaimed without a real-handset run', () => {
+  assert.equal(state.a3RealBrowserPublishedPortalCertified, true);
+  assert.equal(state.a3RealBrowserPhysicalAndroidCertified, false);
+  assert.equal(state.a3PhysicalAndroidRemaining, true);
+  assert.equal(state.a3PhysicalAndroidStatus, 'NOT_RUN_REQUIRES_REAL_HANDSET');
+  assert.equal(state.a3PhysicalAndroidClosureAllowed, false);
+  assert.equal(state.a3PhysicalAndroidEvidence, null);
+  assert.equal(state.a3PhysicalAndroidRunbook, 'docs/PHASE14_1_A3_PHYSICAL_ANDROID_GATE.md');
+  const runbook = readFileSync(state.a3PhysicalAndroidRunbook, 'utf8');
+  for (let i = 1; i <= 10; i += 1) {
+    assert.match(runbook, new RegExp('D' + String(i).padStart(2, '0')));
+  }
+  assert.match(runbook, /Android OS Back/);
+  assert.match(runbook, /Android IME/);
+  assert.match(runbook, /zero marked residue/);
+  assert.match(runbook, /Phase 14.2 LOCKED/);
+  assert.equal(state.phase14_2Allowed, false);
+  assert.equal(state.exitGatePassed, false);
+});
