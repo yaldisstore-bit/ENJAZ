@@ -131,3 +131,39 @@ test('Phase 14.1 A3 client portal survives offline refresh and recovers online',
   await expect(page.getByRole('heading', { name: 'كل شيء تحت السيطرة' })).toBeVisible({ timeout: 20000 });
   await noHorizontalOverflow(page);
 });
+
+
+// This is touch-emulated Chromium evidence only. Desktop Chromium cannot prove
+// physical Android IME resize, gesture navigation, or native system Back.
+for (const width of [430, 390, 360, 320]) {
+  test('Phase 14.1 A3 touch-emulated pre-auth keyboard focus and history at ' + width + 'px',
+    async ({ browser }) => {
+      const context = await browser.newContext({
+        hasTouch: true, isMobile: true, deviceScaleFactor: 2,
+        viewport: { width, height: 740 },
+      });
+      const page = await context.newPage();
+      const fatal = [];
+      page.on('pageerror', e => fatal.push(e.message));
+      try {
+        await page.goto(new URL('/portal', baseUrl).toString(), {waitUntil:'domcontentloaded'});
+        await expect(page.locator('[data-client-portal-auth="true"]')).toBeVisible();
+        const email = page.getByLabel('البريد الإلكتروني');
+        const password = page.getByLabel('كلمة المرور');
+        await email.tap();
+        await expect(email).toBeFocused();
+        await page.keyboard.type('preauth-focus@example.com');
+        await password.tap();
+        await expect(password).toBeFocused();
+        await noHorizontalOverflow(page);
+        await page.goto(new URL('/', baseUrl).toString(), {waitUntil:'domcontentloaded'});
+        await expect(page.locator('[data-r2-auth="true"]')).toBeVisible();
+        await page.goBack({waitUntil:'domcontentloaded'});
+        await expect(page.locator('[data-client-portal-auth="true"]')).toBeVisible();
+        await noHorizontalOverflow(page);
+        expect(fatal).toEqual([]);
+      } finally {
+        await context.close();
+      }
+    });
+}
