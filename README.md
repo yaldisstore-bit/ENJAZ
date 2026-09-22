@@ -2,9 +2,11 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 14.1 — Cross-domain Journeys ✅ CLOSED / PASS_WITH_OWNER_WAIVER**  
-آخر مرحلة مغلقة: **Phase 14.1 — Cross-domain Journeys ✅ CLOSED**؛ شهادة Android الدقيقة للنسخة المرشحة بقيت غير منفذة وتم التنازل عنها صراحةً دون ادعاء نجاحها.  
-المرحلة التالية: **Phase 14.2 — AUTHORIZED_NEXT**. شهادة إغلاق 14.1: [PHASE14_1_CLOSURE.md](docs/PHASE14_1_CLOSURE.md).
+الحالة الرسمية: **Phase 14.2 — Integration Platform / API / Webhooks — A1 IN PROGRESS**
+
+آخر مرحلة مغلقة: **Phase 14.1 — Cross-domain Journeys ✅ CLOSED / PASS_WITH_OWNER_WAIVER**.
+
+العمل الحالي: **14.2-A1 source contract**؛ API `v1` وصلاحيات service accounts وعقد Webhooks/التوقيع/إعادة المحاولة قيد الاعتماد، من دون API منشور أو صلاحية إنتاج جديدة. [A1 kickoff](docs/PHASE14_2_A1_KICKOFF.md).
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -65,6 +67,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 13.4 — Reconciliation ✅ CLOSED** — read-only A2/A3 installed with canonical-owner authority, independent hosted Auth/RLS zero-residue certificate, PR #218 formal closure; preservation of Phase 13.4 is checked by the 13.5 gate.
 - **Phase 13.5 — Import Destruction Gate ✅ CLOSED** — predecessor certified and preserved.
 - **Phase 14.1 — Cross-domain Journeys ✅ CLOSED / PASS_WITH_OWNER_WAIVER** — PR #225 merged; hosted linked J01–J11 + negative/auth evidence and published exact-SHA browser certificate preserved; physical Android exact-candidate D01–D10 was explicitly waived, not certified; Phase 14.2 AUTHORIZED_NEXT.
+- **Phase 14.2 — Integration Platform / API / Webhooks — M11: A1 IN PROGRESS** — versioned operation/scope contract, workspace-bound service credential checks, webhook endpoint/signing/retry/dead-letter contract and source destruction tests; no database/API deployment or production authority is claimed by A1.
 
 ## Phase 13.3 — شهادة الإغلاق
 

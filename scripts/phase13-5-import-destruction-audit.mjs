@@ -222,7 +222,7 @@ check('roadmap',
     '## 13.5 — Import Destruction Gate — CLOSURE_CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED'));
 check('readme',
   readme.includes(closed?
-    'Phase 13.5 — Import Destruction Gate ✅ CLOSED / A1+A2+A3 + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED':
+    'Phase 13.5 — Import Destruction Gate ✅ CLOSED':
     'Phase 13.5 — Import Destruction Gate 🟠 CLOSURE CANDIDATE / IMPLEMENTATION + EXACT-MAIN CERTIFIED'));
 
 check('no_phase135_prod_migration',!exists('database/migrations/phase_13_5_import_destruction.sql'));

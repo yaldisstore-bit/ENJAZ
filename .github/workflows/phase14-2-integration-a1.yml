@@ -1,0 +1,44 @@
+name: ENJAZ Phase 14.2 — Integration Platform A1 Source Gate
+
+on:
+  push:
+    branches: [main, 'phase14-2-*']
+    paths:
+      - 'src/features/integrations/**'
+      - 'tests/phase14-2-*'
+      - 'docs/PHASE14_2_*'
+      - '.github/workflows/phase14-2-integration-a1.yml'
+      - 'README.md'
+  pull_request:
+    paths:
+      - 'src/features/integrations/**'
+      - 'tests/phase14-2-*'
+      - 'docs/PHASE14_2_*'
+      - '.github/workflows/phase14-2-integration-a1.yml'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase14-2-a1-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - run: npm ci
+      - name: Integration contract destruction tests
+        run: node --experimental-strip-types --test tests/phase14-2-integration-platform-contract.test.ts
+      - name: TypeScript and production build
+        run: npm run typecheck && npm run build
+      - name: Frozen client budgets and secret audit
+        run: npm run audit:dist:budget && npm run audit:secrets

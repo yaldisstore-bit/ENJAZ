@@ -1,0 +1,44 @@
+{
+  "schema": "enjaz.phase14-2.integration-matrix.v1",
+  "phase": "14.2",
+  "slice": "A1_SOURCE_CONTRACT",
+  "apiVersion": "v1",
+  "operations": [
+    { "operation": "companies.list", "scope": "companies:read", "mutating": false },
+    { "operation": "transactions.get", "scope": "transactions:read", "mutating": false },
+    { "operation": "webhooks.list", "scope": "webhooks:read", "mutating": false },
+    { "operation": "webhooks.register", "scope": "webhooks:manage", "mutating": true },
+    { "operation": "webhooks.disable", "scope": "webhooks:manage", "mutating": true },
+    { "operation": "imports.dry-run", "scope": "imports:dry-run", "mutating": false },
+    { "operation": "imports.execute", "scope": "imports:execute", "mutating": true }
+  ],
+  "webhookEvents": [
+    "company.updated",
+    "transaction.updated",
+    "followup.due",
+    "payment.recorded",
+    "document.ready"
+  ],
+  "requiredNegativeCases": [
+    "unsupported API version",
+    "unknown operation or scope",
+    "duplicate credential scope",
+    "revoked, expired or not-yet-valid credential",
+    "cross-workspace request",
+    "missing or malformed mutation idempotency",
+    "non-HTTPS or obvious private webhook endpoint",
+    "altered event timestamp, identifier or raw body",
+    "UTF-8 body-size overflow",
+    "retry exhaustion to dead letter",
+    "client projection secret leakage"
+  ],
+  "a1Claims": {
+    "sourceContractImplemented": true,
+    "databaseImplemented": false,
+    "credentialIssuanceImplemented": false,
+    "webhookDeliveryImplemented": false,
+    "publicApiDeployed": false,
+    "realCloudCertified": false,
+    "phaseClosed": false
+  }
+}

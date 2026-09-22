@@ -85,7 +85,7 @@ export function auditPhase14State(s, predecessor, proof) {
   const a2Prior = ['A2_LINKED_READ_PROOF','A2_ROLE_EXPIRY_NEGATIVE_MATRIX'].includes(s.currentSlice) &&
     (s.a2RealCloudStatus==='NOT_STARTED'||s.a2RealCloudStatus?.endsWith('_NOT_CERTIFIED')) &&
     s.a2ExitGatePassed===false;
-  const a2Verified = s.currentSlice==='A3_PHYSICAL_ANDROID_PUBLISHED_PORTAL' &&
+  const a2Verified = (s.currentSlice==='A3_PHYSICAL_ANDROID_PUBLISHED_PORTAL' || ownerWaivedClosure) &&
     s.a2RealCloudStatus==='PASS_HOSTED_J01_J11_N02_AND_CLIENT_CLOCK_REVOKED_REFRESH_N13_ZERO_RESIDUE' &&
     s.a2LatestLinkedRun==='35632402943' &&
     s.a2LatestLinkedHead==='63c3ff4728f597c2560f0c14080c8846fe880fe7' &&
