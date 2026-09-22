@@ -1,0 +1,51 @@
+name: ENJAZ Phase 14.2 — A3 Isolated Supabase Readiness Gate
+
+on:
+  push:
+    branches: ['phase14-2-*']
+    paths:
+      - 'scripts/phase14-2-a3-*'
+      - 'tests/phase14-2-a3-*'
+      - 'docs/PHASE14_2_A3_*'
+      - 'docs/PHASE14_2_STATE.json'
+      - '.github/workflows/phase14-2-integration-a3-readiness.yml'
+  pull_request:
+    paths:
+      - 'scripts/phase14-2-a3-*'
+      - 'tests/phase14-2-a3-*'
+      - 'docs/PHASE14_2_A3_*'
+      - 'docs/PHASE14_2_STATE.json'
+      - '.github/workflows/phase14-2-integration-a3-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase14-2-a3-readiness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-readiness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: A3 isolated-target preflight tests
+        run: node --test tests/phase14-2-a3-isolated-auth-preflight.test.mjs
+      - name: Preserve A1/A2 integration contracts
+        run: |
+          node --experimental-strip-types --test tests/phase14-2-integration-platform-contract.test.ts
+          node --test tests/phase14-2-integration-platform-db-source.test.mjs
+      - name: Repository safety audits
+        run: npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap
+      - name: A3 non-claim
+        run: |
+          echo "PASS source readiness only"
+          echo "No hosted Supabase Auth/RLS certification is claimed by this workflow."
