@@ -1,8 +1,8 @@
 {
   "phase": "14.1",
   "name": "Cross-domain Journeys",
-  "status": "IN_PROGRESS",
-  "currentSlice": "A3_PHYSICAL_ANDROID_PUBLISHED_PORTAL",
+  "status": "CLOSED",
+  "currentSlice": "FORMAL_CLOSURE_WITH_OWNER_WAIVER",
   "predecessorPhase": "13.5",
   "predecessorStatus": "CLOSED",
   "predecessorClosureMergeCommit": "0df2dd9d8c8ec232c7dd49a516da7a436224871a",
@@ -15,10 +15,10 @@
   "a2RealCloudStatus": "PASS_HOSTED_J01_J11_N02_AND_CLIENT_CLOCK_REVOKED_REFRESH_N13_ZERO_RESIDUE",
   "a3RealBrowserStatus": "PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_PUBLISHED_HTTPS_NOT_FULL_A3",
   "a3PreparatoryBrowserSafetyGuard": "ACTIVE_FAIL_CLOSED_NO_SECRETS_NO_PRODUCTION",
-  "phase14_2Allowed": false,
-  "successorStatus": "LOCKED",
-  "exitGatePassed": false,
-  "closureDecision": "NOT_REQUESTED",
+  "phase14_2Allowed": true,
+  "successorStatus": "AUTHORIZED_NEXT",
+  "exitGatePassed": true,
+  "closureDecision": "PASS_WITH_OWNER_WAIVER",
   "productionDestructiveTestingAllowed": false,
   "newGenericWriteRpcAuthorityAllowed": false,
   "shadowPersistenceAllowed": false,
@@ -119,12 +119,12 @@
   "a3PublishedPortalTemporaryTunnelClosed": true,
   "a3PublishedPortalUrlRetained": false,
   "a3PublishedPortalProductionMutationPerformed": false,
-  "a3PhysicalAndroidRemaining": true,
+  "a3PhysicalAndroidRemaining": false,
   "a3PublishedPortalEvidence": "docs/PHASE14_1_A3_PUBLISHED_PORTAL_PASS.md",
-  "a3PhysicalAndroidStatus": "NOT_RUN_REQUIRES_REAL_HANDSET",
+  "a3PhysicalAndroidStatus": "WAIVED_BY_OWNER_2026_09_22_NOT_CERTIFIED",
   "a3PhysicalAndroidRunbook": "docs/PHASE14_1_A3_PHYSICAL_ANDROID_GATE.md",
-  "a3PhysicalAndroidEvidence": null,
-  "a3PhysicalAndroidClosureAllowed": false,
+  "a3PhysicalAndroidEvidence": "docs/PHASE14_1_CLOSURE.md",
+  "a3PhysicalAndroidClosureAllowed": true,
   "a3PublishedMainManualAndroidSmoke": {
     "reportedAt": "2026-09-22",
     "scope": "OWNER_REPORTED_PRODUCTION_DEPLOYMENT_ONLY_NOT_PR_HEAD_A3_CERTIFICATION",
@@ -134,5 +134,18 @@
     "isolatedCandidateDeviceCertificate": false,
     "independentClientPortalCertificate": false,
     "syntheticFixtureOrOfflineRecoveryEvidence": false
+  },
+  "closureEvidence": "docs/PHASE14_1_CLOSURE.md",
+  "ownerClosureWaiver": {
+    "acceptedAt": "2026-09-22",
+    "scope": "PHYSICAL_ANDROID_EXACT_CANDIDATE_DEVICE_CERTIFICATE_AND_REMAINING_FORMAL_CLOSURE_DELAY",
+    "physicalAndroidCertified": false,
+    "basis": [
+      "PR exact-head CI 82/82 completed: 78 success + 4 expected skipped + 0 failures",
+      "published exact-SHA ephemeral HTTPS staff/client Chromium certificate with 151 integrated checks and zero isolated residue",
+      "owner-reported physical Android smoke on deployed main: login/home, native keyboard, navigation and Android Back reported working"
+    ],
+    "residualRiskAccepted": true,
+    "successorAuthorized": true
   }
 }
