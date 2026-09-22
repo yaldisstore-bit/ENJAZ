@@ -87,14 +87,39 @@ async function waitForQuickTunnel(tunnel) {
   throw new Error('A3_PUBLISHED_TUNNEL_NOT_READY');
 }
 
-async function requireExactPublishedBuild(baseUrl, sha) {
+export async function requireExactPublishedBuild(baseUrl, sha, {
+  fetchImpl = fetch,
+  wait = sleep,
+  now = Date.now,
+  timeoutMs = 90_000,
+  requestTimeoutMs = 15_000,
+} = {}) {
   if (!/^[0-9a-f]{40}$/.test(sha)) throw new Error('A3_PUBLISHED_SHA_INVALID');
   const manifestUrl = new URL('/enjaz-phase14-1-a3-deploy.json', baseUrl);
-  const response = await fetch(manifestUrl, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
-  if (!response.ok) throw new Error('A3_PUBLISHED_MANIFEST_UNREACHABLE');
-  const manifest = await response.json();
-  if (manifest?.schema !== 'enjaz.phase14-1.a3.ephemeral-deploy.v1' || manifest?.sha !== sha)
-    throw new Error('A3_PUBLISHED_SHA_NOT_EXACT');
+  const deadline = now() + timeoutMs;
+  do {
+    try {
+      const response = await fetchImpl(manifestUrl, {
+        cache: 'no-store', signal: AbortSignal.timeout(requestTimeoutMs),
+      });
+      if (response.ok) {
+        let manifest = null;
+        try { manifest = await response.json(); } catch { /* Edge may still return transient HTML. */ }
+        if (manifest !== null) {
+          if (manifest?.schema !== 'enjaz.phase14-1.a3.ephemeral-deploy.v1' || manifest?.sha !== sha)
+            throw new Error('A3_PUBLISHED_SHA_NOT_EXACT');
+          console.log('A3_PUBLISHED_MANIFEST_EXACT_SHA_READY');
+          return;
+        }
+      }
+    } catch (error) {
+      // A reachable but stale/wrong build is a hard failure, never a retry.
+      if (error?.message === 'A3_PUBLISHED_SHA_NOT_EXACT') throw error;
+    }
+    if (now() >= deadline) break;
+    await wait(Math.min(1_000, Math.max(0, deadline - now())));
+  } while (now() < deadline);
+  throw new Error('A3_PUBLISHED_MANIFEST_UNREACHABLE');
 }
 
 async function waitFor(url, preview) {
