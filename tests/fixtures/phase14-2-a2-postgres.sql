@@ -104,7 +104,7 @@ do $ begin
    and user_id='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 end $;
 
-do $$ begin
+do $ begin
  if exists(
    select 1 from information_schema.columns
    where (table_schema,table_name) in (
