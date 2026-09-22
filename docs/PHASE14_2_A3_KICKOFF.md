@@ -9,7 +9,7 @@ Move Phase 14.2 from disposable PostgreSQL persistence proof to a **real, isolat
 - PR #232 merged into `main`.
 - Merge commit: `ec6d191ed5732c8f21be016cf2af488cfcc07a5d`.
 - Exact A2 head `b3580691de8bc179983bfe1cab30ba6ee415c48d`: 94/94 workflow runs completed; 90 success, 4 expected skipped, 0 failed.
-- Disposable PostgreSQL A2 fixture: 13/13 assertions pass.
+- Merged A2 baseline: 13/13 assertions passed. Current A3 hardening adds a 14th assertion proving an owner-labelled secondary membership cannot replace the canonical workspace owner; the exact A3 head must re-earn the PostgreSQL gate.
 
 ## A3 safety boundary
 
@@ -38,6 +38,7 @@ The source/readiness gate is:
 A3 is not complete until an isolated Supabase target proves at minimum:
 
 - owner authentication succeeds with a real user session;
+- credential authority remains bound to the canonical workspace owner, not merely an owner-labelled membership;
 - same-workspace authorized access succeeds;
 - same-workspace unauthorized role escalation is denied;
 - cross-workspace access is denied;
@@ -51,7 +52,7 @@ A3 is not complete until an isolated Supabase target proves at minimum:
 
 ## Current external blocker
 
-The connected Supabase tool currently returns **zero accessible projects**. Therefore no real hosted Auth/RLS certificate can be truthfully claimed yet. The repository-side A3 safety/readiness work continues independently and remains explicitly non-certifying.
+The connected Supabase tool currently returns **zero accessible projects** (while one organization, `App of my trade`, is visible). Therefore no real hosted Auth/RLS certificate can be truthfully claimed yet. The repository-side A3 safety/readiness work continues independently and remains explicitly non-certifying.
 
 ## Non-claims
 
