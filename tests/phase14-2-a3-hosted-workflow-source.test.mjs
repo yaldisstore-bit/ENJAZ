@@ -19,11 +19,13 @@ test('hosted A3 certificate uses isolated environment secrets',()=>{
   assert.match(yml,/PHASE14_2_A3_SUPABASE_SECRET_KEY/);
 });
 
-test('hosted A3 certificate always runs preflight before hosted harness',()=>{
+test('hosted A3 certificate runs preflight, bounded recovery, then hosted harness',()=>{
   const pre=yml.indexOf('node scripts/phase14-2-a3-isolated-auth-preflight.mjs');
+  const recovery=yml.indexOf('node scripts/phase14-2-a3-hosted-residue-recovery.mjs');
   const hosted=yml.indexOf('node scripts/phase14-2-a3-hosted-auth-rls.mjs');
   assert.ok(pre>=0);
-  assert.ok(hosted>pre);
+  assert.ok(recovery>pre);
+  assert.ok(hosted>recovery);
 });
 
 test('hosted A3 certificate verifies cleanup evidence',()=>{
