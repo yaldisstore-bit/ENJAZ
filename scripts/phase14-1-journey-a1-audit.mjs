@@ -55,7 +55,20 @@ export function auditJourneyMatrix(matrix, readSource) {
 export function auditPhase14State(s, predecessor, proof) {
   const problems=[];
   const check=(name,ok)=>{if(!ok)problems.push(name);};
-  check('phase_identity',s.phase==='14.1'&&s.status==='IN_PROGRESS'&&['A2_LINKED_READ_PROOF','A2_ROLE_EXPIRY_NEGATIVE_MATRIX','A3_PHYSICAL_ANDROID_PUBLISHED_PORTAL'].includes(s.currentSlice));
+  const ownerWaivedClosure = s.phase==='14.1' &&
+    s.status==='CLOSED' && s.currentSlice==='FORMAL_CLOSURE_WITH_OWNER_WAIVER' &&
+    s.closureDecision==='PASS_WITH_OWNER_WAIVER' &&
+    s.phase14_2Allowed===true && s.successorStatus==='AUTHORIZED_NEXT' && s.exitGatePassed===true &&
+    s.a3RealBrowserPhysicalAndroidCertified===false &&
+    s.a3PhysicalAndroidRemaining===false &&
+    s.a3PhysicalAndroidStatus==='WAIVED_BY_OWNER_2026_09_22_NOT_CERTIFIED' &&
+    s.a3PhysicalAndroidClosureAllowed===true &&
+    s.ownerClosureWaiver?.physicalAndroidCertified===false &&
+    s.ownerClosureWaiver?.residualRiskAccepted===true &&
+    s.closureEvidence==='docs/PHASE14_1_CLOSURE.md';
+  const inProgress = s.phase==='14.1' && s.status==='IN_PROGRESS' &&
+    ['A2_LINKED_READ_PROOF','A2_ROLE_EXPIRY_NEGATIVE_MATRIX','A3_PHYSICAL_ANDROID_PUBLISHED_PORTAL'].includes(s.currentSlice);
+  check('phase_identity',inProgress||ownerWaivedClosure);
   check('certified_predecessor',predecessor.phase==='13.5'&&predecessor.status==='CLOSED'&&
     predecessor.formalClosurePostMergeRecertification==='PASS'&&
     predecessor.formalClosureMergeCommit===expectedPredecessor&&
@@ -107,7 +120,7 @@ export function auditPhase14State(s, predecessor, proof) {
     s.a3PublishedPortalTemporaryTunnelClosed===true &&
     s.a3PublishedPortalUrlRetained===false &&
     s.a3PublishedPortalProductionMutationPerformed===false &&
-    s.a3PhysicalAndroidRemaining===true &&
+    (s.a3PhysicalAndroidRemaining===true || ownerWaivedClosure) &&
     s.a3PublishedPortalEvidence==='docs/PHASE14_1_A3_PUBLISHED_PORTAL_PASS.md';
   const a2AndA3Progress = a2Prior ?
     s.a3RealBrowserStatus==='NOT_STARTED' :
@@ -121,8 +134,9 @@ export function auditPhase14State(s, predecessor, proof) {
     s.a1MergedMainWorkflowCount===36&&s.a1MergedMainSuccessCount===36&&
     s.a2SourceStatus==='IN_PROGRESS_UNCERTIFIED'&&
     a2AndA3Progress);
-  check('successor_locked',s.phase14_2Allowed===false&&s.successorStatus==='LOCKED'&&
-    s.exitGatePassed===false&&s.closureDecision==='NOT_REQUESTED');
+  check('successor_locked',ownerWaivedClosure ||
+    (s.phase14_2Allowed===false&&s.successorStatus==='LOCKED'&&
+     s.exitGatePassed===false&&s.closureDecision==='NOT_REQUESTED'));
   check('safety_invariants',s.productionDestructiveTestingAllowed===false&&
     s.newGenericWriteRpcAuthorityAllowed===false&&s.shadowPersistenceAllowed===false&&
     s.automaticLegacyRepairAllowed===false&&s.inferredLegacyTargetIdsAllowed===false&&
