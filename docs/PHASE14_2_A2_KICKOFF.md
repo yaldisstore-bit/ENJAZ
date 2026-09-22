@@ -12,7 +12,7 @@ A2 converts the A1 source contract into a server-only PostgreSQL authority bound
 
 - Browser roles receive no table or lifecycle-function privilege.
 - Only the internal `service_role` can call credential, revocation, webhook-registration and idempotency functions.
-- Credential issuance and account revocation require an existing `owner` membership in the exact workspace.
+- Credential issuance and account revocation require both the canonical `workspaces.owner_user_id` identity and its matching `owner` membership in the exact workspace; an owner-labelled secondary membership is insufficient.
 - Composite foreign keys bind credentials, subscriptions and receipts to the same workspace/service-account pair.
 - Service-account revocation atomically revokes active credentials and disables active subscriptions.
 - Delivery attempts and idempotency receipts reject `UPDATE` and `DELETE`, including privileged accidental mutation paths.
@@ -24,7 +24,7 @@ The source gate checks schema shape, grants, immutable evidence and serialized r
 
 1. browser denial and explicit server authority;
 2. owner-only issuance;
-3. same-workspace member and cross-workspace owner denial;
+3. same-workspace member, forged owner-labelled membership and cross-workspace owner denial;
 4. absence of raw-secret columns;
 5. scoped webhook registration and cross-workspace rejection;
 6. exact idempotency replay and changed-request conflict;

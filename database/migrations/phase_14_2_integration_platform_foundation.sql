@@ -162,10 +162,15 @@ for each row execute function private.reject_integration_evidence_mutation_v1();
 create or replace function private.integration_assert_owner_v1(p_workspace_id uuid,p_actor_user_id uuid)
 returns void language plpgsql stable security definer set search_path='' as $$
 begin
-  if p_workspace_id is null or p_actor_user_id is null or not exists(
-    select 1 from public.workspace_memberships wm
-    where wm.workspace_id=p_workspace_id and wm.user_id=p_actor_user_id and wm.role='owner'
-  ) then
+  if p_workspace_id is null or p_actor_user_id is null
+     or not exists(
+       select 1 from public.workspaces w
+       where w.id=p_workspace_id and w.owner_user_id=p_actor_user_id
+     )
+     or not exists(
+       select 1 from public.workspace_memberships wm
+       where wm.workspace_id=p_workspace_id and wm.user_id=p_actor_user_id and wm.role='owner'
+     ) then
     raise insufficient_privilege using message='ENJAZ_INTEGRATION_OWNER_REQUIRED';
   end if;
 end;
