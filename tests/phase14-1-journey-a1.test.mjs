@@ -64,9 +64,11 @@ test('A1 cannot infer predecessor closure from an unverified commit or missing p
  assert.ok(phase(state,pending).includes('certified_predecessor'));
 });
 
-test('A1 cannot unlock Phase 14.2 or certify Real Cloud/Browser prematurely',()=>{
- const unlocked=copy(state);unlocked.phase14_2Allowed=true;
- assert.ok(phase(unlocked).includes('successor_locked'));
+test('A1 closure transition requires the explicit owner waiver contract',()=>{
+ const invalid=copy(state);
+ if (invalid.status==='CLOSED') invalid.ownerClosureWaiver.residualRiskAccepted=false;
+ else invalid.phase14_2Allowed=true;
+ assert.ok(phase(invalid).includes(invalid.status==='CLOSED' ? 'phase_identity' : 'successor_locked'));
  const falseCert=copy(state);falseCert.a2RealCloudStatus='PASS';
  assert.ok(phase(falseCert).includes('a1_certified_a2_open'));
  const fakeClean=copy(state);fakeClean.knownHighDefects=0;
@@ -109,11 +111,19 @@ test('A2 transition and A3 published portal certificate stay evidence-bound',()=
  assert.ok(phase(noNegative).includes('a1_certified_a2_open'));
 });
 
-test('A2 hosted evidence cannot be mistaken for Phase 14.1 or 14.2 formal closure',()=>{
- const closed=copy(state);closed.status='CLOSED';
- assert.ok(phase(closed).includes('phase_identity'));
- const unlocked=copy(state);unlocked.phase14_2Allowed=true;
- assert.ok(phase(unlocked).includes('successor_locked'));
+test('A2 hosted evidence alone cannot manufacture a valid Phase 14.1 closure',()=>{
+ const fake=copy(state);
+ if (fake.status==='CLOSED') {
+  fake.ownerClosureWaiver.physicalAndroidCertified=true;
+  assert.ok(phase(fake).includes('phase_identity'));
+  const relocked=copy(state);relocked.phase14_2Allowed=false;
+  assert.ok(phase(relocked).includes('phase_identity'));
+ } else {
+  fake.status='CLOSED';
+  assert.ok(phase(fake).includes('phase_identity'));
+  const unlocked=copy(state);unlocked.phase14_2Allowed=true;
+  assert.ok(phase(unlocked).includes('successor_locked'));
+ }
  const falseCert=copy(state);falseCert.a2RealCloudStatus='PASS';
  assert.ok(phase(falseCert).includes('a1_certified_a2_open'));
 });
