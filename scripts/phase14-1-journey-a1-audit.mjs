@@ -55,7 +55,7 @@ export function auditJourneyMatrix(matrix, readSource) {
 export function auditPhase14State(s, predecessor, proof) {
   const problems=[];
   const check=(name,ok)=>{if(!ok)problems.push(name);};
-  check('phase_identity',s.phase==='14.1'&&s.status==='IN_PROGRESS'&&['A2_LINKED_READ_PROOF','A2_ROLE_EXPIRY_NEGATIVE_MATRIX'].includes(s.currentSlice));
+  check('phase_identity',s.phase==='14.1'&&s.status==='IN_PROGRESS'&&['A2_LINKED_READ_PROOF','A2_ROLE_EXPIRY_NEGATIVE_MATRIX','A3_PHYSICAL_ANDROID_PUBLISHED_PORTAL'].includes(s.currentSlice));
   check('certified_predecessor',predecessor.phase==='13.5'&&predecessor.status==='CLOSED'&&
     predecessor.formalClosurePostMergeRecertification==='PASS'&&
     predecessor.formalClosureMergeCommit===expectedPredecessor&&
@@ -66,6 +66,25 @@ export function auditPhase14State(s, predecessor, proof) {
     s.predecessorPostMergeWorkflowCount===43&&s.predecessorPostMergeSuccessCount===43&&
     s.predecessorPostMergeEvidence==='docs/PHASE13_5_POSTMERGE_RECERTIFICATION.md'&&
     proof.includes(expectedPredecessor)&&proof.includes('43/43 COMPLETED SUCCESS'));
+  // A1 remains immutable, but a verified A2 hosted certificate may advance the
+  // state into A3 without implying overall Phase 14.1 closure. Keep the original
+  // uncompleted A2 states fail-closed as well.
+  const a2Prior = ['A2_LINKED_READ_PROOF','A2_ROLE_EXPIRY_NEGATIVE_MATRIX'].includes(s.currentSlice) &&
+    (s.a2RealCloudStatus==='NOT_STARTED'||s.a2RealCloudStatus?.endsWith('_NOT_CERTIFIED')) &&
+    s.a2ExitGatePassed===false;
+  const a2Verified = s.currentSlice==='A3_PHYSICAL_ANDROID_PUBLISHED_PORTAL' &&
+    s.a2RealCloudStatus==='PASS_HOSTED_J01_J11_N02_AND_CLIENT_CLOCK_REVOKED_REFRESH_N13_ZERO_RESIDUE' &&
+    s.a2LatestLinkedRun==='35632402943' &&
+    s.a2LatestLinkedHead==='63c3ff4728f597c2560f0c14080c8846fe880fe7' &&
+    s.a2LatestLinkedStatus==='PASS_149_CHECKS_ZERO_RESIDUE_N02_N13_CLIENT_CLOCK' &&
+    s.a2LatestLinkedCheckCount===149 &&
+    s.a2N02SameWorkspaceRoleMatrixStatus==='PASS_ALL_11_DOMAINS_REAL_HOSTED_RUN_35632402943' &&
+    s.a2N13AuthExpiryStatus==='PASS_HOSTED_SIGNED_TOKEN_REVOKED_REFRESH_SIMULATED_CLIENT_CLOCK_REAUTH_RUN_35632402943' &&
+    s.a2N13RealElapsedJwtExpiryCertified===false &&
+    Array.isArray(s.a2RemainingNegativeGates)&&s.a2RemainingNegativeGates.length===0 &&
+    s.a2ExitGatePassed===true &&
+    s.a3RealBrowserPhysicalAndroidCertified===false &&
+    s.a3RealBrowserPublishedPortalCertified===false;
   check('a1_certified_a2_open',s.sourceMatrix==='docs/PHASE14_1_JOURNEY_MATRIX.json'&&
     s.a1Status==='SOURCE_CERTIFIED_EXACT_PR_HEAD'&&
     s.a1ExactPrHead==='11a82fdc7ab61c0a9d9245dd67bff90b609dfd90'&&
@@ -74,9 +93,8 @@ export function auditPhase14State(s, predecessor, proof) {
     s.a1MergedMain==='665fcc63a5919e4ad80d0b01b8f54914d15bad0c'&&
     s.a1MergedMainWorkflowCount===36&&s.a1MergedMainSuccessCount===36&&
     s.a2SourceStatus==='IN_PROGRESS_UNCERTIFIED'&&
-    typeof s.a2RealCloudStatus==='string'&&
-    (s.a2RealCloudStatus==='NOT_STARTED'||s.a2RealCloudStatus.endsWith('_NOT_CERTIFIED'))&&
-    s.a2RealCloudStatus!=='PASS'&&['NOT_STARTED','PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_NOT_FULL_A3'].includes(s.a3RealBrowserStatus));
+    (a2Prior||a2Verified)&&
+    ['NOT_STARTED','PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_NOT_FULL_A3'].includes(s.a3RealBrowserStatus));
   check('successor_locked',s.phase14_2Allowed===false&&s.successorStatus==='LOCKED'&&
     s.exitGatePassed===false&&s.closureDecision==='NOT_REQUESTED');
   check('safety_invariants',s.productionDestructiveTestingAllowed===false&&
