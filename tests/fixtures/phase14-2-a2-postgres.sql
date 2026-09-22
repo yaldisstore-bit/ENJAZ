@@ -116,7 +116,7 @@ do $a2$ begin
    raise exception 'A2 FAILURE: hashed credential absent';
  end if;
  raise notice 'PASS 14.2 A2 raw token/signing secret persistence absent';
-end $$;
+end $a2$;
 
 do $$
 declare v_subscription uuid;
