@@ -20,6 +20,9 @@ test('hosted A3 never places secret key in a browser client',()=>{
 test('hosted A3 exercises anonymous and authenticated denial',()=>{
   assert.match(src,/anonymous_direct_integration_read_denied/);
   assert.match(src,/authenticated_owner_direct_integration_read_denied/);
+  assert.match(src,/real_same_workspace_member_created/);
+  assert.match(src,/authenticated_same_workspace_member_direct_integration_read_denied/);
+  assert.match(src,/same_workspace_member_cannot_read_integration_fixture/);
   assert.match(src,/authenticated_outsider_direct_integration_read_denied/);
   assert.match(src,/cross_workspace_browser_read_denied/);
 });
