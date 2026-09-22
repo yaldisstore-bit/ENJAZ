@@ -82,9 +82,36 @@ export function auditPhase14State(s, predecessor, proof) {
     s.a2N13AuthExpiryStatus==='PASS_HOSTED_SIGNED_TOKEN_REVOKED_REFRESH_SIMULATED_CLIENT_CLOCK_REAUTH_RUN_35632402943' &&
     s.a2N13RealElapsedJwtExpiryCertified===false &&
     Array.isArray(s.a2RemainingNegativeGates)&&s.a2RemainingNegativeGates.length===0 &&
-    s.a2ExitGatePassed===true &&
+    s.a2ExitGatePassed===true;
+  const a3Unpublished =
+    s.a3RealBrowserStatus==='PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_NOT_FULL_A3' &&
+    s.a3RealBrowserEvidenceRun==='35632402943' &&
+    s.a3RealBrowserEvidenceHead==='63c3ff4728f597c2560f0c14080c8846fe880fe7' &&
+    JSON.stringify(s.a3RealBrowserWidths)==='[1280,430,390,360,320]' &&
+    s.a3RealBrowserOfflineRecovery===true &&
     s.a3RealBrowserPhysicalAndroidCertified===false &&
     s.a3RealBrowserPublishedPortalCertified===false;
+  const a3Published =
+    s.a3RealBrowserStatus==='PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_PUBLISHED_HTTPS_NOT_FULL_A3' &&
+    s.a3RealBrowserEvidenceRun==='35682270629' &&
+    s.a3RealBrowserEvidenceHead==='6ff525f103579d5f5f0392aecd4bd58d0e96a68e' &&
+    JSON.stringify(s.a3RealBrowserWidths)==='[1280,430,390,360,320]' &&
+    s.a3RealBrowserCaseCount===17 && s.a3RealBrowserOfflineRecovery===true &&
+    s.a3RealBrowserPhysicalAndroidCertified===false &&
+    s.a3RealBrowserPublishedPortalCertified===true &&
+    s.a3PublishedPortalStatus==='PASS_EXACT_SHA_EPHEMERAL_HTTPS_TUNNEL_CLOSED_ZERO_RESIDUE' &&
+    s.a3PublishedPortalEvidenceRun==='35682270629' &&
+    s.a3PublishedPortalEvidenceHead==='6ff525f103579d5f5f0392aecd4bd58d0e96a68e' &&
+    s.a3PublishedPortalIntegratedCheckCount===151 &&
+    s.a3PublishedPortalExactShaBound===true &&
+    s.a3PublishedPortalTemporaryTunnelClosed===true &&
+    s.a3PublishedPortalUrlRetained===false &&
+    s.a3PublishedPortalProductionMutationPerformed===false &&
+    s.a3PhysicalAndroidRemaining===true &&
+    s.a3PublishedPortalEvidence==='docs/PHASE14_1_A3_PUBLISHED_PORTAL_PASS.md';
+  const a2AndA3Progress = a2Prior ?
+    s.a3RealBrowserStatus==='NOT_STARTED' :
+    a2Verified&&(a3Unpublished||a3Published);
   check('a1_certified_a2_open',s.sourceMatrix==='docs/PHASE14_1_JOURNEY_MATRIX.json'&&
     s.a1Status==='SOURCE_CERTIFIED_EXACT_PR_HEAD'&&
     s.a1ExactPrHead==='11a82fdc7ab61c0a9d9245dd67bff90b609dfd90'&&
@@ -93,8 +120,7 @@ export function auditPhase14State(s, predecessor, proof) {
     s.a1MergedMain==='665fcc63a5919e4ad80d0b01b8f54914d15bad0c'&&
     s.a1MergedMainWorkflowCount===36&&s.a1MergedMainSuccessCount===36&&
     s.a2SourceStatus==='IN_PROGRESS_UNCERTIFIED'&&
-    (a2Prior||a2Verified)&&
-    ['NOT_STARTED','PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_NOT_FULL_A3'].includes(s.a3RealBrowserStatus));
+    a2AndA3Progress);
   check('successor_locked',s.phase14_2Allowed===false&&s.successorStatus==='LOCKED'&&
     s.exitGatePassed===false&&s.closureDecision==='NOT_REQUESTED');
   check('safety_invariants',s.productionDestructiveTestingAllowed===false&&
