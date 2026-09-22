@@ -1,7 +1,7 @@
 {
   "schema": "enjaz.phase14-2.integration-matrix.v1",
   "phase": "14.2",
-  "slice": "A1_SOURCE_CONTRACT",
+  "slice": "A2_AUTHORITATIVE_PERSISTENCE_RLS_AND_DELIVERY_LEDGER",
   "apiVersion": "v1",
   "operations": [
     { "operation": "companies.list", "scope": "companies:read", "mutating": false },
@@ -39,6 +39,21 @@
     "webhookDeliveryImplemented": false,
     "publicApiDeployed": false,
     "realCloudCertified": false,
+    "phaseClosed": false
+  },
+  "a2Claims": {
+    "serviceAccountPersistenceImplemented": true,
+    "hashedCredentialPersistenceImplemented": true,
+    "rawCredentialPersistenceForbidden": true,
+    "webhookSubscriptionPersistenceImplemented": true,
+    "immutableDeliveryLedgerImplemented": true,
+    "immutableIdempotencyReceiptsImplemented": true,
+    "browserDirectAuthority": false,
+    "genericBusinessWriteAuthority": false,
+    "disposablePostgresDestructionGateDefined": true,
+    "supabaseInstalled": false,
+    "publicApiDeployed": false,
+    "liveWebhookDeliveryImplemented": false,
     "phaseClosed": false
   }
 }

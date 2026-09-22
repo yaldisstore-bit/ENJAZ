@@ -1,0 +1,79 @@
+name: ENJAZ Phase 14.2 — Integration Platform A2 PostgreSQL Gate
+
+on:
+  push:
+    branches: [main, 'phase14-2-*']
+    paths:
+      - 'database/migrations/phase_14_2_*'
+      - 'tests/phase14-2-*'
+      - 'tests/fixtures/phase14-2-*'
+      - 'docs/PHASE14_2_*'
+      - '.github/workflows/phase14-2-integration-a2.yml'
+      - 'README.md'
+  pull_request:
+    paths:
+      - 'database/migrations/phase_14_2_*'
+      - 'tests/phase14-2-*'
+      - 'tests/fixtures/phase14-2-*'
+      - 'docs/PHASE14_2_*'
+      - '.github/workflows/phase14-2-integration-a2.yml'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase14-2-a2-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - run: npm ci
+      - name: A1 and A2 integration contract tests
+        run: |
+          node --experimental-strip-types --test tests/phase14-2-integration-platform-contract.test.ts
+          node --test tests/phase14-2-integration-platform-db-source.test.mjs
+      - name: Repository cumulative safety
+        run: npm run audit:secrets && npm run db:audit && npm run db:audit:selftest && npm run audit:roadmap
+
+  disposable-postgres:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: enjaz_phase142_a2
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d enjaz_phase142_a2"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure PostgreSQL client exists
+        run: command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+      - name: Execute isolated destructive fixture
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d enjaz_phase142_a2 \
+            --set=ON_ERROR_STOP=1 \
+            --file=tests/fixtures/phase14-2-a2-postgres.sql 2>&1 | tee /tmp/phase142-a2.log
+          test "$(grep -c 'PASS 14.2 A2' /tmp/phase142-a2.log)" -eq 13
+          ! grep -q 'A2 FAILURE' /tmp/phase142-a2.log
