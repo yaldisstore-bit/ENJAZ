@@ -43,6 +43,7 @@ jobs:
         run: |
           node --test tests/phase14-2-a3-isolated-auth-preflight.test.mjs
           node --test tests/phase14-2-a3-hosted-auth-rls-source.test.mjs
+          node --test tests/phase14-2-a3-hosted-residue-recovery-source.test.mjs
           node --test tests/phase14-2-a3-hosted-workflow-source.test.mjs
       - name: Preserve A1/A2 integration contracts
         run: |
