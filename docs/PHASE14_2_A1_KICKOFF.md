@@ -1,7 +1,9 @@
 # Phase 14.2 — Integration Platform / API / Webhooks — A1 kickoff
 
-**Status:** IN PROGRESS — A1 SOURCE CONTRACT ONLY  
-**Canonical base:** `7ac65672cc3845ec755d8326c60173e6c73f0264` — Phase 14.1 formal closure  
+**Status:** IN PROGRESS — A1 SOURCE CONTRACT ONLY
+
+**Canonical base:** `7ac65672cc3845ec755d8326c60173e6c73f0264` — Phase 14.1 formal closure
+
 **Successor:** Phase 14.3 remains LOCKED
 
 ## Business outcome
@@ -69,4 +71,3 @@ A1 does not authorize or claim:
 ## Next slice
 
 A2 must design and verify the authoritative PostgreSQL/RLS model for service accounts, hashed credentials, webhook subscriptions, immutable delivery attempts and idempotency receipts. It must preserve existing workspace membership and command/RPC authority, add no generic write escape and run destructive verification only on an independently isolated target.
-
