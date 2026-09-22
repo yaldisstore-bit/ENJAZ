@@ -100,10 +100,20 @@ async function cleanup(){
 
 try{
   const owner=await createUser('owner');
+  const member=await createUser('member');
   const outsider=await createUser('outsider');
   const ownerWs=await workspaceFor(owner);
+  const memberOwnWs=await workspaceFor(member);
   const outsiderWs=await workspaceFor(outsider);
-  ensure(ownerWs!==outsiderWs,'distinct_bootstrapped_workspaces');
+  ensure(new Set([ownerWs,memberOwnWs,outsiderWs]).size===3,'distinct_bootstrapped_workspaces');
+
+  const memberJoin=await admin.from('workspace_memberships').insert({
+    workspace_id:ownerWs,
+    user_id:member.id,
+    role:'member',
+  }).select('workspace_id,user_id,role');
+  if(memberJoin.error)throw memberJoin.error;
+  ensure(memberJoin.data?.length===1 && memberJoin.data[0].role==='member','real_same_workspace_member_created');
 
   const anonymous=make();
   const anonRead=await anonymous.from('integration_service_accounts').select('id').limit(1);
@@ -111,6 +121,9 @@ try{
 
   const ownerRead=await owner.client.from('integration_service_accounts').select('id').limit(1);
   ensure(Boolean(ownerRead.error),'authenticated_owner_direct_integration_read_denied');
+
+  const memberRead=await member.client.from('integration_service_accounts').select('id').limit(1);
+  ensure(Boolean(memberRead.error),'authenticated_same_workspace_member_direct_integration_read_denied');
 
   const outsiderRead=await outsider.client.from('integration_service_accounts').select('id').limit(1);
   ensure(Boolean(outsiderRead.error),'authenticated_outsider_direct_integration_read_denied');
@@ -129,6 +142,9 @@ try{
 
   const ownerAfter=await owner.client.from('integration_service_accounts').select('id').eq('id',fixtureId);
   ensure(Boolean(ownerAfter.error),'owner_cannot_bypass_server_only_persistence');
+
+  const memberAfter=await member.client.from('integration_service_accounts').select('id').eq('id',fixtureId);
+  ensure(Boolean(memberAfter.error),'same_workspace_member_cannot_read_integration_fixture');
 
   const outsiderAfter=await outsider.client.from('integration_service_accounts').select('id').eq('id',fixtureId);
   ensure(Boolean(outsiderAfter.error),'cross_workspace_browser_read_denied');
