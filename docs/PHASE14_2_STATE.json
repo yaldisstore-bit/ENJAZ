@@ -41,9 +41,9 @@
   "a2PostgresFixture": "tests/fixtures/phase14-2-a2-postgres.sql",
   "a2Kickoff": "docs/PHASE14_2_A2_KICKOFF.md",
   "a2Workflow": ".github/workflows/phase14-2-integration-a2.yml",
-  "a2LocalSourceTestCount": 6,
+  "a2LocalSourceTestCount": 7,
   "a2LocalSourceTestStatus": "PASS",
-  "a2DisposablePostgresStatus": "MERGED_A2_PASS_13_OF_13; A3_CANONICAL_OWNER_HARDENING_REQUIRES_14_OF_14_RECHECK",
+  "a2DisposablePostgresStatus": "PASS_14_OF_14_SOURCE_EXPECTATION_PENDING_EXACT_HEAD_RECERTIFICATION",
   "a2PullRequest": 232,
   "a2MergeCommit": "ec6d191ed5732c8f21be016cf2af488cfcc07a5d",
   "a2ExactHeadChecks": "94/94_COMPLETED_90_SUCCESS_4_EXPECTED_SKIPPED_0_FAILURES",
@@ -57,5 +57,8 @@
   "a3HostedSourceTests": "tests/phase14-2-a3-hosted-auth-rls-source.test.mjs",
   "a3HostedWorkflow": ".github/workflows/phase14-2-a3-hosted-auth-rls.yml",
   "a3CanonicalOwnerHardening": true,
-  "a3RecoveryHarness": "scripts/phase14-2-a3-hosted-residue-recovery.mjs"
+  "a3RecoveryHarness": "scripts/phase14-2-a3-hosted-residue-recovery.mjs",
+  "a3ReadinessPullRequest": 233,
+  "a3ReadinessMergeCommit": "f86d04376ad2888ac21c6374ba61e9317451a392",
+  "a3HostedHarnessSecurityHardening": "CANONICAL_WORKSPACE_OWNER_REQUIRED_AND_ZERO_RESIDUE_REVERIFIED"
 }
