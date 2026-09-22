@@ -35,6 +35,15 @@ test('A2 exposes no browser write escape and only server lifecycle functions',()
   }
 });
 
+test('A2 credential issuance requires the canonical workspace owner',()=>{
+  for(const marker of [
+    'from public.workspaces w',
+    'w.id=p_workspace_id and w.owner_user_id=p_actor_user_id',
+    "wm.role='owner'",
+    'owner-labelled membership cannot replace canonical workspace owner'
+  ]) has(migration+fixture,marker);
+});
+
 test('A2 idempotency uses a serialized exact-request replay boundary',()=>{
   for(const marker of ['pg_catalog.pg_advisory_xact_lock','ENJAZ_INTEGRATION_IDEMPOTENCY_CONFLICT',
     "'receiptId',v_row.id,'replayed',true"]) has(migration,marker);
@@ -43,6 +52,7 @@ test('A2 idempotency uses a serialized exact-request replay boundary',()=>{
 test('A2 disposable PostgreSQL fixture covers destructive negative cases',()=>{
   has(fixture,'\\i database/migrations/phase_14_2_integration_platform_foundation.sql');
   for(const marker of ['same-workspace non-owner issue denied','cross-workspace owner issue denied',
+    'owner-labelled membership cannot replace canonical workspace owner',
     'cross-workspace webhook registration denied','changed idempotency replay denied',
     'delivery evidence update denied','idempotency evidence delete denied',
     'account revocation closes credentials and subscriptions']) has(fixture,marker);
