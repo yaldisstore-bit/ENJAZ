@@ -167,3 +167,47 @@ for (const width of [430, 390, 360, 320]) {
       }
     });
 }
+
+
+// Signed-in touch-emulated coverage complements the pre-auth focus tests.
+// This does NOT certify physical Android IME/back gesture or published hosting.
+for (const width of [390, 320]) {
+  test('Phase 14.1 A3 signed-in touch navigation and logout at ' + width + 'px',
+    async ({ browser }) => {
+      test.setTimeout(90000);
+      const context = await browser.newContext({
+        hasTouch: true, isMobile: true, deviceScaleFactor: 2,
+        viewport: { width, height: 740 },
+      });
+      const page = await context.newPage();
+      const fatal = [];
+      page.on('pageerror', e => fatal.push(e.message));
+      page.on('console', m => { if (m.type() === 'error') fatal.push(m.text()); });
+      try {
+        await loginClient(page, fatal);
+        const shell = page.locator('[data-client-portal-shell="isolated"]');
+        const nav = page.getByRole('navigation', { name: 'تنقل بوابة العميل' });
+        for (const [label, heading] of [
+          ['الطلبات', 'الطلبات'],
+          ['المعاملات', 'معاملاتي'],
+          ['الوثائق', 'الوثائق'],
+          ['الإيصالات', 'الإيصالات'],
+        ]) {
+          const tab = nav.getByRole('button', { name: label });
+          await tab.tap();
+          await expect(tab).toHaveClass(/is-active/);
+          await expect(shell.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+          await noHorizontalOverflow(page);
+        }
+        await nav.getByRole('button', { name: 'الرئيسية' }).tap();
+        await expect(shell.getByRole('heading', { name: 'كل شيء تحت السيطرة' })).toBeVisible();
+        await page.getByRole('button', { name: 'تسجيل الخروج' }).tap();
+        await expect(page.locator('[data-client-portal-auth="true"]')).toBeVisible({ timeout: 20000 });
+        await expect(page.locator('[data-client-portal-shell="isolated"]')).toHaveCount(0);
+        await noHorizontalOverflow(page);
+        expect(fatal).toEqual([]);
+      } finally {
+        await context.close();
+      }
+    });
+}
