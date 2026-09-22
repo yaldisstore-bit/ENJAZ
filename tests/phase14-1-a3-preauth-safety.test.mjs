@@ -53,13 +53,19 @@ test('A3 preparatory smoke remains non-certifying beside the evidence-bound publ
     assert.equal(state.a3PublishedPortalTemporaryTunnelClosed, true);
     assert.equal(state.a3PublishedPortalUrlRetained, false);
     assert.equal(state.a3PublishedPortalProductionMutationPerformed, false);
-    assert.equal(state.a3PhysicalAndroidRemaining, true);
+    assert.equal(state.a3PhysicalAndroidRemaining, state.status === 'CLOSED' ? false : true);
   } else {
     assert.equal(state.a3RealBrowserStatus,
       'PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_NOT_FULL_A3');
   }
-  assert.equal(state.exitGatePassed, false);
-  assert.equal(state.phase14_2Allowed, false);
+  if (state.status === 'CLOSED') {
+    assert.equal(state.closureDecision, 'PASS_WITH_OWNER_WAIVER');
+    assert.equal(state.exitGatePassed, true);
+    assert.equal(state.phase14_2Allowed, true);
+  } else {
+    assert.equal(state.exitGatePassed, false);
+    assert.equal(state.phase14_2Allowed, false);
+  }
   assert.match(browser, /cannot certify a real client JWT/);
   assert.match(browser, /Android IME/);
   assert.doesNotMatch(browser, /signInWithPassword|admin\.createUser|SUPABASE_SECRET_KEY|service[_-]?role/i);
@@ -87,13 +93,9 @@ test('workflow reruns when either UI surface, its harness, or locked dependencie
   ]) assert.ok(workflow.includes(path), `missing workflow trigger ${path}`);
 });
 
-test('A3 physical Android evidence must remain unclaimed without a real-handset run', () => {
+test('A3 physical Android evidence stays explicitly unclaimed when owner waives the remaining device gate', () => {
   assert.equal(state.a3RealBrowserPublishedPortalCertified, true);
   assert.equal(state.a3RealBrowserPhysicalAndroidCertified, false);
-  assert.equal(state.a3PhysicalAndroidRemaining, true);
-  assert.equal(state.a3PhysicalAndroidStatus, 'NOT_RUN_REQUIRES_REAL_HANDSET');
-  assert.equal(state.a3PhysicalAndroidClosureAllowed, false);
-  assert.equal(state.a3PhysicalAndroidEvidence, null);
   assert.equal(state.a3PhysicalAndroidRunbook, 'docs/PHASE14_1_A3_PHYSICAL_ANDROID_GATE.md');
   const runbook = readFileSync(state.a3PhysicalAndroidRunbook, 'utf8');
   for (let i = 1; i <= 10; i += 1) {
@@ -103,6 +105,22 @@ test('A3 physical Android evidence must remain unclaimed without a real-handset 
   assert.match(runbook, /Android IME/);
   assert.match(runbook, /zero marked residue/);
   assert.match(runbook, /Phase 14.2 LOCKED/);
-  assert.equal(state.phase14_2Allowed, false);
-  assert.equal(state.exitGatePassed, false);
+
+  if (state.status === 'CLOSED') {
+    assert.equal(state.a3PhysicalAndroidRemaining, false);
+    assert.equal(state.a3PhysicalAndroidStatus, 'WAIVED_BY_OWNER_2026_09_22_NOT_CERTIFIED');
+    assert.equal(state.a3PhysicalAndroidClosureAllowed, true);
+    assert.equal(state.a3PhysicalAndroidEvidence, 'docs/PHASE14_1_CLOSURE.md');
+    assert.equal(state.ownerClosureWaiver?.physicalAndroidCertified, false);
+    assert.equal(state.ownerClosureWaiver?.residualRiskAccepted, true);
+    assert.equal(state.phase14_2Allowed, true);
+    assert.equal(state.exitGatePassed, true);
+  } else {
+    assert.equal(state.a3PhysicalAndroidRemaining, true);
+    assert.equal(state.a3PhysicalAndroidStatus, 'NOT_RUN_REQUIRES_REAL_HANDSET');
+    assert.equal(state.a3PhysicalAndroidClosureAllowed, false);
+    assert.equal(state.a3PhysicalAndroidEvidence, null);
+    assert.equal(state.phase14_2Allowed, false);
+    assert.equal(state.exitGatePassed, false);
+  }
 });
