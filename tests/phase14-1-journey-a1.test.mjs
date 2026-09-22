@@ -82,7 +82,7 @@ test('A1 cannot gain production destruction, generic write or shadow persistence
  assert.ok(phase(shadow).includes('safety_invariants'));
 });
 
-test('A2 certified transition is evidence-bound and cannot silently certify Android or published portal',()=>{
+test('A2 transition and A3 published portal certificate stay evidence-bound',()=>{
  assert.deepEqual(phase(state),[]);
  const missing=copy(state);missing.a2LatestLinkedRun='unverified';
  assert.ok(phase(missing).includes('a1_certified_a2_open'));
@@ -92,8 +92,19 @@ test('A2 certified transition is evidence-bound and cannot silently certify Andr
  assert.ok(phase(premature).includes('a1_certified_a2_open'));
  const physical=copy(state);physical.a3RealBrowserPhysicalAndroidCertified=true;
  assert.ok(phase(physical).includes('a1_certified_a2_open'));
- const published=copy(state);published.a3RealBrowserPublishedPortalCertified=true;
- assert.ok(phase(published).includes('a1_certified_a2_open'));
+ if(state.a3RealBrowserPublishedPortalCertified){
+  const unpublished=copy(state);unpublished.a3RealBrowserPublishedPortalCertified=false;
+  assert.ok(phase(unpublished).includes('a1_certified_a2_open'));
+  const wrongPublishedHead=copy(state);wrongPublishedHead.a3PublishedPortalEvidenceHead='unverified';
+  assert.ok(phase(wrongPublishedHead).includes('a1_certified_a2_open'));
+  const openTunnel=copy(state);openTunnel.a3PublishedPortalTemporaryTunnelClosed=false;
+  assert.ok(phase(openTunnel).includes('a1_certified_a2_open'));
+  const retainedUrl=copy(state);retainedUrl.a3PublishedPortalUrlRetained=true;
+  assert.ok(phase(retainedUrl).includes('a1_certified_a2_open'));
+ } else {
+  const unboundPublished=copy(state);unboundPublished.a3RealBrowserPublishedPortalCertified=true;
+  assert.ok(phase(unboundPublished).includes('a1_certified_a2_open'));
+ }
  const noNegative=copy(state);noNegative.a2RemainingNegativeGates=['N13_AUTH_EXPIRY'];
  assert.ok(phase(noNegative).includes('a1_certified_a2_open'));
 });
