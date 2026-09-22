@@ -531,7 +531,7 @@ Import may target the expanded model only where explicit mappings exist. Unknown
 
 ## 14.2 — Integration Platform / API / Webhooks — M11
 - Versioned integration API, scoped credentials/tokens, webhook subscriptions, signing/replay protection, idempotency, delivery history and retry/dead-letter behavior.
-- **A1 MERGED / A2 IN PROGRESS:** PR #231 froze API `v1` operations/scopes and webhook rules. A2 adds server-only PostgreSQL/RLS persistence for workspace-bound service accounts, hashed credentials, subscriptions, immutable delivery attempts and idempotency receipts, with a disposable PostgreSQL 17 destruction gate; see `docs/PHASE14_2_A2_KICKOFF.md`.
+- **A1 + A2 MERGED / A3 IN PROGRESS:** PR #231 froze API `v1` operations/scopes and webhook rules. PR #232 merged server-only PostgreSQL/RLS persistence for workspace-bound service accounts, hashed credentials, subscriptions, immutable delivery attempts and idempotency receipts; the disposable PostgreSQL 17 gate now carries 14 destructive assertions including canonical workspace-owner enforcement. PR #233 merged A3 isolated-Supabase readiness. The hosted A3 Auth/RLS certificate harness is implemented but cannot be certified until an isolated Supabase project/branch is connected; production remains forbidden as the destructive target.
 - Phase 14.3 remains **LOCKED** until Product, UI/UX, Engineering and Certification tracks for 14.2 are all PASS and formal closure is merged.
 
 ## 14.3 — Auth/Session/Cloud Failure Journeys
