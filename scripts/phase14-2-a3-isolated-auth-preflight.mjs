@@ -14,6 +14,7 @@ const branchRef=env('ENJAZ_A3_BRANCH_REF');
 const url=env('SUPABASE_URL').replace(/\/$/,'');
 const publishable=env('SUPABASE_PUBLISHABLE_KEY');
 const secret=env('SUPABASE_SECRET_KEY');
+const databaseUrl=env('SUPABASE_DB_URL');
 const evidence={
   schema:'enjaz.phase14-2.a3.preflight.v1',
   checkedAt:new Date().toISOString(),
@@ -38,6 +39,18 @@ await check(Boolean(publishable),'publishable_key_present');
 await check(Boolean(secret),'secret_key_present');
 await check(secret!==publishable,'secret_and_publishable_distinct');
 await check(!secret.startsWith('sb_publishable_'),'secret_is_not_publishable_key');
+await check(Boolean(databaseUrl),'database_url_present');
+let databaseTargetMatches=false;
+try {
+  const parsed=new URL(databaseUrl);
+  const username=decodeURIComponent(parsed.username);
+  databaseTargetMatches=(parsed.protocol==='postgres:'||parsed.protocol==='postgresql:')
+    && parsed.searchParams.get('sslmode')!=='disable'
+    && (parsed.hostname===`db.${branchRef}.supabase.co`
+      || username===`postgres.${branchRef}`
+      || username.endsWith(`.${branchRef}`));
+} catch {}
+await check(databaseTargetMatches,'database_url_matches_isolated_branch');
 
 evidence.passed=true;
 await mkdir('artifacts/phase14-2-a3',{recursive:true});

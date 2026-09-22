@@ -6,16 +6,20 @@ on:
     paths:
       - 'scripts/phase14-2-a3-*'
       - 'tests/phase14-2-a3-*'
+      - 'tests/fixtures/phase14-2-a3-*'
       - 'docs/PHASE14_2_A3_*'
       - 'docs/PHASE14_2_STATE.json'
       - '.github/workflows/phase14-2-integration-a3-readiness.yml'
+      - '.github/workflows/phase14-2-integration-a3-hosted.yml'
   pull_request:
     paths:
       - 'scripts/phase14-2-a3-*'
       - 'tests/phase14-2-a3-*'
+      - 'tests/fixtures/phase14-2-a3-*'
       - 'docs/PHASE14_2_A3_*'
       - 'docs/PHASE14_2_STATE.json'
       - '.github/workflows/phase14-2-integration-a3-readiness.yml'
+      - '.github/workflows/phase14-2-integration-a3-hosted.yml'
   workflow_dispatch:
 
 permissions:
@@ -38,7 +42,9 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
       - name: A3 isolated-target preflight tests
-        run: node --test tests/phase14-2-a3-isolated-auth-preflight.test.mjs
+        run: |
+          node --test tests/phase14-2-a3-isolated-auth-preflight.test.mjs
+          node --test tests/phase14-2-a3-hosted-source.test.mjs
       - name: Preserve A1/A2 integration contracts
         run: |
           node --experimental-strip-types --test tests/phase14-2-integration-platform-contract.test.ts
