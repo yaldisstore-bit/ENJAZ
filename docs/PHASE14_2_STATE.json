@@ -60,5 +60,6 @@
   "a3RecoveryHarness": "scripts/phase14-2-a3-hosted-residue-recovery.mjs",
   "a3ReadinessPullRequest": 233,
   "a3ReadinessMergeCommit": "f86d04376ad2888ac21c6374ba61e9317451a392",
-  "a3HostedHarnessSecurityHardening": "CANONICAL_WORKSPACE_OWNER_REQUIRED_AND_ZERO_RESIDUE_REVERIFIED"
+  "a3HostedHarnessSecurityHardening": "CANONICAL_WORKSPACE_OWNER_REQUIRED_AND_ZERO_RESIDUE_REVERIFIED",
+  "a3HostedCandidateRoadmapReconciled": true
 }
