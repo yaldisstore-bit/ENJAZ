@@ -85,7 +85,7 @@
   "a2LabReadOnlyInventoryStatus": "PASS_ZERO_BASELINE_RUN_35605875580",
   "a2LabRecoveryStatus": "PASS_ZERO_RESIDUE_AFTER_RUN_35632402943_INDEPENDENT_READONLY_RECHECK",
   "a2GovernanceStaleRpcStatus": "PASS_PT409_LAB_COMPATIBILITY_VERIFIED",
-  "a2LatestEvidenceScope": "Run 35632402943: 149 hosted linked J01-J11, N02 eleven-domain workforce denial, and N13 signed hosted token with revoked refresh + local-client clock past JWT exp and fresh-login recovery; 5-width signed-in local-preview Chromium/offline; zero lab residue. N13 is not a real-wall-clock wait-through-expiry measurement. Physical Android and published independently hosted portal still not certified.",
+  "a2LatestEvidenceScope": "Run 35632402943: 149 hosted linked J01-J11, N02 eleven-domain workforce denial, and N13 signed hosted token with revoked refresh plus simulated local-client clock past JWT exp and fresh-login recovery; five-width authenticated Chromium/offline; zero isolated lab residue. N13 is not an elapsed-wall-clock JWT expiry proof. Independently, run 35682270629 on SHA 6ff525f103579d5f5f0392aecd4bd58d0e96a68e passed published ephemeral HTTPS exact-SHA staff/client portal Chromium (17 cases; 151 integrated checks), closed tunnel and zero isolated residue. Neither run certifies a physical Android handset; Phase 14.1 remains IN_PROGRESS.",
   "a2ProductionMutationPerformedForThisRecovery": false,
   "a2ExitGatePassed": true,
   "a2LatestLinkedRun": "35632402943",
@@ -120,5 +120,9 @@
   "a3PublishedPortalUrlRetained": false,
   "a3PublishedPortalProductionMutationPerformed": false,
   "a3PhysicalAndroidRemaining": true,
-  "a3PublishedPortalEvidence": "docs/PHASE14_1_A3_PUBLISHED_PORTAL_PASS.md"
+  "a3PublishedPortalEvidence": "docs/PHASE14_1_A3_PUBLISHED_PORTAL_PASS.md",
+  "a3PhysicalAndroidStatus": "NOT_RUN_REQUIRES_REAL_HANDSET",
+  "a3PhysicalAndroidRunbook": "docs/PHASE14_1_A3_PHYSICAL_ANDROID_GATE.md",
+  "a3PhysicalAndroidEvidence": null,
+  "a3PhysicalAndroidClosureAllowed": false
 }
