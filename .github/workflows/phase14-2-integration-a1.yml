@@ -42,4 +42,3 @@ jobs:
         run: npm run typecheck && npm run build
       - name: Frozen client budgets and secret audit
         run: npm run audit:dist:budget && npm run audit:secrets
-
