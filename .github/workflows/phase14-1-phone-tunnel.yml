@@ -1,0 +1,252 @@
+name: ENJAZ Phase 14.1 — Temporary Physical Phone Tunnel
+
+on:
+  push:
+    branches: [pages-preview]
+    paths:
+      - '.github/workflows/phase14-1-phone-tunnel.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tunnel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: phase13-4-isolated-real-cloud
+    env:
+      TARGET_CANDIDATE_SHA: b7e61b9354591ff4912302ca5d7e6f6fd613c676
+      PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd
+      LAB_PROJECT_REF: nqhgaukutkyvfumbtbtg
+      SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
+
+    steps:
+      - name: Checkout exact Phase 14.1 candidate
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TARGET_CANDIDATE_SHA }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Fail closed on isolated lab
+        run: |
+          set -euo pipefail
+          test "$SUPABASE_URL" = "https://${LAB_PROJECT_REF}.supabase.co"
+          test "$LAB_PROJECT_REF" != "$PRODUCTION_PROJECT_REF"
+          case "$SUPABASE_PUBLISHABLE_KEY" in sb_publishable_*) ;; *) exit 1;; esac
+          case "$SUPABASE_SECRET_KEY" in sb_secret_*) ;; *) exit 1;; esac
+          echo "PASS isolated lab only"
+
+      - name: Build exact isolated QA runtime
+        env:
+          VITE_APP_ENV: test
+          VITE_APP_LOG_LEVEL: error
+          VITE_SUPABASE_URL: ${{ env.SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ env.SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_SECRET_KEY: ''
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_CANDIDATE_SHA"
+          npm run build -- --base=/
+          node -e 'const fs=require("fs"); const sha=process.env.TARGET_CANDIDATE_SHA; fs.writeFileSync("dist/enjaz-phase14-1-a3-deploy.json",JSON.stringify({schema:"enjaz.phase14-1.a3.phone-tunnel.v1",sha,labRef:"nqhgaukutkyvfumbtbtg"})+"\n")'
+
+      - name: Create disposable isolated staff and client fixtures
+        run: |
+          cat > /tmp/qa-fixture.mjs <<'NODE'
+          import { createClient } from '@supabase/supabase-js';
+          import { randomUUID } from 'node:crypto';
+          import { writeFile } from 'node:fs/promises';
+
+          const url=process.env.SUPABASE_URL;
+          const key=process.env.SUPABASE_PUBLISHABLE_KEY;
+          const secret=process.env.SUPABASE_SECRET_KEY;
+          if(url!=='https://nqhgaukutkyvfumbtbtg.supabase.co'||!key?.startsWith('sb_publishable_')||!secret?.startsWith('sb_secret_')) throw Error('LAB_DENIED');
+          const opt={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}};
+          const admin=createClient(url,secret,opt);
+          const fresh=()=>createClient(url,key,opt);
+          const marker='phase14_1_a2_j04_field_real_cloud';
+
+          async function makeUser(label){
+            const email=`enjaz-a2-j03-${label}-${randomUUID()}@example.com`;
+            const password='Enjaz!14.1-'+randomUUID()+'Aa9';
+            const made=await admin.auth.admin.createUser({email,password,email_confirm:true,user_metadata:{enjaz_test_marker:marker,label}});
+            if(made.error||!made.data?.user?.id) throw Error('USER_CREATE_FAILED');
+            const c=fresh();
+            const sign=await c.auth.signInWithPassword({email,password});
+            if(sign.error||!sign.data?.session) throw Error('LOGIN_FAILED');
+            let ws=null;
+            for(let i=0;i<40;i++){
+              const q=await admin.from('workspaces').select('id').eq('owner_user_id',made.data.user.id).limit(2);
+              if(q.error) throw Error('WORKSPACE_READ_FAILED');
+              if(q.data?.length===1){ws=q.data[0].id;break;}
+              await new Promise(r=>setTimeout(r,250));
+            }
+            if(!ws) throw Error('WORKSPACE_BOOTSTRAP_FAILED');
+            return {id:made.data.user.id,email,password,workspaceId:ws,client:c,label};
+          }
+
+          const staff=await makeUser('owner');
+          const client=await makeUser('portal-client');
+
+          const company=await staff.client.from('companies').insert({
+            workspace_id:staff.workspaceId,
+            legal_name:'شركة اختبار هاتف إنجاز 14.1',
+            capital:150000000
+          }).select('id').single();
+          if(company.error||!company.data?.id) throw Error('COMPANY_CREATE_FAILED');
+
+          const tx=await staff.client.from('transactions').insert({
+            workspace_id:staff.workspaceId,
+            company_id:company.data.id,
+            type:'phase14_1_phone_qa',
+            current_fee:125.50
+          }).select('id').single();
+          if(tx.error||!tx.data?.id) throw Error('TX_CREATE_FAILED');
+
+          const principalId=randomUUID();
+          const principal=await admin.from('client_portal_principals').insert({
+            id:principalId,
+            workspace_id:staff.workspaceId,
+            user_id:client.id,
+            status:'invited',
+            created_by:staff.id
+          }).select('id,version').single();
+          if(principal.error||!principal.data?.id) throw Error('PRINCIPAL_CREATE_FAILED');
+
+          const activated=await client.client.rpc('activate_client_portal_invitation_v1',{
+            p_workspace_id:staff.workspaceId,
+            p_expected_version:principal.data.version
+          });
+          if(activated.error||activated.data?.status!=='active') throw Error('PRINCIPAL_ACTIVATE_FAILED');
+
+          const grants=await admin.from('client_portal_grants').insert([
+            {id:randomUUID(),workspace_id:staff.workspaceId,principal_id:principalId,target_type:'company',company_id:company.data.id,permissions:['view'],created_by:staff.id},
+            {id:randomUUID(),workspace_id:staff.workspaceId,principal_id:principalId,target_type:'transaction',transaction_id:tx.data.id,permissions:['view','view_finance'],created_by:staff.id}
+          ]).select('id');
+          if(grants.error||grants.data?.length!==2) throw Error('GRANTS_CREATE_FAILED');
+
+          const model=await client.client.rpc('get_client_portal_read_model_v1',{p_workspace_id:staff.workspaceId});
+          if(model.error||!model.data?.companies?.some(x=>x.id===company.data.id)||!model.data?.transactions?.some(x=>x.id===tx.data.id)) throw Error('CLIENT_MODEL_FAILED');
+
+          await writeFile('/tmp/enjaz-qa-fixture.json',JSON.stringify({
+            staff:{id:staff.id,email:staff.email,password:staff.password,workspaceId:staff.workspaceId},
+            client:{id:client.id,email:client.email,password:client.password,workspaceId:client.workspaceId},
+            companyId:company.data.id,
+            transactionId:tx.data.id,
+            principalId
+          }));
+          console.log('QA_FIXTURE_READY');
+          NODE
+          node /tmp/qa-fixture.mjs
+
+      - name: Encrypt disposable credentials for operator
+        run: |
+          cat > /tmp/operator-public.pem <<'KEY'
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4yWzNGP6ol4EhACjRY7I
+r5K77GC9yMuy4XRXM49wSjaRe1SAut0A3Fb6vGSKq4OOaduryMiBX4IeXnrMfnQ8
+mN4qTZ5MQluBFdy1EfXDrnFcoEDTY6jJdLH5paij1pfIiyD1ZG+TgWkMdVLyIvtK
+bOT+ygn8j0jDs37bE4kQIbLIw52l/46MlPEP7IiFI5A4/2bv8AAbpCGLDYUELuFc
+Hil2sUovNmvc1Wv0WGfYRl2rQVoo/PimfgiLp07oNL0WxoC2u4CdYBVuoNXSstDj
+knxbg7n0hFfXv1kmyWCYhhZEaBCfAEeUBWeNOxZdj3AuSrMfIT8OYPksvAHOEYp/
+yQIDAQAB
+-----END PUBLIC KEY-----
+          KEY
+          node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('/tmp/enjaz-qa-fixture.json','utf8'));
+          for(const [k,v] of Object.entries({
+            STAFF_EMAIL:x.staff.email,
+            STAFF_PASSWORD:x.staff.password,
+            CLIENT_EMAIL:x.client.email,
+            CLIENT_PASSWORD:x.client.password
+          })) fs.writeFileSync('/tmp/'+k,v);
+          NODE
+          for n in STAFF_EMAIL STAFF_PASSWORD CLIENT_EMAIL CLIENT_PASSWORD; do
+            enc=$(openssl pkeyutl -encrypt -pubin -inkey /tmp/operator-public.pem -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -in /tmp/$n | base64 -w0)
+            echo "ENCRYPTED_$n=$enc"
+          done
+
+      - name: Start exact candidate public HTTPS tunnel
+        env:
+          __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: .trycloudflare.com
+          SUPABASE_SECRET_KEY: ''
+        run: |
+          set -euo pipefail
+          CLOUDFLARED=/tmp/enjaz-cloudflared-2026.9.1
+          curl --fail --silent --show-error --location -o "$CLOUDFLARED" https://github.com/cloudflare/cloudflared/releases/download/2026.9.1/cloudflared-linux-amd64
+          echo "03f1f25d1cc93b9ad6c60569d44060bc4f17ed97075760ed8cfca4b12dcd68cc  $CLOUDFLARED" | sha256sum -c -
+          chmod +x "$CLOUDFLARED"
+
+          nohup node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4193 --strictPort >/tmp/vite.log 2>&1 &
+          echo $! >/tmp/vite.pid
+          for i in {1..60}; do
+            curl --fail --silent http://127.0.0.1:4193/portal >/dev/null && break
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:4193/portal >/dev/null
+
+          nohup "$CLOUDFLARED" tunnel --url http://127.0.0.1:4193 --no-autoupdate --logfile /tmp/cloudflared.log --loglevel info >/tmp/cloudflared-stdout.log 2>&1 &
+          echo $! >/tmp/cloudflared.pid
+
+          url=
+          for i in {1..120}; do
+            url=$(grep -Eo 'https://[a-z0-9-]+\.trycloudflare\.com' /tmp/cloudflared.log | tail -1 || true)
+            [ -n "$url" ] && break
+            sleep 1
+          done
+          test -n "$url"
+          curl --fail --silent --show-error --location "$url/enjaz-phase14-1-a3-deploy.json" | grep -q "$TARGET_CANDIDATE_SHA"
+          curl --fail --silent --show-error --location "$url/" | grep -q '<div id="root"'
+          curl --fail --silent --show-error --location "$url/portal" | grep -q '<div id="root"'
+          echo "PHONE_QA_URL=$url"
+          echo "PHONE_QA_PORTAL=$url/portal"
+          echo "PHONE_QA_SHA=$TARGET_CANDIDATE_SHA"
+          echo "PHONE_QA_READY"
+
+          for i in {1..450}; do
+            kill -0 "$(cat /tmp/cloudflared.pid)" 2>/dev/null || exit 1
+            kill -0 "$(cat /tmp/vite.pid)" 2>/dev/null || exit 1
+            sleep 10
+          done
+
+      - name: Cleanup disposable isolated fixtures
+        if: always()
+        run: |
+          if [ ! -f /tmp/enjaz-qa-fixture.json ]; then exit 0; fi
+          cat > /tmp/qa-cleanup.mjs <<'NODE'
+          import { createClient } from '@supabase/supabase-js';
+          import { readFile } from 'node:fs/promises';
+          import { removeLinkedFixtureWorkspace } from './scripts/phase14-1-a2-linked-cleanup.mjs';
+
+          const url=process.env.SUPABASE_URL;
+          const key=process.env.SUPABASE_PUBLISHABLE_KEY;
+          const secret=process.env.SUPABASE_SECRET_KEY;
+          const opt={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}};
+          const admin=createClient(url,secret,opt);
+          const fresh=()=>createClient(url,key,opt);
+          const f=JSON.parse(await readFile('/tmp/enjaz-qa-fixture.json','utf8'));
+
+          for(const u of [f.staff,f.client]){
+            await removeLinkedFixtureWorkspace({admin,url,userId:u.id,workspaceId:u.workspaceId});
+          }
+          for(const u of [f.staff,f.client]){
+            const c=fresh();
+            const s=await c.auth.signInWithPassword({email:u.email,password:u.password});
+            if(!s.error) await c.auth.signOut({scope:'global'});
+            const d=await admin.auth.admin.deleteUser(u.id,false);
+            if(d.error) throw d.error;
+          }
+          console.log('QA_CLEANUP_COMPLETE');
+          NODE
+          node /tmp/qa-cleanup.mjs
