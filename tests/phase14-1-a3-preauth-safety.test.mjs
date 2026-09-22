@@ -18,7 +18,7 @@ test('A3 preparatory browser workflow is inert and cannot target production or c
   assert.match(workflow, /permissions:\s*\n\s*contents:\s*read/);
 });
 
-test('A3 preparatory smoke remains explicitly non-certifying', () => {
+test('A3 preparatory smoke remains non-certifying beside the evidence-bound published certificate', () => {
   // The inert pre-auth smoke must never certify A3; it may run after a separately
   // anchored hosted A2 certificate without regressing the phase state.
   const a2Prior = state.a2RealCloudStatus === 'NOT_STARTED' ||
@@ -32,14 +32,32 @@ test('A3 preparatory smoke remains explicitly non-certifying', () => {
   assert.ok(a2Prior || a2Anchored,
     `A2 must be uncertified or match the separately anchored hosted evidence; got ${state.a2RealCloudStatus}`);
   assert.notEqual(state.a2RealCloudStatus, 'PASS');
-  assert.ok(['NOT_STARTED','PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_NOT_FULL_A3'].includes(state.a3RealBrowserStatus));
+  assert.ok([
+    'PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_NOT_FULL_A3',
+    'PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_PUBLISHED_HTTPS_NOT_FULL_A3',
+  ].includes(state.a3RealBrowserStatus));
   assert.equal(state.a3PreparatoryBrowserSafetyGuard, 'ACTIVE_FAIL_CLOSED_NO_SECRETS_NO_PRODUCTION');
   assert.equal(state.a3PreparatoryBrowserStatus, 'PASS_14_OF_14_ISOLATED_CHROMIUM_NO_LIVE_AUTH');
   assert.deepEqual(state.a3PreparatoryBrowserWidths, [1280, 430, 390, 360, 320]);
   assert.equal(state.a3PreparatoryBrowserRealAndroidCertified, false);
   assert.equal(state.a3PreparatoryBrowserPublishedPortalCertified, false);
   assert.equal(state.a3RealBrowserPhysicalAndroidCertified, false);
-  assert.equal(state.a3RealBrowserPublishedPortalCertified, false);
+  if (state.a3RealBrowserPublishedPortalCertified) {
+    assert.equal(state.a3RealBrowserStatus,
+      'PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_PUBLISHED_HTTPS_NOT_FULL_A3');
+    assert.equal(state.a3RealBrowserEvidenceRun, '35682270629');
+    assert.equal(state.a3RealBrowserEvidenceHead, '6ff525f103579d5f5f0392aecd4bd58d0e96a68e');
+    assert.equal(state.a3RealBrowserCaseCount, 17);
+    assert.equal(state.a3PublishedPortalIntegratedCheckCount, 151);
+    assert.equal(state.a3PublishedPortalExactShaBound, true);
+    assert.equal(state.a3PublishedPortalTemporaryTunnelClosed, true);
+    assert.equal(state.a3PublishedPortalUrlRetained, false);
+    assert.equal(state.a3PublishedPortalProductionMutationPerformed, false);
+    assert.equal(state.a3PhysicalAndroidRemaining, true);
+  } else {
+    assert.equal(state.a3RealBrowserStatus,
+      'PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_NOT_FULL_A3');
+  }
   assert.equal(state.exitGatePassed, false);
   assert.equal(state.phase14_2Allowed, false);
   assert.match(browser, /cannot certify a real client JWT/);
