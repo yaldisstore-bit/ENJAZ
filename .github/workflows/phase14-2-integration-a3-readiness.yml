@@ -2,7 +2,7 @@ name: ENJAZ Phase 14.2 — A3 Isolated Supabase Readiness Gate
 
 on:
   push:
-    branches: ['phase14-2-+']
+    branches: ['phase14-2-*']
     paths:
       - 'scripts/phase14-2-a3-*'
       - 'tests/phase14-2-a3-*'
