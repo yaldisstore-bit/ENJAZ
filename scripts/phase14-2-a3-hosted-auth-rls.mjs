@@ -24,10 +24,12 @@ const admin=createClient(url,secret,{auth:{autoRefreshToken:false,persistSession
 const make=()=>createClient(url,publishable,{auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}});
 const users=[];
 const workspaces=[];
+const fixtureIds=[];
 const evidence={schema:'enjaz.phase14-2.a3.hosted.v1',projectRef:branchRef,productionRef,startedAt:new Date().toISOString(),checks:[],cleanup:[],passed:false,cleanupPassed:false};
 const pass=name=>{evidence.checks.push({name,passed:true});console.log('PASS 14.2 A3 '+name)};
 const ensure=(condition,name)=>{if(!condition)throw new Error('FAILED_'+name);pass(name)};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
 async function createUser(label){
   const email=`enjaz-a3-${label}-${Date.now()}-${crypto.randomUUID().slice(0,8)}@example.com`;
   const password='Enjaz!14.2-'+crypto.randomUUID()+'Aa9';
@@ -40,6 +42,7 @@ async function createUser(label){
   users.push(user);
   return user;
 }
+
 async function workspaceFor(user){
   for(let i=0;i<60;i++){
     const {data,error}=await admin.from('workspaces').select('id,owner_user_id').eq('owner_user_id',user.id).limit(2);
@@ -49,6 +52,36 @@ async function workspaceFor(user){
   }
   throw new Error('WORKSPACE_BOOTSTRAP_TIMEOUT');
 }
+
+async function verifyZeroResidue(){
+  let ok=true;
+  const {data:list,error:listError}=await admin.auth.admin.listUsers({page:1,perPage:1000});
+  if(listError){
+    ok=false;
+    evidence.cleanup.push({check:'auth_marker_absent',passed:false,error:listError.message});
+  } else {
+    const marked=(list?.users||[]).filter(u=>u.user_metadata?.enjaz_test_marker===MARKER || u.email?.startsWith('enjaz-a3-'));
+    const passed=marked.length===0;
+    if(!passed)ok=false;
+    evidence.cleanup.push({check:'auth_marker_absent',passed,count:marked.length});
+  }
+
+  if(workspaces.length){
+    const ws=await admin.from('workspaces').select('id').in('id',workspaces);
+    const passed=!ws.error && (ws.data?.length??0)===0;
+    if(!passed)ok=false;
+    evidence.cleanup.push({check:'workspace_ids_absent',passed,count:ws.data?.length??null,error:ws.error?.message});
+  }
+
+  if(fixtureIds.length){
+    const rows=await admin.from('integration_service_accounts').select('id').in('id',fixtureIds);
+    const passed=!rows.error && (rows.data?.length??0)===0;
+    if(!passed)ok=false;
+    evidence.cleanup.push({check:'integration_fixture_ids_absent',passed,count:rows.data?.length??null,error:rows.error?.message});
+  }
+  return ok;
+}
+
 async function cleanup(){
   let ok=true;
   for(const workspaceId of [...workspaces].reverse()){
@@ -61,8 +94,10 @@ async function cleanup(){
     if(error){ok=false;evidence.cleanup.push({userId:user.id,passed:false,error:error.message})}
     else evidence.cleanup.push({userId:user.id,passed:true});
   }
-  evidence.cleanupPassed=ok;
+  const zero=await verifyZeroResidue();
+  evidence.cleanupPassed=ok&&zero;
 }
+
 try{
   const owner=await createUser('owner');
   const outsider=await createUser('outsider');
@@ -81,6 +116,7 @@ try{
   ensure(Boolean(outsiderRead.error),'authenticated_outsider_direct_integration_read_denied');
 
   const fixtureId=crypto.randomUUID();
+  fixtureIds.push(fixtureId);
   const inserted=await admin.from('integration_service_accounts').insert({
     id:fixtureId,
     workspace_id:ownerWs,
@@ -109,4 +145,4 @@ try{
   await writeFile(OUT,JSON.stringify(evidence,null,2));
 }
 if(!evidence.passed||!evidence.cleanupPassed)throw new Error('PHASE14_2_A3_HOSTED_ACCEPTANCE_FAILED');
-console.log('PASS 14.2 A3 hosted Auth/RLS acceptance with zero marked residue');
+console.log('PASS 14.2 A3 hosted Auth/RLS acceptance with independently verified zero marked residue');
