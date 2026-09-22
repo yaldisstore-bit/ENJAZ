@@ -4,6 +4,7 @@ import fs from 'node:fs';
 
 const migration=fs.readFileSync('database/migrations/phase_14_2_integration_platform_foundation.sql','utf8');
 const fixture=fs.readFileSync('tests/fixtures/phase14-2-a2-postgres.sql','utf8');
+const workflow=fs.readFileSync('.github/workflows/phase14-2-integration-a2.yml','utf8');
 const has=(source,marker)=>assert.ok(source.includes(marker),marker);
 
 test('A2 stores hashes and prefixes but no raw token or signing secret columns',()=>{
@@ -47,4 +48,10 @@ test('A2 disposable PostgreSQL fixture covers destructive negative cases',()=>{
     'delivery evidence update denied','idempotency evidence delete denied',
     'account revocation closes credentials and subscriptions']) has(fixture,marker);
   assert.doesNotMatch(fixture,/supabase\.co|juzxriirhkuzviwnhkbd/);
+});
+
+test('A2 workflow expects the exact destructive fixture PASS inventory',()=>{
+  const passCount=(fixture.match(/raise notice 'PASS 14\.2 A2/g)??[]).length;
+  assert.equal(passCount,13);
+  has(workflow,`grep -c 'PASS 14.2 A2' /tmp/phase142-a2.log)\" -eq ${passCount}`);
 });
