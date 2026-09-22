@@ -1,0 +1,45 @@
+name: ENJAZ Phase 14.1 — Isolated J09 marked residue recovery (not a certificate)
+on:
+  push:
+    branches:
+      - 'phase14-1-*'
+    paths:
+      - 'scripts/phase14-1-a2-j09-marked-residue-recovery.mjs'
+      - 'scripts/phase14-1-a2-lab-readonly-inventory.mjs'
+      - '.github/workflows/phase14-1-a2-j09-marked-residue-recovery.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: enjaz-phase141-a2-auth-smoke
+  cancel-in-progress: false
+jobs:
+  guarded-recovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: phase13-4-isolated-real-cloud
+    env:
+      PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd
+      ENJAZ_A2_BRANCH_REF: nqhgaukutkyvfumbtbtg
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+      ENJAZ_A2_ISOLATED_BRANCH_CONFIRM: YES
+      ENJAZ_A2_RESIDUE_RECOVERY_CONFIRM: YES
+      SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deny production, unapproved lab, empty/wrong keys before any reads or deletes
+        run: node scripts/phase14-1-a2-isolated-auth-preflight.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Syntax-check marked-only recovery
+        run: node --check scripts/phase14-1-a2-j09-marked-residue-recovery.mjs
+      - name: Read-only sanitized lab inventory before any recovery mutation
+        run: node scripts/phase14-1-a2-lab-readonly-inventory.mjs
+      - name: Verify exact marked fixture shape before scoped delete; fail closed on any ambiguity
+        run: node scripts/phase14-1-a2-j09-marked-residue-recovery.mjs

@@ -42,6 +42,7 @@ test('database error codes are normalized without exposing raw messages as user 
 
   assert.equal(normalizeDataFailure({ code: '23505' }).dataCode, 'DATA_CONFLICT');
   assert.equal(normalizeDataFailure({ code: '40001' }).dataCode, 'DATA_CONFLICT');
+  assert.equal(normalizeDataFailure({ code: 'PT409', message: 'ENJAZ_RESOLUTION_STALE' }).dataCode, 'DATA_CONFLICT');
   assert.equal(normalizeDataFailure({ code: '23503' }).dataCode, 'DATA_REFERENCE_CONFLICT');
   assert.equal(normalizeDataFailure({ message: 'Failed to fetch' }).dataCode, 'DATA_UNAVAILABLE');
 });

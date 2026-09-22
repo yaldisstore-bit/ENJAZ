@@ -1,0 +1,118 @@
+name: ENJAZ Phase 14.1 A2 — Linked J01-J11 + N02/N13 Real Cloud
+
+on:
+  push:
+    branches:
+      - 'phase14-1-*'
+    paths:
+      - 'scripts/phase14-1-a2-j04-field-real-cloud.mjs'
+      - 'scripts/phase14-1-a2-j05-linked-followup-extension.mjs'
+      - 'scripts/phase14-1-a2-j06-linked-finance-extension.mjs'
+      - 'scripts/phase14-1-a2-j07-linked-document-extension.mjs'
+      - 'scripts/phase14-1-a2-j08-client-auth-gateway-extension.mjs'
+      - 'scripts/phase14-1-a2-j09-linked-archive-extension.mjs'
+      - 'scripts/phase14-1-a2-j10-linked-governance-extension.mjs'
+      - 'scripts/phase14-1-a2-j11-linked-contract-extension.mjs'
+      - 'scripts/phase14-1-a2-n02-role-negative-matrix.mjs'
+      - 'scripts/phase14-1-a2-n13-auth-expiry.mjs'
+      - 'scripts/phase14-1-a2-linked-cleanup.mjs'
+      - 'scripts/phase14-1-a3-*.mjs'
+      - 'tests/phase14-1-a3-process.test.mjs'
+      - 'tests-external/phase14-1-a3-real-auth.spec.cjs'
+      - 'tests/phase14-1-a2-linked-cleanup.test.mjs'
+      - '.github/workflows/phase14-1-a2-j04-field-real-cloud.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase141-a2-auth-smoke
+  cancel-in-progress: false
+
+jobs:
+  isolated-j04:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: phase13-4-isolated-real-cloud
+    env:
+      PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd
+      ENJAZ_A2_BRANCH_REF: nqhgaukutkyvfumbtbtg
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+      ENJAZ_A2_ISOLATED_BRANCH_CONFIRM: YES
+      SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deny unapproved projects before any fixture writes
+        run: node scripts/phase14-1-a2-isolated-auth-preflight.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Compile-check integrated runner and followup extension before cloud mutation
+        run: |
+          node --test tests/phase14-1-a2-linked-cleanup.test.mjs tests/phase14-1-a3-process.test.mjs
+          node --check scripts/phase14-1-a2-j04-field-real-cloud.mjs
+          node --check scripts/phase14-1-a2-j05-linked-followup-extension.mjs
+          node --check scripts/phase14-1-a2-j06-linked-finance-extension.mjs
+          node --check scripts/phase14-1-a2-j07-linked-document-extension.mjs
+          node --check scripts/phase14-1-a2-j08-client-auth-gateway-extension.mjs
+          node --check scripts/phase14-1-a2-j09-linked-archive-extension.mjs
+          node --check scripts/phase14-1-a2-j10-linked-governance-extension.mjs
+          node --check scripts/phase14-1-a2-j11-linked-contract-extension.mjs
+          node --check scripts/phase14-1-a2-n02-role-negative-matrix.mjs
+          node --check scripts/phase14-1-a2-n13-auth-expiry.mjs
+          node --check scripts/phase14-1-a3-real-browser.mjs
+          node --check tests-external/phase14-1-a3-real-auth.spec.cjs
+      - name: Prepare pinned browser tools and build before creating disposable Auth users
+        timeout-minutes: 8
+        env:
+          SUPABASE_SECRET_KEY: ''
+          VITE_APP_ENV: test
+          VITE_APP_LOG_LEVEL: error
+          VITE_SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          npm run build -- --base=/
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          node node_modules/@playwright/test/cli.js install --with-deps chromium
+      - name: Read-only isolated-lab inventory before the journey
+        run: node scripts/phase14-1-a2-lab-readonly-inventory.mjs
+      - name: Execute same-user JWT J01–J11 procedure, field, followup, retry and cleanup
+        run: node scripts/phase14-1-a2-j04-field-real-cloud.mjs
+      - name: Verify isolated linked J01–J11 evidence without falsely certifying full A2
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const e = JSON.parse(fs.readFileSync('artifacts/phase14-1-a2-j04-field/evidence.json','utf8'));
+          if (e.projectRef !== 'nqhgaukutkyvfumbtbtg' ||
+              e.productionProjectRef === e.projectRef ||
+              e.scope?.join(',') !== 'J01_COMPANY,J02_TRANSACTION,J03_PROCEDURE,J04_FIELD,J05_FOLLOWUP,J06_PAYMENT,J07_DOCUMENT,J08_CLIENT_PORTAL,J09_ARCHIVE,J10_GOVERNANCE,J11_ENGAGEMENT' ||
+              e.completeElevenDomainA2 !== true || e.phase14_1Closed !== false ||
+              e.n02SameWorkspaceRoleMatrix !== true || e.n13AuthExpiry !== true ||
+              e.remainingNegativeGates?.length !== 0 ||
+              e.passed !== true || e.cleanupPassed !== true ||
+              !e.checks?.includes('J10_FRESH_JWT_GOVERNANCE_PRESERVES_J01_J09_LINEAGE') ||
+              !e.checks?.includes('J11_REVISION_HISTORY_PRESERVES_PREVIOUS_CANONICAL_ARTIFACT') ||
+              !e.checks?.includes('N02_SAME_WORKSPACE_NON_AUTHORIZED_ROLE_ALL_ELEVEN_DOMAINS_PASS') ||
+              !e.checks?.includes('N13_AUTH_EXPIRY_FAIL_CLOSED_SAFE_RESUMPTION_PASS') ||
+              !e.checks?.includes('A3_REAL_AUTH_STAFF_CLIENT_FIVE_WIDTH_CHROMIUM') ||
+              !e.checks?.includes('A3_REAL_CLIENT_OFFLINE_REFRESH_RECOVERY'))
+            throw new Error('Linked J01-J11 hosted slice NOT certified');
+          console.log('PASS isolated authenticated linked J01-J11 + N02 + N13 and zero residue — full A2 certificate');
+          console.log('PASS real-auth five-width Chromium and client offline recovery (NOT full A3)');
+          NODE
+      - name: Upload isolated linked J01-J11 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase141-a2-j01-j11-linked-real-cloud
+          path: |
+            artifacts/phase14-1-a2-isolated-auth/preflight.json
+            artifacts/phase14-1-a2-j04-field/evidence.json
+          if-no-files-found: error
+          retention-days: 30

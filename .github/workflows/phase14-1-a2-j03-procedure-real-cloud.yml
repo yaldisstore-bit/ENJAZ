@@ -1,0 +1,67 @@
+name: ENJAZ Phase 14.1 A2 — J03 Real Cloud (NOT full A2)
+
+on:
+  push:
+    branches:
+      - 'phase14-1-*'
+    paths:
+      - 'scripts/phase14-1-a2-j03-procedure-real-cloud.mjs'
+      - '.github/workflows/phase14-1-a2-j03-procedure-real-cloud.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase141-a2-auth-smoke
+  cancel-in-progress: false
+
+jobs:
+  isolated-j03:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: phase13-4-isolated-real-cloud
+    env:
+      PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd
+      ENJAZ_A2_BRANCH_REF: nqhgaukutkyvfumbtbtg
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+      ENJAZ_A2_ISOLATED_BRANCH_CONFIRM: YES
+      SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail closed on missing or unsafe isolated credentials
+        run: node scripts/phase14-1-a2-isolated-auth-preflight.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Execute authenticated J03 procedure, isolation, replay and cleanup
+        run: node scripts/phase14-1-a2-j03-procedure-real-cloud.mjs
+      - name: Verify this is a passing narrow slice, never full A2
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const e = JSON.parse(fs.readFileSync('artifacts/phase14-1-a2-j03-procedure/evidence.json','utf8'));
+          if (e.projectRef !== 'nqhgaukutkyvfumbtbtg' ||
+              e.productionProjectRef === e.projectRef ||
+              e.scope?.join(',') !== 'J01_COMPANY,J02_TRANSACTION,J03_PROCEDURE' ||
+              e.completeElevenDomainA2 !== false || e.phase14_1Closed !== false ||
+              e.passed !== true || e.cleanupPassed !== true) {
+            throw new Error('J03 real cloud certificate not satisfied');
+          }
+          console.log('PASS isolated J03 real JWT procedure journey and zero residue; NOT full A2');
+          NODE
+      - name: Upload J03 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase141-a2-j03-procedure-real-cloud
+          path: |
+            artifacts/phase14-1-a2-isolated-auth/preflight.json
+            artifacts/phase14-1-a2-j03-procedure/evidence.json
+          if-no-files-found: error
+          retention-days: 30

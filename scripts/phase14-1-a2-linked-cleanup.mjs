@@ -1,0 +1,80 @@
+// Test-fixture cleanup only. Never imported by the application.
+const LAB_URL = 'https://nqhgaukutkyvfumbtbtg.supabase.co';
+const MARKER = 'phase14_1_a2_j04_field_real_cloud';
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const LINKED_FIXTURE_LEAF_TABLES = Object.freeze([
+  'client_portal_authority_events','client_portal_resource_shares','client_portal_grants',
+  'document_upload_sessions','corporate_capital_events','corporate_resolutions',
+  'corporate_authority_grants','corporate_beneficial_owners','corporate_ownership_stakes',
+  'corporate_governance_events','corporate_registry_states','corporate_ownership_states',
+]);
+
+export function cleanupDiagnostic(error) {
+  // Do not log request bodies, JWTs, email addresses or arbitrary server text.
+  const code = /^[A-Z0-9_]{1,100}$/.test(error?.code ?? '') ? error.code : 'UNKNOWN';
+  const constraint = String(error?.message ?? '').match(/\b[a-z][a-z0-9_]+_(?:fkey|fk|check)\b/)?.[0];
+  return { code, ...(constraint ? { constraint } : {}) };
+}
+
+function fail(code, cause) {
+  const error = new Error(code);
+  error.code = code;
+  error.diagnostic = cleanupDiagnostic(cause);
+  throw error;
+}
+
+export async function removeLinkedFixtureWorkspace({ admin, url, userId, workspaceId }) {
+  if (url !== LAB_URL || !UUID.test(userId) || !UUID.test(workspaceId))
+    fail('CLEANUP_TARGET_DENIED');
+  // The caller supplies only IDs captured from this run's createUser/bootstrap.
+  // Recheck marker AND workspace ownership immediately before scoped deletion.
+  const auth = await admin.auth.admin.getUserById(userId);
+  const user = auth.data?.user;
+  if (auth.error || user?.id !== userId || user.user_metadata?.enjaz_test_marker !== MARKER ||
+      !['owner','outsider','portal-client','member'].includes(user.user_metadata?.label) ||
+      !/^enjaz-a2-j03-[a-z-]+-[0-9a-f-]+@example\.com$/.test(user.email ?? ''))
+    fail('CLEANUP_UNMARKED_USER_DENIED', auth.error);
+  const workspace = await admin.from('workspaces').select('id,owner_user_id')
+    .eq('id', workspaceId).eq('owner_user_id', userId).single();
+  if (workspace.error || workspace.data?.id !== workspaceId || workspace.data?.owner_user_id !== userId)
+    fail('CLEANUP_WORKSPACE_OWNER_MISMATCH', workspace.error);
+
+  // J10 governance rows are immutable to application roles by design.
+  // Only the marked owner fixture may invoke the separately deployed LAB-ONLY
+  // service-role RPC, and only if this run actually created governance events.
+  if (user.user_metadata.label === 'owner') {
+    const governance = await admin.from('corporate_governance_events')
+      .select('*', { head: true, count: 'exact' }).eq('workspace_id', workspaceId);
+    if (governance.error || !Number.isInteger(governance.count))
+      fail('CLEANUP_LAB_GOVERNANCE_COUNT_DENIED', governance.error);
+    if (governance.count > 0) {
+      const scoped = await admin.rpc('phase14_1_a2_lab_remove_corporate_children_v1',
+        { p_workspace_id: workspaceId, p_owner_user_id: userId });
+      if (scoped.error || scoped.data?.cleaned !== true)
+        fail('CLEANUP_LAB_GOVERNANCE_RPC_DENIED', scoped.error);
+    }
+  }
+
+  // These leaf fixtures have RESTRICT links to the company/transaction/document
+  // graph. Remove them first, so workspace cascade order cannot strand them.
+  // Never disable constraints, delete a foreign workspace, or sweep Auth users.
+  // Corporate registry children intentionally have no workspace CASCADE and
+  // must be removed before their company/contact parents in this empty lab.
+  for (const table of LINKED_FIXTURE_LEAF_TABLES) {
+    const result = await admin.from(table).delete().eq('workspace_id', workspaceId);
+    if (result.error) fail('CLEANUP_DEPENDENCY_DELETE_DENIED', result.error);
+    // PostgREST can return a successful DELETE with zero affected rows when
+    // RLS filters the target. Confirm every RESTRICT child is actually gone
+    // before deleting its company/workspace parent.
+    const remaining = await admin.from(table).select('*', { head: true, count: 'exact' })
+      .eq('workspace_id', workspaceId);
+    if (remaining.error || !Number.isInteger(remaining.count))
+      fail('CLEANUP_DEPENDENCY_VERIFY_DENIED', remaining.error);
+    if (remaining.count !== 0)
+      fail('CLEANUP_DEPENDENCY_ROWS_REMAIN', { code: 'CHILD_ROWS_REMAIN' });
+  }
+  const removed = await admin.from('workspaces').delete()
+    .eq('id', workspaceId).eq('owner_user_id', userId).select('id');
+  if (removed.error || removed.data?.length !== 1 || removed.data[0].id !== workspaceId)
+    fail('CLEANUP_WORKSPACE_DELETE_UNCONFIRMED', removed.error);
+}

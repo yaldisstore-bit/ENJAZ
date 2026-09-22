@@ -1,0 +1,86 @@
+name: ENJAZ Phase 14.1 — A3 Preparatory Five-Width Browser Smoke
+
+on:
+  push:
+    branches: ['phase14-1-*']
+    paths:
+      - 'tests-external/phase14-1-a3-preauth-surface.spec.cjs'
+      - 'tests/phase14-1-a3-preauth-safety.test.mjs'
+      - 'docs/PHASE14_1_STATE.json'
+      - '.github/workflows/phase14-1-a3-preauth-browser.yml'
+      - 'r2-production-test.html'
+      - 'vite.config.ts'
+      - 'vite.r2-production-test.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/core/auth/**'
+      - 'src/ui-r2/**'
+      - 'src/features/journeys/**'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  five-width-preauth:
+    name: Staff fixture + isolated client pre-auth / Chromium / 1280 430 390 360 320
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      VITE_APP_ENV: test
+      VITE_SUPABASE_URL: https://phase141-a3-preauth.invalid
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_phase141_a3_pre_auth_only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Fail-closed preparatory safety contract
+        run: node --test tests/phase14-1-a3-preauth-safety.test.mjs
+      - name: Isolated public pre-auth portal build, no production URL
+        run: npm run build -- --base=/
+      - name: Isolated deterministic staff bridge fixture build
+        run: npx vite build --config vite.r2-production-test.config.ts --base=/
+      - name: Pinned Chromium runtime
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start public pre-auth portal
+        run: |
+          nohup npx vite preview --host 127.0.0.1 --port 4193 > /tmp/enjaz-141-a3-portal.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4193/portal >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-141-a3-portal.log
+          exit 1
+      - name: Start deterministic isolated staff bridge
+        run: |
+          nohup npx vite preview --config vite.r2-production-test.config.ts --host 127.0.0.1 --port 4176 > /tmp/enjaz-141-a3-staff.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4176/r2-production-test.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/enjaz-141-a3-staff.log
+          exit 1
+      - name: Run fourteen Chromium cases, no hosted test users or fixture writes
+        env:
+          ENJAZ_A3_STAFF_BASE_URL: http://127.0.0.1:4176/
+          ENJAZ_A3_PORTAL_BASE_URL: http://127.0.0.1:4193/portal
+        run: npx playwright test tests-external/phase14-1-a3-preauth-surface.spec.cjs --reporter=line --workers=1
+      - name: Upload sanitized UI diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enjaz-141-a3-preauth-${{ github.sha }}
+          path: |
+            test-results/
+            /tmp/enjaz-141-a3-portal.log
+            /tmp/enjaz-141-a3-staff.log
+          if-no-files-found: ignore
+          retention-days: 7

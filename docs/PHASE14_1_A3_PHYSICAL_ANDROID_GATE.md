@@ -1,0 +1,32 @@
+# Phase 14.1 A3 — Physical Android execution and evidence gate
+
+**Status: NOT RUN / NOT CERTIFIED.** This runbook does not constitute physical-device evidence, authorize production test writes, or close Phase 14.1. The exact-SHA ephemeral published HTTPS / five-width Chromium certificate is recorded separately in `docs/PHASE14_1_A3_PUBLISHED_PORTAL_PASS.md` (run 35682270629). Chromium touch emulation and Android emulators **cannot** satisfy this gate.
+
+## Before touching a physical phone (operator and release engineer)
+
+1. Prepare a dedicated **isolated lab-only** HTTPS QA deployment of the exact candidate SHA. Verify the served exact-SHA manifest and its Supabase publishable URL/ref are the approved **non-production** lab. Never deploy the Supabase secret/service key to the browser or screenshots, and do not reuse the production-hosted portal as a fixture target.
+2. Create individually marked, disposable **staff and client** lab principals through the existing isolated Auth/fixture flow, scoped to one synthetic workspace with client grants. Store credentials in the approved secret channel only, never GitHub comments, screenshots, workflow artifacts or this document. Check the isolated lab starts from an empty approved baseline. Do not open an ephemeral tunnel before a tester can use it; the previous certified tunnel was shut down after its run and its URL is not reusable.
+3. Use an actual Android **handset** running a normal browser, not a desktop responsive preset, Android emulator, remote desktop or a Chromium `hasTouch` context. Record nonsensitive device model, Android version, browser name/version, approximate screen CSS width, exact app SHA and UTC observation time. Use no personal or business records.
+4. If the isolated deployment or approved accounts cannot be reached, record `BLOCKED`; **do not** substitute production credentials, create an ad-hoc production fixture, publish a privileged key or record a simulated PASS.
+
+## On-device acceptance matrix (staff and client where applicable)
+
+| ID | Action on the physical handset | Required observation |
+|---|---|---|
+| D01 | Open the isolated exact-SHA URL, rotate portrait/landscape and return. Check Arabic + mixed digits at narrow width. | Proper RTL alignment; no clipped critical fields, horizontal body scroll, overlapping navigation or obscured primary action. |
+| D02 | On **staff login**, tap email then password using the actual Android IME; type and dismiss the keyboard. | Focused input and submit control stay reachable with native visual-viewport resize/scroll; no keyboard-covered field or sticky navigation. |
+| D03 | Sign in with the marked staff test user; open home and a transaction/company detail; use touch navigation and Android OS Back. | Correct scoped data and navigation/exit behavior; no splash/login loop, lost unsaved work without warning, blank page or duplicate toast. |
+| D04 | In an editable **synthetic** staff form, open IME, scroll through fields, use the Android Back gesture/button to dismiss it, then navigate back. | Input remains reachable and uncorrupted; first Back dismisses IME where the OS does so; subsequent navigation follows the app/browser state safely. |
+| D05 | With a signed-in staff shell, disable connectivity through Android quick settings, attempt a guarded refresh, then restore it. | No false-success acknowledgement, invented new server data or unauthorized persistence; an explicit recoverable state and valid reload after reconnection. |
+| D06 | Sign out of staff and sign in separately as the marked **client** at `/portal`. | The independently authenticated client sees only explicitly granted synthetic workspace data; no staff fields, credentials, storage paths or unrelated records. |
+| D07 | On client login and any available client input/request form, open and dismiss native IME; rotate and use touch on Home, Requests, Transactions, Documents and Receipts. | Reachable inputs and actions; RTL, headings, safe areas and scrolling remain usable without overflow, cross-role leakage or silent submission. |
+| D08 | Navigate from a client detail to the previous page with Android OS Back, then return online to the portal; attempt sign-out and browser Back. | No resurfacing of staff-only or signed-out protected content; correct browser/app back behavior with safe login gating. |
+| D09 | While signed in as client, turn connectivity off, refresh, then restore it and explicitly refresh. | Fail-closed loading/error, no stale privileged content treated as current, and successful authorized reauthentication/read on recovery. |
+| D10 | Check signs of failure across both roles: blank/splash loop, fatal error, horizontal overflow, blocked button, keyboard overlap, incorrect user/workspace, unsafe replay. | All absent. Any observed security, data-integrity or navigation defect is logged with reproduction and remains a blocker until fixed and re-tested on device. |
+
+## Evidence, cleanup and decision
+
+- Capture **sanitized** real-handset screenshots/video or device-derived observations per D01–D10 (include visible keyboard/back/network interactions for D02/D04/D05/D07/D08/D09). Do not include passwords, JWTs, e-mail addresses, customer records, private URLs or raw network headers in public GitHub artifacts. A narrative alone or a screenshot taken in desktop Chromium is not sufficient for an independently reviewable real-device certificate.
+- The authorized tester/reviewer must record per-case PASS/FAIL/BLOCKED, handset/OS/browser, candidate SHA, isolated lab target confirmation, UTC date, scrubbed evidence references and defects. Missing evidence or an unresolved FAIL/BLOCKED **prevents A3 certification**. Do not retroactively relabel prior Chromium runs as physical Android.
+- Sign out, tear down any temporary public QA access, delete *only* marked synthetic Auth/tenant/storage fixtures in the **isolated** lab using the approved scoped cleanup, and independently recheck zero marked residue; unexpected pre-existing data blocks destructive cleanup.
+- After actual D01–D10 evidence and zero residue are verified: run full CI on the exact candidate PR head, have an explicit independent A3/14.1 review, merge only with authorization, recertify the exact merged `main` against the deployed read-only live target, and record a **separate** formal Phase 14.1 closure. Keep Phase 14.2 LOCKED until that closure. Never treat this checklist or the current passing source CI as a substitute for the physical run.
