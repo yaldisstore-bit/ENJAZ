@@ -2,11 +2,11 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 14.2 — Integration Platform / API / Webhooks — A1 IN PROGRESS**
+الحالة الرسمية: **Phase 14.2 — Integration Platform / API / Webhooks — A2 IN PROGRESS**
 
 آخر مرحلة مغلقة: **Phase 14.1 — Cross-domain Journeys ✅ CLOSED / PASS_WITH_OWNER_WAIVER**.
 
-العمل الحالي: **14.2-A1 source contract**؛ API `v1` وصلاحيات service accounts وعقد Webhooks/التوقيع/إعادة المحاولة قيد الاعتماد، من دون API منشور أو صلاحية إنتاج جديدة. [A1 kickoff](docs/PHASE14_2_A1_KICKOFF.md).
+العمل الحالي: **14.2-A2 authoritative persistence**؛ A1 دُمج عبر PR #231، وA2 يضيف نموذج PostgreSQL/RLS خلفيًا للمفاتيح المشفّرة واشتراكات Webhooks وسجل التسليم وidempotency مع اختبار PostgreSQL 17 معزول، من دون API منشور أو صلاحية إنتاج جديدة. [A2 kickoff](docs/PHASE14_2_A2_KICKOFF.md).
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -67,7 +67,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 13.4 — Reconciliation ✅ CLOSED** — read-only A2/A3 installed with canonical-owner authority, independent hosted Auth/RLS zero-residue certificate, PR #218 formal closure; preservation of Phase 13.4 is checked by the 13.5 gate.
 - **Phase 13.5 — Import Destruction Gate ✅ CLOSED** — predecessor certified and preserved.
 - **Phase 14.1 — Cross-domain Journeys ✅ CLOSED / PASS_WITH_OWNER_WAIVER** — PR #225 merged; hosted linked J01–J11 + negative/auth evidence and published exact-SHA browser certificate preserved; physical Android exact-candidate D01–D10 was explicitly waived, not certified; Phase 14.2 AUTHORIZED_NEXT.
-- **Phase 14.2 — Integration Platform / API / Webhooks — M11: A1 IN PROGRESS** — versioned operation/scope contract, workspace-bound service credential checks, webhook endpoint/signing/retry/dead-letter contract and source destruction tests; no database/API deployment or production authority is claimed by A1.
+- **Phase 14.2 — Integration Platform / API / Webhooks — M11: A2 IN PROGRESS** — A1 source contract merged (PR #231); server-only PostgreSQL persistence, hashed credentials, webhook subscriptions, immutable delivery/idempotency evidence and isolated destructive CI are being certified. No Supabase/API deployment or production authority is claimed.
 
 ## Phase 13.3 — شهادة الإغلاق
 
@@ -456,7 +456,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 8. **M8 — Regulatory / Knowledge Base Engine** — `ACTIVE`; Phase 12 remains open.
 9. **M9 — Agentic ENJAZ Copilot** — `ACTIVE`؛ Phase 12.3 is IN_PROGRESS and 12.4 remains locked.
 10. **M10 — Scheduling, Appointments & Deadline Engine** — `ACTIVE`؛ Phase 11.5 anchor CLOSED/certified مع بقاء global M10 closure خاضعًا لسياسة major-system المستقلة.
-11. **M11 — Integration Platform / API / Webhooks** — `PLANNED`.
+11. **M11 — Integration Platform / API / Webhooks** — `ACTIVE`؛ Phase 14.2 A1 merged and A2 persistence gate in progress.
 12. **M12 — Compliance, Audit & Evidence Center** — `PLANNED`.
 13. **M13 — Business Intelligence & Forecasting Center** — `ACTIVE`; Phase 9 anchor CLOSED، Phase 15 remains open.
 14. **M14 — Backup, Restore & Workspace Portability** — `PLANNED`.
