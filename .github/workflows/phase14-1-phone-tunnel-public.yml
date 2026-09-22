@@ -65,9 +65,20 @@ jobs:
             sleep 1
           done
           test -n "$url"
-          curl --fail --silent --show-error --location "$url/enjaz-phase14-1-a3-deploy.json" | grep -q "$TARGET_CANDIDATE_SHA"
-          curl --fail --silent --show-error --location "$url/" | grep -q '<div id="root"'
-          curl --fail --silent --show-error --location "$url/portal" | grep -q '<div id="root"'
+          ready=0
+          for i in {1..60}; do
+            manifest=$(curl --fail --silent --show-error --location "$url/enjaz-phase14-1-a3-deploy.json" 2>/dev/null || true)
+            root=$(curl --fail --silent --show-error --location "$url/" 2>/dev/null || true)
+            portal=$(curl --fail --silent --show-error --location "$url/portal" 2>/dev/null || true)
+            if printf '%s' "$manifest" | grep -q "$TARGET_CANDIDATE_SHA" &&
+               printf '%s' "$root" | grep -q '<div id="root"' &&
+               printf '%s' "$portal" | grep -q '<div id="root"'; then
+              ready=1
+              break
+            fi
+            sleep 2
+          done
+          test "$ready" = 1
 
           body=$(printf 'TEMP_PHONE_QA_READY\n\nExact candidate: `%s`\nStaff/register: %s/\nClient portal: %s/portal\nIsolated Supabase lab only; no production data. This URL is temporary.' "$TARGET_CANDIDATE_SHA" "$url" "$url")
           curl --fail --silent --show-error \
