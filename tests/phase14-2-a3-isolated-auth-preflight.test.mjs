@@ -4,7 +4,7 @@ import {spawnSync} from 'node:child_process';
 
 const base={
   ...process.env,
-  ENJAZ_REAL_CLOUD_CONFIRM*'YES',
+  ENJAZ_REAL_CLOUD_CONFIRM:'YES',
   ENJAZ_A3_ISOLATED_BRANCH_CONFIRM:'YES',
   PRODUCTION_PROJECT_REF:'aaaaaaaaaaaaaaaaaaaa',
   ENJAZ_A3_BRANCH_REF:'bbbbbbbbbbbbbbbbbbbb',
