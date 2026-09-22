@@ -1,0 +1,176 @@
+name: ENJAZ Phase 14.1 — Isolated Android QA Pages
+
+on:
+  push:
+    branches:
+      - 'phase14-1-*'
+    paths:
+      - '.github/workflows/phase14-1-a3-phone-qa-pages.yml'
+      - 'docs/PHASE14_1_STATE.json'
+      - 'docs/PHASE14_1_A3_PHYSICAL_ANDROID_GATE.md'
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: enjaz-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: phase13-4-isolated-real-cloud
+    steps:
+      - name: Checkout canonical main for unchanged root/live
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          path: main-src
+
+      - name: Checkout exact Phase 14.1 candidate
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          path: candidate-src
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Install locked main dependencies
+        working-directory: main-src
+        run: npm ci --no-audit --no-fund
+
+      - name: Rebuild canonical current main root and /live exactly from main
+        working-directory: main-src
+        env:
+          VITE_APP_ENV: production
+          VITE_APP_LOG_LEVEL: info
+          VITE_SUPABASE_URL: https://juzxriirhkuzviwnhkbd.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QL0eBUXHR6cSAVbINSkyWA_pIGyQ1oJ
+        run: |
+          set -euo pipefail
+          npm run build -- --base=/
+          node scripts/dist-budget-audit.mjs
+          npm run build -- --base="${{ steps.pages.outputs.base_path }}/live/" --outDir=dist-live
+          ENJAZ_DIST_DIR=dist-live node scripts/dist-budget-audit.mjs
+          MAIN_SHA=$(git rev-parse HEAD)
+          test "$MAIN_SHA" = "$(git rev-parse origin/main)"
+          node -e 'const fs=require("fs");const sha=process.argv[1];fs.writeFileSync("dist-live/enjaz-deploy.json",JSON.stringify({schema:"enjaz.deploy.v1",sha})+"\n")' "$MAIN_SHA"
+          npx vite build --config vite.r2-preview.config.ts --base="${{ steps.pages.outputs.base_path }}/"
+          node scripts/ui-rebirth-2-preview-budget-audit.mjs
+
+      - name: Install locked candidate dependencies
+        working-directory: candidate-src
+        run: npm ci --no-audit --no-fund
+
+      - name: Fail closed on isolated public runtime configuration
+        env:
+          LAB_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+          LAB_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          set -euo pipefail
+          test "$LAB_URL" = "https://nqhgaukutkyvfumbtbtg.supabase.co"
+          case "$LAB_PUBLISHABLE_KEY" in sb_publishable_*) ;; *) echo "Invalid lab publishable key"; exit 1;; esac
+          test "$LAB_URL" != "https://juzxriirhkuzviwnhkbd.supabase.co"
+          echo "PASS approved isolated public lab runtime; no secret/service key is exported to the build"
+
+      - name: Build exact candidate for /phase14-1-qa/
+        working-directory: candidate-src
+        env:
+          VITE_APP_ENV: test
+          VITE_APP_LOG_LEVEL: error
+          VITE_SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          set -euo pipefail
+          npm run build -- --base="${{ steps.pages.outputs.base_path }}/phase14-1-qa/" --outDir=dist-phase14-1-qa
+          ENJAZ_DIST_DIR=dist-phase14-1-qa node scripts/dist-budget-audit.mjs
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          node -e 'const fs=require("fs");const sha=process.argv[1];fs.writeFileSync("dist-phase14-1-qa/enjaz-phase14-1-a3-deploy.json",JSON.stringify({schema:"enjaz.phase14-1.a3.phone-qa.v1",sha,labRef:"nqhgaukutkyvfumbtbtg"})+"\n")' "${GITHUB_SHA}"
+
+      - name: Compose Pages artifact without changing current main application content
+        run: |
+          set -euo pipefail
+          rm -rf site
+          mkdir -p site/live site/phase14-1-qa/portal
+          cp -R main-src/dist-r2-preview/. site/
+          cp site/r2-preview.html site/index.html
+          cp site/index.html site/404.html
+          cp -R main-src/dist-live/. site/live/
+          cp site/live/index.html site/live/404.html
+          cp -R candidate-src/dist-phase14-1-qa/. site/phase14-1-qa/
+          cp site/phase14-1-qa/index.html site/phase14-1-qa/portal/index.html
+
+          node main-src/scripts/pages-live-fallback.mjs             site/404.html site/live/index.html "${{ steps.pages.outputs.base_path }}/live/"
+
+          node - <<'NODE'
+          const fs=require('fs');
+          const p='site/404.html';
+          const qa=fs.readFileSync('site/phase14-1-qa/index.html','utf8');
+          let root=fs.readFileSync(p,'utf8');
+          if(!root.includes('</head>')||!qa.includes('<div id="root"')) throw new Error('QA fallback composition invalid');
+          const prefix=`${{ steps.pages.outputs.base_path }}/phase14-1-qa/`;
+          const loader='<script data-enjaz-phase141-qa-fallback="v1">(()=>{const p='+JSON.stringify(prefix)+';if(location.pathname.startsWith(p)){const h='+JSON.stringify(qa).replace(/</g,'\\u003c')+';document.open();document.write(h);document.close();}})();</script>';
+          root=root.replace('</head>',loader+'</head>');
+          fs.writeFileSync(p,root);
+          NODE
+
+          test -f site/live/enjaz-deploy.json
+          test -f site/phase14-1-qa/enjaz-phase14-1-a3-deploy.json
+          grep -q "${GITHUB_SHA}" site/phase14-1-qa/enjaz-phase14-1-a3-deploy.json
+          grep -q 'data-enjaz-live-fallback="v1"' site/404.html
+          grep -q 'data-enjaz-phase141-qa-fallback="v1"' site/404.html
+
+      - name: Upload combined Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy main + isolated Phase 14.1 QA subpath
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify public candidate exact SHA and both entry points
+        env:
+          QA_ROOT: https://yaldisstore-bit.github.io/ENJAZ/phase14-1-qa/
+          QA_PORTAL: https://yaldisstore-bit.github.io/ENJAZ/phase14-1-qa/portal
+          MANIFEST: https://yaldisstore-bit.github.io/ENJAZ/phase14-1-qa/enjaz-phase14-1-a3-deploy.json
+        run: |
+          set -euo pipefail
+          for i in {1..24}; do
+            body=$(curl --fail --silent --show-error --location "$MANIFEST" || true)
+            if printf '%s' "$body" | grep -q "${GITHUB_SHA}"; then break; fi
+            sleep 5
+          done
+          printf '%s' "$body" | grep -q "${GITHUB_SHA}"
+          curl --fail --silent --show-error --location "$QA_ROOT" | grep -q '<div id="root"'
+          curl --fail --silent --show-error --location "$QA_PORTAL" | grep -q '<div id="root"'
+          echo "PASS_PHASE14_1_PHONE_QA_EXACT_SHA=${GITHUB_SHA}"
