@@ -2,9 +2,9 @@
 
 **Arabic-first legal & administrative operations platform**
 
-الحالة الرسمية: **Phase 13.5 — Import Destruction Gate ✅ CLOSED / A1+A2+A3 + EXACT-MAIN + DEPLOYED-LIVE CERTIFIED**  
-آخر مرحلة مغلقة: **Phase 13.5 — Import Destruction Gate ✅ CLOSED / 36/36 exact-main + Real Cloud / zero residue**  
-المرحلة التالية: **Phase 14.1 — Cross-domain Journeys — AUTHORIZED_NEXT / NOT_STARTED**؛ لا تتوسع صلاحيات الاستيراد أو قاعدة البيانات بمجرد هذا الإذن. شهادة إغلاق 13.5: [PHASE13_5_CLOSURE.md](docs/PHASE13_5_CLOSURE.md).
+الحالة الرسمية: **Phase 14.1 — Cross-domain Journeys ✅ CLOSED / PASS_WITH_OWNER_WAIVER**  
+آخر مرحلة مغلقة: **Phase 14.1 — Cross-domain Journeys ✅ CLOSED**؛ شهادة Android الدقيقة للنسخة المرشحة بقيت غير منفذة وتم التنازل عنها صراحةً دون ادعاء نجاحها.  
+المرحلة التالية: **Phase 14.2 — AUTHORIZED_NEXT**. شهادة إغلاق 14.1: [PHASE14_1_CLOSURE.md](docs/PHASE14_1_CLOSURE.md).
 
 ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة وبنية Supabase/Postgres + RLS، ومن دون إعادة إحياء legacy UI/runtime DNA.
 
@@ -63,7 +63,8 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 13.2 — Normalize & Map ✅ CLOSED — A1 12/12 + A2 10/10 + A3 14/14 + PR 82/82 + exact-main 40/40 + Real Browser + Pages + Live External; Phase 13.3 AUTHORIZED_NEXT.**
 - **Phase 13.3 — Ordered Import ✅ CLOSED — A1 + A2 + A3 CERTIFIED; authenticated Real Cloud 23/23; PR #211 83/83; exact-main 43/43; Real Browser + deployed-live PASS; Phase 13.4 AUTHORIZED_NEXT.**
 - **Phase 13.4 — Reconciliation ✅ CLOSED** — read-only A2/A3 installed with canonical-owner authority, independent hosted Auth/RLS zero-residue certificate, PR #218 formal closure; preservation of Phase 13.4 is checked by the 13.5 gate.
-- **Phase 13.5 — Import Destruction Gate ✅ CLOSED** — formal closure proposal in PR #223 remains subject to its own exact-head and post-merge gates; Phase 14.1 is not started.
+- **Phase 13.5 — Import Destruction Gate ✅ CLOSED** — predecessor certified and preserved.
+- **Phase 14.1 — Cross-domain Journeys ✅ CLOSED / PASS_WITH_OWNER_WAIVER** — PR #225 merged; hosted linked J01–J11 + negative/auth evidence and published exact-SHA browser certificate preserved; physical Android exact-candidate D01–D10 was explicitly waived, not certified; Phase 14.2 AUTHORIZED_NEXT.
 
 ## Phase 13.3 — شهادة الإغلاق
 
@@ -89,7 +90,7 @@ ENJAZ مشروع مستقل مبني من الصفر بواجهة حديثة و�
 - **Phase 13.4 production read-only certificate:** A2/A3 owner-scoped read-only reconciliation functions were installed and privilege/RLS-verified without any business-row insert, update or delete; see `docs/PHASE13_4_CLOSURE.md`.
 - **Phase 13.4 Auth/JWT certificate:** isolated real-user-token transport passed with zero marked-user residue. Production credentials were never used as a substitute for disposable lab credentials.
 - No imported production record is edited or automatically repaired; no new production database table, write RPC authority, new UI, or client bundle budget increase.
-- Phase 13.5 is now **CLOSED**; Phase 14.1 is **AUTHORIZED_NEXT / NOT_STARTED** after formal closure.
+- Phase 14.1 is now **CLOSED / PASS_WITH_OWNER_WAIVER**; Phase 14.2 is **AUTHORIZED_NEXT**.
 - state: [`docs/PHASE13_4_STATE.json`](docs/PHASE13_4_STATE.json).
 - hosted DB/RLS evidence: [`docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md`](docs/PHASE13_4_HOSTED_DB_RLS_EVIDENCE.md).
 - A1 contract: [`docs/PHASE13_4_A1_KICKOFF.md`](docs/PHASE13_4_A1_KICKOFF.md).
