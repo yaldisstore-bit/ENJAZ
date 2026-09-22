@@ -28,8 +28,11 @@ test('hosted A3 verifies server-side isolated persistence and cleanup',()=>{
   assert.match(src,/service_role_can_persist_isolated_fixture/);
   assert.match(src,/server_readback_workspace_bound/);
   assert.match(src,/deleteUser/);
-  assert.match(src,/cleanupPassed/);
-  assert.match(src,/zero marked residue/);
+  assert.match(src,/verifyZeroResidue/);
+  assert.match(src,/auth_marker_absent/);
+  assert.match(src,/workspace_ids_absent/);
+  assert.match(src,/integration_fixture_ids_absent/);
+  assert.match(src,/cleanupPassed=ok&&zero/);
 });
 
 test('hosted A3 uses marked disposable users only',()=>{
