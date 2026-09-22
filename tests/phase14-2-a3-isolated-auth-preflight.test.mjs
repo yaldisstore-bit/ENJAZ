@@ -4,13 +4,14 @@ import {spawnSync} from 'node:child_process';
 
 const base={
   ...process.env,
-  ENJAZ_REAL_CLOUD_CONFIRM:'YES',
+  ENJAZ_REAL_CLOUD_CONFIRM*'YES',
   ENJAZ_A3_ISOLATED_BRANCH_CONFIRM:'YES',
   PRODUCTION_PROJECT_REF:'aaaaaaaaaaaaaaaaaaaa',
   ENJAZ_A3_BRANCH_REF:'bbbbbbbbbbbbbbbbbbbb',
   SUPABASE_URL:'https://bbbbbbbbbbbbbbbbbbbb.supabase.co',
   SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test_only',
-  SUPABASE_SECRET_KEY:'sb_secret_test_only'
+  SUPABASE_SECRET_KEY:'sb_secret_test_only',
+  SUPABASE_DB_URL:'postgresql://postgres.bbbbbbbbbbbbbbbbbbbb:test@pooler.supabase.com:5432/postgres?sslmode=require'
 };
 const run=(overrides={})=>spawnSync(
   process.execPath,
@@ -55,4 +56,16 @@ test('requires branch and production refs to use project-ref shape',()=>{
   const r=run({ENJAZ_A3_BRANCH_REF:'bad-ref'});
   assert.notEqual(r.status,0);
   assert.match(r.stderr,/branch_ref_format/);
+});
+
+test('requires a TLS PostgreSQL target bound to the isolated ref',()=>{
+  const missing=run({SUPABASE_DB_URL:''});
+  assert.notEqual(missing.status,0);
+  assert.match(missing.stderr,/database_url_present/);
+  const production=run({SUPABASE_DB_URL:'postgresql://postgres.aaaaaaaaaaaaaaaaaaaa:test@pooler.supabase.com:5432/postgres?sslmode=require'});
+  assert.notEqual(production.status,0);
+  assert.match(production.stderr,/database_url_matches_isolated_branch/);
+  const noTls=run({SUPABASE_DB_URL:'postgresql://postgres.bbbbbbbbbbbbbbbbbbbb:test@pooler.supabase.com:5432/postgres?sslmode=disable'});
+  assert.notEqual(noTls.status,0);
+  assert.match(noTls.stderr,/database_url_matches_isolated_branch/);
 });
