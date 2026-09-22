@@ -8,7 +8,7 @@ test('hosted A3 harness is isolated-target only',()=>{
   assert.match(src,/branchRef===productionRef/);
   assert.match(src,/ENJAZ_REAL_CLOUD_CONFIRM/);
   assert.match(src,/ENJAZ_A3_ISOLATED_BRANCH_CONFIRM/);
-  assert.match(src,/url!==`https:\/\/${branchRef}\.supabase\.co`/);
+  assert.ok(src.includes("url!==`https://${branchRef}.supabase.co`"));
 });
 
 test('hosted A3 never places secret key in a browser client',()=>{
