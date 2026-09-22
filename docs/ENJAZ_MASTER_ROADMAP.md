@@ -531,6 +531,8 @@ Import may target the expanded model only where explicit mappings exist. Unknown
 
 ## 14.2 — Integration Platform / API / Webhooks — M11
 - Versioned integration API, scoped credentials/tokens, webhook subscriptions, signing/replay protection, idempotency, delivery history and retry/dead-letter behavior.
+- **A1 IN PROGRESS:** source contract freezes API `v1` operations/scopes, workspace-bound service-account authorization, webhook endpoint/signing/retry/dead-letter rules and client-secret denial. A1 adds no database objects, issued credentials, live delivery or public endpoint; see `docs/PHASE14_2_A1_KICKOFF.md`.
+- Phase 14.3 remains **LOCKED** until Product, UI/UX, Engineering and Certification tracks for 14.2 are all PASS and formal closure is merged.
 
 ## 14.3 — Auth/Session/Cloud Failure Journeys
 - Expiry, offline/online recovery, failed/unknown writes, stale conflict and recovery.
