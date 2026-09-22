@@ -33,6 +33,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Fail closed before hosted access
         run: node scripts/phase14-2-a3-isolated-auth-preflight.mjs
+      - name: Recover only marked interrupted A3 residue
+        run: node scripts/phase14-2-a3-hosted-residue-recovery.mjs
       - name: Run isolated hosted Auth/RLS acceptance
         run: node scripts/phase14-2-a3-hosted-auth-rls.mjs
       - name: Verify certificate evidence
