@@ -124,5 +124,15 @@
   "a3PhysicalAndroidStatus": "NOT_RUN_REQUIRES_REAL_HANDSET",
   "a3PhysicalAndroidRunbook": "docs/PHASE14_1_A3_PHYSICAL_ANDROID_GATE.md",
   "a3PhysicalAndroidEvidence": null,
-  "a3PhysicalAndroidClosureAllowed": false
+  "a3PhysicalAndroidClosureAllowed": false,
+  "a3PublishedMainManualAndroidSmoke": {
+    "reportedAt": "2026-09-22",
+    "scope": "OWNER_REPORTED_PRODUCTION_DEPLOYMENT_ONLY_NOT_PR_HEAD_A3_CERTIFICATION",
+    "loginHome": "REPORTED_PASS",
+    "nativeKeyboardInputAndControls": "REPORTED_PASS",
+    "navigationAndAndroidBack": "REPORTED_PASS",
+    "isolatedCandidateDeviceCertificate": false,
+    "independentClientPortalCertificate": false,
+    "syntheticFixtureOrOfflineRecoveryEvidence": false
+  }
 }
