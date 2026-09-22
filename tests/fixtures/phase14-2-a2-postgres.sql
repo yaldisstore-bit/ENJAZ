@@ -63,7 +63,7 @@ begin
  raise notice 'PASS 14.2 A2 owner issued hashed workspace credential';
 end $$;
 
-do $$ begin
+do $ begin
  begin
   perform private.integration_issue_credential_v1(
    '11111111-1111-4111-8111-111111111111','cccccccc-cccc-4ccc-8ccc-cccccccccccc',
@@ -82,7 +82,27 @@ do $$ begin
  exception when insufficient_privilege then
   raise notice 'PASS 14.2 A2 cross-workspace owner issue denied';
  end;
-end $$;
+end $;
+
+do $ begin
+ update public.workspace_memberships
+ set role='owner'
+ where workspace_id='11111111-1111-4111-8111-111111111111'
+   and user_id='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+ begin
+  perform private.integration_issue_credential_v1(
+   '11111111-1111-4111-8111-111111111111','cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+   'forged owner membership',array['companies:read'],'enjz_D1B2C3D4',
+   'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',now()+interval '1 day');
+  raise exception 'A2 FAILURE: forged owner membership issued credential';
+ exception when insufficient_privilege then
+  raise notice 'PASS 14.2 A2 owner-labelled membership cannot replace canonical workspace owner';
+ end;
+ update public.workspace_memberships
+ set role='member'
+ where workspace_id='11111111-1111-4111-8111-111111111111'
+   and user_id='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+end $;
 
 do $$ begin
  if exists(
