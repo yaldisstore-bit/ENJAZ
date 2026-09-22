@@ -81,3 +81,28 @@ test('A1 cannot gain production destruction, generic write or shadow persistence
  const shadow=copy(state);shadow.shadowPersistenceAllowed=true;
  assert.ok(phase(shadow).includes('safety_invariants'));
 });
+
+test('A2 certified transition is evidence-bound and cannot silently certify Android or published portal',()=>{
+ assert.deepEqual(phase(state),[]);
+ const missing=copy(state);missing.a2LatestLinkedRun='unverified';
+ assert.ok(phase(missing).includes('a1_certified_a2_open'));
+ const short=copy(state);short.a2LatestLinkedCheckCount=129;
+ assert.ok(phase(short).includes('a1_certified_a2_open'));
+ const premature=copy(state);premature.a2N13RealElapsedJwtExpiryCertified=true;
+ assert.ok(phase(premature).includes('a1_certified_a2_open'));
+ const physical=copy(state);physical.a3RealBrowserPhysicalAndroidCertified=true;
+ assert.ok(phase(physical).includes('a1_certified_a2_open'));
+ const published=copy(state);published.a3RealBrowserPublishedPortalCertified=true;
+ assert.ok(phase(published).includes('a1_certified_a2_open'));
+ const noNegative=copy(state);noNegative.a2RemainingNegativeGates=['N13_AUTH_EXPIRY'];
+ assert.ok(phase(noNegative).includes('a1_certified_a2_open'));
+});
+
+test('A2 hosted evidence cannot be mistaken for Phase 14.1 or 14.2 formal closure',()=>{
+ const closed=copy(state);closed.status='CLOSED';
+ assert.ok(phase(closed).includes('phase_identity'));
+ const unlocked=copy(state);unlocked.phase14_2Allowed=true;
+ assert.ok(phase(unlocked).includes('successor_locked'));
+ const falseCert=copy(state);falseCert.a2RealCloudStatus='PASS';
+ assert.ok(phase(falseCert).includes('a1_certified_a2_open'));
+});
