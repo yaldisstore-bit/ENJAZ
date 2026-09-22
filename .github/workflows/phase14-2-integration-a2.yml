@@ -75,5 +75,5 @@ jobs:
           psql -h 127.0.0.1 -U postgres -d enjaz_phase142_a2 \
             --set=ON_ERROR_STOP=1 \
             --file=tests/fixtures/phase14-2-a2-postgres.sql 2>&1 | tee /tmp/phase142-a2.log
-          test "$(grep -c 'PASS 14.2 A2' /tmp/phase142-a2.log)" -eq 13
+          test "$(grep -c 'PASS 14.2 A2' /tmp/phase142-a2.log)" -eq 14
           ! grep -q 'A2 FAILURE' /tmp/phase142-a2.log
