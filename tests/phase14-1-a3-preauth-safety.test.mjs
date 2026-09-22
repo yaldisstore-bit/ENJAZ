@@ -19,10 +19,18 @@ test('A3 preparatory browser workflow is inert and cannot target production or c
 });
 
 test('A3 preparatory smoke remains explicitly non-certifying', () => {
-  assert.ok(
-    state.a2RealCloudStatus === 'NOT_STARTED' || state.a2RealCloudStatus.endsWith('_NOT_CERTIFIED'),
-    `A2 hosted state must remain explicitly uncertified, got ${state.a2RealCloudStatus}`,
-  );
+  // The inert pre-auth smoke must never certify A3; it may run after a separately
+  // anchored hosted A2 certificate without regressing the phase state.
+  const a2Prior = state.a2RealCloudStatus === 'NOT_STARTED' ||
+    state.a2RealCloudStatus.endsWith('_NOT_CERTIFIED');
+  const a2Anchored = state.a2RealCloudStatus ===
+      'PASS_HOSTED_J01_J11_N02_AND_CLIENT_CLOCK_REVOKED_REFRESH_N13_ZERO_RESIDUE' &&
+    state.a2LatestLinkedRun === '35632402943' &&
+    state.a2LatestLinkedHead === '63c3ff4728f597c2560f0c14080c8846fe880fe7' &&
+    state.a2LatestLinkedCheckCount === 149 &&
+    state.a2N13RealElapsedJwtExpiryCertified === false;
+  assert.ok(a2Prior || a2Anchored,
+    `A2 must be uncertified or match the separately anchored hosted evidence; got ${state.a2RealCloudStatus}`);
   assert.notEqual(state.a2RealCloudStatus, 'PASS');
   assert.ok(['NOT_STARTED','PASS_REAL_AUTH_FIVE_WIDTH_CHROMIUM_OFFLINE_NOT_FULL_A3'].includes(state.a3RealBrowserStatus));
   assert.equal(state.a3PreparatoryBrowserSafetyGuard, 'ACTIVE_FAIL_CLOSED_NO_SECRETS_NO_PRODUCTION');
