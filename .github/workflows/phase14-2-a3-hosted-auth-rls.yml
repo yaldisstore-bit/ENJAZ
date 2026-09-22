@@ -1,0 +1,57 @@
+name: ENJAZ Phase 14.2 — A3 Hosted Auth/RLS Certificate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase14-2-a3-hosted-auth-rls
+  cancel-in-progress: false
+
+jobs:
+  hosted-auth-rls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: phase14-2-isolated-real-cloud
+    env:
+      PRODUCTION_PROJECT_REF: ${{ secrets.PHASE14_2_PRODUCTION_PROJECT_REF }}
+      ENJAZ_A3_BRANCH_REF: ${{ secrets.PHASE14_2_A3_BRANCH_REF }}
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+      ENJAZ_A3_ISOLATED_BRANCH_CONFIRM: YES
+      SUPABASE_URL: ${{ secrets.PHASE14_2_A3_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE14_2_A3_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE14_2_A3_SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Fail closed before hosted access
+        run: node scripts/phase14-2-a3-isolated-auth-preflight.mjs
+      - name: Run isolated hosted Auth/RLS acceptance
+        run: node scripts/phase14-2-a3-hosted-auth-rls.mjs
+      - name: Verify certificate evidence
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const p='artifacts/phase14-2-a3-hosted/evidence.json';
+          const e=JSON.parse(fs.readFileSync(p,'utf8'));
+          if(e.projectRef===e.productionRef) throw new Error('production target forbidden');
+          if(e.passed!==true || e.cleanupPassed!==true) throw new Error('A3 hosted certificate failed');
+          console.log('PASS Phase 14.2 A3 hosted Auth/RLS evidence with cleanup');
+          NODE
+      - name: Upload A3 hosted evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase14-2-a3-hosted-auth-rls
+          path: |
+            artifacts/phase14-2-a3/preflight.json
+            artifacts/phase14-2-a3-hosted/evidence.json
+          if-no-files-found: error
+          retention-days: 30
