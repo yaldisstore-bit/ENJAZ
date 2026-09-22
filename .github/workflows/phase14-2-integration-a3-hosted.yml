@@ -1,0 +1,72 @@
+name: ENJAZ Phase 14.2 — A3 Isolated Hosted Auth/RLS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase142-a3-isolated-hosted
+  cancel-in-progress: false
+
+jobs:
+  hosted-auth-rls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: phase13-4-isolated-real-cloud
+    env:
+      PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd
+      ENJAZ_A3_BRANCH_REF: nqhgaukutkyvfumbtbtg
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+      ENJAZ_A3_ISOLATED_BRANCH_CONFIRM: YES
+      SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
+      SUPABASE_DB_URL: ${{ secrets.PHASE14_2_SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail closed on missing or unsafe isolated credentials
+        run: node scripts/phase14-2-a3-isolated-auth-preflight.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - name: Install locked dependencies and PostgreSQL client
+        run: |
+          npm ci --no-audit --no-fund
+          command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+      - name: Install A2 integration schema only when absent
+        run: |
+          present="$(psql "$SUPABASE_DB_URL" --set=ON_ERROR_STOP=1 --tuples-only --no-align \
+            --command="select to_regclass('public.integration_service_accounts') is not null")"
+          if [ "$present" = "f" ]; then
+            psql "$SUPABASE_DB_URL" --set=ON_ERROR_STOP=1 \
+              --file=database/migrations/phase_14_2_integration_platform_foundation.sql
+          elif [ "$present" != "t" ]; then
+            echo 'Unable to prove isolated integration schema state.' >&2
+            exit 1
+          fi
+      - name: Real Auth and hosted PostgreSQL/RLS certificate
+        run: node scripts/phase14-2-a3-hosted-auth-rls.mjs
+      - name: Require passing sanitized evidence
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const e=JSON.parse(fs.readFileSync('artifacts/phase14-2-a3/evidence.json','utf8'));
+          if(e.projectRef!=='nqhgaukutkyvfumbtbtg'||e.projectRef===e.productionProjectRef||
+             e.passed!==true||e.cleanupPassed!==true||e.databaseCredentialRecorded!==false||
+             e.secretMaterialRecorded!==false||e.checks.length<5)
+            throw new Error('A3 hosted evidence invalid');
+          console.log('PASS Phase 14.2 A3 isolated hosted Auth/RLS evidence and cleanup');
+          NODE
+      - name: Upload sanitized A3 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase14-2-a3-hosted-${{ github.sha }}
+          path: |
+            artifacts/phase14-2-a3/preflight.json
+            artifacts/phase14-2-a3/evidence.json
+          if-no-files-found: error
+          retention-days: 30
