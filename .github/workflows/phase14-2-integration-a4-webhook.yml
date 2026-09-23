@@ -34,7 +34,7 @@ jobs:
       - name: Preserve integration platform contracts
         run: node --experimental-strip-types --test tests/phase14-2-integration-platform-contract.test.ts
       - name: Edge worker syntax contract
-        run: npx esbuild supabase/functions/enjaz-integration-webhook-worker/index.ts --platform=neutral --format=esm --outfile=/tmp/enjaz-integration-webhook-worker.js --external:npm:*
+        run: node --experimental-strip-types --check supabase/functions/enjaz-integration-webhook-worker/index.ts
       - name: TypeScript contract
         run: npm run typecheck
       - name: Secret audit
