@@ -19,7 +19,8 @@ import { ConnectedR2Home } from '../home/ConnectedHomeExperience.tsx';
 import { RecordsRelationshipsExperience } from '../records/RecordsRelationshipsExperience.tsx';
 import { OperationalIntelligenceExperience } from '../operational-intelligence/OperationalIntelligenceExperience.tsx';
 import { buildR2FindAnythingResults } from '../find-anything/find-anything-model.ts';
-import { useR2OverlayFocusGuard } from './useR2OverlayFocusGuard.ts';\nimport { IntegrationManagementExperience } from '../integrations/IntegrationManagementExperience.tsx';
+import { useR2OverlayFocusGuard } from './useR2OverlayFocusGuard.ts';
+import { IntegrationManagementExperience } from '../integrations/IntegrationManagementExperience.tsx';
 
 const SHELL_STAGE = 'R2.0-3' as const;
 type OverlayId = 'search' | 'account' | null;
@@ -166,7 +167,8 @@ function Destination({ id, transactionId, navigate }: { id: R2DestinationId; tra
   if (id.startsWith('transactions.')) return <CoreTransactionExperience id={id as Extract<R2DestinationId, `transactions.${string}`>} transactionId={transactionId} navigate={navigate} />;
   if (id === 'followups') return <CoreFollowups navigate={navigate} />;
   if (id === 'companies' || id === 'people' || id === 'documents') return <RecordsRelationshipsExperience id={id} />;
-  if (id === 'integrations') return <IntegrationManagementExperience />;\n  if (id === 'finance' || id === 'operations' || id === 'workflow' || id === 'automation' || id === 'command' || id === 'risk' || id === 'copilot') return <OperationalIntelligenceExperience id={id} />;
+  if (id === 'integrations') return <IntegrationManagementExperience />;
+  if (id === 'finance' || id === 'operations' || id === 'workflow' || id === 'automation' || id === 'command' || id === 'risk' || id === 'copilot') return <OperationalIntelligenceExperience id={id} />;
   return <div className="r2-screen r2-destination-placeholder" data-screen="launcher-destination"><div className="r2-destination-mark"><Icon name="module" /></div><p className="r2-eyebrow">وجهة مثبتة في بنية إنجاز الجديدة</p><h1>{destination.label}</h1><p>هذه الوجهة محفوظة في خريطة إنجاز، لكن محتوى المجال نفسه لا يُرحّل قبل مرحلته. R2.0-7 يغطي المالية والتشغيل وسير العمل والأتمتة والقيادة والمخاطر ومساعد إنجاز.</p><div className="r2-placeholder-actions"><ActionButton className="r2-action r2-action--primary" onClick={() => navigate('more')}>العودة إلى المزيد</ActionButton><ActionButton className="r2-action r2-action--secondary" onClick={() => navigate('home')}>الرئيسية</ActionButton></div></div>;
 }
 
