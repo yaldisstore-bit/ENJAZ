@@ -6,7 +6,7 @@ begin;
 create schema if not exists vault;
 create extension if not exists supabase_vault with schema vault;
 
-do $
+do $$
 begin
   if to_regclass('vault.secrets') is null
      or to_regclass('vault.decrypted_secrets') is null
@@ -14,7 +14,7 @@ begin
     raise feature_not_supported using message='ENJAZ_INTEGRATION_VAULT_REQUIRED';
   end if;
 end;
-$;
+$$;
 
 revoke all on schema vault from public,anon,authenticated,service_role;
 revoke all on table vault.secrets from public,anon,authenticated,service_role;
