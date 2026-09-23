@@ -53,15 +53,15 @@ async function run(){
   const outsider=await createUser('outsider');
   if(new Set([owner.workspaceId,member.workspaceId,outsider.workspaceId]).size!==3)
     throw new Error('INDEPENDENT_WORKSPACES_REQUIRED');
-  const joined=await admin.from('workspace_memberships')
-    .insert({workspace_id:owner.workspaceId,user_id:member.id,role:'member'})
-    .select('workspace_id,user_id,role').single();
-  if(joined.error||joined.data?.role!=='member')throw new Error('MEMBER_SETUP_FAILED');
+  const joined=await admin.from('organization_members')
+    .insert({workspace_id:owner.workspaceId,user_id:member.id,status:'active',created_by:owner.id})
+    .select('workspace_id,user_id,status').single();
+  if(joined.error||joined.data?.status!=='active')throw new Error('MEMBER_SETUP_FAILED');
   const ownMembership=await owner.client.from('workspace_memberships')
     .select('workspace_id,role').eq('workspace_id',owner.workspaceId).eq('user_id',owner.id).single();
-  const memberMembership=await member.client.from('workspace_memberships')
-    .select('workspace_id,role').eq('workspace_id',owner.workspaceId).eq('user_id',member.id).single();
-  if(ownMembership.error||ownMembership.data?.role!=='owner'||memberMembership.error||memberMembership.data?.role!=='member')
+  const memberMembership=await member.client.from('organization_members')
+    .select('workspace_id,status').eq('workspace_id',owner.workspaceId).eq('user_id',member.id).single();
+  if(ownMembership.error||ownMembership.data?.role!=='owner'||memberMembership.error||memberMembership.data?.status!=='active')
     throw new Error('AUTHENTICATED_MEMBERSHIP_READ_FAILED');
   pass('same_workspace_authorized_membership_access');
 
