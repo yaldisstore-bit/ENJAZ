@@ -64,3 +64,9 @@ test('A4 claim denies delivery after service-account revocation or expiry',()=>{
   has(claim,'a.expires_at is null or a.expires_at>clock_timestamp()');
   has(claim,"s.status='active'");
 });
+
+test('A4 worker blocks IPv4 and IPv6 literal webhook destinations before signed fetch',()=>{
+  has(worker,"/^\\d{1,3}(?:\\.\\d{1,3}){3}$/.test(h)");
+  has(worker,"h.startsWith('[')");
+  assert.ok(worker.indexOf("h.startsWith('[')")<worker.indexOf('const response=await fetch(endpoint')));
+});
