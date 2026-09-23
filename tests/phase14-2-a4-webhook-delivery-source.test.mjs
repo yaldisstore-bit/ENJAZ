@@ -51,3 +51,8 @@ test('A4 worker rejects literal local/private endpoints before fetch',()=>{
   for(const value of ["u.protocol!=='https:'","h==='localhost'","h.endsWith('.localhost')","isPrivateIpv4(h)"])
     has(worker,value);
 });
+
+test('A4 Vault preflight PL/pgSQL block uses balanced dollar quote delimiters',()=>{
+  assert.match(migration,/\bdo \$\$\s*begin[\s\S]*?end;\s*\$\$;/i);
+  assert.doesNotMatch(migration,/\bdo \$\s*begin/i);
+});
