@@ -202,6 +202,10 @@ begin
   from private.integration_webhook_outbox o
   join private.integration_webhook_subscriptions s
     on s.workspace_id=o.workspace_id and s.id=o.subscription_id and s.status='active'
+  join public.integration_service_accounts a
+    on a.workspace_id=s.workspace_id and a.id=s.service_account_id
+    and a.status='active'
+    and (a.expires_at is null or a.expires_at>clock_timestamp())
   where o.status in ('queued','retry_scheduled')
     and o.next_attempt_at<=clock_timestamp()
     and o.attempt_count<5
