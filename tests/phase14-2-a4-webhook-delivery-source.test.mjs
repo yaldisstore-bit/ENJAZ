@@ -9,9 +9,11 @@ const has=(source,value)=>assert.ok(source.includes(value),value);
 
 test('A4 stores per-subscription signing material in Vault, not ENJAZ tables',()=>{
   for(const value of [
-    "to_regclass('vault.secrets')","vault.create_secret(","vault.decrypted_secrets",
+    "create extension if not exists supabase_vault with schema vault","to_regclass('vault.secrets')","vault.create_secret(","vault.decrypted_secrets",
     "signing_secret_id","rawSecretPersistedInEnjazTables',false"
   ]) has(migration,value);
+  assert.match(migration,/revoke all on schema vault from public,anon,authenticated,service_role/i);
+  assert.match(migration,/revoke all on table vault\.decrypted_secrets from public,anon,authenticated,service_role/i);
   assert.doesNotMatch(migration,/add column[^;]*(raw_secret|signing_secret\s+text)/i);
 });
 
