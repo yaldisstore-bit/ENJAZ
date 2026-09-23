@@ -144,6 +144,7 @@ declare
   v_hash text;
 begin
   if p_event_id is null
+     or p_event_type is null
      or p_event_type not in ('company.updated','transaction.updated','followup.due','payment.recorded','document.ready')
      or p_payload is null
      or jsonb_typeof(p_payload)<>'object'
