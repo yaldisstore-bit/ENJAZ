@@ -35,6 +35,13 @@ test('A3 hosted fixture is transactionally disposable and Auth cleanup is marker
   assert.doesNotMatch(fixture,/juzxriirhkuzviwnhkbd|supabase\.co/);
 });
 
+test('A3 models non-owner workforce without minting legacy owner trust',()=>{
+  has(runner,"admin.from('organization_members')");
+  has(runner,"member.client.from('organization_members')");
+  assert.doesNotMatch(runner,/admin\.from\('workspace_memberships'\)[\s\S]{0,160}\.insert\(/);
+  has(fixture,'same-workspace member escalation denied');
+});
+
 test('A3 evidence never records database credentials or secret material',()=>{
   has(runner,'databaseCredentialRecorded:false');
   has(runner,'secretMaterialRecorded:false');
