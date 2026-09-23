@@ -2,6 +2,15 @@ name: ENJAZ Phase 14.2 — A3 Isolated Hosted Auth/RLS
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/phase14-2-integration-a3-hosted.yml'
+      - 'scripts/phase14-2-a3-*'
+      - 'tests/phase14-2-a3-*'
+      - 'tests/fixtures/phase14-2-a3-*'
+      - 'database/migrations/phase_14_2_integration_platform_foundation.sql'
 
 permissions:
   contents: read
