@@ -1,0 +1,44 @@
+name: ENJAZ Phase 14.2 — A4 Integration Management UI
+
+on:
+  push:
+    paths:
+      - 'src/ui-r2/integrations/**'
+      - 'src/ui-r2/architecture/navigation-contract.ts'
+      - 'src/ui-r2/runtime/UiR2Root.tsx'
+      - 'tests/phase14-2-a4-*'
+      - 'docs/PHASE14_2_A4_*'
+      - 'docs/PHASE14_2_STATE.json'
+      - '.github/workflows/phase14-2-integration-a4-ui.yml'
+  pull_request:
+    paths:
+      - 'src/ui-r2/integrations/**'
+      - 'src/ui-r2/architecture/navigation-contract.ts'
+      - 'src/ui-r2/runtime/UiR2Root.tsx'
+      - 'tests/phase14-2-a4-*'
+      - 'docs/PHASE14_2_A4_*'
+      - 'docs/PHASE14_2_STATE.json'
+      - '.github/workflows/phase14-2-integration-a4-ui.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  a4-ui-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: A4 integration management source contract
+        run: node --test tests/phase14-2-a4-integration-management-ui.test.mjs
+      - name: TypeScript contract
+        run: npm run typecheck
+      - name: Secret audit
+        run: npm run audit:secrets

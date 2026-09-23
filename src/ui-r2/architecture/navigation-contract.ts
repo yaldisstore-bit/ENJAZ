@@ -27,7 +27,8 @@ export type R2DestinationId =
   | 'risk'
   | 'insights'
   | 'knowledge'
-  | 'copilot';
+  | 'copilot'
+  | 'integrations';
 
 export type R2DestinationKind =
   | 'system_boundary'
@@ -123,6 +124,7 @@ const R2_DESTINATION_ROWS = [
   ['insights', 'مركز ذكاء الأعمال', 7, 'insights', 0, 2],
   ['knowledge', 'مركز المعرفة التنظيمية', 7, 'knowledge', 0, 2],
   ['copilot', 'مساعد إنجاز', 7, 'copilot', 10, 2],
+  ['integrations', 'التكاملات وواجهات API', 7, 'integrations', 0, 2],
 ] as const satisfies readonly DestinationRow[];
 
 function destinationRoute(suffix: string): string {
@@ -151,7 +153,7 @@ type LauncherRow = readonly [R2LauncherGroupId, string, readonly R2DestinationId
 const R2_LAUNCHER_ROWS = [
   ['records', 'السجلات', ['companies', 'people', 'documents']],
   ['operations_group', 'التشغيل', ['operations', 'calendar', 'communications', 'workflow', 'automation', 'followups']],
-  ['management', 'الإدارة', ['finance', 'command', 'risk']],
+  ['management', 'الإدارة', ['finance', 'command', 'risk', 'integrations']],
   ['intelligence', 'الذكاء والمعرفة', ['insights', 'knowledge', 'copilot']],
 ] as const satisfies readonly LauncherRow[];
 
