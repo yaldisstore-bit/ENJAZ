@@ -3,7 +3,10 @@
 
 begin;
 
-do $$
+create schema if not exists vault;
+create extension if not exists supabase_vault with schema vault;
+
+do $
 begin
   if to_regclass('vault.secrets') is null
      or to_regclass('vault.decrypted_secrets') is null
@@ -11,7 +14,12 @@ begin
     raise feature_not_supported using message='ENJAZ_INTEGRATION_VAULT_REQUIRED';
   end if;
 end;
-$$;
+$;
+
+revoke all on schema vault from public,anon,authenticated,service_role;
+revoke all on table vault.secrets from public,anon,authenticated,service_role;
+revoke all on table vault.decrypted_secrets from public,anon,authenticated,service_role;
+revoke all on function vault.create_secret(text,text,text) from public,anon,authenticated,service_role;
 
 alter table private.integration_webhook_subscriptions
   add column if not exists signing_secret_id uuid;
