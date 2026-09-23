@@ -27,7 +27,8 @@ export type R2DestinationId =
   | 'risk'
   | 'insights'
   | 'knowledge'
-  | 'copilot'\n  | 'integrations';
+  | 'copilot'
+  | 'integrations';
 
 export type R2DestinationKind =
   | 'system_boundary'
@@ -122,7 +123,8 @@ const R2_DESTINATION_ROWS = [
   ['risk', 'المخاطر والرؤى', 7, 'risk', 7, 2],
   ['insights', 'مركز ذكاء الأعمال', 7, 'insights', 0, 2],
   ['knowledge', 'مركز المعرفة التنظيمية', 7, 'knowledge', 0, 2],
-  ['copilot', 'مساعد إنجاز', 7, 'copilot', 10, 2],\n  ['integrations', 'التكاملات وواجهات API', 7, 'integrations', 0, 2],
+  ['copilot', 'مساعد إنجاز', 7, 'copilot', 10, 2],
+  ['integrations', 'التكاملات وواجهات API', 7, 'integrations', 0, 2],
 ] as const satisfies readonly DestinationRow[];
 
 function destinationRoute(suffix: string): string {
