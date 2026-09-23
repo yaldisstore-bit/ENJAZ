@@ -1,0 +1,51 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+
+const migration=fs.readFileSync('database/migrations/phase_14_2_webhook_delivery_vault.sql','utf8');
+const worker=fs.readFileSync('supabase/functions/enjaz-integration-webhook-worker/index.ts','utf8');
+
+const has=(source,value)=>assert.ok(source.includes(value),value);
+
+test('A4 stores per-subscription signing material in Vault, not ENJAZ tables',()=>{
+  for(const value of [
+    "to_regclass('vault.secrets')","vault.create_secret(","vault.decrypted_secrets",
+    "signing_secret_id","rawSecretPersistedInEnjazTables',false"
+  ]) has(migration,value);
+  assert.doesNotMatch(migration,/add column[^;]*(raw_secret|signing_secret\s+text)/i);
+});
+
+test('A4 outbox and delivery evidence are private and service-role only',()=>{
+  for(const value of [
+    'private.integration_webhook_outbox','force row level security',
+    'revoke all on table private.integration_webhook_outbox from public,anon,authenticated,service_role',
+    'grant select,insert,update on table private.integration_webhook_outbox to service_role',
+    'integration_webhook_delivery_attempts'
+  ]) has(migration,value);
+  assert.doesNotMatch(migration,/grant execute[^;]+to authenticated/i);
+});
+
+test('A4 public RPC bridge is fail-closed and service-role only',()=>{
+  for(const fn of [
+    'integration_register_webhook_v2','integration_enqueue_webhook_event_v1',
+    'integration_claim_webhook_delivery_v1','integration_complete_webhook_delivery_v1'
+  ]){
+    has(migration,`revoke all on function public.${fn}`);
+    has(migration,`grant execute on function public.${fn}`);
+  }
+});
+
+test('A4 worker signs exact v1 material and enforces retry/dead-letter limits',()=>{
+  for(const value of [
+    'ENJAZ_INTEGRATION_WORKER_KEY','X-ENJAZ-Signature','enjaz.webhook.v1',
+    'MAX_ATTEMPTS=5','RETRY_DELAYS=[60,300,1800,7200]',
+    "redirect:'error'","AbortSignal.timeout(10_000)",
+    "ENDPOINT_UNSAFE","SIGNING_SECRET_UNAVAILABLE"
+  ]) has(worker,value);
+  assert.doesNotMatch(worker,/console\.log\([^)]*(signingSecret|secret)/);
+});
+
+test('A4 worker rejects literal local/private endpoints before fetch',()=>{
+  for(const value of ["u.protocol!=='https:'","h==='localhost'","h.endsWith('.localhost')","isPrivateIpv4(h)"])
+    has(worker,value);
+});
