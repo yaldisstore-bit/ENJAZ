@@ -56,3 +56,11 @@ test('A4 Vault preflight PL/pgSQL block uses balanced dollar quote delimiters',(
   assert.match(migration,/\bdo \$\$\s*begin[\s\S]*?end;\s*\$\$;/i);
   assert.doesNotMatch(migration,/\bdo \$\s*begin/i);
 });
+
+test('A4 claim denies delivery after service-account revocation or expiry',()=>{
+  const claim=migration.split('create or replace function public.integration_claim_webhook_delivery_v1(')[1]?.split('create or replace function public.integration_complete_webhook_delivery_v1(')[0]??'';
+  has(claim,'join public.integration_service_accounts a');
+  has(claim,"a.status='active'");
+  has(claim,'a.expires_at is null or a.expires_at>clock_timestamp()');
+  has(claim,"s.status='active'");
+});
