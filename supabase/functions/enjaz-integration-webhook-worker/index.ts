@@ -44,6 +44,9 @@ function safeEndpoint(raw:string){
   try{
     const u=new URL(raw),h=u.hostname.toLowerCase();
     if(u.protocol!=='https:'||u.username||u.password||u.hash||h==='localhost'||h.endsWith('.localhost')||isPrivateIpv4(h)) return null;
+    // Do not send secret-bearing webhooks to any IP literal (including public IPs).
+    // URL normalizes alternative IPv4 spellings; bracketed hosts are IPv6 literals.
+    if(/^\d{1,3}(?:\.\d{1,3}){3}$/.test(h)||h.startsWith('[')) return null;
     if(h==='::1'||h==='[::1]'||h.startsWith('[fc')||h.startsWith('[fd')||h.startsWith('[fe80:')) return null;
     return u.toString();
   }catch{return null;}
