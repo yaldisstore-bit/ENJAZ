@@ -25,7 +25,7 @@ import { useR2OverlayFocusGuard } from './useR2OverlayFocusGuard.ts';
 */
 
 type OverlayId='search'|'account'|null;type PrimaryDoor=(typeof R2_PRIMARY_NAVIGATION)[number];type IconName='home'|'transactions'|'plus'|'today'|'more'|'search'|'user'|'arrow'|'module';
-type Props=Readonly<{accountLabel?:string;onSignOut?:(()=>Promise<void>|void);searchIntelligence:SearchIntelligenceGateway;searchWorkspace:Promise<string|null>;searchUserId:string;integrationManagement?:IntegrationManagementGateway}>;
+type Props=Readonly<{accountLabel?:string;onSignOut?:(()=>Promise<void>|void);searchIntelligence:SearchIntelligenceGateway;searchWorkspace:Promise<string|null>;searchUserId:string;integrationManagement?:IntegrationManagementGateway|undefined}>;
 const VALID_DESTINATIONS=new Set<R2DestinationId>(R2_DESTINATIONS.map(x=>x.id)),SEARCH_ALIASES=Object.entries(R2_SEARCH_ALIASES),LOCAL_SHORTCUTS:readonly R2DestinationId[]=['transactions','today','companies','finance','automation','insights','documents'];
 const SEARCH_DOMAINS=[['transactions','المعاملات'],['companies','الشركات'],['people','الأشخاص'],['procedures','الإجراءات'],['documents','الوثائق']] as const;
 function localSearchText(value:string){return value.normalize('NFKC').toLocaleLowerCase('ar-IQ').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g,'').replace(/\u0640/g,'').replace(/[أإآٱ]/g,'ا').replace(/ؤ/g,'و').replace(/[ئى]/g,'ي').replace(/\s+/g,' ').trim()}
