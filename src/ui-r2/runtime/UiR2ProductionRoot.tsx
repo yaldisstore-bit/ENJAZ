@@ -72,7 +72,7 @@ type BaseResources = {
   schedulingCommands: SchedulingCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
-  integrationManagement?: IntegrationManagementGateway;
+  integrationManagement?: IntegrationManagementGateway | undefined;
   copilotInvoke: (body: Readonly<Record<string, unknown>>) => Promise<Response>;
   documentIntelligenceFactory?: DocumentIntelligenceFactory;
   documentFactoryFactory?: DocumentFactoryFactory;
