@@ -221,9 +221,79 @@ declare
   v_job private.integration_webhook_outbox%rowtype;
   v_endpoint text;
   v_secret text;
+  v_now timestamptz;
+  v_retry_at timestamptz;
+  v_authority_active boolean;
 begin
   if p_worker_id is null then
     raise invalid_parameter_value using message='ENJAZ_INTEGRATION_WORKER_ID_REQUIRED';
+  end if;
+
+  -- Recover one abandoned processing lease before taking fresh work.
+  -- This keeps the outbox from remaining permanently stuck if a worker dies
+  -- after claim and before completion. The abandoned attempt is preserved
+  -- in the append-only delivery ledger before the job is retried/dead-lettered.
+  select o.* into v_job
+  from private.integration_webhook_outbox o
+  where o.status='processing'
+    and o.locked_at<=clock_timestamp()-interval '5 minutes'
+  order by o.locked_at,o.created_at
+  for update of o skip locked
+  limit 1;
+
+  if found then
+    v_now := clock_timestamp();
+
+    select exists(
+      select 1
+      from private.integration_webhook_subscriptions s
+      join public.integration_service_accounts a
+        on a.workspace_id=s.workspace_id and a.id=s.service_account_id
+      where s.workspace_id=v_job.workspace_id
+        and s.id=v_job.subscription_id
+        and s.status='active'
+        and a.status='active'
+        and (a.expires_at is null or a.expires_at>v_now)
+    ) into v_authority_active;
+
+    if v_job.attempt_count>=5 or not v_authority_active then
+      insert into private.integration_webhook_delivery_attempts(
+        workspace_id,subscription_id,event_id,event_type,payload_hash,
+        attempt_no,outcome,http_status,error_code,requested_at,completed_at,next_attempt_at
+      ) values(
+        v_job.workspace_id,v_job.subscription_id,v_job.event_id,v_job.event_type,v_job.payload_hash,
+        v_job.attempt_count,'dead_letter',null,
+        case when v_authority_active then 'WORKER_LEASE_EXPIRED_MAX_ATTEMPTS' else 'WORKER_LEASE_EXPIRED_AUTHORITY_REVOKED' end,
+        v_job.locked_at,v_now,null
+      );
+
+      update private.integration_webhook_outbox
+      set status='dead_letter',
+          next_attempt_at=v_now,
+          locked_at=null,
+          locked_by=null,
+          updated_at=v_now
+      where id=v_job.id;
+    else
+      v_retry_at := v_now+interval '1 second';
+
+      insert into private.integration_webhook_delivery_attempts(
+        workspace_id,subscription_id,event_id,event_type,payload_hash,
+        attempt_no,outcome,http_status,error_code,requested_at,completed_at,next_attempt_at
+      ) values(
+        v_job.workspace_id,v_job.subscription_id,v_job.event_id,v_job.event_type,v_job.payload_hash,
+        v_job.attempt_count,'retryable',null,'WORKER_LEASE_EXPIRED',
+        v_job.locked_at,v_now,v_retry_at
+      );
+
+      update private.integration_webhook_outbox
+      set status='retry_scheduled',
+          next_attempt_at=v_retry_at,
+          locked_at=null,
+          locked_by=null,
+          updated_at=v_now
+      where id=v_job.id;
+    end if;
   end if;
 
   select o.* into v_job
