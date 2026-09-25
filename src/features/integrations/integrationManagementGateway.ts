@@ -106,7 +106,7 @@ function parseSnapshot(value:unknown):IntegrationManagementSnapshot{
     id:uuid(text(r.id),'معرّف المحاولة'),subscriptionId:uuid(text(r.subscriptionId),'معرّف الاشتراك'),
     eventId:uuid(text(r.eventId),'معرّف الحدث'),eventType:text(r.eventType) as IntegrationEventType,
     attemptNo:Number(r.attemptNo)||0,outcome:(r.outcome==='retryable'||r.outcome==='dead_letter'?r.outcome:'delivered') as IntegrationDeliveryView['outcome'],
-    httpStatus:Number.isInteger(Number(r.httpStatus))?Number(r.httpStatus):null,errorCode:nullable(r.errorCode),
+    httpStatus:r.httpStatus===null?null:(Number.isInteger(Number(r.httpStatus))?Number(r.httpStatus):null),errorCode:nullable(r.errorCode),
     requestedAt:text(r.requestedAt),completedAt:text(r.completedAt),nextAttemptAt:nullable(r.nextAttemptAt),
   })});
   return Object.freeze({workspaceId:uuid(text(root.workspaceId),'معرّف مساحة العمل'),accounts:Object.freeze(accounts),subscriptions:Object.freeze(subscriptions),deliveries:Object.freeze(deliveries)});
