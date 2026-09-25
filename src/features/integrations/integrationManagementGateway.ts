@@ -115,21 +115,22 @@ function parseSnapshot(value:unknown):IntegrationManagementSnapshot{
 export function createIntegrationManagementGateway(client:EnjazSupabaseClient):IntegrationManagementGateway{
   const rpc=client as unknown as RpcLike;
   const call=async(name:string,args:Record<string,unknown>)=>{const result=await Promise.resolve(rpc.rpc(name,args));fail(result.error);return result.data};
-  return Object.freeze({
-    async snapshot(workspaceId){return parseSnapshot(await call('integration_management_snapshot_v1',{p_workspace_id:uuid(workspaceId,'معرّف مساحة العمل')}));},
-    async issueCredential(input){
+  const gateway:IntegrationManagementGateway={
+    async snapshot(workspaceId:string){return parseSnapshot(await call('integration_management_snapshot_v1',{p_workspace_id:uuid(workspaceId,'معرّف مساحة العمل')}));},
+    async issueCredential(input:Parameters<IntegrationManagementGateway['issueCredential']>[0]){
       if(!input.name.trim())throw new Error('اسم الاعتماد مطلوب.');
       if(!input.scopes.length)throw new Error('اختر صلاحية واحدة على الأقل.');
       const r=object(await call('integration_issue_credential_owner_v1',{p_workspace_id:uuid(input.workspaceId,'معرّف مساحة العمل'),p_name:input.name.trim(),p_scopes:[...input.scopes],p_expires_at:input.expiresAt??null}));
       return Object.freeze({serviceAccountId:uuid(text(r.serviceAccountId),'معرّف الاعتماد'),tokenPrefix:text(r.tokenPrefix),rawToken:text(r.rawToken)});
     },
-    async revokeCredential(workspaceId,serviceAccountId){await call('integration_revoke_service_account_owner_v1',{p_workspace_id:uuid(workspaceId,'معرّف مساحة العمل'),p_service_account_id:uuid(serviceAccountId,'معرّف الاعتماد')});},
-    async registerWebhook(input){
+    async revokeCredential(workspaceId:string,serviceAccountId:string){await call('integration_revoke_service_account_owner_v1',{p_workspace_id:uuid(workspaceId,'معرّف مساحة العمل'),p_service_account_id:uuid(serviceAccountId,'معرّف الاعتماد')});},
+    async registerWebhook(input:Parameters<IntegrationManagementGateway['registerWebhook']>[0]){
       if(!input.eventTypes.length)throw new Error('اختر حدثًا واحدًا على الأقل.');
       const endpoint=input.endpointUrl.trim();if(!endpoint.startsWith('https://'))throw new Error('نقطة Webhook يجب أن تستخدم HTTPS.');
       const r=object(await call('integration_register_webhook_owner_v1',{p_workspace_id:uuid(input.workspaceId,'معرّف مساحة العمل'),p_service_account_id:uuid(input.serviceAccountId,'معرّف الاعتماد'),p_endpoint_url:endpoint,p_event_types:[...input.eventTypes]}));
       return Object.freeze({subscriptionId:uuid(text(r.subscriptionId),'معرّف الاشتراك'),signingKeyPrefix:text(r.signingKeyPrefix),signingSecret:text(r.signingSecret)});
     },
-    async disableWebhook(workspaceId,subscriptionId){await call('integration_disable_webhook_owner_v1',{p_workspace_id:uuid(workspaceId,'معرّف مساحة العمل'),p_subscription_id:uuid(subscriptionId,'معرّف الاشتراك')});},
-  });
+    async disableWebhook(workspaceId:string,subscriptionId:string){await call('integration_disable_webhook_owner_v1',{p_workspace_id:uuid(workspaceId,'معرّف مساحة العمل'),p_subscription_id:uuid(subscriptionId,'معرّف الاشتراك')});},
+  };
+  return Object.freeze(gateway);
 }
