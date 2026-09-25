@@ -1,0 +1,72 @@
+name: ENJAZ Phase 14.2 — A4 Live Management Real Cloud
+
+on:
+  pull_request:
+    paths:
+      - 'database/migrations/phase_14_2_integration_live_management.sql'
+      - 'scripts/phase14-2-a4-live-management-hosted.mjs'
+      - 'tests/fixtures/phase14-2-a4-live-management-postgres.sql'
+      - '.github/workflows/phase14-2-integration-a4-live-hosted.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase142-a4-live-hosted
+  cancel-in-progress: false
+
+jobs:
+  real-cloud:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: phase13-4-isolated-real-cloud
+    env:
+      PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd
+      ENJAZ_A3_BRANCH_REF: nqhgaukutkyvfumbtbtg
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+      ENJAZ_A3_ISOLATED_BRANCH_CONFIRM: YES
+      SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
+      SUPABASE_DB_URL: ${{ secrets.PHASE14_2_SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail closed on target identity
+        run: node scripts/phase14-2-a3-isolated-auth-preflight.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - name: Install locked dependencies and PostgreSQL client
+        run: |
+          npm ci --no-audit --no-fund
+          command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+      - name: Require A2 integration foundation
+        run: |
+          test "$(psql "$SUPABASE_DB_URL" --set=ON_ERROR_STOP=1 --tuples-only --no-align --command="select to_regclass('public.integration_service_accounts') is not null")" = "t"
+      - name: Apply A4 delivery foundation idempotently
+        run: psql "$SUPABASE_DB_URL" --set=ON_ERROR_STOP=1 --file=database/migrations/phase_14_2_webhook_delivery_vault.sql
+      - name: Apply live owner management bridge
+        run: psql "$SUPABASE_DB_URL" --set=ON_ERROR_STOP=1 --file=database/migrations/phase_14_2_integration_live_management.sql
+      - name: Real JWT owner boundary and transactional management certificate
+        run: node scripts/phase14-2-a4-live-management-hosted.mjs
+      - name: Require sanitized passing evidence
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const e=JSON.parse(fs.readFileSync('artifacts/phase14-2-a4-live/evidence.json','utf8'));
+          if(e.projectRef!=='nqhgaukutkyvfumbtbtg'||e.projectRef===e.productionProjectRef||
+             e.passed!==true||e.cleanupPassed!==true||e.databaseCredentialRecorded!==false||
+             e.secretMaterialRecorded!==false||e.checks.length<6)
+            throw new Error('A4 live hosted evidence invalid');
+          console.log('PASS Phase 14.2 A4 live management Real Cloud evidence');
+          NODE
+      - name: Upload sanitized evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase14-2-a4-live-hosted-${{ github.sha }}
+          path: artifacts/phase14-2-a4-live/evidence.json
+          if-no-files-found: error
+          retention-days: 30

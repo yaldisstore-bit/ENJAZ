@@ -25,6 +25,7 @@ import { createRegulatoryKnowledgeGateway, type RegulatoryKnowledgeGateway } fro
 import { SchedulingCommandProvider } from '../../features/scheduling/SchedulingCommandContext.tsx';
 import { createSchedulingCommandGateway, type SchedulingCommandGateway } from '../../features/scheduling/schedulingCommands.ts';
 import { createSearchIntelligenceGateway, type SearchIntelligenceGateway } from '../../features/searchIntelligence/searchIntelligenceCommands.ts';
+import { createIntegrationManagementGateway, type IntegrationManagementGateway } from '../../features/integrations/integrationManagementGateway.ts';
 import { GovernmentProcedureCommandProvider } from '../../features/workflow/GovernmentProcedureCommandContext.tsx';
 import { createGovernmentProcedureRuntimeGateway, type GovernmentProcedureRuntimeGateway } from '../../features/workflow/governmentProcedureRuntime.ts';
 import { CurrentUserIdProvider } from '../../shared/session/CurrentUserIdContext.tsx';
@@ -71,6 +72,7 @@ type BaseResources = {
   schedulingCommands: SchedulingCommandGateway;
   searchIntelligence: SearchIntelligenceGateway;
   regulatoryKnowledge: RegulatoryKnowledgeGateway;
+  integrationManagement?: IntegrationManagementGateway | undefined;
   copilotInvoke: (body: Readonly<Record<string, unknown>>) => Promise<Response>;
   documentIntelligenceFactory?: DocumentIntelligenceFactory;
   documentFactoryFactory?: DocumentFactoryFactory;
@@ -111,6 +113,7 @@ function createProductionResources(): UiR2ProductionResources {
     schedulingCommands: createSchedulingCommandGateway(client),
     searchIntelligence: createSearchIntelligenceGateway(client),
     regulatoryKnowledge: createRegulatoryKnowledgeGateway(client),
+    integrationManagement: createIntegrationManagementGateway(client),
     copilotInvoke:body=>client.edge('enjaz-copilot-context',{method:'POST',body:JSON.stringify(body)}),
     documentVaultFactory,
     documentIntelligenceFactory,
@@ -149,6 +152,7 @@ function AuthenticatedR2Runtime({
   schedulingCommands,
   searchIntelligence,
   regulatoryKnowledge,
+  integrationManagement,
   copilotInvoke,
   documentVaultFactory,
   documentIntelligenceFactory,
@@ -165,7 +169,7 @@ function AuthenticatedR2Runtime({
   const signOut=()=>auth.service.signOut();
 
   return <DataLayerProvider factory={dataFactory}><FinanceCommandProvider gateway={financeCommands}><GovernanceCommandProvider gateway={governanceCommands}><GovernmentProcedureCommandProvider gateway={workflowCommands}><AutomationCommandProvider gateway={automationCommands}><FieldOperationsCommandProvider gateway={fieldOperationsCommands}><NotificationCommandProvider gateway={notificationCommands}><SchedulingCommandProvider gateway={schedulingCommands}><CurrentUserIdProvider userId={auth.user.id}><ProcessRuntimeProvider factory={processRuntime??null}>
-    <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} />
+    <UiR2LiveRoot accountLabel={auth.user.email ?? 'حساب إنجاز'} onSignOut={signOut} searchIntelligence={searchIntelligence} searchWorkspace={workspace} searchUserId={auth.user.id} integrationManagement={integrationManagement} />
     <LazyLiveProductionPortals regulatoryKnowledge={regulatoryKnowledge} regulatoryWorkspace={workspace} copilotInvoke={copilotInvoke} documentVaultFactory={documentVaultFactory} documentIntelligenceFactory={documentIntelligenceFactory} documentFactoryFactory={documentFactoryFactory} engagementContractFactory={engagementContractFactory} documentWorkspace={workspace} />
   </ProcessRuntimeProvider></CurrentUserIdProvider></SchedulingCommandProvider></NotificationCommandProvider></FieldOperationsCommandProvider></AutomationCommandProvider></GovernmentProcedureCommandProvider></GovernanceCommandProvider></FinanceCommandProvider></DataLayerProvider>;
 }
@@ -191,6 +195,7 @@ export function UiR2ProductionRoot({ resources }: Readonly<{ resources?: UiR2Pro
     schedulingCommands={runtime.resources.schedulingCommands}
     searchIntelligence={runtime.resources.searchIntelligence}
     regulatoryKnowledge={runtime.resources.regulatoryKnowledge}
+    integrationManagement={runtime.resources.integrationManagement}
     copilotInvoke={runtime.resources.copilotInvoke}
     documentVaultFactory={documentVaultFactory}
     documentIntelligenceFactory={runtime.resources.documentIntelligenceFactory}
