@@ -81,7 +81,7 @@ async function run(){
     throw new Error('A4_LIVE_POSTGRES_CERTIFICATE_FAILED');
   }
   const sqlPasses=(output.match(/PASS 14\.2 A4 LIVE/g)??[]).length;
-  if(sqlPasses!==7)throw new Error('A4_LIVE_POSTGRES_PASS_INVENTORY_MISMATCH_'+sqlPasses);
+  if(sqlPasses!==9)throw new Error('A4_LIVE_POSTGRES_PASS_INVENTORY_MISMATCH_'+sqlPasses);
   evidence.checks.push({name:'transactional_owner_management_certificate',passed:true,assertionCount:sqlPasses});
 }
 async function cleanup(){
