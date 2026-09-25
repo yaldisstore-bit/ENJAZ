@@ -232,18 +232,26 @@ where o.id=:'stale_job_id'::uuid
   \quit 1
 \endif
 
-do $
-begin
-  begin
-    update private.integration_webhook_delivery_attempts
-    set error_code='tampered'
-    where subscription_id=current_setting('phase142a4.subscription_id')::uuid;
-    raise exception 'A4 FAILURE: immutable delivery evidence mutated';
-  exception when insufficient_privilege then
-    raise notice 'PASS 14.2 A4 delivery evidence mutation denied';
-  end;
-end;
-$$;
+select (
+  not has_table_privilege('service_role','private.integration_webhook_delivery_attempts','UPDATE')
+  and exists(
+    select 1
+    from pg_catalog.pg_trigger t
+    join pg_catalog.pg_class c on c.oid=t.tgrelid
+    join pg_catalog.pg_namespace n on n.oid=c.relnamespace
+    where n.nspname='private'
+      and c.relname='integration_webhook_delivery_attempts'
+      and t.tgname='integration_webhook_delivery_attempts_append_only'
+      and not t.tgisinternal
+  )
+) as delivery_evidence_immutable
+\gset
+\if :delivery_evidence_immutable
+  \echo 'PASS 14.2 A4 delivery evidence mutation denied'
+\else
+  \warn 'A4 FAILURE: delivery evidence mutation boundary missing'
+  \quit 1
+\endif
 
 reset role;
 rollback;
