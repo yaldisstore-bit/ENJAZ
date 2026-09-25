@@ -6,20 +6,48 @@ begin;
 create schema if not exists vault;
 create extension if not exists supabase_vault with schema vault;
 
-do $$
+do $
 begin
   if to_regclass('vault.secrets') is null
      or to_regclass('vault.decrypted_secrets') is null
-     or to_regprocedure('vault.create_secret(text,text,text)') is null then
+     or not exists (
+       select 1
+       from pg_catalog.pg_proc p
+       join pg_catalog.pg_namespace n on n.oid=p.pronamespace
+       where n.nspname='vault'
+         and p.proname='create_secret'
+         and p.prokind='f'
+     ) then
     raise feature_not_supported using message='ENJAZ_INTEGRATION_VAULT_REQUIRED';
   end if;
 end;
-$$;
+$;
 
 revoke all on schema vault from public,anon,authenticated,service_role;
 revoke all on table vault.secrets from public,anon,authenticated,service_role;
 revoke all on table vault.decrypted_secrets from public,anon,authenticated,service_role;
-revoke all on function vault.create_secret(text,text,text) from public,anon,authenticated,service_role;
+do $
+declare
+  v_signature text;
+begin
+  for v_signature in
+    select format(
+      '%I.%I(%s)',
+      n.nspname,
+      p.proname,
+      pg_catalog.pg_get_function_identity_arguments(p.oid)
+    )
+    from pg_catalog.pg_proc p
+    join pg_catalog.pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='vault'
+      and p.proname='create_secret'
+      and p.prokind='f'
+  loop
+    execute 'revoke all on function ' || v_signature ||
+            ' from public,anon,authenticated,service_role';
+  end loop;
+end;
+$;
 
 alter table private.integration_webhook_subscriptions
   add column if not exists signing_secret_id uuid;
