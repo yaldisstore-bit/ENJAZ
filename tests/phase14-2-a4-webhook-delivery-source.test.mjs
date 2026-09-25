@@ -4,6 +4,7 @@ import fs from 'node:fs';
 
 const migration=fs.readFileSync('database/migrations/phase_14_2_webhook_delivery_vault.sql','utf8');
 const worker=fs.readFileSync('supabase/functions/enjaz-integration-webhook-worker/index.ts','utf8');
+const hostedFixture=fs.readFileSync('tests/fixtures/phase14-2-a4-webhook-hosted-postgres.sql','utf8');
 
 const has=(source,value)=>assert.ok(source.includes(value),value);
 
@@ -79,4 +80,9 @@ test('A4 worker blocks IPv4 and IPv6 literal webhook destinations before signed 
   has(worker,"/^\\d{1,3}(?:\\.\\d{1,3}){3}$/.test(h)");
   has(worker,"h.startsWith('[')");
   assert.ok(worker.indexOf("h.startsWith('[')") < worker.indexOf('const response=await fetch(endpoint'));
+});
+
+test('A4 hosted fixture keeps PostgreSQL DO blocks well-formed',()=>{
+  assert.doesNotMatch(hostedFixture,/\\bdo \\$\\s*(?:begin|declare)/i);
+  assert.equal((hostedFixture.match(/\\bdo \\$\\$/gi)??[]).length,(hostedFixture.match(/\\$\\$;/g)??[]).length);
 });
