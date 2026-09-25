@@ -52,7 +52,14 @@ async function run(){
   ],{encoding:'utf8',env:{...process.env,PGCONNECT_TIMEOUT:'15'}});
   const output=(sql.stdout??'')+'\n'+(sql.stderr??'');
   for(const match of output.matchAll(/PASS 14\.2 A4 [^\r\n]+/g)) console.log(match[0]);
-  if(sql.status!==0)throw new Error('A4_HOSTED_POSTGRES_CERTIFICATE_FAILED');
+  if(sql.status!==0){
+    const sanitized=output
+      .replaceAll('A4-hosted-signing-secret-0123456789-abcdefghijklmnopqrstuvwxyz','[REDACTED_TEST_SECRET]')
+      .replace(/postgres(?:ql)?:\\/\\/[^\\s]+/gi,'postgresql://[REDACTED]')
+      .replace(/sb_(?:secret|publishable)_[A-Za-z0-9_-]+/g,'[REDACTED_SUPABASE_KEY]');
+    console.error('A4_HOSTED_POSTGRES_FAILURE_TAIL',sanitized.slice(-6000));
+    throw new Error('A4_HOSTED_POSTGRES_CERTIFICATE_FAILED');
+  }
   const sqlPasses=(output.match(/PASS 14\.2 A4/g)??[]).length;
   if(sqlPasses!==10)throw new Error(`A4_HOSTED_PASS_INVENTORY_MISMATCH_${sqlPasses}`);
   evidence.checks.push({name:'vault_outbox_delivery_certificate',passed:true,assertionCount:sqlPasses});
