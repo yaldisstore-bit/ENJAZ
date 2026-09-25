@@ -1,0 +1,70 @@
+name: ENJAZ Phase 14.2 — A4 Isolated Vault + Webhook Delivery
+
+on:
+  pull_request:
+    paths:
+      - 'database/migrations/phase_14_2_webhook_delivery_vault.sql'
+      - 'scripts/phase14-2-a4-webhook-hosted.mjs'
+      - 'tests/fixtures/phase14-2-a4-webhook-hosted-postgres.sql'
+      - '.github/workflows/phase14-2-integration-a4-hosted.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enjaz-phase142-a4-isolated-hosted
+  cancel-in-progress: false
+
+jobs:
+  hosted-vault-outbox:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: phase13-4-isolated-real-cloud
+    env:
+      PRODUCTION_PROJECT_REF: juzxriirhkuzviwnhkbd
+      ENJAZ_A3_BRANCH_REF: nqhgaukutkyvfumbtbtg
+      ENJAZ_REAL_CLOUD_CONFIRM: YES
+      ENJAZ_A3_ISOLATED_BRANCH_CONFIRM: YES
+      SUPABASE_URL: ${{ secrets.PHASE13_4_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PHASE13_4_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.PHASE13_4_SUPABASE_SECRET_KEY }}
+      SUPABASE_DB_URL: ${{ secrets.PHASE14_2_SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail closed on target identity
+        run: node scripts/phase14-2-a3-isolated-auth-preflight.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - name: Install locked dependencies and PostgreSQL client
+        run: |
+          npm ci --no-audit --no-fund
+          command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+      - name: Require A2 integration foundation
+        run: |
+          test "$(psql "$SUPABASE_DB_URL" --set=ON_ERROR_STOP=1 --tuples-only --no-align             --command="select to_regclass('public.integration_service_accounts') is not null")" = "t"
+      - name: Apply idempotent A4 Vault/outbox upgrade to isolated branch
+        run: psql "$SUPABASE_DB_URL" --set=ON_ERROR_STOP=1 --file=database/migrations/phase_14_2_webhook_delivery_vault.sql
+      - name: Real hosted Vault/outbox/retry certificate
+        run: node scripts/phase14-2-a4-webhook-hosted.mjs
+      - name: Require sanitized passing evidence
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const e=JSON.parse(fs.readFileSync('artifacts/phase14-2-a4/evidence.json','utf8'));
+          if(e.projectRef!=='nqhgaukutkyvfumbtbtg'||e.projectRef===e.productionProjectRef||
+             e.passed!==true||e.cleanupPassed!==true||e.vaultUsed!==true||
+             e.databaseCredentialRecorded!==false||e.secretMaterialRecorded!==false)
+            throw new Error('A4 hosted evidence invalid');
+          console.log('PASS Phase 14.2 A4 isolated Vault/outbox webhook delivery evidence');
+          NODE
+      - name: Upload sanitized A4 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase14-2-a4-webhook-hosted-${{ github.sha }}
+          path: artifacts/phase14-2-a4/evidence.json
+          if-no-files-found: error
+          retention-days: 30

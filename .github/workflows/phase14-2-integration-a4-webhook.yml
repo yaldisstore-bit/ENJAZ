@@ -1,0 +1,47 @@
+name: ENJAZ Phase 14.2 — A4 Webhook Delivery Source Gate
+
+on:
+  push:
+    paths:
+      - 'database/migrations/phase_14_2_webhook_delivery_vault.sql'
+      - 'supabase/functions/enjaz-integration-webhook-worker/**'
+      - 'tests/phase14-2-a4-webhook-delivery-source.test.mjs'
+      - 'tests/fixtures/phase14-2-a4-webhook-hosted-postgres.sql'
+      - 'scripts/phase14-2-a4-webhook-hosted.mjs'
+      - '.github/workflows/phase14-2-integration-a4-webhook.yml'
+  pull_request:
+    paths:
+      - 'database/migrations/phase_14_2_webhook_delivery_vault.sql'
+      - 'supabase/functions/enjaz-integration-webhook-worker/**'
+      - 'tests/phase14-2-a4-webhook-delivery-source.test.mjs'
+      - 'tests/fixtures/phase14-2-a4-webhook-hosted-postgres.sql'
+      - 'scripts/phase14-2-a4-webhook-hosted.mjs'
+      - '.github/workflows/phase14-2-integration-a4-webhook.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: A4 webhook delivery source contract
+        run: node --test tests/phase14-2-a4-webhook-delivery-source.test.mjs
+      - name: Hosted certificate runner syntax
+        run: node --check scripts/phase14-2-a4-webhook-hosted.mjs
+      - name: Preserve integration platform contracts
+        run: node --experimental-strip-types --test tests/phase14-2-integration-platform-contract.test.ts
+      - name: Edge worker syntax contract
+        run: node --experimental-strip-types --check supabase/functions/enjaz-integration-webhook-worker/index.ts
+      - name: TypeScript contract
+        run: npm run typecheck
+      - name: Secret audit
+        run: npm run audit:secrets
