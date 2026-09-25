@@ -117,7 +117,7 @@ begin
     raise invalid_parameter_value using message='ENJAZ_INTEGRATION_NAME_INVALID';
   end if;
 
-  v_raw_token := 'enjz_' || encode(gen_random_bytes(32),'hex');
+  v_raw_token := 'enjz_' || encode(extensions.gen_random_bytes(32),'hex');
   v_token_prefix := left(v_raw_token,17);
   v_token_hash := encode(extensions.digest(convert_to(v_raw_token,'UTF8'),'sha256'),'hex');
 
@@ -167,7 +167,7 @@ declare
   v_result jsonb;
 begin
   v_actor := private.integration_assert_current_owner_v1(p_workspace_id);
-  v_secret := encode(gen_random_bytes(32),'hex');
+  v_secret := encode(extensions.gen_random_bytes(32),'hex');
 
   v_result := public.integration_register_webhook_v2(
     p_workspace_id,p_service_account_id,p_endpoint_url,p_event_types,v_secret
