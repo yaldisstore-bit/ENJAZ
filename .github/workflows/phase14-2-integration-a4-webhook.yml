@@ -6,12 +6,14 @@ on:
       - 'database/migrations/phase_14_2_webhook_delivery_vault.sql'
       - 'supabase/functions/enjaz-integration-webhook-worker/**'
       - 'tests/phase14-2-a4-webhook-delivery-source.test.mjs'
+      - 'tests/fixtures/phase14-2-a4-webhook-hosted-postgres.sql'
       - '.github/workflows/phase14-2-integration-a4-webhook.yml'
   pull_request:
     paths:
       - 'database/migrations/phase_14_2_webhook_delivery_vault.sql'
       - 'supabase/functions/enjaz-integration-webhook-worker/**'
       - 'tests/phase14-2-a4-webhook-delivery-source.test.mjs'
+      - 'tests/fixtures/phase14-2-a4-webhook-hosted-postgres.sql'
       - '.github/workflows/phase14-2-integration-a4-webhook.yml'
   workflow_dispatch:
 
