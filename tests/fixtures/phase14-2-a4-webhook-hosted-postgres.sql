@@ -111,14 +111,14 @@ select (:'claim_one'::jsonb->>'jobId') as job_id,
   \quit 1
 \endif
 
-do $$
-begin
-  if :'claimed_secret'<>'A4-hosted-signing-secret-0123456789-abcdefghijklmnopqrstuvwxyz' then
-    raise exception 'A4 FAILURE: server worker secret unavailable';
-  end if;
-  raise notice 'PASS 14.2 A4 server-only claim receives Vault secret';
-end;
-$$;
+select (:'claimed_secret'='A4-hosted-signing-secret-0123456789-abcdefghijklmnopqrstuvwxyz') as claimed_secret_ok
+\gset
+\if :claimed_secret_ok
+  \echo 'PASS 14.2 A4 server-only claim receives Vault secret'
+\else
+  \warn 'A4 FAILURE: server worker secret unavailable'
+  \quit 1
+\endif
 
 select public.integration_complete_webhook_delivery_v1(
   :'job_id'::uuid,:'worker_id'::uuid,'retryable',503,'UPSTREAM_503',now()+interval '60 seconds'
@@ -134,23 +134,105 @@ select public.integration_complete_webhook_delivery_v1(
   :'job_id'::uuid,:'worker_id'::uuid,'delivered',204,null,null
 ) as delivered_result \gset
 
-do $$
-declare attempts integer; final_status text;
-begin
-  select count(*) into attempts
-  from private.integration_webhook_delivery_attempts
-  where subscription_id=current_setting('phase142a4.subscription_id')::uuid;
-  select status into final_status
-  from private.integration_webhook_outbox
-  where id=:'job_id'::uuid;
-  if attempts<>2 or :'attempt_two'::int<>2 or final_status<>'delivered' then
-    raise exception 'A4 FAILURE: retry/delivery ledger invalid';
-  end if;
-  raise notice 'PASS 14.2 A4 retry then delivery persisted append-only evidence';
-end;
-$$;
+select (
+  (select count(*) from private.integration_webhook_delivery_attempts
+   where subscription_id=current_setting('phase142a4.subscription_id')::uuid)=2
+  and :'attempt_two'::int=2
+  and (select status from private.integration_webhook_outbox where id=:'job_id'::uuid)='delivered'
+) as retry_delivery_ok
+\gset
+\if :retry_delivery_ok
+  \echo 'PASS 14.2 A4 retry then delivery persisted append-only evidence'
+\else
+  \warn 'A4 FAILURE: retry/delivery ledger invalid'
+  \quit 1
+\endif
 
-do $$
+-- Exercise abandoned worker-lease recovery. A crashed worker must not leave the
+-- outbox permanently stuck in processing, and the abandoned attempt must
+-- remain visible in the append-only delivery ledger.
+select public.integration_enqueue_webhook_event_v1(
+  current_setting('phase142a4.owner_workspace_id')::uuid,
+  gen_random_uuid(),
+  'company.updated',
+  jsonb_build_object('kind','a4-stale-lease','safe',true)
+) as stale_enqueue_count
+\gset
+\if :stale_enqueue_count
+\else
+  \warn 'A4 FAILURE: stale-lease fixture did not enqueue'
+  \quit 1
+\endif
+
+select gen_random_uuid() as stale_worker_one \gset
+select public.integration_claim_webhook_delivery_v1(:'stale_worker_one'::uuid) as stale_claim_one \gset
+select (:'stale_claim_one'::jsonb->>'jobId') as stale_job_id,
+       (:'stale_claim_one'::jsonb->>'attemptNo')::int as stale_attempt_one
+\gset
+\if :stale_attempt_one
+\else
+  \warn 'A4 FAILURE: stale-lease first claim missing'
+  \quit 1
+\endif
+
+update private.integration_webhook_outbox
+set locked_at=now()-interval '6 minutes'
+where id=:'stale_job_id'::uuid and status='processing';
+
+select gen_random_uuid() as stale_worker_two \gset
+select public.integration_claim_webhook_delivery_v1(:'stale_worker_two'::uuid);
+
+select (
+  o.status='retry_scheduled'
+  and o.locked_at is null
+  and o.locked_by is null
+  and o.attempt_count=1
+  and exists(
+    select 1
+    from private.integration_webhook_delivery_attempts d
+    where d.subscription_id=o.subscription_id
+      and d.event_id=o.event_id
+      and d.attempt_no=1
+      and d.outcome='retryable'
+      and d.error_code='WORKER_LEASE_EXPIRED'
+  )
+) as stale_recovered
+from private.integration_webhook_outbox o
+where o.id=:'stale_job_id'::uuid
+\gset
+\if :stale_recovered
+\else
+  \warn 'A4 FAILURE: abandoned processing lease was not recovered'
+  \quit 1
+\endif
+
+update private.integration_webhook_outbox
+set next_attempt_at=now()-interval '1 second'
+where id=:'stale_job_id'::uuid and status='retry_scheduled';
+
+select public.integration_claim_webhook_delivery_v1(:'stale_worker_two'::uuid) as stale_claim_two \gset
+select (:'stale_claim_two'::jsonb->>'attemptNo')::int as stale_attempt_two \gset
+select public.integration_complete_webhook_delivery_v1(
+  :'stale_job_id'::uuid,:'stale_worker_two'::uuid,'delivered',204,null,null
+) as stale_delivered_result \gset
+
+select (
+  :'stale_attempt_two'::int=2
+  and o.status='delivered'
+  and (select count(*) from private.integration_webhook_delivery_attempts d
+       where d.subscription_id=o.subscription_id and d.event_id=o.event_id)=2
+) as stale_final_ok
+from private.integration_webhook_outbox o
+where o.id=:'stale_job_id'::uuid
+\gset
+\if :stale_final_ok
+  \echo 'PASS 14.2 A4 abandoned worker lease recovered with append-only evidence'
+\else
+  \warn 'A4 FAILURE: recovered stale delivery did not complete cleanly'
+  \quit 1
+\endif
+
+do $
 begin
   begin
     update private.integration_webhook_delivery_attempts
