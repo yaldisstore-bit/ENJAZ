@@ -33,7 +33,7 @@ select (length(:'raw_token')>32 and :'raw_token' like 'enjz_%') as owner_issue_o
 select public.integration_management_snapshot_v1(current_setting('phase142a4live.owner_workspace_id')::uuid) as snapshot_after_issue
 \gset
 select (
-  :'snapshot_after_issue'::jsonb::text not like '%'||:'raw_token'||'%'
+  position(:'raw_token' in :'snapshot_after_issue'::jsonb::text)=0
   and :'snapshot_after_issue'::jsonb::text not like '%token_hash%'
   and :'snapshot_after_issue'::jsonb::text not like '%signing_secret%'
 ) as snapshot_secret_safe
@@ -67,7 +67,7 @@ select (length(:'signing_secret')=64) as webhook_secret_ok
 select public.integration_management_snapshot_v1(current_setting('phase142a4live.owner_workspace_id')::uuid) as snapshot_after_webhook
 \gset
 select (
-  :'snapshot_after_webhook'::jsonb::text not like '%'||:'signing_secret'||'%'
+  position(:'signing_secret' in :'snapshot_after_webhook'::jsonb::text)=0
   and :'snapshot_after_webhook'::jsonb::text like '%signingKeyPrefix%'
 ) as webhook_snapshot_safe
 \gset
