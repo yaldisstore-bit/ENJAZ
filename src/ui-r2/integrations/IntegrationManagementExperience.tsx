@@ -79,7 +79,7 @@ export function IntegrationManagementExperience({gateway,workspace}:{gateway?:In
     return()=>{active=false};
   },[gateway,workspace]);
 
-  const activeAccounts=useMemo(()=>snapshot?.accounts.filter(a=>a.status==='active')??[],[snapshot]);
+  const activeAccounts=useMemo(()=>snapshot?.accounts.filter(a=>a.status==='active'&&a.scopes.includes('webhooks:manage'))??[],[snapshot]);
   const mutate=async(action:()=>Promise<void>)=>{
     if(!workspaceId)return;
     setBusy(true);
