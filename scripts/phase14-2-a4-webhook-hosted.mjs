@@ -55,7 +55,6 @@ async function run(){
   if(sql.status!==0){
     const sanitized=output
       .replaceAll('A4-hosted-signing-secret-0123456789-abcdefghijklmnopqrstuvwxyz','[REDACTED_TEST_SECRET]')
-      .replace(/postgres(?:ql)?:\\/\\/[^\\s]+/gi,'postgresql://[REDACTED]')
       .replace(/sb_(?:secret|publishable)_[A-Za-z0-9_-]+/g,'[REDACTED_SUPABASE_KEY]');
     console.error('A4_HOSTED_POSTGRES_FAILURE_TAIL',sanitized.slice(-6000));
     throw new Error('A4_HOSTED_POSTGRES_CERTIFICATE_FAILED');
