@@ -7,6 +7,7 @@ on:
       - 'supabase/functions/enjaz-integration-webhook-worker/**'
       - 'tests/phase14-2-a4-webhook-delivery-source.test.mjs'
       - 'tests/fixtures/phase14-2-a4-webhook-hosted-postgres.sql'
+      - 'scripts/phase14-2-a4-webhook-hosted.mjs'
       - '.github/workflows/phase14-2-integration-a4-webhook.yml'
   pull_request:
     paths:
@@ -14,6 +15,7 @@ on:
       - 'supabase/functions/enjaz-integration-webhook-worker/**'
       - 'tests/phase14-2-a4-webhook-delivery-source.test.mjs'
       - 'tests/fixtures/phase14-2-a4-webhook-hosted-postgres.sql'
+      - 'scripts/phase14-2-a4-webhook-hosted.mjs'
       - '.github/workflows/phase14-2-integration-a4-webhook.yml'
   workflow_dispatch:
 
@@ -33,6 +35,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: A4 webhook delivery source contract
         run: node --test tests/phase14-2-a4-webhook-delivery-source.test.mjs
+      - name: Hosted certificate runner syntax
+        run: node --check scripts/phase14-2-a4-webhook-hosted.mjs
       - name: Preserve integration platform contracts
         run: node --experimental-strip-types --test tests/phase14-2-integration-platform-contract.test.ts
       - name: Edge worker syntax contract
