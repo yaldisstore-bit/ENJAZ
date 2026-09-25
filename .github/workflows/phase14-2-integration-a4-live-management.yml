@@ -1,0 +1,40 @@
+name: ENJAZ Phase 14.2 — A4 Live Integration Management
+
+on:
+  push:
+    paths:
+      - 'database/migrations/phase_14_2_integration_live_management.sql'
+      - 'src/features/integrations/integrationManagementGateway.ts'
+      - 'src/ui-r2/integrations/IntegrationManagementExperience.tsx'
+      - 'src/ui-r2/runtime/UiR2LiveRoot.tsx'
+      - 'src/ui-r2/runtime/UiR2ProductionRoot.tsx'
+      - 'tests/phase14-2-a4-live-management-source.test.mjs'
+      - '.github/workflows/phase14-2-integration-a4-live-management.yml'
+  pull_request:
+    paths:
+      - 'database/migrations/phase_14_2_integration_live_management.sql'
+      - 'src/features/integrations/integrationManagementGateway.ts'
+      - 'src/ui-r2/integrations/IntegrationManagementExperience.tsx'
+      - 'src/ui-r2/runtime/UiR2LiveRoot.tsx'
+      - 'src/ui-r2/runtime/UiR2ProductionRoot.tsx'
+      - 'tests/phase14-2-a4-live-management-source.test.mjs'
+      - '.github/workflows/phase14-2-integration-a4-live-management.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-management-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node --test tests/phase14-2-a4-live-management-source.test.mjs
+      - run: npm run typecheck
+      - run: npm run audit:secrets
