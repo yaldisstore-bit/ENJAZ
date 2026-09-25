@@ -54,7 +54,7 @@ async function run(){
   for(const match of output.matchAll(/PASS 14\.2 A4 [^\r\n]+/g)) console.log(match[0]);
   if(sql.status!==0)throw new Error('A4_HOSTED_POSTGRES_CERTIFICATE_FAILED');
   const sqlPasses=(output.match(/PASS 14\.2 A4/g)??[]).length;
-  if(sqlPasses!==8)throw new Error(`A4_HOSTED_PASS_INVENTORY_MISMATCH_${sqlPasses}`);
+  if(sqlPasses!==10)throw new Error(`A4_HOSTED_PASS_INVENTORY_MISMATCH_${sqlPasses}`);
   evidence.checks.push({name:'vault_outbox_delivery_certificate',passed:true,assertionCount:sqlPasses});
 }
 
