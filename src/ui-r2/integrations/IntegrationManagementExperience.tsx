@@ -34,11 +34,12 @@ function StaticShell(){
       <Row title="الاشتراكات" detail="ربط الأحداث بنقطة نهاية HTTPS ضمن مساحة العمل." badge="Workspace bound"/>
       <Row title="سجل التسليم" detail="محاولات append-only دون كشف مادة التوقيع." badge="Immutable log"/>
       <Row title="إعادة المحاولة وDead-letter" detail="عامل خادمي مع lease recovery وحد أقصى للمحاولات." badge="Certified"/>
+      <Row title="حدود المتصفح" detail="لا Service Role في الواجهة؛ السلطة الحساسة تبقى في الخادم." badge="A3 PASS"/>
     </div></Section>
   </div>;
 }
 
-export function IntegrationManagementExperience({gateway,workspace}:{gateway?:IntegrationManagementGateway;workspace?:Promise<string|null>}={}){
+export function IntegrationManagementExperience({gateway,workspace}:{gateway?:IntegrationManagementGateway|undefined;workspace?:Promise<string|null>|undefined}={}){
   const [workspaceId,setWorkspaceId]=useState<string|null>(null);
   const [snapshot,setSnapshot]=useState<IntegrationManagementSnapshot|null>(null);
   const [status,setStatus]=useState<'idle'|'loading'|'ready'|'error'>(gateway&&workspace?'loading':'idle');
