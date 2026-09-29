@@ -7,6 +7,7 @@ on:
       - 'scripts/phase14-2-a4-webhook-hosted.mjs'
       - 'tests/fixtures/phase14-2-a4-webhook-hosted-postgres.sql'
       - '.github/workflows/phase14-2-integration-a4-hosted.yml'
+      - 'docs/PHASE14_2_STATE.json'
   workflow_dispatch:
 
 permissions:
