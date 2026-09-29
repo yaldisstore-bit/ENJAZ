@@ -63,7 +63,7 @@ export default defineConfig({
     manifest: true,
     reportCompressedSize: true,
     rolldownOptions: {
-      optimization: { inlineConst: true },
+      optimization: { inlineConst: false },
       output: {
         minify: true,
         comments: { legal: true, annotation: false, jsdoc: false },
